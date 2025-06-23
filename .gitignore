@@ -49,4 +49,9 @@ Thumbs.db
 .vscode/
 .idea/
 *.swp
-*.swo 
+*.swo
+
+# Documentation and specs - excluded from repo
+spec/
+rozne dokmunety/
+"rozne dokmunety"/ 
