@@ -66,7 +66,11 @@ npx react-native run-ios
 
 ## 🗄️ Konfiguracja Bazy Danych
 
-### Neon.tech PostgreSQL
+### Railway PostgreSQL (Produkcja)
+
+System używa PostgreSQL na Railway z automatyczną inicjalizacją.
+
+### Neon.tech PostgreSQL (Alternatywna)
 
 1. Utwórz konto na [neon.tech](https://neon.tech)
 2. Utwórz nową bazę danych
@@ -77,15 +81,52 @@ npx react-native run-ios
 DATABASE_URL=postgresql://username:password@host/dbname?sslmode=require
 ```
 
-### Automatyczna inicjalizacja tabel
+### 📊 Struktura Bazy Danych
 
-Backend automatycznie utworzy potrzebne tabele przy pierwszym uruchomieniu:
-- `users` - Użytkownicy systemu
-- `exhibitions` - Targi/wydarzenia
-- `documents` - Dokumenty
-- `marketing_materials` - Materiały marketingowe
-- `communications` - Komunikaty
-- `invitations` - Zaproszenia
+**Plik:** `ptak-expo-backend/src/database/init.sql`
+
+Automatycznie tworzone tabele:
+
+```sql
+users                    # Użytkownicy systemu (exhibitor, admin, guest)
+├── id, email, password_hash, role
+├── first_name, last_name, company_name
+└── status, created_at, updated_at
+
+exhibitions              # Wydarzenia targowe  
+├── id, title, description
+├── start_date, end_date, location
+├── max_exhibitors, registration_deadline
+└── status (draft, published, active, completed)
+
+exhibition_registrations # Rejestracje na targi
+├── exhibition_id, user_id
+├── booth_number, booth_size
+└── special_requirements, status
+
+documents               # Dokumenty targowe
+├── id, exhibition_id, title, description
+├── file_url, file_type, category
+└── is_public, uploaded_by
+
+marketing_materials     # Materiały promocyjne
+├── id, exhibition_id, title
+├── material_type (banner, logo, brochure)
+├── file_url, thumbnail_url
+└── is_approved, uploaded_by
+
+communications         # Komunikaty systemowe
+├── id, exhibition_id, title, message
+├── type (announcement, alert, reminder)
+├── target_audience (all, exhibitors, admins)
+└── is_urgent, sent_at
+```
+
+### 👤 Dane Testowe
+
+Automatycznie tworzone konta:
+- **Wystawca:** `test@test.com` / `test123`
+- **Admin:** `admin@ptak-expo.com` / `admin123`
 
 ## 🚀 Deployment
 
