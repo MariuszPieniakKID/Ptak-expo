@@ -1,4 +1,4 @@
-import React, { createContext, useState, useContext, useEffect } from 'react';
+import React, { createContext, useState, useContext, useEffect, useCallback } from 'react';
 import { authAPI } from '../services/api';
 
 const AuthContext = createContext();
@@ -16,6 +16,28 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
+  const logout = useCallback(async () => {
+    try {
+      await authAPI.logout();
+    } catch (error) {
+      console.error('Logout API error:', error);
+    } finally {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      setUser(null);
+      setIsAuthenticated(false);
+    }
+  }, []);
+
+  const verifyToken = useCallback(async () => {
+    try {
+      await authAPI.verify();
+    } catch (error) {
+      console.error('Token verification failed:', error);
+      logout();
+    }
+  }, [logout]);
+
   useEffect(() => {
     const token = localStorage.getItem('token');
     const userData = localStorage.getItem('user');
@@ -32,16 +54,7 @@ export const AuthProvider = ({ children }) => {
       }
     }
     setLoading(false);
-  }, []);
-
-  const verifyToken = async () => {
-    try {
-      await authAPI.verify();
-    } catch (error) {
-      console.error('Token verification failed:', error);
-      logout();
-    }
-  };
+  }, [verifyToken, logout]);
 
   const login = async (credentials) => {
     try {
@@ -61,19 +74,6 @@ export const AuthProvider = ({ children }) => {
         success: false,
         error: error.response?.data?.message || 'Błąd podczas logowania'
       };
-    }
-  };
-
-  const logout = async () => {
-    try {
-      await authAPI.logout();
-    } catch (error) {
-      console.error('Logout API error:', error);
-    } finally {
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-      setUser(null);
-      setIsAuthenticated(false);
     }
   };
 
