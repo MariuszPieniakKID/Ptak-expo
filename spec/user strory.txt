@@ -1,0 +1,98 @@
+﻿User Stories z kryteriami akceptacji
+
+
+
+
+ US-001: Logowanie użytkownika
+Jako wystawca/administrator chcę się zalogować do aplikacji, aby uzyskać dostęp do narzędzi i danych.
+- Formularz: email, hasło
+- Walidacja, komunikaty błędów
+- Blokada po 3 nieudanych próbach
+- Przekierowanie na dashboard
+
+
+ US-002: Reset hasła
+Jako użytkownik chcę zresetować hasło, aby odzyskać dostęp do konta.
+- Link "Nie pamiętasz hasła?"
+- Formularz email
+- Email z linkiem resetującym
+- Walidacja siły hasła
+
+
+ US-003: Przeglądanie dokumentów
+Jako wystawca chcę przeglądać przypisane mi dokumenty, aby być na bieżąco.
+- Lista dokumentów, filtry, sortowanie
+- Ikony statusów, licznik wymagających akcji
+
+
+ US-004: Akceptacja/odrzucenie dokumentu
+Jako wystawca chcę akceptować lub odrzucać dokumenty, aby potwierdzić zapoznanie się z nimi.
+- Przycisk "Akceptuj"/"Odrzuć"
+- Obowiązkowy komentarz przy odrzuceniu
+- Zapis historii akcji
+
+
+ US-005: Przeglądanie materiałów marketingowych
+Jako wystawca chcę przeglądać dostępne materiały marketingowe, aby promować swoje stoisko.
+- Widok kafelkowy z miniaturami
+- Filtry, tagi, wyszukiwarka
+- Podgląd, pobieranie, udostępnianie
+
+
+ US-006: Zgłaszanie potrzeby materiału
+Jako wystawca chcę zgłosić potrzebę nowego materiału, aby otrzymać wsparcie marketingowe.
+- Formularz zgłoszenia
+- Powiadomienie administratora
+- Historia zgłoszeń, status
+
+
+ US-007: Odczytywanie komunikatów
+Jako wystawca chcę czytać komunikaty od organizatorów, aby być na bieżąco.
+- Lista komunikatów, filtry, sortowanie
+- Podgląd, oznaczanie jako przeczytane, załączniki, push
+
+
+ US-008: Zarządzanie listą gości
+Jako wystawca chcę zarządzać listą moich gości, aby kontrolować wejściówki na targi.
+- Upload CSV/XLSX, walidacja, ręczne dodawanie, edycja, wysyłka
+
+
+ US-009: Śledzenie statusów zaproszeń
+Jako wystawca chcę śledzić status moich zaproszeń, aby wiedzieć kto potwierdził obecność.
+- Lista gości, statusy, filtry, przypomnienia, eksport raportu
+
+
+
+
+
+
+ US-010: Zarządzanie użytkownikami
+Jako administrator chcę dodawać i edytować użytkowników, aby zarządzać dostępem do systemu.
+- Dodawanie nowego użytkownika (rola, e-mail, imię, nazwisko, przypisanie do klienta)
+- Edycja danych użytkownika
+- Zmiana hasła (nowe hasło generowane i wysyłane na e-mail)
+- Reset hasła na żądanie
+
+
+ US-011: Zarządzanie targami 
+Jako administrator chcę dodawać i edytować targi, aby zarządzać wydarzeniami.
+- Dodawanie nowego wydarzenia (nazwa, opis, daty, lokalizacja, status)
+- Edycja istniejącego wydarzenia
+- Dodawanie materiałów do targów (publiczne i dedykowane)
+- Dodawanie informacji organizacyjnych do targów
+- Przypisywanie klientów do targów
+
+
+ US-012: Zarządzanie klientami i materiałami indywidualnymi 
+Jako administrator chcę dodawać i edytować klientów oraz przypisywać im indywidualne materiały dla konkretnych targów.
+- Dodawanie nowego klienta (nazwa, dane kontaktowe)
+- Przypisywanie klienta do wielu targów
+- Dodawanie materiałów dedykowanych dla klienta na dane targi
+- Edycja i usuwanie materiałów przypisanych do klienta na dane targi
+
+
+ US-013: Komunikaty i powiadomienia dla targów 
+Jako administrator chcę zarządzać komunikatami i powiadomieniami dotyczącymi organizacji targów.
+- Dodawanie informacji organizacyjnych do sekcji targów
+- Wysyłanie powiadomień push o ważnych zmianach i terminach
+- Wysyłanie wiadomości do wszystkich wystawców lub wybranych grup (np. tylko wystawcy danego targu)

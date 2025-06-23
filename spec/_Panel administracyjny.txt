@@ -1,0 +1,15 @@
+﻿Panel administracyjny
+
+
+Panel admina jest częścią głównej aplikacji, dostępny po zalogowaniu jako administrator.
+
+
+ Funkcjonalności:
+- Zarządzanie użytkownikami (CRUD, reset hasła – nowe hasło wysyłane na e-mail)
+- Zarządzanie targami (CRUD, przypisywanie materiałów, opisów, informacji organizacyjnych, przypisywanie klientów)
+- Zarządzanie klientami (CRUD, przypisywanie do targów, indywidualne materiały na dane targi)
+- Zarządzanie materiałami marketingowymi (CRUD, tagi, statusy)
+- Zarządzanie komunikatami (tworzenie, edycja, planowanie, archiwizacja, przypisywanie do targów/klientów)
+- Zarządzanie zaproszeniami (pula, eksport raportów, statusy)
+- Wysyłanie powiadomień push i wiadomości do wszystkich lub wybranych wystawców/grup
+- Logowanie operacji i audyt

@@ -1,0 +1,52 @@
+# Dependencies
+node_modules/
+*/node_modules/
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# Build outputs
+build/
+dist/
+*/build/
+*/dist/
+
+# Railway
+.railway/
+
+# React Native
+# Android/IntelliJ
+PtakExpoMobile/android/app/build/
+PtakExpoMobile/android/build/
+PtakExpoMobile/android/.gradle/
+*.iml
+*.hprof
+
+# iOS
+PtakExpoMobile/ios/build/
+PtakExpoMobile/ios/Pods/
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo 

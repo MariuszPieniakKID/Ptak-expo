@@ -1,0 +1,64 @@
+﻿Wprowadzenie i założenia
+
+
+Aplikacja obsługuje wystawców targowych, składa się z:
+- wersji webowej (React)
+- wersji mobilnej (React Native)
+- backendu (.NET na Azure)
+
+
+Backend zarządza całą logiką, autoryzacją, dokumentami, komunikatami, materiałami marketingowymi, zaproszeniami, **[NOWE/POPRAWIONE] zarządzaniem targami, klientami i materiałami przypisanymi do targów**. Frontendy korzystają wyłącznie z API.
+
+
+Role użytkowników
+- Wystawca
+- Administrator
+- Gość
+
+
+Panel administracyjny
+Panel admina jest częścią głównej aplikacji i dostępny po zalogowaniu jako administrator.  
+Administrator ma możliwość:
+- zarządzania użytkownikami (dodawanie, edycja, reset hasła – nowe hasło wysyłane na e-mail)
+- zarządzania targami (dodawanie, edycja, przypisywanie materiałów, opisów, informacji organizacyjnych)
+- zarządzania klientami (przypisywanie do targów, indywidualne materiały na dane targi)
+- wysyłania powiadomień push i wiadomości do wystawców (wszystkich lub wybranych grup)
+
+
+Integracje
+Brak integracji z zewnętrznymi systemami na tym etapie.
+
+
+Wersjonowanie API
+Wersjonowanie przez ścieżkę URL (np. /api/v1/...). Zmiany breaking tylko w nowych wersjach.
+
+
+Backupy, SLA
+Brak szczególnych wymagań.
+
+
+Założenia od klienta
+1. Portal dokumentów
+• Dostęp do wszystkich dokumentów związanych z udziałem w targach.
+• Możliwość pobierania umów, regulaminów, faktur i dokumentacji technicznej.
+• Powiadomienia o nowych dokumentach do akceptacji.
+2. Materiały marketingowe
+• Biblioteka zasobów promocyjnych:
+• Logotypy targów.
+• Notki prasowe.
+• Filmy promocyjne.
+• Szablony postów i grafik do social media.
+• Możliwość pobierania i udostępniania materiałów.
+3. Aktualności i komunikaty organizacyjne
+• Sekcja z informacjami dotyczącymi organizacji targów.
+• Powiadomienia push o ważnych zmianach i terminach.
+• Możliwość wysyłania wiadomości do wszystkich wystawców lub wybranych grup.
+1. Generator zaproszeń dla gości wystawcy
+      •     Każdy wystawca otrzymuje określoną pulę zaproszeń (np. 50 szt.). + raportowanie i system przypomnień
+      •     Możliwość wgrania listy gości i automatycznego wysyłania zaproszeń.
+      •     System śledzenia statusu zaproszeń:
+      •     Wysłane.
+      •     Aktywowane.
+      •     Potwierdzone.
+      •     Opcja wysyłki przypomnień do zaproszonych gości.
+W załączeniu link do przeklikania  https://warsawpack.pl/generator-wystawcow/

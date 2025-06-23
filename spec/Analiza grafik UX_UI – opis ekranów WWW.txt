@@ -1,0 +1,66 @@
+﻿Analiza grafik UX/UI – opis ekranów WWW
+
+
+ 1. Ekran logowania
+- Logo, formularz logowania (email, hasło), przycisk "Zaloguj", link "Nie pamiętasz hasła?"
+- Funkcjonalność: autoryzacja, walidacja, reset hasła
+
+
+ 2. Dashboard główny
+- Nawigacja górna, 4 kafelki: Dokumenty, Materiały marketingowe, Komunikaty, Generator zaproszeń
+- Liczniki powiadomień, sekcja "Ostatnie aktywności"
+
+
+ 3. Sekcja Dokumenty - lista
+- Filtry: Status, Typ dokumentu, Data
+- Tabela: Nazwa, Typ, Data dodania, Status, Akcje
+- Ikony statusów, przyciski akcji: Podgląd, Pobierz, Akceptuj/Odrzuć
+
+
+ 4. Podgląd dokumentu
+- Modal z podglądem PDF, przyciski: Pobierz, Akceptuj, Odrzuć, Zamknij
+- Pole komentarza przy odrzuceniu (obowiązkowe)
+
+
+ 5. Materiały marketingowe
+- Filtry po typie, tagi, kafelki z miniaturami, przycisk "Zgłoś potrzebę nowego materiału"
+
+
+ 6. Komunikaty
+- Lista komunikatów z ikonami statusu, filtry, podgląd, przycisk "Oznacz jako przeczytany", sekcja załączników
+
+
+ 7. Generator zaproszeń
+- Licznik puli zaproszeń, przycisk "Wgraj listę gości", formularz dodawania gościa, tabela gości, filtry po statusie, przyciski "Wyślij przypomnienie", "Eksportuj raport"
+
+
+ Analiza grafik UX/UI – opis ekranów Mobile
+
+
+ 1. Ekran logowania
+- Logo, formularz (większe pola touch-friendly), przycisk logowania
+- Funkcjonalność: autoryzacja, walidacja, reset hasła
+
+
+ 2. Dashboard mobilny
+- Hamburger menu, kafelki w układzie 2x2, swipe do przewijania aktywności
+
+
+ 3. Listy mobilne
+- Karty zamiast tabel, pull-to-refresh, floating action button, bottom sheet dla filtrów
+
+
+ 4. Dokumenty
+- Lista dokumentów jako karty, podgląd dokumentu, akcje akceptacji/odrzucenia
+
+
+ 5. Materiały marketingowe
+- Kafelki z miniaturami, filtry, tagi, pobieranie, zgłaszanie potrzeb
+
+
+ 6. Komunikaty
+- Lista komunikatów, podgląd, oznaczanie jako przeczytane, załączniki
+
+
+ 7. Generator zaproszeń
+- Licznik puli, upload listy, zarządzanie gośćmi, statusy, przypomnienia, eksport raportu
