@@ -18,7 +18,7 @@ app.use(helmet({
       styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
       fontSrc: ["'self'", "https://fonts.gstatic.com"],
       imgSrc: ["'self'", "data:", "https:"],
-      scriptSrc: ["'self'"]
+      scriptSrc: ["'self'", "'unsafe-inline'"]
     }
   }
 }));
@@ -43,6 +43,11 @@ app.get('/', (req, res) => {
 // Dashboard page with original graphics
 app.get('/dashboard.html', (req, res) => {
   res.sendFile(path.join(__dirname, '../public/dashboard.html'));
+});
+
+// Users page
+app.get('/uzytkownicy.html', (req, res) => {
+  res.sendFile(path.join(__dirname, '../public/uzytkownicy.html'));
 });
 
 // Health check endpoint

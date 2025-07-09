@@ -77,9 +77,6 @@ function initializeDashboard() {
         }
     }
 
-    // Add click handlers for menu items
-    addMenuHandlers();
-    
     // Add click handlers for dashboard cards
     addCardHandlers();
     
@@ -89,48 +86,7 @@ function initializeDashboard() {
     console.log('Dashboard initialized');
 }
 
-// Add menu item click handlers
-function addMenuHandlers() {
-    // Home menu item
-    const homeElement = document.querySelector('.home');
-    if (homeElement) {
-        homeElement.addEventListener('click', function() {
-            showNotification('Strona główna jest już aktywna');
-        });
-    }
-
-    // Baza wystawców
-    const wystawcyElement = document.querySelector('.bazaWystawcw');
-    if (wystawcyElement) {
-        wystawcyElement.addEventListener('click', function() {
-            showNotification('Baza wystawców - funkcja w przygotowaniu');
-        });
-    }
-
-    // Baza wydarzeń
-    const wydarzeniaElement = document.querySelector('.bazaWydarze');
-    if (wydarzeniaElement) {
-        wydarzeniaElement.addEventListener('click', function() {
-            showNotification('Baza wydarzeń - funkcja w przygotowaniu');
-        });
-    }
-
-    // Użytkownicy
-    const uytkownicyElement = document.querySelector('.uytkownicy');
-    if (uytkownicyElement) {
-        uytkownicyElement.addEventListener('click', function() {
-            showNotification('Zarządzanie użytkownikami - funkcja w przygotowaniu');
-        });
-    }
-
-    // Baza danych
-    const bazaDanychElement = document.querySelector('.bazaDanych');
-    if (bazaDanychElement) {
-        bazaDanychElement.addEventListener('click', function() {
-            showNotification('Baza danych - funkcja w przygotowaniu');
-        });
-    }
-}
+// Menu handlers moved to menu.js module
 
 // Add dashboard card click handlers
 function addCardHandlers() {

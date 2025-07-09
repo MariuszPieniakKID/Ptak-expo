@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PTAK EXPO - Użytkownicy</title>
+    <link rel="stylesheet" href="/css/dashboard.css">
+    <link rel="stylesheet" href="/css/menu.css">
+    <link rel="stylesheet" href="/css/uzytkownicy.css">
+    <link rel="icon" href="/assets/group-257@3x.png" type="image/png">
+</head>
+<body>
+    <div class="web136640">
+        <img class="maskGroup28" alt="" src="/assets/mask-group-28@2x.png" />
+        <div class="web136640Child"></div>
+        <div class="web136640Item"></div>
+        <div class="kontakt">
+            Kontakt • Polityka prywatności • www.warsawexpo.eu
+        </div>
+        <div class="groupParent" onclick="logout()">
+            <img class="groupChild" alt="" src="/assets/group-872.svg" />
+            <div class="wyloguj">Wyloguj</div>
+        </div>
+        
+        <!-- Global Menu Container (zastępuje oryginalny Menu komponent) -->
+        <div id="menuContainer"></div>
+        
+        <div class="dzieDobryJoannaParent">
+            <div class="dzieDobryJoanna">Dzień dobry, Joanna</div>
+            <img
+                class="bb764a0137abc7a8142b6438e52913Icon"
+                alt=""
+                src="/assets/7bb764a0137abc7a8142b6438e529133@2x.png"
+            />
+            <div class="sprawdCoMoesz">
+                Sprawdź co możesz dzisiaj zrobić!
+            </div>
+            <img class="groupItem" alt="" src="/assets/group-27@2x.png" />
+        </div>
+        <div class="component224">
+            <img
+                class="component224Child"
+                alt=""
+                src="/assets/group-1041.svg"
+            />
+            <div class="wstecz">wstecz</div>
+        </div>
+        <div class="component203">
+            <div class="component203Child"></div>
+            <div class="component203Item"></div>
+            <div class="imiINazwisko">Imię i Nazwisko A-Z</div>
+            <div class="akcja">Akcja:</div>
+            <img
+                class="component203Inner"
+                alt=""
+                src="/assets/group-1012.svg"
+            />
+            <div class="magdaMasny">Magda Masny</div>
+            <div class="lineDiv"></div>
+            <div class="component511">
+                <div class="wylijNoweHaso">Wyślij nowe hasło</div>
+                <img class="path11981Icon" alt="" src="/assets/path-11981.svg" />
+            </div>
+            <img
+                class="bb764a0137abc7a8142b6438e52913Icon1"
+                alt=""
+                src="/assets/7bb764a0137abc7a8142b6438e5291331@2x.png"
+            />
+            <div class="eMail">E-mail</div>
+            <div class="mmasnywarsawexpoeu">m.masny@warsawexpo.eu</div>
+            <div class="quangThuy">Quang Thuy</div>
+            <div class="component203Child1"></div>
+            <img
+                class="bb764a0137abc7a8142b6438e52913Icon2"
+                alt=""
+                src="/assets/7bb764a0137abc7a8142b6438e5291332@2x.png"
+            />
+            <div class="mmasnywarsawexpoeu1">m.masny@warsawexpo.eu</div>
+            <div class="annaDereszowska">Anna Dereszowska</div>
+            <div class="component203Child2"></div>
+            <img
+                class="bb764a0137abc7a8142b6438e52913Icon3"
+                alt=""
+                src="/assets/7bb764a0137abc7a8142b6438e5291333@2x.png"
+            />
+            <div class="mmasnywarsawexpoeu2">m.masny@warsawexpo.eu</div>
+            <div class="marianPienkowski">Marian Pienkowski</div>
+            <div class="component203Child3"></div>
+            <div class="telefonParent">
+                <div class="telefon">Telefon</div>
+                <div class="div">+48 518 739 122</div>
+                <div class="div1">+48 518 739 123</div>
+                <div class="div2">+48 518 739 124</div>
+                <div class="div3">+48 518 739 125</div>
+            </div>
+            <img
+                class="bb764a0137abc7a8142b6438e52913Icon4"
+                alt=""
+                src="/assets/7bb764a0137abc7a8142b6438e5291334@2x.png"
+            />
+            <div class="mmasnywarsawexpoeu3">m.masny@warsawexpo.eu</div>
+            <div class="dodajUytkownikaParent">
+                <div class="dodajUytkownika">+ dodaj użytkownika</div>
+                <img class="groupInner" alt="" src="/assets/group-505.svg" />
+            </div>
+            <div class="homeUytkownicy">Home / Użytkownicy</div>
+            <div class="uytkownicyParent">
+                <div class="uytkownicy">Użytkownicy</div>
+                <img
+                    class="maskGroup5"
+                    alt=""
+                    src="/assets/mask-group-5@2x.png"
+                />
+            </div>
+            <div class="component512">
+                <div class="wylijNoweHaso">Wyślij nowe hasło</div>
+                <img class="path11981Icon" alt="" src="/assets/path-11981.svg" />
+            </div>
+            <div class="component513">
+                <div class="wylijNoweHaso">Wyślij nowe hasło</div>
+                <img class="path11981Icon" alt="" src="/assets/path-11981.svg" />
+            </div>
+            <div class="component514">
+                <div class="wylijNoweHaso">Wyślij nowe hasło</div>
+                <img class="path11981Icon" alt="" src="/assets/path-11981.svg" />
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/menu.js"></script>
+    <script src="/js/uzytkownicy.js"></script>
+    <script>
+        // Load global menu when page loads
+        document.addEventListener('DOMContentLoaded', async function() {
+            try {
+                await loadGlobalMenu('menuContainer');
+                setActiveMenuPage('uzytkownicy');
+                console.log('Users page menu loaded successfully');
+            } catch (error) {
+                console.error('Error loading menu:', error);
+            }
+        });
+    </script>
+</body>
+</html> 
