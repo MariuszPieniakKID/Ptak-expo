@@ -1,5 +1,4 @@
-import React, { useState, memo } from 'react';
-import config from '../config/config';
+import React, { useState } from 'react';
 import styles from './AddUserModal.module.css';
 
 interface AddUserModalProps {
@@ -16,20 +15,7 @@ interface AddUserFormData {
   role: 'admin' | 'exhibitor' | 'guest';
 }
 
-// API Helper with retry logic
-const apiCall = async (url: string, options: RequestInit, retries = 3): Promise<Response> => {
-  for (let i = 0; i < retries; i++) {
-    try {
-      const response = await fetch(url, options);
-      return response;
-    } catch (error) {
-      if (i === retries - 1) throw error;
-      if (config.DEBUG) console.log(`🔄 Retry ${i + 1}/${retries} for ${url}`);
-      await new Promise(resolve => setTimeout(resolve, 1000 * Math.pow(2, i))); // Exponential backoff
-    }
-  }
-  throw new Error('All retries failed');
-};
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
 
 const AddUserModal: React.FC<AddUserModalProps> = ({ isOpen, onClose, onUserAdded, token }) => {
   const [formData, setFormData] = useState<AddUserFormData>({
@@ -75,7 +61,7 @@ const AddUserModal: React.FC<AddUserModalProps> = ({ isOpen, onClose, onUserAdde
         throw new Error('Nieprawidłowy format adresu email');
       }
 
-      const response = await apiCall(`${config.API_BASE_URL}/api/v1/users`, {
+      const response = await fetch(`${API_BASE_URL}/api/v1/users`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -230,4 +216,4 @@ const AddUserModal: React.FC<AddUserModalProps> = ({ isOpen, onClose, onUserAdde
   );
 };
 
-export default memo(AddUserModal); 
+export default AddUserModal; 
