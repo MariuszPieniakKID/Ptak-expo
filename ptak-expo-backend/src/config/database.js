@@ -1,10 +1,16 @@
 const { Pool } = require('pg');
 
+console.log('🔍 Database config - DATABASE_URL:', process.env.DATABASE_URL ? 'SET (starts with: ' + process.env.DATABASE_URL.substring(0, 20) + '...)' : 'NOT SET');
+console.log('🔍 Database config - NODE_ENV:', process.env.NODE_ENV);
+console.log('🔍 Database config - SSL mode:', process.env.NODE_ENV === 'production' ? 'enabled' : 'disabled');
+
 // Database connection configuration
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
 });
+
+console.log('🔍 Database pool created');
 
 // Test database connection
 pool.on('connect', () => {
@@ -18,7 +24,14 @@ pool.on('error', (err) => {
 // Initialize database tables
 const initializeDatabase = async () => {
   try {
-    // Create users table
+    console.log('🔍 Starting database initialization...');
+    
+    // Test connection first
+    console.log('🔍 Testing database connection...');
+    await pool.query('SELECT NOW()');
+    console.log('✅ Database connection test successful');
+
+    console.log('🔍 Creating users table...');
     await pool.query(`
       CREATE TABLE IF NOT EXISTS users (
         id SERIAL PRIMARY KEY,
@@ -35,7 +48,7 @@ const initializeDatabase = async () => {
       )
     `);
 
-    // Create exhibitions table
+    console.log('🔍 Creating exhibitions table...');
     await pool.query(`
       CREATE TABLE IF NOT EXISTS exhibitions (
         id SERIAL PRIMARY KEY,
@@ -50,7 +63,7 @@ const initializeDatabase = async () => {
       )
     `);
 
-    // Create documents table
+    console.log('🔍 Creating documents table...');
     await pool.query(`
       CREATE TABLE IF NOT EXISTS documents (
         id SERIAL PRIMARY KEY,
@@ -66,7 +79,7 @@ const initializeDatabase = async () => {
       )
     `);
 
-    // Create marketing_materials table
+    console.log('🔍 Creating marketing_materials table...');
     await pool.query(`
       CREATE TABLE IF NOT EXISTS marketing_materials (
         id SERIAL PRIMARY KEY,
@@ -82,7 +95,7 @@ const initializeDatabase = async () => {
       )
     `);
 
-    // Create communications table
+    console.log('🔍 Creating communications table...');
     await pool.query(`
       CREATE TABLE IF NOT EXISTS communications (
         id SERIAL PRIMARY KEY,
@@ -97,7 +110,7 @@ const initializeDatabase = async () => {
       )
     `);
 
-    // Create invitations table
+    console.log('🔍 Creating invitations table...');
     await pool.query(`
       CREATE TABLE IF NOT EXISTS invitations (
         id SERIAL PRIMARY KEY,
@@ -114,7 +127,7 @@ const initializeDatabase = async () => {
       )
     `);
 
-    // Insert admin user if not exists
+    console.log('🔍 Inserting admin user...');
     await pool.query(`
       INSERT INTO users (email, password_hash, role, first_name, last_name) 
       VALUES (
@@ -126,7 +139,7 @@ const initializeDatabase = async () => {
       ) ON CONFLICT (email) DO NOTHING
     `);
 
-    // Insert test users for user management page
+    console.log('🔍 Inserting test users...');
     await pool.query(`
       INSERT INTO users (email, password_hash, role, first_name, last_name, phone) 
       VALUES 
@@ -141,15 +154,14 @@ const initializeDatabase = async () => {
     console.log('✅ Database tables initialized successfully');
   } catch (error) {
     console.error('❌ Error initializing database:', error);
+    console.error('❌ Database error details:', error.message);
+    console.error('❌ Database error stack:', error.stack);
+    throw error; // Re-throw to be caught by caller
   }
 };
 
-// Initialize database on startup
-if (process.env.DATABASE_URL && process.env.DATABASE_URL !== 'postgresql://username:password@host/dbname?sslmode=require') {
-  initializeDatabase();
-} else {
-  console.log('⚠️  Database URL not configured. Please update DATABASE_URL in .env file');
-}
+// Note: Database initialization is now handled in index.js after server startup
+console.log('🔍 Database module loaded - initialization will be handled by server startup');
 
 module.exports = {
   query: (text, params) => pool.query(text, params),

@@ -3,12 +3,24 @@ const cors = require('cors');
 const helmet = require('helmet');
 require('dotenv').config();
 
+console.log('🔍 Starting PTAK EXPO Backend...');
+console.log('🔍 Node.js version:', process.version);
+console.log('🔍 Environment:', process.env.NODE_ENV || 'development');
+console.log('🔍 Port from env:', process.env.PORT || 'not set');
+console.log('🔍 DATABASE_URL:', process.env.DATABASE_URL ? 'SET (length: ' + process.env.DATABASE_URL.length + ')' : 'NOT SET');
+console.log('🔍 JWT_SECRET:', process.env.JWT_SECRET ? 'SET (length: ' + process.env.JWT_SECRET.length + ')' : 'NOT SET');
+console.log('🔍 CORS_ORIGIN:', process.env.CORS_ORIGIN || 'not set');
+
 const authRoutes = require('./routes/auth');
 const usersRoutes = require('./routes/users');
+
+console.log('🔍 Loading database config...');
 const db = require('./config/database');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
+
+console.log('🔍 Will listen on port:', PORT);
 
 // Middleware
 app.use(helmet());
@@ -63,12 +75,22 @@ app.use((error, req, res, next) => {
 });
 
 // Start server
-app.listen(PORT, '0.0.0.0', () => {
+app.listen(PORT, '0.0.0.0', async () => {
   console.log(`🚀 PTAK EXPO Backend API running on port ${PORT}`);
   console.log(`📊 Environment: ${process.env.NODE_ENV}`);
   console.log(`🔗 Health check: http://localhost:${PORT}/`);
   console.log(`🔍 DATABASE_URL: ${process.env.DATABASE_URL ? 'Set' : 'Not set'}`);
   console.log(`🔍 JWT_SECRET: ${process.env.JWT_SECRET ? 'Set' : 'Not set'}`);
+  
+  // Initialize database after server starts
+  console.log('🔍 Server started successfully, initializing database...');
+  try {
+    await db.initializeDatabase();
+    console.log('✅ Database initialization completed');
+  } catch (error) {
+    console.error('❌ Database initialization failed:', error.message);
+    console.error('⚠️  Server will continue running without database');
+  }
 });
 
 module.exports = app; 
