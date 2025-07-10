@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback, memo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import Menu from '../components/Menu';
@@ -8,26 +8,26 @@ const DashboardPage: React.FC = () => {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
 
-  const handleLogout = () => {
+  const handleLogout = useCallback(() => {
     logout();
     navigate('/login');
-  };
+  }, [logout, navigate]);
 
-  const navigateToUsers = () => {
+  const navigateToUsers = useCallback(() => {
     navigate('/uzytkownicy');
-  };
+  }, [navigate]);
 
-  const navigateToExhibitors = () => {
+  const navigateToExhibitors = useCallback(() => {
     console.log('Navigate to Wystawcy');
-  };
+  }, []);
 
-  const navigateToEvents = () => {
+  const navigateToEvents = useCallback(() => {
     console.log('Navigate to Wydarzenia');
-  };
+  }, []);
 
-  const navigateToDatabase = () => {
+  const navigateToDatabase = useCallback(() => {
     console.log('Navigate to Baza Danych');
-  };
+  }, []);
   
   return (
     <div className={styles.web136620}>
@@ -108,4 +108,4 @@ const DashboardPage: React.FC = () => {
   );
 };
 
-export default DashboardPage; 
+export default memo(DashboardPage); 

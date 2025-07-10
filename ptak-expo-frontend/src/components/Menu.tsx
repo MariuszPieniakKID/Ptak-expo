@@ -1,4 +1,4 @@
-import { FunctionComponent } from "react";
+import { FunctionComponent, useCallback, memo } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "./Menu.module.css";
 
@@ -9,25 +9,25 @@ export type MenuType = {
 const Menu: FunctionComponent<MenuType> = ({ className = "" }) => {
   const navigate = useNavigate();
   
-  const handleHomeClick = () => {
+  const handleHomeClick = useCallback(() => {
     navigate('/dashboard');
-  };
+  }, [navigate]);
   
-  const handleUsersClick = () => {
+  const handleUsersClick = useCallback(() => {
     navigate('/uzytkownicy');
-  };
+  }, [navigate]);
   
-  const handleExhibitorsClick = () => {
+  const handleExhibitorsClick = useCallback(() => {
     console.log('Navigate to Wystawcy');
-  };
+  }, []);
   
-  const handleEventsClick = () => {
+  const handleEventsClick = useCallback(() => {
     console.log('Navigate to Wydarzenia');
-  };
+  }, []);
   
-  const handleDatabaseClick = () => {
+  const handleDatabaseClick = useCallback(() => {
     console.log('Navigate to Baza Danych');
-  };
+  }, []);
   
   return (
     <div className={[styles.component5040, className].join(" ")}>
@@ -58,4 +58,4 @@ const Menu: FunctionComponent<MenuType> = ({ className = "" }) => {
   );
 };
 
-export default Menu;
+export default memo(Menu);

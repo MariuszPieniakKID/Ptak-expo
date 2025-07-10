@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from 'react';
+import config from '../config/config';
 
 interface User {
   id: number;
@@ -33,7 +34,20 @@ interface AuthProviderProps {
   children: ReactNode;
 }
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
+// API Helper with retry logic
+const apiCall = async (url: string, options: RequestInit, retries = 3): Promise<Response> => {
+  for (let i = 0; i < retries; i++) {
+    try {
+      const response = await fetch(url, options);
+      return response;
+    } catch (error) {
+      if (i === retries - 1) throw error;
+      if (config.DEBUG) console.log(`🔄 Retry ${i + 1}/${retries} for ${url}`);
+      await new Promise(resolve => setTimeout(resolve, 1000 * Math.pow(2, i))); // Exponential backoff
+    }
+  }
+  throw new Error('All retries failed');
+};
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
@@ -42,13 +56,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const isAuthenticated = !!user && !!token;
 
-  const verifyToken = async (): Promise<boolean> => {
+  const verifyToken = useCallback(async (): Promise<boolean> => {
     if (!token) {
       return false;
     }
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/v1/auth/verify`, {
+      const response = await apiCall(`${config.API_BASE_URL}/api/v1/auth/verify`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -63,10 +77,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         return false;
       }
     } catch (error) {
-      console.error('Token verification error:', error);
+      if (config.ENABLE_LOGGING) console.error('Token verification error:', error);
       return false;
     }
-  };
+  }, [token]);
 
   // Initialize auth state from localStorage
   useEffect(() => {
@@ -80,7 +94,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           setUser(JSON.parse(storedUser));
           
           // Verify token is still valid
-          const response = await fetch(`${API_BASE_URL}/api/v1/auth/verify`, {
+          const response = await apiCall(`${config.API_BASE_URL}/api/v1/auth/verify`, {
             method: 'GET',
             headers: {
               'Authorization': `Bearer ${storedToken}`,
@@ -113,7 +127,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       setIsLoading(true);
       
-      const response = await fetch(`${API_BASE_URL}/api/v1/auth/login`, {
+      const response = await apiCall(`${config.API_BASE_URL}/api/v1/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -154,13 +168,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     
     // Optional: Call backend logout endpoint
     if (token) {
-      fetch(`${API_BASE_URL}/api/v1/auth/logout`, {
+      apiCall(`${config.API_BASE_URL}/api/v1/auth/logout`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
         },
       }).catch(error => {
-        console.error('Logout API call failed:', error);
+        if (config.ENABLE_LOGGING) console.error('Logout API call failed:', error);
       });
     }
   };

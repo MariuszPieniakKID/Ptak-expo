@@ -1,11 +1,25 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, memo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import Menu from '../components/Menu';
 import AddUserModal from '../components/AddUserModal';
+import config from '../config/config';
 import styles from './UsersPage.module.css';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
+// API Helper with retry logic
+const apiCall = async (url: string, options: RequestInit, retries = 3): Promise<Response> => {
+  for (let i = 0; i < retries; i++) {
+    try {
+      const response = await fetch(url, options);
+      return response;
+    } catch (error) {
+      if (i === retries - 1) throw error;
+      if (config.DEBUG) console.log(`🔄 Retry ${i + 1}/${retries} for ${url}`);
+      await new Promise(resolve => setTimeout(resolve, 1000 * Math.pow(2, i))); // Exponential backoff
+    }
+  }
+  throw new Error('All retries failed');
+};
 
 interface User {
   id: number;
@@ -36,7 +50,7 @@ const UsersPage: React.FC = () => {
         throw new Error('Brak tokena autoryzacji');
       }
       
-      const response = await fetch(`${API_BASE_URL}/api/v1/users`, {
+      const response = await apiCall(`${config.API_BASE_URL}/api/v1/users`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -108,7 +122,7 @@ const UsersPage: React.FC = () => {
 
   const resetPassword = async (userId: number) => {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/v1/users/${userId}/reset-password`, {
+      const response = await apiCall(`${config.API_BASE_URL}/api/v1/users/${userId}/reset-password`, {
         method: 'POST'
       });
       
@@ -119,33 +133,33 @@ const UsersPage: React.FC = () => {
       }
     } catch (err) {
       alert('Błąd podczas resetowania hasła');
-      console.error('Error resetting password:', err);
+      if (config.ENABLE_LOGGING) console.error('Error resetting password:', err);
     }
   };
 
-  const handleLogout = () => {
+  const handleLogout = useCallback(() => {
     logout();
     navigate('/login');
-  };
+  }, [logout, navigate]);
 
-  const goToDashboard = () => {
+  const goToDashboard = useCallback(() => {
     navigate('/dashboard');
-  };
+  }, [navigate]);
 
-  const handleAddUserClick = () => {
+  const handleAddUserClick = useCallback(() => {
     setIsAddUserModalOpen(true);
-  };
+  }, []);
 
-  const handleCloseAddUserModal = () => {
+  const handleCloseAddUserModal = useCallback(() => {
     setIsAddUserModalOpen(false);
-  };
+  }, []);
 
-  const handleUserAdded = () => {
+  const handleUserAdded = useCallback(() => {
     // Refresh the users list after adding a new user
     fetchUsers();
     // Reset to first page to show newly added user
     setCurrentPage(1);
-  };
+  }, [fetchUsers]);
 
   if (loading) {
     return (
@@ -360,4 +374,4 @@ const UsersPage: React.FC = () => {
   );
 };
 
-export default UsersPage; 
+export default memo(UsersPage); 

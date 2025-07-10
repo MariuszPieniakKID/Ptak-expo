@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, memo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import styles from './LoginPage.module.css';
@@ -18,7 +18,7 @@ const LoginPage: React.FC = () => {
     }
   }, [isAuthenticated, navigate]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError('');
@@ -37,7 +37,7 @@ const LoginPage: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [email, password, login, navigate]);
 
   return (
     <div className={styles.web13662}>
@@ -100,4 +100,4 @@ const LoginPage: React.FC = () => {
   );
 };
 
-export default LoginPage; 
+export default memo(LoginPage); 
