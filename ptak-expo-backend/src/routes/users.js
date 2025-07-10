@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../config/database');
+const bcrypt = require('bcryptjs');
 const { verifyToken, requireAdmin } = require('../middleware/auth');
 
 // GET /api/v1/users - pobierz wszystkich użytkowników (tylko admin)
@@ -155,6 +156,82 @@ router.post('/:id/reset-password', async (req, res) => {
     res.status(500).json({
       success: false,
       error: 'Błąd podczas resetowania hasła',
+      message: error.message
+    });
+  }
+});
+
+// POST /api/v1/users/create-admin - dodaj nowego użytkownika z rolą admin (tylko dla testów)
+router.post('/create-admin', verifyToken, requireAdmin, async (req, res) => {
+  try {
+    const { firstName, lastName, email, phone, password } = req.body;
+    
+    // Validation
+    if (!firstName || !lastName || !email || !password) {
+      return res.status(400).json({
+        success: false,
+        error: 'Imię, nazwisko, email i hasło są wymagane'
+      });
+    }
+    
+    // Check if user already exists
+    const existingUser = await db.query(
+      'SELECT id FROM users WHERE email = $1',
+      [email]
+    );
+    
+    if (existingUser.rows.length > 0) {
+      return res.status(409).json({
+        success: false,
+        error: 'Użytkownik o podanym emailu już istnieje'
+      });
+    }
+    
+    // Hash password
+    const saltRounds = 10;
+    const password_hash = await bcrypt.hash(password, saltRounds);
+    
+    // Insert new admin user
+    const insertQuery = `
+      INSERT INTO users (first_name, last_name, email, phone, password_hash, role, status)
+      VALUES ($1, $2, $3, $4, $5, $6, $7)
+      RETURNING id, first_name, last_name, email, phone, role, created_at
+    `;
+    
+    const result = await db.query(insertQuery, [
+      firstName, 
+      lastName, 
+      email, 
+      phone, 
+      password_hash, 
+      'admin',
+      'active'
+    ]);
+    
+    const newUser = result.rows[0];
+    
+    console.log('New admin user created:', newUser);
+    
+    res.status(201).json({
+      success: true,
+      message: 'Nowy użytkownik admin został utworzony',
+      data: {
+        id: newUser.id,
+        firstName: newUser.first_name,
+        lastName: newUser.last_name,
+        fullName: `${newUser.first_name} ${newUser.last_name}`,
+        email: newUser.email,
+        phone: newUser.phone || 'Brak numeru',
+        role: newUser.role,
+        createdAt: newUser.created_at
+      }
+    });
+    
+  } catch (error) {
+    console.error('Error creating admin user:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Błąd podczas tworzenia użytkownika admin',
       message: error.message
     });
   }
