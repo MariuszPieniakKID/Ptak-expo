@@ -29,8 +29,8 @@ function App() {
         <div className="App">
           <Suspense fallback={<LoadingSpinner />}>
             <Routes>
-              {/* Default route - redirect to dashboard if authenticated, login if not */}
-              <Route path="/" element={<Navigate to="/dashboard" replace />} />
+              {/* Default route - show login page */}
+              <Route path="/" element={<LoginPage />} />
               
               {/* Login page */}
               <Route path="/login" element={<LoginPage />} />
