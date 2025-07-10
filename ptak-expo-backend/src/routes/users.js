@@ -193,8 +193,8 @@ router.post('/create-admin', verifyToken, requireAdmin, async (req, res) => {
     
     // Insert new admin user
     const insertQuery = `
-      INSERT INTO users (first_name, last_name, email, phone, password_hash, role, status)
-      VALUES ($1, $2, $3, $4, $5, $6, $7)
+      INSERT INTO users (first_name, last_name, email, phone, password_hash, role)
+      VALUES ($1, $2, $3, $4, $5, $6)
       RETURNING id, first_name, last_name, email, phone, role, created_at
     `;
     
@@ -204,8 +204,7 @@ router.post('/create-admin', verifyToken, requireAdmin, async (req, res) => {
       email, 
       phone, 
       password_hash, 
-      'admin',
-      'active'
+      'admin'
     ]);
     
     const newUser = result.rows[0];
