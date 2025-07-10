@@ -8,6 +8,10 @@ console.log('🔍 Database config - SSL mode:', process.env.NODE_ENV === 'produc
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+  connectionTimeoutMillis: 30000, // 30 seconds timeout
+  idleTimeoutMillis: 30000,
+  max: 20, // Maximum number of connections
+  min: 2,  // Minimum number of connections
 });
 
 console.log('🔍 Database pool created');
@@ -26,9 +30,14 @@ const initializeDatabase = async () => {
   try {
     console.log('🔍 Starting database initialization...');
     
-    // Test connection first
+    // Test connection first with timeout
     console.log('🔍 Testing database connection...');
-    await pool.query('SELECT NOW()');
+    const connectionPromise = pool.query('SELECT NOW()');
+    const timeoutPromise = new Promise((_, reject) => {
+      setTimeout(() => reject(new Error('Database connection timeout after 30 seconds')), 30000);
+    });
+    
+    await Promise.race([connectionPromise, timeoutPromise]);
     console.log('✅ Database connection test successful');
 
     console.log('🔍 Creating users table...');
