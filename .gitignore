@@ -54,4 +54,7 @@ Thumbs.db
 # Documentation and specs - excluded from repo
 spec/
 rozne dokmunety/
-"rozne dokmunety"/ 
+"rozne dokmunety"/
+
+# Graphics and design files
+grafika/ 

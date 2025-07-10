@@ -60,8 +60,8 @@ const DashboardPage: React.FC = () => {
         <div className={styles.wyloguj}>Wyloguj</div>
       </div>
       
-      {/* Menu component */}
-      <Menu />
+      {/* Logo */}
+      <div className={styles.groupDiv}></div>
       
       {/* User greeting section */}
       <div className={styles.dzieDobryJoannaParent}>
@@ -79,10 +79,10 @@ const DashboardPage: React.FC = () => {
         <img className={styles.groupItem} alt="" src="/assets/group-27@2x.png" />
       </div>
       
-      {/* Additional sections */}
+      {/* Dolny rząd - biały prostokąt po prawej */}
       <div className={styles.web136620Child1}></div>
       
-      {/* Użytkownicy section */}
+      {/* Użytkownicy section - w dolnym prawym prostokącie */}
       <div className={styles.uytkownicyParent} onClick={navigateToUsers}>
         <div className={styles.wystawcy}>Użytkownicy</div>
         <img
@@ -92,9 +92,13 @@ const DashboardPage: React.FC = () => {
         />
       </div>
       
+      {/* Menu component */}
+      <Menu />
+      
+      {/* Dolny rząd - biały prostokąt po lewej */}
       <div className={styles.web136620Child2}></div>
       
-      {/* Baza Danych section */}
+      {/* Baza Danych section - w dolnym lewym prostokącie */}
       <div className={styles.bazaDanychParent} onClick={navigateToDatabase}>
         <div className={styles.wystawcy}>Baza Danych</div>
         <div className={styles.maskGroup61}></div>

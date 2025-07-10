@@ -232,6 +232,18 @@
   font-weight: 500;
 }
 
+.groupDiv {
+  position: absolute;
+  top: 60px;
+  left: 191px;
+  width: 53px;
+  height: 50px;
+  background-image: url('../assets/group-257@3x.png');
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: top;
+}
+
 .dzieDobryJoannaParent {
   position: absolute;
   top: 180px;
