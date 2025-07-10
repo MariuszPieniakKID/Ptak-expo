@@ -1,27 +1,17 @@
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
-const path = require('path');
 require('dotenv').config();
 
 const authRoutes = require('./routes/auth');
+const usersRoutes = require('./routes/users');
 const db = require('./config/database');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
 
 // Middleware
-app.use(helmet({
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
-      fontSrc: ["'self'", "https://fonts.gstatic.com"],
-      imgSrc: ["'self'", "data:", "https:"],
-      scriptSrc: ["'self'", "'unsafe-inline'"]
-    }
-  }
-}));
+app.use(helmet());
 app.use(cors({
   origin: process.env.CORS_ORIGIN || 'http://localhost:3000',
   credentials: true
@@ -29,26 +19,9 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Serve static files
-app.use(express.static(path.join(__dirname, '../public')));
-
-// Routes
+// API Routes
 app.use('/api/v1/auth', authRoutes);
-
-// Serve login page as default
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, '../public/index.html'));
-});
-
-// Dashboard page with original graphics
-app.get('/dashboard.html', (req, res) => {
-  res.sendFile(path.join(__dirname, '../public/dashboard.html'));
-});
-
-// Users page
-app.get('/uzytkownicy.html', (req, res) => {
-  res.sendFile(path.join(__dirname, '../public/uzytkownicy.html'));
-});
+app.use('/api/v1/users', usersRoutes);
 
 // Health check endpoint
 app.get('/api/v1/health', (req, res) => {
@@ -80,7 +53,7 @@ app.use((error, req, res, next) => {
 app.listen(PORT, () => {
   console.log(`🚀 PTAK EXPO Backend API running on port ${PORT}`);
   console.log(`📊 Environment: ${process.env.NODE_ENV}`);
-  console.log(`🔗 Health check: http://localhost:${PORT}/api/v1/health`);
+  console.log(`🔗 Health check available`);
 });
 
 module.exports = app; 

@@ -94,7 +94,7 @@ CREATE TABLE IF NOT EXISTS communications (
 INSERT INTO users (email, password_hash, role, first_name, last_name, company_name) 
 VALUES (
     'test@test.com', 
-    '$2a$10$rKjHx8K5K5K5K5K5K5K5K.K5K5K5K5K5K5K5K5K5K5K5K5K5K5K5K5', -- test123
+    '$2a$10$NLrhOzCPxUW1Xw/ylXHfwew4XJO90LnkqS.5VuI/kEy7jEU2CLT5G', -- test123
     'exhibitor',
     'Test',
     'User',
@@ -104,10 +104,51 @@ VALUES (
 INSERT INTO users (email, password_hash, role, first_name, last_name) 
 VALUES (
     'admin@ptak-expo.com', 
-    '$2a$10$rKjHx8K5K5K5K5K5K5K5K.K5K5K5K5K5K5K5K5K5K5K5K5K5K5K5K5', -- admin123
+    '$2a$10$hX.pUgc6uWoiNIpwY3pKi.sfuYiYsVuu5LSkqDElNNHUPDIbCT6Tu', -- admin123
     'admin',
     'Admin',
     'PTAK EXPO'
+) ON CONFLICT (email) DO NOTHING;
+
+-- Insert additional test users for user management page
+INSERT INTO users (email, password_hash, role, first_name, last_name, phone) 
+VALUES (
+    'magda.masny@warsawexpo.eu', 
+    '$2a$10$NLrhOzCPxUW1Xw/ylXHfwew4XJO90LnkqS.5VuI/kEy7jEU2CLT5G', -- test123
+    'exhibitor',
+    'Magda',
+    'Masny',
+    '+48 518 739 122'
+) ON CONFLICT (email) DO NOTHING;
+
+INSERT INTO users (email, password_hash, role, first_name, last_name, phone) 
+VALUES (
+    'quang.thuy@warsawexpo.eu', 
+    '$2a$10$NLrhOzCPxUW1Xw/ylXHfwew4XJO90LnkqS.5VuI/kEy7jEU2CLT5G', -- test123
+    'exhibitor',
+    'Quang',
+    'Thuy',
+    '+48 518 739 123'
+) ON CONFLICT (email) DO NOTHING;
+
+INSERT INTO users (email, password_hash, role, first_name, last_name, phone) 
+VALUES (
+    'anna.dereszowska@warsawexpo.eu', 
+    '$2a$10$NLrhOzCPxUW1Xw/ylXHfwew4XJO90LnkqS.5VuI/kEy7jEU2CLT5G', -- test123
+    'exhibitor',
+    'Anna',
+    'Dereszowska',
+    '+48 518 739 124'
+) ON CONFLICT (email) DO NOTHING;
+
+INSERT INTO users (email, password_hash, role, first_name, last_name, phone) 
+VALUES (
+    'marian.pienkowski@warsawexpo.eu', 
+    '$2a$10$NLrhOzCPxUW1Xw/ylXHfwew4XJO90LnkqS.5VuI/kEy7jEU2CLT5G', -- test123
+    'exhibitor',
+    'Marian',
+    'Pienkowski',
+    '+48 518 739 125'
 ) ON CONFLICT (email) DO NOTHING;
 
 -- Create indexes for better performance

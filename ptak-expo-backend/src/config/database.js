@@ -24,15 +24,14 @@ const initializeDatabase = async () => {
         id SERIAL PRIMARY KEY,
         email VARCHAR(255) UNIQUE NOT NULL,
         password_hash VARCHAR(255) NOT NULL,
+        role VARCHAR(50) NOT NULL DEFAULT 'guest',
         first_name VARCHAR(100),
         last_name VARCHAR(100),
-        phone VARCHAR(20),
-        role VARCHAR(20) NOT NULL DEFAULT 'exhibitor' CHECK (role IN ('exhibitor', 'admin', 'guest')),
         company_name VARCHAR(255),
-        nip VARCHAR(20),
-        is_active BOOLEAN DEFAULT true,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        phone VARCHAR(50),
+        status VARCHAR(20) DEFAULT 'active',
+        created_at TIMESTAMPTZ DEFAULT NOW(),
+        updated_at TIMESTAMPTZ DEFAULT NOW()
       )
     `);
 
@@ -113,6 +112,30 @@ const initializeDatabase = async () => {
         activated_at TIMESTAMP,
         confirmed_at TIMESTAMP
       )
+    `);
+
+    // Insert admin user if not exists
+    await pool.query(`
+      INSERT INTO users (email, password_hash, role, first_name, last_name) 
+      VALUES (
+        'admin@ptak-expo.com', 
+        '$2a$10$hX.pUgc6uWoiNIpwY3pKi.sfuYiYsVuu5LSkqDElNNHUPDIbCT6Tu', 
+        'admin',
+        'Admin',
+        'PTAK EXPO'
+      ) ON CONFLICT (email) DO NOTHING
+    `);
+
+    // Insert test users for user management page
+    await pool.query(`
+      INSERT INTO users (email, password_hash, role, first_name, last_name, phone) 
+      VALUES 
+        ('test@test.com', '$2a$10$NLrhOzCPxUW1Xw/ylXHfwew4XJO90LnkqS.5VuI/kEy7jEU2CLT5G', 'exhibitor', 'Test', 'User', '+48 123 456 789'),
+        ('magda.masny@warsawexpo.eu', '$2a$10$NLrhOzCPxUW1Xw/ylXHfwew4XJO90LnkqS.5VuI/kEy7jEU2CLT5G', 'exhibitor', 'Magda', 'Masny', '+48 518 739 122'),
+        ('quang.thuy@warsawexpo.eu', '$2a$10$NLrhOzCPxUW1Xw/ylXHfwew4XJO90LnkqS.5VuI/kEy7jEU2CLT5G', 'exhibitor', 'Quang', 'Thuy', '+48 518 739 123'),
+        ('anna.dereszowska@warsawexpo.eu', '$2a$10$NLrhOzCPxUW1Xw/ylXHfwew4XJO90LnkqS.5VuI/kEy7jEU2CLT5G', 'exhibitor', 'Anna', 'Dereszowska', '+48 518 739 124'),
+        ('marian.pienkowski@warsawexpo.eu', '$2a$10$NLrhOzCPxUW1Xw/ylXHfwew4XJO90LnkqS.5VuI/kEy7jEU2CLT5G', 'exhibitor', 'Marian', 'Pienkowski', '+48 518 739 125')
+      ON CONFLICT (email) DO NOTHING
     `);
 
     console.log('✅ Database tables initialized successfully');
