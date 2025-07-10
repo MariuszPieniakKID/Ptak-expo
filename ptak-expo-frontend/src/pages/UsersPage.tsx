@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import Menu from '../components/Menu';
@@ -22,47 +22,47 @@ const UsersPage: React.FC = () => {
   const navigate = useNavigate();
   const { token, logout, user } = useAuth();
 
-  useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        setLoading(true);
-        
-        if (!token) {
-          throw new Error('Brak tokena autoryzacji');
-        }
-        
-        const response = await fetch(`${API_BASE_URL}/api/v1/users`, {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
-        
-        if (response.status === 401) {
-          // Token expired or invalid
-          logout();
-          navigate('/login');
-          return;
-        }
-        
-        if (!response.ok) {
-          throw new Error('Błąd podczas pobierania użytkowników');
-        }
-        
-        const data = await response.json();
-        
-        // Sort users to original order and limit to 4
-        const sortedUsers = sortUsersToOriginalOrder(data.data).slice(0, 4);
-        setUsers(sortedUsers);
-      } catch (err) {
-        setError('Nie udało się pobrać użytkowników');
-        console.error('Error fetching users:', err);
-      } finally {
-        setLoading(false);
+  const fetchUsers = useCallback(async () => {
+    try {
+      setLoading(true);
+      
+      if (!token) {
+        throw new Error('Brak tokena autoryzacji');
       }
-    };
-
-    fetchUsers();
+      
+      const response = await fetch(`${API_BASE_URL}/api/v1/users`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      if (response.status === 401) {
+        // Token expired or invalid
+        logout();
+        navigate('/login');
+        return;
+      }
+      
+      if (!response.ok) {
+        throw new Error('Błąd podczas pobierania użytkowników');
+      }
+      
+      const data = await response.json();
+      
+      // Sort users to original order and limit to 4
+      const sortedUsers = sortUsersToOriginalOrder(data.data).slice(0, 4);
+      setUsers(sortedUsers);
+    } catch (err) {
+      setError('Nie udało się pobrać użytkowników');
+      console.error('Error fetching users:', err);
+    } finally {
+      setLoading(false);
+    }
   }, [token, logout, navigate]);
+
+  useEffect(() => {
+    fetchUsers();
+  }, [fetchUsers]);
 
   const sortUsersToOriginalOrder = (userArray: User[]) => {
     const orderMap = {
