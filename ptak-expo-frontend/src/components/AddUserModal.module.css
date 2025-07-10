@@ -1,0 +1,348 @@
+/* Modal overlay i content */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modalContent {
+  position: relative;
+  width: 564px;
+  height: 278px;
+  background: transparent;
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+/* Przycisk zamknięcia */
+.closeButton {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: #c7353c;
+  cursor: pointer;
+  z-index: 1001;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
+
+.closeButton:hover {
+  background-color: rgba(199, 53, 60, 0.1);
+  transform: scale(1.1);
+}
+
+/* AddUserOK - tło/kontener */
+.addUserOKContainer {
+  position: absolute;
+  width: 100%;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  box-shadow: 0 23px 26px rgba(0, 0, 0, 0.12);
+  border-radius: 20px;
+  background-color: #f5f6f7;
+  border: 1px solid #fff;
+  box-sizing: border-box;
+  height: 278px;
+}
+
+/* AddUser - formularz - dokładnie jak w oryginalnym designie */
+.groupParent {
+  position: absolute;
+  height: calc(100% - 48.6px);
+  width: calc(100% - 79.1px);
+  top: 22.64px;
+  right: 30.1px;
+  bottom: 25.96px;
+  left: 49px;
+  text-align: left;
+  font-size: 13px;
+  color: #a7a7a7;
+  font-family: "Open Sans", sans-serif;
+}
+
+/* Nagłówek Użytkownicy */
+.uytkownicyParent {
+  position: absolute;
+  top: 13.36px;
+  left: 19px;
+  width: 165px;
+  height: 43px;
+  font-size: 18px;
+  color: #c7353c;
+  font-family: "Roc Grotesk", sans-serif;
+}
+
+.uytkownicy {
+  position: absolute;
+  top: 3.5px;
+  right: -0.5px;
+  font-weight: 500;
+  -webkit-text-stroke: 1px transparent;
+}
+
+.dodajUytkownika {
+  position: absolute;
+  right: 8px;
+  bottom: 6px;
+  font-size: 11px;
+  color: #6f6f6f;
+}
+
+.maskGroup31 {
+  position: absolute;
+  right: 122px;
+  bottom: 0;
+  width: 43px;
+  height: 43px;
+  object-fit: cover;
+}
+
+/* Elementy graficzne */
+.groupChild {
+  position: absolute;
+  right: 19.9px;
+  bottom: 7.04px;
+  width: 29px;
+  height: 29px;
+}
+
+.groupItem {
+  position: absolute;
+  top: calc(50% + 87.83px);
+  left: calc(50% + 219.55px);
+  width: 15.3px;
+  height: 15.3px;
+}
+
+.groupInner {
+  position: absolute;
+  top: 0;
+  right: -2.04px;
+  width: 10.8px;
+  height: 10.8px;
+}
+
+/* Przycisk dodaj */
+.dodaj {
+  position: absolute;
+  top: calc(50% + 86.66px);
+  left: calc(50% + 165.55px);
+  text-decoration: underline;
+  letter-spacing: 0.33px;
+  font-family: "Roc Grotesk", sans-serif;
+  color: #2e2e38;
+  text-align: right;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.dodaj:hover {
+  color: #c7353c;
+  transform: scale(1.05);
+}
+
+.dodaj.disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* Informacja o hasłach */
+.naPodanyEMail {
+  position: absolute;
+  bottom: 0.04px;
+  left: 0;
+  font-size: 11px;
+  letter-spacing: 0.27px;
+  line-height: 14px;
+  display: inline-block;
+  width: 401px;
+}
+
+/* Linia oddzielająca */
+.lineDiv {
+  position: absolute;
+  width: calc(100% - 19.9px);
+  top: calc(50% + 68.66px);
+  right: 20.4px;
+  left: -0.5px;
+  border-top: 1px solid #6f87f6;
+  box-sizing: border-box;
+  height: 2px;
+}
+
+/* Pole Imię i Nazwisko */
+.rectangleDiv {
+  position: absolute;
+  top: calc(50% - 42.34px);
+  left: 0;
+  border-radius: 20px;
+  border: 1px solid #d7d9dd;
+  box-sizing: border-box;
+  width: 243px;
+  height: 30px;
+}
+
+.janiInput {
+  position: absolute;
+  top: calc(50% - 36.84px);
+  left: 16.5px;
+  border: none;
+  background: transparent;
+  font-size: 13px;
+  font-family: "Open Sans", sans-serif;
+  color: #2e2e38;
+  outline: none;
+  width: 200px;
+  z-index: 3;
+  -webkit-text-stroke: 1px transparent;
+}
+
+.jani {
+  position: absolute;
+  top: calc(50% - 36.84px);
+  left: 16.5px;
+  color: #2e2e38;
+  font-size: 13px;
+  font-family: "Open Sans", sans-serif;
+  -webkit-text-stroke: 1px transparent;
+  pointer-events: none;
+  z-index: 2;
+}
+
+.imiINazwisko {
+  position: absolute;
+  top: calc(50% - 9.84px);
+  left: 17.5px;
+  font-size: 11px;
+  -webkit-text-stroke: 1px transparent;
+}
+
+/* Pole Email */
+.adresEMail {
+  position: absolute;
+  top: calc(50% - 36.84px);
+  left: calc(50% + 15.05px);
+  -webkit-text-stroke: 1px transparent;
+}
+
+.groupChild1 {
+  position: absolute;
+  top: calc(50% - 42.34px);
+  right: 19.9px;
+  border-radius: 20px;
+  border: 1px solid #d7d9dd;
+  box-sizing: border-box;
+  width: 243px;
+  height: 30px;
+}
+
+.emailInput {
+  position: absolute;
+  top: calc(50% - 36.84px);
+  right: 35.9px;
+  border: none;
+  background: transparent;
+  font-size: 13px;
+  font-family: "Open Sans", sans-serif;
+  color: #2e2e38;
+  outline: none;
+  width: 200px;
+  -webkit-text-stroke: 1px transparent;
+}
+
+/* Pole Telefon */
+.telefon {
+  position: absolute;
+  top: calc(50% + 25.16px);
+  left: 17.5px;
+  -webkit-text-stroke: 1px transparent;
+}
+
+.groupChild2 {
+  position: absolute;
+  top: calc(50% + 19.66px);
+  left: 0;
+  border-radius: 20px;
+  border: 1px solid #d7d9dd;
+  box-sizing: border-box;
+  width: 243px;
+  height: 30px;
+}
+
+.phoneInput {
+  position: absolute;
+  top: calc(50% + 25.66px);
+  left: 16.5px;
+  border: none;
+  background: transparent;
+  font-size: 13px;
+  font-family: "Open Sans", sans-serif;
+  color: #2e2e38;
+  outline: none;
+  width: 200px;
+  -webkit-text-stroke: 1px transparent;
+}
+
+/* Komunikat błędu */
+.errorMessage {
+  position: absolute;
+  top: -30px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #ffeaea;
+  color: #c7353c;
+  padding: 8px 16px;
+  border-left: 4px solid #c7353c;
+  border-radius: 8px;
+  font-family: "Open Sans", sans-serif;
+  font-size: 11px;
+  max-width: 300px;
+  text-align: center;
+  z-index: 10;
+  white-space: nowrap;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .modalContent {
+    width: 95%;
+    margin: 20px;
+  }
+  
+  .addUserOKContainer {
+    height: 320px;
+  }
+  
+  .groupChild1 {
+    right: 10px;
+    width: 200px;
+  }
+  
+  .emailInput {
+    right: 25px;
+    width: 150px;
+  }
+  
+  .naPodanyEMail {
+    width: 350px;
+    font-size: 10px;
+  }
+} 

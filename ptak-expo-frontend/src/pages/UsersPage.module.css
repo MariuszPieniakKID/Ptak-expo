@@ -400,6 +400,16 @@
   right: 64px;
   width: 160px;
   height: 13px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-radius: 8px;
+  padding: 8px;
+  margin: -8px;
+}
+
+.dodajUytkownikaParent:hover {
+  background-color: rgba(199, 53, 60, 0.1);
+  transform: translateY(-1px);
 }
 .homeUytkownicy {
   position: absolute;
@@ -451,10 +461,10 @@
 }
 .component203 {
   position: absolute;
-  bottom: 60px;
+  top: 220px;
   left: 108px;
   width: 1150px;
-  height: 458px;
+  height: 520px;
 }
 .web136640 {
   position: relative;
@@ -465,4 +475,221 @@
   font-size: 13px;
   color: var(--color-darkslategray);
   font-family: var(--font-roc-grotesk);
+}
+
+/* ========== NOWA STRUKTURA CSS DLA UŻYTKOWNIKÓW ========== */
+
+/* Dynamiczne klasy CSS dla użytkowników - zachowują oryginalne pozycje */
+
+/* Awatar użytkownika - pozycje jak w oryginale */
+.userAvatar {
+  position: absolute;
+  left: 64px;
+  border-radius: 50%;
+  width: 35px;
+  height: 35px;
+  object-fit: cover;
+}
+
+/* Domyślny awatar gdy brak zdjęcia */
+.userAvatarDefault {
+  position: absolute;
+  left: 64px;
+  border-radius: 50%;
+  width: 35px;
+  height: 35px;
+  background-color: #e0e0e0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #757575;
+  font-size: 14px;
+  font-weight: 500;
+  font-family: var(--font-roc-grotesk);
+}
+
+/* Pozycje awatarów dla kolejnych użytkowników */
+.userAvatar.user0, .userAvatarDefault.user0 { top: calc(50% - 77px); }
+.userAvatar.user1, .userAvatarDefault.user1 { top: calc(50% - 36.96px); }
+.userAvatar.user2, .userAvatarDefault.user2 { top: calc(50% + 3.09px); }
+.userAvatar.user3, .userAvatarDefault.user3 { top: calc(50% + 43.09px); }
+
+/* Nazwa użytkownika */
+.userName {
+  position: absolute;
+  left: 119px;
+  font-size: var(--font-size-16);
+  color: var(--color-darkslategray);
+  font-family: var(--font-roc-grotesk);
+  -webkit-text-stroke: 1px transparent;
+}
+
+/* Pozycje nazw dla kolejnych użytkowników */
+.userName.user0 { top: calc(50% - 67.04px); }
+.userName.user1 { top: calc(50% - 27px); }
+.userName.user2 { top: calc(50% + 13.04px); }
+.userName.user3 { top: calc(50% + 53.04px); }
+
+/* Email użytkownika */
+.userEmail {
+  position: absolute;
+  left: calc(50% - 246px);
+  color: var(--color-gray-200);
+  font-family: var(--font-open-sans);
+  font-size: 13px;
+  -webkit-text-stroke: 1px transparent;
+  max-width: 180px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Pozycje emaili dla kolejnych użytkowników */
+.userEmail.user0 { top: calc(50% - 65.54px); }
+.userEmail.user1 { top: calc(50% - 25.5px); }
+.userEmail.user2 { top: calc(50% + 14.54px); }
+.userEmail.user3 { top: calc(50% + 54.54px); }
+
+/* Przycisk dla użytkownika */
+.userButton {
+  position: absolute;
+  right: 103.96px;
+  width: 148px;
+  height: 13px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border-radius: 4px;
+  padding: 4px;
+  margin: -4px;
+}
+
+/* Pozycje przycisków dla kolejnych użytkowników */
+.userButton.user0 { top: calc(50% - 65.04px); }
+.userButton.user1 { top: calc(50% - 25px); }
+.userButton.user2 { top: calc(50% + 13.09px); }
+.userButton.user3 { top: calc(50% + 53.13px); }
+
+.userButton:hover {
+  background-color: rgba(199, 53, 60, 0.1);
+  transform: translateY(-1px);
+}
+
+/* Tekst przycisku */
+.userButtonText {
+  position: absolute;
+  top: 0;
+  right: -0.96px;
+  text-decoration: underline;
+  letter-spacing: 0.33px;
+  font-family: var(--font-roc-grotesk);
+  color: var(--color-darkslategray);
+  font-size: 13px;
+}
+
+/* Ikona przycisku */
+.userButtonIcon {
+  position: absolute;
+  height: 67.69%;
+  width: 10.27%;
+  top: 20.21%;
+  right: 90.07%;
+  bottom: 12.1%;
+  left: -0.34%;
+  max-width: 100%;
+  overflow: hidden;
+  max-height: 100%;
+}
+
+/* Separator między użytkownikami */
+.userSeparator {
+  position: absolute;
+  width: calc(100% - 127.1px);
+  right: 64.1px;
+  left: 63px;
+  border-top: 1px solid var(--color-gainsboro);
+  box-sizing: border-box;
+  height: 2px;
+}
+
+/* Pozycje separatorów dla kolejnych użytkowników */
+.userSeparator.sep0 { top: calc(50% - 0.46px); }
+.userSeparator.sep1 { top: calc(50% + 39.59px); }
+.userSeparator.sep2 { top: calc(50% + 79.59px); }
+
+/* Nagłówek kolumny telefon - jak w oryginale */
+.phoneHeader {
+  position: absolute;
+  top: calc(50% - 88.5px);
+  left: calc(50% - 52px);
+  letter-spacing: 0.33px;
+  line-height: 19px;
+  font-family: var(--font-open-sans);
+  color: var(--color-gray-100);
+  font-size: 13px;
+  -webkit-text-stroke: 1px transparent;
+}
+
+/* Telefon użytkownika */
+.userPhone {
+  position: absolute;
+  left: calc(50% - 52px);
+  color: var(--color-gray-200);
+  font-family: var(--font-open-sans);
+  font-size: 13px;
+  -webkit-text-stroke: 1px transparent;
+}
+
+/* Pozycje telefonów dla kolejnych użytkowników - wyrównane z nazwami użytkowników */
+.userPhone.user0 { top: calc(50% - 67.04px); }
+.userPhone.user1 { top: calc(50% - 27px); }
+.userPhone.user2 { top: calc(50% + 13.04px); }
+.userPhone.user3 { top: calc(50% + 53.04px); }
+
+/* Dla użytkowników poza oryginalną czwórką - dynamiczne pozycje */
+.userAvatar.userDynamic, .userAvatarDefault.userDynamic { top: calc(50% + 83.09px + var(--user-offset, 0px)); }
+.userName.userDynamic { top: calc(50% + 93.04px + var(--user-offset, 0px)); }
+.userEmail.userDynamic { top: calc(50% + 94.54px + var(--user-offset, 0px)); }
+.userButton.userDynamic { top: calc(50% + 93.13px + var(--user-offset, 0px)); }
+.userPhone.userDynamic { top: calc(50% + 93.04px + var(--user-offset, 0px)); }
+.userSeparator.sepDynamic { top: calc(50% + 119.59px + var(--user-offset, 0px)); }
+
+/* Pagination Controls */
+.paginationControls {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  font-family: var(--font-roc-grotesk);
+}
+
+.paginationButton {
+  background-color: var(--color-white);
+  border: 1px solid var(--color-gray-200);
+  color: var(--color-darkslategray);
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: var(--font-roc-grotesk);
+  font-size: 13px;
+  transition: all 0.2s ease;
+}
+
+.paginationButton:hover:not(:disabled) {
+  background-color: var(--color-gainsboro);
+  border-color: var(--color-gray-100);
+}
+
+.paginationButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.paginationInfo {
+  font-size: 13px;
+  color: var(--color-gray-200);
+  font-family: var(--font-open-sans);
+  margin: 0 10px;
 }

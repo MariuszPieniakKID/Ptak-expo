@@ -3,6 +3,7 @@ const router = express.Router();
 const db = require('../config/database');
 const bcrypt = require('bcryptjs');
 const { verifyToken, requireAdmin } = require('../middleware/auth');
+const { sendWelcomeEmail, sendPasswordResetEmail } = require('../utils/emailService');
 
 // GET /api/v1/users - pobierz wszystkich użytkowników (tylko admin)
 router.get('/', verifyToken, requireAdmin, async (req, res) => {
@@ -37,7 +38,7 @@ router.get('/', verifyToken, requireAdmin, async (req, res) => {
       createdAt: user.created_at,
       updatedAt: user.updated_at
     }));
-    
+
     res.json({
       success: true,
       data: users,
@@ -54,16 +55,26 @@ router.get('/', verifyToken, requireAdmin, async (req, res) => {
   }
 });
 
-// POST /api/v1/users - dodaj nowego użytkownika
-router.post('/', async (req, res) => {
+// POST /api/v1/users - dodaj nowego użytkownika (tylko admin)
+router.post('/', verifyToken, requireAdmin, async (req, res) => {
   try {
-    const { firstName, lastName, email, phone } = req.body;
+    console.log('POST /users request body:', req.body);
+    const { first_name, last_name, email, phone, role } = req.body;
     
     // Validation
-    if (!firstName || !lastName || !email) {
+    if (!first_name || !last_name || !email) {
       return res.status(400).json({
         success: false,
         error: 'Imię, nazwisko i email są wymagane'
+      });
+    }
+    
+    // Validate role
+    const validRoles = ['admin', 'exhibitor', 'guest'];
+    if (role && !validRoles.includes(role)) {
+      return res.status(400).json({
+        success: false,
+        error: 'Nieprawidłowa rola. Dozwolone: admin, exhibitor, guest'
       });
     }
     
@@ -80,27 +91,67 @@ router.post('/', async (req, res) => {
       });
     }
     
+    // Generate temporary password
+    const temporaryPassword = Math.random().toString(36).slice(-8) + Math.random().toString(36).slice(-4).toUpperCase();
+    
+    // Hash password
+    const saltRounds = 10;
+    const password_hash = await bcrypt.hash(temporaryPassword, saltRounds);
+    
     // Insert new user
     const insertQuery = `
-      INSERT INTO users (first_name, last_name, email, phone)
-      VALUES ($1, $2, $3, $4)
-      RETURNING id, first_name, last_name, email, phone, created_at
+      INSERT INTO users (first_name, last_name, email, phone, password_hash, role)
+      VALUES ($1, $2, $3, $4, $5, $6)
+      RETURNING id, first_name, last_name, email, phone, role, created_at
     `;
     
-    const result = await db.query(insertQuery, [firstName, lastName, email, phone]);
+    const result = await db.query(insertQuery, [
+      first_name, 
+      last_name, 
+      email, 
+      phone || null,
+      password_hash,
+      role || 'exhibitor'
+    ]);
+    
     const newUser = result.rows[0];
     
-    console.log('New user created:', newUser);
+    console.log('New user created:', {
+      id: newUser.id,
+      email: newUser.email,
+      role: newUser.role
+    });
+    
+    // Wyślij email z danymi logowania
+    try {
+      const emailResult = await sendWelcomeEmail(
+        newUser.email,
+        newUser.first_name,
+        newUser.last_name,
+        temporaryPassword
+      );
+      
+      if (emailResult.success) {
+        console.log('✅ Welcome email sent successfully to:', newUser.email);
+      } else {
+        console.log('⚠️ Failed to send welcome email:', emailResult.error);
+      }
+    } catch (emailError) {
+      console.error('❌ Error sending welcome email:', emailError);
+      // Nie przerywamy procesu - użytkownik został utworzony, email jest opcjonalny
+    }
     
     res.status(201).json({
       success: true,
+      message: 'Nowy użytkownik został utworzony i wysłano email z danymi logowania',
       data: {
         id: newUser.id,
         firstName: newUser.first_name,
         lastName: newUser.last_name,
         fullName: `${newUser.first_name} ${newUser.last_name}`,
         email: newUser.email,
-        phone: newUser.phone || 'Brak numeru',
+        phone: newUser.phone,
+        role: newUser.role,
         createdAt: newUser.created_at
       }
     });
@@ -116,7 +167,7 @@ router.post('/', async (req, res) => {
 });
 
 // POST /api/v1/users/:id/reset-password - wyślij nowe hasło
-router.post('/:id/reset-password', async (req, res) => {
+router.post('/:id/reset-password', verifyToken, requireAdmin, async (req, res) => {
   try {
     const { id } = req.params;
     
@@ -135,20 +186,42 @@ router.post('/:id/reset-password', async (req, res) => {
     
     const user = userQuery.rows[0];
     
-    // Generate new password (temporary implementation)
-    const newPassword = Math.random().toString(36).slice(-8);
+    // Generate new password
+    const newPassword = Math.random().toString(36).slice(-8) + Math.random().toString(36).slice(-4).toUpperCase();
     
-    // TODO: Here you would normally:
-    // 1. Hash the password
-    // 2. Update it in database
-    // 3. Send email with new password
+    // Hash new password
+    const saltRounds = 10;
+    const password_hash = await bcrypt.hash(newPassword, saltRounds);
     
-    console.log(`Password reset requested for user: ${user.first_name} ${user.last_name} (${user.email})`);
-    console.log(`New password (temp): ${newPassword}`);
+    // Update password in database
+    await db.query(
+      'UPDATE users SET password_hash = $1, updated_at = NOW() WHERE id = $2',
+      [password_hash, id]
+    );
+    
+    console.log(`Password reset for user: ${user.first_name} ${user.last_name} (${user.email})`);
+    
+    // Wyślij email z nowym hasłem
+    try {
+      const emailResult = await sendPasswordResetEmail(
+        user.email,
+        user.first_name,
+        user.last_name,
+        newPassword
+      );
+      
+      if (emailResult.success) {
+        console.log('✅ Password reset email sent successfully to:', user.email);
+      } else {
+        console.log('⚠️ Failed to send password reset email:', emailResult.error);
+      }
+    } catch (emailError) {
+      console.error('❌ Error sending password reset email:', emailError);
+    }
     
     res.json({
       success: true,
-      message: `Nowe hasło zostało wysłane na adres ${user.email}`
+      message: `Nowe hasło zostało wygenerowane i wysłane na adres ${user.email}`
     });
     
   } catch (error) {
