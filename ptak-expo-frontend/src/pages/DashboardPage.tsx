@@ -63,9 +63,6 @@ const DashboardPage: React.FC = () => {
       {/* Menu component */}
       <Menu />
       
-      {/* Logo */}
-      <div className={styles.groupDiv}></div>
-      
       {/* User greeting section */}
       <div className={styles.dzieDobryJoannaParent}>
         <div className={styles.dzieDobryJoanna}>
