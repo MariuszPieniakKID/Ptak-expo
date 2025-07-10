@@ -23,7 +23,20 @@ app.use(express.urlencoded({ extended: true }));
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/users', usersRoutes);
 
-// Health check endpoint
+// Health check endpoints
+app.get('/', (req, res) => {
+  res.json({ 
+    status: 'OK', 
+    message: 'PTAK EXPO Backend API is running',
+    timestamp: new Date().toISOString(),
+    endpoints: {
+      health: '/api/v1/health',
+      auth: '/api/v1/auth',
+      users: '/api/v1/users'
+    }
+  });
+});
+
 app.get('/api/v1/health', (req, res) => {
   res.json({ 
     status: 'OK', 
@@ -50,10 +63,12 @@ app.use((error, req, res, next) => {
 });
 
 // Start server
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 PTAK EXPO Backend API running on port ${PORT}`);
   console.log(`📊 Environment: ${process.env.NODE_ENV}`);
-  console.log(`🔗 Health check available`);
+  console.log(`🔗 Health check: http://localhost:${PORT}/`);
+  console.log(`🔍 DATABASE_URL: ${process.env.DATABASE_URL ? 'Set' : 'Not set'}`);
+  console.log(`🔍 JWT_SECRET: ${process.env.JWT_SECRET ? 'Set' : 'Not set'}`);
 });
 
 module.exports = app; 
