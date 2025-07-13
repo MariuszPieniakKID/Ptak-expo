@@ -2,7 +2,8 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
-import LoginPage from './pages/LoginPage';
+import LoginPage from './pages/loginPage/LoginPage';
+import _LoginPage from './pages/loginPage/_LoginPage';
 import DashboardPage from './pages/DashboardPage';
 import UsersPage from './pages/UsersPage';
 import './global.css';
@@ -18,6 +19,8 @@ function App() {
             
             {/* Login page */}
             <Route path="/login" element={<LoginPage />} />
+            {/* Login page2 */}
+            <Route path="/login2" element={<_LoginPage />} />
             
             {/* Protected Dashboard page - Admin only */}
             <Route path="/dashboard" element={
