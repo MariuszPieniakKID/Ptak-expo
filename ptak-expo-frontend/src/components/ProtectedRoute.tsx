@@ -11,6 +11,24 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requiredRole 
   const { isAuthenticated, user, isLoading, logout } = useAuth();
   const [countdown, setCountdown] = useState(5);
 
+  // Auto-logout logic moved to top level
+  useEffect(() => {
+    // Only start countdown if user is authenticated but doesn't have required role
+    if (isAuthenticated && requiredRole && user?.role !== requiredRole) {
+      const timer = setInterval(() => {
+        setCountdown((prev) => {
+          if (prev <= 1) {
+            logout();
+            return 0;
+          }
+          return prev - 1;
+        });
+      }, 1000);
+
+      return () => clearInterval(timer);
+    }
+  }, [isAuthenticated, user?.role, requiredRole, logout]);
+
   // Show loading spinner while checking auth
   if (isLoading) {
     return (
@@ -33,21 +51,6 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requiredRole 
 
   // If specific role is required, check if user has that role
   if (requiredRole && user?.role !== requiredRole) {
-    // Auto-logout after 5 seconds with countdown
-    useEffect(() => {
-      const timer = setInterval(() => {
-        setCountdown((prev) => {
-          if (prev <= 1) {
-            logout();
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
-
-      return () => clearInterval(timer);
-    }, [logout]);
-
     return (
       <div style={{
         display: 'flex',
