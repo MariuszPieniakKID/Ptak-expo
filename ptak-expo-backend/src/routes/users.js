@@ -327,4 +327,61 @@ router.post('/create-admin', verifyToken, requireAdmin, async (req, res) => {
   }
 });
 
+// DELETE /api/v1/users/:id - usuń użytkownika (tylko admin)
+router.delete('/:id', verifyToken, requireAdmin, async (req, res) => {
+  try {
+    const { id } = req.params;
+    
+    // Check if user exists
+    const userQuery = await db.query(
+      'SELECT id, first_name, last_name, email, role FROM users WHERE id = $1',
+      [id]
+    );
+    
+    if (userQuery.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        error: 'Użytkownik nie został znaleziony'
+      });
+    }
+    
+    const user = userQuery.rows[0];
+    
+    // Prevent deletion of the last admin user
+    if (user.role === 'admin') {
+      const adminCountQuery = await db.query(
+        'SELECT COUNT(*) as count FROM users WHERE role = $1',
+        ['admin']
+      );
+      
+      const adminCount = parseInt(adminCountQuery.rows[0].count);
+      
+      if (adminCount <= 1) {
+        return res.status(400).json({
+          success: false,
+          error: 'Nie można usunąć ostatniego użytkownika admin'
+        });
+      }
+    }
+    
+    // Delete user
+    await db.query('DELETE FROM users WHERE id = $1', [id]);
+    
+    console.log(`User deleted: ${user.first_name} ${user.last_name} (${user.email})`);
+    
+    res.json({
+      success: true,
+      message: `Użytkownik ${user.first_name} ${user.last_name} został usunięty`
+    });
+    
+  } catch (error) {
+    console.error('Error deleting user:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Błąd podczas usuwania użytkownika',
+      message: error.message
+    });
+  }
+});
+
 module.exports = router; 
