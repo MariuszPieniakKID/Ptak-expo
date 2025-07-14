@@ -18,9 +18,9 @@ function App() {
             {/* Login page */}
             <Route path="/login" element={<LoginPage />} />
             
-            {/* Protected Dashboard page - Admin only */}
+            {/* Protected Dashboard page - All authenticated users */}
             <Route path="/dashboard" element={
-              <ProtectedRoute requiredRole="admin">
+              <ProtectedRoute>
                 <DashboardPage />
               </ProtectedRoute>
             } />
