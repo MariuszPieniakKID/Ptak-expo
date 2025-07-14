@@ -15,7 +15,7 @@
 .modalContent {
   position: relative;
   width: 564px;
-  height: 278px;
+  height: 320px; /* Zwiększona wysokość dla nowych pól */
   background: transparent;
   border-radius: 20px;
   overflow: hidden;
@@ -58,10 +58,10 @@
   background-color: #f5f6f7;
   border: 1px solid #fff;
   box-sizing: border-box;
-  height: 278px;
+  height: 320px; /* Zwiększona wysokość */
 }
 
-/* AddUser - formularz - dokładnie jak w oryginalnym designie */
+/* AddUser - formularz */
 .groupParent {
   position: absolute;
   height: calc(100% - 48.6px);
@@ -191,7 +191,7 @@
 /* Pole Imię i Nazwisko */
 .rectangleDiv {
   position: absolute;
-  top: calc(50% - 42.34px);
+  top: calc(50% - 50.34px);
   left: 0;
   border-radius: 20px;
   border: 1px solid #d7d9dd;
@@ -202,7 +202,7 @@
 
 .janiInput {
   position: absolute;
-  top: calc(50% - 36.84px);
+  top: calc(50% - 44.84px);
   left: 16.5px;
   border: none;
   background: transparent;
@@ -215,37 +215,25 @@
   -webkit-text-stroke: 1px transparent;
 }
 
-.jani {
-  position: absolute;
-  top: calc(50% - 36.84px);
-  left: 16.5px;
-  color: #2e2e38;
-  font-size: 13px;
-  font-family: "Open Sans", sans-serif;
-  -webkit-text-stroke: 1px transparent;
-  pointer-events: none;
-  z-index: 2;
-}
-
 .imiINazwisko {
   position: absolute;
-  top: calc(50% - 9.84px);
+  top: calc(50% - 17.84px);
   left: 17.5px;
   font-size: 11px;
   -webkit-text-stroke: 1px transparent;
 }
 
-/* Pole Email */
+/* Pole Email - z odstępem */
 .adresEMail {
   position: absolute;
-  top: calc(50% - 36.84px);
+  top: calc(50% - 44.84px);
   left: calc(50% + 15.05px);
   -webkit-text-stroke: 1px transparent;
 }
 
 .groupChild1 {
   position: absolute;
-  top: calc(50% - 42.34px);
+  top: calc(50% - 50.34px);
   right: 19.9px;
   border-radius: 20px;
   border: 1px solid #d7d9dd;
@@ -256,7 +244,7 @@
 
 .emailInput {
   position: absolute;
-  top: calc(50% - 36.84px);
+  top: calc(50% - 44.84px);
   right: 35.9px;
   border: none;
   background: transparent;
@@ -268,17 +256,17 @@
   -webkit-text-stroke: 1px transparent;
 }
 
-/* Pole Telefon */
+/* Pole Telefon - po lewej stronie */
 .telefon {
   position: absolute;
-  top: calc(50% + 25.16px);
+  top: calc(50% + 17.16px);
   left: 17.5px;
   -webkit-text-stroke: 1px transparent;
 }
 
 .groupChild2 {
   position: absolute;
-  top: calc(50% + 19.66px);
+  top: calc(50% + 11.66px);
   left: 0;
   border-radius: 20px;
   border: 1px solid #d7d9dd;
@@ -289,7 +277,7 @@
 
 .phoneInput {
   position: absolute;
-  top: calc(50% + 25.66px);
+  top: calc(50% + 17.66px);
   left: 16.5px;
   border: none;
   background: transparent;
@@ -299,6 +287,87 @@
   outline: none;
   width: 200px;
   -webkit-text-stroke: 1px transparent;
+}
+
+/* Pole Hasło - po prawej stronie */
+.haslo {
+  position: absolute;
+  top: calc(50% + 17.16px);
+  right: 35.9px;
+  -webkit-text-stroke: 1px transparent;
+}
+
+.groupChild3 {
+  position: absolute;
+  top: calc(50% + 11.66px);
+  right: 19.9px;
+  border-radius: 20px;
+  border: 1px solid #d7d9dd;
+  box-sizing: border-box;
+  width: 243px;
+  height: 30px;
+}
+
+.passwordInput {
+  position: absolute;
+  top: calc(50% + 17.66px);
+  right: 35.9px;
+  border: none;
+  background: transparent;
+  font-size: 13px;
+  font-family: "Open Sans", sans-serif;
+  color: #2e2e38;
+  outline: none;
+  width: 200px;
+  -webkit-text-stroke: 1px transparent;
+}
+
+/* Checkbox uprawnień administratora */
+.adminCheckboxContainer {
+  position: absolute;
+  top: calc(50% + 50px);
+  left: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.adminCheckbox {
+  width: 16px;
+  height: 16px;
+  border: 2px solid #d7d9dd;
+  border-radius: 3px;
+  background: transparent;
+  cursor: pointer;
+  position: relative;
+}
+
+.adminCheckbox:checked {
+  background-color: #c7353c;
+  border-color: #c7353c;
+}
+
+.adminCheckbox:checked::after {
+  content: '✓';
+  position: absolute;
+  top: -2px;
+  left: 2px;
+  color: white;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.adminLabel {
+  font-size: 12px;
+  color: #2e2e38;
+  font-family: "Open Sans", sans-serif;
+  cursor: pointer;
+  user-select: none;
+  -webkit-text-stroke: 1px transparent;
+}
+
+.adminLabel:hover {
+  color: #c7353c;
 }
 
 /* Komunikat błędu */
@@ -325,10 +394,11 @@
   .modalContent {
     width: 95%;
     margin: 20px;
+    height: 360px;
   }
   
   .addUserOKContainer {
-    height: 320px;
+    height: 360px;
   }
   
   .groupChild1 {
@@ -341,8 +411,22 @@
     width: 150px;
   }
   
+  .groupChild3 {
+    right: 10px;
+    width: 200px;
+  }
+  
+  .passwordInput {
+    right: 25px;
+    width: 150px;
+  }
+  
   .naPodanyEMail {
     width: 350px;
     font-size: 10px;
+  }
+  
+  .adminCheckboxContainer {
+    top: calc(50% + 45px);
   }
 } 

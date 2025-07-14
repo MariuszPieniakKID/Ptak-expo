@@ -12,7 +12,9 @@ interface AddUserFormData {
   fullName: string;
   email: string;
   phone: string;
+  password: string;
   role: 'admin' | 'exhibitor' | 'guest';
+  isAdmin: boolean;
 }
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
@@ -22,17 +24,29 @@ const AddUserModal: React.FC<AddUserModalProps> = ({ isOpen, onClose, onUserAdde
     fullName: '',
     email: '',
     phone: '',
-    role: 'exhibitor'
+    password: '',
+    role: 'exhibitor',
+    isAdmin: false
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    const { name, value, type } = e.target;
+    
+    if (type === 'checkbox') {
+      const checked = (e.target as HTMLInputElement).checked;
+      setFormData(prev => ({
+        ...prev,
+        [name]: checked,
+        role: checked ? 'admin' : 'exhibitor'
+      }));
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        [name]: value
+      }));
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -42,8 +56,8 @@ const AddUserModal: React.FC<AddUserModalProps> = ({ isOpen, onClose, onUserAdde
 
     try {
       // Walidacja podstawowa
-      if (!formData.fullName || !formData.email) {
-        throw new Error('Imię i nazwisko oraz email są wymagane');
+      if (!formData.fullName || !formData.email || !formData.password) {
+        throw new Error('Imię i nazwisko, email oraz hasło są wymagane');
       }
 
       // Rozdzielenie imienia i nazwiska
@@ -61,6 +75,11 @@ const AddUserModal: React.FC<AddUserModalProps> = ({ isOpen, onClose, onUserAdde
         throw new Error('Nieprawidłowy format adresu email');
       }
 
+      // Walidacja hasła
+      if (formData.password.length < 6) {
+        throw new Error('Hasło musi mieć co najmniej 6 znaków');
+      }
+
       const response = await fetch(`${API_BASE_URL}/api/v1/users`, {
         method: 'POST',
         headers: {
@@ -72,6 +91,7 @@ const AddUserModal: React.FC<AddUserModalProps> = ({ isOpen, onClose, onUserAdde
           last_name: lastName,
           email: formData.email,
           phone: formData.phone || null,
+          password: formData.password,
           role: formData.role
         })
       });
@@ -86,7 +106,9 @@ const AddUserModal: React.FC<AddUserModalProps> = ({ isOpen, onClose, onUserAdde
         fullName: '',
         email: '',
         phone: '',
-        role: 'exhibitor'
+        password: '',
+        role: 'exhibitor',
+        isAdmin: false
       });
       onUserAdded();
       onClose();
@@ -110,7 +132,9 @@ const AddUserModal: React.FC<AddUserModalProps> = ({ isOpen, onClose, onUserAdde
       fullName: '',
       email: '',
       phone: '',
-      role: 'exhibitor'
+      password: '',
+      role: 'exhibitor',
+      isAdmin: false
     });
     setError('');
     onClose();
@@ -129,7 +153,7 @@ const AddUserModal: React.FC<AddUserModalProps> = ({ isOpen, onClose, onUserAdde
         {/* AddUserOK - tło/kontener */}
         <div className={styles.addUserOKContainer} />
         
-        {/* AddUser - formularz - dokładnie jak w oryginalnym designie */}
+        {/* AddUser - formularz - z poprawkami */}
         <form onSubmit={handleSubmit} className={styles.groupParent}>
           <div className={styles.uytkownicyParent}>
             <div className={styles.uytkownicy}>Użytkownicy</div>
@@ -139,7 +163,7 @@ const AddUserModal: React.FC<AddUserModalProps> = ({ isOpen, onClose, onUserAdde
           
           <img className={styles.groupChild} alt="" src="/assets/group-470.svg" />
           
-          {/* Przycisk dodaj - dokładnie jak w oryginalnym designie */}
+          {/* Przycisk dodaj */}
           <div 
             className={`${styles.dodaj} ${loading ? styles.disabled : ''}`} 
             onClick={loading ? undefined : handleAddClick}
@@ -149,13 +173,13 @@ const AddUserModal: React.FC<AddUserModalProps> = ({ isOpen, onClose, onUserAdde
           <img className={styles.groupItem} alt="" src="/assets/group-1047.svg" />
           
           <div className={styles.naPodanyEMail}>
-            *Na podany e-mail użytkownik otrzyma hasło i dane dostępowe do aplikacji.
+            *Użytkownik otrzyma wygenerowane hasło na podany e-mail wraz z danymi dostępowymi.
           </div>
           <img className={styles.groupInner} alt="" src="/assets/group-30324.svg" />
           
           <div className={styles.lineDiv} />
           
-          {/* Pole Imię i Nazwisko */}
+          {/* Pole Imię i Nazwisko - poprawione */}
           <div className={styles.rectangleDiv} />
           <input
             type="text"
@@ -163,18 +187,13 @@ const AddUserModal: React.FC<AddUserModalProps> = ({ isOpen, onClose, onUserAdde
             value={formData.fullName}
             onChange={handleInputChange}
             className={styles.janiInput}
-            placeholder=""
+            placeholder="Imię i nazwisko"
             required
             disabled={loading}
           />
-          {!formData.fullName && (
-            <div className={styles.jani}>
-              Jani|
-            </div>
-          )}
           <div className={styles.imiINazwisko}>Imię i Nazwisko</div>
           
-          {/* Pole Email */}
+          {/* Pole Email - z dodanym odstępem */}
           <div className={styles.adresEMail}>Adres E-mail*</div>
           <div className={styles.groupChild1} />
           <input
@@ -183,12 +202,12 @@ const AddUserModal: React.FC<AddUserModalProps> = ({ isOpen, onClose, onUserAdde
             value={formData.email}
             onChange={handleInputChange}
             className={styles.emailInput}
-            placeholder=""
+            placeholder="email@example.com"
             required
             disabled={loading}
           />
           
-          {/* Pole Telefon */}
+          {/* Pole Telefon - teraz po lewej */}
           <div className={styles.telefon}>Telefon</div>
           <div className={styles.groupChild2} />
           <input
@@ -197,12 +216,39 @@ const AddUserModal: React.FC<AddUserModalProps> = ({ isOpen, onClose, onUserAdde
             value={formData.phone}
             onChange={handleInputChange}
             className={styles.phoneInput}
-            placeholder=""
+            placeholder="+48 123 456 789"
             disabled={loading}
           />
           
-          {/* Ukryte pole roli */}
-          <input type="hidden" name="role" value={formData.role} />
+          {/* Nowe pole Hasło - po prawej obok telefonu */}
+          <div className={styles.haslo}>Hasło*</div>
+          <div className={styles.groupChild3} />
+          <input
+            type="password"
+            name="password"
+            value={formData.password}
+            onChange={handleInputChange}
+            className={styles.passwordInput}
+            placeholder="Min. 6 znaków"
+            required
+            disabled={loading}
+          />
+          
+          {/* Checkbox uprawnień administratora */}
+          <div className={styles.adminCheckboxContainer}>
+            <input
+              type="checkbox"
+              id="isAdmin"
+              name="isAdmin"
+              checked={formData.isAdmin}
+              onChange={handleInputChange}
+              className={styles.adminCheckbox}
+              disabled={loading}
+            />
+            <label htmlFor="isAdmin" className={styles.adminLabel}>
+              Nadaj uprawnienia administratora
+            </label>
+          </div>
           
           {/* Komunikat błędu */}
           {error && (
