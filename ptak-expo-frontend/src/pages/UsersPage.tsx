@@ -137,6 +137,48 @@ const UsersPage: React.FC = () => {
     }
   };
 
+  const deleteUser = async (userId: number, userName: string) => {
+    // Potwierdzenie przed usunięciem
+    const confirmed = window.confirm(`Czy na pewno chcesz usunąć użytkownika "${userName}"? Ta operacja jest nieodwracalna.`);
+    
+    if (!confirmed) {
+      return;
+    }
+    
+    try {
+      const response = await apiCall(`${config.API_BASE_URL}/api/v1/users/${userId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+      
+      if (response.status === 401) {
+        // Token expired or invalid
+        logout();
+        navigate('/login');
+        return;
+      }
+      
+      if (response.ok) {
+        const data = await response.json();
+        alert(data.message || 'Użytkownik został usunięty');
+        // Odśwież listę użytkowników
+        fetchUsers();
+        // Jeśli usunięto użytkownika z ostatniej strony i strona jest teraz pusta, przejdź do poprzedniej
+        if (currentUsers.length === 1 && currentPage > 1) {
+          setCurrentPage(currentPage - 1);
+        }
+      } else {
+        const errorData = await response.json();
+        alert(errorData.error || 'Błąd podczas usuwania użytkownika');
+      }
+    } catch (err) {
+      alert('Błąd podczas usuwania użytkownika');
+      if (config.ENABLE_LOGGING) console.error('Error deleting user:', err);
+    }
+  };
+
   const handleLogout = useCallback(() => {
     logout();
     navigate('/login');
@@ -323,6 +365,16 @@ const UsersPage: React.FC = () => {
                 style={!isOriginalUser ? { '--user-offset': dynamicOffset } as React.CSSProperties : undefined}
               >
                 <div className={styles.userButtonText}>Wyślij nowe hasło</div>
+                <img className={styles.userButtonIcon} alt="" src="/assets/path-11981.svg" />
+              </div>
+              
+              {/* Delete User Button */}
+              <div 
+                className={`${styles.userDeleteButton} ${styles[userClass]}`}
+                onClick={() => deleteUser(user.id, user.fullName)}
+                style={!isOriginalUser ? { '--user-offset': dynamicOffset } as React.CSSProperties : undefined}
+              >
+                <div className={styles.userDeleteButtonText}>Usuń</div>
                 <img className={styles.userButtonIcon} alt="" src="/assets/path-11981.svg" />
               </div>
               
