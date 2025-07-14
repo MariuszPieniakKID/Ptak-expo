@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import config from '../config/config';
 
 interface User {
   id: number;
@@ -33,8 +34,6 @@ interface AuthProviderProps {
   children: ReactNode;
 }
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
-
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
@@ -48,7 +47,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/v1/auth/verify`, {
+      const response = await fetch(`${config.API_BASE_URL}/api/v1/auth/verify`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -80,7 +79,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           setUser(JSON.parse(storedUser));
           
           // Verify token is still valid
-          const response = await fetch(`${API_BASE_URL}/api/v1/auth/verify`, {
+          const response = await fetch(`${config.API_BASE_URL}/api/v1/auth/verify`, {
             method: 'GET',
             headers: {
               'Authorization': `Bearer ${storedToken}`,
@@ -113,7 +112,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       setIsLoading(true);
       
-      const response = await fetch(`${API_BASE_URL}/api/v1/auth/login`, {
+      const response = await fetch(`${config.API_BASE_URL}/api/v1/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -154,7 +153,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     
     // Optional: Call backend logout endpoint
     if (token) {
-      fetch(`${API_BASE_URL}/api/v1/auth/logout`, {
+      fetch(`${config.API_BASE_URL}/api/v1/auth/logout`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,

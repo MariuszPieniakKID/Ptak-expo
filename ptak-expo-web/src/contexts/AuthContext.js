@@ -1,5 +1,6 @@
 import React, { createContext, useState, useContext, useEffect, useCallback } from 'react';
 import { authAPI } from '../services/api';
+import config from '../config/config';
 
 const AuthContext = createContext();
 
@@ -15,6 +16,12 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  // Debug logging
+  console.log('🔧 AuthContext config:', {
+    API_BASE_URL: config.API_BASE_URL,
+    DEBUG: config.DEBUG
+  });
 
   const logout = useCallback(async () => {
     try {
@@ -58,6 +65,7 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (credentials) => {
     try {
+      console.log('🔄 Attempting login with API URL:', config.API_BASE_URL);
       const response = await authAPI.login(credentials);
       const { user: userData, token } = response.data;
 
@@ -67,9 +75,11 @@ export const AuthProvider = ({ children }) => {
       setUser(userData);
       setIsAuthenticated(true);
       
+      console.log('✅ Login successful');
       return { success: true, data: response.data };
     } catch (error) {
-      console.error('Login error:', error);
+      console.error('❌ Login error:', error);
+      console.error('API URL used:', config.API_BASE_URL);
       return {
         success: false,
         error: error.response?.data?.message || 'Błąd podczas logowania'
