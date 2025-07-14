@@ -1,6 +1,7 @@
 import React from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import styles from './DashboardPage.module.css';
+import groupLogo from '../assets/group-257@3x.png';
 
 const DashboardPage: React.FC = () => {
   const { logout, user } = useAuth();
@@ -24,7 +25,7 @@ const DashboardPage: React.FC = () => {
       <img className={styles.image35Icon} alt="" src="/image-35@2x.png" />
       <div className={styles.dashboardChild} />
       <div className={styles.dashboardItem} />
-      <div className={styles.dashboardInner} />
+      <img className={styles.dashboardInner} alt="" src={groupLogo} />
       
       {/* Logout button */}
       <button className={styles.logoutButton} onClick={handleLogout}>
