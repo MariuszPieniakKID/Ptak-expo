@@ -35,15 +35,15 @@ const login = async (req, res) => {
     if (process.env.DATABASE_URL && process.env.DATABASE_URL !== 'postgresql://username:password@host/dbname?sslmode=require') {
       try {
         console.log('🔍 Querying database for user:', email.toLowerCase());
-        console.log('🔍 Using NEW QUERY with STATUS field (not is_active)');
+        console.log('🔍 Using SIMPLE QUERY without STATUS field (Railway compatibility)');
         const result = await db.query(
-          'SELECT * FROM users WHERE email = $1 AND status = $2',
-          [email.toLowerCase(), 'active']
+          'SELECT * FROM users WHERE email = $1',
+          [email.toLowerCase()]
         );
 
         console.log('🔍 Query result:', result.rows.length, 'rows found');
         if (result.rows.length > 0) {
-          console.log('🔍 Found user:', result.rows[0].email, 'status:', result.rows[0].status);
+          console.log('🔍 Found user:', result.rows[0].email, 'role:', result.rows[0].role);
         }
         if (result.rows.length === 0) {
           console.log('🔍 No user found with email:', email.toLowerCase());
