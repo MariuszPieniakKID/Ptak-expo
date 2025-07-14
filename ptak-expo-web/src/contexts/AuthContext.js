@@ -63,9 +63,12 @@ export const AuthProvider = ({ children }) => {
     setLoading(false);
   }, [verifyToken, logout]);
 
-  const login = async (credentials) => {
+  const login = async (email, password) => {
     try {
       console.log('🔄 Attempting login with API URL:', config.API_BASE_URL);
+      console.log('🔄 Login data - email:', email, 'password length:', password?.length);
+      
+      const credentials = { email, password };
       const response = await authAPI.login(credentials);
       const { user: userData, token } = response.data;
 
@@ -76,14 +79,13 @@ export const AuthProvider = ({ children }) => {
       setIsAuthenticated(true);
       
       console.log('✅ Login successful');
-      return { success: true, data: response.data };
+      return true;  // Return boolean for consistency with TypeScript version
     } catch (error) {
       console.error('❌ Login error:', error);
       console.error('API URL used:', config.API_BASE_URL);
-      return {
-        success: false,
-        error: error.response?.data?.message || 'Błąd podczas logowania'
-      };
+      console.error('Error response:', error.response?.data);
+      console.error('Error status:', error.response?.status);
+      return false;  // Return boolean for consistency
     }
   };
 
