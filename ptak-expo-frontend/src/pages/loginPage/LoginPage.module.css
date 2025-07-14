@@ -13,6 +13,7 @@
   --color-red:#c7353c;;
 
   /* BorderRadius */
+  --br-5: 5px;
   --br-20: 20px;
 
   /* Font */
@@ -23,20 +24,20 @@
   --font-size-11: 11px;
 }
 
-/* .image35Icon {
+.image35Icon {
   top: -1378.31px;
   height: 2367.6px;
   object-fit: cover;
   mix-blend-mode: luminosity;
-} */
+}
 
-/* .image35Icon,
+.image35Icon,
 .web13662Child,
 .web13662Item {
   position: absolute;
   left: 0;
   width: 1366px;
-} */
+}
 
 .web13662Child {
   top: -59px;
@@ -57,17 +58,18 @@
   height: 754px;
 }
 
-/* .web13662Inner {
+.web13662Inner {
   position: absolute;
   top: 63px;
-  left: 648px;
+  left: 50%;
+  transform: translateX(-50%);
   width: 71px;
   height: 67px;
   background-image: url(../../assets/group-257@3x.png);
   background-size: cover;
   background-repeat: no-repeat;
   background-position: top;
-} */
+}
 
 /* .adresEMail,
 .adresmailcom {
@@ -284,41 +286,27 @@ Dla bardzo małych urządzeń (telefony, <576px) */
 
 @media (max-width: 480px) { 
   .loginContainer {
-    padding-top:40px;
-    background-image: 
-     linear-gradient(rgba(173, 216, 230, 0.5),
-     rgba(173, 216, 230, 0.5)), 
-     url('../../assets//image-35@2x.png');
-    background-size: cover;
-    background-repeat: no-repeat;
-    background-position: left 0px top -340px;
-    min-height: 100vh;
-    background-attachment: fixed;
+    position: relative;
+    background-color: var(--color-white);
+    width: 100%;
+    height: 768px;
+    text-align: left;
+    font-size: var(--font-size-11);
+    color: var(--color-darkslategray);
+    font-family: var(--font-open-sans);
   }
-   .loginContainerLogo {
-    position: relative;
-    margin: auto;
-    margin-bottom:40px;
-    width: 71px;
-    height: 67px;
-    background-image: url(../../assets/group-257@3x.png);
-    background-size: cover;
-    background-repeat: no-repeat;
-    background-position: top;
- }
   .loginDataContainer {
-    position: relative;
-    margin: auto;
-    margin-top:0px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
     padding:30px;
     border-radius: var(--br-20);
     background-color:var( --color-gray);
     border: 1px solid var(--color-white);
     box-sizing: border-box;
-    min-width: 289px;
-    max-width: fit-content;
-    min-height: 344px;
-    max-height: fit-content
+    width: 289px;
+    height: 420px;
   }
   .title {
     font-size: 18px;
@@ -368,7 +356,7 @@ Dla bardzo małych urządzeń (telefony, <576px) */
     display:flex;
     flex-direction: column;
     justify-content: center;
-    padding-top:30px;
+    padding-top:6px;
   }
   .logButton{
     background-color: #7788ef;
@@ -377,53 +365,40 @@ Dla bardzo małych urządzeń (telefony, <576px) */
     border-radius: var(--br-5);
     border: 1px solid #7788ef;
     padding:10px 20px;
+    width: 100%;
   }
   .logButton:disabled {
-  background-color: #e0e0e0;   
-  color: #a0a0a0;             
-  cursor: not-allowed;         
-  opacity: 0.7;                
-  border: 1px solid #cccccc;   
+    background-color: #e0e0e0;   
+    color: #a0a0a0;             
+    cursor: not-allowed;         
+    opacity: 0.7;                
+    border: 1px solid #cccccc;   
   }
 }
 
 @media (min-width: 481px) and (max-width: 600px) {
   .loginContainer {
-    padding-top:40px;
-    background-image: 
-     linear-gradient(rgba(173, 216, 230, 0.5),
-     rgba(173, 216, 230, 0.5)), 
-     url('../../assets//image-35@2x.png');
-    background-size: cover;
-    background-repeat: no-repeat;
-    background-position: left 0px top -340px;
-    min-height: 100vh;
-    background-attachment: fixed;
+    position: relative;
+    background-color: var(--color-white);
+    width: 100%;
+    height: 768px;
+    text-align: left;
+    font-size: var(--font-size-11);
+    color: var(--color-darkslategray);
+    font-family: var(--font-open-sans);
   }
-   .loginContainerLogo {
-    position: relative;
-    margin: auto;
-    margin-bottom:40px;
-    width: 71px;
-    height: 67px;
-    background-image: url(../../assets/group-257@3x.png);
-    background-size: cover;
-    background-repeat: no-repeat;
-    background-position: top;
- }
   .loginDataContainer {
-    position: relative;
-    margin: auto;
-    margin-top:0px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
     padding:30px;
     border-radius: var(--br-20);
     background-color:var( --color-gray);
     border: 1px solid var(--color-white);
     box-sizing: border-box;
-    min-width: 289px;
-    max-width: fit-content;
-    min-height: 344px;
-    max-height: fit-content
+    width: 289px;
+    height: 420px;
   }
   .title {
     font-size: 18px;
@@ -472,7 +447,7 @@ Dla bardzo małych urządzeń (telefony, <576px) */
     display:flex;
     flex-direction: column;
     justify-content: center;
-    padding-top:30px;
+    padding-top:6px;
   }
   .logButton{
     background-color: #7788ef;
@@ -481,53 +456,40 @@ Dla bardzo małych urządzeń (telefony, <576px) */
     border-radius: var(--br-5);
     border: 1px solid #7788ef;
     padding:10px 20px;
+    width: 100%;
   }
   .logButton:disabled {
-  background-color: #e0e0e0;   
-  color: #a0a0a0;             
-  cursor: not-allowed;         
-  opacity: 0.7;                
-  border: 1px solid #cccccc;   
+    background-color: #e0e0e0;   
+    color: #a0a0a0;             
+    cursor: not-allowed;         
+    opacity: 0.7;                
+    border: 1px solid #cccccc;   
   }
 }
 
 @media (min-width: 601px) and (max-width: 768px){
   .loginContainer {
-    padding-top:40px;
-    background-image: 
-     linear-gradient(rgba(173, 216, 230, 0.5),
-     rgba(173, 216, 230, 0.5)), 
-     url('../../assets//image-35@2x.png');
-    background-size: cover;
-    background-repeat: no-repeat;
-    background-position: left 0px top -340px;
-    min-height: 100vh;
-    background-attachment: fixed;
+    position: relative;
+    background-color: var(--color-white);
+    width: 100%;
+    height: 768px;
+    text-align: left;
+    font-size: var(--font-size-11);
+    color: var(--color-darkslategray);
+    font-family: var(--font-open-sans);
   }
-   .loginContainerLogo {
-    position: relative;
-    margin: auto;
-    margin-bottom:40px;
-    width: 71px;
-    height: 67px;
-    background-image: url(../../assets/group-257@3x.png);
-    background-size: cover;
-    background-repeat: no-repeat;
-    background-position: top;
- }
   .loginDataContainer {
-    position: relative;
-    margin: auto;
-    margin-top:0px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
     padding:30px;
     border-radius: var(--br-20);
     background-color:var( --color-gray);
     border: 1px solid var(--color-white);
     box-sizing: border-box;
-    min-width: 289px;
-    max-width: fit-content;
-    min-height: 344px;
-    max-height: fit-content
+    width: 289px;
+    height: 420px;
   }
   .title {
     font-size: 18px;
@@ -576,7 +538,7 @@ Dla bardzo małych urządzeń (telefony, <576px) */
     display:flex;
     flex-direction: column;
     justify-content: center;
-    padding-top:30px;
+    padding-top:6px;
   }
   .logButton{
     background-color: #7788ef;
@@ -585,53 +547,40 @@ Dla bardzo małych urządzeń (telefony, <576px) */
     border-radius: var(--br-5);
     border: 1px solid #7788ef;
     padding:10px 20px;
+    width: 100%;
   }
   .logButton:disabled {
-  background-color: #e0e0e0;   
-  color: #a0a0a0;             
-  cursor: not-allowed;         
-  opacity: 0.7;                
-  border: 1px solid #cccccc;   
+    background-color: #e0e0e0;   
+    color: #a0a0a0;             
+    cursor: not-allowed;         
+    opacity: 0.7;                
+    border: 1px solid #cccccc;   
   }
 }
 
 @media (min-width: 769px) and (max-width: 991px){
    .loginContainer {
-    padding-top:40px;
-    background-image: 
-     linear-gradient(rgba(173, 216, 230, 0.5),
-     rgba(173, 216, 230, 0.5)), 
-     url('../../assets//image-35@2x.png');
-    background-size: cover;
-    background-repeat: no-repeat;
-    background-position: left 0px top -440px;
-    min-height: 100vh;
-    background-attachment: fixed;
+    position: relative;
+    background-color: var(--color-white);
+    width: 100%;
+    height: 768px;
+    text-align: left;
+    font-size: var(--font-size-11);
+    color: var(--color-darkslategray);
+    font-family: var(--font-open-sans);
   }
-   .loginContainerLogo {
-    position: relative;
-    margin: auto;
-    margin-bottom:40px;
-    width: 71px;
-    height: 67px;
-    background-image: url(../../assets/group-257@3x.png);
-    background-size: cover;
-    background-repeat: no-repeat;
-    background-position: top;
- }
   .loginDataContainer {
-    position: relative;
-    margin: auto;
-    margin-top:0px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
     padding:30px;
     border-radius: var(--br-20);
     background-color:var( --color-gray);
     border: 1px solid var(--color-white);
     box-sizing: border-box;
-    min-width: 289px;
-    max-width: fit-content;
-    min-height: 344px;
-    max-height: fit-content
+    width: 289px;
+    height: 420px;
   }
   .title {
     font-size: 18px;
@@ -680,7 +629,7 @@ Dla bardzo małych urządzeń (telefony, <576px) */
     display:flex;
     flex-direction: column;
     justify-content: center;
-    padding-top:30px;
+    padding-top:6px;
   }
   .logButton{
     background-color: #7788ef;
@@ -691,55 +640,38 @@ Dla bardzo małych urządzeń (telefony, <576px) */
     padding:10px 20px;
   }
   .logButton:disabled {
-  background-color: #e0e0e0;   
-  color: #a0a0a0;             
-  cursor: not-allowed;         
-  opacity: 0.7;                
-  border: 1px solid #cccccc;   
+    background-color: #e0e0e0;   
+    color: #a0a0a0;             
+    cursor: not-allowed;         
+    opacity: 0.7;                
+    border: 1px solid #cccccc;   
   }
 }
 
 @media (min-width: 992px) and (max-width: 1199.98px) {
   /* style dla laptopów */
    .loginContainer {
-    background-image: 
-     linear-gradient(rgba(173, 216, 230, 0.5),
-     rgba(173, 216, 230, 0.5)), 
-     url('../../assets//image-35@2x.png');
-    background-size: 100% 100%;
-    background-repeat: no-repeat; 
-    background-position: center;
-    min-height: 100vh;
-    background-attachment: fixed;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
+    position: relative;
+    background-color: var(--color-white);
+    width: 100%;
+    height: 768px;
+    text-align: left;
+    font-size: var(--font-size-11);
+    color: var(--color-darkslategray);
+    font-family: var(--font-open-sans);
   }
-  .loginContainerLogo {
-    position: relative;
-    margin: auto;
-    margin-top: 80px;
-    margin-bottom:40px;
-    width: 71px;
-    height: 67px;
-    background-image: url(../../assets/group-257@3x.png);
-    background-size: cover;
-    background-repeat: no-repeat;
-    background-position: top;
- }
   .loginDataContainer {
-    position: relative;
-    margin: auto;
-    margin-top:0px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
     padding:30px;
     border-radius: var(--br-20);
     background-color:var( --color-gray);
     border: 1px solid var(--color-white);
     box-sizing: border-box;
-    min-width: 289px;
-    max-width: fit-content;
-    min-height: 344px;
-    max-height: fit-content
+    width: 289px;
+    height: 344px;
   }
   .title {
     font-size: 18px;
@@ -792,7 +724,7 @@ Dla bardzo małych urządzeń (telefony, <576px) */
     display:flex;
     flex-direction: column;
     justify-content: center;
-    padding-top:30px;
+    padding-top:6px;
   }
   .logButton{
     background-color: #7788ef;
@@ -801,13 +733,14 @@ Dla bardzo małych urządzeń (telefony, <576px) */
     border-radius: var(--br-5);
     border: 1px solid #7788ef;
     padding:10px 20px;
+    width: 100%;
   }
   .logButton:disabled {
-  background-color: #e0e0e0;   
-  color: #a0a0a0;             
-  cursor: not-allowed;         
-  opacity: 0.7;                
-  border: 1px solid #cccccc;   
+    background-color: #e0e0e0;   
+    color: #a0a0a0;             
+    cursor: not-allowed;         
+    opacity: 0.7;                
+    border: 1px solid #cccccc;   
   }
 
 }
@@ -816,44 +749,27 @@ Dla bardzo małych urządzeń (telefony, <576px) */
 @media (min-width: 1200px) and (max-width: 1399.98px) {
   /* style dla laptopów */
    .loginContainer {
-    background-image: 
-     linear-gradient(rgba(173, 216, 230, 0.5),
-     rgba(173, 216, 230, 0.5)), 
-     url('../../assets//image-35@2x.png');
-    background-size: 100% 100%;
-    background-repeat: no-repeat; 
-    background-position: center;
-    min-height: 100vh;
-    background-attachment: fixed;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
+    position: relative;
+    background-color: var(--color-white);
+    width: 100%;
+    height: 768px;
+    text-align: left;
+    font-size: var(--font-size-11);
+    color: var(--color-darkslategray);
+    font-family: var(--font-open-sans);
   }
-  .loginContainerLogo {
-    position: relative;
-    margin: auto;
-    margin-top: 80px;
-    margin-bottom:40px;
-    width: 71px;
-    height: 67px;
-    background-image: url(../../assets/group-257@3x.png);
-    background-size: cover;
-    background-repeat: no-repeat;
-    background-position: top;
- }
   .loginDataContainer {
-    position: relative;
-    margin: auto;
-    margin-top:0px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
     padding:30px;
     border-radius: var(--br-20);
     background-color:var( --color-gray);
     border: 1px solid var(--color-white);
     box-sizing: border-box;
-    min-width: 289px;
-    max-width: fit-content;
-    min-height: 344px;
-    max-height: fit-content
+    width: 289px;
+    height: 420px;
   }
   .title {
     font-size: 18px;
@@ -906,7 +822,7 @@ Dla bardzo małych urządzeń (telefony, <576px) */
     display:flex;
     flex-direction: column;
     justify-content: center;
-    padding-top:30px;
+    padding-top:6px;
   }
   .logButton{
     background-color: #7788ef;
@@ -915,13 +831,14 @@ Dla bardzo małych urządzeń (telefony, <576px) */
     border-radius: var(--br-5);
     border: 1px solid #7788ef;
     padding:10px 20px;
+    width: 100%;
   }
   .logButton:disabled {
-  background-color: #e0e0e0;   
-  color: #a0a0a0;             
-  cursor: not-allowed;         
-  opacity: 0.7;                
-  border: 1px solid #cccccc;   
+    background-color: #e0e0e0;   
+    color: #a0a0a0;             
+    cursor: not-allowed;         
+    opacity: 0.7;                
+    border: 1px solid #cccccc;   
   }
 }
 
@@ -929,44 +846,27 @@ Dla bardzo małych urządzeń (telefony, <576px) */
 @media (min-width: 1400px) {
    /* style dla laptopów */
    .loginContainer {
-    background-image: 
-     linear-gradient(rgba(173, 216, 230, 0.5),
-     rgba(173, 216, 230, 0.5)), 
-     url('../../assets//image-35@2x.png');
-    background-size: 100% 100%;
-    background-repeat: no-repeat; 
-    background-position: center;
-    min-height: 100vh;
-    background-attachment: fixed;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
+    position: relative;
+    background-color: var(--color-white);
+    width: 100%;
+    height: 768px;
+    text-align: left;
+    font-size: var(--font-size-11);
+    color: var(--color-darkslategray);
+    font-family: var(--font-open-sans);
   }
-  .loginContainerLogo {
-    position: relative;
-    margin: auto;
-    margin-top: 80px;
-    margin-bottom:40px;
-    width: 71px;
-    height: 67px;
-    background-image: url(../../assets/group-257@3x.png);
-    background-size: cover;
-    background-repeat: no-repeat;
-    background-position: top;
- }
   .loginDataContainer {
-    position: relative;
-    margin: auto;
-    margin-top:0px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
     padding:30px;
     border-radius: var(--br-20);
     background-color:var( --color-gray);
     border: 1px solid var(--color-white);
     box-sizing: border-box;
-    min-width: 289px;
-    max-width: fit-content;
-    min-height: 344px;
-    max-height: fit-content
+    width: 289px;
+    height: 420px;
   }
   .title {
     font-size: 18px;
@@ -1019,7 +919,7 @@ Dla bardzo małych urządzeń (telefony, <576px) */
     display:flex;
     flex-direction: column;
     justify-content: center;
-    padding-top:30px;
+    padding-top:6px;
   }
   .logButton{
     background-color: #7788ef;
@@ -1028,13 +928,14 @@ Dla bardzo małych urządzeń (telefony, <576px) */
     border-radius: var(--br-5);
     border: 1px solid #7788ef;
     padding:10px 20px;
+    width: 100%;
   }
   .logButton:disabled {
-  background-color: #e0e0e0;   
-  color: #a0a0a0;             
-  cursor: not-allowed;         
-  opacity: 0.7;                
-  border: 1px solid #cccccc;   
+    background-color: #e0e0e0;   
+    color: #a0a0a0;             
+    cursor: not-allowed;         
+    opacity: 0.7;                
+    border: 1px solid #cccccc;   
   }
 }
 
@@ -1085,7 +986,7 @@ Dla bardzo małych urządzeń (telefony, <576px) */
       color: var(--color-darkgray);
       font-family: var(--font-open-sans);
       cursor: pointer;
-      padding-top:30px;
+      padding-top:6px;
   }
   .remindMePassword:hover {
   color: var(--color-blue);
@@ -1100,4 +1001,9 @@ Dla bardzo małych urządzeń (telefony, <576px) */
 .logionCopntainer > *:not(.blueOverlay) {
   position: relative;
   z-index: 2;
+}
+
+/* Global button container fix */
+.buttonContainer {
+  align-items: center !important;
 }

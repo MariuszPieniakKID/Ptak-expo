@@ -74,11 +74,11 @@ const LoginPage: React.FC = () => {
   }, [email, password, login, navigate]);
 
   return (
-    
-
     <div className={styles.loginContainer}>
-      <div className={styles.blueOverlay}></div>
-      <div className={styles.loginContainerLogo} /> 
+      <img className={styles.image35Icon} alt="" src="/assets/image-35@2x.png" />
+      <div className={styles.web13662Child} />
+      <div className={styles.web13662Item} />
+      <div className={styles.web13662Inner} />
       <div className={styles.loginDataContainer}>
        
         <div className={styles.title}><p>Panel <br/>Administratora</p></div>

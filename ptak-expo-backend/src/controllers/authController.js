@@ -32,8 +32,8 @@ const login = async (req, res) => {
     if (process.env.DATABASE_URL && process.env.DATABASE_URL !== 'postgresql://username:password@host/dbname?sslmode=require') {
       try {
         const result = await db.query(
-          'SELECT * FROM users WHERE email = $1 AND is_active = $2',
-          [email.toLowerCase(), true]
+          'SELECT * FROM users WHERE email = $1 AND status = $2',
+          [email.toLowerCase(), 'active']
         );
 
         if (result.rows.length === 0) {
