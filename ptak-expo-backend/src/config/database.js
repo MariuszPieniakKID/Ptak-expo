@@ -57,6 +57,46 @@ const initializeDatabase = async () => {
       )
     `);
 
+    // Check if status column exists and add it if missing
+    console.log('🔍 Checking status column...');
+    try {
+      const columnCheck = await pool.query(`
+        SELECT column_name 
+        FROM information_schema.columns 
+        WHERE table_name = 'users' AND column_name = 'status'
+      `);
+      
+      if (columnCheck.rows.length === 0) {
+        console.log('⚠️ Status column missing - adding it...');
+        await pool.query(`
+          ALTER TABLE users 
+          ADD COLUMN status VARCHAR(20) DEFAULT 'active'
+        `);
+        console.log('✅ Status column added successfully');
+      } else {
+        console.log('✅ Status column already exists');
+      }
+    } catch (statusError) {
+      console.error('❌ Error checking/adding status column:', statusError);
+    }
+
+    // Log current table structure
+    console.log('🔍 Current users table structure:');
+    try {
+      const tableStructure = await pool.query(`
+        SELECT column_name, data_type, is_nullable, column_default
+        FROM information_schema.columns 
+        WHERE table_name = 'users'
+        ORDER BY ordinal_position
+      `);
+      
+      tableStructure.rows.forEach(row => {
+        console.log(`  - ${row.column_name}: ${row.data_type} ${row.is_nullable === 'YES' ? 'NULL' : 'NOT NULL'} ${row.column_default ? `DEFAULT ${row.column_default}` : ''}`);
+      });
+    } catch (structureError) {
+      console.error('❌ Error logging table structure:', structureError);
+    }
+
     console.log('🔍 Creating exhibitions table...');
     await pool.query(`
       CREATE TABLE IF NOT EXISTS exhibitions (

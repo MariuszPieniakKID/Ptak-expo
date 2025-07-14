@@ -28,14 +28,34 @@ console.log('🔍 Will listen on port:', PORT);
 
 // Middleware
 app.use(helmet());
+
+// CORS Configuration using Railway environment variables
+const allowedOrigins = [
+  'http://localhost:3000', 
+  'http://localhost:3002',
+  process.env.CORS_ORIGIN
+].filter(Boolean);
+
+console.log('🔍 CORS allowed origins:', allowedOrigins);
+
 app.use(cors({
-  origin: ['http://localhost:3000', 'http://localhost:3002'],
+  origin: allowedOrigins,
   credentials: true
 }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // API Routes
+// Test CORS endpoint
+app.options('/api/v1/auth/*', (req, res) => {
+  console.log('🔍 Preflight request for auth endpoint from origin:', req.headers.origin);
+  res.header('Access-Control-Allow-Origin', req.headers.origin);
+  res.header('Access-Control-Allow-Credentials', 'true');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+  res.sendStatus(200);
+});
+
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/users', usersRoutes);
 

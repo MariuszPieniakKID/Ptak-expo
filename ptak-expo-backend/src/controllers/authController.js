@@ -35,15 +35,39 @@ const login = async (req, res) => {
     if (process.env.DATABASE_URL && process.env.DATABASE_URL !== 'postgresql://username:password@host/dbname?sslmode=require') {
       try {
         console.log('🔍 Querying database for user:', email.toLowerCase());
-        console.log('🔍 Using SIMPLE QUERY without STATUS field (Railway compatibility)');
-        const result = await db.query(
-          'SELECT * FROM users WHERE email = $1',
-          [email.toLowerCase()]
-        );
+        
+        let result;
+        
+        // Try with status column first
+        try {
+          console.log('🔍 Trying query WITH status field...');
+          result = await db.query(
+            'SELECT * FROM users WHERE email = $1 AND status = $2',
+            [email.toLowerCase(), 'active']
+          );
+          console.log('✅ Query with status field successful');
+        } catch (statusError) {
+          console.log('⚠️ Query with status field failed, trying without status:', statusError.message);
+          console.log('🔍 Using SIMPLE QUERY without STATUS field (Railway compatibility)');
+          result = await db.query(
+            'SELECT * FROM users WHERE email = $1',
+            [email.toLowerCase()]
+          );
+          console.log('✅ Query without status field successful');
+        }
 
         console.log('🔍 Query result:', result.rows.length, 'rows found');
         if (result.rows.length > 0) {
           console.log('🔍 Found user:', result.rows[0].email, 'role:', result.rows[0].role);
+          
+          // Check if user has status column and if it's active
+          if (result.rows[0].status && result.rows[0].status !== 'active') {
+            console.log('⚠️ User account is not active:', result.rows[0].status);
+            return res.status(401).json({
+              success: false,
+              message: 'Konto jest nieaktywne'
+            });
+          }
         }
         if (result.rows.length === 0) {
           console.log('🔍 No user found with email:', email.toLowerCase());
