@@ -965,20 +965,10 @@ Dla bardzo małych urządzeń (telefony, <576px) */
   100% { transform: rotate(360deg); }
 }
 
-.errorContainer {
-  min-height: 30px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 10px;
-}
-
 .errorMessage{
   color: var(--color-red);
   font-size:var(--font-size-11);
   padding-bottom:10px;
-  text-align: center;
-  font-weight: 500;
 }
 .errorInputMessage{
   color: var(--color-red);

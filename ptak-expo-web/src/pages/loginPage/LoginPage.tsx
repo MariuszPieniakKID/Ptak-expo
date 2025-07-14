@@ -116,9 +116,7 @@ const LoginPage: React.FC = () => {
           {passwordError  && (<div className={styles.errorInputMessage}>{passwordError }</div>)}
 
           <div className={styles.buttonContainer}>
-            <div className={styles.errorContainer}>
-              {error && (<div className={styles.errorMessage}>{error}</div>)}
-            </div>
+            {error && (<div className={styles.errorMessage}>{error}</div>)}
             {loading 
               ?  
               <div className={styles.spinner}></div>
@@ -131,6 +129,7 @@ const LoginPage: React.FC = () => {
                   || passwordError !== ''
                   || email===""
                   || password===""
+                  || error !==""
                   }
                 >
                 {loading ? 'Logowanie...' : 'Zaloguj się'}
