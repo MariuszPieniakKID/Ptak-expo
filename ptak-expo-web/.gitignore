@@ -23,8 +23,6 @@ yarn-debug.log*
 yarn-error.log*
 
 # development files
-/src
-/public
 package-dev.json
 package-production.json
 nixpacks.toml
