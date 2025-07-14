@@ -1,0 +1,488 @@
+@import url("https://fonts.googleapis.com/css2?family=Open+Sans:wght@400&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Roc+Grotesk:wght@500&display=swap");
+
+/* Global CSS Variables */
+:root {
+  /* Color */
+  --color-gainsboro: #d7d9dd;
+  --color-darkgray: #a7a7a7;
+  --color-darkslategray: #2e2e38;
+  --color-gray: #f6f7f8;
+  --color-white: #fff;
+  --color-blue:#7788ef;
+  --color-red:#c7353c;;
+
+  /* BorderRadius */
+  --br-5: 5px;
+  --br-20: 20px;
+
+  /* Font */
+  --font-roc-grotesk: Roc Grotesk;
+  --font-open-sans: Open Sans;
+
+  /* FontSize */
+  --font-size-11: 11px;
+}
+
+.image35Icon {
+  top: -1378.31px;
+  height: 2367.6px;
+  object-fit: cover;
+  mix-blend-mode: luminosity;
+}
+
+.image35Icon,
+.web13662Child,
+.web13662Item {
+  position: absolute;
+  left: 0;
+  width: 1366px;
+}
+
+.web13662Child {
+  top: -59px;
+  background: linear-gradient(180deg, #6f87f6, rgba(111, 135, 246, 0));
+  height: 827px;
+  transform: rotate(180deg);
+  mix-blend-mode: overlay;
+}
+
+.web13662Item {
+  top: -80px;
+  background: linear-gradient(
+    180deg,
+    #eceef0,
+    #eceef0 53.2%,
+    rgba(255, 255, 255, 0)
+  );
+  height: 754px;
+}
+
+.web13662Inner {
+  position: absolute;
+  top: 63px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 71px;
+  height: 67px;
+  background-image: url(../../assets/group-257@3x.png);
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: top;
+}
+
+.loginContainer {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  background: #d7d9dd;
+  overflow: hidden;
+}
+
+.loginDataContainer {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 390px;
+  height: 500px;
+  background: var(--color-white);
+  border-radius: var(--br-20);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 30px;
+  box-sizing: border-box;
+}
+
+.title {
+  font-family: var(--font-roc-grotesk);
+  font-size: 24px;
+  font-weight: 500;
+  color: var(--color-darkslategray);
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.loginTitle {
+  font-family: var(--font-open-sans);
+  font-size: 16px;
+  color: var(--color-darkslategray);
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.inputData {
+  width: 100%;
+  height: 50px;
+  border: 1px solid var(--color-gainsboro);
+  border-radius: var(--br-5);
+  padding: 0 15px;
+  font-family: var(--font-open-sans);
+  font-size: 14px;
+  color: var(--color-darkslategray);
+  margin-bottom: 5px;
+  outline: none;
+  box-sizing: border-box;
+}
+
+.inputData:focus {
+  border-color: var(--color-blue);
+}
+
+.inputData::placeholder {
+  color: var(--color-darkgray);
+}
+
+.inputDescription {
+  font-family: var(--font-open-sans);
+  font-size: 12px;
+  color: var(--color-darkgray);
+  margin-bottom: 15px;
+  text-align: left;
+  width: 100%;
+}
+
+.buttonContainer {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.logButton {
+  width: 100%;
+  height: 50px;
+  background: #89F4C9;
+  border: none;
+  border-radius: var(--br-5);
+  color: var(--color-white);
+  font-family: var(--font-open-sans);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.logButton:hover {
+  background: #73E5B4;
+}
+
+.logButton:disabled {
+  background: var(--color-darkgray);
+  cursor: not-allowed;
+}
+
+.remindMePassword {
+  font-family: var(--font-open-sans);
+  font-size: 12px;
+  color: var(--color-blue);
+  text-decoration: underline;
+  cursor: pointer;
+  margin-top: 15px;
+}
+
+.remindMePassword:hover {
+  color: #6677d9;
+}
+
+.errorMessage {
+  color: var(--color-red);
+  font-family: var(--font-open-sans);
+  font-size: 12px;
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.errorInputMessage {
+  color: var(--color-red);
+  font-family: var(--font-open-sans);
+  font-size: 12px;
+  text-align: left;
+  width: 100%;
+  margin-bottom: 15px;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid var(--color-gainsboro);
+  border-top: 4px solid var(--color-blue);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Responsive Design */
+@media (max-width: 480px) {
+  .loginContainer {
+    padding: 20px;
+  }
+  
+  .loginDataContainer {
+    width: 100%;
+    height: auto;
+    padding: 20px;
+  }
+  
+  .title {
+    font-size: 20px;
+  }
+  
+  .loginTitle {
+    font-size: 14px;
+  }
+  
+  .inputData {
+    height: 45px;
+    font-size: 13px;
+  }
+  
+  .inputDescription {
+    font-size: 11px;
+  }
+  
+  .buttonContainer {
+    margin-top: 15px;
+  }
+  
+  .logButton {
+    height: 45px;
+    font-size: 13px;
+  }
+}
+
+@media (min-width: 481px) and (max-width: 600px) {
+  .loginContainer {
+    padding: 25px;
+  }
+  
+  .loginDataContainer {
+    width: 350px;
+    height: 480px;
+    padding: 25px;
+  }
+  
+  .title {
+    font-size: 22px;
+  }
+  
+  .loginTitle {
+    font-size: 15px;
+  }
+  
+  .inputData {
+    height: 48px;
+    font-size: 13px;
+  }
+  
+  .inputDescription {
+    font-size: 11px;
+  }
+  
+  .buttonContainer {
+    margin-top: 18px;
+  }
+  
+  .logButton {
+    height: 48px;
+    font-size: 13px;
+  }
+}
+
+@media (min-width: 601px) and (max-width: 768px) {
+  .loginContainer {
+    padding: 30px;
+  }
+  
+  .loginDataContainer {
+    width: 370px;
+    height: 490px;
+    padding: 28px;
+  }
+  
+  .title {
+    font-size: 23px;
+  }
+  
+  .loginTitle {
+    font-size: 15px;
+  }
+  
+  .inputData {
+    height: 49px;
+    font-size: 14px;
+  }
+  
+  .inputDescription {
+    font-size: 12px;
+  }
+  
+  .buttonContainer {
+    margin-top: 19px;
+  }
+  
+  .logButton {
+    height: 49px;
+    font-size: 14px;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 991px) {
+  .loginContainer {
+    padding: 35px;
+  }
+  
+  .loginDataContainer {
+    width: 380px;
+    height: 495px;
+    padding: 29px;
+  }
+  
+  .title {
+    font-size: 23px;
+  }
+  
+  .loginTitle {
+    font-size: 16px;
+  }
+  
+  .inputData {
+    height: 49px;
+    font-size: 14px;
+  }
+  
+  .inputDescription {
+    font-size: 12px;
+  }
+  
+  .buttonContainer {
+    margin-top: 19px;
+  }
+  
+  .logButton {
+    height: 49px;
+    font-size: 14px;
+  }
+}
+
+@media (min-width: 992px) and (max-width: 1199.98px) {
+  .loginContainer {
+    padding: 40px;
+  }
+  
+  .loginDataContainer {
+    width: 385px;
+    height: 498px;
+    padding: 30px;
+  }
+  
+  .title {
+    font-size: 24px;
+  }
+  
+  .loginTitle {
+    font-size: 16px;
+  }
+  
+  .inputData {
+    height: 50px;
+    font-size: 14px;
+  }
+  
+  .inputDescription {
+    font-size: 12px;
+  }
+  
+  .buttonContainer {
+    margin-top: 20px;
+  }
+  
+  .logButton {
+    height: 50px;
+    font-size: 14px;
+  }
+}
+
+@media (min-width: 1200px) and (max-width: 1399.98px) {
+  .loginContainer {
+    padding: 45px;
+  }
+  
+  .loginDataContainer {
+    width: 390px;
+    height: 500px;
+    padding: 30px;
+  }
+  
+  .title {
+    font-size: 24px;
+  }
+  
+  .loginTitle {
+    font-size: 16px;
+  }
+  
+  .inputData {
+    height: 50px;
+    font-size: 14px;
+  }
+  
+  .inputDescription {
+    font-size: 12px;
+  }
+  
+  .buttonContainer {
+    margin-top: 20px;
+  }
+  
+  .logButton {
+    height: 50px;
+    font-size: 14px;
+  }
+}
+
+@media (min-width: 1400px) {
+  .loginContainer {
+    padding: 50px;
+  }
+  
+  .loginDataContainer {
+    width: 390px;
+    height: 500px;
+    padding: 30px;
+  }
+  
+  .title {
+    font-size: 24px;
+  }
+  
+  .loginTitle {
+    font-size: 16px;
+  }
+  
+  .inputData {
+    height: 50px;
+    font-size: 14px;
+  }
+  
+  .inputDescription {
+    font-size: 12px;
+  }
+  
+  .buttonContainer {
+    margin-top: 20px;
+  }
+  
+  .logButton {
+    height: 50px;
+    font-size: 14px;
+  }
+} 
