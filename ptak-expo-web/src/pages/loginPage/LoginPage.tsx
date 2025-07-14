@@ -79,7 +79,7 @@ const LoginPage: React.FC = () => {
       <div className={styles.web13662Inner} />
       <div className={styles.loginDataContainer}>
        
-        <div className={styles.title}><p>Panel <br/>Administratora</p></div>
+        <div className={styles.title}><p>Panel <br/>Wystawcy</p></div>
         <div className={styles.loginTitle}><p>Logowanie</p></div>
        <form onSubmit={handleSubmit}>
           <input

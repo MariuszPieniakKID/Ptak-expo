@@ -9,7 +9,7 @@
   --color-darkslategray: #2e2e38;
   --color-gray: #f6f7f8;
   --color-white: #fff;
-  --color-blue:#7788ef;
+  --color-blue:#89F4C9;
   --color-red:#c7353c;;
 
   /* BorderRadius */
@@ -359,11 +359,11 @@ Dla bardzo małych urządzeń (telefony, <576px) */
     padding-top:6px;
   }
   .logButton{
-    background-color: #7788ef;
+    background-color: #89F4C9;
     color:white;
     cursor: pointer;
     border-radius: var(--br-5);
-    border: 1px solid #7788ef;
+    border: 1px solid #89F4C9;
     padding:10px 20px;
     width: 100%;
   }
@@ -450,11 +450,11 @@ Dla bardzo małych urządzeń (telefony, <576px) */
     padding-top:6px;
   }
   .logButton{
-    background-color: #7788ef;
+    background-color: #89F4C9;
     color:white;
     cursor: pointer;
     border-radius: var(--br-5);
-    border: 1px solid #7788ef;
+    border: 1px solid #89F4C9;
     padding:10px 20px;
     width: 100%;
   }
@@ -541,11 +541,11 @@ Dla bardzo małych urządzeń (telefony, <576px) */
     padding-top:6px;
   }
   .logButton{
-    background-color: #7788ef;
+    background-color: #89F4C9;
     color:white;
     cursor: pointer;
     border-radius: var(--br-5);
-    border: 1px solid #7788ef;
+    border: 1px solid #89F4C9;
     padding:10px 20px;
     width: 100%;
   }
@@ -632,11 +632,11 @@ Dla bardzo małych urządzeń (telefony, <576px) */
     padding-top:6px;
   }
   .logButton{
-    background-color: #7788ef;
+    background-color: #89F4C9;
     color:white;
     cursor: pointer;
     border-radius: var(--br-5);
-    border: 1px solid #7788ef;
+    border: 1px solid #89F4C9;
     padding:10px 20px;
   }
   .logButton:disabled {
@@ -727,11 +727,11 @@ Dla bardzo małych urządzeń (telefony, <576px) */
     padding-top:6px;
   }
   .logButton{
-    background-color: #7788ef;
+    background-color: #89F4C9;
     color:white;
     cursor: pointer;
     border-radius: var(--br-5);
-    border: 1px solid #7788ef;
+    border: 1px solid #89F4C9;
     padding:10px 20px;
     width: 100%;
   }
@@ -825,11 +825,11 @@ Dla bardzo małych urządzeń (telefony, <576px) */
     padding-top:6px;
   }
   .logButton{
-    background-color: #7788ef;
+    background-color: #89F4C9;
     color:white;
     cursor: pointer;
     border-radius: var(--br-5);
-    border: 1px solid #7788ef;
+    border: 1px solid #89F4C9;
     padding:10px 20px;
     width: 100%;
   }
@@ -922,11 +922,11 @@ Dla bardzo małych urządzeń (telefony, <576px) */
     padding-top:6px;
   }
   .logButton{
-    background-color: #7788ef;
+    background-color: #89F4C9;
     color:white;
     cursor: pointer;
     border-radius: var(--br-5);
-    border: 1px solid #7788ef;
+    border: 1px solid #89F4C9;
     padding:10px 20px;
     width: 100%;
   }
@@ -941,11 +941,11 @@ Dla bardzo małych urządzeń (telefony, <576px) */
 
 
 /* .logButton{
-  background-color: #7788ef;
+  background-color: #89F4C9;
   color:white;
   cursor: pointer;
   border-radius: var(--br-5);
-  border: 1px solid #7788ef;
+  border: 1px solid #89F4C9;
   padding:10px 20px;
 } */
 
