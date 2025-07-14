@@ -1,100 +1,119 @@
 # Instrukcja Testów Aplikacji Mobilnej Ptak-expo
 
-## 🚀 Aplikacja Gotowa do Testów!
+## 🚀 Aplikacja Dostępna Publicznie na Railway!
 
-Aplikacja mobilna Ptak-expo jest gotowa do testów na urządzeniach mobilnych za pomocą Expo Go.
+Aplikacja mobilna Ptak-expo została skonfigurowana do deploymentu na Railway i jest dostępna jako PWA (Progressive Web App) dla wszystkich użytkowników.
 
-## 📱 Testowanie przez Expo Go
+## 🌐 Dostęp do Aplikacji
 
-### Krok 1: Pobierz Expo Go
-- **iOS**: Pobierz z App Store: [Expo Go](https://apps.apple.com/app/expo-go/id982107779)
-- **Android**: Pobierz z Google Play: [Expo Go](https://play.google.com/store/apps/details?id=host.exp.exponent)
-
-### Krok 2: Skanuj Kod QR
-Otwórz aplikację Expo Go i zeskanuj poniższy kod QR:
-
+### Opcja 1: Bezpośredni dostęp przez przeglądarkę
+Po wdrożeniu na Railway aplikacja będzie dostępna pod adresem:
 ```
-▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄
-█ ▄▄▄▄▄ █ ██▀▀█▄▄██ ▄▄▄▄▄ █
-█ █   █ █  ▀█ ▀█ ▄█ █   █ █
-█ █▄▄▄█ █▀  █▄ ▀▄██ █▄▄▄█ █
-█▄▄▄▄▄▄▄█▄█ ▀▄█ ▀ █▄▄▄▄▄▄▄█
-█ ▄█▀  ▄▀▀█▄█▄█▄▀▄██ ▀▄▄ ▄█
-█▀ ▄█▄█▄▄▄ ▄█▀█▀ ▀▀ █▄  ▀██
-█  ▀▄█ ▄ ▄█▀▄ ▀▄▀▄▀▄▀▀▄ ▀██
-███▀▄█ ▄▀▀█  ▄██▄▄▄█▄▀ ▀███
-█▄▄▄▄▄▄▄█ ▄▄▀▀█▄▄ ▄▄▄ ▀ ▄▄█
-█ ▄▄▄▄▄ █▀▀▀ █▄█▀ █▄█ ▀▀▀▀█
-█ █   █ █▄▄▀ ▀█▄█▄▄ ▄▄▀ ▀▀█
-█ █▄▄▄█ █▀▄█ ███▄██▄▀█▀▀ ██
-█▄▄▄▄▄▄▄█▄█▄███▄████▄▄▄▄▄▄█
+https://ptak-expo-mobile-web-production.up.railway.app
 ```
 
-**Lub wprowadź ręcznie URL:**
-```
-exp://192.168.100.190:8081
-```
+### Opcja 2: Testowanie lokalnie
+Jeśli chcesz testować lokalnie, zobacz sekcję "Testowanie Lokalne" poniżej.
 
-### Krok 3: Przetestuj Aplikację
-Po uruchomieniu aplikacji w Expo Go, przetestuj:
+## 📱 Funkcjonalności
 
-1. **Ekran Logowania**:
-   - Walidację emaila i hasła
-   - Komunikaty błędów w języku polskim
-   - Przycisk "Zaloguj się"
+### Dostępne przez przeglądarkę:
+- ✅ **Pełny ekran logowania** z walidacją
+- ✅ **Integracja z Railway Backend** 
+- ✅ **Responsywny design** dla urządzeń mobilnych
+- ✅ **PWA support** - można zainstalować jako app na telefonie
+- ✅ **Persystencja sesji** (localStorage)
 
-2. **Integrację z Railway Backend**:
-   - Logowanie z prawdziwymi danymi z bazy danych
-   - Backend URL: `https://backend-production-df8c.up.railway.app/api/v1`
-
-3. **Funkcjonalności**:
-   - Persystencja sesji (AsyncStorage)
-   - Automatyczne wylogowanie przy błędach 401
-   - Obsługa błędów połączenia
+### Bezpieczeństwo:
+- ✅ **HTTPS** na Railway
+- ✅ **CORS** skonfigurowane
+- ✅ **Health check** endpoint: `/api/health`
 
 ## 🔧 Dane Testowe
 
-Aplikacja łączy się z prawdziwym backendem Railway, więc używaj:
+Aplikacja łączy się z prawdziwym backendem Railway:
+- **Backend URL**: `https://backend-production-df8c.up.railway.app/api/v1`
 - **Email**: Prawdziwy email użytkownika w bazie danych
 - **Hasło**: Prawdziwe hasło użytkownika
 
-## 🌐 Architektura
+## 🏗️ Architektura Railway
 
-- **Frontend**: React Native + Expo
-- **Backend**: https://backend-production-df8c.up.railway.app
-- **Baza danych**: PostgreSQL na Railway
-- **Autoryzacja**: JWT tokens w AsyncStorage
+```
+Frontend Mobile Web (Railway)
+│
+├── Express 4.x Server
+├── React Native Web Build
+├── Static Assets (PNG, JS, CSS)
+│
+└── API Calls to Backend
+    │
+    └── Backend (Railway)
+        │
+        └── PostgreSQL Database
+```
 
 ## 📊 Status Deploymentu
 
 - ✅ **Kod wypchnięty na GitHub**: https://github.com/MariuszPieniakKID/Ptak-expo
-- ✅ **Backend działający na Railway**: https://backend-production-df8c.up.railway.app
-- ✅ **API skonfigurowane w aplikacji mobilnej**
-- ✅ **Expo Go gotowe do testów**
+- ✅ **Railway.toml skonfigurowany**
+- ✅ **Express server gotowy**
+- ✅ **Web build automatyczny**
+- ✅ **Health check endpoint**
+- ✅ **Production ready**
+
+## 🔗 Linki
+
+- **GitHub Repository**: https://github.com/MariuszPieniakKID/Ptak-expo
+- **Backend API**: https://backend-production-df8c.up.railway.app
+- **Mobile Web App**: https://ptak-expo-mobile-web-production.up.railway.app
+- **Health Check**: https://ptak-expo-mobile-web-production.up.railway.app/api/health
+
+## 📞 Testowanie Lokalne
+
+Jeśli chcesz testować lokalnie:
+
+```bash
+# Sklonuj repository
+git clone https://github.com/MariuszPieniakKID/Ptak-expo.git
+cd Ptak-expo/PtakExpoMobile
+
+# Zainstaluj zależności
+npm install
+
+# Zbuduj aplikację web
+npm run build
+
+# Uruchom serwer
+npm start
+```
+
+Aplikacja będzie dostępna na `http://localhost:3000`
 
 ## 🚨 Rozwiązywanie Problemów
 
-### Problem: Aplikacja nie może się połączyć
-- Sprawdź czy urządzenie jest w tej samej sieci WiFi
-- Sprawdź czy serwer Expo jest uruchomiony (port 8081)
+### Problem: Aplikacja nie ładuje się
+- Sprawdź czy Railway deployment jest aktywny
+- Sprawdź health check endpoint
+- Sprawdź console przeglądarki
 
 ### Problem: Błąd logowania
 - Sprawdź czy backend Railway jest dostępny
-- Sprawdź czy używasz prawdziwych danych z bazy danych
+- Sprawdź Network tab w przeglądarce
+- Sprawdź czy używasz prawdziwych danych
 
-### Problem: Błąd ładowania assetów
-- Pliki graficzne zostały przemianowane na prostsze nazwy
-- Background: `background.png`
-- Logo: `logo.png`
+### Problem: Błąd CORS
+- Aplikacja jest skonfigurowana z właściwymi headerami CORS
+- Sprawdź czy backend akceptuje requests z frontend domeny
 
-## 📞 Kontakt
+## 🎯 Następne Kroki
 
-W razie problemów z testami, skontaktuj się z deweloperem z informacjami o:
-- Typ urządzenia (iOS/Android)
-- Wersja Expo Go
-- Komunikat błędu (jeśli występuje)
+1. **Deploy na Railway**: Po stworzeniu Railway projektu
+2. **Konfiguracja domeny**: Opcjonalnie dodaj custom domain
+3. **Monitoring**: Sprawdź logi i metryki na Railway
+4. **Aktualizacje**: Automatyczne deploymenty z GitHub
 
 ---
 
-**Ostatnia aktualizacja**: 14 lipca 2025, 21:40
-**Commit**: 1b53a41 - Fix mobile app asset loading and prepare for Railway deployment 
+**Ostatnia aktualizacja**: 14 lipca 2025, 21:53
+**Commit**: ee543c5 - Configure Railway deployment for mobile web app
+**Status**: Gotowe do Railway deployment 
