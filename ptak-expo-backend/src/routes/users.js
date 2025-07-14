@@ -59,7 +59,7 @@ router.get('/', verifyToken, requireAdmin, async (req, res) => {
 router.post('/', verifyToken, requireAdmin, async (req, res) => {
   try {
     console.log('POST /users request body:', req.body);
-    const { first_name, last_name, email, phone, role } = req.body;
+    const { first_name, last_name, email, phone, role, password } = req.body;
     
     // Validation
     if (!first_name || !last_name || !email) {
@@ -91,12 +91,24 @@ router.post('/', verifyToken, requireAdmin, async (req, res) => {
       });
     }
     
-    // Generate temporary password
-    const temporaryPassword = Math.random().toString(36).slice(-8) + Math.random().toString(36).slice(-4).toUpperCase();
+    // Use provided password or generate temporary one
+    let userPassword;
+    let isTemporaryPassword = false;
+    
+    if (password && password.trim()) {
+      // Use password from form
+      userPassword = password.trim();
+      console.log('Using password from form');
+    } else {
+      // Generate temporary password
+      userPassword = Math.random().toString(36).slice(-8) + Math.random().toString(36).slice(-4).toUpperCase();
+      isTemporaryPassword = true;
+      console.log('Generated temporary password');
+    }
     
     // Hash password
     const saltRounds = 10;
-    const password_hash = await bcrypt.hash(temporaryPassword, saltRounds);
+    const password_hash = await bcrypt.hash(userPassword, saltRounds);
     
     // Insert new user
     const insertQuery = `
@@ -119,31 +131,37 @@ router.post('/', verifyToken, requireAdmin, async (req, res) => {
     console.log('New user created:', {
       id: newUser.id,
       email: newUser.email,
-      role: newUser.role
+      role: newUser.role,
+      hasCustomPassword: !isTemporaryPassword
     });
     
-    // Wyślij email z danymi logowania
-    try {
-      const emailResult = await sendWelcomeEmail(
-        newUser.email,
-        newUser.first_name,
-        newUser.last_name,
-        temporaryPassword
-      );
-      
-      if (emailResult.success) {
-        console.log('✅ Welcome email sent successfully to:', newUser.email);
-      } else {
-        console.log('⚠️ Failed to send welcome email:', emailResult.error);
+    // Send email only if temporary password was generated
+    if (isTemporaryPassword) {
+      try {
+        const emailResult = await sendWelcomeEmail(
+          newUser.email,
+          newUser.first_name,
+          newUser.last_name,
+          userPassword
+        );
+        
+        if (emailResult.success) {
+          console.log('✅ Welcome email sent successfully to:', newUser.email);
+        } else {
+          console.log('⚠️ Failed to send welcome email:', emailResult.error);
+        }
+      } catch (emailError) {
+        console.error('❌ Error sending welcome email:', emailError);
       }
-    } catch (emailError) {
-      console.error('❌ Error sending welcome email:', emailError);
-      // Nie przerywamy procesu - użytkownik został utworzony, email jest opcjonalny
     }
+    
+    const responseMessage = isTemporaryPassword 
+      ? 'Nowy użytkownik został utworzony i wysłano email z danymi logowania'
+      : 'Nowy użytkownik został utworzony z podanym hasłem';
     
     res.status(201).json({
       success: true,
-      message: 'Nowy użytkownik został utworzony i wysłano email z danymi logowania',
+      message: responseMessage,
       data: {
         id: newUser.id,
         firstName: newUser.first_name,
