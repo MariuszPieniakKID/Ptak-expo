@@ -19,6 +19,7 @@ const generateToken = (user) => {
 const login = async (req, res) => {
   try {
     const { email, password } = req.body;
+    console.log('🔍 Login attempt for email:', email);
 
     // Validate input
     if (!email || !password) {
@@ -31,11 +32,13 @@ const login = async (req, res) => {
     // Check database for user
     if (process.env.DATABASE_URL && process.env.DATABASE_URL !== 'postgresql://username:password@host/dbname?sslmode=require') {
       try {
+        console.log('🔍 Querying database for user:', email.toLowerCase());
         const result = await db.query(
-          'SELECT * FROM users WHERE email = $1 AND is_active = $2',
-          [email.toLowerCase(), true]
+          'SELECT * FROM users WHERE email = $1 AND status = $2',
+          [email.toLowerCase(), 'active']
         );
 
+        console.log('🔍 Query result:', result.rows.length, 'rows found');
         if (result.rows.length === 0) {
           return res.status(401).json({
             success: false,
@@ -44,7 +47,11 @@ const login = async (req, res) => {
         }
 
         const user = result.rows[0];
+        console.log('🔍 User found:', user.email, 'role:', user.role);
+        console.log('🔍 Stored password hash:', user.password_hash);
+        
         const isPasswordValid = await bcrypt.compare(password, user.password_hash);
+        console.log('🔍 Password valid:', isPasswordValid);
 
         if (!isPasswordValid) {
           return res.status(401).json({
