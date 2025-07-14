@@ -27,6 +27,9 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requiredRole 
 
       return () => clearInterval(timer);
     }
+    
+    // Return undefined when condition is not met
+    return undefined;
   }, [isAuthenticated, user?.role, requiredRole, logout]);
 
   // Show loading spinner while checking auth
