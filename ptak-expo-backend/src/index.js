@@ -33,15 +33,36 @@ app.use(helmet());
 const allowedOrigins = [
   'http://localhost:3000', 
   'http://localhost:3002',
-  process.env.CORS_ORIGIN
+  process.env.CORS_ORIGIN,
+  'https://frontend-production-fb96.up.railway.app',
+  'https://ptak-expo-production.up.railway.app'
 ].filter(Boolean);
 
 console.log('🔍 CORS allowed origins:', allowedOrigins);
 
+// More flexible CORS configuration
 app.use(cors({
-  origin: allowedOrigins,
+  origin: (origin, callback) => {
+    // Allow requests with no origin (like mobile apps or curl requests)
+    if (!origin) return callback(null, true);
+    
+    // Check if origin is in allowed list
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    
+    // Allow any Railway domains for flexibility
+    if (origin.includes('railway.app') || origin.includes('up.railway.app')) {
+      console.log('🔍 Allowing Railway domain:', origin);
+      return callback(null, true);
+    }
+    
+    console.log('🔍 CORS blocked origin:', origin);
+    return callback(new Error('Not allowed by CORS'));
+  },
   credentials: true
 }));
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
