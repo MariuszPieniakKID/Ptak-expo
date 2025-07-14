@@ -131,7 +131,6 @@ const LoginPage: React.FC = () => {
                   || passwordError !== ''
                   || email===""
                   || password===""
-                  || error !==""
                   }
                 >
                 {loading ? 'Logowanie...' : 'Zaloguj się'}
