@@ -110,6 +110,15 @@ VALUES (
     'PTAK EXPO'
 ) ON CONFLICT (email) DO NOTHING;
 
+INSERT INTO users (email, password_hash, role, first_name, last_name) 
+VALUES (
+    'test.admin@ptak-expo.com', 
+    '$2a$10$NLrhOzCPxUW1Xw/ylXHfwew4XJO90LnkqS.5VuI/kEy7jEU2CLT5G', -- test123
+    'admin',
+    'Test Admin',
+    'PTAK EXPO'
+) ON CONFLICT (email) DO NOTHING;
+
 -- Insert additional test users for user management page
 INSERT INTO users (email, password_hash, role, first_name, last_name, phone) 
 VALUES (
