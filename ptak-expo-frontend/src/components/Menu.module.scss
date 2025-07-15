@@ -1,0 +1,45 @@
+@import '../styles/variables';
+@import '../styles/mixins';
+
+.appBar {
+  background-color: $color-white !important;
+  box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.2), 0 4px 5px 0 rgba(0, 0, 0, 0.14), 0 1px 10px 0 rgba(0, 0, 0, 0.12) !important;
+  border-radius: 20px !important;
+  color: #000 !important;
+  margin: 1rem;
+  width: calc(100% - 2rem) !important;
+}
+
+.toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 1rem !important;
+}
+
+.logo {
+  height: 50px;
+  cursor: pointer;
+}
+
+.navLinks {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.navButton {
+  font-family: 'Roc Grotesk', sans-serif !important;
+  font-weight: 500 !important;
+  color: $color-darkslategray !important;
+  text-transform: none !important;
+
+  .icon {
+    margin-right: 0.5rem;
+  }
+}
+
+.active {
+  color: $color-blue !important;
+  // Add other active styles if needed, e.g., border-bottom
+}

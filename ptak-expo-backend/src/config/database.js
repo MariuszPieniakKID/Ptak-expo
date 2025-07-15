@@ -1,13 +1,35 @@
 const { Pool } = require('pg');
 
-console.log('🔍 Database config - DATABASE_URL:', process.env.DATABASE_URL ? 'SET (starts with: ' + process.env.DATABASE_URL.substring(0, 20) + '...)' : 'NOT SET');
+// Determine which database to use based on environment
+const getDatabaseUrl = () => {
+  // If we're in Railway production environment, use Railway's DATABASE_URL
+  if (process.env.RAILWAY_ENVIRONMENT) {
+    console.log('🔍 Railway environment detected, using Railway database');
+    return process.env.DATABASE_URL;
+  }
+  
+  // If LOCAL_DATABASE_URL is set, use it for local development
+  if (process.env.LOCAL_DATABASE_URL) {
+    console.log('🔍 Local development environment, using local database');
+    return process.env.LOCAL_DATABASE_URL;
+  }
+  
+  // Fallback to DATABASE_URL
+  console.log('🔍 Using fallback DATABASE_URL');
+  return process.env.DATABASE_URL;
+};
+
+const databaseUrl = getDatabaseUrl();
+
+console.log('🔍 Database config - Selected URL:', databaseUrl ? 'SET (starts with: ' + databaseUrl.substring(0, 20) + '...)' : 'NOT SET');
 console.log('🔍 Database config - NODE_ENV:', process.env.NODE_ENV);
-console.log('🔍 Database config - SSL mode:', process.env.NODE_ENV === 'production' ? 'enabled' : 'disabled');
+console.log('🔍 Database config - RAILWAY_ENVIRONMENT:', process.env.RAILWAY_ENVIRONMENT || 'not set');
+console.log('🔍 Database config - SSL mode:', process.env.NODE_ENV === 'production' || process.env.RAILWAY_ENVIRONMENT ? 'enabled' : 'disabled');
 
 // Database connection configuration
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false,
+  connectionString: databaseUrl,
+  ssl: (process.env.NODE_ENV === 'production' || process.env.RAILWAY_ENVIRONMENT) ? { rejectUnauthorized: false } : false,
   connectionTimeoutMillis: 30000, // 30 seconds timeout
   idleTimeoutMillis: 30000,
   max: 20, // Maximum number of connections

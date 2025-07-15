@@ -1,0 +1,23 @@
+@import '../styles/variables';
+
+.dialogTitle {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background-color: $color-gray;
+}
+
+.titleIcon {
+    width: 43px;
+    height: 43px;
+}
+
+.dialogContent {
+    padding-top: 20px !important;
+}
+
+.infoText {
+    font-size: 0.8rem;
+    color: $color-darkgray;
+    margin-top: 1rem;
+} 

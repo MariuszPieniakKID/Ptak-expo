@@ -1,8 +1,48 @@
-import React, { useCallback, memo } from 'react';
+import React, { useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import Menu from '../components/Menu';
-import styles from './DashboardPage.module.css';
+import {
+  Container,
+  Typography,
+  Card,
+  CardContent,
+  Box,
+  Button,
+  Avatar,
+} from '@mui/material';
+import LogoutIcon from '@mui/icons-material/Logout';
+import styles from './DashboardPage.module.scss';
+
+// Import images
+import ExhibitorsIcon from '../assets/mask-group-6@2x.png';
+import EventsIcon from '../assets/mask-group-5@2x.png';
+import UsersIcon from '../assets/mask-group-51@2x.png';
+import DatabaseIcon from '../assets/baza@2x.png';
+import UserAvatar from '../assets/7bb764a0137abc7a8142b6438e529133@2x.png';
+
+const dashboardItems = [
+  {
+    title: 'Wystawcy',
+    icon: ExhibitorsIcon,
+    handler: 'navigateToExhibitors',
+  },
+  {
+    title: 'Wydarzenia',
+    icon: EventsIcon,
+    handler: 'navigateToEvents',
+  },
+  {
+    title: 'Użytkownicy',
+    icon: UsersIcon,
+    handler: 'navigateToUsers',
+  },
+  {
+    title: 'Baza Danych',
+    icon: DatabaseIcon,
+    handler: 'navigateToDatabase',
+  },
+];
 
 const DashboardPage: React.FC = () => {
   const navigate = useNavigate();
@@ -13,99 +53,75 @@ const DashboardPage: React.FC = () => {
     navigate('/login');
   }, [logout, navigate]);
 
-  const navigateToUsers = useCallback(() => {
-    navigate('/uzytkownicy');
-  }, [navigate]);
+  const handlers: { [key: string]: () => void } = {
+    navigateToUsers: useCallback(() => navigate('/uzytkownicy'), [navigate]),
+    navigateToExhibitors: useCallback(() => console.log('Navigate to Wystawcy'), []),
+    navigateToEvents: useCallback(() => console.log('Navigate to Wydarzenia'), []),
+    navigateToDatabase: useCallback(() => console.log('Navigate to Baza Danych'), []),
+  };
 
-  const navigateToExhibitors = useCallback(() => {
-    console.log('Navigate to Wystawcy');
-  }, []);
-
-  const navigateToEvents = useCallback(() => {
-    console.log('Navigate to Wydarzenia');
-  }, []);
-
-  const navigateToDatabase = useCallback(() => {
-    console.log('Navigate to Baza Danych');
-  }, []);
-  
   return (
-    <div className={styles.web136620}>
-      <img className={styles.maskGroup28} alt="" src="/assets/mask-group-28@2x.png" />
-      <div className={styles.web136620Child}></div>
-      <div className={styles.web136620Item}></div>
-      <div className={styles.web136620Inner}></div>
-      <div className={styles.rectangleDiv}></div>
-      
-      {/* Wystawcy section */}
-      <div className={styles.wystawcyParent} onClick={navigateToExhibitors}>
-        <div className={styles.wystawcy}>Wystawcy</div>
-        <img className={styles.maskGroup6} alt="" src="/assets/mask-group-6@2x.png" />
-      </div>
-      
-      {/* Wydarzenia section */}
-      <div className={styles.wydarzeniaParent} onClick={navigateToEvents}>
-        <div className={styles.wystawcy}>Wydarzenia</div>
-        <img className={styles.maskGroup5} alt="" src="/assets/mask-group-5@2x.png" />
-      </div>
-      
-      {/* Footer kontakt */}
-      <div className={styles.kontakt}>
-        Kontakt • Polityka prywatności • www.warsawexpo.eu
-      </div>
-      
-      {/* Wyloguj section */}
-      <div className={styles.groupParent} onClick={handleLogout}>
-        <img className={styles.groupChild} alt="" src="/assets/group-872.svg" />
-        <div className={styles.wyloguj}>Wyloguj</div>
-      </div>
-      
-      {/* Logo */}
-      <div className={styles.groupDiv}></div>
-      
-      {/* User greeting section */}
-      <div className={styles.dzieDobryJoannaParent}>
-        <div className={styles.dzieDobryJoanna}>
-          Dzień dobry, {user?.firstName || 'Użytkowniku'}
-        </div>
-        <img
-          className={styles.bb764a0137abc7a8142b6438e52913Icon}
-          alt=""
-          src="/assets/7bb764a0137abc7a8142b6438e529133@2x.png"
-        />
-        <div className={styles.sprawdCoMoesz}>
-          Sprawdź co możesz dzisiaj zrobić!
-        </div>
-        <img className={styles.groupItem} alt="" src="/assets/group-27@2x.png" />
-      </div>
-      
-      {/* Dolny rząd - biały prostokąt po prawej */}
-      <div className={styles.web136620Child1}></div>
-      
-      {/* Użytkownicy section - w dolnym prawym prostokącie */}
-      <div className={styles.uytkownicyParent} onClick={navigateToUsers}>
-        <div className={styles.wystawcy}>Użytkownicy</div>
-        <img
-          className={styles.maskGroup51}
-          alt=""
-          src="/assets/mask-group-51@2x.png"
-        />
-      </div>
-      
-      {/* Menu component */}
+    <Box className={styles.dashboardPage}>
       <Menu />
-      
-      {/* Dolny rząd - biały prostokąt po lewej */}
-      <div className={styles.web136620Child2}></div>
-      
-      {/* Baza Danych section - w dolnym lewym prostokącie */}
-      <div className={styles.bazaDanychParent} onClick={navigateToDatabase}>
-        <div className={styles.wystawcy}>Baza Danych</div>
-        <div className={styles.maskGroup61}></div>
-      </div>
-      <img className={styles.bazaIcon} alt="" src="/assets/baza@2x.png" />
-    </div>
+      <Container maxWidth="lg" className={styles.contentWrapper}>
+        <Box className={styles.header}>
+          <Box className={styles.welcomeMessage}>
+            <Avatar src={UserAvatar} alt={user?.firstName || 'User'} className={styles.avatar} />
+            <Box>
+              <Typography variant="h5" component="h1">
+                Dzień dobry, {user?.firstName || 'Użytkowniku'}
+              </Typography>
+              <Typography variant="body2" color="textSecondary">
+                Sprawdź co możesz dzisiaj zrobić!
+              </Typography>
+            </Box>
+          </Box>
+          <Button
+            variant="outlined"
+            onClick={handleLogout}
+            startIcon={<LogoutIcon />}
+            className={styles.logoutButton}
+          >
+            Wyloguj
+          </Button>
+        </Box>
+
+        <Box 
+          sx={{ 
+            display: 'flex', 
+            flexWrap: 'wrap', 
+            gap: 3,
+            justifyContent: 'center'
+          }}
+        >
+          {dashboardItems.map((item) => (
+            <Box
+              key={item.title}
+              sx={{
+                flex: '1 1 300px',
+                minWidth: '300px',
+                maxWidth: '400px'
+              }}
+            >
+              <Card className={styles.card} onClick={handlers[item.handler]}>
+                <CardContent className={styles.cardContent}>
+                  <img src={item.icon} alt={item.title} className={styles.cardIcon} />
+                  <Typography variant="h6" component="h2">
+                    {item.title}
+                  </Typography>
+                </CardContent>
+              </Card>
+            </Box>
+          ))}
+        </Box>
+      </Container>
+      <Box className={styles.footer}>
+        <Typography variant="caption">
+          Kontakt • Polityka prywatności • www.warsawexpo.eu
+        </Typography>
+      </Box>
+    </Box>
   );
 };
 
-export default memo(DashboardPage); 
+export default DashboardPage; 

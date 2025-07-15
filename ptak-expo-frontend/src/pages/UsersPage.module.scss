@@ -1,0 +1,56 @@
+@import '../styles/variables';
+@import '../styles/mixins';
+
+.usersPage {
+  background-color: $color-gray;
+  min-height: 100vh;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.titleContainer {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.titleIcon {
+    width: 43px;
+    height: 43px;
+}
+
+.tableContainer {
+  border-radius: 20px !important;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1) !important;
+}
+
+.tableHead {
+  background-color: $color-gray;
+}
+
+.tableCell {
+  font-family: 'Roc Grotesk', sans-serif !important;
+}
+
+.avatarCell {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.avatar {
+  width: 35px !important;
+  height: 35px !important;
+}
+
+.actionButtons {
+  display: flex;
+  gap: 0.5rem;
+}

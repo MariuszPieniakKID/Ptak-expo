@@ -1,60 +1,77 @@
-import { FunctionComponent } from "react";
-import { useNavigate } from "react-router-dom";
-import styles from "./Menu.module.css";
+import React, { FunctionComponent } from 'react';
+import { NavLink, useNavigate, useResolvedPath, useMatch } from 'react-router-dom';
+import { AppBar, Toolbar, Button, Box, IconButton } from '@mui/material';
+import AccountCircle from '@mui/icons-material/AccountCircle';
+import styles from './Menu.module.scss';
+
+import Logo from '../assets/group-257@3x.png';
+import { ReactComponent as HomeIcon } from '../assets/group-4.svg';
+import { ReactComponent as UsersIcon } from '../assets/group-30483.svg';
+import { ReactComponent as EventsIcon } from '../assets/group-30441.svg';
+import { ReactComponent as ExhibitorsIcon } from '../assets/group-872.svg';
+import { ReactComponent as DatabaseIcon } from '../assets/group-1012.svg';
+
 
 export type MenuType = {
   className?: string;
 };
 
-const Menu: FunctionComponent<MenuType> = ({ className = "" }) => {
+const navItems = [
+    { text: 'Home', path: '/dashboard', icon: <HomeIcon /> },
+    { text: 'Użytkownicy', path: '/uzytkownicy', icon: <UsersIcon /> },
+    { text: 'Baza wystawców', path: '/wystawcy', icon: <ExhibitorsIcon /> },
+    { text: 'Baza Wydarzeń', path: '/wydarzenia', icon: <EventsIcon /> },
+    { text: 'Baza danych', path: '/baza-danych', icon: <DatabaseIcon /> },
+];
+
+const CustomNavLink: FunctionComponent<{ to: string; children: React.ReactNode; startIcon: React.ReactNode }> = ({ to, children, startIcon }) => {
+    const resolved = useResolvedPath(to);
+    const match = useMatch({ path: resolved.pathname, end: true });
+
+    return (
+        <Button
+            component={NavLink}
+            to={to}
+            className={match ? `${styles.navButton} ${styles.active}` : styles.navButton}
+            startIcon={startIcon}
+        >
+            {children}
+        </Button>
+    );
+};
+
+const Menu: FunctionComponent<MenuType> = ({ className = '' }) => {
   const navigate = useNavigate();
-  
-  const handleHomeClick = () => {
-    navigate('/dashboard');
-  };
-  
-  const handleUsersClick = () => {
-    navigate('/uzytkownicy');
-  };
-  
-  const handleExhibitorsClick = () => {
-    console.log('Navigate to Wystawcy');
-  };
-  
-  const handleEventsClick = () => {
-    console.log('Navigate to Wydarzenia');
-  };
-  
-  const handleDatabaseClick = () => {
-    console.log('Navigate to Baza Danych');
-  };
-  
+
   return (
-    <div className={[styles.component5040, className].join(" ")}>
-      <div className={styles.component5040Child} />
-      <div className={styles.component5040Inner}>
-        <div className={styles.groupChild} />
-      </div>
-      <div className={styles.component5040Item} />
-      <div className={styles.homeParent}>
-        <div className={styles.home} onClick={handleHomeClick} style={{cursor: 'pointer'}}>Home</div>
-        <img className={styles.groupItem} alt="" src="/assets/group-4.svg" />
-        <div className={styles.bazaWystawcw} onClick={handleExhibitorsClick} style={{cursor: 'pointer'}}>Baza wystawców</div>
-        <div className={styles.bazaWydarze} onClick={handleEventsClick} style={{cursor: 'pointer'}}>Baza Wydarzeń</div>
-        <div className={styles.path11682Parent}>
-          <img className={styles.path11682Icon} alt="" src="/assets/path-11682.svg" />
-          <img className={styles.path11683Icon} alt="" src="/assets/path-11683.svg" />
-          <img className={styles.path11684Icon} alt="" src="/assets/path-11684.svg" />
-          <img className={styles.path11685Icon} alt="" src="/assets/path-11685.svg" />
-        </div>
-        <img className={styles.groupInner} alt="" src="/assets/group-30441.svg" />
-        <img className={styles.ellipseIcon} alt="" src="/assets/ellipse-64.svg" />
-        <div className={styles.rectangleDiv} />
-        <div className={styles.uytkownicy} onClick={handleUsersClick} style={{cursor: 'pointer'}}>Użytkownicy</div>
-        <img className={styles.groupIcon} alt="" src="/assets/group-30483.svg" />
-        <div className={styles.bazaDanych} onClick={handleDatabaseClick} style={{cursor: 'pointer'}}>Baza danych</div>
-      </div>
-    </div>
+    <AppBar position="static" className={`${styles.appBar} ${className}`}>
+      <Toolbar className={styles.toolbar}>
+        <img
+          src={Logo}
+          alt="Ptak Expo Logo"
+          className={styles.logo}
+          onClick={() => navigate('/dashboard')}
+        />
+        <Box className={styles.navLinks}>
+          {navItems.map((item) => (
+            <CustomNavLink key={item.text} to={item.path} startIcon={item.icon}>
+                {item.text}
+            </CustomNavLink>
+          ))}
+        </Box>
+        <Box>
+          <IconButton
+            size="large"
+            edge="end"
+            aria-label="account of current user"
+            aria-haspopup="true"
+            color="inherit"
+          >
+            <AccountCircle />
+          </IconButton>
+        </Box>
+      </Toolbar>
+    </AppBar>
   );
 };
 

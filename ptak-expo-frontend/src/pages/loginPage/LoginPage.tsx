@@ -1,151 +1,155 @@
-import React, { useState, useEffect, useCallback, memo } from 'react';
-
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
-import styles from './LoginPage.module.css';
-
+import {
+  Box,
+  TextField,
+  Button,
+  CircularProgress,
+  Typography,
+  Link,
+} from '@mui/material';
+import styles from './LoginPage.module.scss';
 
 const LoginPage: React.FC = () => {
-   const [email, setEmail] = useState('');
-   const [password, setPassword] = useState('');
-   const [loading, setLoading] = useState(false);
-   
-   const [error, setError] = useState('');
-   const [emailError, setEmailError] = useState('');
-   const [passwordError, setPasswordError] = useState('');
-   const navigate = useNavigate();
-   const { login, isAuthenticated } = useAuth();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [emailError, setEmailError] = useState('');
+  const [passwordError, setPasswordError] = useState('');
+  const navigate = useNavigate();
+  const { login, isAuthenticated } = useAuth();
 
-  const [isFocusedEmail, setIsFocusedEmail] = useState(false);
-  const [isFocusedPassword, setIsFocusedPassword] = useState(false);
-
-  // Redirect if already authenticated
-   useEffect(() => {
-     if (isAuthenticated) {
-       navigate('/dashboard');
-     }
-   }, [isAuthenticated, navigate]);
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/dashboard');
+    }
+  }, [isAuthenticated, navigate]);
 
   const validateEmail = (email: string) => {
+    if (!email) {
+      setEmailError('Podaj adres e-mail');
+      return false;
+    }
     const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return re.test(email);
+    if (!re.test(email)) {
+      setEmailError('Podaj poprawny adres e-mail np.: email@gmail.com');
+      return false;
+    }
+    setEmailError('');
+    return true;
   };
 
-  const handleSubmit = useCallback(async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
-    let valid = true;
-
-    if (!email) {
-    setEmailError('Podaj adres e-mail');
-    valid = false;
-    } else if (!validateEmail(email)) {
-    setEmailError('Podaj poprawny adres e-mail np.: email@gmail.pl');
-    valid = false;
-    } else {
-    setEmailError('');
-    }
-
+  const validatePassword = (password: string) => {
     if (!password) {
-    setPasswordError('Podaj hasło');
-    valid = false;
-    } else {
+      setPasswordError('Podaj hasło');
+      return false;
+    }
     setPasswordError('');
-    }
+    return true;
+  };
 
-    if (!valid) return;
+  const handleSubmit = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
+      setError('');
 
-    setLoading(true);
+      const isEmailValid = validateEmail(email);
+      const isPasswordValid = validatePassword(password);
 
-    try {
-      const success = await login(email, password);
-      
-      if (success) {
-        navigate('/dashboard');
-      } else {
-        setError('Nieprawidłowy email lub hasło. Spróbuj ponownie.');
+      if (!isEmailValid || !isPasswordValid) return;
+
+      setLoading(true);
+
+      try {
+        const success = await login(email, password);
+        if (success) {
+          navigate('/dashboard');
+        } else {
+          setError('Nieprawidłowy email lub hasło. Spróbuj ponownie.');
+        }
+      } catch (err) {
+        setError('Błąd logowania. Sprawdź dane i spróbuj ponownie.');
+        console.error('Login error:', err);
+      } finally {
+        setLoading(false);
       }
-    } catch (err) {
-      setError('Błąd logowania. Sprawdź dane i spróbuj ponownie.');
-      console.error('Login error:', err);
-    } finally {
-      setLoading(false);
-    }
-  }, [email, password, login, navigate]);
+    },
+    [email, password, login, navigate]
+  );
 
   return (
     <div className={styles.loginContainer}>
-      <img className={styles.image35Icon} alt="" src="/assets/image-35@2x.png" />
-      <div className={styles.web13662Child} />
-      <div className={styles.web13662Item} />
-      <div className={styles.web13662Inner} />
-      <div className={styles.loginDataContainer}>
-       
-        <div className={styles.title}><p>Panel <br/>Administratora</p></div>
-        <div className={styles.loginTitle}><p>Logowanie</p></div>
-       <form onSubmit={handleSubmit}>
-          <input
+      <div className={styles.logo} />
+      <Box className={styles.loginBox}>
+        <Typography variant="h1" className={styles.title}>
+          Panel <br />
+          Administratora
+        </Typography>
+        <Typography variant="h2" className={styles.loginTitle}>
+          Logowanie
+        </Typography>
+        <Box
+          component="form"
+          onSubmit={handleSubmit}
+          className={styles.form}
+          noValidate
+        >
+          <TextField
+            label="Adres E-mail"
+            variant="outlined"
             type="email"
             value={email}
             onChange={(e) => {
               setEmail(e.target.value);
-              setError('');
-              if (!validateEmail(e.target.value)) {
-                setEmailError('Podaj poprawny adres e-mail');
-              } else {
-                setEmailError('');
-              }}}
-             placeholder={isFocusedEmail ? "" : "adres@gmail.com"}
-             className={styles.inputData}
-             onFocus={() => setIsFocusedEmail(true)}
-             onBlur={() => setIsFocusedEmail(false)}
+              validateEmail(e.target.value);
+            }}
+            error={!!emailError}
+            helperText={emailError}
+            fullWidth
           />
-          {!emailError && (<div className={styles.inputDescription}>Adres E-mail</div>   )} 
-          {emailError && (<div className={styles.errorInputMessage}>{emailError}</div>)}
-  
-         <input
+          <TextField
+            label="Hasło"
+            variant="outlined"
             type="password"
             value={password}
             onChange={(e) => {
               setPassword(e.target.value);
-              setError('')}}
-            placeholder={isFocusedPassword ? "" : "*******"}
-            className={styles.inputData}
-            onFocus={() => setIsFocusedPassword(true)}
-            onBlur={() => setIsFocusedPassword(false)}
+              validatePassword(e.target.value);
+            }}
+            error={!!passwordError}
+            helperText={passwordError}
+            fullWidth
           />
-          {!passwordError && (<div className={styles.inputDescription}>Hasło</div> )} 
-          {passwordError  && (<div className={styles.errorInputMessage}>{passwordError }</div>)}
 
-
-
-          <div className={styles.buttonContainer}>
-            <div className={styles.errorContainer}>
-              {error && (<div className={styles.errorMessage}>{error}</div>)}
-            </div>
-            {loading 
-              ?  
-              <div className={styles.spinner}></div>
-              :
-              <button
+          <Box className={styles.buttonContainer}>
+            {error && (
+              <Typography color="error" className={styles.errorMessage}>
+                {error}
+              </Typography>
+            )}
+            {loading ? (
+              <CircularProgress />
+            ) : (
+              <Button
                 type="submit"
-                className={styles.logButton}
-                disabled={loading
-                  || emailError !== '' 
-                  || passwordError !== ''
-                  || email===""
-                  || password===""
-                  || error !==""
-                  }
-                >
-                {loading ? 'Logowanie...' : 'Zaloguj się'}
-              </button>}
-            <div className={styles.remindMePassword}>Przypomnij hasło</div>
-          </div>
-        </form>
-      </div>  
+                variant="contained"
+                color="primary"
+                fullWidth
+                disabled={loading || !!emailError || !!passwordError || !email || !password}
+              >
+                Zaloguj się
+              </Button>
+            )}
+            <Link href="#" className={styles.remindMePassword}>
+              Przypomnij hasło
+            </Link>
+          </Box>
+        </Box>
+      </Box>
     </div>
   );
 };
 
-export default memo(LoginPage); 
+export default LoginPage; 
