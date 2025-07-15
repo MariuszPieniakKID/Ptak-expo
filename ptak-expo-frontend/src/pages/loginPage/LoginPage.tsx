@@ -74,10 +74,9 @@ const LoginPage: React.FC = () => {
   }, [email, password, login, navigate]);
 
   return (
-    
-
+   
+  <>
     <div className={styles.loginContainer}>
-      <div className={styles.blueOverlay}></div>
       <div className={styles.loginContainerLogo} /> 
       <div className={styles.loginDataContainer}>
        
@@ -145,6 +144,12 @@ const LoginPage: React.FC = () => {
         </form>
       </div>  
     </div>
+    <div className={styles.filtr}>
+      <div className={styles.filtrGray}></div>
+      <div className={styles.filtrBlue}></div>
+    </div>
+    
+    </>
   );
 };
 
