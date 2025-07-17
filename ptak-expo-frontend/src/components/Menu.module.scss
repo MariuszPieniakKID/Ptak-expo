@@ -6,20 +6,18 @@
   box-shadow: $shadow-md !important;
   border-radius: $border-radius-lg !important;
   color: $color-darkslategray !important;
-  margin: $spacing-lg;
-  width: calc(100% - #{$spacing-xxxl}) !important;
-  z-index: 10 !important;
-  position: relative !important;
+  margin: 0 !important;
+  width: 100% !important;
+  z-index: 1000 !important;
+  position: sticky !important;
+  top: 0 !important;
   
   @include for-phone-only {
-    margin: $spacing-md;
-    width: calc(100% - #{$spacing-xl}) !important;
     border-radius: $border-radius-md !important;
   }
   
   @include for-tablet-portrait {
-    margin: $spacing-lg;
-    width: calc(100% - #{$spacing-xxxl}) !important;
+    border-radius: $border-radius-lg !important;
   }
 }
 

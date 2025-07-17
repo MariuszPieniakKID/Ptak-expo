@@ -4,18 +4,14 @@
 .usersPage {
   background-color: $color-gray;
   min-height: 100vh;
-  padding: $spacing-xxxl;
+  padding: $spacing-lg;
   
   @include for-phone-only {
-    padding: $spacing-lg;
-  }
-  
-  @include for-phone-landscape {
-    padding: $spacing-xl;
+    padding: $spacing-md;
   }
   
   @include for-tablet-portrait {
-    padding: $spacing-xxl;
+    padding: $spacing-lg;
   }
 }
 

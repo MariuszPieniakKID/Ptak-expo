@@ -6,6 +6,15 @@
   width: 100%;
   min-height: 100vh;
   background-color: $color-gray;
+  padding: $spacing-lg;
+
+  @include for-phone-only {
+    padding: $spacing-md;
+  }
+  
+  @include for-tablet-portrait {
+    padding: $spacing-lg;
+  }
 
   &::before {
     content: '';
@@ -37,17 +46,21 @@
   position: relative;
   z-index: 1;
   padding: $spacing-xxxl;
+  margin-top: $spacing-lg;
   
   @include for-phone-only {
     padding: $spacing-lg;
+    margin-top: $spacing-md;
   }
   
   @include for-phone-landscape {
     padding: $spacing-xl;
+    margin-top: $spacing-md;
   }
   
   @include for-tablet-portrait {
     padding: $spacing-xxl;
+    margin-top: $spacing-lg;
   }
 }
 
