@@ -61,7 +61,7 @@ const DashboardPage: React.FC = () => {
 
   const handlers: { [key: string]: () => void } = {
     navigateToUsers: useCallback(() => navigate('/uzytkownicy'), [navigate]),
-    navigateToExhibitors: useCallback(() => console.log('Navigate to Wystawcy'), []),
+    navigateToExhibitors: useCallback(() => navigate('/wystawcy'), [navigate]),
     navigateToEvents: useCallback(() => console.log('Navigate to Wydarzenia'), []),
     navigateToDatabase: useCallback(() => console.log('Navigate to Baza Danych'), []),
   };

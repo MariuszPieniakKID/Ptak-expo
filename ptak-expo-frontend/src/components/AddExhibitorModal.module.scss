@@ -1,0 +1,62 @@
+@import '../styles/variables';
+@import '../styles/mixins';
+
+.dialogTitle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.5rem 1.5rem 1rem 1.5rem;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.titleContainer {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.titleIcon {
+  width: 32px;
+  height: 32px;
+}
+
+.closeButton {
+  color: #666;
+  
+  &:hover {
+    color: #333;
+  }
+}
+
+.dialogContent {
+  padding: 1.5rem;
+}
+
+.form {
+  margin-top: 1rem;
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  
+  @include for-phone-only {
+    grid-template-columns: 1fr;
+  }
+}
+
+.formField {
+  display: flex;
+  flex-direction: column;
+  
+  &.fullWidth {
+    grid-column: 1 / -1;
+  }
+}
+
+.dialogActions {
+  padding: 1rem 1.5rem;
+  border-top: 1px solid #e0e0e0;
+  gap: 1rem;
+} 

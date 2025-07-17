@@ -9,6 +9,24 @@ export interface User {
   phone?: string;
 }
 
+export interface Exhibitor {
+  id: number;
+  nip: string;
+  companyName: string;
+  address: string;
+  postalCode: string;
+  city: string;
+  contactPerson: string;
+  contactRole: string;
+  phone: string;
+  email: string;
+  status: string;
+  nearestEventDate?: string;
+  eventNames?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 const apiCall = async (url: string, options: RequestInit, retries = 3): Promise<Response> => {
   for (let i = 0; i < retries; i++) {
     try {
@@ -81,6 +99,60 @@ export const addUser = async (userData: AddUserPayload, token: string): Promise<
     if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.message || 'Błąd podczas dodawania użytkownika');
+    }
+
+    return response.json();
+};
+
+// Exhibitors API
+export const fetchExhibitors = async (token: string): Promise<Exhibitor[]> => {
+  const response = await apiCall(`${config.API_BASE_URL}/api/v1/exhibitors`, {
+    headers: { 'Authorization': `Bearer ${token}` },
+  });
+  if (!response.ok) {
+    throw new Error('Failed to fetch exhibitors');
+  }
+  const data = await response.json();
+  return data.sort((a: Exhibitor, b: Exhibitor) => a.companyName.localeCompare(b.companyName));
+};
+
+export const deleteExhibitor = async (exhibitorId: number, token: string): Promise<any> => {
+  const response = await apiCall(`${config.API_BASE_URL}/api/v1/exhibitors/${exhibitorId}`, {
+    method: 'DELETE',
+    headers: { 'Authorization': `Bearer ${token}` },
+  });
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.error || 'Failed to delete exhibitor');
+  }
+  return response.json();
+};
+
+export interface AddExhibitorPayload {
+  nip: string;
+  companyName: string;
+  address: string;
+  postalCode: string;
+  city: string;
+  contactPerson: string;
+  contactRole: string;
+  phone: string;
+  email: string;
+}
+
+export const addExhibitor = async (exhibitorData: AddExhibitorPayload, token: string): Promise<any> => {
+    const response = await apiCall(`${config.API_BASE_URL}/api/v1/exhibitors`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify(exhibitorData),
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Błąd podczas dodawania wystawcy');
     }
 
     return response.json();

@@ -198,6 +198,36 @@ const initializeDatabase = async () => {
       )
     `);
 
+    console.log('🔍 Creating exhibitors table...');
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS exhibitors (
+        id SERIAL PRIMARY KEY,
+        nip VARCHAR(20) UNIQUE NOT NULL,
+        company_name VARCHAR(255) NOT NULL,
+        address VARCHAR(255) NOT NULL,
+        postal_code VARCHAR(10) NOT NULL,
+        city VARCHAR(100) NOT NULL,
+        contact_person VARCHAR(255) NOT NULL,
+        contact_role VARCHAR(100) NOT NULL,
+        phone VARCHAR(50) NOT NULL,
+        email VARCHAR(255) NOT NULL,
+        status VARCHAR(20) DEFAULT 'active' CHECK (status IN ('active', 'inactive', 'pending')),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
+    console.log('🔍 Creating exhibitor_events table...');
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS exhibitor_events (
+        id SERIAL PRIMARY KEY,
+        exhibitor_id INTEGER REFERENCES exhibitors(id) ON DELETE CASCADE,
+        exhibition_id INTEGER REFERENCES exhibitions(id) ON DELETE CASCADE,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE(exhibitor_id, exhibition_id)
+      )
+    `);
+
     console.log('🔍 Inserting admin user...');
     await pool.query(`
       INSERT INTO users (email, password_hash, role, first_name, last_name) 
@@ -220,6 +250,18 @@ const initializeDatabase = async () => {
         ('anna.dereszowska@warsawexpo.eu', '$2a$10$NLrhOzCPxUW1Xw/ylXHfwew4XJO90LnkqS.5VuI/kEy7jEU2CLT5G', 'exhibitor', 'Anna', 'Dereszowska', '+48 518 739 124'),
         ('marian.pienkowski@warsawexpo.eu', '$2a$10$NLrhOzCPxUW1Xw/ylXHfwew4XJO90LnkqS.5VuI/kEy7jEU2CLT5G', 'exhibitor', 'Marian', 'Pienkowski', '+48 518 739 125')
       ON CONFLICT (email) DO NOTHING
+    `);
+
+    console.log('🔍 Inserting test exhibitors...');
+    await pool.query(`
+      INSERT INTO exhibitors (nip, company_name, address, postal_code, city, contact_person, contact_role, phone, email) 
+      VALUES 
+        ('1234567890', 'ABC Electronics Sp. z o.o.', 'ul. Elektroniczna 15', '00-001', 'Warszawa', 'Jan Kowalski', 'Kierownik Sprzedaży', '+48 22 123 45 67', 'j.kowalski@abc-electronics.pl'),
+        ('9876543210', 'TechnoMed Solutions', 'Al. Medyczna 8', '31-000', 'Kraków', 'Anna Nowak', 'Dyrektor Handlowy', '+48 12 987 65 43', 'a.nowak@technomed.pl'),
+        ('5555666777', 'Green Energy Systems', 'ul. Zielona 22', '50-001', 'Wrocław', 'Piotr Wiśniewski', 'Specjalista ds. Sprzedaży', '+48 71 555 66 77', 'p.wisniewski@green-energy.pl'),
+        ('1111222333', 'Digital Marketing Pro', 'ul. Cyfrowa 5', '80-001', 'Gdańsk', 'Maria Kowalczyk', 'Account Manager', '+48 58 111 22 33', 'm.kowalczyk@digitalmarketing.pl'),
+        ('4444555666', 'Industrial Automation Ltd', 'ul. Przemysłowa 44', '40-001', 'Katowice', 'Tomasz Zieliński', 'Inżynier Sprzedaży', '+48 32 444 55 66', 't.zielinski@automation.pl')
+      ON CONFLICT (nip) DO NOTHING
     `);
 
     console.log('✅ Database tables initialized successfully');

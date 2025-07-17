@@ -6,6 +6,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import LoginPage from './pages/loginPage/LoginPage';
 import DashboardPage from './pages/DashboardPage';
 import UsersPage from './pages/UsersPage';
+import ExhibitorsPage from './pages/ExhibitorsPage';
 import './App.scss';
 
 function App() {
@@ -31,6 +32,13 @@ function App() {
             <Route path="/uzytkownicy" element={
               <ProtectedRoute requiredRole="admin">
                 <UsersPage />
+              </ProtectedRoute>
+            } />
+            
+            {/* Protected Exhibitors page - Admin only */}
+            <Route path="/wystawcy" element={
+              <ProtectedRoute requiredRole="admin">
+                <ExhibitorsPage />
               </ProtectedRoute>
             } />
             
