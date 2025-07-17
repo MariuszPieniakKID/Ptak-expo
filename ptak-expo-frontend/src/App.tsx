@@ -7,6 +7,7 @@ import LoginPage from './pages/loginPage/LoginPage';
 import DashboardPage from './pages/DashboardPage';
 import UsersPage from './pages/UsersPage';
 import ExhibitorsPage from './pages/ExhibitorsPage';
+import EventsPage from './pages/EventsPage';
 import './App.scss';
 
 function App() {
@@ -39,6 +40,13 @@ function App() {
             <Route path="/wystawcy" element={
               <ProtectedRoute requiredRole="admin">
                 <ExhibitorsPage />
+              </ProtectedRoute>
+            } />
+            
+            {/* Protected Events page - Admin only */}
+            <Route path="/wydarzenia" element={
+              <ProtectedRoute requiredRole="admin">
+                <EventsPage />
               </ProtectedRoute>
             } />
             

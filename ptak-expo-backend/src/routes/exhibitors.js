@@ -27,7 +27,7 @@ router.get('/', verifyToken, requireAdmin, async (req, res) => {
         STRING_AGG(ex.name, ', ') as event_names
       FROM exhibitors e
       LEFT JOIN exhibitor_events ee ON e.id = ee.exhibitor_id
-      LEFT JOIN exhibitions ex ON ee.exhibition_id = ex.id AND ex.start_date >= CURRENT_DATE
+      LEFT JOIN exhibitions ex ON ee.exhibition_id = ex.id AND ex.end_date >= CURRENT_DATE
       WHERE e.status = 'active'
       GROUP BY e.id, e.nip, e.company_name, e.address, e.postal_code, e.city, e.contact_person, e.contact_role, e.phone, e.email, e.status, e.created_at, e.updated_at
       ORDER BY e.company_name
@@ -78,10 +78,12 @@ router.post('/', verifyToken, requireAdmin, async (req, res) => {
       contactPerson, 
       contactRole, 
       phone, 
-      email 
+      email,
+      exhibitionId 
     } = req.body;
 
-    console.log('Creating new exhibitor:', { nip, companyName, email });
+    console.log('Creating new exhibitor:', { nip, companyName, email, exhibitionId });
+    console.log('Received exhibitionId:', exhibitionId, 'Type:', typeof exhibitionId);
 
     // Validate required fields
     if (!nip || !companyName || !address || !postalCode || !city || !contactPerson || !contactRole || !phone || !email) {
@@ -100,7 +102,7 @@ router.post('/', verifyToken, requireAdmin, async (req, res) => {
     if (existingExhibitor.rows.length > 0) {
       return res.status(409).json({ 
         error: 'Exhibitor already exists', 
-        message: 'Exhibitor with this NIP already exists' 
+        message: 'Wystawca z tym numerem NIP już istnieje' 
       });
     }
 
@@ -128,6 +130,24 @@ router.post('/', verifyToken, requireAdmin, async (req, res) => {
 
     console.log('New exhibitor created with ID:', newExhibitor.id);
 
+    // If exhibitionId is provided, assign exhibitor to exhibition
+    if (exhibitionId) {
+      try {
+        console.log('Attempting to assign exhibitor', newExhibitor.id, 'to exhibition', exhibitionId);
+        const assignResult = await db.query(
+          'INSERT INTO exhibitor_events (exhibitor_id, exhibition_id) VALUES ($1, $2) ON CONFLICT (exhibitor_id, exhibition_id) DO NOTHING',
+          [newExhibitor.id, exhibitionId]
+        );
+        console.log('Assignment result:', assignResult.rowCount, 'rows affected');
+        console.log('Exhibitor assigned to exhibition:', exhibitionId);
+      } catch (assignError) {
+        console.error('Error assigning exhibitor to exhibition:', assignError);
+        // Don't fail the entire operation if assignment fails
+      }
+    } else {
+      console.log('No exhibitionId provided, skipping assignment');
+    }
+
     // Format response
     const exhibitor = {
       id: newExhibitor.id,
@@ -151,7 +171,7 @@ router.post('/', verifyToken, requireAdmin, async (req, res) => {
     if (error.code === '23505') { // Unique constraint violation
       return res.status(409).json({ 
         error: 'Exhibitor already exists', 
-        message: 'Exhibitor with this NIP already exists' 
+        message: 'Wystawca z tym numerem NIP już istnieje' 
       });
     }
     

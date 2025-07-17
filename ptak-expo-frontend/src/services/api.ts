@@ -27,6 +27,18 @@ export interface Exhibitor {
   updatedAt: string;
 }
 
+export interface Exhibition {
+  id: number;
+  name: string;
+  description?: string;
+  start_date: string;
+  end_date: string;
+  location?: string;
+  status: string;
+  created_at: string;
+  updated_at: string;
+}
+
 const apiCall = async (url: string, options: RequestInit, retries = 3): Promise<Response> => {
   for (let i = 0; i < retries; i++) {
     try {
@@ -138,6 +150,7 @@ export interface AddExhibitorPayload {
   contactRole: string;
   phone: string;
   email: string;
+  exhibitionId?: number | undefined;
 }
 
 export const addExhibitor = async (exhibitorData: AddExhibitorPayload, token: string): Promise<any> => {
@@ -156,4 +169,98 @@ export const addExhibitor = async (exhibitorData: AddExhibitorPayload, token: st
     }
 
     return response.json();
+};
+
+// Exhibitions API
+export const fetchExhibitions = async (token?: string): Promise<Exhibition[]> => {
+  const headers: HeadersInit = {};
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+
+  const response = await apiCall(`${config.API_BASE_URL}/api/v1/exhibitions`, {
+    headers,
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to fetch exhibitions');
+  }
+
+  return response.json();
+};
+
+export const fetchExhibition = async (id: number, token?: string): Promise<Exhibition> => {
+  const headers: HeadersInit = {};
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+
+  const response = await apiCall(`${config.API_BASE_URL}/api/v1/exhibitions/${id}`, {
+    headers,
+  });
+
+  if (!response.ok) {
+    throw new Error('Failed to fetch exhibition');
+  }
+
+  return response.json();
+};
+
+export interface AddExhibitionPayload {
+  name: string;
+  description?: string;
+  start_date: string;
+  end_date: string;
+  location?: string;
+  status?: string;
+}
+
+export const addExhibition = async (exhibitionData: AddExhibitionPayload, token: string): Promise<Exhibition> => {
+  const response = await apiCall(`${config.API_BASE_URL}/api/v1/exhibitions`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+    },
+    body: JSON.stringify(exhibitionData),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.message || 'Błąd podczas dodawania wydarzenia');
+  }
+
+  return response.json();
+};
+
+export const updateExhibition = async (id: number, exhibitionData: Partial<AddExhibitionPayload>, token: string): Promise<Exhibition> => {
+  const response = await apiCall(`${config.API_BASE_URL}/api/v1/exhibitions/${id}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+    },
+    body: JSON.stringify(exhibitionData),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.message || 'Błąd podczas aktualizacji wydarzenia');
+  }
+
+  return response.json();
+};
+
+export const deleteExhibition = async (id: number, token: string): Promise<void> => {
+  const response = await apiCall(`${config.API_BASE_URL}/api/v1/exhibitions/${id}`, {
+    method: 'DELETE',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.message || 'Błąd podczas usuwania wydarzenia');
+  }
 }; 

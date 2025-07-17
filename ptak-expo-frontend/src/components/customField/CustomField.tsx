@@ -20,6 +20,7 @@ type CustomFieldProps = {
   onChange: (e: ChangeEvent<HTMLInputElement>) => void
   borderColor?: string; 
   activeBorderColor?:string;
+  className?: string;
 };
 
 const CustomField: FC<CustomFieldProps> = ({ 
@@ -35,13 +36,14 @@ const CustomField: FC<CustomFieldProps> = ({
     onChange,
     borderColor='#D7D9DD',// default color
     activeBorderColor='#6F87F6',// default color
+    className,
 }) => {
   const [focused, setFocused] = useState<boolean>(false);
   const [showPassword, setShowPassword] = useState(false); 
   const isPasswordField = type === "password";             
 
   return (
-    <div style={{ position: "relative" }}>
+    <div style={{ position: "relative" }} className={className}>
       <TextField
         label=""
         variant="outlined"

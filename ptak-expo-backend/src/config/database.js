@@ -264,6 +264,22 @@ const initializeDatabase = async () => {
       ON CONFLICT (nip) DO NOTHING
     `);
 
+    console.log('🔍 Inserting test exhibitions...');
+    await pool.query(`
+      INSERT INTO exhibitions (name, description, start_date, end_date, location, status) 
+      VALUES 
+        ('Branżowe Targi Technologii Filtracji i Zastosowania Filtrów', 'Największe targi technologii filtracji w Polsce', '2026-03-11', '2026-03-15', 'Warszawa', 'planned'),
+        ('International Trade Fair for Building Technologies and Materials', 'Międzynarodowe targi technologii budowlanych', '2026-03-11', '2026-03-15', 'Kraków', 'planned'),
+        ('Targi Technologii Medycznych i Farmaceutycznych', 'Specjalistyczne targi branży medycznej', '2026-04-20', '2026-04-23', 'Gdańsk', 'planned'),
+        ('Międzynarodowe Targi Energii Odnawialnej', 'Targi poświęcone zielonej energii', '2026-05-15', '2026-05-18', 'Wrocław', 'planned'),
+        ('Targi Automatyki Przemysłowej', 'Nowoczesne rozwiązania automatyki', '2026-06-10', '2026-06-13', 'Katowice', 'planned'),
+        ('Targi Technologii Informatycznych', 'Najnowsze trendy w IT', '2026-07-08', '2026-07-11', 'Poznań', 'planned'),
+        ('Międzynarodowe Targi Materiałów Podłogowych i Powierzchniowych', 'Targi materiałów wykończeniowych', '2025-06-03', '2025-06-05', 'Warszawa', 'active'),
+        ('Targi Bezpieczeństwa i Ochrony', 'Systemy bezpieczeństwa i ochrony', '2026-08-12', '2026-08-15', 'Łódź', 'planned'),
+        ('Targi Transportu i Logistyki', 'Nowoczesne rozwiązania transportowe', '2026-09-05', '2026-09-08', 'Szczecin', 'planned')
+      ON CONFLICT DO NOTHING
+    `);
+
     console.log('✅ Database tables initialized successfully');
   } catch (error) {
     console.error('❌ Error initializing database:', error);

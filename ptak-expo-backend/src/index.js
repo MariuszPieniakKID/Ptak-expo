@@ -18,6 +18,7 @@ console.log('  - RAILWAY_DEPLOYMENT_ID:', process.env.RAILWAY_DEPLOYMENT_ID || '
 const authRoutes = require('./routes/auth');
 const usersRoutes = require('./routes/users');
 const exhibitorsRoutes = require('./routes/exhibitors');
+const exhibitionsRoutes = require('./routes/exhibitions');
 
 console.log('🔍 Loading database config...');
 const db = require('./config/database');
@@ -81,6 +82,7 @@ app.options('/api/v1/auth/*', (req, res) => {
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/users', usersRoutes);
 app.use('/api/v1/exhibitors', exhibitorsRoutes);
+app.use('/api/v1/exhibitions', exhibitionsRoutes);
 
 // Health check endpoints
 app.get('/', (req, res) => {
@@ -92,7 +94,8 @@ app.get('/', (req, res) => {
       health: '/api/v1/health',
       auth: '/api/v1/auth',
       users: '/api/v1/users',
-      exhibitors: '/api/v1/exhibitors'
+      exhibitors: '/api/v1/exhibitors',
+      exhibitions: '/api/v1/exhibitions'
     }
   });
 });

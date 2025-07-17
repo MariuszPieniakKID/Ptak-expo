@@ -7,10 +7,13 @@ import {
   CircularProgress,
   Alert,
   IconButton,
-  Box
+  Box,
+  MenuItem,
+  Select,
+  FormControl
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
-import { addExhibitor, AddExhibitorPayload } from '../services/api';
+import { addExhibitor, AddExhibitorPayload, fetchExhibitions, Exhibition } from '../services/api';
 import CustomTypography from './customTypography/CustomTypography';
 import CustomButton from './customButton/CustomButton';
 import CustomField from './customField/CustomField';
@@ -36,6 +39,9 @@ const AddExhibitorModal: React.FC<AddExhibitorModalProps> = ({ isOpen, onClose, 
     phone: '',
     email: ''
   });
+  const [selectedExhibitionId, setSelectedExhibitionId] = useState<number | ''>('');
+  const [exhibitions, setExhibitions] = useState<Exhibition[]>([]);
+  const [loadingExhibitions, setLoadingExhibitions] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
   const [fieldErrors, setFieldErrors] = useState<{ [key: string]: string }>({});
@@ -52,15 +58,36 @@ const AddExhibitorModal: React.FC<AddExhibitorModalProps> = ({ isOpen, onClose, 
       phone: '',
       email: ''
     });
+    setSelectedExhibitionId('');
     setError('');
     setFieldErrors({});
   }, []);
 
+  const loadExhibitions = useCallback(async () => {
+    setLoadingExhibitions(true);
+    try {
+      const fetchedExhibitions = await fetchExhibitions(token);
+      // Filtruj tylko nadchodzące i trwające wydarzenia
+      const now = new Date();
+      const upcomingExhibitions = fetchedExhibitions.filter(exhibition => {
+        const endDate = new Date(exhibition.end_date);
+        return endDate >= now; // Wydarzenia, które się jeszcze nie zakończyły
+      });
+      setExhibitions(upcomingExhibitions);
+    } catch (err) {
+      console.error('Error loading exhibitions:', err);
+      setError('Błąd podczas ładowania wydarzeń');
+    } finally {
+      setLoadingExhibitions(false);
+    }
+  }, [token]);
+
   useEffect(() => {
     if (isOpen) {
       resetForm();
+      loadExhibitions();
     }
-  }, [isOpen, resetForm]);
+  }, [isOpen, resetForm, loadExhibitions]);
 
   const handleInputChange = useCallback((field: keyof AddExhibitorPayload) => (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -103,7 +130,11 @@ const AddExhibitorModal: React.FC<AddExhibitorModalProps> = ({ isOpen, onClose, 
     setError('');
     
     try {
-      await addExhibitor(formData, token);
+      const exhibitorData = {
+        ...formData,
+        exhibitionId: selectedExhibitionId || undefined
+      };
+      await addExhibitor(exhibitorData, token);
       onExhibitorAdded();
       resetForm();
     } catch (err: any) {
@@ -111,7 +142,7 @@ const AddExhibitorModal: React.FC<AddExhibitorModalProps> = ({ isOpen, onClose, 
     } finally {
       setLoading(false);
     }
-  }, [formData, token, onExhibitorAdded, resetForm, validateForm]);
+  }, [formData, selectedExhibitionId, token, onExhibitorAdded, resetForm, validateForm]);
 
   const handleClose = useCallback(() => {
     if (!loading) {
@@ -120,11 +151,11 @@ const AddExhibitorModal: React.FC<AddExhibitorModalProps> = ({ isOpen, onClose, 
   }, [loading, onClose]);
 
   return (
-    <Dialog open={isOpen} onClose={handleClose} maxWidth="md" fullWidth>
+    <Dialog open={isOpen} onClose={handleClose} maxWidth="md" fullWidth className={styles.dialog}>
       <DialogTitle className={styles.dialogTitle}>
         <Box className={styles.titleContainer}>
           <img src={ExhibitorIcon} alt="Wystawca" className={styles.titleIcon} />
-          <CustomTypography fontSize="1.5rem" fontWeight={600}>
+          <CustomTypography className={styles.titleText} fontSize="1.125rem" fontWeight={500}>
             Dodaj wystawcę
           </CustomTypography>
         </Box>
@@ -148,8 +179,8 @@ const AddExhibitorModal: React.FC<AddExhibitorModalProps> = ({ isOpen, onClose, 
         <Box component="form" onSubmit={handleSubmit} className={styles.form}>
           <div className={styles.formGrid}>
             <div className={styles.formField}>
+              <div className={styles.fieldLabel}>NIP</div>
               <CustomField
-                label="NIP"
                 type="text"
                 value={formData.nip}
                 onChange={handleInputChange('nip')}
@@ -158,12 +189,13 @@ const AddExhibitorModal: React.FC<AddExhibitorModalProps> = ({ isOpen, onClose, 
                 placeholder="1234567890"
                 fullWidth
                 margin="normal"
+                className={styles.fieldInput}
               />
             </div>
             
             <div className={styles.formField}>
+              <div className={styles.fieldLabel}>Nazwa wystawcy</div>
               <CustomField
-                label="Nazwa wystawcy"
                 type="text"
                 value={formData.companyName}
                 onChange={handleInputChange('companyName')}
@@ -172,12 +204,13 @@ const AddExhibitorModal: React.FC<AddExhibitorModalProps> = ({ isOpen, onClose, 
                 placeholder="ABC Electronics Sp. z o.o."
                 fullWidth
                 margin="normal"
+                className={styles.fieldInput}
               />
             </div>
             
             <div className={`${styles.formField} ${styles.fullWidth}`}>
+              <div className={styles.fieldLabel}>Adres</div>
               <CustomField
-                label="Adres"
                 type="text"
                 value={formData.address}
                 onChange={handleInputChange('address')}
@@ -186,12 +219,13 @@ const AddExhibitorModal: React.FC<AddExhibitorModalProps> = ({ isOpen, onClose, 
                 placeholder="ul. Elektroniczna 15"
                 fullWidth
                 margin="normal"
+                className={styles.fieldInput}
               />
             </div>
             
             <div className={styles.formField}>
+              <div className={styles.fieldLabel}>Kod pocztowy</div>
               <CustomField
-                label="Kod pocztowy"
                 type="text"
                 value={formData.postalCode}
                 onChange={handleInputChange('postalCode')}
@@ -200,12 +234,13 @@ const AddExhibitorModal: React.FC<AddExhibitorModalProps> = ({ isOpen, onClose, 
                 placeholder="00-001"
                 fullWidth
                 margin="normal"
+                className={styles.fieldInput}
               />
             </div>
             
             <div className={styles.formField}>
+              <div className={styles.fieldLabel}>Miejscowość</div>
               <CustomField
-                label="Miejscowość"
                 type="text"
                 value={formData.city}
                 onChange={handleInputChange('city')}
@@ -214,12 +249,13 @@ const AddExhibitorModal: React.FC<AddExhibitorModalProps> = ({ isOpen, onClose, 
                 placeholder="Warszawa"
                 fullWidth
                 margin="normal"
+                className={styles.fieldInput}
               />
             </div>
             
             <div className={styles.formField}>
+              <div className={styles.fieldLabel}>Osoba kontaktowa</div>
               <CustomField
-                label="Osoba kontaktowa"
                 type="text"
                 value={formData.contactPerson}
                 onChange={handleInputChange('contactPerson')}
@@ -228,12 +264,13 @@ const AddExhibitorModal: React.FC<AddExhibitorModalProps> = ({ isOpen, onClose, 
                 placeholder="Jan Kowalski"
                 fullWidth
                 margin="normal"
+                className={styles.fieldInput}
               />
             </div>
             
             <div className={styles.formField}>
+              <div className={styles.fieldLabel}>Rola w organizacji</div>
               <CustomField
-                label="Rola w organizacji"
                 type="text"
                 value={formData.contactRole}
                 onChange={handleInputChange('contactRole')}
@@ -242,12 +279,13 @@ const AddExhibitorModal: React.FC<AddExhibitorModalProps> = ({ isOpen, onClose, 
                 placeholder="Kierownik Sprzedaży"
                 fullWidth
                 margin="normal"
+                className={styles.fieldInput}
               />
             </div>
             
             <div className={styles.formField}>
+              <div className={styles.fieldLabel}>Telefon</div>
               <CustomField
-                label="Telefon"
                 type="tel"
                 value={formData.phone}
                 onChange={handleInputChange('phone')}
@@ -256,12 +294,13 @@ const AddExhibitorModal: React.FC<AddExhibitorModalProps> = ({ isOpen, onClose, 
                 placeholder="+48 22 123 45 67"
                 fullWidth
                 margin="normal"
+                className={styles.fieldInput}
               />
             </div>
             
             <div className={styles.formField}>
+              <div className={styles.fieldLabel}>Email</div>
               <CustomField
-                label="Email"
                 type="email"
                 value={formData.email}
                 onChange={handleInputChange('email')}
@@ -270,7 +309,33 @@ const AddExhibitorModal: React.FC<AddExhibitorModalProps> = ({ isOpen, onClose, 
                 placeholder="j.kowalski@abc-electronics.pl"
                 fullWidth
                 margin="normal"
+                className={styles.fieldInput}
               />
+            </div>
+            
+            <div className={`${styles.formField} ${styles.fullWidth}`}>
+              <div className={styles.fieldLabel}>Wybierz wydarzenie które chcesz przypisać do wystawcy</div>
+              <FormControl fullWidth margin="normal" className={styles.fieldInput}>
+                <Select
+                  value={selectedExhibitionId}
+                  onChange={(e) => setSelectedExhibitionId(e.target.value as number | '')}
+                  displayEmpty
+                  disabled={loadingExhibitions}
+                  className={styles.selectField}
+                >
+                  <MenuItem value="">
+                    <em>Brak przypisania do wydarzenia</em>
+                  </MenuItem>
+                  {exhibitions.map((exhibition) => (
+                    <MenuItem key={exhibition.id} value={exhibition.id}>
+                      {exhibition.name} ({new Date(exhibition.start_date).toLocaleDateString('pl-PL')} - {new Date(exhibition.end_date).toLocaleDateString('pl-PL')})
+                    </MenuItem>
+                  ))}
+                </Select>
+                {loadingExhibitions && (
+                  <CircularProgress size={20} style={{ position: 'absolute', right: 30, top: 15 }} />
+                )}
+              </FormControl>
             </div>
           </div>
         </Box>
@@ -281,24 +346,19 @@ const AddExhibitorModal: React.FC<AddExhibitorModalProps> = ({ isOpen, onClose, 
           onClick={handleClose}
           disabled={loading}
           bgColor="transparent"
-          textColor="#6c757d"
+          textColor="var(--color-darkgray)"
           width="auto"
-          sx={{
-            border: '1px solid #6c757d',
-            '&:hover': {
-              backgroundColor: '#6c757d',
-              color: '#fff',
-            },
-          }}
+          className={styles.cancelButton}
         >
           Anuluj
         </CustomButton>
         <CustomButton
           onClick={handleSubmit}
           disabled={loading}
-          bgColor="#6F87F6"
-          textColor="#fff"
+          bgColor="var(--color-dodgerblue)"
+          textColor="var(--color-white)"
           width="auto"
+          className={styles.submitButton}
         >
           {loading ? <CircularProgress size={20} color="inherit" /> : 'Dodaj wystawcę'}
         </CustomButton>
