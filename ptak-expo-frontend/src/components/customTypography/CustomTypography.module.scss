@@ -1,6 +1,92 @@
 @import '../../styles/mixins';
 @import '../../styles/variables';
 
+.typography {
+  font-family: $font-roc-grotesk;
+  color: $color-darkslategray;
+  line-height: 1.4;
+  margin: 0;
+  
+  &.h1 {
+    font-size: $font-size-xxl;
+    font-weight: 500;
+    
+    @include for-phone-only {
+      font-size: $font-size-xl;
+    }
+  }
+  
+  &.h2 {
+    font-size: $font-size-xl;
+    font-weight: 500;
+    
+    @include for-phone-only {
+      font-size: $font-size-lg;
+    }
+  }
+  
+  &.h3 {
+    font-size: $font-size-lg;
+    font-weight: 500;
+    
+    @include for-phone-only {
+      font-size: $font-size-base;
+    }
+  }
+  
+  &.body1 {
+    font-size: $font-size-base;
+    font-weight: 400;
+    
+    @include for-phone-only {
+      font-size: $font-size-sm;
+    }
+  }
+  
+  &.body2 {
+    font-size: $font-size-sm;
+    font-weight: 400;
+    
+    @include for-phone-only {
+      font-size: $font-size-xs;
+    }
+  }
+  
+  &.caption {
+    font-size: $font-size-xs;
+    font-weight: 400;
+    
+    @include for-phone-only {
+      font-size: 0.625em; // 10px
+    }
+  }
+  
+  &.openSans {
+    font-family: $font-open-sans;
+  }
+  
+  &.center {
+    text-align: center;
+  }
+  
+  &.right {
+    text-align: right;
+  }
+  
+  &.left {
+    text-align: left;
+  }
+}
+
+// Legacy support
 .title {
   color: $color-darkslategray;
+  font-family: $font-roc-grotesk;
+  font-size: $font-size-lg;
+  font-weight: 500;
+  margin: 0;
+  
+  @include for-phone-only {
+    font-size: $font-size-base;
+  }
 }

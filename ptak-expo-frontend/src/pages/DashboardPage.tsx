@@ -105,21 +105,18 @@ const DashboardPage: React.FC = () => {
 
         <Box 
           sx={{ 
-            display: 'flex', 
-            flexWrap: 'wrap', 
+            display: 'grid',
+            gridTemplateColumns: 'repeat(2, 1fr)',
             gap: 3,
-            justifyContent: 'center'
+            maxWidth: '800px',
+            margin: '0 auto',
+            '@media (max-width: 768px)': {
+              gridTemplateColumns: '1fr',
+            }
           }}
         >
           {dashboardItems.map((item: DashboardItem) => (
-            <Box
-              key={item.title}
-              sx={{
-                flex: '1 1 300px',
-                minWidth: '300px',
-                maxWidth: '400px'
-              }}
-            >
+            <Box key={item.title}>
               <Card className={styles.card} onClick={handlers[item.handler]}>
                 <CardContent className={styles.cardContent}>
                   <img src={item.icon} alt={item.title} className={styles.cardIcon} />

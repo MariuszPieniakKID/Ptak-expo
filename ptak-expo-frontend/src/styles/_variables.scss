@@ -1,3 +1,4 @@
+// Colors
 $color-gainsboro: #d7d9dd;
 $color-lightgray:#FFFFFF80;
 $color-darkgray: #a7a7a7;
@@ -8,3 +9,47 @@ $color-blue: #6F87F6;
 $color-red: #c7353c;
 $color-mint:#89F4C9;
 $color-error:#c7353c;
+
+// Additional colors from design system
+$color-dodgerblue: #6f87f6;
+$color-mediumslateblue: #5041d0;
+$color-gainsboro-200: #d7d9dd;
+$color-gainsboro-100: #e5e9eb;
+$color-whitesmoke: #f5f6f7;
+$color-firebrick: #c7353c;
+
+// Typography
+$font-roc-grotesk: 'Roc Grotesk', sans-serif;
+$font-open-sans: 'Open Sans', sans-serif;
+
+// Font sizes in em (16px = 1em)
+$font-size-xs: 0.6875em;   // 11px
+$font-size-sm: 0.75em;     // 12px
+$font-size-base: 1em;      // 16px
+$font-size-lg: 1.125em;    // 18px
+$font-size-xl: 1.25em;     // 20px
+$font-size-xxl: 1.5em;     // 24px
+
+// Spacing in em
+$spacing-xs: 0.25em;       // 4px
+$spacing-sm: 0.5em;        // 8px
+$spacing-md: 0.75em;       // 12px
+$spacing-lg: 1em;          // 16px
+$spacing-xl: 1.25em;       // 20px
+$spacing-xxl: 1.5em;       // 24px
+$spacing-xxxl: 2em;        // 32px
+
+// Border radius
+$border-radius-sm: 0.3125em;  // 5px
+$border-radius-md: 0.625em;   // 10px
+$border-radius-lg: 1.25em;    // 20px
+
+// Box shadows
+$shadow-sm: 0 0.125em 0.25em rgba(0,0,0,0.1);
+$shadow-md: 0 0.25em 0.5em rgba(0,0,0,0.1);
+$shadow-lg: 0 0.5em 1em rgba(0,0,0,0.15);
+
+// Transitions
+$transition-fast: 0.2s ease;
+$transition-normal: 0.3s ease;
+$transition-slow: 0.5s ease;

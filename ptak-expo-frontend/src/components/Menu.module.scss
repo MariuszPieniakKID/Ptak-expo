@@ -3,45 +3,144 @@
 
 .appBar {
   background-color: $color-white !important;
-  box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.2), 0 4px 5px 0 rgba(0, 0, 0, 0.14), 0 1px 10px 0 rgba(0, 0, 0, 0.12) !important;
-  border-radius: 20px !important;
-  color: #000 !important;
-  margin: 1rem;
-  width: calc(100% - 2rem) !important;
+  box-shadow: $shadow-md !important;
+  border-radius: $border-radius-lg !important;
+  color: $color-darkslategray !important;
+  margin: $spacing-lg;
+  width: calc(100% - #{$spacing-xxxl}) !important;
   z-index: 10 !important;
   position: relative !important;
+  
+  @include for-phone-only {
+    margin: $spacing-md;
+    width: calc(100% - #{$spacing-xl}) !important;
+    border-radius: $border-radius-md !important;
+  }
+  
+  @include for-tablet-portrait {
+    margin: $spacing-lg;
+    width: calc(100% - #{$spacing-xxxl}) !important;
+  }
 }
 
 .toolbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0 1rem !important;
+  padding: 0 $spacing-lg !important;
+  min-height: 4em; // 64px
+  
+  @include for-phone-only {
+    padding: 0 $spacing-md !important;
+    min-height: 3.5em; // 56px
+    flex-wrap: wrap;
+    gap: $spacing-sm;
+  }
+  
+  @include for-tablet-portrait {
+    padding: 0 $spacing-lg !important;
+    min-height: 3.75em; // 60px
+  }
 }
 
 .logo {
-  height: 50px;
+  height: 3.125em; // 50px
   cursor: pointer;
+  transition: $transition-normal;
+  
+  @include for-phone-only {
+    height: 2.5em; // 40px
+  }
+  
+  @include for-tablet-portrait {
+    height: 2.75em; // 44px
+  }
+  
+  @include for-desktop-large {
+    height: 3.5em; // 56px
+  }
+  
+  &:hover {
+    opacity: 0.8;
+  }
 }
 
 .navLinks {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: $spacing-lg;
+  
+  @include for-phone-only {
+    gap: $spacing-sm;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+  
+  @include for-tablet-portrait {
+    gap: $spacing-md;
+  }
 }
 
 .navButton {
-  font-family: 'Roc Grotesk', sans-serif !important;
+  font-family: $font-roc-grotesk !important;
   font-weight: 500 !important;
   color: $color-darkslategray !important;
   text-transform: none !important;
+  font-size: $font-size-base !important;
+  padding: $spacing-sm $spacing-lg !important;
+  border-radius: $border-radius-sm !important;
+  transition: $transition-normal !important;
+  
+  @include for-phone-only {
+    font-size: $font-size-sm !important;
+    padding: $spacing-xs $spacing-md !important;
+  }
+  
+  @include for-tablet-portrait {
+    font-size: $font-size-sm !important;
+    padding: $spacing-sm $spacing-md !important;
+  }
+  
+  &:hover {
+    background-color: $color-gainsboro-100 !important;
+    color: $color-blue !important;
+  }
 
   .icon {
-    margin-right: 0.5rem;
+    margin-right: $spacing-sm;
+    font-size: 1.25em; // 20px
+    
+    @include for-phone-only {
+      margin-right: $spacing-xs;
+      font-size: 1.125em; // 18px
+    }
   }
 }
 
 .active {
   color: $color-blue !important;
-  // Add other active styles if needed, e.g., border-bottom
+  background-color: rgba(111, 135, 246, 0.1) !important;
+  
+  &:hover {
+    background-color: rgba(111, 135, 246, 0.15) !important;
+  }
+}
+
+// Mobile menu improvements
+@include for-phone-only {
+  .navLinks {
+    width: 100%;
+    justify-content: center;
+    margin-top: $spacing-sm;
+  }
+  
+  .toolbar {
+    flex-direction: column;
+    align-items: center;
+    padding: $spacing-md !important;
+  }
+  
+  .logo {
+    margin-bottom: $spacing-sm;
+  }
 }

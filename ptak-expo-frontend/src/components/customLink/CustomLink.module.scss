@@ -1,11 +1,56 @@
 @import '../../styles/mixins';
 @import '../../styles/variables';
 
-
 .link {
   color: $color-darkslategray;
-  transition: color 0.2s;
-}
-.link:hover {
-  color: $color-blue;
+  font-family: $font-roc-grotesk;
+  font-size: $font-size-base;
+  text-decoration: none;
+  transition: $transition-normal;
+  cursor: pointer;
+  
+  @include for-phone-only {
+    font-size: $font-size-sm;
+  }
+  
+  &:hover {
+    color: $color-blue;
+  }
+  
+  &.underline {
+    text-decoration: underline;
+    
+    &:hover {
+      text-decoration: none;
+    }
+  }
+  
+  &.openSans {
+    font-family: $font-open-sans;
+  }
+  
+  &.small {
+    font-size: $font-size-sm;
+    
+    @include for-phone-only {
+      font-size: $font-size-xs;
+    }
+  }
+  
+  &.large {
+    font-size: $font-size-lg;
+    
+    @include for-phone-only {
+      font-size: $font-size-base;
+    }
+  }
+  
+  &.disabled {
+    color: $color-darkgray;
+    cursor: not-allowed;
+    
+    &:hover {
+      color: $color-darkgray;
+    }
+  }
 }
