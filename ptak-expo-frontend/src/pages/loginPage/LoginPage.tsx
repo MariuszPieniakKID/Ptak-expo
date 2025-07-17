@@ -1,15 +1,14 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, ChangeEvent} from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
-import {
-  Box,
-  TextField,
-  Button,
-  CircularProgress,
-  Typography,
-  Link,
-} from '@mui/material';
+import {Box,CircularProgress} from '@mui/material';
 import styles from './LoginPage.module.scss';
+import CustomTypography from '../../components/customTypography/CustomTypography';
+import CustomField from '../../components/customField/CustomField';
+import CustomButton from '../../components/customButton/CustomButton';
+import CustomLink from '../../components/customLink/CustomLink';
+
+
 
 const LoginPage: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -29,7 +28,7 @@ const LoginPage: React.FC = () => {
 
   const validateEmail = (email: string) => {
     if (!email) {
-      setEmailError('Podaj adres e-mail');
+      setEmailError('Adres email jesy wymnagany');
       return false;
     }
     const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -49,7 +48,26 @@ const LoginPage: React.FC = () => {
     setPasswordError('');
     return true;
   };
+  
+  const handleEmailChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const newEmail = e.target.value;
+    setEmail(newEmail);
+    if (validateEmail(newEmail)) {
+      setError('');
+    }
+  };
 
+    const handlePasswordChange = (e: ChangeEvent<HTMLInputElement>) => {
+
+  const newPassword = e.target.value;
+  setPassword(newPassword);
+
+  if (validatePassword(newPassword)) {
+    setError('');
+  }
+  };
+  
+  
   const handleSubmit = useCallback(
     async (e: React.FormEvent) => {
       e.preventDefault();
@@ -80,75 +98,78 @@ const LoginPage: React.FC = () => {
   );
 
   return (
+    <>
     <div className={styles.loginContainer}>
       <div className={styles.logo} />
       <Box className={styles.loginBox}>
-        <Typography variant="h1" className={styles.title}>
-          Panel <br />
-          Administratora
-        </Typography>
-        <Typography variant="h2" className={styles.loginTitle}>
-          Logowanie
-        </Typography>
+        <CustomTypography className={styles.adminTitle}>Panel <br/> Administratora</CustomTypography>
+        <CustomTypography fontSize='1rem'>Logowanie</CustomTypography>
         <Box
           component="form"
           onSubmit={handleSubmit}
           className={styles.form}
-          noValidate
-        >
-          <TextField
+          noValidate> 
+          <CustomField
             label="Adres E-mail"
-            variant="outlined"
             type="email"
             value={email}
-            onChange={(e) => {
-              setEmail(e.target.value);
-              validateEmail(e.target.value);
-            }}
+            onChange={handleEmailChange}
             error={!!emailError}
-            helperText={emailError}
+            errorMessage={emailError}
+            placeholder="adres@mail.com"
             fullWidth
+            margin="none"
           />
-          <TextField
+          <CustomField
             label="Hasło"
-            variant="outlined"
+            placeholder="*****"
             type="password"
             value={password}
-            onChange={(e) => {
-              setPassword(e.target.value);
-              validatePassword(e.target.value);
-            }}
+            onChange={handlePasswordChange}
             error={!!passwordError}
-            helperText={passwordError}
+            errorMessage={passwordError}
             fullWidth
+            margin="none"
           />
-
           <Box className={styles.buttonContainer}>
-            {error && (
-              <Typography color="error" className={styles.errorMessage}>
-                {error}
-              </Typography>
-            )}
+            {error && 
+            (<CustomTypography    
+              fontSize={`1rem`}
+              fontWeight={300}
+              color={`#c7353c`}
+              >{error}</CustomTypography>)
+            }
             {loading ? (
-              <CircularProgress />
+              <CircularProgress
+                size={60}
+                thickness={5}
+                sx={{ color: '#6F87F6' }}
+              />
             ) : (
-              <Button
-                type="submit"
-                variant="contained"
-                color="primary"
-                fullWidth
-                disabled={loading || !!emailError || !!passwordError || !email || !password}
+              <CustomButton
+              type="submit"
+              disabled={loading || !!emailError || !!passwordError || !email || !password || !!error} 
               >
                 Zaloguj się
-              </Button>
+              </CustomButton>
             )}
-            <Link href="#" className={styles.remindMePassword}>
-              Przypomnij hasło
-            </Link>
+            <CustomLink
+              href="#"
+              className={styles.remindMePassword}
+              fontWeight={300}
+              fontSize={'0.79'}
+              underline
+            >Przypomnij hasło
+            </CustomLink>
           </Box>
         </Box>
       </Box>
     </div>
+    <div className={styles.filtr}>
+      <div className={styles.filtrGray}/>
+      <div className={styles.filtrBlue}/>
+    </div>
+    </>
   );
 };
 

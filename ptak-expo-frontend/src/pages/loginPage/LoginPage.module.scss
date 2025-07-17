@@ -3,6 +3,7 @@
 
 .loginContainer {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   min-height: 100vh;
@@ -19,29 +20,42 @@
     left: 0;
     width: 100%;
     height: 100%;
-    background-image: url('../../assets/image-35@2x.png');
+    background-image: url('../../assets/Image-35.png');
     background-size: cover;
     background-position: center;
     mix-blend-mode: luminosity;
+    opacity: 0.3;
     z-index: 1;
   }
-
-  &::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(180deg, #6f87f6, rgba(111, 135, 246, 0));
-    mix-blend-mode: overlay;
-    z-index: 2;
+    @include for-tablet-portrait-up {
+    &::before {
+      background-image: url('../../assets//image-35@2x.png'); // obrazek dla min-width: 600px
+    }
   }
 }
-
+.filtr{
+    background-attachment: fixed;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+}
+.filtrGray{
+   background-image: url('../../assets/Rectangle-8313.svg');
+   background-size: cover;
+   background-repeat: no-repeat;
+   min-height:60vh;
+   width: 100vw;
+}
+.filtrBlue{
+   background-image: url('../../assets/Rectangle-8378.svg');
+   background-size: cover;
+   background-repeat: no-repeat;
+   min-height: 40vh;
+   width: 100vw;
+}
 .loginBox {
   position: relative;
-  z-index: 3;
+  z-index: 1;
   background-color: $color-gray;
   border: 1px solid $color-white;
   border-radius: 20px;
@@ -58,32 +72,30 @@
     padding: 1.5rem;
   }
 }
-
 .logo {
-  position: absolute;
-  top: 63px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 71px;
-  height: 67px;
+  margin-bottom: 2rem;
+  width: 4em;
+  height: 4em;
   background-image: url(../../assets/group-257@3x.png);
   background-size: contain;
   background-repeat: no-repeat;
-  background-position: center;
-  z-index: 4;
+  z-index: 1;
+
+    @include for-tablet-portrait-up {
+      width: 6em;
+      height: 6em;
+  }
 }
-
-
 .title {
   font-family: 'Roc Grotesk', sans-serif;
-  font-size: 1.25rem;
+  font-size: 1.125rem;
   font-weight: 500;
   text-align: center;
   color: $color-darkslategray;
   line-height: 1.2;
   margin-bottom: 0.5rem;
-}
 
+}
 .loginTitle {
   font-family: 'Roc Grotesk', sans-serif;
   font-weight: 500;
@@ -91,13 +103,11 @@
   color: $color-darkslategray;
   margin-bottom: 1rem;
 }
-
 .form {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
 }
-
 .buttonContainer {
   display: flex;
   flex-direction: column;
@@ -105,10 +115,9 @@
   gap: 1rem;
   margin-top: 1rem;
 }
-
 .remindMePassword {
   font-size: 0.75rem;
-  color: $color-darkgray;
+  color: $color-darkslategray;
   text-decoration: underline;
   cursor: pointer;
   transition: color 0.3s ease;
@@ -117,10 +126,7 @@
     color: $color-blue;
   }
 }
-
-.errorMessage {
-  color: $color-red;
-  font-size: 0.8rem;
+.adminTitle{
   text-align: center;
-  min-height: 1.2rem;
+  color:$color-darkgray;
 }

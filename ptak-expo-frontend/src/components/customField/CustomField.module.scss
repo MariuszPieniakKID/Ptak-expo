@@ -1,0 +1,17 @@
+@import '../../styles/mixins';
+@import '../../styles/variables';
+
+
+.errorMessage{
+    color:$color-error;
+    position: "sticky";
+    padding-left: 1rem;
+    font-size: 0.6875rem;
+}
+.helperText{
+    position: "sticky";
+    padding-left: 1rem;
+    font-size: 0.6875rem;
+    color: $color-darkgray;
+        
+}

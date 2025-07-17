@@ -1,0 +1,11 @@
+@import '../../styles/mixins';
+@import '../../styles/variables';
+
+
+.link {
+  color: $color-darkslategray;
+  transition: color 0.2s;
+}
+.link:hover {
+  color: $color-blue;
+}
