@@ -1,316 +1,259 @@
-// Modal overlay
-.modalOverlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
+@import '../styles/variables';
+@import '../styles/mixins';
+
+.dialog {
+  & .MuiDialog-paper {
+    border-radius: $border-radius-lg;
+    box-shadow: $shadow-lg;
+    background-color: $color-white;
+    max-width: 37.5em; // 600px
+    width: 100%;
+    margin: $spacing-lg;
+    
+    @include for-phone-only {
+      margin: $spacing-md;
+      max-width: 95%;
+    }
+    
+    @include for-tablet-portrait {
+      margin: $spacing-xl;
+      max-width: 90%;
+    }
+  }
+}
+
+.dialogTitle {
   display: flex;
-  justify-content: center;
   align-items: center;
-  z-index: 1000;
-}
-
-// Main modal container - oryginalny design z dodatkową wysokością dla nowych pól
-.rectangleGroup {
-  position: relative;
-  width: 600px;
-  height: 550px;
-  color: var(--color-darkgray);
-  font-family: var(--font-open-sans);
-}
-
-// Modal background - szare tło dla lepszej czytelności
-.rectangleDiv {
-  position: absolute;
-  width: 100%;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  box-shadow: 0 23px 20px rgba(152, 164, 219, 0.47);
-  border-radius: var(--br-20);
-  background-color: #f5f5f5;
-  border: 1px solid #e0e0e0;
-  box-sizing: border-box;
-  height: 550px;
-}
-
-// Header section - oryginalny design
-.dodajWystawcParent {
-  position: absolute;
-  top: 30px;
-  left: 54px;
-  width: 172px;
-  height: 43px;
-  font-size: var(--font-size-11);
-  color: var(--color-dimgray-200);
-  font-family: var(--font-roc-grotesk);
-}
-
-.dodajWystawc {
-  position: absolute;
-  right: 16px;
-  bottom: 0;
-  font-size: var(--font-size-11);
-  color: var(--color-dimgray-200);
-}
-
-.wydarzenia {
-  position: absolute;
-  top: calc(50% - 12px);
-  right: -0.5px;
-  font-size: var(--font-size-18);
-  font-weight: 500;
-  color: var(--color-lightseagreen);
-  -webkit-text-stroke: 1px transparent;
-}
-
-.maskGroup30 {
-  position: absolute;
-  height: 100%;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  max-height: 100%;
-  width: 43px;
-  object-fit: cover;
-}
-
-// Close button - oryginalny design
-.groupChild7 {
-  position: absolute;
-  top: 22.64px;
-  right: 28.06px;
-  width: 10.8px;
-  height: 10.8px;
-  cursor: pointer;
-}
-
-// Form container - oryginalny design
-.nazwaWydarzeniaParent {
-  position: absolute;
-  width: calc(100% - 99px);
-  top: calc(50% - 136.5px);
-  right: 50px;
-  left: 49px;
-  height: 193px;
-}
-
-.nazwaWydarzenia {
-  position: absolute;
-  top: 4.5px;
-  left: 16.5px;
-  font-size: var(--font-size-12);
-  font-weight: 500;
-  color: var(--color-darkslategray);
-  -webkit-text-stroke: 1px transparent;
-}
-
-.inputField {
-  position: absolute;
-  top: 25px;
-  left: 0;
-  width: 100%;
+  justify-content: space-between;
+  padding: $spacing-xxl $spacing-xxxl $spacing-lg $spacing-xxxl;
+  border-bottom: 1px solid $color-gainsboro-100;
+  background-color: $color-white;
   
-  :global(.MuiTextField-root) {
-    width: 100%;
+  @include for-phone-only {
+    padding: $spacing-xl $spacing-lg $spacing-md $spacing-lg;
   }
   
-  :global(.MuiOutlinedInput-root) {
-    border-radius: var(--br-20);
-    height: 30px;
-    font-size: var(--font-size-11);
-    
-    &:hover .MuiOutlinedInput-notchedOutline {
-      border-color: var(--color-gainsboro);
-    }
-    
-    &.Mui-focused .MuiOutlinedInput-notchedOutline {
-      border-color: var(--color-dodgerblue);
-    }
-  }
-  
-  :global(.MuiOutlinedInput-notchedOutline) {
-    border: 1px solid var(--color-gainsboro-200);
-  }
-  
-  :global(.MuiInputBase-input) {
-    padding: 8px 16px;
-    font-size: var(--font-size-11);
-    color: var(--color-darkslategray);
-    
-    &::placeholder {
-      color: var(--color-dimgray-200);
-      opacity: 1;
-    }
+  @include for-tablet-portrait {
+    padding: $spacing-xl $spacing-xl $spacing-lg $spacing-xl;
   }
 }
 
-// Data wydarzenia - oryginalny design (pozycja poprawiona, żeby nie nakładać się na pole nazwa wydarzenia)
-.dataWydarzenia {
-  position: absolute;
-  top: calc(50% - 20px);
-  left: 9.5px;
-  font-size: var(--font-size-12);
-  font-weight: 500;
-  letter-spacing: 0.33px;
-  color: var(--color-darkslategray);
-}
-
-.dateContainer {
-  position: absolute;
-  top: calc(50% + 5px);
-  left: 0;
-  width: 100%;
-  height: 30px;
+.titleContainer {
   display: flex;
-  gap: 16px;
-}
-
-.dateField {
-  position: relative;
-  flex: 1;
-}
-
-.dateInput {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
+  align-items: center;
+  gap: $spacing-md;
   
-  :global(.MuiTextField-root) {
-    width: 100%;
+  @include for-phone-only {
+    gap: $spacing-sm;
+  }
+}
+
+.titleIcon {
+  width: 1.75em; // 28px
+  height: 1.75em; // 28px
+  color: $color-dodgerblue;
+  
+  @include for-phone-only {
+    width: 1.5em; // 24px
+    height: 1.5em; // 24px
+  }
+}
+
+.titleText {
+  font-family: $font-roc-grotesk;
+  font-size: $font-size-lg;
+  font-weight: 500;
+  color: $color-darkslategray;
+  margin: 0;
+  
+  @include for-phone-only {
+    font-size: $font-size-base;
+  }
+}
+
+.closeButton {
+  color: $color-darkgray;
+  padding: $spacing-xs;
+  border-radius: $border-radius-sm;
+  transition: $transition-normal;
+  
+  &:hover {
+    color: $color-darkslategray;
+    background-color: $color-gainsboro-100;
+  }
+}
+
+.dialogContent {
+  padding: $spacing-xxl $spacing-xxxl;
+  background-color: $color-whitesmoke;
+  max-height: 60vh;
+  overflow-y: auto;
+  
+  @include for-phone-only {
+    padding: $spacing-lg;
+    max-height: 70vh;
   }
   
-  :global(.MuiOutlinedInput-root) {
-    border-radius: var(--br-20);
-    height: 30px;
-    font-size: var(--font-size-11);
+  @include for-tablet-portrait {
+    padding: $spacing-xl;
+  }
+}
+
+.form {
+  margin-top: 0;
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: $spacing-xl;
+  margin-bottom: $spacing-xl;
+  
+  @include for-phone-only {
+    grid-template-columns: 1fr;
+    gap: $spacing-lg;
+    margin-bottom: $spacing-lg;
+  }
+  
+  @include for-tablet-portrait {
+    gap: $spacing-lg;
+  }
+}
+
+.formField {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+  
+  &.fullWidth {
+    grid-column: 1 / -1;
+  }
+}
+
+.fieldLabel {
+  font-family: $font-roc-grotesk;
+  font-size: $font-size-sm;
+  font-weight: 500;
+  color: $color-darkslategray;
+  margin-bottom: $spacing-xs;
+  
+  @include for-phone-only {
+    font-size: $font-size-xs;
+  }
+}
+
+.fieldInput {
+  & .MuiOutlinedInput-root {
+    border-radius: $border-radius-md;
+    background-color: $color-white;
+    font-family: $font-open-sans;
+    font-size: $font-size-base;
+    transition: $transition-normal;
+    
+    @include for-phone-only {
+      font-size: $font-size-sm;
+    }
     
     &:hover .MuiOutlinedInput-notchedOutline {
-      border-color: var(--color-gainsboro);
+      border-color: $color-dodgerblue;
     }
     
     &.Mui-focused .MuiOutlinedInput-notchedOutline {
-      border-color: var(--color-dodgerblue);
+      border-color: $color-mediumslateblue;
+      border-width: 2px;
     }
   }
   
-  :global(.MuiOutlinedInput-notchedOutline) {
-    border: 1px solid var(--color-gainsboro-200);
+  & .MuiOutlinedInput-notchedOutline {
+    border-color: $color-gainsboro-200;
   }
   
-  :global(.MuiInputBase-input) {
-    padding: 8px 16px;
-    font-size: var(--font-size-11);
-    color: var(--color-darkslategray);
-  }
-}
-
-.dataRozpoczecia {
-  position: absolute;
-  top: calc(50% + 17px);
-  left: 17.5px;
-  font-size: var(--font-size-11);
-  color: var(--color-darkslategray);
-  -webkit-text-stroke: 1px transparent;
-}
-
-.dataZakoczenia {
-  position: absolute;
-  top: calc(50% + 17px);
-  left: calc(50% + 26px);
-  font-size: var(--font-size-11);
-  color: var(--color-darkslategray);
-  -webkit-text-stroke: 1px transparent;
-}
-
-// Lokalizacja - dodane jako nowe pole poniżej dat
-.lokalizacjaParent {
-  position: absolute;
-  width: calc(100% - 99px);
-  top: calc(50% + 90px); // Poniżej dat (przesunięte w dół)
-  right: 50px;
-  left: 49px;
-  height: 60px;
-}
-
-.lokalizacja {
-  position: absolute;
-  top: 4.5px;
-  left: 16.5px;
-  font-size: var(--font-size-12);
-  font-weight: 500;
-  color: var(--color-darkslategray);
-  -webkit-text-stroke: 1px transparent;
-}
-
-// Opis - dodane jako nowe pole poniżej lokalizacji
-.opisParent {
-  position: absolute;
-  width: calc(100% - 99px);
-  top: calc(50% + 160px); // Poniżej lokalizacji (przesunięte w dół)
-  right: 50px;
-  left: 49px;
-  height: 60px;
-}
-
-.opis {
-  position: absolute;
-  top: 4.5px;
-  left: 16.5px;
-  font-size: var(--font-size-12);
-  font-weight: 500;
-  color: var(--color-darkslategray);
-  -webkit-text-stroke: 1px transparent;
-}
-
-// Error message
-.error {
-  position: absolute;
-  bottom: 90px;
-  left: 49px;
-  font-size: var(--font-size-11);
-  color: var(--color-firebrick);
-  font-weight: 500;
-}
-
-// Submit button container - oryginalny design z pozycją na dole modalu
-.groupParent8 {
-  position: absolute;
-  bottom: 50px;
-  right: 50px;
-  width: 75px;
-  height: 29px;
-  text-align: right;
-  color: var(--color-darkslategray);
-  font-family: var(--font-roc-grotesk);
-}
-
-.dodajButton {
-  width: 100%;
-  height: 100%;
-  
-  :global(.MuiButton-root) {
-    background-color: var(--color-dodgerblue);
-    color: var(--color-white);
-    border-radius: var(--br-10);
-    font-size: var(--font-size-11);
-    font-weight: 500;
-    text-transform: none;
-    padding: 6px 12px;
-    min-width: auto;
-    text-decoration: underline;
-    letter-spacing: 0.33px;
+  & .MuiInputBase-input {
+    padding: $spacing-md $spacing-lg;
     
-    &:hover {
-      background-color: var(--color-mediumslateblue);
+    @include for-phone-only {
+      padding: $spacing-sm $spacing-md;
     }
-    
-    &:disabled {
-      background-color: var(--color-gainsboro);
-      color: var(--color-dimgray-200);
-    }
+  }
+}
+
+.alert {
+  margin-bottom: $spacing-lg;
+  border-radius: $border-radius-md;
+  
+  @include for-phone-only {
+    margin-bottom: $spacing-md;
+  }
+}
+
+.dialogActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: $spacing-md;
+  padding: $spacing-lg $spacing-xxxl $spacing-xxl $spacing-xxxl;
+  border-top: 1px solid $color-gainsboro-100;
+  background-color: $color-white;
+  
+  @include for-phone-only {
+    padding: $spacing-lg;
+    gap: $spacing-sm;
+    flex-direction: column-reverse;
+  }
+  
+  @include for-tablet-portrait {
+    padding: $spacing-lg $spacing-xl;
+  }
+}
+
+.cancelButton {
+  background-color: transparent;
+  color: $color-darkgray;
+  border: 1px solid $color-gainsboro-200;
+  border-radius: $border-radius-md;
+  font-family: $font-roc-grotesk;
+  font-size: $font-size-base;
+  font-weight: 500;
+  padding: $spacing-md $spacing-xxl;
+  text-transform: none;
+  transition: $transition-normal;
+  
+  @include for-phone-only {
+    padding: $spacing-sm $spacing-lg;
+    font-size: $font-size-sm;
+  }
+  
+  &:hover {
+    background-color: $color-gainsboro-100;
+    border-color: $color-darkgray;
+  }
+}
+
+.submitButton {
+  background-color: $color-dodgerblue;
+  color: $color-white;
+  border: none;
+  border-radius: $border-radius-md;
+  font-family: $font-roc-grotesk;
+  font-size: $font-size-base;
+  font-weight: 500;
+  padding: $spacing-md $spacing-xxl;
+  text-transform: none;
+  box-shadow: 0 0.125em 0.5em rgba(111, 135, 246, 0.3);
+  transition: $transition-normal;
+  
+  @include for-phone-only {
+    padding: $spacing-sm $spacing-lg;
+    font-size: $font-size-sm;
+  }
+  
+  &:hover {
+    background-color: $color-mediumslateblue;
+    box-shadow: 0 0.25em 0.75em rgba(111, 135, 246, 0.4);
+  }
+  
+  &:disabled {
+    background-color: $color-darkgray;
+    box-shadow: none;
   }
 } 

@@ -1,4 +1,16 @@
 import React, { useState, useCallback } from 'react';
+import {
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  CircularProgress,
+  Alert,
+  IconButton,
+  Box
+} from '@mui/material';
+import CloseIcon from '@mui/icons-material/Close';
+import EventIcon from '@mui/icons-material/Event';
 import CustomButton from './customButton/CustomButton';
 import CustomField from './customField/CustomField';
 import CustomTypography from './customTypography/CustomTypography';
@@ -24,6 +36,18 @@ const AddEventModal: React.FC<AddEventModalProps> = ({ isOpen, onClose, onEventA
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const resetForm = useCallback(() => {
+    setFormData({
+      name: '',
+      description: '',
+      start_date: '',
+      end_date: '',
+      location: '',
+      status: 'planned'
+    });
+    setError(null);
+  }, []);
 
   const handleInputChange = useCallback((field: keyof AddExhibitionPayload) => (
     event: React.ChangeEvent<HTMLInputElement>
@@ -68,15 +92,7 @@ const AddEventModal: React.FC<AddEventModalProps> = ({ isOpen, onClose, onEventA
 
     try {
       await addExhibition(formData, token!);
-
-      setFormData({
-        name: '',
-        description: '',
-        start_date: '',
-        end_date: '',
-        location: '',
-        status: 'planned'
-      });
+      resetForm();
       onEventAdded();
       onClose();
     } catch (err) {
@@ -88,117 +104,161 @@ const AddEventModal: React.FC<AddEventModalProps> = ({ isOpen, onClose, onEventA
 
   const handleClose = useCallback(() => {
     if (!loading) {
+      resetForm();
       onClose();
     }
-  }, [loading, onClose]);
-
-  if (!isOpen) return null;
+  }, [loading, onClose, resetForm]);
 
   return (
-    <div className={styles.modalOverlay} onClick={handleClose}>
-      <div className={styles.rectangleGroup} onClick={(e) => e.stopPropagation()}>
-        <div className={styles.rectangleDiv}></div>
-        
-        <div className={styles.dodajWystawcParent}>
-          <CustomTypography className={styles.dodajWystawc}>
-            Dodaj wydarzenie
+    <Dialog
+      open={isOpen}
+      onClose={handleClose}
+      maxWidth="md"
+      fullWidth
+      className={styles.dialog}
+    >
+      <DialogTitle className={styles.dialogTitle}>
+        <div className={styles.titleContainer}>
+          <EventIcon className={styles.titleIcon} />
+          <CustomTypography 
+            fontSize="1.25rem" 
+            fontWeight={500} 
+            className={styles.titleText}
+          >
+            Dodaj nowe wydarzenie
           </CustomTypography>
-          <CustomTypography className={styles.wydarzenia}>
-            Wydarzenia
-          </CustomTypography>
-          <img className={styles.maskGroup30} alt="" src="/assets/mask-group-29@2x.png" />
         </div>
+        <IconButton
+          onClick={handleClose}
+          className={styles.closeButton}
+          size="small"
+          disabled={loading}
+        >
+          <CloseIcon />
+        </IconButton>
+      </DialogTitle>
 
-        <img className={styles.groupChild7} alt="" src="/assets/group-30324.svg" onClick={handleClose} />
+      <DialogContent className={styles.dialogContent}>
+        {error && (
+          <Alert severity="error" className={styles.alert}>
+            {error}
+          </Alert>
+        )}
 
-        <form onSubmit={handleSubmit}>
-          <div className={styles.nazwaWydarzeniaParent}>
-            <CustomTypography className={styles.nazwaWydarzenia}>
-              Nazwa wydarzenia
-            </CustomTypography>
-            <CustomField
-              type="text"
-              placeholder="Podaj nazwę wydarzenia"
-              value={formData.name}
-              onChange={handleInputChange('name')}
-              className={styles.inputField}
-            />
+        <form onSubmit={handleSubmit} className={styles.form}>
+          <div className={styles.formGrid}>
+            <div className={`${styles.formField} ${styles.fullWidth}`}>
+              <CustomTypography 
+                fontSize="0.875rem" 
+                fontWeight={500} 
+                className={styles.fieldLabel}
+              >
+                Nazwa wydarzenia *
+              </CustomTypography>
+              <CustomField
+                type="text"
+                value={formData.name}
+                onChange={handleInputChange('name')}
+                placeholder="Wprowadź nazwę wydarzenia"
+                className={styles.fieldInput}
+              />
+            </div>
 
-            <CustomTypography className={styles.dataWydarzenia}>
-              Data wydarzenia
-            </CustomTypography>
-            
-            <div className={styles.dateContainer}>
-              <div className={styles.dateField}>
-                <CustomField
-                  type="date"
-                  value={formData.start_date}
-                  onChange={handleInputChange('start_date')}
-                  className={styles.dateInput}
-                />
-                <CustomTypography className={styles.dataRozpoczecia}>
-                  Data rozpoczęcia
-                </CustomTypography>
-              </div>
-              
-              <div className={styles.dateField}>
-                <CustomField
-                  type="date"
-                  value={formData.end_date}
-                  onChange={handleInputChange('end_date')}
-                  className={styles.dateInput}
-                />
-                <CustomTypography className={styles.dataZakoczenia}>
-                  Data zakończenia
-                </CustomTypography>
-              </div>
+            <div className={styles.formField}>
+              <CustomTypography 
+                fontSize="0.875rem" 
+                fontWeight={500} 
+                className={styles.fieldLabel}
+              >
+                Data rozpoczęcia *
+              </CustomTypography>
+              <CustomField
+                type="date"
+                value={formData.start_date}
+                onChange={handleInputChange('start_date')}
+                className={styles.fieldInput}
+              />
+            </div>
+
+            <div className={styles.formField}>
+              <CustomTypography 
+                fontSize="0.875rem" 
+                fontWeight={500} 
+                className={styles.fieldLabel}
+              >
+                Data zakończenia *
+              </CustomTypography>
+              <CustomField
+                type="date"
+                value={formData.end_date}
+                onChange={handleInputChange('end_date')}
+                className={styles.fieldInput}
+              />
+            </div>
+
+            <div className={`${styles.formField} ${styles.fullWidth}`}>
+              <CustomTypography 
+                fontSize="0.875rem" 
+                fontWeight={500} 
+                className={styles.fieldLabel}
+              >
+                Lokalizacja
+              </CustomTypography>
+              <CustomField
+                type="text"
+                value={formData.location || ''}
+                onChange={handleInputChange('location')}
+                placeholder="Wprowadź lokalizację wydarzenia"
+                className={styles.fieldInput}
+              />
+            </div>
+
+            <div className={`${styles.formField} ${styles.fullWidth}`}>
+              <CustomTypography 
+                fontSize="0.875rem" 
+                fontWeight={500} 
+                className={styles.fieldLabel}
+              >
+                Opis
+              </CustomTypography>
+              <CustomField
+                type="text"
+                value={formData.description || ''}
+                onChange={handleInputChange('description')}
+                placeholder="Wprowadź opis wydarzenia"
+                className={styles.fieldInput}
+              />
             </div>
           </div>
-
-          <div className={styles.lokalizacjaParent}>
-            <CustomTypography className={styles.lokalizacja}>
-              Lokalizacja
-            </CustomTypography>
-            <CustomField
-              type="text"
-              placeholder="Podaj lokalizację wydarzenia"
-              value={formData.location || ''}
-              onChange={handleInputChange('location')}
-              className={styles.inputField}
-            />
-          </div>
-
-          <div className={styles.opisParent}>
-            <CustomTypography className={styles.opis}>
-              Opis wydarzenia
-            </CustomTypography>
-            <CustomField
-              type="text"
-              placeholder="Opis wydarzenia"
-              value={formData.description || ''}
-              onChange={handleInputChange('description')}
-              className={styles.inputField}
-            />
-          </div>
-
-          {error && (
-            <CustomTypography className={styles.error}>
-              {error}
-            </CustomTypography>
-          )}
-
-          <div className={styles.groupParent8}>
-            <CustomButton
-              type="submit"
-              disabled={loading}
-              className={styles.dodajButton}
-            >
-              {loading ? 'Dodawanie...' : 'Dodaj'}
-            </CustomButton>
-          </div>
         </form>
-      </div>
-    </div>
+      </DialogContent>
+
+      <DialogActions className={styles.dialogActions}>
+        <CustomButton
+          onClick={handleClose}
+          disabled={loading}
+          variant="outlined"
+          className={styles.cancelButton}
+        >
+          Anuluj
+        </CustomButton>
+        <CustomButton
+          onClick={handleSubmit}
+          disabled={loading}
+          variant="contained"
+          className={styles.submitButton}
+        >
+          {loading ? (
+            <Box display="flex" alignItems="center" gap={1}>
+              <CircularProgress size={16} color="inherit" />
+              Dodawanie...
+            </Box>
+          ) : (
+            'Dodaj wydarzenie'
+          )}
+        </CustomButton>
+      </DialogActions>
+    </Dialog>
   );
 };
 
