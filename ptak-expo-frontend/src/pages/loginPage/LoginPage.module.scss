@@ -5,7 +5,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content:center;
   min-height: 100vh;
   width: 100%;
   position: relative;
@@ -28,8 +28,29 @@
     z-index: 1;
   }
     @include for-tablet-portrait-up {
+      padding-top: 20vh; //new
+      justify-content:flex-start;
     &::before {
-      background-image: url('../../assets/image-35@2x.png'); // obrazek dla min-width: 600px
+      background-image: url('../../assets/image-35@2x.png'); // obrazek dla min-width: 
+      background-size: 100% 100%;
+      background-repeat: no-repeat;
+      background-position: center center;
+      overflow: hidden;
+      width: 100vw;
+      height: 100vh;
+    }
+    @include for-desktop-up {
+      padding-top: 20vh; //new
+      justify-content:flex-start;
+    &::before {
+        background-image: url('../../assets/image-35@2x.png'); // obrazek dla min-width: 600px
+        background-repeat: no-repeat;
+        background-size: 100% 100%;
+        background-position: center center;
+        overflow: hidden;
+        width: 100vw;
+        height: 100vh;
+      }
     }
   }
 }
@@ -45,6 +66,10 @@
    background-repeat: no-repeat;
    min-height:60vh;
    width: 100vw;
+    @include for-desktop-up {
+       //background-image: url('../../assets/Rectangle-8313.svg');
+       mask-image: linear-gradient(to top, transparent, #6F87F6 50%);
+    }
 }
 .filtrBlue{
    background-image: url('../../assets/Rectangle-8378.svg');
@@ -52,6 +77,9 @@
    background-repeat: no-repeat;
    min-height: 40vh;
    width: 100vw;
+   @include for-desktop-up {
+     min-height: 60vh;
+   }
 }
 .loginBox {
   position: relative;
@@ -82,8 +110,8 @@
   z-index: 1;
 
     @include for-tablet-portrait-up {
-      width: 6em;
-      height: 6em;
+      width: 5em;
+      height: 5em;
   }
 }
 .title {
