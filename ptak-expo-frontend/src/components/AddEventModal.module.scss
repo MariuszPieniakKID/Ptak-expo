@@ -21,7 +21,7 @@
   font-family: var(--font-open-sans);
 }
 
-// Modal background - oryginalny design z dodatkową wysokością dla nowych pól
+// Modal background - szare tło dla lepszej czytelności
 .rectangleDiv {
   position: absolute;
   width: 100%;
@@ -30,8 +30,8 @@
   left: 0;
   box-shadow: 0 23px 20px rgba(152, 164, 219, 0.47);
   border-radius: var(--br-20);
-  background-color: var(--color-whitesmoke-100);
-  border: 1px solid var(--color-white);
+  background-color: #f5f5f5;
+  border: 1px solid #e0e0e0;
   box-sizing: border-box;
   height: 550px;
 }
