@@ -2,13 +2,13 @@ import React, { useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import Menu from '../components/Menu';
+import CustomTypography from '../components/customTypography/CustomTypography';
+import CustomButton from '../components/customButton/CustomButton';
 import {
   Container,
-  Typography,
   Card,
   CardContent,
   Box,
-  Button,
   Avatar,
 } from '@mui/material';
 import LogoutIcon from '@mui/icons-material/Logout';
@@ -21,7 +21,13 @@ import UsersIcon from '../assets/mask-group-51@2x.png';
 import DatabaseIcon from '../assets/baza@2x.png';
 import UserAvatar from '../assets/7bb764a0137abc7a8142b6438e529133@2x.png';
 
-const dashboardItems = [
+interface DashboardItem {
+  title: string;
+  icon: string;
+  handler: string;
+}
+
+const dashboardItems: DashboardItem[] = [
   {
     title: 'Wystawcy',
     icon: ExhibitorsIcon,
@@ -68,22 +74,33 @@ const DashboardPage: React.FC = () => {
           <Box className={styles.welcomeMessage}>
             <Avatar src={UserAvatar} alt={user?.firstName || 'User'} className={styles.avatar} />
             <Box>
-              <Typography variant="h5" component="h1">
+              <CustomTypography fontSize="1.5rem" fontWeight={600}>
                 Dzień dobry, {user?.firstName || 'Użytkowniku'}
-              </Typography>
-              <Typography variant="body2" color="textSecondary">
+              </CustomTypography>
+              <CustomTypography fontSize="0.875rem" color="#6c757d" fontWeight={400}>
                 Sprawdź co możesz dzisiaj zrobić!
-              </Typography>
+              </CustomTypography>
             </Box>
           </Box>
-          <Button
+          <CustomButton
             variant="outlined"
             onClick={handleLogout}
             startIcon={<LogoutIcon />}
             className={styles.logoutButton}
+            bgColor="transparent"
+            textColor="#6F87F6"
+            width="auto"
+            height="auto"
+            sx={{
+              border: '1px solid #6F87F6',
+              '&:hover': {
+                backgroundColor: '#6F87F6',
+                color: '#fff',
+              },
+            }}
           >
             Wyloguj
-          </Button>
+          </CustomButton>
         </Box>
 
         <Box 
@@ -94,7 +111,7 @@ const DashboardPage: React.FC = () => {
             justifyContent: 'center'
           }}
         >
-          {dashboardItems.map((item) => (
+          {dashboardItems.map((item: DashboardItem) => (
             <Box
               key={item.title}
               sx={{
@@ -106,9 +123,9 @@ const DashboardPage: React.FC = () => {
               <Card className={styles.card} onClick={handlers[item.handler]}>
                 <CardContent className={styles.cardContent}>
                   <img src={item.icon} alt={item.title} className={styles.cardIcon} />
-                  <Typography variant="h6" component="h2">
+                  <CustomTypography fontSize="1.25rem" fontWeight={600}>
                     {item.title}
-                  </Typography>
+                  </CustomTypography>
                 </CardContent>
               </Card>
             </Box>
@@ -116,9 +133,9 @@ const DashboardPage: React.FC = () => {
         </Box>
       </Container>
       <Box className={styles.footer}>
-        <Typography variant="caption">
+        <CustomTypography fontSize="0.75rem" color="#a7a7a7" fontWeight={400}>
           Kontakt • Polityka prywatności • www.warsawexpo.eu
-        </Typography>
+        </CustomTypography>
       </Box>
     </Box>
   );

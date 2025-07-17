@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import Menu from '../components/Menu';
 import AddUserModal from '../components/AddUserModal';
+import CustomTypography from '../components/customTypography/CustomTypography';
+import CustomButton from '../components/customButton/CustomButton';
 import {
   fetchUsers,
   deleteUser,
@@ -12,8 +14,6 @@ import {
 import {
   Box,
   Container,
-  Typography,
-  Button,
   Table,
   TableBody,
   TableCell,
@@ -35,15 +35,15 @@ import UsersPageIcon from '../assets/mask-group-5@2x.png';
 
 const UsersPage: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const [isAddUserModalOpen, setIsAddUserModalOpen] = useState(false);
-  const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string>('');
+  const [isAddUserModalOpen, setIsAddUserModalOpen] = useState<boolean>(false);
+  const [page, setPage] = useState<number>(0);
+  const [rowsPerPage, setRowsPerPage] = useState<number>(5);
   const navigate = useNavigate();
   const { token, logout } = useAuth();
 
-  const loadUsers = useCallback(async () => {
+  const loadUsers = useCallback(async (): Promise<void> => {
     if (!token) {
       setError('Brak autoryzacji. Proszę się zalogować.');
       logout();
@@ -70,44 +70,52 @@ const UsersPage: React.FC = () => {
     loadUsers();
   }, [loadUsers]);
 
-  const handleDeleteUser = async (userId: number, userName: string) => {
+  const handleDeleteUser = useCallback(async (userId: number, userName: string): Promise<void> => {
     if (!token) return;
     if (window.confirm(`Czy na pewno chcesz usunąć użytkownika "${userName}"?`)) {
       try {
         await deleteUser(userId, token);
-        // Refresh list
         setUsers(prevUsers => prevUsers.filter(user => user.id !== userId));
       } catch (err: any) {
         setError(err.message || 'Błąd podczas usuwania użytkownika');
       }
     }
-  };
+  }, [token]);
 
-  const handleResetPassword = async (userId: number) => {
+  const handleResetPassword = useCallback(async (userId: number): Promise<void> => {
     try {
       await resetUserPassword(userId);
       alert('Nowe hasło zostało wysłane do użytkownika.');
     } catch (err: any) {
       setError(err.message || 'Błąd podczas resetowania hasła');
     }
-  };
+  }, []);
   
-  const getUserInitials = (fullName: string) => {
+  const getUserInitials = useCallback((fullName: string): string => {
     const names = fullName.trim().split(' ');
     if (names.length >= 2) {
       return `${names[0].charAt(0)}${names[names.length - 1].charAt(0)}`.toUpperCase();
     }
     return fullName.charAt(0).toUpperCase();
-  };
+  }, []);
 
-  const handleChangePage = (_event: unknown, newPage: number) => {
+  const handleChangePage = useCallback((_event: unknown, newPage: number): void => {
     setPage(newPage);
-  };
+  }, []);
 
-  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChangeRowsPerPage = useCallback((event: React.ChangeEvent<HTMLInputElement>): void => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
-  };
+  }, []);
+
+  const handleModalClose = useCallback((): void => {
+    setIsAddUserModalOpen(false);
+  }, []);
+
+  const handleUserAdded = useCallback((): void => {
+    setIsAddUserModalOpen(false);
+    loadUsers();
+  }, [loadUsers]);
 
   const paginatedUsers = users.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
 
@@ -118,17 +126,24 @@ const UsersPage: React.FC = () => {
         <Box className={styles.header}>
             <div className={styles.titleContainer}>
                 <img src={UsersPageIcon} alt="Użytkownicy" className={styles.titleIcon} />
-                <Typography variant="h4" component="h1">
+                <CustomTypography fontSize="2rem" fontWeight={600}>
                     Użytkownicy
-                </Typography>
+                </CustomTypography>
             </div>
-          <Button
+          <CustomButton
             variant="contained"
             startIcon={<AddIcon />}
             onClick={() => setIsAddUserModalOpen(true)}
+            bgColor="#6F87F6"
+            textColor="#fff"
+            width="auto"
+            height="auto"
+            sx={{
+              padding: '10px 20px',
+            }}
           >
             Dodaj użytkownika
-          </Button>
+          </CustomButton>
         </Box>
 
         {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
@@ -143,23 +158,49 @@ const UsersPage: React.FC = () => {
               <Table>
                 <TableHead className={styles.tableHead}>
                   <TableRow>
-                    <TableCell className={styles.tableCell}>Imię i Nazwisko</TableCell>
-                    <TableCell className={styles.tableCell}>E-mail</TableCell>
-                    <TableCell className={styles.tableCell}>Telefon</TableCell>
-                    <TableCell className={styles.tableCell} align="right">Akcje</TableCell>
+                    <TableCell className={styles.tableCell}>
+                      <CustomTypography fontSize="0.875rem" fontWeight={600}>
+                        Imię i Nazwisko
+                      </CustomTypography>
+                    </TableCell>
+                    <TableCell className={styles.tableCell}>
+                      <CustomTypography fontSize="0.875rem" fontWeight={600}>
+                        E-mail
+                      </CustomTypography>
+                    </TableCell>
+                    <TableCell className={styles.tableCell}>
+                      <CustomTypography fontSize="0.875rem" fontWeight={600}>
+                        Telefon
+                      </CustomTypography>
+                    </TableCell>
+                    <TableCell className={styles.tableCell} align="right">
+                      <CustomTypography fontSize="0.875rem" fontWeight={600}>
+                        Akcje
+                      </CustomTypography>
+                    </TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {paginatedUsers.map((user) => (
+                  {paginatedUsers.map((user: User) => (
                     <TableRow key={user.id}>
                       <TableCell className={styles.tableCell}>
                         <Box className={styles.avatarCell}>
                           <Avatar className={styles.avatar}>{getUserInitials(user.fullName)}</Avatar>
-                          {user.fullName}
+                          <CustomTypography fontSize="0.875rem" fontWeight={500}>
+                            {user.fullName}
+                          </CustomTypography>
                         </Box>
                       </TableCell>
-                      <TableCell className={styles.tableCell}>{user.email}</TableCell>
-                      <TableCell className={styles.tableCell}>{user.phone || '—'}</TableCell>
+                      <TableCell className={styles.tableCell}>
+                        <CustomTypography fontSize="0.875rem" fontWeight={400}>
+                          {user.email}
+                        </CustomTypography>
+                      </TableCell>
+                      <TableCell className={styles.tableCell}>
+                        <CustomTypography fontSize="0.875rem" fontWeight={400}>
+                          {user.phone || '—'}
+                        </CustomTypography>
+                      </TableCell>
                       <TableCell className={styles.tableCell} align="right">
                         <Box className={styles.actionButtons}>
                           <IconButton onClick={() => handleResetPassword(user.id)} size="small">
@@ -191,11 +232,8 @@ const UsersPage: React.FC = () => {
       </Container>
       <AddUserModal
         isOpen={isAddUserModalOpen}
-        onClose={() => setIsAddUserModalOpen(false)}
-        onUserAdded={() => {
-          setIsAddUserModalOpen(false);
-          loadUsers();
-        }}
+        onClose={handleModalClose}
+        onUserAdded={handleUserAdded}
         token={token || ''}
       />
     </Box>

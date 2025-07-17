@@ -29,7 +29,7 @@
   }
     @include for-tablet-portrait-up {
     &::before {
-      background-image: url('../../assets//image-35@2x.png'); // obrazek dla min-width: 600px
+      background-image: url('../../assets/image-35@2x.png'); // obrazek dla min-width: 600px
     }
   }
 }

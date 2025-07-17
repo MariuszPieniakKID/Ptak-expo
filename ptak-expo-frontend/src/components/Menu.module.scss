@@ -8,6 +8,8 @@
   color: #000 !important;
   margin: 1rem;
   width: calc(100% - 2rem) !important;
+  z-index: 10 !important;
+  position: relative !important;
 }
 
 .toolbar {
