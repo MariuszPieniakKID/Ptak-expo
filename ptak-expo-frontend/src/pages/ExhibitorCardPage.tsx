@@ -82,9 +82,10 @@ const ExhibitorCardPage: React.FC = () => {
   }, [exhibitor]);
 
   const handleSelectEvent = useCallback((eventId: number) => {
-    console.log('Select event:', eventId);
-    // In real app would navigate to event details
-  }, []);
+    if (exhibitor) {
+      navigate(`/wystawcy/${exhibitor.id}/wydarzenie/${eventId}`);
+    }
+  }, [exhibitor, navigate]);
 
   const formatDateRange = useCallback((startDate: string, endDate: string): string => {
     const start = new Date(startDate);
