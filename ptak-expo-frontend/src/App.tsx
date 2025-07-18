@@ -8,6 +8,7 @@ import DashboardPage from './pages/DashboardPage';
 import UsersPage from './pages/UsersPage';
 import ExhibitorsPage from './pages/ExhibitorsPage';
 import EventsPage from './pages/EventsPage';
+import ExhibitorCardPage from './pages/ExhibitorCardPage';
 import './App.scss';
 
 function App() {
@@ -43,6 +44,13 @@ function App() {
               </ProtectedRoute>
             } />
             
+            {/* Protected Exhibitor Card page - Admin only */}
+            <Route path="/wystawcy/:id" element={
+              <ProtectedRoute requiredRole="admin">
+                <ExhibitorCardPage />
+              </ProtectedRoute>
+            } />
+            
             {/* Protected Events page - Admin only */}
             <Route path="/wydarzenia" element={
               <ProtectedRoute requiredRole="admin">
@@ -50,8 +58,8 @@ function App() {
               </ProtectedRoute>
             } />
             
-            {/* Catch all - redirect to login */}
-            <Route path="*" element={<Navigate to="/login" replace />} />
+            {/* Fallback route */}
+            <Route path="*" element={<Navigate to="/dashboard" replace />} />
           </Routes>
         </div>
       </Router>

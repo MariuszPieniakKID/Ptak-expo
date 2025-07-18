@@ -23,8 +23,18 @@ export interface Exhibitor {
   status: string;
   nearestEventDate?: string;
   eventNames?: string;
+  events?: ExhibitorEvent[];
   createdAt: string;
   updatedAt: string;
+}
+
+export interface ExhibitorEvent {
+  id: number;
+  name: string;
+  start_date: string;
+  end_date: string;
+  location?: string;
+  status: string;
 }
 
 export interface Exhibition {
@@ -126,6 +136,16 @@ export const fetchExhibitors = async (token: string): Promise<Exhibitor[]> => {
   }
   const data = await response.json();
   return data.sort((a: Exhibitor, b: Exhibitor) => a.companyName.localeCompare(b.companyName));
+};
+
+export const fetchExhibitor = async (id: number, token: string): Promise<Exhibitor> => {
+  const response = await apiCall(`${config.API_BASE_URL}/api/v1/exhibitors/${id}`, {
+    headers: { 'Authorization': `Bearer ${token}` },
+  });
+  if (!response.ok) {
+    throw new Error('Failed to fetch exhibitor');
+  }
+  return response.json();
 };
 
 export const deleteExhibitor = async (exhibitorId: number, token: string): Promise<any> => {

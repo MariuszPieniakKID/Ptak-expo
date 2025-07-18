@@ -80,9 +80,8 @@ const ExhibitorsPage: React.FC = () => {
   }, [token]);
 
   const handleViewExhibitorCard = useCallback((exhibitorId: number): void => {
-    console.log('Zobacz kartę wystawcy:', exhibitorId);
-    // TODO: Implement exhibitor card view
-  }, []);
+    navigate(`/wystawcy/${exhibitorId}`);
+  }, [navigate]);
 
   const handleChangePage = useCallback((_event: unknown, newPage: number): void => {
     setPage(newPage);

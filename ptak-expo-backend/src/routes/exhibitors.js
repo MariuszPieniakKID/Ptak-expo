@@ -9,7 +9,7 @@ router.get('/', verifyToken, requireAdmin, async (req, res) => {
     console.log('Fetching exhibitors from database...');
     
     const query = `
-      SELECT 
+      SELECT DISTINCT
         e.id,
         e.nip,
         e.company_name,
@@ -23,13 +23,18 @@ router.get('/', verifyToken, requireAdmin, async (req, res) => {
         e.status,
         e.created_at,
         e.updated_at,
-        MIN(ex.start_date) as nearest_event_date,
-        STRING_AGG(ex.name, ', ') as event_names
+        first_event.start_date as nearest_event_date,
+        COALESCE(first_event.name, 'Brak przypisanych wydarzeń') as event_names
       FROM exhibitors e
-      LEFT JOIN exhibitor_events ee ON e.id = ee.exhibitor_id
-      LEFT JOIN exhibitions ex ON ee.exhibition_id = ex.id AND ex.end_date >= CURRENT_DATE
+      LEFT JOIN LATERAL (
+        SELECT ex.name, ex.start_date 
+        FROM exhibitor_events ee 
+        JOIN exhibitions ex ON ee.exhibition_id = ex.id 
+        WHERE ee.exhibitor_id = e.id AND ex.end_date >= CURRENT_DATE
+        ORDER BY ex.start_date ASC 
+        LIMIT 1
+      ) first_event ON true
       WHERE e.status = 'active'
-      GROUP BY e.id, e.nip, e.company_name, e.address, e.postal_code, e.city, e.contact_person, e.contact_role, e.phone, e.email, e.status, e.created_at, e.updated_at
       ORDER BY e.company_name
     `;
     
