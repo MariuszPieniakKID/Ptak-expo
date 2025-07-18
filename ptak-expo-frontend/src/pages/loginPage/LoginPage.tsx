@@ -9,7 +9,6 @@ import CustomButton from '../../components/customButton/CustomButton';
 import CustomLink from '../../components/customLink/CustomLink';
 
 
-
 const LoginPage: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -100,9 +99,11 @@ const LoginPage: React.FC = () => {
   return (
     <>
     <div className={styles.loginContainer}>
+      <div className={styles.contextContainer}>
       <div className={styles.logo} />
       <Box className={styles.loginBox}>
         <CustomTypography className={styles.adminTitle}>Panel <br/> Administratora</CustomTypography>
+       
         <CustomTypography fontSize='1rem'>Logowanie</CustomTypography>
         <Box
           component="form"
@@ -164,6 +165,7 @@ const LoginPage: React.FC = () => {
           </Box>
         </Box>
       </Box>
+      </div>
     </div>
     <div className={styles.filtr}>
       <div className={styles.filtrGray}/>

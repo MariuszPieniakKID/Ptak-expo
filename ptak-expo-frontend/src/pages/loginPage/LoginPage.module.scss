@@ -5,7 +5,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content:center;
+  justify-content: flex-start;
   min-height: 100vh;
   width: 100%;
   position: relative;
@@ -28,10 +28,9 @@
     z-index: 1;
   }
     @include for-tablet-portrait-up {
-      padding-top: 20vh; //new
       justify-content:flex-start;
     &::before {
-      background-image: url('../../assets/image-35@2x.png'); // obrazek dla min-width: 
+      background-image: url('../../assets/image-35@2x.png'); 
       background-size: 100% 100%;
       background-repeat: no-repeat;
       background-position: center center;
@@ -40,10 +39,9 @@
       height: 100vh;
     }
     @include for-desktop-up {
-      padding-top: 20vh; //new
       justify-content:flex-start;
     &::before {
-        background-image: url('../../assets/image-35@2x.png'); // obrazek dla min-width: 600px
+        background-image: url('../../assets/image-35@2x.png'); 
         background-repeat: no-repeat;
         background-size: 100% 100%;
         background-position: center center;
@@ -54,11 +52,20 @@
     }
   }
 }
+.contextContainer{
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content:center;
+  padding-top: 10vh;;
+
+}
 .filtr{
     background-attachment: fixed;
     position: fixed;
     bottom: 0;
     left: 0;
+    height: 100vh;
 }
 .filtrGray{
    background-image: url('../../assets/Rectangle-8313.svg');
@@ -66,8 +73,8 @@
    background-repeat: no-repeat;
    min-height:60vh;
    width: 100vw;
-    @include for-desktop-up {
-       //background-image: url('../../assets/Rectangle-8313.svg');
+    @include for-tablet-portrait-up  {
+       background-image: url('../../assets/Rectangle-8313.svg');
        mask-image: linear-gradient(to top, transparent, #6F87F6 50%);
     }
 }

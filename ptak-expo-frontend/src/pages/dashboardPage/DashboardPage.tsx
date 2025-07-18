@@ -1,9 +1,9 @@
 import React, { useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
-import Menu from '../components/Menu';
-import CustomTypography from '../components/customTypography/CustomTypography';
-import CustomButton from '../components/customButton/CustomButton';
+import { useAuth } from '../../contexts/AuthContext';
+import Menu from '../../components/Menu';
+import CustomTypography from '../../components/customTypography/CustomTypography';
+import CustomButton from '../../components/customButton/CustomButton';
 import {
   Container,
   Card,
@@ -15,11 +15,11 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import styles from './DashboardPage.module.scss';
 
 // Import images
-import ExhibitorsIcon from '../assets/mask-group-6@2x.png';
-import EventsIcon from '../assets/mask-group-5@2x.png';
-import UsersIcon from '../assets/mask-group-51@2x.png';
-import DatabaseIcon from '../assets/baza@2x.png';
-import UserAvatar from '../assets/7bb764a0137abc7a8142b6438e529133@2x.png';
+import ExhibitorsIcon from '../../assets/mask-group-6@2x.png';
+import EventsIcon from '../../assets/mask-group-5@2x.png';
+import UsersIcon from '../../assets/mask-group-51@2x.png';
+import DatabaseIcon from '../../assets/baza@2x.png';
+import UserAvatar from '../../assets/7bb764a0137abc7a8142b6438e529133@2x.png';
 
 interface DashboardItem {
   title: string;
