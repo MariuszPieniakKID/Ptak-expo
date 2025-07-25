@@ -15,7 +15,7 @@ import {
   Alert,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
-import LogoutIcon from '@mui/icons-material/Logout';
+import { ReactComponent as LogoutIcon } from '../assets/log-out.svg';
 import styles from './EventsPage.module.scss';
 import EventsPageIcon from '../assets/mask-group-5@2x.png';
 
@@ -117,49 +117,65 @@ const EventsPage: React.FC = () => {
   }
 
   return (
+    <>
     <Box className={styles.eventsPage}>
-      <Menu />
-      <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-        <Box className={styles.header}>
-          <Box className={styles.titleContainer}>
-            <img src={EventsPageIcon} alt="Wydarzenia" className={styles.titleIcon} />
-            <CustomTypography fontSize="2rem" fontWeight={600}>
-              Wydarzenia
-            </CustomTypography>
-          </Box>
-          <Box className={styles.actionButtons}>
-                         <CustomButton
-               variant="contained"
-               startIcon={<AddIcon />}
-               onClick={handleOpenModal}
-               bgColor="#6F87F6"
-               textColor="#fff"
-               width="auto"
-               height="auto"
-               sx={{ padding: '10px 20px', marginRight: '10px' }}
-             >
-               Dodaj wydarzenie
-             </CustomButton>
-            <CustomButton
-              variant="outlined"
+      <Box>
+        <Box className={styles.eventsNavigationContainer}>
+          <Box className={styles.header}>
+            <Menu /> 
+            <CustomButton 
+              disableRipple
+              textColor='#060606ff'
+              fontSize="0.75em;"
+              className={styles.logOutButton}
               onClick={handleLogout}
-              startIcon={<LogoutIcon />}
-              bgColor="transparent"
-              textColor="#6F87F6"
+              icon={<LogoutIcon style={{ color: "#6F6F6F", height:"1.25em"}}/>} 
+              iconPosition="top" 
+              withBorder={false}
               width="auto"
               height="auto"
-              sx={{
-                border: '1px solid #6F87F6',
-                '&:hover': {
-                  backgroundColor: '#6F87F6',
-                  color: '#fff',
-                },
-              }}
+              sx={{ 
+                  backgroundColor:'transparent',
+                  '&:hover': {
+                    backgroundColor: 'transparent',
+                    color: '#060606ff',
+                  },
+                }}
             >
               Wyloguj
             </CustomButton>
+            <Box className={styles.titleContainer}>
+              <img src={EventsPageIcon} alt="Wydarzenia" className={styles.titleIcon} />
+              <Box>
+                <CustomTypography className={styles.pageTitle}>
+                  Baza wydarzeń
+                </CustomTypography>
+                <CustomTypography className={styles.pageSubtitle}>
+                  Zarządzaj wszystkimi wydarzeniami
+                </CustomTypography>
+              </Box>
+            </Box>
           </Box>
         </Box>
+        <Container   
+         maxWidth={false}  
+         sx={{ maxWidth: '78%' }}
+         className={styles.contentWrapper}
+         >
+          <Box className={styles.actionButtonsContainer}>
+            <CustomButton
+              variant="contained"
+              startIcon={<AddIcon />}
+              onClick={handleOpenModal}
+              bgColor="#6F87F6"
+              textColor="#fff"
+              width="auto"
+              height="auto"
+              sx={{ padding: '10px 20px' }}
+            >
+              Dodaj wydarzenie
+            </CustomButton>
+          </Box>
 
         <Box sx={{ mb: 3 }}>
           <CustomTypography fontSize="1.5rem" fontWeight={500}>
@@ -207,27 +223,33 @@ const EventsPage: React.FC = () => {
           ))}
         </Box>
 
-        {upcomingEvents.length === 0 && (
-          <Box sx={{ textAlign: 'center', py: 4 }}>
-            <CustomTypography fontSize="1.125rem" color="#6c757d">
-              Brak nadchodzących wydarzeń
-            </CustomTypography>
-          </Box>
-        )}
-
-        <Box sx={{ textAlign: 'center', mt: 4, pt: 4, borderTop: '1px solid #e0e0e0' }}>
-          <CustomTypography fontSize="0.875rem" color="#6c757d">
-            Kontakt • Polityka prywatności • www.warsawexpo.eu
-          </CustomTypography>
-        </Box>
-      </Container>
-      
-      <AddEventModal
-        isOpen={isAddEventModalOpen}
-        onClose={handleCloseModal}
-        onEventAdded={handleEventAdded}
-      />
+          {upcomingEvents.length === 0 && (
+            <Box sx={{ textAlign: 'center', py: 4 }}>
+              <CustomTypography fontSize="1.125rem" color="#6c757d">
+                Brak nadchodzących wydarzeń
+              </CustomTypography>
+            </Box>
+          )}
+        </Container>
+      </Box>
+      <Box className={styles.footer}>
+        <CustomTypography className={styles.cc}>
+          Kontakt • Polityka prywatności • www.warsawexpo.eu
+        </CustomTypography>
+      </Box>
     </Box>
+    
+    <Box className={styles.filtr}>
+      <Box className={styles.filtrGray}/>
+      <Box className={styles.filtrBlue}/>
+    </Box>
+    
+    <AddEventModal
+      isOpen={isAddEventModalOpen}
+      onClose={handleCloseModal}
+      onEventAdded={handleEventAdded}
+    />
+    </>
   );
 };
 
