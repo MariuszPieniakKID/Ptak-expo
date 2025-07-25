@@ -18,6 +18,7 @@ import {
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
+import { ReactComponent as LogoutIcon } from '../assets/log-out.svg';
 import styles from './ExhibitorCardPage.module.scss';
 import ExhibitorsPageIcon from '../assets/mask-group-6@2x.png';
 import EventImage1 from '../assets/image-35@2x.png';
@@ -30,6 +31,11 @@ const ExhibitorCardPage: React.FC = () => {
   const [error, setError] = useState<string>('');
   const navigate = useNavigate();
   const { token, logout } = useAuth();
+
+  const handleLogout = useCallback(() => {
+    logout();
+    navigate('/login');
+  }, [logout, navigate]);
 
   const loadExhibitor = useCallback(async (): Promise<void> => {
     if (!token || !id) {
@@ -115,44 +121,161 @@ const ExhibitorCardPage: React.FC = () => {
 
   if (loading) {
     return (
+      <>
       <Box className={styles.exhibitorCardPage}>
-        <Menu />
-        <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-          <Box sx={{ display: 'flex', justifyContent: 'center', my: 4 }}>
-            <CircularProgress />
+        <Box>
+          <Box className={styles.exhibitorCardNavigationContainer}>
+            <Box className={styles.header}>
+              <Menu /> 
+              <CustomButton 
+                disableRipple
+                textColor='#060606ff'
+                fontSize="0.75em;"
+                className={styles.logOutButton}
+                onClick={handleLogout}
+                icon={<LogoutIcon style={{ color: "#6F6F6F", height:"1.25em"}}/>} 
+                iconPosition="top" 
+                withBorder={false}
+                width="auto"
+                height="auto"
+                sx={{ 
+                    backgroundColor:'transparent',
+                    '&:hover': {
+                      backgroundColor: 'transparent',
+                      color: '#060606ff',
+                    },
+                  }}
+              >
+                Wyloguj
+              </CustomButton>
+            </Box>
           </Box>
-        </Container>
+          <Container   
+           maxWidth={false}  
+           sx={{ maxWidth: '78%' }}
+           className={styles.contentWrapper}
+           >
+            <Box sx={{ display: 'flex', justifyContent: 'center', my: 4 }}>
+              <CircularProgress />
+            </Box>
+          </Container>
+        </Box>
+        <Box className={styles.footer}>
+          <CustomTypography className={styles.cc}>
+            Kontakt • Polityka prywatności • www.warsawexpo.eu
+          </CustomTypography>
+        </Box>
       </Box>
+      
+      <Box className={styles.filtr}>
+        <Box className={styles.filtrGray}/>
+        <Box className={styles.filtrBlue}/>
+      </Box>
+      </>
     );
   }
 
   if (error || !exhibitor) {
     return (
+      <>
       <Box className={styles.exhibitorCardPage}>
-        <Menu />
-        <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-          <Alert severity="error" sx={{ mb: 2 }}>
-            {error || 'Nie znaleziono wystawcy'}
-          </Alert>
-          <CustomButton
-            onClick={handleBack}
-            startIcon={<ArrowBackIcon />}
-            bgColor="#6F87F6"
-            textColor="#fff"
-            width="auto"
-            height="40px"
-          >
-            Wróć do listy wystawców
-          </CustomButton>
-        </Container>
+        <Box>
+          <Box className={styles.exhibitorCardNavigationContainer}>
+            <Box className={styles.header}>
+              <Menu /> 
+              <CustomButton 
+                disableRipple
+                textColor='#060606ff'
+                fontSize="0.75em;"
+                className={styles.logOutButton}
+                onClick={handleLogout}
+                icon={<LogoutIcon style={{ color: "#6F6F6F", height:"1.25em"}}/>} 
+                iconPosition="top" 
+                withBorder={false}
+                width="auto"
+                height="auto"
+                sx={{ 
+                    backgroundColor:'transparent',
+                    '&:hover': {
+                      backgroundColor: 'transparent',
+                      color: '#060606ff',
+                    },
+                  }}
+              >
+                Wyloguj
+              </CustomButton>
+            </Box>
+          </Box>
+          <Container   
+           maxWidth={false}  
+           sx={{ maxWidth: '78%' }}
+           className={styles.contentWrapper}
+           >
+            <Alert severity="error" sx={{ mb: 2 }}>
+              {error || 'Nie znaleziono wystawcy'}
+            </Alert>
+            <CustomButton
+              onClick={handleBack}
+              startIcon={<ArrowBackIcon />}
+              bgColor="#6F87F6"
+              textColor="#fff"
+              width="auto"
+              height="40px"
+            >
+              Wróć do listy wystawców
+            </CustomButton>
+          </Container>
+        </Box>
+        <Box className={styles.footer}>
+          <CustomTypography className={styles.cc}>
+            Kontakt • Polityka prywatności • www.warsawexpo.eu
+          </CustomTypography>
+        </Box>
       </Box>
+      
+      <Box className={styles.filtr}>
+        <Box className={styles.filtrGray}/>
+        <Box className={styles.filtrBlue}/>
+      </Box>
+      </>
     );
   }
 
   return (
+    <>
     <Box className={styles.exhibitorCardPage}>
-      <Menu />
-      <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+      <Box>
+        <Box className={styles.exhibitorCardNavigationContainer}>
+          <Box className={styles.header}>
+            <Menu /> 
+            <CustomButton 
+              disableRipple
+              textColor='#060606ff'
+              fontSize="0.75em;"
+              className={styles.logOutButton}
+              onClick={handleLogout}
+              icon={<LogoutIcon style={{ color: "#6F6F6F", height:"1.25em"}}/>} 
+              iconPosition="top" 
+              withBorder={false}
+              width="auto"
+              height="auto"
+              sx={{ 
+                  backgroundColor:'transparent',
+                  '&:hover': {
+                    backgroundColor: 'transparent',
+                    color: '#060606ff',
+                  },
+                }}
+            >
+              Wyloguj
+            </CustomButton>
+          </Box>
+        </Box>
+        <Container   
+         maxWidth={false}  
+         sx={{ maxWidth: '78%' }}
+         className={styles.contentWrapper}
+         >
         {/* Header with back button */}
         <Box className={styles.header}>
           <CustomButton
@@ -366,8 +489,20 @@ const ExhibitorCardPage: React.FC = () => {
             )}
           </Box>
         </Box>
-      </Container>
+        </Container>
+      </Box>
+      <Box className={styles.footer}>
+        <CustomTypography className={styles.cc}>
+          Kontakt • Polityka prywatności • www.warsawexpo.eu
+        </CustomTypography>
+      </Box>
     </Box>
+    
+    <Box className={styles.filtr}>
+      <Box className={styles.filtrGray}/>
+      <Box className={styles.filtrBlue}/>
+    </Box>
+    </>
   );
 };
 

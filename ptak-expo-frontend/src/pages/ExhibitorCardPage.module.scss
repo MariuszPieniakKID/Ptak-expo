@@ -2,23 +2,92 @@
 @import '../styles/mixins';
 
 .exhibitorCardPage {
-  background-color: $color-gray;
-  min-height: 100vh;
-  padding: $spacing-lg;
-  
-  @include for-phone-only {
-    padding: $spacing-md;
-  }
+  position: relative;
+  z-index: 1;
 }
 
-.header {
+.exhibitorCardPage::before  {
+  content: "";
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  min-height: 100vh;
+  background-color: $color-gray;
+  top: -1em; 
+  background-image: url('../assets/tło.png');
+  background-position: center;
+  background-size: cover;
+  opacity:0.5;
+
+  @media (max-width: 600px) {
+    background-image: url('../assets/tlo_m.png');
+  }
+  display:flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.exhibitorCardNavigationContainer{
+  width:78%;
+  margin:auto;
+  margin-top:0px;
+  margin-bottom:0px;
+  position: relative; 
+}
+
+.header{
   display: flex;
-  justify-content: flex-start;
-  align-items: center;
-  margin-bottom: $spacing-lg;
+  flex-wrap: wrap;
+  margin-top:1em;
+}
+
+.logOutButton{
+  position:fixed !important;
+  right: 5% !important;
+  top:4.0% !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  &:hover{
+    font-weight: 600;
+  } 
+  &:hover, &:focus, &:active {
+    background: transparent !important;
+    outline: none !important;
+    box-shadow: none !important;
+  }
+
+  @include for-desktop-medium {
+    right: 3% !important;
+   }
+  @include for-desktop-small {
+    right: 2% !important;
+   }
+  @include for-tablet-landscape {
+    right: 1.5em !important; 
+   }
+  @include for-tablet-portrait {
+    right:0.5em!important; 
+   }
+  @include for-phone-landscape {
+    right: 1em !important;
+    top:1em !important;
+   }
+  @include for-phone-only {
+    right: 1em !important;
+    top:1em !important;
+   }
+}
+
+.contentWrapper {
+  width: 78% !important;
+  margin: 0 auto;
+  padding: 1em 0 1em 0 !important; // [top right bottom left]
+
+  position: relative; 
+  z-index: 100 !important;
   
   @include for-phone-only {
-    margin-bottom: $spacing-md;
+     padding: 0.5em 0 0.5em 0 !important; 
   }
 }
 
@@ -338,4 +407,54 @@
   .eventCard {
     height: 9.375em; // 150px
   }
+}
+
+.footer {
+  position:relative;
+  bottom:0;
+  padding-top:1em;
+  min-height: 3em;
+  width:100%;
+  display:flex;
+  flex-direction: column;
+  justify-content: center;
+  z-index: 100 !important;
+} 
+
+.cc{
+  color:#6F6F6F!important;
+  font-weight: 100!important;
+  font-size: 11px!important;
+  margin:auto !important;
+}
+
+//FILTERS
+.filtr{
+    background-attachment: fixed;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    height: 100vh;
+    width: 100%;
+}
+.filtrGray{
+   background-image: url('../assets/Rectangle-8313.svg');
+   background-size: cover;
+   background-repeat: no-repeat;
+   min-height:60vh;
+   width: 100%;
+    @include for-tablet-portrait-up  {
+       background-image: url('../assets/Rectangle-8313.svg');
+       mask-image: linear-gradient(to top, transparent, #6F87F6 50%);
+    }
+}
+.filtrBlue{
+   background-image: url('../assets/Rectangle-8378.svg');
+   background-size: cover;
+   background-repeat: no-repeat;
+   min-height: 40vh;
+   width: 100%;
+   @include for-desktop-up {
+     min-height: 60vh;
+   }
 } 
