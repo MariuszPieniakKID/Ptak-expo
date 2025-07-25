@@ -4,7 +4,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { AuthProvider } from './contexts/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import LoginPage from './pages/loginPage/LoginPage';
-import DashboardPage from './pages/DashboardPage';
+import DashboardPage from './pages/dashboardPage/DashboardPage';
 import UsersPage from './pages/UsersPage';
 import ExhibitorsPage from './pages/ExhibitorsPage';
 import EventsPage from './pages/EventsPage';

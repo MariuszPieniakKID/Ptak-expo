@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import Menu from '../components/Menu';
+import Menu from '../components/menu/Menu';
 import CustomTypography from '../components/customTypography/CustomTypography';
 import CustomButton from '../components/customButton/CustomButton';
 import { fetchExhibitor, deleteExhibitor, Exhibitor } from '../services/api';
