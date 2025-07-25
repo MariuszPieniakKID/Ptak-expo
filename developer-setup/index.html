@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PTAK EXPO - Developer Setup</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        .header h1 {
+            font-size: 3rem;
+            color: #5041d0;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.2rem;
+            color: #666;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        
+        .card {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 30px;
+            border: 2px solid #e9ecef;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        
+        .card h3 {
+            color: #5041d0;
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+        }
+        
+        .card p {
+            color: #666;
+            margin-bottom: 20px;
+        }
+        
+        .btn {
+            display: inline-block;
+            padding: 12px 24px;
+            background: #6f87f6;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 500;
+            transition: background 0.3s ease;
+        }
+        
+        .btn:hover {
+            background: #5041d0;
+        }
+        
+        .quick-commands {
+            background: #2e2e38;
+            color: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .quick-commands h3 {
+            color: #6f87f6;
+            margin-bottom: 20px;
+        }
+        
+        .command {
+            background: #404040;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 14px;
+            border-left: 4px solid #6f87f6;
+        }
+        
+        .status {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #e8f5e8;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            border-left: 4px solid #28a745;
+        }
+        
+        .status-item {
+            text-align: center;
+        }
+        
+        .status-item strong {
+            display: block;
+            font-size: 1.2rem;
+            color: #28a745;
+        }
+        
+        .links {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 30px;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            padding-top: 30px;
+            border-top: 1px solid #e9ecef;
+            color: #666;
+        }
+        
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .container {
+                padding: 20px;
+            }
+            
+            .grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 PTAK EXPO</h1>
+            <p>Developer Setup & Documentation Hub</p>
+        </div>
+        
+        <div class="status">
+            <div class="status-item">
+                <strong>Backend</strong>
+                <span>localhost:3001</span>
+            </div>
+            <div class="status-item">
+                <strong>Frontend</strong>
+                <span>localhost:3000</span>
+            </div>
+            <div class="status-item">
+                <strong>Login</strong>
+                <span>admin@ptak-expo.com</span>
+            </div>
+        </div>
+        
+        <div class="quick-commands">
+            <h3>🛠️ Szybkie Komendy</h3>
+            <div class="command">./developer-setup/check-requirements.sh</div>
+            <div class="command">./developer-setup/setup.sh</div>
+            <div class="command">./developer-setup/start-dev.sh</div>
+        </div>
+        
+        <div class="grid">
+            <div class="card">
+                <h3>📋 Quick Start</h3>
+                <p>5-minutowy przewodnik setup dla nowego developera</p>
+                <a href="QUICK_START.md" class="btn">Rozpocznij</a>
+            </div>
+            
+            <div class="card">
+                <h3>📚 Pełna Dokumentacja</h3>
+                <p>Szczegółowe instrukcje setup, konfiguracja i troubleshooting</p>
+                <a href="DEVELOPER_SETUP_GUIDE.md" class="btn">Czytaj</a>
+            </div>
+            
+            <div class="card">
+                <h3>💻 Komendy</h3>
+                <p>Wszystkie przydatne komendy do pracy z projektem</p>
+                <a href="DEVELOPER_COMMANDS.md" class="btn">Przeglądaj</a>
+            </div>
+            
+            <div class="card">
+                <h3>🔧 Skrypty</h3>
+                <p>Gotowe skrypty do automatyzacji zadań developerskich</p>
+                <a href="README.md" class="btn">Zobacz</a>
+            </div>
+        </div>
+        
+        <div class="links">
+            <a href="http://localhost:3000" class="btn">🎨 Frontend</a>
+            <a href="http://localhost:3001" class="btn">🔌 Backend API</a>
+            <a href="../docs/" class="btn">📖 Dokumentacja</a>
+        </div>
+        
+        <div class="footer">
+            <p><strong>PTAK EXPO Development Team</strong></p>
+            <p>Wersja: 1.0 | Data: $(date +'%Y-%m-%d')</p>
+        </div>
+    </div>
+</body>
+</html>

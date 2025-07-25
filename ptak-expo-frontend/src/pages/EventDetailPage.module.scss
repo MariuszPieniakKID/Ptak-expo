@@ -1,0 +1,212 @@
+// EventDetailPage.module.scss
+// Używa design system z --color-dodgerblue: #6f87f6, --color-mediumslateblue: #5041d0, --color-darkslategray: #2e2e38
+
+.eventDetailPage {
+  min-height: 100vh;
+  background-color: #f8f9fa;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding: 1rem 0;
+
+  .titleContainer {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+
+    .titleIcon {
+      width: 40px;
+      height: 40px;
+    }
+  }
+}
+
+.mainContent {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 2rem;
+  min-height: 600px;
+
+  @media (max-width: 968px) {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+}
+
+.leftColumn {
+  .eventCard {
+    border-radius: var(--br-20, 20px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    border: none;
+    position: sticky;
+    top: 2rem;
+
+    .eventContent {
+      padding: 1.5rem;
+
+      .eventImage {
+        margin-bottom: 1rem;
+        border-radius: var(--br-10, 10px);
+        overflow: hidden;
+
+        .eventImg {
+          width: 100%;
+          height: 200px;
+          object-fit: cover;
+        }
+      }
+
+      .eventInfo {
+        text-align: left;
+      }
+    }
+  }
+}
+
+.rightColumn {
+  .tabsContainer {
+    background: #fff;
+    border-radius: var(--br-20, 20px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+
+    .tabs {
+      border-bottom: 1px solid #e0e0e0;
+      min-height: 60px;
+
+      .MuiTabs-flexContainer {
+        height: 60px;
+      }
+    }
+  }
+
+  .tabContent {
+    min-height: 400px;
+
+    .brandingSection,
+    .tradeInfoSection,
+    .invitationsSection,
+    .tradeEventsSection,
+    .notificationsSection {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+
+      .brandingCard,
+      .infoCard,
+      .invitationCard,
+      .eventCard,
+      .notificationCard {
+        padding: 1.5rem;
+        background: #f8f9fa;
+        border-radius: var(--br-10, 10px);
+        border: 1px solid #e9ecef;
+        transition: all 0.2s ease;
+
+        &:hover {
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+      }
+    }
+
+    .notificationsSection {
+      .notificationHistory {
+        margin-top: 2rem;
+        padding: 1.5rem;
+        background: #f8f9fa;
+        border-radius: var(--br-10, 10px);
+        border: 1px solid #e9ecef;
+
+        .historyList {
+          margin-top: 1rem;
+
+          .historyItem {
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #e9ecef;
+
+            &:last-child {
+              border-bottom: none;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+// Responsywność dla mniejszych ekranów
+@media (max-width: 768px) {
+  .header {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: flex-start;
+
+    .titleContainer {
+      .titleIcon {
+        width: 32px;
+        height: 32px;
+      }
+    }
+  }
+
+  .mainContent {
+    gap: 1rem;
+  }
+
+  .leftColumn {
+    .eventCard {
+      position: static;
+
+      .eventContent {
+        padding: 1rem;
+
+        .eventImage {
+          .eventImg {
+            height: 150px;
+          }
+        }
+      }
+    }
+  }
+
+  .rightColumn {
+    .tabContent {
+      min-height: auto;
+
+      .brandingSection,
+      .tradeInfoSection,
+      .invitationsSection,
+      .tradeEventsSection,
+      .notificationsSection {
+        .brandingCard,
+        .infoCard,
+        .invitationCard,
+        .eventCard,
+        .notificationCard {
+          padding: 1rem;
+        }
+      }
+    }
+  }
+}
+
+// Dodatkowe style dla przejścia z hover
+.leftColumn .eventCard,
+.rightColumn .tabsContainer {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+// Style dla CustomButton'ów wewnątrz kart  
+.tabContent .brandingCard,
+.tabContent .infoCard,
+.tabContent .invitationCard,
+.tabContent .eventCard,
+.tabContent .notificationCard {
+  button {
+    margin-top: 0.5rem;
+  }
+} 
