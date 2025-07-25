@@ -1,4 +1,5 @@
 import Button, { ButtonProps } from '@mui/material/Button';
+import { Box } from '@mui/material';
 
 interface CustomButtonProps extends Omit<ButtonProps, 'sx'> {
   bgColor?: string;
@@ -13,6 +14,10 @@ interface CustomButtonProps extends Omit<ButtonProps, 'sx'> {
   textColor?: string;
   sx?: object;        // możliwość przekazania dodatkowych własnych stylów
   children: React.ReactNode;
+  className?: string;
+  icon?: React.ReactNode;
+  iconPosition?: 'top' | 'left'; // domyślnie 'left'
+  withBorder?: boolean;
 }
 
 const CustomButton: React.FC<CustomButtonProps> = ({
@@ -28,11 +33,16 @@ const CustomButton: React.FC<CustomButtonProps> = ({
   textColor = '#fff',
   sx = {},
   children,
+  className='',
+  icon,
+  iconPosition = 'left',
+  withBorder = false,
   ...rest
 }) => {
   return (
     <Button
       {...rest}
+      className={className}
       sx={{
         borderRadius: '1rem',
         backgroundColor: bgColor,
@@ -43,6 +53,11 @@ const CustomButton: React.FC<CustomButtonProps> = ({
         fontWeight,
         textTransform,
         transition: 'background 0.2s',
+        border: withBorder ? '1px solid currentColor' : 'none',
+        padding: iconPosition === 'top' ? '0.5rem' : '0 1rem',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
         '&:hover': {
           backgroundColor: focusColor,
         },
@@ -56,7 +71,22 @@ const CustomButton: React.FC<CustomButtonProps> = ({
         ...sx,
       }}
     >
-      {children}
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: iconPosition === 'top' ? 'column' : 'row',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: iconPosition === 'top' ? '0.3rem' : '0.5rem',
+        }}
+      >
+        {icon && (
+          <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            {icon}
+          </span>
+        )}
+        <span>{children}</span>
+      </Box>
     </Button>
   );
 };

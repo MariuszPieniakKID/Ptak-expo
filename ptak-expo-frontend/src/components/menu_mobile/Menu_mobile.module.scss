@@ -1,0 +1,154 @@
+@import '../../styles/variables';
+@import '../../styles/mixins';
+
+.menuBarHandle{
+ position: fixed;
+ bottom: 15px;
+ left: 50%;
+ transform: translateX(-50%);
+ width: 90%;        
+ height: 12px;        
+ border-radius: 20px;
+ background-color: $color-blue;
+ box-shadow: 0 4px 12px $color-gray;
+ box-shadow: 3;
+ z-Index: 1300!important;
+ cursor: pointer;
+}
+.drawerm{
+   
+}
+
+.menuMobileWrapper{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+    height: 100%;
+    width: 100%;
+    opacity: 0;
+    transform: translateY(10px);
+    visibility: hidden;
+    transition-property: opacity, transform, visibility;
+    transition-duration: 700ms;
+    transition-timing-function: ease-in-out;
+    transition-delay: 0s;
+}
+
+.menuMobileWrapper.open {
+  opacity: 1;
+  transform: translateY(0);
+  visibility: visible;
+}
+
+.navButtonm {
+    display: flex !important;
+    flex-direction: column;
+    justify-content: flex-start !important;
+    text-align: center;
+    padding-top: 16px !important;
+
+    @include for-phone-only { //@media (max-width: 480px) { @content; }
+       min-width:20%!important;
+       gap: 0px!important;
+       margin:0px!important;
+    }
+    @include for-phone-landscape { // @media (min-width: 481px) and (max-width: 600px)
+        min-width:10px!important;
+        gap: 0px!important;
+        margin:0px!important;
+        min-width:20%!important;
+    }
+     @media (max-width: 320px) {
+        min-width:10px!important;
+        gap: 0px!important;
+        margin:0px!important;
+   }
+
+  .MuiButton-startIcon {
+    display: flex;
+    justify-content: center;
+    align-items: center; 
+    min-width: 24px; 
+    height: 24px; 
+    margin: 0 auto;
+    padding: 0; 
+  }
+    .MuiButton-startIcon svg {
+    width: 24px;
+    height: 24px;
+    display: block; 
+  }
+
+
+  &::before {
+    content: '';
+    display: block;
+    position: absolute;
+    top:0;
+    width: 25%;
+    min-width:20px;
+    transition: opacity 0.2s, width 0.3s;
+    z-index: 1;
+    box-shadow: 0 3px 8px 0 $color-blue;    
+  }
+
+   &.active::before {
+    height: 4px;
+    background: $color-underlining; 
+    box-shadow: 0 4px 16px 0 rgba(255,0,0,0.35);
+    opacity: 1;
+  }
+
+  &:not(.active):hover::before {
+    height: 4px;
+    background: $color-blue;
+    opacity: 1;
+  }
+  &:hover::before,
+  &.active::before {
+    opacity: 1;
+  }
+
+  &:hover {
+    background-color: transparent !important;
+  }
+}
+
+.active {
+  &::before {
+    height: 4px;
+    background: $color-underlining; 
+    box-shadow: 0 4px 16px 0 rgba(255,0,0,0.35); 
+  }
+}
+
+.buttonMobileText{
+    overflow: hidden!important;
+    text-overflow: ellipsis!important;
+    color:$color-almostblack !important;
+    text-transform: capitalize;
+    font-size: $font-size-sm;
+    min-width: 80px;
+    margin:0px auto 0px auto;
+    @include for-phone-only { //@media (max-width: 480px) { @content; }
+        font-size: 11px;
+        width: 18% !important;
+    }
+    @include for-phone-landscape { // @media (min-width: 481px) and (max-width: 600px)
+        font-size: 11px;
+        width: 20%!important;
+    }
+    @media (max-width: 438px) {
+        font-size: 11px;
+        letter-spacing:0.01em!important;
+        width: 20%!important;
+        margin-left: 0px!important;
+        padding-left: 0px!important;
+        right:-20px!important;
+        min-width: min-content!important;
+   }
+     @media (max-width: 320px) {
+       display: none !important;
+        min-width: 10px;
+   }
+}

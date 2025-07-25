@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import Menu from '../components/Menu';
+import Menu from '../components/menu/Menu';
 import AddExhibitorModal from '../components/AddExhibitorModal';
 import CustomTypography from '../components/customTypography/CustomTypography';
 import CustomButton from '../components/customButton/CustomButton';
@@ -27,6 +27,7 @@ import {
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
+import { ReactComponent as LogoutIcon } from '../assets/log-out.svg';
 import styles from './ExhibitorsPage.module.scss';
 import ExhibitorsPageIcon from '../assets/mask-group-6@2x.png';
 
@@ -39,6 +40,11 @@ const ExhibitorsPage: React.FC = () => {
   const [rowsPerPage, setRowsPerPage] = useState<number>(5);
   const navigate = useNavigate();
   const { token, logout } = useAuth();
+
+  const handleLogout = useCallback(() => {
+    logout();
+    navigate('/login');
+  }, [logout, navigate]);
 
   const loadExhibitors = useCallback(async (): Promise<void> => {
     if (!token) {
@@ -110,31 +116,65 @@ const ExhibitorsPage: React.FC = () => {
   const paginatedExhibitors = exhibitors.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
 
   return (
+    <>
     <Box className={styles.exhibitorsPage}>
-      <Menu />
-      <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-        <Box className={styles.header}>
-            <div className={styles.titleContainer}>
-                <img src={ExhibitorsPageIcon} alt="Wystawcy" className={styles.titleIcon} />
-                <CustomTypography fontSize="2rem" fontWeight={600}>
-                    Wystawcy
+      <Box>
+        <Box className={styles.exhibitorsNavigationContainer}>
+          <Box className={styles.header}>
+            <Menu /> 
+            <CustomButton 
+              disableRipple
+              textColor='#060606ff'
+              fontSize="0.75em;"
+              className={styles.logOutButton}
+              onClick={handleLogout}
+              icon={<LogoutIcon style={{ color: "#6F6F6F", height:"1.25em"}}/>} 
+              iconPosition="top" 
+              withBorder={false}
+              width="auto"
+              height="auto"
+              sx={{ 
+                  backgroundColor:'transparent',
+                  '&:hover': {
+                    backgroundColor: 'transparent',
+                    color: '#060606ff',
+                  },
+                }}
+            >
+              Wyloguj
+            </CustomButton>
+            <Box className={styles.titleContainer}>
+              <img src={ExhibitorsPageIcon} alt="Wystawcy" className={styles.titleIcon} />
+              <Box>
+                <CustomTypography className={styles.pageTitle}>
+                  Baza wystawców
                 </CustomTypography>
-            </div>
-          <CustomButton
-            variant="contained"
-            startIcon={<AddIcon />}
-            onClick={() => setIsAddExhibitorModalOpen(true)}
-            bgColor="#6F87F6"
-            textColor="#fff"
-            width="auto"
-            height="auto"
-            sx={{
-              padding: '10px 20px',
-            }}
-          >
-            Dodaj wystawcę
-          </CustomButton>
+                <CustomTypography className={styles.pageSubtitle}>
+                  Zarządzaj wszystkimi wystawcami
+                </CustomTypography>
+              </Box>
+            </Box>
+          </Box>
         </Box>
+        <Container   
+         maxWidth={false}  
+         sx={{ maxWidth: '78%' }}
+         className={styles.contentWrapper}
+         >
+          <Box className={styles.actionButtonsContainer}>
+            <CustomButton
+              variant="contained"
+              startIcon={<AddIcon />}
+              onClick={() => setIsAddExhibitorModalOpen(true)}
+              bgColor="#6F87F6"
+              textColor="#fff"
+              width="auto"
+              height="auto"
+              sx={{ padding: '10px 20px' }}
+            >
+              Dodaj wystawcę
+            </CustomButton>
+          </Box>
 
         {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
 
@@ -232,14 +272,27 @@ const ExhibitorsPage: React.FC = () => {
             />
           </Paper>
         )}
-      </Container>
-      <AddExhibitorModal
-        isOpen={isAddExhibitorModalOpen}
-        onClose={handleModalClose}
-        onExhibitorAdded={handleExhibitorAdded}
-        token={token || ''}
-      />
+        </Container>
+      </Box>
+      <Box className={styles.footer}>
+        <CustomTypography className={styles.cc}>
+          Kontakt • Polityka prywatności • www.warsawexpo.eu
+        </CustomTypography>
+      </Box>
     </Box>
+    
+    <Box className={styles.filtr}>
+      <Box className={styles.filtrGray}/>
+      <Box className={styles.filtrBlue}/>
+    </Box>
+    
+    <AddExhibitorModal
+      isOpen={isAddExhibitorModalOpen}
+      onClose={handleModalClose}
+      onExhibitorAdded={handleExhibitorAdded}
+      token={token || ''}
+    />
+    </>
   );
 };
 

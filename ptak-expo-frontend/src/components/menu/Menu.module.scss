@@ -1,0 +1,170 @@
+@import '../../styles/variables';
+@import '../../styles/mixins';
+
+.appBar {
+  background-color: $color-white !important;
+  box-shadow: $shadow-md !important;
+  border-radius: $border-radius-lg !important;
+  color: $color-darkslategray !important;
+  margin: 0 !important;
+  width: 100% !important;
+  z-index: 1000 !important;
+  position: sticky !important;
+  top: 0 !important;
+}
+
+.navButton {
+  font-family: $font-roc-grotesk !important;
+  position: relative;
+  color: inherit;
+  background: transparent;
+  text-transform: none;
+  transition: color 0.2s ease;
+
+  &::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 0;
+    transform: translateX(-50%);
+    width: 40px; 
+    height: 3px;  
+    background:$color-blue;      
+    border-radius: 2px;
+    opacity: 0;
+    transition: opacity 0.2s, width 0.3s;
+    pointer-events: none;
+    box-shadow: 0 3px 8px 0 $color-blue;   
+  }
+
+  &:hover::before,
+  &.active::before {
+    opacity: 1;
+  }
+
+  &:hover {
+    background-color: transparent !important;
+  }
+}
+
+.navButton:active,
+.navButton:focus-visible {
+  box-shadow: none !important;
+  outline: none !important;
+  background: transparent !important;
+}
+
+
+.active {
+  color: $color-underlining;
+
+  &::before {
+    opacity: 1;
+    background-color: $color-underlining;  
+    box-shadow: 0 4px 16px 0 rgba(255,0,0,0.35);  
+  }
+}
+
+.buttonText{
+  color:$color-almostblack !important;
+  text-transform: capitalize;
+  font-size: $font-size-sm;
+   @include for-tablet-landscape {
+    font-size: $font-size-xs;
+    text-wrap: nowrap;
+  }
+    @include for-tablet-landscape {
+    font-size: $font-size-xs;
+    text-wrap: nowrap;
+  }
+   @include for-tablet-portrait {
+    font-size: $font-size-xs;
+    text-wrap: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width:70px;
+    text-align: center;
+   }
+}
+
+.navLogo{
+  height: 100%;
+  width: 9em;
+
+  .logo{
+  height: 3.125em; //50px
+  width: 3.313em;; // 53px;
+  padding-left:1.313em; //21px
+  padding-top: $spacing-xxl; //24px
+  padding-bottom: 1.438em;//23px
+    @include for-tablet-portrait{
+    height: 3.125em; //50px
+     width: 3.313em;; // 53px;
+     padding-left:0em;
+     padding-top: $spacing-xxl; //24px
+     padding-bottom: 1.438em;//23px
+    }
+  }
+  @include for-tablet-portrait{
+    width: 4em;
+  }
+}
+.navLinks {
+  display:flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  height: 100%;
+  width: calc(100% - 9em);
+  gap:5em;
+  padding-right: 2em;
+
+
+  @include for-phone-only {
+    display:none
+  }
+  @include for-phone-landscape {
+    display:none
+  }
+
+  @include for-tablet-portrait {
+    gap:0em;
+    padding-right: 0em!important;
+    width: calc(100% - 4em);
+  }
+  @include for-tablet-landscape {
+    gap:0.5em;
+    padding-right: 0em!important;
+  }
+
+
+  @include for-desktop-small {
+  gap:1.5em;
+  padding-right: 0em!important;
+
+  }
+   @include for-desktop-medium {
+   gap:3.5em;
+   padding-right: 0.5em;
+
+  }
+   @include for-desktop-large{
+   gap:5em;
+   padding-right: 2em;
+  }
+}
+.navIcon{
+  height: 100%;
+  display:none;
+}
+
+.toolbar{
+  padding: 0em 0em;
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  justify-content:space-between;
+  height: 6em;
+  box-shadow: 0px 23px 26px #49538312;
+  border-radius: 20px;
+  opacity: 1;
+}
