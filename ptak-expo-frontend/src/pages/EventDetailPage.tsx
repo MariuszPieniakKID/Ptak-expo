@@ -257,19 +257,19 @@ const EventDetailPage: React.FC = () => {
               {/* Tab panels */}
               <TabPanel value={activeTab} index={0}>
                 <Box className={styles.tabContent}>
-                  <CustomTypography fontSize="1.25rem" fontWeight={600} sx={{ mb: 2 }}>
+                  <CustomTypography fontSize="1.25rem" fontWeight={600}>
                     Branding wystawcy
                   </CustomTypography>
                   <Box className={styles.brandingSection}>
-                    <CustomTypography fontSize="1rem" sx={{ mb: 2 }}>
+                    <CustomTypography fontSize="1rem">
                       Materiały brandingowe i promocyjne dla wydarzenia
                     </CustomTypography>
                     
                     <Box className={styles.brandingCard}>
-                      <CustomTypography fontSize="0.875rem" fontWeight={500} sx={{ mb: 1 }}>
+                      <CustomTypography fontSize="0.875rem" fontWeight={500}>
                         Logotypy i grafiki
                       </CustomTypography>
-                      <CustomTypography fontSize="0.75rem" color="#6c757d" sx={{ mb: 2 }}>
+                      <CustomTypography fontSize="0.75rem" color="#6c757d">
                         Dodaj logotypy wystawców i materiały promocyjne
                       </CustomTypography>
                       <CustomButton
@@ -284,10 +284,10 @@ const EventDetailPage: React.FC = () => {
                     </Box>
 
                     <Box className={styles.brandingCard}>
-                      <CustomTypography fontSize="0.875rem" fontWeight={500} sx={{ mb: 1 }}>
+                      <CustomTypography fontSize="0.875rem" fontWeight={500}>
                         Katalog wystawców
                       </CustomTypography>
-                      <CustomTypography fontSize="0.75rem" color="#6c757d" sx={{ mb: 2 }}>
+                      <CustomTypography fontSize="0.75rem" color="#6c757d">
                         Przygotuj i zarządzaj katalogiem wszystkich wystawców
                       </CustomTypography>
                       <CustomButton
@@ -307,19 +307,19 @@ const EventDetailPage: React.FC = () => {
 
               <TabPanel value={activeTab} index={1}>
                 <Box className={styles.tabContent}>
-                  <CustomTypography fontSize="1.25rem" fontWeight={600} sx={{ mb: 2 }}>
+                  <CustomTypography fontSize="1.25rem" fontWeight={600}>
                     Informacje targowe
                   </CustomTypography>
                   <Box className={styles.tradeInfoSection}>
-                    <CustomTypography fontSize="1rem" sx={{ mb: 2 }}>
+                    <CustomTypography fontSize="1rem">
                       Szczegółowe informacje o targach i warunkach uczestnictwa
                     </CustomTypography>
                     
                     <Box className={styles.infoCard}>
-                      <CustomTypography fontSize="0.875rem" fontWeight={500} sx={{ mb: 1 }}>
+                      <CustomTypography fontSize="0.875rem" fontWeight={500}>
                         Regulamin targów
                       </CustomTypography>
-                      <CustomTypography fontSize="0.75rem" color="#6c757d" sx={{ mb: 2 }}>
+                      <CustomTypography fontSize="0.75rem" color="#6c757d">
                         Warunki uczestnictwa i przepisy targowe
                       </CustomTypography>
                       <CustomButton
@@ -334,10 +334,10 @@ const EventDetailPage: React.FC = () => {
                     </Box>
 
                     <Box className={styles.infoCard}>
-                      <CustomTypography fontSize="0.875rem" fontWeight={500} sx={{ mb: 1 }}>
+                      <CustomTypography fontSize="0.875rem" fontWeight={500}>
                         Plan hal i stoiska
                       </CustomTypography>
-                      <CustomTypography fontSize="0.75rem" color="#6c757d" sx={{ mb: 2 }}>
+                      <CustomTypography fontSize="0.75rem" color="#6c757d">
                         Mapa hal targowych i rozmieszczenie stoisk
                       </CustomTypography>
                       <CustomButton
@@ -353,10 +353,10 @@ const EventDetailPage: React.FC = () => {
                     </Box>
 
                     <Box className={styles.infoCard}>
-                      <CustomTypography fontSize="0.875rem" fontWeight={500} sx={{ mb: 1 }}>
+                      <CustomTypography fontSize="0.875rem" fontWeight={500}>
                         Harmonogram wydarzenia
                       </CustomTypography>
-                      <CustomTypography fontSize="0.75rem" color="#6c757d" sx={{ mb: 2 }}>
+                      <CustomTypography fontSize="0.75rem" color="#6c757d">
                         Szczegółowy plan dni targowych
                       </CustomTypography>
                       <CustomButton
@@ -376,19 +376,19 @@ const EventDetailPage: React.FC = () => {
 
               <TabPanel value={activeTab} index={2}>
                 <Box className={styles.tabContent}>
-                  <CustomTypography fontSize="1.25rem" fontWeight={600} sx={{ mb: 2 }}>
+                  <CustomTypography fontSize="1.25rem" fontWeight={600}>
                     Zaproszenia
                   </CustomTypography>
                   <Box className={styles.invitationsSection}>
-                    <CustomTypography fontSize="1rem" sx={{ mb: 2 }}>
+                    <CustomTypography fontSize="1rem">
                       Zarządzaj zaproszeniami dla wystawców i gości
                     </CustomTypography>
                     
                     <Box className={styles.invitationCard}>
-                      <CustomTypography fontSize="0.875rem" fontWeight={500} sx={{ mb: 1 }}>
+                      <CustomTypography fontSize="0.875rem" fontWeight={500}>
                         Zaproszenia dla wystawców
                       </CustomTypography>
-                      <CustomTypography fontSize="0.75rem" color="#6c757d" sx={{ mb: 2 }}>
+                      <CustomTypography fontSize="0.75rem" color="#6c757d">
                         Wyślij zaproszenia do zarejestrowanych wystawców
                       </CustomTypography>
                       <CustomButton
@@ -403,10 +403,10 @@ const EventDetailPage: React.FC = () => {
                     </Box>
 
                     <Box className={styles.invitationCard}>
-                      <CustomTypography fontSize="0.875rem" fontWeight={500} sx={{ mb: 1 }}>
+                      <CustomTypography fontSize="0.875rem" fontWeight={500}>
                         Zaproszenia VIP
                       </CustomTypography>
-                      <CustomTypography fontSize="0.75rem" color="#6c757d" sx={{ mb: 2 }}>
+                      <CustomTypography fontSize="0.75rem" color="#6c757d">
                         Specjalne zaproszenia dla gości VIP
                       </CustomTypography>
                       <CustomButton
@@ -422,10 +422,10 @@ const EventDetailPage: React.FC = () => {
                     </Box>
 
                     <Box className={styles.invitationCard}>
-                      <CustomTypography fontSize="0.875rem" fontWeight={500} sx={{ mb: 1 }}>
+                      <CustomTypography fontSize="0.875rem" fontWeight={500}>
                         Szablony zaproszeń
                       </CustomTypography>
-                      <CustomTypography fontSize="0.75rem" color="#6c757d" sx={{ mb: 2 }}>
+                      <CustomTypography fontSize="0.75rem" color="#6c757d">
                         Edytuj i personalizuj szablony zaproszeń  
                       </CustomTypography>
                       <CustomButton
@@ -445,19 +445,19 @@ const EventDetailPage: React.FC = () => {
 
               <TabPanel value={activeTab} index={3}>
                 <Box className={styles.tabContent}>
-                  <CustomTypography fontSize="1.25rem" fontWeight={600} sx={{ mb: 2 }}>
+                  <CustomTypography fontSize="1.25rem" fontWeight={600}>
                     Wydarzenia targowe
                   </CustomTypography>
                   <Box className={styles.tradeEventsSection}>
-                    <CustomTypography fontSize="1rem" sx={{ mb: 2 }}>
+                    <CustomTypography fontSize="1rem">
                       Dodatkowe wydarzenia i aktywności podczas targów
                     </CustomTypography>
                     
                     <Box className={styles.eventCard}>
-                      <CustomTypography fontSize="0.875rem" fontWeight={500} sx={{ mb: 1 }}>
+                      <CustomTypography fontSize="0.875rem" fontWeight={500}>
                         Konferencje i seminaria
                       </CustomTypography>
-                      <CustomTypography fontSize="0.75rem" color="#6c757d" sx={{ mb: 2 }}>
+                      <CustomTypography fontSize="0.75rem" color="#6c757d">
                         Organizuj prezentacje i wykłady branżowe
                       </CustomTypography>
                       <CustomButton
@@ -472,10 +472,10 @@ const EventDetailPage: React.FC = () => {
                     </Box>
 
                     <Box className={styles.eventCard}>
-                      <CustomTypography fontSize="0.875rem" fontWeight={500} sx={{ mb: 1 }}>
+                      <CustomTypography fontSize="0.875rem" fontWeight={500}>
                         Networking
                       </CustomTypography>
-                      <CustomTypography fontSize="0.75rem" color="#6c757d" sx={{ mb: 2 }}>
+                      <CustomTypography fontSize="0.75rem" color="#6c757d">
                         Wydarzenia networkingowe dla uczestników
                       </CustomTypography>
                       <CustomButton
@@ -491,10 +491,10 @@ const EventDetailPage: React.FC = () => {
                     </Box>
 
                     <Box className={styles.eventCard}>
-                      <CustomTypography fontSize="0.875rem" fontWeight={500} sx={{ mb: 1 }}>
+                      <CustomTypography fontSize="0.875rem" fontWeight={500}>
                         Konkursy i nagrody
                       </CustomTypography>
-                      <CustomTypography fontSize="0.75rem" color="#6c757d" sx={{ mb: 2 }}>
+                      <CustomTypography fontSize="0.75rem" color="#6c757d">
                         Zagosuj konkursy dla wystawców
                       </CustomTypography>
                       <CustomButton
@@ -514,19 +514,19 @@ const EventDetailPage: React.FC = () => {
 
               <TabPanel value={activeTab} index={4}>
                 <Box className={styles.tabContent}>
-                  <CustomTypography fontSize="1.25rem" fontWeight={600} sx={{ mb: 2 }}>
+                  <CustomTypography fontSize="1.25rem" fontWeight={600}>
                     Powiadomienia Push
                   </CustomTypography>
                   <Box className={styles.notificationsSection}>
-                    <CustomTypography fontSize="1rem" sx={{ mb: 2 }}>
+                    <CustomTypography fontSize="1rem">
                       Wyślij powiadomienia do uczestników wydarzenia
                     </CustomTypography>
                     
                     <Box className={styles.notificationCard}>
-                      <CustomTypography fontSize="0.875rem" fontWeight={500} sx={{ mb: 1 }}>
+                      <CustomTypography fontSize="0.875rem" fontWeight={500}>
                         Ogłoszenia targowe
                       </CustomTypography>
-                      <CustomTypography fontSize="0.75rem" color="#6c757d" sx={{ mb: 2 }}>
+                      <CustomTypography fontSize="0.75rem" color="#6c757d">
                         Informacje o rozpoczęciu, przerwach i zakończeniu
                       </CustomTypography>
                       <CustomButton
@@ -541,10 +541,10 @@ const EventDetailPage: React.FC = () => {
                     </Box>
 
                     <Box className={styles.notificationCard}>
-                      <CustomTypography fontSize="0.875rem" fontWeight={500} sx={{ mb: 1 }}>
+                      <CustomTypography fontSize="0.875rem" fontWeight={500}>
                         Przypomnienia
                       </CustomTypography>
-                      <CustomTypography fontSize="0.75rem" color="#6c757d" sx={{ mb: 2 }}>
+                      <CustomTypography fontSize="0.75rem" color="#6c757d">
                         Automatyczne przypomnienia o ważnych terminach
                       </CustomTypography>
                       <CustomButton
@@ -560,10 +560,10 @@ const EventDetailPage: React.FC = () => {
                     </Box>
 
                     <Box className={styles.notificationCard}>
-                      <CustomTypography fontSize="0.875rem" fontWeight={500} sx={{ mb: 1 }}>
+                      <CustomTypography fontSize="0.875rem" fontWeight={500}>
                         Wydarzenia specjalne
                       </CustomTypography>
-                      <CustomTypography fontSize="0.75rem" color="#6c757d" sx={{ mb: 2 }}>
+                      <CustomTypography fontSize="0.75rem" color="#6c757d">
                         Powiadomienia o konkursach i dodatkowych atrakcjach
                       </CustomTypography>
                       <CustomButton
@@ -579,12 +579,12 @@ const EventDetailPage: React.FC = () => {
                     </Box>
 
                     <Box className={styles.notificationHistory}>
-                      <CustomTypography fontSize="0.875rem" fontWeight={500} sx={{ mb: 1 }}>
+                      <CustomTypography fontSize="0.875rem" fontWeight={500}>
                         Historia powiadomień
                       </CustomTypography>
                       <Box className={styles.historyList}>
                         <Box className={styles.historyItem}>
-                          <CustomTypography fontSize="0.75rem" sx={{ mb: 0.5 }}>
+                          <CustomTypography fontSize="0.75rem">
                             "Rozpoczęcie rejestracji na targi" - wysłano 2 dni temu
                           </CustomTypography>
                           <CustomTypography fontSize="0.65rem" color="#6c757d">
@@ -592,7 +592,7 @@ const EventDetailPage: React.FC = () => {
                           </CustomTypography>
                         </Box>
                         <Box className={styles.historyItem}>
-                          <CustomTypography fontSize="0.75rem" sx={{ mb: 0.5 }}>
+                          <CustomTypography fontSize="0.75rem">
                             "Przypomnienie o terminie zgłoszeń" - wysłano 5 dni temu
                           </CustomTypography>
                           <CustomTypography fontSize="0.65rem" color="#6c757d">
