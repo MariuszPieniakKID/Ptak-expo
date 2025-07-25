@@ -16,6 +16,7 @@ import {
   Tab,
 } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import { ReactComponent as LogoutIcon } from '../assets/log-out.svg';
 import styles from './EventDetailPage.module.scss';
 
 // Import images
@@ -48,7 +49,7 @@ function TabPanel(props: TabPanelProps) {
 }
 
 const EventDetailPage: React.FC = () => {
-  const { eventId } = useParams<{ eventId: string }>();
+  const { id } = useParams<{ id: string }>();
   const [exhibition, setExhibition] = useState<Exhibition | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>('');
@@ -57,14 +58,14 @@ const EventDetailPage: React.FC = () => {
   const { token, logout } = useAuth();
 
   const loadExhibition = useCallback(async (): Promise<void> => {
-    if (!eventId) {
+    if (!id) {
       setError('Nieprawidłowe ID wydarzenia.');
       return;
     }
 
     try {
       setLoading(true);
-      const fetchedExhibition = await fetchExhibition(parseInt(eventId), token || undefined);
+      const fetchedExhibition = await fetchExhibition(parseInt(id), token || undefined);
       setExhibition(fetchedExhibition);
       setError('');
     } catch (err: any) {
@@ -76,7 +77,7 @@ const EventDetailPage: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }, [eventId, token, logout, navigate]);
+  }, [id, token, logout, navigate]);
 
   useEffect(() => {
     loadExhibition();
@@ -85,6 +86,11 @@ const EventDetailPage: React.FC = () => {
   const handleBack = useCallback(() => {
     navigate('/wydarzenia');
   }, [navigate]);
+
+  const handleLogout = useCallback(() => {
+    logout();
+    navigate('/login');
+  }, [logout, navigate]);
 
   const handleTabChange = useCallback((_event: React.SyntheticEvent, newValue: number) => {
     setActiveTab(newValue);
@@ -108,44 +114,161 @@ const EventDetailPage: React.FC = () => {
 
   if (loading) {
     return (
+      <>
       <Box className={styles.eventDetailPage}>
-        <Menu />
-        <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-          <Box sx={{ display: 'flex', justifyContent: 'center', my: 4 }}>
-            <CircularProgress />
+        <Box>
+          <Box className={styles.eventDetailNavigationContainer}>
+            <Box className={styles.header}>
+              <Menu /> 
+              <CustomButton 
+                disableRipple
+                textColor='#060606ff'
+                fontSize="0.75em;"
+                className={styles.logOutButton}
+                onClick={handleLogout}
+                icon={<LogoutIcon style={{ color: "#6F6F6F", height:"1.25em"}}/>} 
+                iconPosition="top" 
+                withBorder={false}
+                width="auto"
+                height="auto"
+                sx={{ 
+                    backgroundColor:'transparent',
+                    '&:hover': {
+                      backgroundColor: 'transparent',
+                      color: '#060606ff',
+                    },
+                  }}
+              >
+                Wyloguj
+              </CustomButton>
+            </Box>
           </Box>
-        </Container>
+          <Container   
+           maxWidth={false}  
+           sx={{ maxWidth: '78%' }}
+           className={styles.contentWrapper}
+           >
+            <Box sx={{ display: 'flex', justifyContent: 'center', my: 4 }}>
+              <CircularProgress />
+            </Box>
+          </Container>
+        </Box>
+        <Box className={styles.footer}>
+          <CustomTypography className={styles.cc}>
+            Kontakt • Polityka prywatności • www.warsawexpo.eu
+          </CustomTypography>
+        </Box>
       </Box>
+      
+      <Box className={styles.filtr}>
+        <Box className={styles.filtrGray}/>
+        <Box className={styles.filtrBlue}/>
+      </Box>
+      </>
     );
   }
 
   if (error || !exhibition) {
     return (
+      <>
       <Box className={styles.eventDetailPage}>
-        <Menu />
-        <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-          <Alert severity="error" sx={{ mb: 2 }}>
-            {error || 'Nie znaleziono wydarzenia'}
-          </Alert>
-          <CustomButton
-            onClick={handleBack}
-            startIcon={<ArrowBackIcon />}
-            bgColor="#6F87F6"
-            textColor="#fff"
-            width="auto"
-            height="40px"
-          >
-            Wróć do listy wydarzeń
-          </CustomButton>
-        </Container>
+        <Box>
+          <Box className={styles.eventDetailNavigationContainer}>
+            <Box className={styles.header}>
+              <Menu /> 
+              <CustomButton 
+                disableRipple
+                textColor='#060606ff'
+                fontSize="0.75em;"
+                className={styles.logOutButton}
+                onClick={handleLogout}
+                icon={<LogoutIcon style={{ color: "#6F6F6F", height:"1.25em"}}/>} 
+                iconPosition="top" 
+                withBorder={false}
+                width="auto"
+                height="auto"
+                sx={{ 
+                    backgroundColor:'transparent',
+                    '&:hover': {
+                      backgroundColor: 'transparent',
+                      color: '#060606ff',
+                    },
+                  }}
+              >
+                Wyloguj
+              </CustomButton>
+            </Box>
+          </Box>
+          <Container   
+           maxWidth={false}  
+           sx={{ maxWidth: '78%' }}
+           className={styles.contentWrapper}
+           >
+            <Alert severity="error" sx={{ mb: 2 }}>
+              {error || 'Nie znaleziono wydarzenia'}
+            </Alert>
+            <CustomButton
+              onClick={handleBack}
+              startIcon={<ArrowBackIcon />}
+              bgColor="#6F87F6"
+              textColor="#fff"
+              width="auto"
+              height="40px"
+            >
+              Wróć do listy wydarzeń
+            </CustomButton>
+          </Container>
+        </Box>
+        <Box className={styles.footer}>
+          <CustomTypography className={styles.cc}>
+            Kontakt • Polityka prywatności • www.warsawexpo.eu
+          </CustomTypography>
+        </Box>
       </Box>
+      
+      <Box className={styles.filtr}>
+        <Box className={styles.filtrGray}/>
+        <Box className={styles.filtrBlue}/>
+      </Box>
+      </>
     );
   }
 
   return (
+    <>
     <Box className={styles.eventDetailPage}>
-      <Menu />
-      <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+      <Box>
+        <Box className={styles.eventDetailNavigationContainer}>
+          <Box className={styles.header}>
+            <Menu /> 
+            <CustomButton 
+              disableRipple
+              textColor='#060606ff'
+              fontSize="0.75em;"
+              className={styles.logOutButton}
+              onClick={handleLogout}
+              icon={<LogoutIcon style={{ color: "#6F6F6F", height:"1.25em"}}/>} 
+              iconPosition="top" 
+              withBorder={false}
+              width="auto"
+              height="auto"
+              sx={{ 
+                  backgroundColor:'transparent',
+                  '&:hover': {
+                    backgroundColor: 'transparent',
+                    color: '#060606ff',
+                  },
+                }}
+            >
+              Wyloguj
+            </CustomButton>
+          </Box>
+        </Box>
+        <Container   
+         maxWidth={false}  
+         sx={{ maxWidth: '78%' }}
+         className={styles.contentWrapper}
+         >
         {/* Header with back button */}
         <Box className={styles.header}>
           <Box className={styles.titleContainer}>
@@ -265,40 +388,236 @@ const EventDetailPage: React.FC = () => {
                       Materiały brandingowe i promocyjne dla wydarzenia
                     </CustomTypography>
                     
+                    {/* Kolorowe tło z logiem wydarzenia (E-Identyfikator wystawcy) */}
                     <Box className={styles.brandingCard}>
                       <CustomTypography fontSize="0.875rem" fontWeight={500}>
-                        Logotypy i grafiki
+                        Kolorowe tło z logiem wydarzenia (E-Identyfikator wystawcy)
                       </CustomTypography>
                       <CustomTypography fontSize="0.75rem" color="#6c757d">
-                        Dodaj logotypy wystawców i materiały promocyjne
+                        png, jpg | 305x106 px
                       </CustomTypography>
+                      <Box className={styles.uploadArea}>
+                        <CustomTypography fontSize="0.75rem" color="#6c757d">
+                          Przeciągnij i upuść, aby dodać plik
+                        </CustomTypography>
+                        <CustomButton
+                          bgColor="transparent"
+                          textColor="#6F87F6"
+                          width="auto"
+                          height="32px"
+                          fontSize="0.75rem"
+                          sx={{ border: '1px solid #6F87F6', mt: 1 }}
+                        >
+                          Wgraj plik
+                        </CustomButton>
+                      </Box>
+                      <Box className={styles.previewArea}>
+                        <CustomTypography fontSize="0.75rem" fontWeight={500}>
+                          Podgląd:
+                        </CustomTypography>
+                      </Box>
+                    </Box>
+
+                    {/* Tło wydarzenia z logiem (E-zaproszenia) */}
+                    <Box className={styles.brandingCard}>
+                      <CustomTypography fontSize="0.875rem" fontWeight={500}>
+                        Tło wydarzenia z logiem (E-zaproszenia)
+                      </CustomTypography>
+                      <CustomTypography fontSize="0.75rem" color="#6c757d">
+                        png, svg | 152x106 px
+                      </CustomTypography>
+                      <Box className={styles.uploadArea}>
+                        <CustomTypography fontSize="0.75rem" color="#6c757d">
+                          Przeciągnij i upuść, aby dodać plik
+                        </CustomTypography>
+                        <CustomButton
+                          bgColor="transparent"
+                          textColor="#6F87F6"
+                          width="auto"
+                          height="32px"
+                          fontSize="0.75rem"
+                          sx={{ border: '1px solid #6F87F6', mt: 1 }}
+                        >
+                          Wgraj plik
+                        </CustomButton>
+                      </Box>
+                      <Box className={styles.previewArea}>
+                        <CustomTypography fontSize="0.75rem" fontWeight={500}>
+                          Podgląd:
+                        </CustomTypography>
+                      </Box>
+                    </Box>
+
+                    {/* Białe Logo (E-Identyfikator) */}
+                    <Box className={styles.brandingCard}>
+                      <CustomTypography fontSize="0.875rem" fontWeight={500}>
+                        Białe Logo (E-Identyfikator)
+                      </CustomTypography>
+                      <CustomTypography fontSize="0.75rem" color="#6c757d">
+                        png, svg | 104x34 px
+                      </CustomTypography>
+                      <Box className={styles.uploadArea}>
+                        <CustomTypography fontSize="0.75rem" color="#6c757d">
+                          Przeciągnij i upuść, aby dodać plik
+                        </CustomTypography>
+                        <CustomButton
+                          bgColor="transparent"
+                          textColor="#6F87F6"
+                          width="auto"
+                          height="32px"
+                          fontSize="0.75rem"
+                          sx={{ border: '1px solid #6F87F6', mt: 1 }}
+                        >
+                          Wgraj plik
+                        </CustomButton>
+                      </Box>
+                      <Box className={styles.previewArea}>
+                        <CustomTypography fontSize="0.75rem" fontWeight={500}>
+                          Podgląd:
+                        </CustomTypography>
+                      </Box>
+                    </Box>
+
+                    {/* Banner dla wystawcy z miejscem na logo (800x800) */}
+                    <Box className={styles.brandingCard}>
+                      <CustomTypography fontSize="0.875rem" fontWeight={500}>
+                        Banner dla wystawcy z miejscem na logo
+                      </CustomTypography>
+                      <CustomTypography fontSize="0.75rem" color="#6c757d">
+                        png, jpg | 800x800 px
+                      </CustomTypography>
+                      <Box className={styles.uploadArea}>
+                        <CustomTypography fontSize="0.75rem" color="#6c757d">
+                          Przeciągnij i upuść, aby dodać plik
+                        </CustomTypography>
+                        <CustomButton
+                          bgColor="transparent"
+                          textColor="#6F87F6"
+                          width="auto"
+                          height="32px"
+                          fontSize="0.75rem"
+                          sx={{ border: '1px solid #6F87F6', mt: 1 }}
+                        >
+                          Wgraj plik
+                        </CustomButton>
+                      </Box>
+                      <Box className={styles.previewArea}>
+                        <CustomTypography fontSize="0.75rem" fontWeight={500}>
+                          Podgląd:
+                        </CustomTypography>
+                      </Box>
+                    </Box>
+
+                    {/* Banner dla wystawcy z miejscem na logo (1200x1200) */}
+                    <Box className={styles.brandingCard}>
+                      <CustomTypography fontSize="0.875rem" fontWeight={500}>
+                        Banner dla wystawcy z miejscem na logo (duży)
+                      </CustomTypography>
+                      <CustomTypography fontSize="0.75rem" color="#6c757d">
+                        png, jpg | 1200x1200 px
+                      </CustomTypography>
+                      <Box className={styles.uploadArea}>
+                        <CustomTypography fontSize="0.75rem" color="#6c757d">
+                          Przeciągnij i upuść, aby dodać plik
+                        </CustomTypography>
+                        <CustomButton
+                          bgColor="transparent"
+                          textColor="#6F87F6"
+                          width="auto"
+                          height="32px"
+                          fontSize="0.75rem"
+                          sx={{ border: '1px solid #6F87F6', mt: 1 }}
+                        >
+                          Wgraj plik
+                        </CustomButton>
+                      </Box>
+                      <Box className={styles.previewArea}>
+                        <CustomTypography fontSize="0.75rem" fontWeight={500}>
+                          Podgląd:
+                        </CustomTypography>
+                      </Box>
+                    </Box>
+
+                    {/* Logo PTAK EXPO */}
+                    <Box className={styles.brandingCard}>
+                      <CustomTypography fontSize="0.875rem" fontWeight={500}>
+                        Logo PTAK EXPO
+                      </CustomTypography>
+                      <CustomTypography fontSize="0.75rem" color="#6c757d">
+                        png, jpg | 200x200 px
+                      </CustomTypography>
+                      <Box className={styles.uploadArea}>
+                        <CustomTypography fontSize="0.75rem" color="#6c757d">
+                          Przeciągnij i upuść, aby dodać plik
+                        </CustomTypography>
+                        <CustomButton
+                          bgColor="transparent"
+                          textColor="#6F87F6"
+                          width="auto"
+                          height="32px"
+                          fontSize="0.75rem"
+                          sx={{ border: '1px solid #6F87F6', mt: 1 }}
+                        >
+                          Wgraj plik
+                        </CustomButton>
+                      </Box>
+                      <Box className={styles.previewArea}>
+                        <CustomTypography fontSize="0.75rem" fontWeight={500}>
+                          Podgląd:
+                        </CustomTypography>
+                      </Box>
+                    </Box>
+
+                    {/* Dokumenty brandingowe dla wystawcy */}
+                    <Box className={styles.brandingCard}>
+                      <CustomTypography fontSize="0.875rem" fontWeight={500}>
+                        Dokumenty brandingowe dla wystawcy
+                      </CustomTypography>
+                      <CustomTypography fontSize="0.75rem" color="#6c757d">
+                        PDF
+                      </CustomTypography>
+                      <Box className={styles.uploadArea}>
+                        <CustomTypography fontSize="0.75rem" color="#6c757d">
+                          Przeciągnij i upuść, aby dodać plik
+                        </CustomTypography>
+                        <CustomButton
+                          bgColor="transparent"
+                          textColor="#6F87F6"
+                          width="auto"
+                          height="32px"
+                          fontSize="0.75rem"
+                          sx={{ border: '1px solid #6F87F6', mt: 1 }}
+                        >
+                          Wgraj plik
+                        </CustomButton>
+                      </Box>
+                      
+                      {/* Lista już wgranych plików */}
+                      <Box className={styles.filesList}>
+                        <CustomTypography fontSize="0.875rem" fontWeight={500}>
+                          Twoje pliki:
+                        </CustomTypography>
+                        <Box className={styles.fileItem}>
+                          <CustomTypography fontSize="0.75rem">
+                            Notka prasowa o targach.pdf
+                          </CustomTypography>
+                          <CustomTypography fontSize="0.6rem" color="#6c757d">
+                            PDF
+                          </CustomTypography>
+                        </Box>
+                      </Box>
+                    </Box>
+
+                    {/* Przycisk Zapisz */}
+                    <Box className={styles.saveButtonContainer}>
                       <CustomButton
                         bgColor="#6F87F6"
                         textColor="#fff"
-                        width="auto"
-                        height="36px"
-                        fontSize="0.75rem"
+                        width="120px"
+                        height="40px"
+                        fontSize="0.875rem"
                       >
-                        Zarządzaj materiałami
-                      </CustomButton>
-                    </Box>
-
-                    <Box className={styles.brandingCard}>
-                      <CustomTypography fontSize="0.875rem" fontWeight={500}>
-                        Katalog wystawców
-                      </CustomTypography>
-                      <CustomTypography fontSize="0.75rem" color="#6c757d">
-                        Przygotuj i zarządzaj katalogiem wszystkich wystawców
-                      </CustomTypography>
-                      <CustomButton
-                        bgColor="transparent"
-                        textColor="#6F87F6"
-                        width="auto"
-                        height="36px"
-                        fontSize="0.75rem"
-                        sx={{ border: '1px solid #6F87F6' }}
-                      >
-                        Edytuj katalog
+                        Zapisz
                       </CustomButton>
                     </Box>
                   </Box>
@@ -607,8 +926,20 @@ const EventDetailPage: React.FC = () => {
             </Box>
           </Box>
         </Box>
-      </Container>
+        </Container>
+      </Box>
+      <Box className={styles.footer}>
+        <CustomTypography className={styles.cc}>
+          Kontakt • Polityka prywatności • www.warsawexpo.eu
+        </CustomTypography>
+      </Box>
     </Box>
+    
+    <Box className={styles.filtr}>
+      <Box className={styles.filtrGray}/>
+      <Box className={styles.filtrBlue}/>
+    </Box>
+    </>
   );
 };
 
