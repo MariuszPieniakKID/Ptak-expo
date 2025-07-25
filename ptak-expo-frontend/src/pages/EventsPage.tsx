@@ -72,6 +72,10 @@ const EventsPage: React.FC = () => {
     loadExhibitions(); // Odśwież listę wydarzeń po dodaniu nowego
   }, [loadExhibitions]);
 
+  const handleEventClick = useCallback((eventId: number) => {
+    navigate(`/wydarzenia/${eventId}`);
+  }, [navigate]);
+
   const formatDateRange = useCallback((startDate: string, endDate: string): string => {
     const start = new Date(startDate);
     const end = new Date(endDate);
@@ -185,7 +189,19 @@ const EventsPage: React.FC = () => {
 
         <Box className={styles.eventsGrid}>
           {upcomingEvents.map((exhibition) => (
-            <Card key={exhibition.id} className={styles.eventCard}>
+            <Card 
+              key={exhibition.id} 
+              className={styles.eventCard}
+              onClick={() => handleEventClick(exhibition.id)}
+              sx={{ 
+                cursor: 'pointer',
+                transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
+                '&:hover': {
+                  transform: 'translateY(-2px)',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
+                }
+              }}
+            >
               <CardContent className={styles.eventContent}>
                 <Box className={styles.eventImage}>
                   <img
