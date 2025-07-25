@@ -17,12 +17,14 @@
   background-image: url('../assets/tło.png');
   background-position: center;
   background-size: cover;
-  opacity:0.5;
+  opacity: 0.5;
+  transition: opacity 0.3s ease-in-out;
+  will-change: opacity;
 
   @media (max-width: 600px) {
     background-image: url('../assets/tlo_m.png');
   }
-  display:flex;
+  display: flex;
   flex-direction: column;
   justify-content: space-between;
 }
@@ -254,9 +256,12 @@
    background-image: url('../assets/Rectangle-8313.svg');
    background-size: cover;
    background-repeat: no-repeat;
-   min-height:60vh;
+   min-height: 60vh;
    width: 100%;
-    @include for-tablet-portrait-up  {
+   transition: opacity 0.3s ease-in-out;
+   will-change: opacity;
+   
+   @include for-tablet-portrait-up  {
        background-image: url('../assets/Rectangle-8313.svg');
        mask-image: linear-gradient(to top, transparent, #6F87F6 50%);
     }
@@ -267,6 +272,9 @@
    background-repeat: no-repeat;
    min-height: 40vh;
    width: 100%;
+   transition: opacity 0.3s ease-in-out;
+   will-change: opacity;
+   
    @include for-desktop-up {
      min-height: 60vh;
    }
