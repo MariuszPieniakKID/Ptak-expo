@@ -162,7 +162,7 @@ const EventDetailPage: React.FC = () => {
       const exhibitorId = user.role === 'admin' ? 2 : user.id;
       loadBrandingFiles(exhibitorId, exhibition.id);
     }
-  }, [exhibition, token, user]);
+  }, [exhibition, token, user, loadBrandingFiles]);
 
   // Handle upload error
   const handleUploadError = useCallback((error: string) => {
