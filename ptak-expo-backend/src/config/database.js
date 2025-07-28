@@ -228,6 +228,39 @@ const initializeDatabase = async () => {
       )
     `);
 
+    console.log('🔍 Creating exhibitor_branding_files table...');
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS exhibitor_branding_files (
+        id SERIAL PRIMARY KEY,
+        exhibitor_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+        exhibition_id INTEGER REFERENCES exhibitions(id) ON DELETE CASCADE,
+        file_type VARCHAR(100) NOT NULL, -- 'kolorowe_tlo_logo_wydarzenia', 'tlo_wydarzenia_logo_zaproszenia', 'biale_logo_identyfikator', 'banner_wystawcy_800', 'banner_wystawcy_1200', 'logo_ptak_expo', 'dokumenty_brandingowe'
+        file_name VARCHAR(255) NOT NULL,
+        original_name VARCHAR(255) NOT NULL,
+        file_path VARCHAR(500) NOT NULL,
+        file_size INTEGER,
+        mime_type VARCHAR(100),
+        dimensions VARCHAR(50), -- e.g., '305x106', '800x800', etc.
+        is_approved BOOLEAN DEFAULT false,
+        approved_by INTEGER REFERENCES users(id),
+        approved_at TIMESTAMPTZ,
+        created_at TIMESTAMPTZ DEFAULT NOW(),
+        updated_at TIMESTAMPTZ DEFAULT NOW(),
+        UNIQUE(exhibitor_id, exhibition_id, file_type)
+      )
+    `);
+
+    console.log('🔍 Creating indexes for exhibitor_branding_files table...');
+    await pool.query(`
+      CREATE INDEX IF NOT EXISTS idx_exhibitor_branding_files_exhibitor_id ON exhibitor_branding_files(exhibitor_id)
+    `);
+    await pool.query(`
+      CREATE INDEX IF NOT EXISTS idx_exhibitor_branding_files_exhibition_id ON exhibitor_branding_files(exhibition_id)
+    `);
+    await pool.query(`
+      CREATE INDEX IF NOT EXISTS idx_exhibitor_branding_files_type ON exhibitor_branding_files(file_type)
+    `);
+
     console.log('🔍 Inserting admin user...');
     await pool.query(`
       INSERT INTO users (email, password_hash, role, first_name, last_name) 

@@ -3,15 +3,17 @@ const jwt = require('jsonwebtoken');
 // Middleware to verify JWT token
 const verifyToken = (req, res, next) => {
   const authHeader = req.headers.authorization;
-  
-  if (!authHeader) {
-    return res.status(401).json({
-      success: false,
-      message: 'Brak tokenu autoryzacji'
-    });
-  }
+  let token = null;
 
-  const token = authHeader.split(' ')[1]; // Remove 'Bearer ' prefix
+  // Try to get token from Authorization header first
+  if (authHeader) {
+    token = authHeader.split(' ')[1]; // Remove 'Bearer ' prefix
+  }
+  
+  // If no token in header, try query parameter (for file serving)
+  if (!token && req.query.token) {
+    token = req.query.token;
+  }
   
   if (!token) {
     return res.status(401).json({

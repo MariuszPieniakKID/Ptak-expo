@@ -19,6 +19,7 @@ const authRoutes = require('./routes/auth');
 const usersRoutes = require('./routes/users');
 const exhibitorsRoutes = require('./routes/exhibitors');
 const exhibitionsRoutes = require('./routes/exhibitions');
+const exhibitorBrandingRoutes = require('./routes/exhibitorBrandingNew');
 
 console.log('🔍 Loading database config...');
 const db = require('./config/database');
@@ -83,6 +84,7 @@ app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/users', usersRoutes);
 app.use('/api/v1/exhibitors', exhibitorsRoutes);
 app.use('/api/v1/exhibitions', exhibitionsRoutes);
+app.use('/api/v1/exhibitor-branding', exhibitorBrandingRoutes);
 
 // Health check endpoints
 app.get('/', (req, res) => {
@@ -95,7 +97,8 @@ app.get('/', (req, res) => {
       auth: '/api/v1/auth',
       users: '/api/v1/users',
       exhibitors: '/api/v1/exhibitors',
-      exhibitions: '/api/v1/exhibitions'
+      exhibitions: '/api/v1/exhibitions',
+              exhibitorBranding: '/api/v1/exhibitor-branding'
     }
   });
 });

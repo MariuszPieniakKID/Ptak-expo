@@ -52,7 +52,13 @@ export interface Exhibition {
 const apiCall = async (url: string, options: RequestInit, retries = 3): Promise<Response> => {
   for (let i = 0; i < retries; i++) {
     try {
-      const response = await fetch(url, options);
+      // Add credentials: 'include' to all requests for CORS
+      const requestOptions = {
+        ...options,
+        credentials: 'include' as RequestCredentials
+      };
+      
+      const response = await fetch(url, requestOptions);
       if (response.status === 401) {
         // Handle unauthorized access globally if needed, e.g., by dispatching a logout event
         // For now, let the caller handle it.
@@ -283,4 +289,157 @@ export const deleteExhibition = async (id: number, token: string): Promise<void>
     const errorData = await response.json();
     throw new Error(errorData.message || 'Błąd podczas usuwania wydarzenia');
   }
+};
+
+// Branding Files interfaces and functions
+export interface BrandingFile {
+  id: number;
+  fileType: string;
+  fileName: string;
+  originalName: string;
+  filePath: string;
+  fileSize: number;
+  mimeType: string;
+  dimensions: string | null;
+  isApproved: boolean;
+  createdAt: string;
+  updatedAt: string;
+  config: BrandingFileConfig;
+}
+
+export interface BrandingFileConfig {
+  name: string;
+  dimensions: string | null;
+  allowedFormats: string[];
+  maxSize: number;
+}
+
+export interface BrandingFilesResponse {
+  success: boolean;
+  exhibitorId: number;
+  exhibitionId: number;
+  files: { [fileType: string]: BrandingFile };
+  fileTypes: { [fileType: string]: BrandingFileConfig };
+}
+
+export interface UploadBrandingFileResponse {
+  success: boolean;
+  message: string;
+  file: BrandingFile;
+}
+
+// Upload branding file
+export const uploadBrandingFile = async (
+  file: File,
+  exhibitorId: number,
+  exhibitionId: number,
+  fileType: string,
+  token: string
+): Promise<UploadBrandingFileResponse> => {
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('exhibitorId', exhibitorId.toString());
+  formData.append('exhibitionId', exhibitionId.toString());
+  formData.append('fileType', fileType);
+
+  console.log('📤 FormData contents:', {
+    file: file.name,
+    exhibitorId: exhibitorId.toString(),
+    exhibitionId: exhibitionId.toString(),
+    fileType,
+    url: `${config.API_BASE_URL}/api/v1/exhibitor-branding/upload`,
+    note: exhibitorId === 2 ? '🔧 Admin uploading for default exhibitor' : '👤 User uploading for themselves'
+  });
+
+  const response = await fetch(`${config.API_BASE_URL}/api/v1/exhibitor-branding/upload`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+    },
+    credentials: 'include',
+    body: formData,
+  });
+
+  if (!response.ok) {
+    console.error('❌ Upload response error:', response.status, response.statusText);
+    try {
+      const errorData = await response.json();
+      console.error('❌ Error details:', errorData);
+      throw new Error(errorData.message || errorData.error || 'Błąd podczas przesyłania pliku');
+    } catch (parseError) {
+      console.error('❌ Could not parse error response:', parseError);
+      throw new Error(`Server error: ${response.status} ${response.statusText}`);
+    }
+  }
+
+  const result = await response.json();
+  console.log('✅ Upload successful:', result);
+  return result;
+};
+
+// Get branding files for exhibitor and exhibition
+export const getBrandingFiles = async (
+  exhibitorId: number,
+  exhibitionId: number,
+  token: string
+): Promise<BrandingFilesResponse> => {
+  const response = await apiCall(`${config.API_BASE_URL}/api/v1/exhibitor-branding/${exhibitorId}/${exhibitionId}`, {
+    headers: {
+      'Authorization': `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.message || 'Błąd podczas pobierania plików');
+  }
+
+  return response.json();
+};
+
+// Delete branding file
+export const deleteBrandingFile = async (
+  fileId: number,
+  exhibitorId: number,
+  token: string
+): Promise<void> => {
+  const response = await apiCall(`${config.API_BASE_URL}/api/v1/exhibitor-branding/file/${fileId}`, {
+    method: 'DELETE',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+    },
+    body: JSON.stringify({ exhibitorId }),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.message || 'Błąd podczas usuwania pliku');
+  }
+};
+
+// Get branding file URL for preview/download
+export const getBrandingFileUrl = (
+  exhibitorId: number,
+  fileName: string,
+  token: string
+): string => {
+  return `${config.API_BASE_URL}/api/v1/exhibitor-branding/serve/${exhibitorId}/${fileName}?token=${encodeURIComponent(token)}`;
+};
+
+// Get available file types
+export const getBrandingFileTypes = async (token: string): Promise<{ [fileType: string]: BrandingFileConfig }> => {
+  const response = await apiCall(`${config.API_BASE_URL}/api/v1/exhibitor-branding/file-types`, {
+    headers: {
+      'Authorization': `Bearer ${token}`,
+    },
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData.message || 'Błąd podczas pobierania typów plików');
+  }
+
+  const data = await response.json();
+  return data.fileTypes;
 }; 

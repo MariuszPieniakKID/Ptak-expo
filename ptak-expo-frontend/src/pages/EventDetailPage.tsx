@@ -4,7 +4,13 @@ import { useAuth } from '../contexts/AuthContext';
 import Menu from '../components/menu/Menu';
 import CustomTypography from '../components/customTypography/CustomTypography';
 import CustomButton from '../components/customButton/CustomButton';
-import { fetchExhibition, Exhibition } from '../services/api';
+import BrandingFileUpload from '../components/BrandingFileUpload';
+import { 
+  fetchExhibition, 
+  Exhibition, 
+  getBrandingFiles, 
+  BrandingFilesResponse 
+} from '../services/api';
 import {
   Box,
   Container,
@@ -54,8 +60,11 @@ const EventDetailPage: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>('');
   const [activeTab, setActiveTab] = useState<number>(0);
+  const [brandingFiles, setBrandingFiles] = useState<BrandingFilesResponse | null>(null);
+  const [brandingLoading, setBrandingLoading] = useState<boolean>(false);
+  const [brandingError, setBrandingError] = useState<string>('');
   const navigate = useNavigate();
-  const { token, logout } = useAuth();
+  const { user, token, logout } = useAuth();
 
   const loadExhibition = useCallback(async (): Promise<void> => {
     if (!id) {
@@ -68,6 +77,13 @@ const EventDetailPage: React.FC = () => {
       const fetchedExhibition = await fetchExhibition(parseInt(id), token || undefined);
       setExhibition(fetchedExhibition);
       setError('');
+      
+      // Load branding files for current user
+      if (token && user) {
+        // Call after loadBrandingFiles is defined
+        const exhibitorId = user.role === 'admin' ? 2 : user.id;
+        setTimeout(() => loadBrandingFiles(exhibitorId, fetchedExhibition.id), 0);
+      }
     } catch (err: any) {
       setError(err.message || 'Nie udało się pobrać danych wydarzenia');
       if (err.message.includes('401') && token) {
@@ -77,7 +93,8 @@ const EventDetailPage: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }, [id, token, logout, navigate]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id, token, user, logout, navigate]);
 
   useEffect(() => {
     loadExhibition();
@@ -110,6 +127,46 @@ const EventDetailPage: React.FC = () => {
       year: 'numeric' 
     });
     return `${startFormatted} - ${endFormatted}`;
+  }, []);
+
+  // Load branding files for current user
+  const loadBrandingFiles = useCallback(async (exhibitorId: number, exhibitionId: number) => {
+    if (!token) {
+      setBrandingError('Brak autoryzacji - zaloguj się ponownie');
+      return;
+    }
+    
+    setBrandingLoading(true);
+    setBrandingError('');
+    
+    try {
+      const files = await getBrandingFiles(exhibitorId, exhibitionId, token);
+      setBrandingFiles(files);
+    } catch (error: any) {
+      setBrandingError(error.message || 'Błąd podczas ładowania plików');
+      console.error('Error loading branding files:', error);
+      
+      // If 401, logout user
+      if (error.message.includes('401')) {
+        logout();
+        navigate('/login');
+      }
+    } finally {
+      setBrandingLoading(false);
+    }
+  }, [token, logout, navigate]);
+
+  // Handle upload success - reload files
+  const handleUploadSuccess = useCallback(() => {
+    if (exhibition && token && user) {
+      const exhibitorId = user.role === 'admin' ? 2 : user.id;
+      loadBrandingFiles(exhibitorId, exhibition.id);
+    }
+  }, [exhibition, token, user]);
+
+  // Handle upload error
+  const handleUploadError = useCallback((error: string) => {
+    setBrandingError(error);
   }, []);
 
   if (loading) {
@@ -383,230 +440,148 @@ const EventDetailPage: React.FC = () => {
                   <CustomTypography fontSize="1.25rem" fontWeight={600}>
                     Branding wystawcy
                   </CustomTypography>
-                  <Box className={styles.brandingSection}>
-                    <CustomTypography fontSize="1rem">
-                      Materiały brandingowe i promocyjne dla wydarzenia
-                    </CustomTypography>
-                    
-                    {/* Kolorowe tło z logiem wydarzenia (E-Identyfikator wystawcy) */}
-                    <Box className={styles.brandingCard}>
-                      <CustomTypography fontSize="0.875rem" fontWeight={500}>
-                        Kolorowe tło z logiem wydarzenia (E-Identyfikator wystawcy)
-                      </CustomTypography>
-                      <CustomTypography fontSize="0.75rem" color="#6c757d">
-                        png, jpg | 305x106 px
-                      </CustomTypography>
-                      <Box className={styles.uploadArea}>
-                        <CustomTypography fontSize="0.75rem" color="#6c757d">
-                          Przeciągnij i upuść, aby dodać plik
-                        </CustomTypography>
-                        <CustomButton
-                          bgColor="transparent"
-                          textColor="#6F87F6"
-                          width="auto"
-                          height="32px"
-                          fontSize="0.75rem"
-                          sx={{ border: '1px solid #6F87F6', mt: 1 }}
-                        >
-                          Wgraj plik
-                        </CustomButton>
-                      </Box>
-                      <Box className={styles.previewArea}>
-                        <CustomTypography fontSize="0.75rem" fontWeight={500}>
-                          Podgląd:
-                        </CustomTypography>
-                      </Box>
+                  
+                  {brandingError && (
+                    <Alert severity="error" sx={{ mb: 2 }}>
+                      {brandingError}
+                    </Alert>
+                  )}
+                  
+                  {brandingLoading ? (
+                    <Box sx={{ display: 'flex', justifyContent: 'center', p: 4 }}>
+                      <CircularProgress />
                     </Box>
+                  ) : (
+                    <Box className={styles.brandingSection}>
+                      <CustomTypography fontSize="1rem">
+                        Materiały brandingowe i promocyjne dla wydarzenia
+                      </CustomTypography>
+                      
+                      {/* Branding file upload components */}
+                    {exhibition && brandingFiles && user && (
+                      <BrandingFileUpload
+                        fileType="kolorowe_tlo_logo_wydarzenia"
+                        title="Kolorowe tło z logiem wydarzenia (E-Identyfikator wystawcy)"
+                        description="Format: png, jpg"
+                        dimensions="305x106"
+                        allowedFormats={['png', 'jpg', 'jpeg']}
+                        maxSize={5 * 1024 * 1024}
+                        exhibitorId={user.role === 'admin' ? 2 : user.id}
+                        exhibitionId={exhibition.id}
+                        existingFile={brandingFiles.files['kolorowe_tlo_logo_wydarzenia'] || null}
+                        onUploadSuccess={handleUploadSuccess}
+                        onUploadError={handleUploadError}
+                        onDeleteSuccess={handleUploadSuccess}
+                      />
+                    )}
 
                     {/* Tło wydarzenia z logiem (E-zaproszenia) */}
-                    <Box className={styles.brandingCard}>
-                      <CustomTypography fontSize="0.875rem" fontWeight={500}>
-                        Tło wydarzenia z logiem (E-zaproszenia)
-                      </CustomTypography>
-                      <CustomTypography fontSize="0.75rem" color="#6c757d">
-                        png, svg | 152x106 px
-                      </CustomTypography>
-                      <Box className={styles.uploadArea}>
-                        <CustomTypography fontSize="0.75rem" color="#6c757d">
-                          Przeciągnij i upuść, aby dodać plik
-                        </CustomTypography>
-                        <CustomButton
-                          bgColor="transparent"
-                          textColor="#6F87F6"
-                          width="auto"
-                          height="32px"
-                          fontSize="0.75rem"
-                          sx={{ border: '1px solid #6F87F6', mt: 1 }}
-                        >
-                          Wgraj plik
-                        </CustomButton>
-                      </Box>
-                      <Box className={styles.previewArea}>
-                        <CustomTypography fontSize="0.75rem" fontWeight={500}>
-                          Podgląd:
-                        </CustomTypography>
-                      </Box>
-                    </Box>
+                    {exhibition && brandingFiles && user && (
+                      <BrandingFileUpload
+                        fileType="tlo_wydarzenia_logo_zaproszenia"
+                        title="Tło wydarzenia z logiem (E-zaproszenia)"
+                        description="Format: png, svg"
+                        dimensions="152x106"
+                        allowedFormats={['png', 'svg']}
+                        maxSize={5 * 1024 * 1024}
+                        exhibitorId={user.role === 'admin' ? 2 : user.id}
+                        exhibitionId={exhibition.id}
+                        existingFile={brandingFiles.files['tlo_wydarzenia_logo_zaproszenia'] || null}
+                        onUploadSuccess={handleUploadSuccess}
+                        onUploadError={handleUploadError}
+                        onDeleteSuccess={handleUploadSuccess}
+                      />
+                    )}
 
                     {/* Białe Logo (E-Identyfikator) */}
-                    <Box className={styles.brandingCard}>
-                      <CustomTypography fontSize="0.875rem" fontWeight={500}>
-                        Białe Logo (E-Identyfikator)
-                      </CustomTypography>
-                      <CustomTypography fontSize="0.75rem" color="#6c757d">
-                        png, svg | 104x34 px
-                      </CustomTypography>
-                      <Box className={styles.uploadArea}>
-                        <CustomTypography fontSize="0.75rem" color="#6c757d">
-                          Przeciągnij i upuść, aby dodać plik
-                        </CustomTypography>
-                        <CustomButton
-                          bgColor="transparent"
-                          textColor="#6F87F6"
-                          width="auto"
-                          height="32px"
-                          fontSize="0.75rem"
-                          sx={{ border: '1px solid #6F87F6', mt: 1 }}
-                        >
-                          Wgraj plik
-                        </CustomButton>
-                      </Box>
-                      <Box className={styles.previewArea}>
-                        <CustomTypography fontSize="0.75rem" fontWeight={500}>
-                          Podgląd:
-                        </CustomTypography>
-                      </Box>
-                    </Box>
+                    {exhibition && brandingFiles && user && (
+                      <BrandingFileUpload
+                        fileType="biale_logo_identyfikator"
+                        title="Białe Logo (E-Identyfikator)"
+                        description="Format: png, svg"
+                        dimensions="104x34"
+                        allowedFormats={['png', 'svg']}
+                        maxSize={5 * 1024 * 1024}
+                        exhibitorId={user.role === 'admin' ? 2 : user.id}
+                        exhibitionId={exhibition.id}
+                        existingFile={brandingFiles.files['biale_logo_identyfikator'] || null}
+                        onUploadSuccess={handleUploadSuccess}
+                        onUploadError={handleUploadError}
+                        onDeleteSuccess={handleUploadSuccess}
+                      />
+                    )}
 
                     {/* Banner dla wystawcy z miejscem na logo (800x800) */}
-                    <Box className={styles.brandingCard}>
-                      <CustomTypography fontSize="0.875rem" fontWeight={500}>
-                        Banner dla wystawcy z miejscem na logo
-                      </CustomTypography>
-                      <CustomTypography fontSize="0.75rem" color="#6c757d">
-                        png, jpg | 800x800 px
-                      </CustomTypography>
-                      <Box className={styles.uploadArea}>
-                        <CustomTypography fontSize="0.75rem" color="#6c757d">
-                          Przeciągnij i upuść, aby dodać plik
-                        </CustomTypography>
-                        <CustomButton
-                          bgColor="transparent"
-                          textColor="#6F87F6"
-                          width="auto"
-                          height="32px"
-                          fontSize="0.75rem"
-                          sx={{ border: '1px solid #6F87F6', mt: 1 }}
-                        >
-                          Wgraj plik
-                        </CustomButton>
-                      </Box>
-                      <Box className={styles.previewArea}>
-                        <CustomTypography fontSize="0.75rem" fontWeight={500}>
-                          Podgląd:
-                        </CustomTypography>
-                      </Box>
-                    </Box>
+                    {exhibition && brandingFiles && user && (
+                      <BrandingFileUpload
+                        fileType="banner_wystawcy_800"
+                        title="Banner dla wystawcy z miejscem na logo"
+                        description="Format: png, jpg"
+                        dimensions="800x800"
+                        allowedFormats={['png', 'jpg', 'jpeg']}
+                        maxSize={10 * 1024 * 1024}
+                        exhibitorId={user.role === 'admin' ? 2 : user.id}
+                        exhibitionId={exhibition.id}
+                        existingFile={brandingFiles.files['banner_wystawcy_800x800'] || null}
+                        onUploadSuccess={handleUploadSuccess}
+                        onUploadError={handleUploadError}
+                        onDeleteSuccess={handleUploadSuccess}
+                      />
+                    )}
 
                     {/* Banner dla wystawcy z miejscem na logo (1200x1200) */}
-                    <Box className={styles.brandingCard}>
-                      <CustomTypography fontSize="0.875rem" fontWeight={500}>
-                        Banner dla wystawcy z miejscem na logo (duży)
-                      </CustomTypography>
-                      <CustomTypography fontSize="0.75rem" color="#6c757d">
-                        png, jpg | 1200x1200 px
-                      </CustomTypography>
-                      <Box className={styles.uploadArea}>
-                        <CustomTypography fontSize="0.75rem" color="#6c757d">
-                          Przeciągnij i upuść, aby dodać plik
-                        </CustomTypography>
-                        <CustomButton
-                          bgColor="transparent"
-                          textColor="#6F87F6"
-                          width="auto"
-                          height="32px"
-                          fontSize="0.75rem"
-                          sx={{ border: '1px solid #6F87F6', mt: 1 }}
-                        >
-                          Wgraj plik
-                        </CustomButton>
-                      </Box>
-                      <Box className={styles.previewArea}>
-                        <CustomTypography fontSize="0.75rem" fontWeight={500}>
-                          Podgląd:
-                        </CustomTypography>
-                      </Box>
-                    </Box>
+                    {exhibition && brandingFiles && user && (
+                      <BrandingFileUpload
+                        fileType="banner_wystawcy_1200"
+                        title="Banner dla wystawcy z miejscem na logo (duży)"
+                        description="Format: png, jpg"
+                        dimensions="1200x1200"
+                        allowedFormats={['png', 'jpg', 'jpeg']}
+                        maxSize={15 * 1024 * 1024}
+                        exhibitorId={user.role === 'admin' ? 2 : user.id}
+                        exhibitionId={exhibition.id}
+                        existingFile={brandingFiles.files['banner_wystawcy_1200x1200'] || null}
+                        onUploadSuccess={handleUploadSuccess}
+                        onUploadError={handleUploadError}
+                        onDeleteSuccess={handleUploadSuccess}
+                      />
+                    )}
 
                     {/* Logo PTAK EXPO */}
-                    <Box className={styles.brandingCard}>
-                      <CustomTypography fontSize="0.875rem" fontWeight={500}>
-                        Logo PTAK EXPO
-                      </CustomTypography>
-                      <CustomTypography fontSize="0.75rem" color="#6c757d">
-                        png, jpg | 200x200 px
-                      </CustomTypography>
-                      <Box className={styles.uploadArea}>
-                        <CustomTypography fontSize="0.75rem" color="#6c757d">
-                          Przeciągnij i upuść, aby dodać plik
-                        </CustomTypography>
-                        <CustomButton
-                          bgColor="transparent"
-                          textColor="#6F87F6"
-                          width="auto"
-                          height="32px"
-                          fontSize="0.75rem"
-                          sx={{ border: '1px solid #6F87F6', mt: 1 }}
-                        >
-                          Wgraj plik
-                        </CustomButton>
-                      </Box>
-                      <Box className={styles.previewArea}>
-                        <CustomTypography fontSize="0.75rem" fontWeight={500}>
-                          Podgląd:
-                        </CustomTypography>
-                      </Box>
-                    </Box>
+                    {exhibition && brandingFiles && user && (
+                      <BrandingFileUpload
+                        fileType="logo_ptak_expo"
+                        title="Logo PTAK EXPO"
+                        description="Format: png, jpg"
+                        dimensions="200x200"
+                        allowedFormats={['png', 'jpg', 'jpeg']}
+                        maxSize={5 * 1024 * 1024}
+                        exhibitorId={user.role === 'admin' ? 2 : user.id}
+                        exhibitionId={exhibition.id}
+                        existingFile={brandingFiles.files['logo_ptak_expo'] || null}
+                        onUploadSuccess={handleUploadSuccess}
+                        onUploadError={handleUploadError}
+                        onDeleteSuccess={handleUploadSuccess}
+                      />
+                    )}
 
                     {/* Dokumenty brandingowe dla wystawcy */}
-                    <Box className={styles.brandingCard}>
-                      <CustomTypography fontSize="0.875rem" fontWeight={500}>
-                        Dokumenty brandingowe dla wystawcy
-                      </CustomTypography>
-                      <CustomTypography fontSize="0.75rem" color="#6c757d">
-                        PDF
-                      </CustomTypography>
-                      <Box className={styles.uploadArea}>
-                        <CustomTypography fontSize="0.75rem" color="#6c757d">
-                          Przeciągnij i upuść, aby dodać plik
-                        </CustomTypography>
-                        <CustomButton
-                          bgColor="transparent"
-                          textColor="#6F87F6"
-                          width="auto"
-                          height="32px"
-                          fontSize="0.75rem"
-                          sx={{ border: '1px solid #6F87F6', mt: 1 }}
-                        >
-                          Wgraj plik
-                        </CustomButton>
-                      </Box>
-                      
-                      {/* Lista już wgranych plików */}
-                      <Box className={styles.filesList}>
-                        <CustomTypography fontSize="0.875rem" fontWeight={500}>
-                          Twoje pliki:
-                        </CustomTypography>
-                        <Box className={styles.fileItem}>
-                          <CustomTypography fontSize="0.75rem">
-                            Notka prasowa o targach.pdf
-                          </CustomTypography>
-                          <CustomTypography fontSize="0.6rem" color="#6c757d">
-                            PDF
-                          </CustomTypography>
-                        </Box>
-                      </Box>
-                    </Box>
+                    {exhibition && brandingFiles && user && (
+                      <BrandingFileUpload
+                        fileType="dokumenty_brandingowe"
+                        title="Dokumenty brandingowe dla wystawcy"
+                        description="Format: PDF"
+                        dimensions={null}
+                        allowedFormats={['pdf']}
+                        maxSize={20 * 1024 * 1024}
+                        exhibitorId={user.role === 'admin' ? 2 : user.id}
+                        exhibitionId={exhibition.id}
+                        existingFile={brandingFiles.files['dokumenty_brandingowe'] || null}
+                        onUploadSuccess={handleUploadSuccess}
+                        onUploadError={handleUploadError}
+                        onDeleteSuccess={handleUploadSuccess}
+                      />
+                    )}
 
                     {/* Przycisk Zapisz */}
                     <Box className={styles.saveButtonContainer}>
@@ -621,6 +596,7 @@ const EventDetailPage: React.FC = () => {
                       </CustomButton>
                     </Box>
                   </Box>
+                  )}
                 </Box>
               </TabPanel>
 
