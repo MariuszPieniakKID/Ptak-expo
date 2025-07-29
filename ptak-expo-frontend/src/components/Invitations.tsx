@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Box, TextField, Alert, CircularProgress, Select, MenuItem, FormControl } from '@mui/material';
 import CustomTypography from './customTypography/CustomTypography';
 import CustomButton from './customButton/CustomButton';
@@ -54,12 +54,7 @@ const Invitations: React.FC<InvitationsProps> = ({ exhibitionId }) => {
   const [successMessage, setSuccessMessage] = useState('');
   const [previewMode, setPreviewMode] = useState(false);
 
-  // Load existing invitation data
-  useEffect(() => {
-    loadInvitationData();
-  }, [exhibitionId, token]);
-
-  const loadInvitationData = async () => {
+  const loadInvitationData = useCallback(async () => {
     if (!token) return;
 
     try {
@@ -88,7 +83,12 @@ const Invitations: React.FC<InvitationsProps> = ({ exhibitionId }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [exhibitionId, token]);
+
+  // Load existing invitation data
+  useEffect(() => {
+    loadInvitationData();
+  }, [loadInvitationData]);
 
   const handleInputChange = (field: keyof InvitationData, value: string) => {
     setInvitationData(prev => ({
@@ -140,7 +140,7 @@ const Invitations: React.FC<InvitationsProps> = ({ exhibitionId }) => {
     }
   };
 
-  const generateInvitationContent = () => {
+  const generateInvitationContent = useCallback(() => {
     return `${invitationData.greeting}
 
 z radością zapraszamy do udziału w Warsaw Industry Week, które odbędą się w dniach 23.05.2025r. w Ptak Warsaw Expo.
@@ -163,7 +163,15 @@ ${invitationData.company_info}
 
 Serdecznie zapraszamy!
 Zespół Warsaw Industry Week`;
-  };
+  }, [
+    invitationData.greeting,
+    invitationData.special_offers,
+    invitationData.booth_info,
+    invitationData.contact_person,
+    invitationData.contact_email,
+    invitationData.contact_phone,
+    invitationData.company_info
+  ]);
 
   // Auto-generate content when fields change
   useEffect(() => {
@@ -172,15 +180,7 @@ Zespół Warsaw Industry Week`;
       ...prev,
       content
     }));
-  }, [
-    invitationData.greeting,
-    invitationData.special_offers, 
-    invitationData.booth_info,
-    invitationData.contact_person,
-    invitationData.contact_email,
-    invitationData.contact_phone,
-    invitationData.company_info
-  ]);
+  }, [generateInvitationContent]);
 
   if (loading && !invitationData.title) {
     return (
