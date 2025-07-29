@@ -1,0 +1,254 @@
+// TradeInfo.module.scss
+// Używa design system z --color-dodgerblue: #6f87f6, --color-mediumslateblue: #5041d0, --color-darkslategray: #2e2e38
+@import '../styles/variables';
+
+.tradeInfo {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  font-family: 'Roc Grotesk', sans-serif;
+}
+
+.sectionTitle {
+  margin-bottom: 0.5rem;
+  color: var(--color-darkslategray, #2e2e38);
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.subsectionTitle {
+  color: var(--color-darkslategray, #2e2e38);
+  margin-bottom: 0.5rem;
+}
+
+.divider {
+  margin: 0.5rem 0;
+  border-color: #e0e0e0;
+}
+
+// Godziny otwarcia
+.hoursGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+}
+
+.hoursGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.timeFields {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.timeField {
+  flex: 1;
+  min-width: 120px;
+}
+
+.timeSeparator {
+  font-weight: 600;
+  color: var(--color-darkslategray, #2e2e38);
+  padding: 0 0.5rem;
+  font-size: 1.25rem;
+}
+
+// Kontakt
+.contactGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+}
+
+.contactField {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+// Zabudowa targowa
+.buildSection {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.buildTypeField {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-width: 300px;
+}
+
+.buildDay {
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: var(--br-10, 10px);
+  border: 1px solid #e9ecef;
+}
+
+.buildDayFields {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  
+  > div:first-child {
+    min-width: 150px;
+  }
+  
+  > div:nth-child(2),
+  > div:nth-child(4) {
+    min-width: 100px;
+  }
+}
+
+.removeButton {
+  color: #dc3545;
+  
+  &:hover {
+    background-color: rgba(220, 53, 69, 0.1);
+  }
+}
+
+// Plan targów
+.planSection {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.planSpace {
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: var(--br-10, 10px);
+  border: 1px solid #e9ecef;
+}
+
+.spaceFields {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  
+  > div {
+    min-width: 180px;
+    flex: 1;
+  }
+}
+
+.planUpload {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: var(--br-10, 10px);
+  border: 1px solid #e9ecef;
+}
+
+.uploadedFile {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  background: #e9ecef;
+  border-radius: var(--br-5, 5px);
+}
+
+// Wiadomości
+.messageSection {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.messageHelp {
+  margin-bottom: 0.5rem;
+}
+
+.messageField {
+  .MuiOutlinedInput-root {
+    font-family: 'Open Sans', sans-serif;
+  }
+}
+
+.messageActions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 0.5rem;
+}
+
+// Przycisk zapisz
+.saveSection {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 1rem;
+  border-top: 1px solid #e0e0e0;
+  margin-top: 1rem;
+}
+
+// Responsive adjustments
+@media (max-width: 968px) {
+  .tradeInfo {
+    padding: 1rem;
+    gap: 1rem;
+  }
+  
+  .buildDayFields,
+  .spaceFields {
+    flex-direction: column;
+    align-items: stretch;
+    
+    > div {
+      min-width: unset;
+    }
+  }
+  
+  .timeFields {
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: stretch;
+    
+    .timeSeparator {
+      align-self: center;
+      padding: 0.25rem 0;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .tradeInfo {
+    padding: 0.75rem;
+  }
+  
+  .messageActions {
+    flex-direction: column;
+    gap: 0.75rem;
+    align-items: stretch;
+    
+    button {
+      align-self: flex-end;
+    }
+  }
+} 

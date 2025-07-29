@@ -1,0 +1,286 @@
+// Invitations component styles
+@import '../styles/variables';
+
+.invitationsContainer {
+  padding: 24px;
+  background-color: var(--color-white);
+  border-radius: var(--br-20);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  margin-bottom: 24px;
+}
+
+.title {
+  margin-bottom: 24px;
+  color: var(--color-darkslategray);
+}
+
+.loadingContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 24px;
+  text-align: center;
+}
+
+.invitationCard {
+  background-color: var(--color-whitesmoke-100);
+  border: 1px solid var(--color-whitesmoke-200);
+  border-radius: var(--br-20);
+  padding: 24px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 12px rgba(111, 135, 246, 0.08);
+}
+
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--color-whitesmoke-200);
+}
+
+.actionButtons {
+  display: flex;
+  gap: 8px;
+}
+
+.formSection {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.fieldGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.textField {
+  width: 100%;
+  
+  .MuiOutlinedInput-root {
+    border-radius: var(--br-10);
+    background-color: var(--color-white);
+    
+    &:hover .MuiOutlinedInput-notchedOutline {
+      border-color: var(--color-dodgerblue);
+    }
+    
+    &.Mui-focused .MuiOutlinedInput-notchedOutline {
+      border-color: var(--color-mediumslateblue);
+      border-width: 2px;
+    }
+  }
+  
+  .MuiInputLabel-root {
+    color: var(--color-darkslategray);
+    font-family: 'Roc Grotesk', sans-serif;
+    
+    &.Mui-focused {
+      color: var(--color-mediumslateblue);
+    }
+  }
+  
+  .MuiOutlinedInput-input {
+    font-family: 'Open Sans', sans-serif;
+    font-size: 0.875rem;
+    color: var(--color-darkslategray);
+    padding: 12px 14px;
+  }
+  
+  textarea {
+    font-family: 'Open Sans', sans-serif !important;
+    line-height: 1.5;
+  }
+}
+
+.selectField {
+  .MuiSelect-select {
+    font-family: 'Open Sans', sans-serif;
+    font-size: 0.875rem;
+    color: var(--color-darkslategray);
+    padding: 12px 14px;
+  }
+  
+  .MuiOutlinedInput-root {
+    border-radius: var(--br-10);
+    background-color: var(--color-white);
+    
+    &:hover .MuiOutlinedInput-notchedOutline {
+      border-color: var(--color-dodgerblue);
+    }
+    
+    &.Mui-focused .MuiOutlinedInput-notchedOutline {
+      border-color: var(--color-mediumslateblue);
+      border-width: 2px;
+    }
+  }
+}
+
+.contactSection {
+  background-color: var(--color-white);
+  padding: 20px;
+  border-radius: var(--br-10);
+  border: 1px solid var(--color-whitesmoke-200);
+}
+
+.contactRow {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 16px;
+  
+  @media (max-width: 768px) {
+    flex-direction: column;
+    gap: 12px;
+  }
+}
+
+.halfField {
+  flex: 1;
+  
+  .MuiOutlinedInput-root {
+    border-radius: var(--br-10);
+    background-color: var(--color-white);
+    
+    &:hover .MuiOutlinedInput-notchedOutline {
+      border-color: var(--color-dodgerblue);
+    }
+    
+    &.Mui-focused .MuiOutlinedInput-notchedOutline {
+      border-color: var(--color-mediumslateblue);
+      border-width: 2px;
+    }
+  }
+  
+  .MuiInputLabel-root {
+    color: var(--color-darkslategray);
+    font-family: 'Roc Grotesk', sans-serif;
+    
+    &.Mui-focused {
+      color: var(--color-mediumslateblue);
+    }
+  }
+  
+  .MuiOutlinedInput-input {
+    font-family: 'Open Sans', sans-serif;
+    font-size: 0.875rem;
+    color: var(--color-darkslategray);
+    padding: 12px 14px;
+  }
+}
+
+.previewSection {
+  margin-top: 20px;
+}
+
+.invitationPreview {
+  background-color: var(--color-white);
+  border: 2px solid var(--color-whitesmoke-200);
+  border-radius: var(--br-20);
+  padding: 32px;
+  box-shadow: 0 8px 24px rgba(111, 135, 246, 0.12);
+  position: relative;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(
+      90deg,
+      var(--color-dodgerblue) 0%,
+      var(--color-mediumslateblue) 100%
+    );
+    border-radius: var(--br-20) var(--br-20) 0 0;
+  }
+}
+
+.previewTitle {
+  color: var(--color-darkslategray);
+  margin-bottom: 24px;
+  text-align: center;
+  padding-bottom: 16px;
+  border-bottom: 2px solid var(--color-whitesmoke-200);
+}
+
+.previewContent {
+  position: relative;
+}
+
+.previewText {
+  font-family: 'Open Sans', sans-serif;
+  font-size: 0.925rem;
+  line-height: 1.6;
+  color: var(--color-darkslategray);
+  white-space: pre-wrap;
+  margin: 0;
+  background-color: transparent;
+  border: none;
+  word-wrap: break-word;
+  
+  // Style emojis nicely
+  .emoji {
+    font-size: 1.1em;
+    margin-right: 8px;
+  }
+}
+
+.buttonGroup {
+  display: flex;
+  gap: 12px;
+  padding-top: 24px;
+  border-top: 1px solid var(--color-whitesmoke-200);
+  flex-wrap: wrap;
+  
+  @media (max-width: 768px) {
+    flex-direction: column;
+    gap: 8px;
+    
+    button {
+      width: 100% !important;
+    }
+  }
+}
+
+// Success/Error states
+.MuiAlert-root {
+  border-radius: var(--br-10);
+  font-family: 'Open Sans', sans-serif;
+  
+  &.MuiAlert-standardSuccess {
+    background-color: rgba(76, 175, 80, 0.1);
+    color: #2e7d32;
+    border: 1px solid rgba(76, 175, 80, 0.3);
+  }
+  
+  &.MuiAlert-standardError {
+    background-color: rgba(244, 67, 54, 0.1);
+    color: #c62828;
+    border: 1px solid rgba(244, 67, 54, 0.3);
+  }
+}
+
+// Animation for smooth transitions
+.formSection {
+  transition: all 0.3s ease-out;
+}
+
+.previewSection {
+  animation: fadeIn 0.4s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+} 

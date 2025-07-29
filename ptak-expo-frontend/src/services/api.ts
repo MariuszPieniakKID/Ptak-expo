@@ -442,4 +442,214 @@ export const getBrandingFileTypes = async (token: string): Promise<{ [fileType: 
 
   const data = await response.json();
   return data.fileTypes;
+};
+
+// Trade Info interfaces and functions
+export interface TradeHours {
+  exhibitorStart: string;
+  exhibitorEnd: string;
+  visitorStart: string;  
+  visitorEnd: string;
+}
+
+export interface ContactInfo {
+  guestService: string;
+  security: string;
+}
+
+export interface BuildDay {
+  id: string;
+  date: string;
+  startTime: string;
+  endTime: string;
+}
+
+export interface TradeSpace {
+  id: string;
+  name: string;
+  hallName: string;
+}
+
+export interface TradeInfoData {
+  tradeHours: TradeHours;
+  contactInfo: ContactInfo;
+  buildDays: BuildDay[];
+  buildType: string;
+  tradeSpaces: TradeSpace[];
+  tradeMessage: string;
+}
+
+export interface TradeInfoResponse {
+  success: boolean;
+  data: TradeInfoData | null;
+  message?: string;
+}
+
+export const saveTradeInfo = async (
+  exhibitionId: number,
+  tradeInfoData: TradeInfoData,
+  token: string
+): Promise<{ success: boolean; message: string }> => {
+  const response = await apiCall(`${config.API_BASE_URL}/api/v1/trade-info/${exhibitionId}`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+    },
+    body: JSON.stringify(tradeInfoData),
+  });
+
+  const data = await response.json();
+  
+  if (!response.ok) {
+    throw new Error(data.message || 'Błąd podczas zapisywania informacji targowych');
+  }
+
+  return data;
+};
+
+export const getTradeInfo = async (
+  exhibitionId: number,
+  token: string
+): Promise<TradeInfoResponse> => {
+  const response = await apiCall(`${config.API_BASE_URL}/api/v1/trade-info/${exhibitionId}`, {
+    method: 'GET',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+    },
+  });
+
+  const data = await response.json();
+  
+  if (!response.ok) {
+    throw new Error(data.message || 'Błąd podczas pobierania informacji targowych');
+  }
+
+  return data;
+};
+
+// ============= INVITATIONS API =============
+
+export interface InvitationData {
+  id?: number;
+  invitation_type: 'standard' | 'vip' | 'exhibitor' | 'guest';
+  title: string;
+  content: string;
+  greeting: string;
+  company_info: string;
+  contact_person: string;
+  contact_email: string;
+  contact_phone: string;
+  booth_info: string;
+  special_offers: string;
+  is_template?: boolean;
+  is_active?: boolean;
+  created_by?: number;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface InvitationStats {
+  total_recipients: number;
+  sent_count: number;
+  opened_count: number;
+  accepted_count: number;
+}
+
+export interface InvitationWithStats extends InvitationData {
+  stats: InvitationStats;
+  created_by_name?: string;
+}
+
+export interface InvitationsResponse {
+  success: boolean;
+  message: string;
+  data: {
+    invitations: InvitationWithStats[];
+    hasInvitations: boolean;
+    totalCount: number;
+  };
+}
+
+export const saveInvitation = async (
+  exhibitionId: number,
+  invitationData: InvitationData,
+  token: string
+): Promise<{ success: boolean; message: string; data?: InvitationData }> => {
+  const response = await apiCall(`${config.API_BASE_URL}/api/v1/invitations/${exhibitionId}`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(invitationData),
+  });
+
+  const data = await response.json();
+  
+  if (!response.ok) {
+    throw new Error(data.message || 'Błąd podczas zapisywania zaproszenia');
+  }
+
+  return data;
+};
+
+export const getInvitations = async (
+  exhibitionId: number,
+  token: string
+): Promise<InvitationsResponse> => {
+  const response = await apiCall(`${config.API_BASE_URL}/api/v1/invitations/${exhibitionId}`, {
+    method: 'GET',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+    },
+  });
+
+  const data = await response.json();
+  
+  if (!response.ok) {
+    throw new Error(data.message || 'Błąd podczas pobierania zaproszeń');
+  }
+
+  return data;
+};
+
+export const getInvitationById = async (
+  invitationId: number,
+  token: string
+): Promise<{ success: boolean; message: string; data: InvitationData }> => {
+  const response = await apiCall(`${config.API_BASE_URL}/api/v1/invitations/detail/${invitationId}`, {
+    method: 'GET',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+    },
+  });
+
+  const data = await response.json();
+  
+  if (!response.ok) {
+    throw new Error(data.message || 'Błąd podczas pobierania zaproszenia');
+  }
+
+  return data;
+};
+
+export const deleteInvitation = async (
+  invitationId: number,
+  token: string  
+): Promise<{ success: boolean; message: string }> => {
+  const response = await apiCall(`${config.API_BASE_URL}/api/v1/invitations/detail/${invitationId}`, {
+    method: 'DELETE',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+    },
+  });
+
+  const data = await response.json();
+  
+  if (!response.ok) {
+    throw new Error(data.message || 'Błąd podczas usuwania zaproszenia');
+  }
+
+  return data;
 }; 

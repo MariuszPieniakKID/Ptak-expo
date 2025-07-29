@@ -5,6 +5,8 @@ import Menu from '../components/menu/Menu';
 import CustomTypography from '../components/customTypography/CustomTypography';
 import CustomButton from '../components/customButton/CustomButton';
 import BrandingFileUpload from '../components/BrandingFileUpload';
+import TradeInfo from '../components/TradeInfo';
+import Invitations from '../components/Invitations';
 import { 
   fetchExhibition, 
   Exhibition, 
@@ -601,141 +603,15 @@ const EventDetailPage: React.FC = () => {
               </TabPanel>
 
               <TabPanel value={activeTab} index={1}>
-                <Box className={styles.tabContent}>
-                  <CustomTypography fontSize="1.25rem" fontWeight={600}>
-                    Informacje targowe
-                  </CustomTypography>
-                  <Box className={styles.tradeInfoSection}>
-                    <CustomTypography fontSize="1rem">
-                      Szczegółowe informacje o targach i warunkach uczestnictwa
-                    </CustomTypography>
-                    
-                    <Box className={styles.infoCard}>
-                      <CustomTypography fontSize="0.875rem" fontWeight={500}>
-                        Regulamin targów
-                      </CustomTypography>
-                      <CustomTypography fontSize="0.75rem" color="#6c757d">
-                        Warunki uczestnictwa i przepisy targowe
-                      </CustomTypography>
-                      <CustomButton
-                        bgColor="#6F87F6"
-                        textColor="#fff"
-                        width="auto"
-                        height="36px"
-                        fontSize="0.75rem"
-                      >
-                        Pobierz regulamin
-                      </CustomButton>
-                    </Box>
-
-                    <Box className={styles.infoCard}>
-                      <CustomTypography fontSize="0.875rem" fontWeight={500}>
-                        Plan hal i stoiska
-                      </CustomTypography>
-                      <CustomTypography fontSize="0.75rem" color="#6c757d">
-                        Mapa hal targowych i rozmieszczenie stoisk
-                      </CustomTypography>
-                      <CustomButton
-                        bgColor="transparent"
-                        textColor="#6F87F6"
-                        width="auto"
-                        height="36px"
-                        fontSize="0.75rem"
-                        sx={{ border: '1px solid #6F87F6' }}
-                      >
-                        Zobacz plan
-                      </CustomButton>
-                    </Box>
-
-                    <Box className={styles.infoCard}>
-                      <CustomTypography fontSize="0.875rem" fontWeight={500}>
-                        Harmonogram wydarzenia
-                      </CustomTypography>
-                      <CustomTypography fontSize="0.75rem" color="#6c757d">
-                        Szczegółowy plan dni targowych
-                      </CustomTypography>
-                      <CustomButton
-                        bgColor="transparent"
-                        textColor="#6F87F6"
-                        width="auto"
-                        height="36px"
-                        fontSize="0.75rem"
-                        sx={{ border: '1px solid #6F87F6' }}
-                      >
-                        Zobacz harmonogram
-                      </CustomButton>
-                    </Box>
-                  </Box>
-                </Box>
+                {exhibition && (
+                  <TradeInfo exhibitionId={exhibition.id} />
+                )}
               </TabPanel>
 
               <TabPanel value={activeTab} index={2}>
-                <Box className={styles.tabContent}>
-                  <CustomTypography fontSize="1.25rem" fontWeight={600}>
-                    Zaproszenia
-                  </CustomTypography>
-                  <Box className={styles.invitationsSection}>
-                    <CustomTypography fontSize="1rem">
-                      Zarządzaj zaproszeniami dla wystawców i gości
-                    </CustomTypography>
-                    
-                    <Box className={styles.invitationCard}>
-                      <CustomTypography fontSize="0.875rem" fontWeight={500}>
-                        Zaproszenia dla wystawców
-                      </CustomTypography>
-                      <CustomTypography fontSize="0.75rem" color="#6c757d">
-                        Wyślij zaproszenia do zarejestrowanych wystawców
-                      </CustomTypography>
-                      <CustomButton
-                        bgColor="#6F87F6"
-                        textColor="#fff"
-                        width="auto"
-                        height="36px"
-                        fontSize="0.75rem"
-                      >
-                        Wyślij zaproszenia
-                      </CustomButton>
-                    </Box>
-
-                    <Box className={styles.invitationCard}>
-                      <CustomTypography fontSize="0.875rem" fontWeight={500}>
-                        Zaproszenia VIP
-                      </CustomTypography>
-                      <CustomTypography fontSize="0.75rem" color="#6c757d">
-                        Specjalne zaproszenia dla gości VIP
-                      </CustomTypography>
-                      <CustomButton
-                        bgColor="transparent"
-                        textColor="#6F87F6"
-                        width="auto"
-                        height="36px"
-                        fontSize="0.75rem"
-                        sx={{ border: '1px solid #6F87F6' }}
-                      >
-                        Zarządzaj VIP
-                      </CustomButton>
-                    </Box>
-
-                    <Box className={styles.invitationCard}>
-                      <CustomTypography fontSize="0.875rem" fontWeight={500}>
-                        Szablony zaproszeń
-                      </CustomTypography>
-                      <CustomTypography fontSize="0.75rem" color="#6c757d">
-                        Edytuj i personalizuj szablony zaproszeń  
-                      </CustomTypography>
-                      <CustomButton
-                        bgColor="transparent"
-                        textColor="#6F87F6"
-                        width="auto"
-                        height="36px"
-                        fontSize="0.75rem"
-                        sx={{ border: '1px solid #6F87F6' }}
-                      >
-                        Edytuj szablony
-                      </CustomButton>
-                    </Box>
-                  </Box>
-                </Box>
+                {exhibition && (
+                  <Invitations exhibitionId={exhibition.id} />
+                )}
               </TabPanel>
 
               <TabPanel value={activeTab} index={3}>
