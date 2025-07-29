@@ -62,20 +62,20 @@ const Invitations: React.FC<InvitationsProps> = ({ exhibitionId }) => {
       const response = await getInvitations(exhibitionId, token);
       if (response.data?.invitations?.length > 0) {
         const invitation = response.data.invitations.find(inv => inv.invitation_type === 'vip') || response.data.invitations[0];
-        setInvitationData({
-          ...invitationData,
+        setInvitationData(prev => ({
+          ...prev,
           ...(invitation.id && { id: invitation.id }),
           invitation_type: invitation.invitation_type,
           title: invitation.title,
           content: invitation.content,
-          greeting: invitation.greeting || invitationData.greeting,
+          greeting: invitation.greeting || prev.greeting,
           company_info: invitation.company_info || '',
-          contact_person: invitation.contact_person || invitationData.contact_person,
-          contact_email: invitation.contact_email || invitationData.contact_email,
-          contact_phone: invitation.contact_phone || invitationData.contact_phone,
+          contact_person: invitation.contact_person || prev.contact_person,
+          contact_email: invitation.contact_email || prev.contact_email,
+          contact_phone: invitation.contact_phone || prev.contact_phone,
           booth_info: invitation.booth_info || '',
-          special_offers: invitation.special_offers || invitationData.special_offers
-        });
+          special_offers: invitation.special_offers || prev.special_offers
+        }));
       }
     } catch (error: any) {
       console.error('Error loading invitation data:', error);
