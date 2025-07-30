@@ -132,6 +132,33 @@ export const addUser = async (userData: AddUserPayload, token: string): Promise<
     return response.json();
 };
 
+//
+export interface AddUserPayloadByAdmin {
+  first_name: string;
+  last_name: string;
+  email: string;
+  phone: string | null;
+}
+
+
+export const addUserByAdmin = async (userData: AddUserPayloadByAdmin, token: string): Promise<any> => {
+    const response = await apiCall(`${config.API_BASE_URL}/api/v1/users`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+        },
+        body: JSON.stringify(userData),
+    });
+
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Błąd podczas dodawania użytkownika');
+    }
+
+    return response.json();
+};
+
 // Exhibitors API
 export const fetchExhibitors = async (token: string): Promise<Exhibitor[]> => {
   const response = await apiCall(`${config.API_BASE_URL}/api/v1/exhibitors`, {

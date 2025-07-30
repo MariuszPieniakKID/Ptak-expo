@@ -261,6 +261,110 @@ const initializeDatabase = async () => {
       CREATE INDEX IF NOT EXISTS idx_exhibitor_branding_files_type ON exhibitor_branding_files(file_type)
     `);
 
+    console.log('🔍 Creating trade_info table...');
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS trade_info (
+        id SERIAL PRIMARY KEY,
+        exhibition_id INTEGER REFERENCES exhibitions(id) ON DELETE CASCADE,
+        exhibitor_start_time TIME,
+        exhibitor_end_time TIME,
+        visitor_start_time TIME,
+        visitor_end_time TIME,
+        guest_service_phone VARCHAR(50),
+        security_phone VARCHAR(50),
+        build_type VARCHAR(100),
+        trade_message TEXT,
+        created_at TIMESTAMPTZ DEFAULT NOW(),
+        updated_at TIMESTAMPTZ DEFAULT NOW(),
+        UNIQUE(exhibition_id)
+      )
+    `);
+
+    console.log('🔍 Creating trade_build_days table...');
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS trade_build_days (
+        id SERIAL PRIMARY KEY,
+        trade_info_id INTEGER REFERENCES trade_info(id) ON DELETE CASCADE,
+        build_date DATE NOT NULL,
+        start_time TIME,
+        end_time TIME,
+        created_at TIMESTAMPTZ DEFAULT NOW()
+      )
+    `);
+
+    console.log('🔍 Creating trade_spaces table...');
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS trade_spaces (
+        id SERIAL PRIMARY KEY,
+        trade_info_id INTEGER REFERENCES trade_info(id) ON DELETE CASCADE,
+        space_name VARCHAR(255),
+        hall_name VARCHAR(255),
+        created_at TIMESTAMPTZ DEFAULT NOW()
+      )
+    `);
+
+    console.log('🔍 Creating invitation_templates table...');
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS invitation_templates (
+        id SERIAL PRIMARY KEY,
+        exhibition_id INTEGER REFERENCES exhibitions(id) ON DELETE CASCADE,
+        invitation_type VARCHAR(100) DEFAULT 'standard',
+        title VARCHAR(255) NOT NULL,
+        content TEXT NOT NULL,
+        greeting TEXT,
+        company_info TEXT,
+        contact_person VARCHAR(255),
+        contact_email VARCHAR(255),
+        contact_phone VARCHAR(50),
+        booth_info TEXT,
+        special_offers TEXT,
+        is_template BOOLEAN DEFAULT false,
+        is_active BOOLEAN DEFAULT true,
+        created_by INTEGER REFERENCES users(id),
+        created_at TIMESTAMPTZ DEFAULT NOW(),
+        updated_at TIMESTAMPTZ DEFAULT NOW()
+      )
+    `);
+
+    console.log('🔍 Creating invitation_recipients table...');
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS invitation_recipients (
+        id SERIAL PRIMARY KEY,
+        invitation_template_id INTEGER REFERENCES invitation_templates(id) ON DELETE CASCADE,
+        recipient_email VARCHAR(255) NOT NULL,
+        recipient_name VARCHAR(255),
+        recipient_company VARCHAR(255),
+        sent_at TIMESTAMPTZ,
+        opened_at TIMESTAMPTZ,
+        responded_at TIMESTAMPTZ,
+        response_status VARCHAR(50) DEFAULT 'pending',
+        created_at TIMESTAMPTZ DEFAULT NOW()
+      )
+    `);
+
+    console.log('🔍 Creating indexes for trade_info and invitations tables...');
+    await pool.query(`
+      CREATE INDEX IF NOT EXISTS idx_trade_info_exhibition_id ON trade_info(exhibition_id)
+    `);
+    await pool.query(`
+      CREATE INDEX IF NOT EXISTS idx_trade_build_days_trade_info_id ON trade_build_days(trade_info_id)
+    `);
+    await pool.query(`
+      CREATE INDEX IF NOT EXISTS idx_trade_spaces_trade_info_id ON trade_spaces(trade_info_id)
+    `);
+    await pool.query(`
+      CREATE INDEX IF NOT EXISTS idx_invitations_exhibition_id ON invitation_templates(exhibition_id)
+    `);
+    await pool.query(`
+      CREATE INDEX IF NOT EXISTS idx_invitations_type ON invitation_templates(invitation_type)
+    `);
+    await pool.query(`
+      CREATE INDEX IF NOT EXISTS idx_invitation_recipients_invitation_id ON invitation_recipients(invitation_template_id)
+    `);
+    await pool.query(`
+      CREATE INDEX IF NOT EXISTS idx_invitation_recipients_email ON invitation_recipients(recipient_email)
+    `);
+
     console.log('🔍 Inserting admin user...');
     await pool.query(`
       INSERT INTO users (email, password_hash, role, first_name, last_name) 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect} from 'react';
 import {
   Dialog,
   DialogActions,
@@ -12,13 +12,12 @@ import {
   Typography,
   Alert,
   IconButton,
-  Box
+  Box,
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
-import { addUser, AddUserPayload } from '../services/api';
+import { addUser, AddUserPayload } from '../../services/api';
 import styles from './AddUserModal.module.scss';
-import UsersPageIcon from '../assets/mask-group-5@2x.png';
-
+import UsersPageIcon from '../../assets/mask-group-5@2x.png';
 interface AddUserModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -26,7 +25,12 @@ interface AddUserModalProps {
   token: string;
 }
 
-const AddUserModal: React.FC<AddUserModalProps> = ({ isOpen, onClose, onUserAdded, token }) => {
+const AddUserModal: React.FC<AddUserModalProps> = ({ 
+  isOpen, 
+  onClose, 
+  onUserAdded, 
+  token
+}) => {
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
@@ -39,21 +43,36 @@ const AddUserModal: React.FC<AddUserModalProps> = ({ isOpen, onClose, onUserAdde
     email: '',
     password: '',
   });
+
   const [loading, setLoading] = useState(false);
   const [apiError, setApiError] = useState('');
 
   // Reset form when modal opens/closes
   useEffect(() => {
     if (isOpen) {
-      setFormData({ fullName: '', email: '', phone: '', password: '', isAdmin: false });
-      setErrors({ fullName: '', email: '', password: '' });
+      setFormData({ 
+        fullName: '', 
+        email: '', 
+        phone: '', 
+        password: '', 
+        isAdmin: false 
+      });
+      setErrors({ 
+        fullName: '', 
+        email: '', 
+        password: '' 
+      });
       setApiError('');
     }
   }, [isOpen]);
 
   const validate = (): boolean => {
     let isValid = true;
-    const newErrors = { fullName: '', email: '', password: '' };
+    const newErrors = { 
+      fullName: '', 
+      email: '', 
+      password: '', 
+    };
 
     if (!formData.fullName.trim()) {
       newErrors.fullName = 'Imię i nazwisko jest wymagane.';
@@ -83,13 +102,17 @@ const AddUserModal: React.FC<AddUserModalProps> = ({ isOpen, onClose, onUserAdde
     return isValid;
   };
 
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
     setFormData(prev => ({
       ...prev,
       [name]: type === 'checkbox' ? checked : value,
     }));
+    console.log("Hello");
+  
   };
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -120,12 +143,19 @@ const AddUserModal: React.FC<AddUserModalProps> = ({ isOpen, onClose, onUserAdde
   };
 
   return (
-    <Dialog open={isOpen} onClose={onClose} fullWidth maxWidth="sm">
+    <Dialog open={isOpen} onClose={onClose} fullWidth maxWidth="sm"  sx={{
+    '& .MuiPaper-root': {
+      backgroundColor: '#f5f6f7',   
+      borderRadius:'20px',
+      maxWidth:'600px',
+      padding:'24px 50px',
+    },
+  }}>
         <DialogTitle className={styles.dialogTitle}>
             <img src={UsersPageIcon} alt="Dodaj Użytkownika" className={styles.titleIcon} />
             <Box>
-                <Typography variant="h6">Użytkownicy</Typography>
-                <Typography variant="body2">Dodaj użytkownika</Typography>
+                <Typography variant="h6" className={styles.modalTitle}>Użytkownicy</Typography>
+                <Typography variant="body2" className={styles.helperTitle}>Dodaj użytkownika</Typography>
             </Box>
             <IconButton onClick={onClose} sx={{ position: 'absolute', right: 8, top: 8 }}>
             <CloseIcon />
@@ -134,7 +164,8 @@ const AddUserModal: React.FC<AddUserModalProps> = ({ isOpen, onClose, onUserAdde
         <form onSubmit={handleSubmit}>
             <DialogContent className={styles.dialogContent}>
             {apiError && <Alert severity="error" sx={{ mb: 2 }}>{apiError}</Alert>}
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <Box sx={{ display: 'flex', flexDirection: 'row', gap: 2 }}>
+            
                 <TextField
                     name="fullName"
                     label="Imię i nazwisko"
@@ -146,7 +177,44 @@ const AddUserModal: React.FC<AddUserModalProps> = ({ isOpen, onClose, onUserAdde
                     required
                     disabled={loading}
                 />
-                <Box sx={{ display: 'flex', gap: 2 }}>
+                  <TextField
+                        name="email"
+                        label="Adres E-mail"
+                        type="email"
+                        value={formData.email}
+                        onChange={handleInputChange}
+                        error={!!errors.email}
+                        helperText={errors.email}
+                        fullWidth
+                        required
+                        disabled={loading}
+                    /> 
+                    <TextField
+                        name="phone"
+                        label="Telefon"
+                        value={formData.phone}
+                        onChange={handleInputChange}
+                        fullWidth
+                        disabled={loading}
+                    />
+
+            </Box>
+            {/* <Box
+              sx={{
+                width: '100%',
+                height: '2px',
+                backgroundColor:'#6F87F6',
+                borderRadius: '3px',
+                mb: 2, // margines dolny pod linią
+                }}
+              />
+          {/* Tekst pod linią */}
+            {/* <CustomTypography className={styles.additionalInfo}> 
+            * Na podany e-mail użytkownik otrzyma hasło i dane dostępowe do aplikacji
+          </CustomTypography> */} 
+ 
+
+                {/* <Box sx={{ display: 'flex', gap: 2 }}>
                     <TextField
                         name="email"
                         label="Adres E-mail"
@@ -167,7 +235,7 @@ const AddUserModal: React.FC<AddUserModalProps> = ({ isOpen, onClose, onUserAdde
                         fullWidth
                         disabled={loading}
                     />
-                </Box>
+                </Box> */}
                 <TextField
                     name="password"
                     label="Hasło"
@@ -191,13 +259,14 @@ const AddUserModal: React.FC<AddUserModalProps> = ({ isOpen, onClose, onUserAdde
                     }
                     label="Nadaj uprawnienia administratora"
                 />
-            </Box>
+  
             <Typography variant="caption" display="block" className={styles.infoText}>
                 *Użytkownik otrzyma wygenerowane hasło na podany e-mail wraz z danymi dostępowymi.
             </Typography>
+
             </DialogContent>
             <DialogActions>
-            <Button onClick={onClose} disabled={loading}>Anuluj</Button>
+            <Button onClick={onClose} disabled={loading}>Anuluj</Button> 
             <Button type="submit" variant="contained" disabled={loading}>
                 {loading ? <CircularProgress size={24} /> : 'Dodaj'}
             </Button>
@@ -208,3 +277,5 @@ const AddUserModal: React.FC<AddUserModalProps> = ({ isOpen, onClose, onUserAdde
 };
 
 export default AddUserModal; 
+
+
