@@ -150,7 +150,7 @@ const [apiError, setApiError] = useState('');
           setLoading(false);
         }
       },
-      [fullName,email,phone]
+      [fullName, email, phone, token, onUserAdded, onClose]
     );
   
 
