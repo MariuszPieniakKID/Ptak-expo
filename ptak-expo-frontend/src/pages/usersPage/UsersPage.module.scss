@@ -141,6 +141,8 @@
 }
 .leftSTable{
   padding-left:50px!important;
+  display:flex;
+  flex-direction: row;
   flex-wrap: nowrap;
   min-width: 150px!important;
 }
