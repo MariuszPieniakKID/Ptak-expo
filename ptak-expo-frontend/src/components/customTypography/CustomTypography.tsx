@@ -8,6 +8,7 @@ interface CustomTypographyProps {
   fontSize?:string;
   fontWeight?:number;
   color?: string;
+  component?: React.ElementType; 
 }
 
 const CustomTypography: React.FC<CustomTypographyProps> = ({ 

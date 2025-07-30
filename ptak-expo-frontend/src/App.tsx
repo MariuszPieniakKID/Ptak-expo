@@ -5,7 +5,7 @@ import { AuthProvider } from './contexts/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import LoginPage from './pages/loginPage/LoginPage';
 import DashboardPage from './pages/dashboardPage/DashboardPage';
-import UsersPage from './pages/UsersPage';
+import UsersPage from './pages/usersPage/UsersPage';
 import ExhibitorsPage from './pages/ExhibitorsPage';
 import EventsPage from './pages/EventsPage';
 import ExhibitorCardPage from './pages/ExhibitorCardPage';

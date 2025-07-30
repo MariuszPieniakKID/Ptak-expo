@@ -72,80 +72,80 @@ const DashboardPage: React.FC = () => {
     <>
     <Box className={styles.dashboardPage}>
       <Box>
-      <Box className={styles.dashboardNavigationContainer}>
-        <Box className={styles.header}>
-          <Menu/> 
-          <CustomButton 
-          disableRipple
-          textColor='#060606ff'
-          fontSize="0.75em;"
-          className={styles.logOutButton}
-          onClick={handleLogout}
-          icon={<LogoutIcon2 style={{ color: "#6F6F6F", height:"1.25em"}}/>} 
-          iconPosition="top" 
-          withBorder={false}
-          width="auto"
-          height="auto"
-          sx={{ 
-              backgroundColor:'transparent',
-              '&:hover': {
-                backgroundColor: 'transparent',
-                color: '#060606ff',
-              },
-            }}
-        >
-          Wyloguj
-          </CustomButton>
-          <Box className={styles.welcomeMessage}>
-            <Avatar 
-            src={UserAvatar} 
-            alt={user?.firstName || 'User'} 
-            className={styles.avatar} 
-            onClick={()=>console.log("")}
-            />
-            <Box> 
-              <CustomTypography className={styles.welcomeMessageTitle}> Dzień dobry, {user?.firstName || 'Użytkowniku'} 
-                <img
-                  src={Applause}
-                  alt='Applause'
-                  className={styles.applausepng}
-                 />
-              </CustomTypography>
-              <CustomTypography className={styles.welcomeMessageText}>Sprawdź co możesz dzisiaj zrobić!</CustomTypography>
+        <Box className={styles.dashboardNavigationContainer}>
+          <Box className={styles.header}>
+            <Menu/> 
+            <CustomButton 
+            disableRipple
+            textColor='#060606ff'
+            fontSize="0.75em;"
+            className={styles.logOutButton}
+            onClick={handleLogout}
+            icon={<LogoutIcon2 style={{ color: "#6F6F6F", height:"1.25em"}}/>} 
+            iconPosition="top" 
+            withBorder={false}
+            width="auto"
+            height="auto"
+            sx={{ 
+                backgroundColor:'transparent',
+                '&:hover': {
+                  backgroundColor: 'transparent',
+                  color: '#060606ff',
+                },
+              }}
+          >
+            Wyloguj
+            </CustomButton>
+            <Box className={styles.welcomeMessage}>
+              <Avatar 
+              src={UserAvatar} 
+              alt={user?.firstName || 'User'} 
+              className={styles.avatar} 
+              onClick={()=>console.log("")}
+              />
+              <Box> 
+                <CustomTypography className={styles.welcomeMessageTitle}> Dzień dobry, {user?.firstName || 'Użytkowniku'} 
+                  <img
+                    src={Applause}
+                    alt='Applause'
+                    className={styles.applausepng}
+                  />
+                </CustomTypography>
+                <CustomTypography className={styles.welcomeMessageText}>Sprawdź co możesz dzisiaj zrobić!</CustomTypography>
+              </Box>
             </Box>
           </Box>
         </Box>
-      </Box>
-      <Container   
-       maxWidth={false}  
-       sx={{ maxWidth: '78%' }}
-       className={styles.contentWrapper}
-       >
-        <Box 
-          sx={{ 
-            display: 'grid',
-            gridTemplateColumns: 'repeat(2, 1fr)',
-            minWidth: '100%',
-            gap: '1em',
-            '@media (max-width: 480px)': {
-             gridTemplateColumns: '1fr',
-             }
-          }}
-        > 
-          {dashboardItems.map((item: DashboardItem) => (
-            <Box key={item.title}>
-              <Card className={styles.card} onClick={handlers[item.handler]}>
-                <CardContent className={styles.cardContent}>
-                  <img src={item.icon} alt={item.title} className={styles.cardIcon} />
-                  <CustomTypography className={styles.cardTitle}>
-                    {item.title}
-                  </CustomTypography>
-                </CardContent>
-              </Card>
-            </Box>
-          ))}
-        </Box>
-      </Container>
+        <Container   
+        maxWidth={false}  
+        sx={{ maxWidth: '78%' }}
+        className={styles.contentWrapper}
+        >
+          <Box 
+            sx={{ 
+              display: 'grid',
+              gridTemplateColumns: 'repeat(2, 1fr)',
+              minWidth: '100%',
+              gap: '1em',
+              '@media (max-width: 480px)': {
+              gridTemplateColumns: '1fr',
+              }
+            }}
+          > 
+            {dashboardItems.map((item: DashboardItem) => (
+              <Box key={item.title}>
+                <Card className={styles.card} onClick={handlers[item.handler]}>
+                  <CardContent className={styles.cardContent}>
+                    <img src={item.icon} alt={item.title} className={styles.cardIcon} />
+                    <CustomTypography className={styles.cardTitle}>
+                      {item.title}
+                    </CustomTypography>
+                  </CardContent>
+                </Card>
+              </Box>
+            ))}
+          </Box>
+        </Container>
       </Box>
       <Box className={styles.footer}>
         <CustomTypography className={styles.cc}>

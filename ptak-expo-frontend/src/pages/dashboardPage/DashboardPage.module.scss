@@ -102,10 +102,9 @@
   width: 2.118em !important; // 35px
   height: 2.118em !important; // 35x
   padding-right: 0.5em;
-  opacity:0.8;
   cursor: pointer;
   &:hover {
-    opacity:1;
+    transform: scale(1.1);
   }
 }
 .applausepng{

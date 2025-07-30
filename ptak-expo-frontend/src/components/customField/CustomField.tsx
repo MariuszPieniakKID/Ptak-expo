@@ -21,6 +21,8 @@ type CustomFieldProps = {
   borderColor?: string; 
   activeBorderColor?:string;
   className?: string;
+  name?:string;
+  errorMessageClassName?: string;
 };
 
 const CustomField: FC<CustomFieldProps> = ({ 
@@ -37,6 +39,7 @@ const CustomField: FC<CustomFieldProps> = ({
     borderColor='#D7D9DD',// default color
     activeBorderColor='#6F87F6',// default color
     className,
+    errorMessageClassName,
 }) => {
   const [focused, setFocused] = useState<boolean>(false);
   const [showPassword, setShowPassword] = useState(false); 
@@ -95,7 +98,7 @@ const CustomField: FC<CustomFieldProps> = ({
         }}
       />
       {!error && (focused || value) && label && (<span className={styles.helperText}>{label}</span>)}
-      {error && <span className={styles.errorMessage}>{errorMessage?errorMessage:"?????"}</span>}
+      {error && <span className={`${styles.errorMessage} ${errorMessageClassName ?? ''}`}>{errorMessage ? errorMessage : "?????"}</span>}
     </div>
   );
 };

@@ -27,7 +27,7 @@ const LoginPage: React.FC = () => {
 
   const validateEmail = (email: string) => {
     if (!email) {
-      setEmailError('Adres email jesy wymnagany');
+      setEmailError('Adres email jesy wymagany');
       return false;
     }
     const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
