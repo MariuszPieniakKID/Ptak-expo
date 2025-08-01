@@ -45,6 +45,7 @@ const CustomNavLink: FunctionComponent<{
       component={NavLink}
       to={to}
       className={match ? `${styles.navButton} ${styles.active}` : styles.navButton}
+      disableRipple
       sx={{ 
         flexDirection: 'column', 
         color: 'inherit', 

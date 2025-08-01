@@ -214,7 +214,7 @@ display:flex;
   }
 }
 ._pageTitle{
-  color:$color-underlining!important;
+  color:$color-mediumslateblue!important; 
   margin: auto auto !important;
   font-size: 14px !important;
   font-weight: 600 !important;
@@ -234,10 +234,11 @@ display:flex;
   gap: 0.5em;
   text-align: center;
   cursor: pointer;
+  align-items: center;
 }
 ._addExhibitorIcon{
-  width: 20px;
-  height: 20px;
+ width: 11.45px;
+  height: 11.64px;
   padding-right: 5px;
   fill: #6f6f6f; 
   transition: fill 0.2s, transform 0.2s;
@@ -318,13 +319,18 @@ display:flex;
   flex-direction: column;;
 }
 ._avatarTableCell{
-  width:35px!important;
-  height:35px !important;
+  width:1.2em!important;
+  height:1.2em!important;
+  font-size:0.8em!important;
+  background-color: transparent!important;
+  color:#6F87F6 !important;
+  border:#6F87F6 solid 2px !important;
+  margin: auto 0px;
 }
 ._seeExhibitorCard{
   font-size: $font-size-sm !important;
   font-weight: 300!important;
-  color:$color-almostblack!important;
+  color:$color-darkslategray!important;
   text-decoration: underline;
   cursor:pointer;
     @include for-phone-only {
@@ -333,7 +339,7 @@ display:flex;
 }
 ._seeExhibitorCardIcon{
    cursor:pointer;
-   height: 1em!important;
+   height: 0.8123em !important;
    width: auto!important;
 }
 ._boxWithHover{
@@ -342,11 +348,11 @@ display:flex;
   &:hover {
     ._seeExhibitorCard {
       font-weight: 500;
-      color: $color-blue;
+      color: $color-blue!important;
     }
     ._seeExhibitorCardIcon {
-      color: $color-blue;
-      fill: $color-blue;
+      color: $color-blue!important;
+      fill: $color-blue!important;
       transition: all 0.2s ease;
     }
   }
@@ -463,4 +469,27 @@ display:flex;
   letter-spacing: 0.00938em;
   font-size: 0.875em;
   font-weight: 300;
+}
+.arrowUpIcon{
+  margin-top: 2px;
+}
+.arrowDownIcon{
+  margin-top: 2px;
+transform: rotate(180deg);
+}
+.leftSTable{
+  justify-content: space-between;
+}
+.doubleArrow{
+  display:flex;
+  padding-right:0.5em;
+}
+.titleAndFilterContainer{
+  display:flex;
+  flex-direction: row;
+  width:100%;
+  vertical-align: middle;
+}
+.titleTableWithFilter{
+  margin-right: 2em;
 }

@@ -39,6 +39,7 @@ const CustomNavLinkMobilke: FunctionComponent<{
       onClick={(e) => {e.currentTarget.blur()}}
       className={match ? `${styles.navButtonm} ${styles.active}` : styles.navButtonm}
       sx={{ }}
+      disableRipple
       startIcon={React.cloneElement(startIcon, { style: {fill: 'currentColor',paddingLeft:'0.6em'} })}
     >
       <span  className={styles.buttonMobileText}>{children}</span>

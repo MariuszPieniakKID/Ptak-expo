@@ -119,7 +119,9 @@
   color:$color-almostblack !important;
 
   font-family: $font-open-sans !important;
-    padding:0px!important;
+  padding:0px!important;
+  text-wrap-mode: nowrap;
+  padding-right: 0.5em!important;
 }
 
 .avatarCell {
@@ -411,10 +413,12 @@ display:flex;
   gap: 0.5em;
   text-align: center;
   cursor: pointer;
+  align-items: center;
+
 }
 .addUserIcon{
-  width: 20px;
-  height: 20px;
+  width: 11.45px;
+  height: 11.64px;
   padding-right: 5px;
   fill: #6f6f6f; 
   transition: fill 0.2s, transform 0.2s;
@@ -457,4 +461,117 @@ color:$color-darkslategray!important;
   font-weight: 100!important;
   font-size: 11px!important;
   margin:auto !important;
+}
+
+
+//Action button
+.textActionButton{
+  font-size: $font-size-sm !important;
+  font-weight: 300!important;
+  color:$color-darkslategray!important; 
+  text-decoration: underline;
+  cursor:pointer;
+    @include for-phone-only {
+    display:none;
+  }
+}
+.iconActionButton{
+   cursor:pointer;
+   width: 14.17px!important;
+   height: 7.77px!important;
+}
+.actionButtonWithHover{
+    cursor: pointer; 
+ 
+  &:hover {
+    .textActionButton {
+      font-weight: 500;
+      color: $color-blue !important;
+    }
+    .iconActionButton {
+      color: $color-blue!important;
+      fill: $color-blue !important;
+      transition: all 0.2s ease !important;
+    }
+  }
+}
+.textActionButton {
+  transition: all 0.2s ease;
+
+}
+
+.iconActionButton {
+  transition: all 0.2s ease;
+}
+
+
+.noEffectsButton {
+  background-color: transparent !important;
+  outline: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  transition: none !important;
+  
+  &:hover {
+    background-color: transparent !important; 
+    
+
+    svg {
+      color: $color-blue !important; 
+    }
+  }
+
+  &:active,
+  &:focus,
+  &:visited,
+  &:focus-visible {
+    background-color: transparent !important;
+    box-shadow: none !important;
+    outline: none !important;
+  }
+}
+.actionButtons{
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  justify-content: right;
+
+  
+  .MuiIconButton-root {
+    padding: $spacing-sm;
+    border-radius: $border-radius-sm;
+    transition: $transition-normal;
+    
+    @include for-phone-only {
+      padding: $spacing-xs;
+    }
+    
+    &:hover {
+      background-color: $color-gainsboro-100;
+    }
+  }
+}
+
+.arrowUpIcon{
+  margin-top: 2px;
+}
+.arrowDownIcon{
+  margin-top: 2px;
+transform: rotate(180deg);
+}
+.leftSTable{
+  justify-content: space-between;
+}
+.doubleArrow{
+  display:flex;
+  padding-right:0.5em;
+}
+.titleAndFilterContainer{
+  display:flex;
+  flex-direction: row;
+  width:100%;
+  vertical-align: middle;
+}
+.titleTableWithFilter{
+  margin-right: 2em;
 }

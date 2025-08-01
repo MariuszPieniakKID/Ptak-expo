@@ -27,8 +27,6 @@ import {
   Alert,
   useMediaQuery,
 } from '@mui/material';
-import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
-import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { ReactComponent as LogoutIcon } from '../../assets/log-out.svg';
 import styles from './ExhibitorsPage.module.scss';
@@ -36,8 +34,9 @@ import ExhibitorsPageIcon from '../../assets/mask-group-6@2x.png';
 import { ReactComponent as BackIcon } from '../../assets/back.svg';
 import UserAvatar from '../../assets/7bb764a0137abc7a8142b6438e529133@2x.png';
 import Applause from '../../assets/applause.png';
-import { ReactComponent as UsersIcon } from '../../assets/group-30485.svg';
-import VisibilityIcon from '@mui/icons-material/Visibility';
+import { ReactComponent as UsersIcon } from '../../assets/addIcon.svg';
+import { ReactComponent as ArrowIcon } from '../../assets/arrowUpIcon.svg';
+import { ReactComponent as EyeIcon } from '../../assets/eyeIcon.svg';
 
 const ExhibitorsPage: React.FC = () => {
   const [exhibitors, setExhibitors] = useState<Exhibitor[]>([]);
@@ -241,7 +240,7 @@ const ExhibitorsPage: React.FC = () => {
             <Box className={styles._titleTableContainer}>
               <Box className={styles._userTitle}>
                 <img src={ExhibitorsPageIcon} alt="Wystawcy" className={styles._titleIcon} />
-                <CustomTypography className={styles._pageTitle}>Baza wystawców</CustomTypography>              
+                <CustomTypography className={styles._pageTitle}>Wystawcy</CustomTypography>              
               </Box>
               <Box className={styles._path}>Home / Baza wystawców</Box>
             </Box>
@@ -274,40 +273,31 @@ const ExhibitorsPage: React.FC = () => {
                       <CustomTypography 
                       fontSize="0.875em" 
                       fontWeight={300} 
-                      color="#6F6F6F" 
+                      color='#7F8D8E' 
                       className={styles._leftSTable} 
-                      component="span"
+                      component="div"
                       >
-                        Nazwa Wystawcy{' '}
                          {sortConfig.key === 'companyName' && sortConfig.direction === 'asc' && (
-                            <>
-                              <span style={{ fontWeight: 300, marginLeft: 2 }}>A-Z</span>
-                              <ArrowUpwardIcon 
-                                fontSize="small" 
-                                sx={{ verticalAlign: 'middle', color: '#6F87F6', scale: '0.9' }} 
-                              />
-                            </>
+                            <div className={styles.titleAndFilterContainer}>
+                              <div className={styles.titleTableWithFilter}>Nazwa Wystawcy A-Z</div>
+                              <ArrowIcon fontSize="small" className={styles.arrowUpIcon}/>
+                            </div>
                           )}
                           {sortConfig.key === 'companyName' && sortConfig.direction === 'desc' && (
-                            <>
-                              <span style={{ fontWeight: 300, marginLeft: 2 }}>Z-A</span>
-                              <ArrowDownwardIcon 
-                                fontSize="small" 
-                                sx={{ verticalAlign: 'middle', color: '#6F87F6', scale: '0.9' }} 
-                              />
-                            </>
+                            <div className={styles.titleAndFilterContainer}>
+                               <div className={styles.titleTableWithFilter}>Nazwa Wystawcy Z-A</div>
+                               <ArrowIcon fontSize="small" className={styles.arrowDownIcon}/>
+                            </div>
                           )}
                           {sortConfig.key !== 'companyName' && (
-                            <>
-                              <ArrowUpwardIcon 
-                                fontSize="small" 
-                                sx={{ verticalAlign: 'middle', color: '#6F87F6', scale: '0.6' }} 
-                              />
-                              <ArrowDownwardIcon 
-                                fontSize="small" 
-                                sx={{ verticalAlign: 'middle', color: '#6F87F6', scale: '0.6', marginLeft: -1 }} 
-                              />
-                            </>
+                            <div className={styles.titleAndFilterContainer}>
+                                <div className={styles.titleTableWithFilter} >Nazwa Wystawcy </div>
+                                <div className={styles.doubleArrow}>
+                                    <ArrowIcon className={styles.arrowUpIcon}/>
+                                    <ArrowIcon className={styles.arrowDownIcon}/>
+                                </div>
+                            </div>
+
                           )}
                       </CustomTypography>
                     </TableCell>
@@ -319,41 +309,32 @@ const ExhibitorsPage: React.FC = () => {
                       <CustomTypography 
                       fontSize="0.875em" 
                       fontWeight={300} 
-                      color={'#6F6F6F'} 
+                      color={'#7F8D8E'} 
                       className={styles._firstRow}
                       sx={{ minWidth: '2em'}}
                       >
-                        Najbliższe wydarzenie{' '}
-                        {sortConfig.key === 'eventNames' && sortConfig.direction === 'asc' && (
-                            <>
-                              <span style={{ fontWeight: 300, marginLeft: 2 }}>A-Z</span>
-                              <ArrowUpwardIcon 
-                                fontSize="small" 
-                                sx={{ verticalAlign: 'middle', color: '#6F87F6', scale: '0.9' }} 
-                              />
-                            </>
+                       {sortConfig.key === 'eventNames' && sortConfig.direction === 'asc' && (
+                            <div className={styles.titleAndFilterContainer}>
+                              <div className={styles.titleTableWithFilter}>Najbliższe wydarzenie A-Z</div>
+                              <ArrowIcon fontSize="small" className={styles.arrowUpIcon}/>
+                            </div>
                           )}
                           {sortConfig.key === 'eventNames' && sortConfig.direction === 'desc' && (
-                            <>
-                              <span style={{ fontWeight: 300, marginLeft: 2 }}>Z-A</span>
-                              <ArrowDownwardIcon 
-                                fontSize="small" 
-                                sx={{ verticalAlign: 'middle', color: '#6F87F6', scale: '0.9' }} 
-                              />
-                            </>
+                            <div className={styles.titleAndFilterContainer}>
+                               <div className={styles.titleTableWithFilter}>Najbliższe wydarzenie Z-A</div>
+                               <ArrowIcon fontSize="small" className={styles.arrowDownIcon}/>
+                            </div>
                           )}
                           {sortConfig.key !== 'eventNames' && (
-                            <>
-                              <ArrowUpwardIcon 
-                                fontSize="small" 
-                                sx={{ verticalAlign: 'middle', color: '#6F87F6', scale: '0.6' }} 
-                              />
-                              <ArrowDownwardIcon 
-                                fontSize="small" 
-                                sx={{ verticalAlign: 'middle', color: '#6F87F6', scale: '0.6', marginLeft: -1 }} 
-                              />
-                            </>
-                          )}
+                            <div className={styles.titleAndFilterContainer}>
+                                <div className={styles.titleTableWithFilter} >Najbliższe wydarzenie </div>
+                                <div className={styles.doubleArrow}>
+                                    <ArrowIcon className={styles.arrowUpIcon}/>
+                                    <ArrowIcon className={styles.arrowDownIcon}/>
+                                </div>
+                            </div>
+
+                        )}
                       </CustomTypography>
                     </TableCell>
                     <TableCell 
@@ -361,36 +342,33 @@ const ExhibitorsPage: React.FC = () => {
                       style={{ cursor: 'pointer', userSelect: 'none' }}
                       onClick={() => handleSort('nearestEventDate')}
                     >
-                      <CustomTypography fontSize="0.875em" fontWeight={300} color={'#6F6F6F'} className={styles._firstRow}>
-                        Data wydarzenia{' '}
-                        {sortConfig.key === 'nearestEventDate' && sortConfig.direction === 'asc' && (
-                              <ArrowUpwardIcon 
-                                fontSize="small" 
-                                sx={{ verticalAlign: 'middle', color: '#6F87F6', scale: '0.9' }} 
-                              />
+                      <CustomTypography fontSize="0.875em" fontWeight={300} color={'#7F8D8E'} className={styles._firstRow}>
+                          {sortConfig.key === 'nearestEventDate' && sortConfig.direction === 'asc' && (
+                            <div className={styles.titleAndFilterContainer}>
+                              <div className={styles.titleTableWithFilter}>Data wydarzenia</div>
+                              <ArrowIcon fontSize="small" className={styles.arrowUpIcon}/>
+                            </div>
                           )}
                           {sortConfig.key === 'nearestEventDate' && sortConfig.direction === 'desc' && (
-                              <ArrowDownwardIcon 
-                                fontSize="small" 
-                                sx={{ verticalAlign: 'middle', color: '#6F87F6', scale: '0.9' }} 
-                              />
+                            <div className={styles.titleAndFilterContainer}>
+                               <div className={styles.titleTableWithFilter}>Data wydarzenia</div>
+                               <ArrowIcon fontSize="small" className={styles.arrowDownIcon}/>
+                            </div>
                           )}
                           {sortConfig.key !== 'nearestEventDate' && (
-                            <>
-                              <ArrowUpwardIcon 
-                                fontSize="small" 
-                                sx={{ verticalAlign: 'middle', color: '#6F87F6', scale: '0.6' }} 
-                              />
-                              <ArrowDownwardIcon 
-                                fontSize="small" 
-                                sx={{ verticalAlign: 'middle', color: '#6F87F6', scale: '0.6', marginLeft: -1 }} 
-                              />
-                            </>
-                          )}
+                            <div className={styles.titleAndFilterContainer}>
+                                <div className={styles.titleTableWithFilter} >Data wydarzenia</div>
+                                <div className={styles.doubleArrow}>
+                                    <ArrowIcon className={styles.arrowUpIcon}/>
+                                    <ArrowIcon className={styles.arrowDownIcon}/>
+                                </div>
+                            </div>
+
+                        )}
                       </CustomTypography>
                     </TableCell>
                     <TableCell className={styles._tableCell} sx={{width:'130px'}}>
-                      <CustomTypography fontSize="0.875em" fontWeight={300} color={'#6F6F6F'} className={styles._firstRow} sx={{width:'130px'}}>
+                      <CustomTypography fontSize="0.875em" fontWeight={300} color={'#7F8D8E'} className={styles._firstRow} sx={{width:'130px'}}>
                         Akcja:
                       </CustomTypography>
                     </TableCell>
@@ -405,35 +383,35 @@ const ExhibitorsPage: React.FC = () => {
                                     {getUserInitials(exhibitor.companyName)}
                             </Avatar>
                             <Box  className={styles._companyNameAndOuner}>
-                              <CustomTypography  fontSize="0.875rem" fontWeight={500} className={styles._textOverflow}>
+                              <CustomTypography  fontSize="0.875em" fontWeight={500} className={styles._textOverflow}>
                                 {exhibitor.companyName}
                               </CustomTypography>
-                              <CustomTypography fontSize="0.75rem" color="#6c757d" fontWeight={400} className={styles._textOverflow}>
+                              <CustomTypography fontSize="0.75em" color='#7F8D8E' fontWeight={400} className={styles._textOverflow}>
                                 {exhibitor.contactPerson}
                               </CustomTypography>
                             </Box>
                         </Box>
                       </TableCell>
                       <TableCell className={styles._tableCell}>
-                        <CustomTypography fontSize="0.875rem" fontWeight={500} className={styles._textOverflow}>
-                          {exhibitor.eventNames || 'Brak przypisanych wydarzeń'}
+                        <CustomTypography fontSize="0.8125em" fontWeight={500} className={styles._textOverflow}>
+                          {exhibitor.eventNames || '-'}
                         </CustomTypography>
                       </TableCell>
                       <TableCell 
                       className={styles._tableCell}
                       align="center">
-                        <CustomTypography fontSize="0.875rem" fontWeight={500} >
+                        <CustomTypography fontSize="0.8125em" fontWeight={500} >
                           {formatDate(exhibitor.nearestEventDate)}
                         </CustomTypography>
                       </TableCell>
                       <TableCell className={styles._tableCell} align="right">
+                        
                         <Box className={styles._actionButtons}>
-                          <Box display="flex" alignItems="center" gap={1}className={styles._boxWithHover}
-                          >
-                            <VisibilityIcon
+                          <Box display="flex" alignItems="center" gap={1} className={styles._boxWithHover}
+                          > <EyeIcon
                               onClick={() => handleViewExhibitorCard(exhibitor.id)}
-                              className={styles._seeExhibitorCardIcon}
-                            />
+                              className={styles._seeExhibitorCardIcon}/>
+                          
                             <CustomTypography
                               onClick={() => handleViewExhibitorCard(exhibitor.id)}
                               className={styles._seeExhibitorCard}
@@ -450,6 +428,7 @@ const ExhibitorsPage: React.FC = () => {
                             <DeleteIcon />
                           </IconButton>
                         </Box>
+
                       </TableCell>
                     </TableRow>
                   ))}
