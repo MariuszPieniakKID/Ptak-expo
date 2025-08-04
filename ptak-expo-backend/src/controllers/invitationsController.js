@@ -116,13 +116,8 @@ const saveInvitation = async (req, res) => {
       });
     }
 
-    const userId = req.user?.id;
-    if (!userId) {
-      return res.status(401).json({
-        success: false,
-        message: 'Błąd autoryzacji - brak danych użytkownika'
-      });
-    }
+    // Admin może tworzyć zaproszenia bez przypisywania do siebie
+    const userId = req.user?.id || null;
 
     console.log(`Creating/updating invitation for exhibition ${exhibitionId}...`);
     
@@ -174,7 +169,7 @@ const saveInvitation = async (req, res) => {
         values = [
           exhibitionId, invitation_type, title, content, greeting,
           company_info, contact_person, contact_email, contact_phone,
-          booth_info, special_offers, is_template, userId
+          booth_info, special_offers, is_template, null  // Nie przypisuj do konkretnego użytkownika
         ];
       }
 

@@ -15,7 +15,7 @@ const {
 } = require('../controllers/exhibitorBrandingController');
 
 // Import middleware
-const { verifyToken } = require('../middleware/auth');
+const { verifyToken, requireAdmin } = require('../middleware/auth');
 
 // Ensure temp upload directory exists
 const tempDir = path.join(__dirname, '../../uploads/temp');
@@ -41,12 +41,12 @@ const upload = multer({
   }
 });
 
-// Routes
-router.post('/upload', verifyToken, upload.single('file'), uploadBrandingFile);
-router.get('/:exhibitorId/:exhibitionId', verifyToken, getBrandingFiles);
-router.delete('/file/:fileId', verifyToken, deleteBrandingFile);
-router.get('/serve/:exhibitorId/:fileName', verifyToken, serveBrandingFile);
-router.get('/file-types', verifyToken, (req, res) => {
+// Routes (tylko admin)
+router.post('/upload', verifyToken, requireAdmin, upload.single('file'), uploadBrandingFile);
+router.get('/:exhibitorId/:exhibitionId', verifyToken, requireAdmin, getBrandingFiles);
+router.delete('/file/:fileId', verifyToken, requireAdmin, deleteBrandingFile);
+router.get('/serve/:exhibitorId/:fileName', verifyToken, requireAdmin, serveBrandingFile);
+router.get('/file-types', verifyToken, requireAdmin, (req, res) => {
   res.json({
     success: true,
     fileTypes: FILE_TYPES

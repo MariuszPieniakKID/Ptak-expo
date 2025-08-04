@@ -81,6 +81,15 @@ const login = async (req, res) => {
         console.log('🔍 User found:', user.email, 'role:', user.role);
         console.log('🔍 Stored password hash:', user.password_hash);
         
+        // Sprawdź czy użytkownik ma uprawnienia administratora
+        if (user.role !== 'admin') {
+          console.log('🔍 Access denied - user is not admin:', user.role);
+          return res.status(403).json({
+            success: false,
+            message: 'Dostęp tylko dla administratorów'
+          });
+        }
+        
         const isPasswordValid = await bcrypt.compare(password, user.password_hash);
         console.log('🔍 Password valid:', isPasswordValid);
 

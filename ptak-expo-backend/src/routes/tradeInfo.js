@@ -1,10 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const { saveTradeInfo, getTradeInfo } = require('../controllers/tradeInfoController');
-const { verifyToken } = require('../middleware/auth');
+const { verifyToken, requireAdmin } = require('../middleware/auth');
 
-// Routes for trade info
-router.post('/:exhibitionId', verifyToken, saveTradeInfo);
-router.get('/:exhibitionId', verifyToken, getTradeInfo);
+// Routes for trade info (tylko admin)
+router.post('/:exhibitionId', verifyToken, requireAdmin, saveTradeInfo);
+router.get('/:exhibitionId', verifyToken, requireAdmin, getTradeInfo);
 
 module.exports = router; 

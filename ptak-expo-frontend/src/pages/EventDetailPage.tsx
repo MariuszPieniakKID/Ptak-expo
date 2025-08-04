@@ -11,7 +11,8 @@ import {
   fetchExhibition, 
   Exhibition, 
   getBrandingFiles, 
-  BrandingFilesResponse 
+  BrandingFilesResponse,
+  deleteExhibition 
 } from '../services/api';
 import {
   Box,
@@ -65,6 +66,7 @@ const EventDetailPage: React.FC = () => {
   const [brandingFiles, setBrandingFiles] = useState<BrandingFilesResponse | null>(null);
   const [brandingLoading, setBrandingLoading] = useState<boolean>(false);
   const [brandingError, setBrandingError] = useState<string>('');
+  const [deleteLoading, setDeleteLoading] = useState<boolean>(false);
   const navigate = useNavigate();
   const { user, token, logout } = useAuth();
 
@@ -170,6 +172,49 @@ const EventDetailPage: React.FC = () => {
   const handleUploadError = useCallback((error: string) => {
     setBrandingError(error);
   }, []);
+
+  // Handle exhibition deletion
+  const handleDeleteExhibition = useCallback(async () => {
+    if (!exhibition || !token || !id) {
+      setError('Brak danych wydarzenia lub autoryzacji');
+      return;
+    }
+
+    const confirmed = window.confirm(
+      `Czy na pewno chcesz usunąć wydarzenie "${exhibition.name}"?\n\n` +
+      `⚠️ UWAGA: Ta operacja:\n` +
+      `• Usunie WSZYSTKIE dane wydarzenia z bazy danych\n` +
+      `• Usunie WSZYSTKIE pliki z dysku\n` +
+      `• Usunie wszystkich wystawców przypisanych do wydarzenia\n` +
+      `• Usunie wszystkie zaproszenia i informacje targowe\n\n` +
+      `Ta operacja jest NIEODWRACALNA!`
+    );
+
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      setDeleteLoading(true);
+      setError('');
+      
+      await deleteExhibition(parseInt(id), token);
+      
+      alert(`Wydarzenie "${exhibition.name}" zostało całkowicie usunięte.`);
+      navigate('/wydarzenia');
+      
+    } catch (err: any) {
+      console.error('Error deleting exhibition:', err);
+      setError(err.message || 'Błąd podczas usuwania wydarzenia');
+      
+      if (err.message.includes('401')) {
+        logout();
+        navigate('/login');
+      }
+    } finally {
+      setDeleteLoading(false);
+    }
+  }, [exhibition, token, id, navigate, logout]);
 
   if (loading) {
     return (
@@ -397,6 +442,37 @@ const EventDetailPage: React.FC = () => {
                     <CustomTypography fontSize="0.75rem" color="#6c757d">
                       Status: <strong>{exhibition.status}</strong>
                     </CustomTypography>
+                  </Box>
+                  
+                  {/* Delete Exhibition Button */}
+                  <Box sx={{ mt: 2 }}>
+                    <CustomButton
+                      onClick={handleDeleteExhibition}
+                      disabled={deleteLoading}
+                      bgColor="#dc3545"
+                      textColor="#fff"
+                      width="auto"
+                      height="36px"
+                      fontSize="0.75rem"
+                      sx={{
+                        '&:hover': {
+                          backgroundColor: '#c82333',
+                        },
+                        '&:disabled': {
+                          backgroundColor: '#6c757d',
+                          cursor: 'not-allowed',
+                        },
+                      }}
+                    >
+                      {deleteLoading ? (
+                        <>
+                          <CircularProgress size={16} sx={{ mr: 1, color: '#fff' }} />
+                          Usuwanie...
+                        </>
+                      ) : (
+                        '🗑️ Usuń wydarzenie'
+                      )}
+                    </CustomButton>
                   </Box>
                 </Box>
               </CardContent>

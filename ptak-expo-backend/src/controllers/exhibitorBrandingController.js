@@ -119,11 +119,11 @@ const uploadBrandingFile = async (req, res) => {
       });
     }
 
-    // Allow access if user is admin or is the exhibitor themselves
+    // Admin ma dostęp do wszystkich plików - nie sprawdzamy ownership
     const currentUser = req.user; // Set by verifyToken middleware
-    if (currentUser.role !== 'admin' && currentUser.id !== parseInt(exhibitorId)) {
+    if (currentUser.role !== 'admin') {
       return res.status(403).json({
-        error: 'Access denied. You can only manage your own files or must be an admin.'
+        error: 'Access denied. Only admins can manage branding files.'
       });
     }
 
@@ -284,15 +284,15 @@ const deleteBrandingFile = async (req, res) => {
       });
     }
 
-    // Get file info
+    // Get file info - admin ma dostęp do wszystkich plików
     const fileResult = await client.query(
-      'SELECT * FROM exhibitor_branding_files WHERE id = $1 AND exhibitor_id = $2',
-      [fileId, exhibitorId]
+      'SELECT * FROM exhibitor_branding_files WHERE id = $1',
+      [fileId]
     );
 
     if (fileResult.rows.length === 0) {
       return res.status(404).json({
-        error: 'File not found or access denied'
+        error: 'File not found'
       });
     }
 

@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { verifyToken } = require('../middleware/auth');
+const { verifyToken, requireAdmin } = require('../middleware/auth');
 const {
   getInvitations,
   saveInvitation, 
@@ -8,20 +8,20 @@ const {
   deleteInvitation
 } = require('../controllers/invitationsController');
 
-// Get invitations for specific exhibition
+// Get invitations for specific exhibition (tylko admin)
 // GET /api/v1/invitations/:exhibitionId
-router.get('/:exhibitionId', verifyToken, getInvitations);
+router.get('/:exhibitionId', verifyToken, requireAdmin, getInvitations);
 
-// Create or update invitation for exhibition
+// Create or update invitation for exhibition (tylko admin)
 // POST /api/v1/invitations/:exhibitionId
-router.post('/:exhibitionId', verifyToken, saveInvitation);
+router.post('/:exhibitionId', verifyToken, requireAdmin, saveInvitation);
 
-// Get single invitation by ID
+// Get single invitation by ID (tylko admin)
 // GET /api/v1/invitations/detail/:invitationId
-router.get('/detail/:invitationId', verifyToken, getInvitationById);
+router.get('/detail/:invitationId', verifyToken, requireAdmin, getInvitationById);
 
-// Delete invitation
+// Delete invitation (tylko admin)
 // DELETE /api/v1/invitations/detail/:invitationId
-router.delete('/detail/:invitationId', verifyToken, deleteInvitation);
+router.delete('/detail/:invitationId', verifyToken, requireAdmin, deleteInvitation);
 
 module.exports = router; 
