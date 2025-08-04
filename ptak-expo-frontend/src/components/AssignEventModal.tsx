@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -41,17 +41,7 @@ const AssignEventModal: React.FC<AssignEventModalProps> = ({
   const [error, setError] = useState<string>('');
   const { token } = useAuth();
 
-  useEffect(() => {
-    if (open && token) {
-      loadExhibitions();
-    }
-    // Reset state when modal opens
-    if (open) {
-      setError('');
-    }
-  }, [open, token]);
-
-  const loadExhibitions = async () => {
+  const loadExhibitions = useCallback(async () => {
     if (!token) {
       setError('Brak autoryzacji');
       return;
@@ -75,7 +65,17 @@ const AssignEventModal: React.FC<AssignEventModalProps> = ({
     } finally {
       setLoading(false);
     }
-  };
+  }, [token, existingEventIds]);
+
+  useEffect(() => {
+    if (open && token) {
+      loadExhibitions();
+    }
+    // Reset state when modal opens
+    if (open) {
+      setError('');
+    }
+  }, [open, token, loadExhibitions]);
 
   const handleAssignExhibition = async (exhibition: Exhibition) => {
     if (!token) return;
