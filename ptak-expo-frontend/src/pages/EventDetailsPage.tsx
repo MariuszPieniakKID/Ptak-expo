@@ -4,7 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import Menu from '../components/menu/Menu';
 import CustomTypography from '../components/customTypography/CustomTypography';
 import CustomButton from '../components/customButton/CustomButton';
-import { fetchExhibitor, Exhibitor } from '../services/api';
+import { fetchExhibitor, fetchExhibition, Exhibitor, Exhibition } from '../services/api';
 import {
   Box,
   Container,
@@ -25,16 +25,17 @@ import NotificationIcon from '../assets/group-27@2x.png';
 interface EventDetailsPageProps {}
 
 const EventDetailsPage: React.FC<EventDetailsPageProps> = () => {
-  const { exhibitorId } = useParams<{ exhibitorId: string; eventId: string }>();
+  const { exhibitorId, eventId } = useParams<{ exhibitorId: string; eventId: string }>();
   const [exhibitor, setExhibitor] = useState<Exhibitor | null>(null);
+  const [exhibition, setExhibition] = useState<Exhibition | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>('');
   const navigate = useNavigate();
   const { user, token, logout } = useAuth();
 
-  const loadExhibitor = useCallback(async (): Promise<void> => {
-    if (!token || !exhibitorId) {
-      setError('Brak autoryzacji lub nieprawidłowe ID wystawcy.');
+  const loadData = useCallback(async (): Promise<void> => {
+    if (!token || !exhibitorId || !eventId) {
+      setError('Brak autoryzacji lub nieprawidłowe parametry.');
       logout();
       navigate('/login');
       return;
@@ -42,11 +43,18 @@ const EventDetailsPage: React.FC<EventDetailsPageProps> = () => {
 
     try {
       setLoading(true);
-      const fetchedExhibitor = await fetchExhibitor(parseInt(exhibitorId), token);
+      
+      // Pobierz dane wystawcy i wydarzenia równocześnie
+      const [fetchedExhibitor, fetchedExhibition] = await Promise.all([
+        fetchExhibitor(parseInt(exhibitorId), token),
+        fetchExhibition(parseInt(eventId), token)
+      ]);
+      
       setExhibitor(fetchedExhibitor);
+      setExhibition(fetchedExhibition);
       setError('');
     } catch (err: any) {
-      setError(err.message || 'Nie udało się pobrać danych wystawcy');
+      setError(err.message || 'Nie udało się pobrać danych wystawcy lub wydarzenia');
       if (err.message.includes('401')) {
         logout();
         navigate('/login');
@@ -54,11 +62,11 @@ const EventDetailsPage: React.FC<EventDetailsPageProps> = () => {
     } finally {
       setLoading(false);
     }
-  }, [token, exhibitorId, logout, navigate]);
+  }, [token, exhibitorId, eventId, logout, navigate]);
 
   useEffect(() => {
-    loadExhibitor();
-  }, [loadExhibitor]);
+    loadData();
+  }, [loadData]);
 
   const handleBack = useCallback(() => {
     navigate(`/wystawcy/${exhibitorId}`);
@@ -77,6 +85,20 @@ const EventDetailsPage: React.FC<EventDetailsPageProps> = () => {
     console.log('Send reminder to exhibitor:', exhibitor?.id);
   }, [exhibitor]);
 
+  // Helper function to format date range
+  const formatDateRange = (startDate: string, endDate: string) => {
+    const formatDate = (dateString: string) => {
+      const date = new Date(dateString);
+      return date.toLocaleDateString('pl-PL', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+      });
+    };
+    
+    return `${formatDate(startDate)} - ${formatDate(endDate)}`;
+  };
+
   if (loading) {
     return (
       <Box className={styles.eventDetailsPage}>
@@ -90,13 +112,13 @@ const EventDetailsPage: React.FC<EventDetailsPageProps> = () => {
     );
   }
 
-  if (error || !exhibitor) {
+  if (error || !exhibitor || !exhibition) {
     return (
       <Box className={styles.eventDetailsPage}>
         <Menu />
         <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
           <Alert severity="error" sx={{ mb: 2 }}>
-            {error || 'Nie znaleziono wystawcy'}
+            {error || 'Nie znaleziono wystawcy lub wydarzenia'}
           </Alert>
           <CustomButton
             onClick={handleBack}
@@ -181,14 +203,14 @@ const EventDetailsPage: React.FC<EventDetailsPageProps> = () => {
         {/* Breadcrumbs */}
         <Box className={styles.breadcrumbs}>
           <CustomTypography fontSize="0.6875rem" color="#6f6f6f">
-            Home / Baza wystawców / {exhibitor.companyName}
+            Home / Baza wystawców / {exhibitor.companyName} / {exhibition.name}
           </CustomTypography>
         </Box>
 
         {/* Event Title */}
         <Box className={styles.eventTitle}>
           <CustomTypography fontSize="1rem" fontWeight={500} color="#2e2e38">
-            Wydarzenie:
+            Wydarzenie: {exhibition.name}
           </CustomTypography>
         </Box>
 
@@ -242,10 +264,10 @@ const EventDetailsPage: React.FC<EventDetailsPageProps> = () => {
             <img src="/assets/4515f4ed2e86e01309533e2483db0fd4@2x.png" alt="Event" className={styles.eventImage} />
             <Box className={styles.eventInfo}>
               <CustomTypography fontSize="0.9375rem" fontWeight={500} color="#2e2e38">
-                International Trade Fair for Building Technologies and Materials
+                {exhibition.name}
               </CustomTypography>
               <CustomTypography fontSize="0.9375rem" color="#2e2e38">
-                11.03.2026-15.03.2026
+                {formatDateRange(exhibition.start_date, exhibition.end_date)}
               </CustomTypography>
               <Box className={styles.readinessInfo}>
                 <CustomTypography fontSize="0.6875rem" color="#6f6f6f">
