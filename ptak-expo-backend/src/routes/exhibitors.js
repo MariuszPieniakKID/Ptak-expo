@@ -228,6 +228,92 @@ router.delete('/:id', verifyToken, requireAdmin, async (req, res) => {
   }
 });
 
+// POST /api/v1/exhibitors/:id/assign-event - przypisz wystawcę do wydarzenia (tylko admin)
+router.post('/:id/assign-event', verifyToken, requireAdmin, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { exhibitionId } = req.body;
+    
+    if (!exhibitionId) {
+      return res.status(400).json({
+        success: false,
+        error: 'Exhibition ID jest wymagane'
+      });
+    }
+    
+    console.log(`Assigning exhibitor ${id} to exhibition ${exhibitionId}`);
+    
+    // Sprawdź czy wystawca istnieje
+    const exhibitorCheck = await db.query(
+      'SELECT id, company_name FROM exhibitors WHERE id = $1',
+      [id]
+    );
+    
+    if (exhibitorCheck.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        error: 'Wystawca nie został znaleziony'
+      });
+    }
+    
+    // Sprawdź czy wydarzenie istnieje
+    const exhibitionCheck = await db.query(
+      'SELECT id, name FROM exhibitions WHERE id = $1',
+      [exhibitionId]
+    );
+    
+    if (exhibitionCheck.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        error: 'Wydarzenie nie zostało znalezione'
+      });
+    }
+    
+    // Przypisz wystawcę do wydarzenia (ON CONFLICT DO NOTHING żeby uniknąć duplikatów)
+    const assignResult = await db.query(
+      'INSERT INTO exhibitor_events (exhibitor_id, exhibition_id) VALUES ($1, $2) ON CONFLICT (exhibitor_id, exhibition_id) DO NOTHING RETURNING *',
+      [id, exhibitionId]
+    );
+    
+    const exhibitor = exhibitorCheck.rows[0];
+    const exhibition = exhibitionCheck.rows[0];
+    
+    if (assignResult.rows.length > 0) {
+      console.log(`✅ Exhibitor ${exhibitor.company_name} assigned to exhibition ${exhibition.name}`);
+      res.json({
+        success: true,
+        message: `Wystawca "${exhibitor.company_name}" został przypisany do wydarzenia "${exhibition.name}"`,
+        assignment: {
+          exhibitorId: parseInt(id),
+          exhibitorName: exhibitor.company_name,
+          exhibitionId: parseInt(exhibitionId),
+          exhibitionName: exhibition.name
+        }
+      });
+    } else {
+      console.log(`⚠️ Exhibitor ${exhibitor.company_name} already assigned to exhibition ${exhibition.name}`);
+      res.json({
+        success: true,
+        message: `Wystawca "${exhibitor.company_name}" jest już przypisany do wydarzenia "${exhibition.name}"`,
+        assignment: {
+          exhibitorId: parseInt(id),
+          exhibitorName: exhibitor.company_name,
+          exhibitionId: parseInt(exhibitionId),
+          exhibitionName: exhibition.name
+        }
+      });
+    }
+    
+  } catch (error) {
+    console.error('Error assigning exhibitor to event:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Błąd podczas przypisywania wystawcy do wydarzenia',
+      message: error.message
+    });
+  }
+});
+
 // GET /api/v1/exhibitors/:id - pobierz szczegóły wystawcy (tylko admin)
 router.get('/:id', verifyToken, requireAdmin, async (req, res) => {
   try {

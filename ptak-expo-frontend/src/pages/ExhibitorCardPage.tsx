@@ -5,6 +5,7 @@ import Menu from '../components/menu/Menu';
 import CustomTypography from '../components/customTypography/CustomTypography';
 import CustomButton from '../components/customButton/CustomButton';
 import { fetchExhibitor, deleteExhibitor, Exhibitor } from '../services/api';
+import AssignEventModal from '../components/AssignEventModal';
 import {
   Box,
   Container,
@@ -29,6 +30,7 @@ const ExhibitorCardPage: React.FC = () => {
   const [exhibitor, setExhibitor] = useState<Exhibitor | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>('');
+  const [assignModalOpen, setAssignModalOpen] = useState<boolean>(false);
   const navigate = useNavigate();
   const { token, logout } = useAuth();
 
@@ -83,9 +85,20 @@ const ExhibitorCardPage: React.FC = () => {
   }, [exhibitor, token, navigate]);
 
   const handleAddEvent = useCallback(() => {
-    console.log('Add event for exhibitor:', exhibitor?.id);
-    // In real app would open modal or navigate to add event page
-  }, [exhibitor]);
+    setAssignModalOpen(true);
+  }, []);
+
+  const handleAssignSuccess = useCallback((exhibitionName: string) => {
+    // Reload exhibitor data to show new assignment
+    loadExhibitor();
+    
+    // Show success message
+    alert(`Wystawca "${exhibitor?.companyName}" został pomyślnie przypisany do wydarzenia "${exhibitionName}"`);
+  }, [loadExhibitor, exhibitor]);
+
+  const handleCloseAssignModal = useCallback(() => {
+    setAssignModalOpen(false);
+  }, []);
 
   const handleSelectEvent = useCallback((eventId: number) => {
     if (exhibitor) {
@@ -502,6 +515,18 @@ const ExhibitorCardPage: React.FC = () => {
       <Box className={styles.filtrGray}/>
       <Box className={styles.filtrBlue}/>
     </Box>
+    
+    {/* Assign Event Modal */}
+    {exhibitor && (
+      <AssignEventModal
+        open={assignModalOpen}
+        onClose={handleCloseAssignModal}
+        exhibitorId={exhibitor.id}
+        exhibitorName={exhibitor.companyName}
+        onAssignSuccess={handleAssignSuccess}
+        existingEventIds={exhibitor.events?.map(event => event.id) || []}
+      />
+    )}
     </>
   );
 };

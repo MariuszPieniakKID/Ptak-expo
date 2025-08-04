@@ -679,4 +679,29 @@ export const deleteInvitation = async (
   }
 
   return data;
+};
+
+// ============= EXHIBITOR ASSIGNMENT API =============
+
+export const assignExhibitorToEvent = async (
+  exhibitorId: number, 
+  exhibitionId: number, 
+  token: string
+): Promise<{ success: boolean; message: string; assignment: any }> => {
+  const response = await apiCall(`${config.API_BASE_URL}/api/v1/exhibitors/${exhibitorId}/assign-event`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+    },
+    body: JSON.stringify({ exhibitionId }),
+  });
+
+  const data = await response.json();
+  
+  if (!response.ok) {
+    throw new Error(data.error || data.message || 'Błąd podczas przypisywania wystawcy do wydarzenia');
+  }
+
+  return data;
 }; 
