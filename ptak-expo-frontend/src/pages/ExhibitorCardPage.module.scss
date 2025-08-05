@@ -1,462 +1,349 @@
-@import '../styles/variables';
-@import '../styles/mixins';
+// Exhibitor Card Page styles - based on grafika/wystawcy1 design
 
 .exhibitorCardPage {
   position: relative;
-  z-index: 1;
-}
-
-.exhibitorCardPage::before  {
-  content: "";
-  position: absolute;
-  inset: 0;
   width: 100%;
   min-height: 100vh;
-  background-color: $color-gray;
-  top: -1em; 
-  background-image: url('../assets/tło.png');
-  background-position: center;
-  background-size: cover;
-  opacity: 0.5;
-  transition: opacity 0.3s ease-in-out;
-  will-change: opacity;
-
-  @media (max-width: 600px) {
-    background-image: url('../assets/tlo_m.png');
-  }
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
+  background-color: #f8f9fa;
+  overflow-x: hidden;
 }
 
-.exhibitorCardNavigationContainer{
-  width:78%;
-  margin:auto;
-  margin-top:0px;
-  margin-bottom:0px;
-  position: relative; 
+.backgroundImage {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  object-fit: cover;
+  z-index: -1;
 }
 
-.header{
-  display: flex;
-  flex-wrap: wrap;
-  margin-top:1em;
-}
-
-.logOutButton{
-  position:fixed !important;
-  right: 5% !important;
-  top:4.0% !important;
-  background: transparent !important;
-  box-shadow: none !important;
-  &:hover{
-    font-weight: 600;
-  } 
-  &:hover, &:focus, &:active {
-    background: transparent !important;
-    outline: none !important;
-    box-shadow: none !important;
-  }
-
-  @include for-desktop-medium {
-    right: 3% !important;
-   }
-  @include for-desktop-small {
-    right: 2% !important;
-   }
-  @include for-tablet-landscape {
-    right: 1.5em !important; 
-   }
-  @include for-tablet-portrait {
-    right:0.5em!important; 
-   }
-  @include for-phone-landscape {
-    right: 1em !important;
-    top:1em !important;
-   }
-  @include for-phone-only {
-    right: 1em !important;
-    top:1em !important;
-   }
-}
-
-.contentWrapper {
-  width: 78% !important;
-  margin: 0 auto;
-  padding: 1em 0 1em 0 !important; // [top right bottom left]
-
-  position: relative; 
-  z-index: 100 !important;
-  
-  @include for-phone-only {
-     padding: 0.5em 0 0.5em 0 !important; 
-  }
-}
-
-.breadcrumbs {
-  margin-bottom: $spacing-md;
-  
-  a {
-    cursor: pointer;
-    color: #6f6f6f;
-    text-decoration: none;
-    
-    &:hover {
-      color: $color-blue;
-    }
-  }
-}
-
-.pageTitle {
-  margin-bottom: $spacing-xl;
-  
-  .titleContainer {
-    display: flex;
-    align-items: center;
-    gap: $spacing-md;
-  }
-  
-  .titleIcon {
-    width: 58px;
-    height: 49px;
-    object-fit: contain;
-    
-    @include for-phone-only {
-      width: 45px;
-      height: 38px;
-    }
-  }
-}
-
-.exhibitorCard {
-  background-color: $color-white;
-  border-radius: $border-radius-lg;
-  box-shadow: $shadow-md;
-  margin-bottom: $spacing-xxxl;
-  border-top: 2px solid $color-gainsboro;
-  border-bottom: 2px solid $color-gainsboro;
-  
-  @include for-phone-only {
-    margin-bottom: $spacing-xxl;
-  }
-}
-
-.cardContent {
-  padding: $spacing-xl !important;
-  
-  @include for-phone-only {
-    padding: $spacing-lg !important;
-  }
-}
-
-.exhibitorInfo {
-  display: flex;
-  align-items: flex-start;
-  gap: $spacing-xxxl;
-  
-  @include for-phone-only {
-    flex-direction: column;
-    gap: $spacing-lg;
-  }
-  
-  @include for-tablet-portrait {
-    flex-direction: column;
-    gap: $spacing-xl;
-  }
-}
-
-.leftSection {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: $spacing-sm;
-}
-
-.rightSection {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: $spacing-sm;
-}
-
-.actionSection {
-  display: flex;
-  align-items: flex-start;
-  margin-left: auto;
-  
-  @include for-phone-only {
-    margin-left: 0;
-    justify-content: flex-start;
-  }
-}
-
-.infoGroup {
-  display: flex;
-  flex-direction: column;
-  gap: 0.125rem; // 2px
-  
-  @include for-phone-only {
-    gap: 0.25rem; // 4px
-  }
-}
-
-.eventsSection {
-  margin-top: $spacing-xxxl;
-  
-  @include for-phone-only {
-    margin-top: $spacing-xxl;
-  }
-}
-
-.eventsSectionHeader {
+.header {
+  position: relative;
+  z-index: 10;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: $spacing-xl;
+  padding: 1rem 2rem;
+  background: transparent;
+}
+
+.logOutButton {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.mainContainer {
+  position: relative;
+  z-index: 5;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.titleSection {
+  margin-bottom: 2rem;
+}
+
+.titleContainer {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.titleIcon {
+  width: 24px;
+  height: 24px;
+}
+
+.breadcrumb {
+  white-space: pre-wrap;
+}
+
+.mainCard {
+  background: #ffffff;
+  border-radius: 20px;
+  border: 1px solid #e5e5e5;
+  padding: 2rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  position: relative;
+}
+
+// Exhibitor Details Section
+.exhibitorSection {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+.exhibitorCard {
+  border-bottom: 1px solid #e5e5e5;
+  padding-bottom: 1.5rem;
+}
+
+.exhibitorHeader {
+  display: flex;
+  gap: 4rem;
+  margin-bottom: 1.5rem;
+}
+
+.nameSection {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.contactSection {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.contactDetails {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.emailRow,
+.phoneRow {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.phoneRow {
+  position: relative;
+}
+
+.deleteButton {
+  position: absolute;
+  right: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  text-decoration: underline;
   
-  @include for-phone-only {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: $spacing-md;
+  &:hover {
+    background-color: #ff4444 !important;
+    color: #fff !important;
+    text-decoration: none;
   }
 }
 
-.eventsGrid {
+.addressSection {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+// Categories Section
+.categoriesSection {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(21.5625em, 1fr)); // 345px minimum
-  gap: $spacing-xl;
-  
-  @include for-phone-only {
-    grid-template-columns: 1fr;
-    gap: $spacing-lg;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.categoryItem {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem;
+  border-radius: 12px;
+  background: #f8f9fa;
+  border: 1px solid #e5e5e5;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: #6F87F6;
+    color: #fff;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(111, 135, 246, 0.3);
+
+    .categoryIcon svg path {
+      fill: #fff;
+    }
   }
+}
+
+.categoryIcon {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  svg {
+    width: 100%;
+    height: 100%;
+  }
+}
+
+// Events Section
+.eventsSection {
+  border-top: 1px solid #e5e5e5;
+  padding-top: 1.5rem;
+}
+
+.eventsTitle {
+  margin-bottom: 1.5rem;
+}
+
+.eventsContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 2rem;
 }
 
 .eventCard {
-  background-color: $color-whitesmoke;
-  border-radius: $border-radius-lg;
-  border: 1px solid $color-white;
-  box-shadow: 0 1.4375em 1.625em rgba(100, 109, 150, 0.21); // 23px 26px shadow
-  overflow: hidden;
-  height: 10.625em; // 170px
-  position: relative;
-  
-  &:hover {
-    transform: translateY(-0.125em); // 2px
-    box-shadow: 0 1.5625em 1.875em rgba(100, 109, 150, 0.25); // Enhanced shadow
-  }
-  
-  @include for-phone-only {
-    height: auto;
-    min-height: 10.625em;
-  }
-}
-
-.eventContent {
-  padding: 0 !important;
-  height: 100%;
   display: flex;
-  flex-direction: column;
-  position: relative;
-}
+  align-items: center;
+  gap: 1.5rem;
+  padding: 1.5rem;
+  border: 1px solid #e5e5e5;
+  border-radius: 12px;
+  background: #fff;
+  cursor: pointer;
+  transition: all 0.2s ease;
 
-.eventImageContainer {
-  flex: 1;
-  overflow: hidden;
-  
-  @include for-phone-only {
-    height: 8em; // 128px
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    border-color: #6F87F6;
   }
 }
 
 .eventImage {
-  width: 100%;
-  height: 100%;
+  width: 80px;
+  height: 60px;
+  border-radius: 8px;
   object-fit: cover;
-  transition: $transition-normal;
-  
-  .eventCard:hover & {
-    transform: scale(1.05);
-  }
 }
 
-.eventInfo {
-  position: absolute;
-  top: $spacing-lg;
-  left: $spacing-lg;
-  right: $spacing-lg;
-  z-index: 2;
-  
-  @include for-phone-only {
-    position: static;
-    padding: $spacing-md;
-    background-color: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(10px);
-  }
-}
-
-.eventActions {
-  margin-top: $spacing-md;
-  
-  @include for-phone-only {
-    margin-top: $spacing-sm;
-  }
+.eventContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
 .readinessSection {
-  position: absolute;
-  bottom: $spacing-lg;
-  left: $spacing-lg;
-  right: $spacing-lg;
-  z-index: 2;
-  
-  @include for-phone-only {
-    position: static;
-    padding: $spacing-md;
-    padding-top: 0;
-  }
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-left: auto;
 }
 
 .readinessBar {
-  margin-top: 0.25rem; // 4px
-  width: 3.125em; // 50px
-  height: 1.375em; // 22px
-  background-color: rgba(255, 255, 255, 0.2);
-  border-radius: $border-radius-sm;
-  overflow: hidden;
-  position: relative;
-  
-  @include for-phone-only {
-    width: 4em; // 64px
-    height: 1.5em; // 24px
-  }
+  background: linear-gradient(135deg, #6F87F6 0%, #5041d0 100%);
+  border-radius: 20px;
+  padding: 0.25rem 0.75rem;
+  min-width: 60px;
+  text-align: center;
 }
 
-.readinessProgress {
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: $border-radius-sm;
-  transition: $transition-normal;
-  min-width: 3.125em; // 50px to ensure text is visible
-  
-  // Green for >50%, red for <=50%
-  &[style*="rgb(153, 227, 7)"] {
-    background: linear-gradient(90deg, #99e307, #1ae283) !important;
-  }
-  
-  &[style*="rgb(236, 106, 58)"] {
-    background: linear-gradient(270deg, #ec6a3a, #fe0502) !important;
-  }
-  
-  @include for-phone-only {
-    min-width: 4em; // 64px
-  }
+.noEventsContainer {
+  text-align: center;
+  padding: 2rem;
+  border: 2px dashed #e5e5e5;
+  border-radius: 12px;
+  margin-bottom: 2rem;
 }
 
-// Loading and error states
-.loading,
-.error {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 20em; // 320px
-  font-size: $font-size-lg;
+.addEventButton {
+  align-self: flex-start;
+  padding: 0.75rem 1.5rem;
+  border-radius: 10px;
   font-weight: 500;
-  color: $color-darkslategray;
-}
-
-.error {
-  color: $color-error;
-}
-
-// Responsive adjustments
-@include for-phone-only {
-  .exhibitorCardPage {
-    padding: $spacing-sm;
-  }
   
-  .eventsGrid {
-    grid-template-columns: 1fr;
-    gap: $spacing-md;
-  }
-  
-  .eventCard {
-    height: auto;
-    min-height: 12em; // 192px
-  }
-  
-  .eventInfo {
-    position: static;
-    padding: $spacing-md;
-    background-color: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(10px);
-  }
-  
-  .readinessSection {
-    position: static;
-    padding: $spacing-md;
-    padding-top: 0;
+  &:hover {
+    background-color: #5041d0 !important;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(111, 135, 246, 0.3);
   }
 }
 
-@include for-tablet-portrait {
-  .eventsGrid {
-    grid-template-columns: repeat(auto-fit, minmax(18.75em, 1fr)); // 300px minimum
-  }
-  
-  .eventCard {
-    height: 9.375em; // 150px
-  }
-}
-
+// Footer
 .footer {
-  position:relative;
-  bottom:0;
-  padding-top:1em;
-  min-height: 3em;
-  width:100%;
-  display:flex;
-  flex-direction: column;
+  text-align: center;
+  padding: 2rem;
+  background: transparent;
+  position: relative;
+  z-index: 5;
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .mainContainer {
+    padding: 1rem;
+  }
+
+  .exhibitorHeader {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .categoriesSection {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+
+  .eventCard {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .readinessSection {
+    margin-left: 0;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .categoriesSection {
+    grid-template-columns: 1fr;
+  }
+
+  .mainCard {
+    padding: 1rem;
+  }
+}
+
+// Animation classes
+.fadeIn {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Loading states
+.loading {
+  display: flex;
   justify-content: center;
-  z-index: 100 !important;
-} 
-
-.cc{
-  color:#6F6F6F!important;
-  font-weight: 100!important;
-  font-size: 11px!important;
-  margin:auto !important;
+  align-items: center;
+  min-height: 400px;
 }
 
-//FILTERS
-.filtr{
-    background-attachment: fixed;
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    height: 100vh;
-    width: 100%;
+// Error states
+.error {
+  text-align: center;
+  padding: 2rem;
+  color: #c7353c;
 }
-.filtrGray{
-   background-image: url('../assets/Rectangle-8313.svg');
-   background-size: cover;
-   background-repeat: no-repeat;
-   min-height:60vh;
-   width: 100%;
-    @include for-tablet-portrait-up  {
-       background-image: url('../assets/Rectangle-8313.svg');
-       mask-image: linear-gradient(to top, transparent, #6F87F6 50%);
-    }
-}
-.filtrBlue{
-   background-image: url('../assets/Rectangle-8378.svg');
-   background-size: cover;
-   background-repeat: no-repeat;
-   min-height: 40vh;
-   width: 100%;
-   @include for-desktop-up {
-     min-height: 60vh;
-   }
-} 
