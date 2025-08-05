@@ -25,7 +25,7 @@ const api: AxiosInstance = axios.create({
 // Request interceptor to add auth token
 api.interceptors.request.use(
   (config: any): any => {
-    const token = localStorage.getItem('token');
+    const token = localStorage.getItem('authToken');
     if (token && config.headers) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -43,10 +43,11 @@ api.interceptors.response.use(
   },
   (error: any) => {
     if (error.response?.status === 401) {
-      // Token expired or invalid
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-      window.location.href = '/login';
+      // Token expired or invalid - clear auth data with correct keys
+      localStorage.removeItem('authToken');
+      localStorage.removeItem('authUser');
+      // Use React Router navigation instead of hard redirect to prevent loops
+      console.log('401 Unauthorized - token expired or invalid');
     }
     return Promise.reject(error);
   }
@@ -69,6 +70,13 @@ export const authAPI = {
   // Test endpoint
   test: (): Promise<AxiosResponse<ApiResponse>> => 
     api.get('/api/v1/auth/test'),
+};
+
+// Exhibitions API methods
+export const exhibitionsAPI = {
+  // Get exhibitor's events
+  getMyEvents: (): Promise<AxiosResponse<ApiResponse>> =>
+    api.get('/api/v1/exhibitions/user-events'),
 };
 
 // Health check

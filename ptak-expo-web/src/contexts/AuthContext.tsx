@@ -78,21 +78,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           setToken(storedToken);
           setUser(JSON.parse(storedUser));
           
-          // Verify token is still valid
-          const response = await fetch(`${config.API_BASE_URL}/api/v1/auth/verify`, {
-            method: 'GET',
-            headers: {
-              'Authorization': `Bearer ${storedToken}`,
-            },
-          });
-
-          if (!response.ok) {
-            // Token is invalid, clear auth state
-            localStorage.removeItem('authToken');
-            localStorage.removeItem('authUser');
-            setToken(null);
-            setUser(null);
-          }
+          // Skip token verification to prevent infinite redirect loop
+          // Token will be validated on actual API calls
+          console.log('Auth restored from localStorage, skipping token verification to prevent redirect loop');
         }
       } catch (error) {
         console.error('Error initializing auth:', error);

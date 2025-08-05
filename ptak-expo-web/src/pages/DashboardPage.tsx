@@ -1,10 +1,52 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import { exhibitionsAPI } from '../services/api';
 import styles from './DashboardPage.module.css';
 import groupLogo from '../assets/group-257@3x.png';
 
+interface Event {
+  id: number;
+  name: string;
+  description: string;
+  startDate: string;
+  endDate: string;
+  location: string;
+  status: string;
+}
+
 const DashboardPage: React.FC = () => {
   const { logout, user } = useAuth();
+  const [events, setEvents] = useState<Event[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  // Load exhibitor events on component mount
+  useEffect(() => {
+    const loadEvents = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        
+        const response = await exhibitionsAPI.getMyEvents();
+        
+        if (response.data.success && response.data.data) {
+          setEvents(response.data.data);
+          console.log('✅ Loaded events:', response.data.data);
+        } else {
+          setError('Nie udało się pobrać wydarzeń');
+        }
+      } catch (err) {
+        console.error('❌ Error loading events:', err);
+        setError('Błąd podczas pobierania wydarzeń');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (user) {
+      loadEvents();
+    }
+  }, [user]);
 
   const handleLogout = () => {
     logout();
@@ -18,6 +60,29 @@ const DashboardPage: React.FC = () => {
   const handleEventSelect = (eventTitle: string) => {
     // Placeholder for event selection
     console.log(`Event selected: ${eventTitle}`);
+  };
+
+  // Format date for display
+  const formatDateRange = (startDate: string, endDate: string) => {
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    
+    const formatDate = (date: Date) => {
+      return date.toLocaleDateString('pl-PL', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+      });
+    };
+    
+    return `${formatDate(start)}-${formatDate(end)}`;
+  };
+
+  // Get completion percentage (mock for now)
+  const getCompletionPercentage = (event: Event) => {
+    // Mock completion based on event id for demo
+    const completions = [65, 45, 21];
+    return completions[event.id % 3] || 50;
   };
 
   return (
@@ -47,80 +112,129 @@ const DashboardPage: React.FC = () => {
         Kontakt • Polityka prywatności • www.warsawexpo.eu
       </div>
       
-      {/* Event 1 */}
-      <div className={styles.groupParent}>
-        <div className={styles.groupContainer}>
-          <div className={styles.internationalTradeFairForBParent}>
-            <div className={styles.internationalTradeFair}>
-              International Trade Fair for Building Technologies and Materials
-            </div>
-            <div className={styles.div}>11.03.2026-15.03.2026</div>
-          </div>
-          <div 
-            className={styles.wybierz}
-            onClick={() => handleEventSelect("International Trade Fair for Building Technologies and Materials")}
-          >
-            wybierz
-          </div>
-          <img className={styles.image29Icon} alt="" src="/image-29@2x.png" />
+      {/* Loading state */}
+      {loading && (
+        <div style={{ 
+          position: 'absolute', 
+          top: '350px', 
+          left: '50%', 
+          transform: 'translateX(-50%)',
+          fontSize: '18px',
+          color: '#666'
+        }}>
+          Ładowanie wydarzeń...
         </div>
-        <div className={styles.wrapper}>
-          <b className={styles.b}>65%</b>
-        </div>
-        <div className={styles.gotowo}>Gotowość:</div>
-      </div>
+      )}
       
-      {/* Event 2 */}
-      <div className={styles.groupDiv}>
-        <div className={styles.groupContainer}>
-          <div className={styles.internationalTradeFairForBParent}>
-            <div className={styles.internationalTradeFair}>
-              International Trade Fair for Building Technologies and Materials
-            </div>
-            <div className={styles.div}>11.03.2026-15.03.2026</div>
-          </div>
-          <div 
-            className={styles.wybierz}
-            onClick={() => handleEventSelect("International Trade Fair for Building Technologies and Materials")}
-          >
-            wybierz
-          </div>
-          <img className={styles.image29Icon} alt="" src="/image-29@2x.png" />
+      {/* Error state */}
+      {error && (
+        <div style={{ 
+          position: 'absolute', 
+          top: '350px', 
+          left: '50%', 
+          transform: 'translateX(-50%)',
+          fontSize: '18px',
+          color: '#dc3545'
+        }}>
+          {error}
         </div>
-        <div className={styles.wrapper}>
-          <b className={styles.b}>65%</b>
-        </div>
-        <div className={styles.gotowo}>Gotowość:</div>
-      </div>
+      )}
       
-      {/* Event 3 */}
-      <div className={styles.groupParent2}>
-        <div className={styles.groupParent3}>
-          <div className={styles.internationalTradeFairForBParent}>
-            <div className={styles.internationalTradeFair}>
-              International Trade Fair for Building Technologies and Materials
+      {/* Dynamic event boxes */}
+      {!loading && !error && events.map((event, index) => {
+        const completion = getCompletionPercentage(event);
+        
+        // Define CSS classes for positioning based on index
+        const getEventBoxClass = (index: number) => {
+          if (index === 0) return styles.groupParent2;  // Left position
+          if (index === 1) return styles.groupDiv;      // Middle position  
+          if (index === 2) return styles.groupParent;   // Right position
+          // For more than 3 events, we'll need to handle positioning differently
+          return styles.groupParent2;
+        };
+        
+        const getInnerContainerClass = (index: number) => {
+          if (index === 0) return styles.groupParent3;  // Left inner container
+          return styles.groupContainer;                  // Standard inner container
+        };
+        
+        const getProgressBarClass = (index: number, isLow: boolean) => {
+          if (index === 0) return styles.frame;         // Left progress bar (red)
+          return isLow ? styles.frame : styles.wrapper; // Low completion = red, high = green
+        };
+        
+        const getProgressTextClass = (index: number) => {
+          if (index === 0) return styles.gotowo2;       // Left progress text
+          return styles.gotowo;                         // Standard progress text
+        };
+
+        const getProgressContainerClass = (index: number) => {
+          if (index === 0) return styles.groupParent4;  // Left progress container
+          return styles.wrapper;                        // Standard progress container
+        };
+
+        return (
+          <div key={event.id} className={getEventBoxClass(index)}>
+            <div className={getInnerContainerClass(index)}>
+              <div className={styles.internationalTradeFairForBParent}>
+                <div className={styles.internationalTradeFair}>
+                  {event.name}
+                </div>
+                <div className={styles.div}>
+                  {formatDateRange(event.startDate, event.endDate)}
+                </div>
+              </div>
+              <div 
+                className={styles.wybierz}
+                onClick={() => handleEventSelect(event.name)}
+              >
+                wybierz
+              </div>
+              <img 
+                className={styles.image29Icon} 
+                alt="" 
+                src={index === 2 ? "/4515f4ed2e86e01309533e2483db0fd4@2x.png" : "/image-29@2x.png"} 
+              />
             </div>
-            <div className={styles.div}>11.03.2026-15.03.2026</div>
+            
+            {/* Progress bar - only for first 3 events */}
+            {index < 3 && (
+              <>
+                {index === 0 ? (
+                  <div className={getProgressContainerClass(index)}>
+                    <div className={getProgressBarClass(index, completion < 50)}>
+                      <b className={styles.b}>{completion}%</b>
+                    </div>
+                    <div className={getProgressTextClass(index)}>Gotowość:</div>
+                  </div>
+                ) : (
+                  <>
+                    <div className={getProgressBarClass(index, completion < 50)}>
+                      <b className={styles.b}>{completion}%</b>
+                    </div>
+                    <div className={getProgressTextClass(index)}>Gotowość:</div>
+                  </>
+                )}
+              </>
+            )}
           </div>
-          <div 
-            className={styles.wybierz}
-            onClick={() => handleEventSelect("International Trade Fair for Building Technologies and Materials")}
-          >
-            wybierz
-          </div>
-          <img
-            className={styles.image29Icon}
-            alt=""
-            src="/4515f4ed2e86e01309533e2483db0fd4@2x.png"
-          />
+        );
+      })}
+      
+      {/* No events message */}
+      {!loading && !error && events.length === 0 && (
+        <div style={{ 
+          position: 'absolute', 
+          top: '350px', 
+          left: '50%', 
+          transform: 'translateX(-50%)',
+          fontSize: '18px',
+          color: '#666',
+          textAlign: 'center'
+        }}>
+          Brak przypisanych wydarzeń
         </div>
-        <div className={styles.groupParent4}>
-          <div className={styles.frame}>
-            <b className={styles.b}>21%</b>
-          </div>
-          <div className={styles.gotowo2}>Gotowość:</div>
-        </div>
-      </div>
+      )}
       
       {/* User greeting */}
       <div className={styles.dzieDobryUserParent}>

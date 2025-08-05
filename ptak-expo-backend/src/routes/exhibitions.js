@@ -1,7 +1,99 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../config/database');
-const { verifyToken, requireAdmin } = require('../middleware/auth');
+const { verifyToken, requireAdmin, requireExhibitorOrAdmin } = require('../middleware/auth');
+
+// GET /api/exhibitions/user-events - Pobierz wydarzenia zalogowanego wystawcy (user z role=exhibitor)
+router.get('/user-events', verifyToken, requireExhibitorOrAdmin, async (req, res) => {
+  try {
+    console.log(`Fetching events for user ${req.user.id} (${req.user.email})`);
+    
+    // Sprawdzamy czy user ma przypisane události przez powiązanie user->exhibitor->exhibitor_events
+    // Jeśli nie, to zwracamy wszystkie wydarzenia jako fallback (user może wybrać)
+    
+    let result;
+    
+    // Próbujemy znaleźć exhibitora powiązanego z tym userem (po email)
+    const exhibitorResult = await db.query(`
+      SELECT e.id as exhibitor_id 
+      FROM exhibitors e 
+      WHERE e.email = $1
+    `, [req.user.email]);
+    
+    if (exhibitorResult.rows.length > 0) {
+      // Jeśli znajdziemy exhibitora, pobieramy jego wydarzenia
+      const exhibitorId = exhibitorResult.rows[0].exhibitor_id;
+      console.log(`Found linked exhibitor ${exhibitorId} for user ${req.user.email}`);
+      
+      result = await db.query(`
+        SELECT 
+          e.id,
+          e.name,
+          e.description,
+          e.start_date,
+          e.end_date,
+          e.location,
+          e.status,
+          e.created_at,
+          e.updated_at
+        FROM exhibitions e
+        INNER JOIN exhibitor_events ee ON e.id = ee.exhibition_id
+        WHERE ee.exhibitor_id = $1
+        ORDER BY e.start_date ASC
+      `, [exhibitorId]);
+      
+      console.log(`Found ${result.rows.length} assigned events for exhibitor ${exhibitorId}`);
+    } else {
+      // Jeśli nie ma powiązanego exhibitora, zwracamy wszystkie wydarzenia jako fallback
+      console.log(`No linked exhibitor found for user ${req.user.email}, returning all events`);
+      
+      result = await db.query(`
+        SELECT 
+          e.id,
+          e.name,
+          e.description,
+          e.start_date,
+          e.end_date,
+          e.location,
+          e.status,
+          e.created_at,
+          e.updated_at
+        FROM exhibitions e
+        ORDER BY e.start_date ASC
+        LIMIT 3
+      `);
+      
+      console.log(`Found ${result.rows.length} events (fallback - all events)`);
+    }
+    
+    // Format the response with proper date formatting
+    const events = result.rows.map(event => ({
+      id: event.id,
+      name: event.name,
+      description: event.description,
+      startDate: event.start_date,
+      endDate: event.end_date,
+      location: event.location,
+      status: event.status,
+      createdAt: event.created_at,
+      updatedAt: event.updated_at
+    }));
+    
+    res.json({
+      success: true,
+      data: events,
+      count: events.length
+    });
+    
+  } catch (error) {
+    console.error('Error fetching user events:', error);
+    res.status(500).json({ 
+      success: false,
+      error: 'Failed to fetch user events',
+      message: error.message 
+    });
+  }
+});
 
 // GET /api/exhibitions - Pobierz wszystkie wystawy
 router.get('/', async (req, res) => {
@@ -30,6 +122,9 @@ router.get('/', async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch exhibitions' });
   }
 });
+
+// IMPORTANT: Specific routes must come BEFORE dynamic routes like /:id
+// This route must be placed before /:id route to prevent conflicts
 
 // GET /api/exhibitions/:id - Pobierz konkretną wystawę
 router.get('/:id', async (req, res) => {
