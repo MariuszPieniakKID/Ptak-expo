@@ -20,7 +20,7 @@ import styles from './ExhibitorCardPage.module.scss';
 
 // Import images from assets
 import ExhibitorsPageIcon from '../assets/mask-group-6@2x.png';
-import BackgroundImage from '../assets/mask-group-28@2x.png';
+
 
 const ExhibitorCardPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -184,37 +184,42 @@ const ExhibitorCardPage: React.FC = () => {
   return (
     <>
     <Box className={styles.exhibitorCardPage}>
-      {/* Background Image */}
-      <img src={BackgroundImage} alt="" className={styles.backgroundImage} />
+      {/* Header Section - same structure as other pages */}
+      <Box className={styles.dashboardNavigationContainer}>
+        <Box className={styles.header}>
+          <Menu />
+        </Box>
+      </Box> 
       
-      {/* Header Section - Keep existing menu */}
-      <Box className={styles.header}>
-        <Menu /> 
-        <CustomButton 
-          disableRipple
-          textColor='#060606ff'
-          fontSize="0.75em;"
-          className={styles.logOutButton}
-          onClick={handleLogout}
-          icon={<LogoutIcon style={{ color: "#6F6F6F", height:"1.25em"}}/>} 
-          iconPosition="top" 
-          withBorder={false}
-          width="auto"
-          height="auto"
-          sx={{ 
-              backgroundColor:'transparent',
-              '&:hover': {
-                backgroundColor: 'transparent',
-                color: '#060606ff',
-              },
-            }}
-        >
-          Wyloguj
-        </CustomButton>
-      </Box>
+      {/* Logout Button - fixed position */}
+      <CustomButton 
+        disableRipple
+        textColor='#060606ff'
+        fontSize="0.75em;"
+        className={styles.logOutButton}
+        onClick={handleLogout}
+        icon={<LogoutIcon style={{ color: "#6F6F6F", height:"1.25em"}}/>} 
+        iconPosition="top" 
+        withBorder={false}
+        width="auto"
+        height="auto"
+        sx={{ 
+            backgroundColor:'transparent',
+            '&:hover': {
+              backgroundColor: 'transparent',
+              color: '#060606ff',
+            },
+          }}
+      >
+        Wyloguj
+      </CustomButton>
 
-      {/* Main Content */}
-      <Box className={styles.mainContainer}>
+      {/* Main Content - use Container like other pages */}
+      <Container   
+        maxWidth={false}  
+        sx={{ maxWidth: '90%' }}
+        className={styles.contentWrapper}
+      >
         {/* Title Section */}
         <Box className={styles.titleSection}>
           <Box className={styles.titleContainer}>
@@ -427,7 +432,7 @@ const ExhibitorCardPage: React.FC = () => {
             </CustomButton>
           </Box>
         </Box>
-      </Box>
+      </Container>
       
       <Box className={styles.footer}>
         <CustomTypography fontSize="0.6875rem" color="#6f6f6f">

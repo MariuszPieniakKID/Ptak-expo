@@ -18,7 +18,7 @@ import styles from './EventDetailsPage.module.scss';
 
 // Import images from assets
 import ExhibitorsPageIcon from '../assets/mask-group-6@2x.png';
-import BackgroundImage from '../assets/mask-group-28@2x.png';
+
 import UserAvatar from '../assets/7bb764a0137abc7a8142b6438e529133@2x.png';
 import NotificationIcon from '../assets/group-27@2x.png';
 
@@ -333,14 +333,15 @@ const EventDetailsPage: React.FC<EventDetailsPageProps> = () => {
 
   return (
     <Box className={styles.eventDetailsPage}>
-      {/* Background Image */}
-      <img src={BackgroundImage} alt="" className={styles.backgroundImage} />
+      {/* Menu Component - same structure as other pages */}
+      <Box className={styles.dashboardNavigationContainer}>
+        <Box className={styles.header}>
+          <Menu />
+        </Box>
+      </Box>
       
       {/* Header Section */}
-      <Box className={styles.headerSection}>
-        {/* Menu Component */}
-        <Menu />
-        
+      <Box className={styles.headerSection}>        
         {/* User Info and Logout */}
         <Box className={styles.userSection}>
           <Box className={styles.userInfo}>
@@ -384,8 +385,12 @@ const EventDetailsPage: React.FC<EventDetailsPageProps> = () => {
         </CustomButton>
       </Box>
 
-      {/* Main Content */}
-      <Box className={styles.mainContent}>
+      {/* Main Content - use Container like other pages */}
+      <Container   
+        maxWidth={false}  
+        sx={{ maxWidth: '90%' }}
+        className={styles.contentWrapper}
+      >
         {/* Page Title */}
         <Box className={styles.pageTitle}>
           <Box className={styles.titleContainer}>
@@ -503,7 +508,7 @@ const EventDetailsPage: React.FC<EventDetailsPageProps> = () => {
             </Box>
           </Box>
         </Box>
-      </Box>
+      </Container>
 
       {/* Footer */}
       <Box className={styles.footer}>
