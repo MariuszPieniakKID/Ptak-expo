@@ -211,10 +211,17 @@ const initializeDatabase = async () => {
         contact_role VARCHAR(100) NOT NULL,
         phone VARCHAR(50) NOT NULL,
         email VARCHAR(255) NOT NULL,
+        password_hash VARCHAR(255) NOT NULL,
         status VARCHAR(20) DEFAULT 'active' CHECK (status IN ('active', 'inactive', 'pending')),
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
+    `);
+    
+    // Add password_hash column if it doesn't exist (for existing databases)
+    await pool.query(`
+      ALTER TABLE exhibitors 
+      ADD COLUMN IF NOT EXISTS password_hash VARCHAR(255)
     `);
 
     console.log('🔍 Creating exhibitor_events table...');

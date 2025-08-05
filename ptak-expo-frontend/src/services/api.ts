@@ -203,6 +203,7 @@ export interface AddExhibitorPayload {
   contactRole: string;
   phone: string;
   email: string;
+  password: string;
   exhibitionId?: number | undefined;
 }
 

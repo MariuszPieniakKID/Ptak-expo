@@ -37,7 +37,8 @@ const AddExhibitorModal: React.FC<AddExhibitorModalProps> = ({ isOpen, onClose, 
     contactPerson: '',
     contactRole: '',
     phone: '',
-    email: ''
+    email: '',
+    password: ''
   });
   const [selectedExhibitionId, setSelectedExhibitionId] = useState<number | ''>('');
   const [exhibitions, setExhibitions] = useState<Exhibition[]>([]);
@@ -56,7 +57,8 @@ const AddExhibitorModal: React.FC<AddExhibitorModalProps> = ({ isOpen, onClose, 
       contactPerson: '',
       contactRole: '',
       phone: '',
-      email: ''
+      email: '',
+      password: ''
     });
     setSelectedExhibitionId('');
     setError('');
@@ -116,6 +118,9 @@ const AddExhibitorModal: React.FC<AddExhibitorModalProps> = ({ isOpen, onClose, 
     if (!formData.phone.trim()) errors.phone = 'Telefon jest wymagany';
     if (!formData.email.trim()) errors.email = 'Email jest wymagany';
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) errors.email = 'Niepoprawny format email';
+    
+    if (!formData.password.trim()) errors.password = 'Hasło jest wymagane';
+    else if (formData.password.length < 6) errors.password = 'Hasło musi mieć co najmniej 6 znaków';
     
     setFieldErrors(errors);
     return Object.keys(errors).length === 0;
@@ -307,6 +312,21 @@ const AddExhibitorModal: React.FC<AddExhibitorModalProps> = ({ isOpen, onClose, 
                 error={!!fieldErrors.email}
                 errorMessage={fieldErrors.email}
                 placeholder="j.kowalski@abc-electronics.pl"
+                fullWidth
+                margin="normal"
+                className={styles.fieldInput}
+              />
+            </div>
+            
+            <div className={styles.formField}>
+              <div className={styles.fieldLabel}>Hasło</div>
+              <CustomField
+                type="password"
+                value={formData.password}
+                onChange={handleInputChange('password')}
+                error={!!fieldErrors.password}
+                errorMessage={fieldErrors.password}
+                placeholder="Wprowadź hasło (min. 6 znaków)"
                 fullWidth
                 margin="normal"
                 className={styles.fieldInput}

@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const db = require('../config/database');
 const { verifyToken, requireAdmin } = require('../middleware/auth');
+const bcrypt = require('bcryptjs');
 
 // GET /api/v1/exhibitors - pobierz wszystkich wystawców (tylko admin)
 router.get('/', verifyToken, requireAdmin, async (req, res) => {
@@ -84,6 +85,7 @@ router.post('/', verifyToken, requireAdmin, async (req, res) => {
       contactRole, 
       phone, 
       email,
+      password,
       exhibitionId 
     } = req.body;
 
@@ -91,10 +93,18 @@ router.post('/', verifyToken, requireAdmin, async (req, res) => {
     console.log('Received exhibitionId:', exhibitionId, 'Type:', typeof exhibitionId);
 
     // Validate required fields
-    if (!nip || !companyName || !address || !postalCode || !city || !contactPerson || !contactRole || !phone || !email) {
+    if (!nip || !companyName || !address || !postalCode || !city || !contactPerson || !contactRole || !phone || !email || !password) {
       return res.status(400).json({ 
         error: 'Missing required fields', 
         message: 'All fields are required' 
+      });
+    }
+
+    // Validate password length
+    if (password.length < 6) {
+      return res.status(400).json({ 
+        error: 'Invalid password', 
+        message: 'Hasło musi mieć co najmniej 6 znaków' 
       });
     }
 
@@ -111,10 +121,14 @@ router.post('/', verifyToken, requireAdmin, async (req, res) => {
       });
     }
 
+    // Hash password
+    const saltRounds = 10;
+    const passwordHash = await bcrypt.hash(password, saltRounds);
+
     // Insert new exhibitor
     const query = `
-      INSERT INTO exhibitors (nip, company_name, address, postal_code, city, contact_person, contact_role, phone, email, status)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, 'active')
+      INSERT INTO exhibitors (nip, company_name, address, postal_code, city, contact_person, contact_role, phone, email, password_hash, status)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, 'active')
       RETURNING 
         id, nip, company_name, address, postal_code, city, contact_person, contact_role, phone, email, status, created_at
     `;
@@ -128,7 +142,8 @@ router.post('/', verifyToken, requireAdmin, async (req, res) => {
       contactPerson,
       contactRole,
       phone,
-      email
+      email,
+      passwordHash
     ]);
 
     const newExhibitor = result.rows[0];
