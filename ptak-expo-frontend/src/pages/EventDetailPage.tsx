@@ -85,7 +85,7 @@ const EventDetailPage: React.FC = () => {
       // Load branding files for current user
       if (token && user) {
         // Call after loadBrandingFiles is defined
-        const exhibitorId = user.role === 'admin' ? 2 : user.id;
+        const exhibitorId = null; // Global event files
         setTimeout(() => loadBrandingFiles(exhibitorId, fetchedExhibition.id), 0);
       }
     } catch (err: any) {
@@ -134,7 +134,7 @@ const EventDetailPage: React.FC = () => {
   }, []);
 
   // Load branding files for current user
-  const loadBrandingFiles = useCallback(async (exhibitorId: number, exhibitionId: number) => {
+  const loadBrandingFiles = useCallback(async (exhibitorId: number | null, exhibitionId: number) => {
     if (!token) {
       setBrandingError('Brak autoryzacji - zaloguj się ponownie');
       return;
@@ -163,7 +163,7 @@ const EventDetailPage: React.FC = () => {
   // Handle upload success - reload files
   const handleUploadSuccess = useCallback(() => {
     if (exhibition && token && user) {
-      const exhibitorId = user.role === 'admin' ? 2 : user.id;
+      const exhibitorId = user.role === 'admin' ? 21 : user.id;
       loadBrandingFiles(exhibitorId, exhibition.id);
     }
   }, [exhibition, token, user, loadBrandingFiles]);
@@ -544,7 +544,7 @@ const EventDetailPage: React.FC = () => {
                         dimensions="305x106"
                         allowedFormats={['png', 'jpg', 'jpeg']}
                         maxSize={5 * 1024 * 1024}
-                        exhibitorId={user.role === 'admin' ? 2 : user.id}
+                        exhibitorId={null}
                         exhibitionId={exhibition.id}
                         existingFile={brandingFiles.files['kolorowe_tlo_logo_wydarzenia'] || null}
                         onUploadSuccess={handleUploadSuccess}
@@ -562,7 +562,7 @@ const EventDetailPage: React.FC = () => {
                         dimensions="152x106"
                         allowedFormats={['png', 'svg']}
                         maxSize={5 * 1024 * 1024}
-                        exhibitorId={user.role === 'admin' ? 2 : user.id}
+                        exhibitorId={null}
                         exhibitionId={exhibition.id}
                         existingFile={brandingFiles.files['tlo_wydarzenia_logo_zaproszenia'] || null}
                         onUploadSuccess={handleUploadSuccess}
@@ -580,7 +580,7 @@ const EventDetailPage: React.FC = () => {
                         dimensions="104x34"
                         allowedFormats={['png', 'svg']}
                         maxSize={5 * 1024 * 1024}
-                        exhibitorId={user.role === 'admin' ? 2 : user.id}
+                        exhibitorId={null}
                         exhibitionId={exhibition.id}
                         existingFile={brandingFiles.files['biale_logo_identyfikator'] || null}
                         onUploadSuccess={handleUploadSuccess}
@@ -598,7 +598,7 @@ const EventDetailPage: React.FC = () => {
                         dimensions="800x800"
                         allowedFormats={['png', 'jpg', 'jpeg']}
                         maxSize={10 * 1024 * 1024}
-                        exhibitorId={user.role === 'admin' ? 2 : user.id}
+                        exhibitorId={null}
                         exhibitionId={exhibition.id}
                         existingFile={brandingFiles.files['banner_wystawcy_800x800'] || null}
                         onUploadSuccess={handleUploadSuccess}
@@ -616,7 +616,7 @@ const EventDetailPage: React.FC = () => {
                         dimensions="1200x1200"
                         allowedFormats={['png', 'jpg', 'jpeg']}
                         maxSize={15 * 1024 * 1024}
-                        exhibitorId={user.role === 'admin' ? 2 : user.id}
+                        exhibitorId={null}
                         exhibitionId={exhibition.id}
                         existingFile={brandingFiles.files['banner_wystawcy_1200x1200'] || null}
                         onUploadSuccess={handleUploadSuccess}
@@ -634,7 +634,7 @@ const EventDetailPage: React.FC = () => {
                         dimensions="200x200"
                         allowedFormats={['png', 'jpg', 'jpeg']}
                         maxSize={5 * 1024 * 1024}
-                        exhibitorId={user.role === 'admin' ? 2 : user.id}
+                        exhibitorId={null}
                         exhibitionId={exhibition.id}
                         existingFile={brandingFiles.files['logo_ptak_expo'] || null}
                         onUploadSuccess={handleUploadSuccess}
@@ -652,7 +652,7 @@ const EventDetailPage: React.FC = () => {
                         dimensions={null}
                         allowedFormats={['pdf']}
                         maxSize={20 * 1024 * 1024}
-                        exhibitorId={user.role === 'admin' ? 2 : user.id}
+                        exhibitorId={null}
                         exhibitionId={exhibition.id}
                         existingFile={brandingFiles.files['dokumenty_brandingowe'] || null}
                         onUploadSuccess={handleUploadSuccess}

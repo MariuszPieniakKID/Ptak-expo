@@ -239,7 +239,7 @@ const initializeDatabase = async () => {
     await pool.query(`
       CREATE TABLE IF NOT EXISTS exhibitor_branding_files (
         id SERIAL PRIMARY KEY,
-        exhibitor_id INTEGER REFERENCES exhibitors(id) ON DELETE CASCADE,
+        exhibitor_id INTEGER NULL REFERENCES exhibitors(id) ON DELETE CASCADE,
         exhibition_id INTEGER REFERENCES exhibitions(id) ON DELETE CASCADE,
         file_type VARCHAR(100) NOT NULL, -- 'kolorowe_tlo_logo_wydarzenia', 'tlo_wydarzenia_logo_zaproszenia', 'biale_logo_identyfikator', 'banner_wystawcy_800', 'banner_wystawcy_1200', 'logo_ptak_expo', 'dokumenty_brandingowe'
         file_name VARCHAR(255) NOT NULL,
@@ -253,7 +253,7 @@ const initializeDatabase = async () => {
         approved_at TIMESTAMPTZ,
         created_at TIMESTAMPTZ DEFAULT NOW(),
         updated_at TIMESTAMPTZ DEFAULT NOW(),
-        UNIQUE(exhibitor_id, exhibition_id, file_type)
+        -- Note: UNIQUE constraint handled by partial indexes below to properly handle NULL exhibitor_id
       )
     `);
 
@@ -266,6 +266,18 @@ const initializeDatabase = async () => {
     `);
     await pool.query(`
       CREATE INDEX IF NOT EXISTS idx_exhibitor_branding_files_type ON exhibitor_branding_files(file_type)
+    `);
+    
+    // Partial unique indexes to handle NULL exhibitor_id properly
+    await pool.query(`
+      CREATE UNIQUE INDEX IF NOT EXISTS idx_exhibitor_branding_files_unique_individual 
+      ON exhibitor_branding_files(exhibitor_id, exhibition_id, file_type)
+      WHERE exhibitor_id IS NOT NULL
+    `);
+    await pool.query(`
+      CREATE UNIQUE INDEX IF NOT EXISTS idx_exhibitor_branding_files_unique_global 
+      ON exhibitor_branding_files(exhibition_id, file_type)
+      WHERE exhibitor_id IS NULL
     `);
 
     console.log('🔍 Creating trade_info table...');
@@ -428,13 +440,13 @@ const initializeDatabase = async () => {
 
     console.log('🔍 Inserting test exhibitors...');
     await pool.query(`
-      INSERT INTO exhibitors (nip, company_name, address, postal_code, city, contact_person, contact_role, phone, email) 
+      INSERT INTO exhibitors (nip, company_name, address, postal_code, city, contact_person, contact_role, phone, email, password_hash) 
       VALUES 
-        ('1234567890', 'ABC Electronics Sp. z o.o.', 'ul. Elektroniczna 15', '00-001', 'Warszawa', 'Jan Kowalski', 'Kierownik Sprzedaży', '+48 22 123 45 67', 'j.kowalski@abc-electronics.pl'),
-        ('9876543210', 'TechnoMed Solutions', 'Al. Medyczna 8', '31-000', 'Kraków', 'Anna Nowak', 'Dyrektor Handlowy', '+48 12 987 65 43', 'a.nowak@technomed.pl'),
-        ('5555666777', 'Green Energy Systems', 'ul. Zielona 22', '50-001', 'Wrocław', 'Piotr Wiśniewski', 'Specjalista ds. Sprzedaży', '+48 71 555 66 77', 'p.wisniewski@green-energy.pl'),
-        ('1111222333', 'Digital Marketing Pro', 'ul. Cyfrowa 5', '80-001', 'Gdańsk', 'Maria Kowalczyk', 'Account Manager', '+48 58 111 22 33', 'm.kowalczyk@digitalmarketing.pl'),
-        ('4444555666', 'Industrial Automation Ltd', 'ul. Przemysłowa 44', '40-001', 'Katowice', 'Tomasz Zieliński', 'Inżynier Sprzedaży', '+48 32 444 55 66', 't.zielinski@automation.pl')
+        ('1234567890', 'ABC Electronics Sp. z o.o.', 'ul. Elektroniczna 15', '00-001', 'Warszawa', 'Jan Kowalski', 'Kierownik Sprzedaży', '+48 22 123 45 67', 'j.kowalski@abc-electronics.pl', '$2a$10$NLrhOzCPxUW1Xw/ylXHfwew4XJO90LnkqS.5VuI/kEy7jEU2CLT5G'),
+        ('9876543210', 'TechnoMed Solutions', 'Al. Medyczna 8', '31-000', 'Kraków', 'Anna Nowak', 'Dyrektor Handlowy', '+48 12 987 65 43', 'a.nowak@technomed.pl', '$2a$10$NLrhOzCPxUW1Xw/ylXHfwew4XJO90LnkqS.5VuI/kEy7jEU2CLT5G'),
+        ('5555666777', 'Green Energy Systems', 'ul. Zielona 22', '50-001', 'Wrocław', 'Piotr Wiśniewski', 'Specjalista ds. Sprzedaży', '+48 71 555 66 77', 'p.wisniewski@green-energy.pl', '$2a$10$NLrhOzCPxUW1Xw/ylXHfwew4XJO90LnkqS.5VuI/kEy7jEU2CLT5G'),
+        ('1111222333', 'Digital Marketing Pro', 'ul. Cyfrowa 5', '80-001', 'Gdańsk', 'Maria Kowalczyk', 'Account Manager', '+48 58 111 22 33', 'm.kowalczyk@digitalmarketing.pl', '$2a$10$NLrhOzCPxUW1Xw/ylXHfwew4XJO90LnkqS.5VuI/kEy7jEU2CLT5G'),
+        ('4444555666', 'Industrial Automation Ltd', 'ul. Przemysłowa 44', '40-001', 'Katowice', 'Tomasz Zieliński', 'Inżynier Sprzedaży', '+48 32 444 55 66', 't.zielinski@automation.pl', '$2a$10$NLrhOzCPxUW1Xw/ylXHfwew4XJO90LnkqS.5VuI/kEy7jEU2CLT5G')
       ON CONFLICT (nip) DO NOTHING
     `);
 

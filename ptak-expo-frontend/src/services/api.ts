@@ -359,24 +359,29 @@ export interface UploadBrandingFileResponse {
 // Upload branding file
 export const uploadBrandingFile = async (
   file: File,
-  exhibitorId: number,
+  exhibitorId: number | null,
   exhibitionId: number,
   fileType: string,
   token: string
 ): Promise<UploadBrandingFileResponse> => {
   const formData = new FormData();
   formData.append('file', file);
-  formData.append('exhibitorId', exhibitorId.toString());
+  
+  // Only append exhibitorId if it's not null (for global event files)
+  if (exhibitorId !== null) {
+    formData.append('exhibitorId', exhibitorId.toString());
+  }
+  
   formData.append('exhibitionId', exhibitionId.toString());
   formData.append('fileType', fileType);
 
   console.log('📤 FormData contents:', {
     file: file.name,
-    exhibitorId: exhibitorId.toString(),
+    exhibitorId: exhibitorId !== null ? exhibitorId.toString() : 'null (global event file)',
     exhibitionId: exhibitionId.toString(),
     fileType,
     url: `${config.API_BASE_URL}/api/v1/exhibitor-branding/upload`,
-    note: exhibitorId === 2 ? '🔧 Admin uploading for default exhibitor' : '👤 User uploading for themselves'
+    note: exhibitorId !== null ? '👤 Exhibitor-specific branding' : '🌐 Global event branding'
   });
 
   const response = await fetch(`${config.API_BASE_URL}/api/v1/exhibitor-branding/upload`, {
@@ -407,11 +412,20 @@ export const uploadBrandingFile = async (
 
 // Get branding files for exhibitor and exhibition
 export const getBrandingFiles = async (
-  exhibitorId: number,
+  exhibitorId: number | null,
   exhibitionId: number,
   token: string
 ): Promise<BrandingFilesResponse> => {
-  const response = await apiCall(`${config.API_BASE_URL}/api/v1/exhibitor-branding/${exhibitorId}/${exhibitionId}`, {
+  let url;
+  if (exhibitorId === null) {
+    // Global event branding files
+    url = `${config.API_BASE_URL}/api/v1/exhibitor-branding/global/${exhibitionId}`;
+  } else {
+    // Exhibitor-specific branding files  
+    url = `${config.API_BASE_URL}/api/v1/exhibitor-branding/${exhibitorId}/${exhibitionId}`;
+  }
+  
+  const response = await apiCall(url, {
     headers: {
       'Authorization': `Bearer ${token}`,
     },
@@ -428,7 +442,7 @@ export const getBrandingFiles = async (
 // Delete branding file
 export const deleteBrandingFile = async (
   fileId: number,
-  exhibitorId: number,
+  exhibitorId: number | null,
   token: string
 ): Promise<void> => {
   const response = await apiCall(`${config.API_BASE_URL}/api/v1/exhibitor-branding/file/${fileId}`, {
@@ -448,10 +462,14 @@ export const deleteBrandingFile = async (
 
 // Get branding file URL for preview/download
 export const getBrandingFileUrl = (
-  exhibitorId: number,
+  exhibitorId: number | null,
   fileName: string,
   token: string
 ): string => {
+  if (exhibitorId === null) {
+    // Global event files
+    return `${config.API_BASE_URL}/api/v1/exhibitor-branding/serve/global/${fileName}?token=${encodeURIComponent(token)}`;
+  }
   return `${config.API_BASE_URL}/api/v1/exhibitor-branding/serve/${exhibitorId}/${fileName}?token=${encodeURIComponent(token)}`;
 };
 

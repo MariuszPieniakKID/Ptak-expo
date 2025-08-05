@@ -50,8 +50,17 @@ const FILE_TYPES = {
 };
 
 // Create uploads directory structure
-const ensureUploadDir = async (exhibitorId) => {
-  const uploadDir = path.join(__dirname, '../../uploads/exhibitors', exhibitorId.toString(), 'branding');
+const ensureUploadDir = async (exhibitorId, exhibitionId) => {
+  let uploadDir;
+  
+  if (exhibitorId) {
+    // Individual exhibitor files
+    uploadDir = path.join(__dirname, '../../uploads/exhibitors', exhibitorId.toString(), 'branding');
+  } else {
+    // Global exhibition files
+    uploadDir = path.join(__dirname, '../../uploads/exhibitions', exhibitionId.toString(), 'branding');
+  }
+  
   try {
     await fs.mkdir(uploadDir, { recursive: true });
     return uploadDir;
@@ -69,10 +78,10 @@ const uploadBrandingFile = async (req, res) => {
     const { exhibitorId, exhibitionId, fileType } = req.body;
     const uploadedFile = req.file;
 
-    // Validate required fields
-    if (!exhibitorId || !exhibitionId || !fileType) {
+    // Validate required fields (exhibitorId is optional for global event files)
+    if (!exhibitionId || !fileType) {
       return res.status(400).json({
-        error: 'Missing required fields: exhibitorId, exhibitionId, fileType'
+        error: 'Missing required fields: exhibitionId, fileType'
       });
     }
 
@@ -107,16 +116,18 @@ const uploadBrandingFile = async (req, res) => {
       });
     }
 
-    // Verify exhibitor exists in users table with role 'exhibitor'
-    const exhibitorCheck = await client.query(
-      'SELECT id, company_name FROM users WHERE id = $1 AND role = $2',
-      [exhibitorId, 'exhibitor']
-    );
+    // Verify exhibitor exists in exhibitors table (only if exhibitorId is provided)
+    if (exhibitorId) {
+      const exhibitorCheck = await client.query(
+        'SELECT id, company_name FROM exhibitors WHERE id = $1',
+        [exhibitorId]
+      );
 
-    if (exhibitorCheck.rows.length === 0) {
-      return res.status(404).json({
-        error: 'Exhibitor not found'
-      });
+      if (exhibitorCheck.rows.length === 0) {
+        return res.status(404).json({
+          error: 'Exhibitor not found'
+        });
+      }
     }
 
     // Admin ma dostęp do wszystkich plików - nie sprawdzamy ownership
@@ -141,21 +152,25 @@ const uploadBrandingFile = async (req, res) => {
 
     // Generate unique filename
     const uniqueFilename = `${uuidv4()}_${Date.now()}.${fileExtension}`;
-    const uploadDir = await ensureUploadDir(exhibitorId);
+    const uploadDir = await ensureUploadDir(exhibitorId, exhibitionId);
     const filePath = path.join(uploadDir, uniqueFilename);
-    const relativePath = path.join('uploads/exhibitors', exhibitorId.toString(), 'branding', uniqueFilename);
+    
+    // Set relative path based on whether it's individual or global file
+    const relativePath = exhibitorId 
+      ? path.join('uploads/exhibitors', exhibitorId.toString(), 'branding', uniqueFilename)
+      : path.join('uploads/exhibitions', exhibitionId.toString(), 'branding', uniqueFilename);
 
     // Move uploaded file to final location
     await fs.rename(uploadedFile.path, filePath);
 
-    // Delete existing file of same type (if any)
-    const existingFile = await client.query(
+    // Delete existing file of same type (if any) - legacy code, will be replaced by new logic below
+    const legacyExistingFile = await client.query(
       'SELECT file_path FROM exhibitor_branding_files WHERE exhibitor_id = $1 AND exhibition_id = $2 AND file_type = $3',
       [exhibitorId, exhibitionId, fileType]
     );
 
-    if (existingFile.rows.length > 0) {
-      const oldFilePath = path.join(__dirname, '../..', existingFile.rows[0].file_path);
+    if (legacyExistingFile.rows.length > 0) {
+      const oldFilePath = path.join(__dirname, '../..', legacyExistingFile.rows[0].file_path);
       try {
         await fs.unlink(oldFilePath);
       } catch (error) {
@@ -163,20 +178,39 @@ const uploadBrandingFile = async (req, res) => {
       }
     }
 
+    // Check if file of same type already exists and delete it
+    const existingFileQuery = exhibitorId 
+      ? 'SELECT * FROM exhibitor_branding_files WHERE exhibitor_id = $1 AND exhibition_id = $2 AND file_type = $3'
+      : 'SELECT * FROM exhibitor_branding_files WHERE exhibitor_id IS NULL AND exhibition_id = $1 AND file_type = $2';
+    
+    const existingFileParams = exhibitorId 
+      ? [exhibitorId, exhibitionId, fileType]
+      : [exhibitionId, fileType];
+    
+    const existingFile = await client.query(existingFileQuery, existingFileParams);
+    
+    if (existingFile.rows.length > 0) {
+      // Delete existing file from filesystem
+      const oldFilePath = path.resolve(existingFile.rows[0].file_path);
+      try {
+        await fs.unlink(oldFilePath);
+      } catch (error) {
+        console.warn('Failed to delete existing file:', error.message);
+      }
+      
+      // Delete existing record from database
+      const deleteQuery = exhibitorId 
+        ? 'DELETE FROM exhibitor_branding_files WHERE exhibitor_id = $1 AND exhibition_id = $2 AND file_type = $3'
+        : 'DELETE FROM exhibitor_branding_files WHERE exhibitor_id IS NULL AND exhibition_id = $1 AND file_type = $2';
+      
+      await client.query(deleteQuery, existingFileParams);
+    }
+
     // Save file info to database
     const result = await client.query(
       `INSERT INTO exhibitor_branding_files 
        (exhibitor_id, exhibition_id, file_type, file_name, original_name, file_path, file_size, mime_type, dimensions)
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
-       ON CONFLICT (exhibitor_id, exhibition_id, file_type) 
-       DO UPDATE SET 
-         file_name = EXCLUDED.file_name,
-         original_name = EXCLUDED.original_name,
-         file_path = EXCLUDED.file_path,
-         file_size = EXCLUDED.file_size,
-         mime_type = EXCLUDED.mime_type,
-         dimensions = EXCLUDED.dimensions,
-         updated_at = NOW()
        RETURNING *`,
       [exhibitorId, exhibitionId, fileType, uniqueFilename, uploadedFile.originalname, 
        relativePath, uploadedFile.size, uploadedFile.mimetype, config.dimensions]
@@ -222,15 +256,29 @@ const getBrandingFiles = async (req, res) => {
       });
     }
 
-    const result = await client.query(
-      `SELECT 
+    let query, params;
+    
+    if (exhibitorId === 'global') {
+      // Get global event branding files (exhibitor_id IS NULL)
+      query = `SELECT 
+         id, file_type, file_name, original_name, file_path, file_size, 
+         mime_type, dimensions, is_approved, created_at, updated_at
+       FROM exhibitor_branding_files 
+       WHERE exhibitor_id IS NULL AND exhibition_id = $1
+       ORDER BY file_type, created_at DESC`;
+      params = [parseInt(exhibitionId)];
+    } else {
+      // Get exhibitor-specific branding files
+      query = `SELECT 
          id, file_type, file_name, original_name, file_path, file_size, 
          mime_type, dimensions, is_approved, created_at, updated_at
        FROM exhibitor_branding_files 
        WHERE exhibitor_id = $1 AND exhibition_id = $2
-       ORDER BY file_type, created_at DESC`,
-      [exhibitorId, exhibitionId]
-    );
+       ORDER BY file_type, created_at DESC`;
+      params = [parseInt(exhibitorId), parseInt(exhibitionId)];
+    }
+
+    const result = await client.query(query, params);
 
     // Group files by type
     const filesByType = {};
@@ -253,7 +301,7 @@ const getBrandingFiles = async (req, res) => {
 
     res.json({
       success: true,
-      exhibitorId: parseInt(exhibitorId),
+      exhibitorId: exhibitorId === 'global' ? 0 : parseInt(exhibitorId), // Use 0 for global files
       exhibitionId: parseInt(exhibitionId),
       files: filesByType,
       fileTypes: FILE_TYPES
@@ -339,7 +387,28 @@ const serveBrandingFile = async (req, res) => {
       });
     }
 
-    const filePath = path.join(__dirname, '../../uploads/exhibitors', exhibitorId.toString(), 'branding', fileName);
+    let filePath;
+    if (exhibitorId === 'global') {
+      // For global files, we need the exhibition ID - extract from file metadata or use different approach
+      // For now, let's find the file in the database first
+      const client = await pool.connect();
+      try {
+        const result = await client.query(
+          'SELECT file_path FROM exhibitor_branding_files WHERE exhibitor_id IS NULL AND file_name = $1',
+          [fileName]
+        );
+        
+        if (result.rows.length === 0) {
+          return res.status(404).json({ error: 'File not found' });
+        }
+        
+        filePath = path.join(__dirname, '../..', result.rows[0].file_path);
+      } finally {
+        client.release();
+      }
+    } else {
+      filePath = path.join(__dirname, '../../uploads/exhibitors', exhibitorId.toString(), 'branding', fileName);
+    }
     
     // Check if file exists
     try {

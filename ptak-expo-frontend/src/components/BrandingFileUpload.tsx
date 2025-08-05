@@ -13,7 +13,7 @@ interface BrandingFileUploadProps {
   dimensions?: string | null;
   allowedFormats: string[];
   maxSize: number;
-  exhibitorId: number;
+  exhibitorId?: number | null;
   exhibitionId: number;
   existingFile?: {
     id: number;
@@ -95,7 +95,7 @@ const BrandingFileUpload: React.FC<BrandingFileUploadProps> = ({
       exhibitionId,
       fileType,
       hasToken: !!token,
-      note: exhibitorId === 2 ? 'Using default exhibitor (admin mode)' : 'Using user exhibitor ID'
+              note: exhibitorId ? 'Using exhibitor-specific branding' : 'Using global event branding'
     });
     
     if (!token) {
@@ -116,7 +116,7 @@ const BrandingFileUpload: React.FC<BrandingFileUploadProps> = ({
 
     try {
       console.log('📤 Calling uploadBrandingFile API...');
-      await uploadBrandingFile(file, exhibitorId, exhibitionId, fileType, token);
+      await uploadBrandingFile(file, exhibitorId ?? null, exhibitionId, fileType, token);
       console.log('✅ Upload successful!');
       resetFileInput(); // Reset input after successful upload
       onUploadSuccess();
@@ -139,7 +139,7 @@ const BrandingFileUpload: React.FC<BrandingFileUploadProps> = ({
     setIsDeleting(true);
 
     try {
-      await deleteBrandingFile(existingFile.id, exhibitorId, token);
+      await deleteBrandingFile(existingFile.id, exhibitorId ?? null, token);
       console.log('✅ File deleted successfully');
       if (onDeleteSuccess) {
         onDeleteSuccess();
@@ -196,7 +196,7 @@ const BrandingFileUpload: React.FC<BrandingFileUploadProps> = ({
 
   const getPreviewUrl = (): string | null => {
     if (!existingFile || !token) return null;
-    return getBrandingFileUrl(exhibitorId, existingFile.fileName, token);
+    return getBrandingFileUrl(exhibitorId ?? null, existingFile.fileName, token);
   };
 
   const isImage = existingFile?.mimeType?.startsWith('image/');

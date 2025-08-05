@@ -46,6 +46,16 @@ router.post('/upload', verifyToken, requireAdmin, upload.single('file'), uploadB
 router.get('/:exhibitorId/:exhibitionId', verifyToken, requireAdmin, getBrandingFiles);
 router.delete('/file/:fileId', verifyToken, requireAdmin, deleteBrandingFile);
 router.get('/serve/:exhibitorId/:fileName', verifyToken, requireAdmin, serveBrandingFile);
+
+// Alias routes for global branding files
+router.get('/global/:exhibitionId', verifyToken, requireAdmin, (req, res) => {
+  req.params.exhibitorId = 'global';
+  return getBrandingFiles(req, res);
+});
+router.get('/serve/global/:fileName', verifyToken, requireAdmin, (req, res) => {
+  req.params.exhibitorId = 'global';
+  return serveBrandingFile(req, res);
+});
 router.get('/file-types', verifyToken, requireAdmin, (req, res) => {
   res.json({
     success: true,
