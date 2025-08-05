@@ -13,12 +13,12 @@ import {
   FormControl
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
-import { addExhibitor, AddExhibitorPayload, fetchExhibitions, Exhibition } from '../services/api';
-import CustomTypography from './customTypography/CustomTypography';
-import CustomButton from './customButton/CustomButton';
-import CustomField from './customField/CustomField';
+import { addExhibitor, AddExhibitorPayload, fetchExhibitions, Exhibition } from '../../services/api';
+import CustomTypography from './../customTypography/CustomTypography';
+import CustomButton from './../customButton/CustomButton';
+import CustomField from './../customField/CustomField';
 import styles from './AddExhibitorModal.module.scss';
-import ExhibitorIcon from '../assets/mask-group-6@2x.png';
+import ExhibitorIcon from '../../assets/mask-group-6@2x.png';
 
 interface AddExhibitorModalProps {
   isOpen: boolean;
@@ -132,7 +132,7 @@ const AddExhibitorModal: React.FC<AddExhibitorModalProps> = ({ isOpen, onClose, 
     try {
       const exhibitorData = {
         ...formData,
-        exhibitionId: selectedExhibitionId || undefined
+        exhibitionId: selectedExhibitionId || null
       };
       await addExhibitor(exhibitorData, token);
       onExhibitorAdded();

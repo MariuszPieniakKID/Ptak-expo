@@ -203,7 +203,7 @@ export interface AddExhibitorPayload {
   contactRole: string;
   phone: string;
   email: string;
-  exhibitionId?: number | undefined;
+  exhibitionId?: number | null;
 }
 
 export const addExhibitor = async (exhibitorData: AddExhibitorPayload, token: string): Promise<any> => {

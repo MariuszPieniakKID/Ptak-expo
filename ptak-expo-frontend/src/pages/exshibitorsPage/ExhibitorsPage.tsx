@@ -2,7 +2,8 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import Menu from '../../components/menu/Menu';
-import AddExhibitorModal from '../../components/AddExhibitorModal';
+//import AddExhibitorModal from '../../components/addExhibitorModal/AddExhibitorModal';
+import AddExhibitorModal2 from '../../components/addExhibitorModal/AddExhibitorModalShort';
 import CustomTypography from '../../components/customTypography/CustomTypography';
 import CustomButton from '../../components/customButton/CustomButton';
 import {
@@ -455,7 +456,13 @@ const ExhibitorsPage: React.FC = () => {
         </Container>
       </Box>
 
-      <AddExhibitorModal
+      {/* <AddExhibitorModal
+        isOpen={isAddExhibitorModalOpen}
+        onClose={handleModalClose}
+        onExhibitorAdded={handleExhibitorAdded}
+        token={token || ''}
+        /> */}
+      <AddExhibitorModal2
         isOpen={isAddExhibitorModalOpen}
         onClose={handleModalClose}
         onExhibitorAdded={handleExhibitorAdded}
