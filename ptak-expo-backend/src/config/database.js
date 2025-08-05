@@ -232,7 +232,7 @@ const initializeDatabase = async () => {
     await pool.query(`
       CREATE TABLE IF NOT EXISTS exhibitor_branding_files (
         id SERIAL PRIMARY KEY,
-        exhibitor_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+        exhibitor_id INTEGER REFERENCES exhibitors(id) ON DELETE CASCADE,
         exhibition_id INTEGER REFERENCES exhibitions(id) ON DELETE CASCADE,
         file_type VARCHAR(100) NOT NULL, -- 'kolorowe_tlo_logo_wydarzenia', 'tlo_wydarzenia_logo_zaproszenia', 'biale_logo_identyfikator', 'banner_wystawcy_800', 'banner_wystawcy_1200', 'logo_ptak_expo', 'dokumenty_brandingowe'
         file_name VARCHAR(255) NOT NULL,
@@ -431,7 +431,10 @@ const initializeDatabase = async () => {
       ON CONFLICT (nip) DO NOTHING
     `);
 
-    console.log('🔍 Inserting test exhibitions...');
+    // Skip inserting test exhibitions to prevent auto-creation
+    console.log('🔍 Skipping test exhibitions insertion (disabled to prevent auto-creation)');
+    // Test exhibitions are now managed manually through admin interface
+    /*
     await pool.query(`
       INSERT INTO exhibitions (name, description, start_date, end_date, location, status) 
       VALUES 
@@ -446,6 +449,7 @@ const initializeDatabase = async () => {
         ('Targi Transportu i Logistyki', 'Nowoczesne rozwiązania transportowe', '2026-09-05', '2026-09-08', 'Szczecin', 'planned')
       ON CONFLICT DO NOTHING
     `);
+    */
 
     console.log('✅ Database tables initialized successfully');
   } catch (error) {
