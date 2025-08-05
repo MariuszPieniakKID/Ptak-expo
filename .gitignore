@@ -60,4 +60,8 @@ rozne dokmunety/
 grafika/
 
 # User uploaded files
-ptak-expo-backend/uploads/ 
+ptak-expo-backend/uploads/
+
+# Backend logs
+backend.log
+ptak-expo-backend/backend.log 

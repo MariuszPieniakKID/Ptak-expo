@@ -342,6 +342,27 @@ const initializeDatabase = async () => {
       )
     `);
 
+    console.log('🔍 Creating exhibitor_documents table...');
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS exhibitor_documents (
+        id SERIAL PRIMARY KEY,
+        exhibitor_id INTEGER REFERENCES exhibitors(id) ON DELETE CASCADE,
+        exhibition_id INTEGER REFERENCES exhibitions(id) ON DELETE CASCADE,
+        title VARCHAR(255) NOT NULL,
+        description TEXT,
+        file_name VARCHAR(255) NOT NULL,
+        original_name VARCHAR(255) NOT NULL,
+        file_path VARCHAR(500) NOT NULL,
+        file_size INTEGER,
+        mime_type VARCHAR(100),
+        category VARCHAR(50) NOT NULL CHECK (category IN ('faktury', 'umowy', 'inne_dokumenty')),
+        uploaded_by INTEGER REFERENCES users(id),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE(exhibitor_id, exhibition_id, file_name)
+      )
+    `);
+
     console.log('🔍 Creating indexes for trade_info and invitations tables...');
     await pool.query(`
       CREATE INDEX IF NOT EXISTS idx_trade_info_exhibition_id ON trade_info(exhibition_id)
@@ -363,6 +384,15 @@ const initializeDatabase = async () => {
     `);
     await pool.query(`
       CREATE INDEX IF NOT EXISTS idx_invitation_recipients_email ON invitation_recipients(recipient_email)
+    `);
+    await pool.query(`
+      CREATE INDEX IF NOT EXISTS idx_exhibitor_documents_exhibitor_id ON exhibitor_documents(exhibitor_id)
+    `);
+    await pool.query(`
+      CREATE INDEX IF NOT EXISTS idx_exhibitor_documents_exhibition_id ON exhibitor_documents(exhibition_id)
+    `);
+    await pool.query(`
+      CREATE INDEX IF NOT EXISTS idx_exhibitor_documents_category ON exhibitor_documents(category)
     `);
 
     console.log('🔍 Inserting admin user...');

@@ -11,9 +11,23 @@ import {
   CircularProgress,
   Alert,
   Avatar,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
+  Button,
+  IconButton,
 } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import LogoutIcon from '@mui/icons-material/Logout';
+import UploadFileIcon from '@mui/icons-material/UploadFile';
+import DeleteIcon from '@mui/icons-material/Delete';
+import DownloadIcon from '@mui/icons-material/Download';
 import styles from './EventDetailsPage.module.scss';
 
 // Import images from assets
@@ -30,8 +44,41 @@ const EventDetailsPage: React.FC<EventDetailsPageProps> = () => {
   const [exhibition, setExhibition] = useState<Exhibition | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>('');
+  const [documents, setDocuments] = useState<any[]>([]);
+  const [documentsLoading, setDocumentsLoading] = useState<boolean>(false);
+  const [uploadModalOpen, setUploadModalOpen] = useState<boolean>(false);
+  const [uploadFile, setUploadFile] = useState<File | null>(null);
+  const [uploadTitle, setUploadTitle] = useState<string>('');
+  const [uploadDescription, setUploadDescription] = useState<string>('');
+  const [uploadCategory, setUploadCategory] = useState<string>('');
+  const [uploading, setUploading] = useState<boolean>(false);
   const navigate = useNavigate();
   const { token, logout } = useAuth();
+
+  // Load documents for this exhibitor+exhibition
+  const loadDocuments = useCallback(async (): Promise<void> => {
+    if (!token || !exhibitorId || !eventId) return;
+
+    try {
+      setDocumentsLoading(true);
+      const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:3001'}/api/v1/exhibitor-documents/${exhibitorId}/${eventId}`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setDocuments(data.documents || []);
+      } else {
+        console.error('Failed to load documents');
+      }
+    } catch (error) {
+      console.error('Error loading documents:', error);
+    } finally {
+      setDocumentsLoading(false);
+    }
+  }, [token, exhibitorId, eventId]);
 
   const loadData = useCallback(async (): Promise<void> => {
     if (!token || !exhibitorId || !eventId) {
@@ -53,6 +100,9 @@ const EventDetailsPage: React.FC<EventDetailsPageProps> = () => {
       setExhibitor(fetchedExhibitor);
       setExhibition(fetchedExhibition);
       setError('');
+      
+      // Load documents after data is loaded
+      await loadDocuments();
     } catch (err: any) {
       setError(err.message || 'Nie udało się pobrać danych wystawcy lub wydarzenia');
       if (err.message.includes('401')) {
@@ -62,11 +112,94 @@ const EventDetailsPage: React.FC<EventDetailsPageProps> = () => {
     } finally {
       setLoading(false);
     }
-  }, [token, exhibitorId, eventId, logout, navigate]);
+  }, [token, exhibitorId, eventId, logout, navigate, loadDocuments]);
 
   useEffect(() => {
     loadData();
   }, [loadData]);
+
+  // Handle file upload
+  const handleFileUpload = async () => {
+    if (!uploadFile || !uploadTitle || !uploadCategory) {
+      alert('Proszę wypełnić wszystkie wymagane pola');
+      return;
+    }
+
+    try {
+      setUploading(true);
+      const formData = new FormData();
+      formData.append('document', uploadFile);
+      formData.append('title', uploadTitle);
+      formData.append('description', uploadDescription);
+      formData.append('category', uploadCategory);
+
+      const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:3001'}/api/v1/exhibitor-documents/${exhibitorId}/${eventId}/upload`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+        body: formData,
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log('Upload success:', data);
+        setUploadModalOpen(false);
+        setUploadFile(null);
+        setUploadTitle('');
+        setUploadDescription('');
+        setUploadCategory('');
+        // Reload documents
+        await loadDocuments();
+      } else {
+        const error = await response.json();
+        alert(`Błąd podczas przesyłania pliku: ${error.error}`);
+      }
+    } catch (error) {
+      console.error('Upload error:', error);
+      alert('Wystąpił błąd podczas przesyłania pliku');
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  // Handle file delete
+  const handleDeleteDocument = async (documentId: number) => {
+    if (!window.confirm('Czy na pewno chcesz usunąć ten dokument?')) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:3001'}/api/v1/exhibitor-documents/${exhibitorId}/${eventId}/${documentId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        // Reload documents
+        await loadDocuments();
+      } else {
+        const error = await response.json();
+        alert(`Błąd podczas usuwania dokumentu: ${error.error}`);
+      }
+    } catch (error) {
+      console.error('Delete error:', error);
+      alert('Wystąpił błąd podczas usuwania dokumentu');
+    }
+  };
+
+  // Handle file download
+  const handleDownloadDocument = (documentId: number, fileName: string) => {
+    const url = `${process.env.REACT_APP_API_URL || 'http://localhost:3001'}/api/v1/exhibitor-documents/${exhibitorId}/${eventId}/download/${documentId}`;
+    const link = document.createElement('a');
+    link.href = url;
+    link.target = '_blank';
+    link.download = fileName;
+    // Add authorization header by opening in new window
+    window.open(url + `?token=${token}`, '_blank');
+  };
 
   const handleBack = useCallback(() => {
     navigate(`/wystawcy/${exhibitorId}`);
@@ -290,30 +423,71 @@ const EventDetailsPage: React.FC<EventDetailsPageProps> = () => {
       case 'documents':
         return (
           <Box className={styles.documentsSection}>
-            <CustomTypography fontSize="0.875rem" fontWeight={500} color="#2e2e38">
-              Materiały do pobrania (3)
-            </CustomTypography>
-            
-            <Box className={styles.documentsList}>
-              <Box className={styles.documentItem}>
-                <CustomTypography fontSize="0.6875rem" color="#2e2e38">
-                  Katalog {exhibitor.companyName}.pdf
-                </CustomTypography>
-                <span className={styles.documentType}>PDF</span>
-              </Box>
-              <Box className={styles.documentItem}>
-                <CustomTypography fontSize="0.6875rem" color="#2e2e38">
-                  Cennik {exhibitor.companyName}.pdf
-                </CustomTypography>
-                <span className={styles.documentType}>PDF</span>
-              </Box>
-              <Box className={styles.documentItem}>
-                <CustomTypography fontSize="0.6875rem" color="#2e2e38">
-                  Broszura produktowa.pdf
-                </CustomTypography>
-                <span className={styles.documentType}>PDF</span>
-              </Box>
+            <Box className={styles.documentsHeader}>
+              <CustomTypography fontSize="0.875rem" fontWeight={500} color="#2e2e38">
+                Dokumenty ({documents.length})
+              </CustomTypography>
+              
+              <CustomButton
+                onClick={() => setUploadModalOpen(true)}
+                bgColor="#6F87F6"
+                textColor="#fff"
+                width="auto"
+                height="32px"
+                fontSize="0.6875rem"
+                icon={<UploadFileIcon style={{ fontSize: '1rem' }} />}
+                className={styles.uploadButton}
+              >
+                Dodaj dokument
+              </CustomButton>
             </Box>
+            
+            {documentsLoading ? (
+              <CircularProgress size={24} />
+            ) : documents.length > 0 ? (
+              <Box className={styles.documentsList}>
+                {documents.map((doc: any) => (
+                  <Box key={doc.id} className={styles.documentItem}>
+                    <Box className={styles.documentInfo}>
+                      <CustomTypography fontSize="0.75rem" fontWeight={500} color="#2e2e38">
+                        {doc.title}
+                      </CustomTypography>
+                      <CustomTypography fontSize="0.6875rem" color="#6f6f6f">
+                        {doc.category === 'faktury' ? 'Faktury' : 
+                         doc.category === 'umowy' ? 'Umowy' : 'Inne dokumenty'}
+                        {doc.description && ` • ${doc.description}`}
+                      </CustomTypography>
+                      <CustomTypography fontSize="0.6875rem" color="#6f6f6f">
+                        {doc.original_name} • {Math.round(doc.file_size / 1024)} KB
+                      </CustomTypography>
+                    </Box>
+                    
+                    <Box className={styles.documentActions}>
+                      <IconButton
+                        size="small"
+                        onClick={() => handleDownloadDocument(doc.id, doc.original_name)}
+                        className={styles.actionButton}
+                      >
+                        <DownloadIcon fontSize="small" />
+                      </IconButton>
+                      <IconButton
+                        size="small"
+                        onClick={() => handleDeleteDocument(doc.id)}
+                        className={styles.actionButton}
+                      >
+                        <DeleteIcon fontSize="small" />
+                      </IconButton>
+                    </Box>
+                  </Box>
+                ))}
+              </Box>
+            ) : (
+              <Box className={styles.emptyDocuments}>
+                <CustomTypography fontSize="0.875rem" color="#6f6f6f">
+                  Brak dokumentów. Kliknij "Dodaj dokument" aby przesłać pierwszy plik.
+                </CustomTypography>
+              </Box>
+            )}
           </Box>
         );
       
@@ -516,6 +690,78 @@ const EventDetailsPage: React.FC<EventDetailsPageProps> = () => {
           Kontakt • Polityka prywatności • www.warsawexpo.eu
         </CustomTypography>
       </Box>
+      
+      {/* Upload Document Modal */}
+      <Dialog open={uploadModalOpen} onClose={() => setUploadModalOpen(false)} maxWidth="sm" fullWidth>
+        <DialogTitle>Dodaj dokument</DialogTitle>
+        <DialogContent>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
+            <TextField
+              label="Tytuł dokumentu"
+              value={uploadTitle}
+              onChange={(e) => setUploadTitle(e.target.value)}
+              fullWidth
+              required
+            />
+            
+            <FormControl fullWidth required>
+              <InputLabel>Kategoria</InputLabel>
+              <Select
+                value={uploadCategory}
+                onChange={(e) => setUploadCategory(e.target.value)}
+                label="Kategoria"
+              >
+                <MenuItem value="faktury">Faktury</MenuItem>
+                <MenuItem value="umowy">Umowy</MenuItem>
+                <MenuItem value="inne_dokumenty">Inne dokumenty</MenuItem>
+              </Select>
+            </FormControl>
+            
+            <TextField
+              label="Opis (opcjonalny)"
+              value={uploadDescription}
+              onChange={(e) => setUploadDescription(e.target.value)}
+              fullWidth
+              multiline
+              rows={2}
+            />
+            
+            <Box>
+              <Button
+                variant="outlined"
+                component="label"
+                startIcon={<UploadFileIcon />}
+                fullWidth
+              >
+                {uploadFile ? uploadFile.name : 'Wybierz plik'}
+                <input
+                  type="file"
+                  hidden
+                  accept=".pdf,.doc,.docx,.xls,.xlsx,.txt,.jpg,.jpeg,.png,.gif"
+                  onChange={(e) => setUploadFile(e.target.files?.[0] || null)}
+                />
+              </Button>
+              {uploadFile && (
+                <Box sx={{ mt: 1 }}>
+                  <CustomTypography fontSize="0.75rem" color="#6f6f6f">
+                    Rozmiar: {Math.round(uploadFile.size / 1024)} KB
+                  </CustomTypography>
+                </Box>
+              )}
+            </Box>
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setUploadModalOpen(false)}>Anuluj</Button>
+          <Button 
+            onClick={handleFileUpload} 
+            variant="contained" 
+            disabled={uploading || !uploadFile || !uploadTitle || !uploadCategory}
+          >
+            {uploading ? 'Przesyłanie...' : 'Prześlij'}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };

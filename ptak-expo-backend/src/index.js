@@ -22,6 +22,7 @@ const exhibitionsRoutes = require('./routes/exhibitions');
 const exhibitorBrandingRoutes = require('./routes/exhibitorBrandingNew');
 const tradeInfoRoutes = require('./routes/tradeInfo');
 const invitationsRoutes = require('./routes/invitations');
+const exhibitorDocumentsRoutes = require('./routes/exhibitorDocuments');
 
 console.log('🔍 Loading database config...');
 const db = require('./config/database');
@@ -89,6 +90,7 @@ app.use('/api/v1/exhibitions', exhibitionsRoutes);
 app.use('/api/v1/exhibitor-branding', exhibitorBrandingRoutes);
 app.use('/api/v1/trade-info', tradeInfoRoutes);
 app.use('/api/v1/invitations', invitationsRoutes);
+app.use('/api/v1/exhibitor-documents', exhibitorDocumentsRoutes);
 
 // Health check endpoints
 app.get('/', (req, res) => {
