@@ -300,74 +300,7 @@ const ExhibitorCardPage: React.FC = () => {
               </Box>
             </Box>
 
-            {/* Categories Section */}
-            <Box className={styles.categoriesSection}>
-              <Box className={styles.categoryItem}>
-                <Box className={styles.categoryIcon}>
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                    <path d="M14 2H6C4.9 2 4 2.9 4 4V20C4 21.1 4.89 22 5.99 22H18C19.1 22 20 21.1 20 20V8L14 2Z" fill="#6F87F6"/>
-                  </svg>
-                </Box>
-                <CustomTypography fontSize="0.875rem" color="#2e2e38">
-                  Wpis do katalogu
-                </CustomTypography>
-              </Box>
-              
-              <Box className={styles.categoryItem}>
-                <Box className={styles.categoryIcon}>
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                    <path d="M16 1H4C2.9 1 2 1.9 2 3V17H4V3H16V1ZM19 5H8C6.9 5 6 5.9 6 7V21C6 22.1 6.9 23 8 23H19C20.1 23 21 22.1 21 21V7C21 5.9 20.1 5 19 5Z" fill="#6F87F6"/>
-                  </svg>
-                </Box>
-                <CustomTypography fontSize="0.875rem" color="#2e2e38">
-                  Dokumenty
-                </CustomTypography>
-              </Box>
-              
-              <Box className={styles.categoryItem}>
-                <Box className={styles.categoryIcon}>
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                    <path d="M20 4H4C2.9 4 2.01 4.9 2.01 6L2 18C2 19.1 2.9 20 4 20H20C21.1 20 22 19.1 22 18V6C22 4.9 21.1 4 20 4ZM20 8L12 13L4 8V6L12 11L20 6V8Z" fill="#6F87F6"/>
-                  </svg>
-                </Box>
-                <CustomTypography fontSize="0.875rem" color="#2e2e38">
-                  Zaproszenia
-                </CustomTypography>
-              </Box>
-              
-              <Box className={styles.categoryItem}>
-                <Box className={styles.categoryIcon}>
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                    <path d="M19 3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3ZM12 6C13.93 6 15.5 7.57 15.5 9.5S13.93 13 12 13S8.5 11.43 8.5 9.5S10.07 6 12 6ZM19 19H5V17.5C5 15.56 8.94 14.5 12 14.5S19 15.56 19 17.5V19Z" fill="#6F87F6"/>
-                  </svg>
-                </Box>
-                <CustomTypography fontSize="0.875rem" color="#2e2e38">
-                  Plan wydarzeń
-                </CustomTypography>
-              </Box>
-              
-              <Box className={styles.categoryItem}>
-                <Box className={styles.categoryIcon}>
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                    <path d="M12 2C6.48 2 2 6.48 2 12S6.48 22 12 22 22 17.52 22 12 17.52 2 12 2ZM13 17H11V15H13V17ZM13 13H11V7H13V13Z" fill="#6F87F6"/>
-                  </svg>
-                </Box>
-                <CustomTypography fontSize="0.875rem" color="#2e2e38">
-                  Identyfikatory
-                </CustomTypography>
-              </Box>
-              
-              <Box className={styles.categoryItem}>
-                <Box className={styles.categoryIcon}>
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                    <path d="M12 2L15.09 8.26L22 9L17 13.74L18.18 20.66L12 17.27L5.82 20.66L7 13.74L2 9L8.91 8.26L12 2Z" fill="#6F87F6"/>
-                  </svg>
-                </Box>
-                <CustomTypography fontSize="0.875rem" color="#2e2e38">
-                  Nagrody Targowe
-                </CustomTypography>
-              </Box>
-            </Box>
+
           </Box>
 
           {/* Events Section */}
