@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { exhibitionsAPI } from '../services/api';
 import styles from './DashboardPage.module.css';
@@ -16,6 +17,7 @@ interface Event {
 
 const DashboardPage: React.FC = () => {
   const { logout, user } = useAuth();
+  const navigate = useNavigate();
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -57,9 +59,9 @@ const DashboardPage: React.FC = () => {
     console.log('Calendar clicked');
   };
 
-  const handleEventSelect = (eventTitle: string) => {
-    // Placeholder for event selection
-    console.log(`Event selected: ${eventTitle}`);
+  const handleEventSelect = (eventId: number) => {
+    // Navigate to the exhibitor dashboard for this event
+    navigate(`/event/${eventId}`);
   };
 
   // Format date for display
@@ -186,7 +188,7 @@ const DashboardPage: React.FC = () => {
               </div>
               <div 
                 className={styles.wybierz}
-                onClick={() => handleEventSelect(event.name)}
+                onClick={() => handleEventSelect(event.id)}
               >
                 wybierz
               </div>

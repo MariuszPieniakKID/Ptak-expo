@@ -3,6 +3,7 @@ import { AuthProvider } from './contexts/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import LoginPage from './pages/loginPage/LoginPage';
 import DashboardPage from './pages/DashboardPage';
+import ExhibitorDashboardPage from './pages/ExhibitorDashboardPage';
 import './global.scss';
 
 function App() {
@@ -21,6 +22,13 @@ function App() {
             <Route path="/dashboard" element={
               <ProtectedRoute>
                 <DashboardPage />
+              </ProtectedRoute>
+            } />
+            
+            {/* Protected Exhibitor Dashboard page - All authenticated users */}
+            <Route path="/event/:eventId" element={
+              <ProtectedRoute>
+                <ExhibitorDashboardPage />
               </ProtectedRoute>
             } />
             

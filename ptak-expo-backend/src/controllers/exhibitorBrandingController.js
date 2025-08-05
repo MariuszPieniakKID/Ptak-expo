@@ -107,10 +107,10 @@ const uploadBrandingFile = async (req, res) => {
       });
     }
 
-    // Verify exhibitor exists in exhibitors table
+    // Verify exhibitor exists in users table with role 'exhibitor'
     const exhibitorCheck = await client.query(
-      'SELECT id, company_name FROM exhibitors WHERE id = $1',
-      [exhibitorId]
+      'SELECT id, company_name FROM users WHERE id = $1 AND role = $2',
+      [exhibitorId, 'exhibitor']
     );
 
     if (exhibitorCheck.rows.length === 0) {

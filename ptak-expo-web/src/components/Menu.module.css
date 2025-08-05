@@ -1,0 +1,231 @@
+/* Menu component styles based on frontend Menu component */
+
+.appBar {
+  background-color: var(--color-white) !important;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1) !important;
+  border-radius: var(--br-20) !important;
+  color: var(--color-darkslategray) !important;
+  margin: 0 !important;
+  width: 100% !important;
+  z-index: 1000 !important;
+  position: sticky !important;
+  top: 0 !important;
+}
+
+.toolbar {
+  padding: 0;
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  justify-content: space-between;
+  height: 6em;
+  box-shadow: 0px 23px 26px rgba(73, 83, 131, 0.07);
+  border-radius: var(--br-20);
+  opacity: 1;
+  width: 78%;
+  margin: 0 auto;
+}
+
+.navLogo {
+  height: 100%;
+  width: 9em;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  padding-left: 1.313em; /* 21px */
+}
+
+.logo {
+  height: 50px;
+  width: 53px;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+  object-fit: contain;
+  display: block;
+}
+
+.logo:hover {
+  opacity: 0.8;
+}
+
+.navLinks {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  height: 100%;
+  width: calc(100% - 9em);
+  gap: 2.5em;
+  padding-right: 2em;
+  align-items: center;
+}
+
+.navButton {
+  font-family: var(--font-roc-grotesk);
+  position: relative;
+  color: var(--color-darkslategray);
+  background: transparent;
+  border: none;
+  text-transform: none;
+  transition: color 0.2s ease;
+  cursor: pointer;
+  padding: 1em;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.navButton::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 0;
+  transform: translateX(-50%);
+  width: 40px;
+  height: 3px;
+  background: var(--color-dodgerblue);
+  border-radius: 2px;
+  opacity: 0;
+  transition: opacity 0.2s, width 0.3s;
+  pointer-events: none;
+  box-shadow: 0 3px 8px 0 var(--color-dodgerblue);
+}
+
+.navButton:hover::before {
+  opacity: 1;
+}
+
+.navButton:hover {
+  background-color: transparent !important;
+  color: var(--color-dodgerblue);
+}
+
+.navButton:active,
+.navButton:focus-visible {
+  box-shadow: none !important;
+  outline: none !important;
+  background: transparent !important;
+}
+
+.navButton.active {
+  color: var(--color-dodgerblue);
+}
+
+.navButton.active::before {
+  opacity: 1;
+  background-color: var(--color-dodgerblue);
+  box-shadow: 0 4px 16px 0 rgba(111, 135, 246, 0.35);
+}
+
+.buttonText {
+  color: var(--color-darkslategray) !important;
+  text-transform: capitalize;
+  font-size: 13px;
+  font-weight: 400;
+  text-align: center;
+}
+
+.navButton:hover .buttonText {
+  color: var(--color-dodgerblue) !important;
+}
+
+.navButton.active .buttonText {
+  color: var(--color-dodgerblue) !important;
+}
+
+.navIcon {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-right: 1em;
+}
+
+.logoutButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background-color: transparent;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 12px;
+  color: var(--color-gray-100);
+  transition: background-color 0.2s ease;
+  font-family: var(--font-roc-grotesk);
+}
+
+.logoutButton:hover {
+  background-color: #f5f5f5;
+}
+
+.logoutIcon {
+  width: 16px;
+  height: 16px;
+}
+
+.logoutText {
+  font-size: 12px;
+}
+
+/* Responsive design */
+@media screen and (max-width: 1200px) {
+  .navLinks {
+    gap: 1.75em;
+    padding-right: 0.5em;
+  }
+  
+  .toolbar {
+    width: 85%;
+  }
+}
+
+@media screen and (max-width: 992px) {
+  .navLinks {
+    gap: 0.75em;
+    padding-right: 0;
+  }
+  
+  .toolbar {
+    width: 90%;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .navLinks {
+    gap: 0.5em;
+    padding-right: 0;
+  }
+  
+  .buttonText {
+    font-size: 11px;
+    text-wrap: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    width: 70px;
+    text-align: center;
+  }
+  
+  .navLogo {
+    width: 4em;
+  }
+  
+  .logo {
+    padding-left: 0;
+  }
+  
+  .navLinks {
+    width: calc(100% - 4em);
+  }
+  
+  .toolbar {
+    width: 95%;
+  }
+}
+
+@media screen and (max-width: 600px) {
+  .appBar {
+    display: none; /* Hide on mobile - could be replaced with mobile menu later */
+  }
+}
