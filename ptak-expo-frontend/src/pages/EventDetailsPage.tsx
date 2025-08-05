@@ -81,6 +81,22 @@ const EventDetailsPage: React.FC<EventDetailsPageProps> = () => {
     console.log('Preview catalog for exhibitor:', exhibitor?.id);
   }, [exhibitor]);
 
+  // Category state and handlers - must be before any conditional renders
+  const [activeCategory, setActiveCategory] = useState<string>('catalog');
+
+  const handleCategoryChange = useCallback((categoryId: string) => {
+    setActiveCategory(categoryId);
+  }, []);
+
+  // Categories configuration
+  const categories = [
+    { id: 'catalog', name: 'Wpis do katalogu', icon: 'catalog' },
+    { id: 'documents', name: 'Dokumenty', icon: 'documents' },
+    { id: 'invitations', name: 'Zaproszenia', icon: 'invitations' },
+    { id: 'schedule', name: 'Plan wydarzeń', icon: 'schedule' },
+    { id: 'badges', name: 'Identyfikatory', icon: 'badges' },
+    { id: 'awards', name: 'Nagrody Targowe', icon: 'awards' },
+  ];
 
 
   // Helper function to format date range
@@ -132,21 +148,6 @@ const EventDetailsPage: React.FC<EventDetailsPageProps> = () => {
       </Box>
     );
   }
-
-  const [activeCategory, setActiveCategory] = useState<string>('catalog');
-
-  const categories = [
-    { id: 'catalog', name: 'Wpis do katalogu', icon: 'catalog' },
-    { id: 'documents', name: 'Dokumenty', icon: 'documents' },
-    { id: 'invitations', name: 'Zaproszenia', icon: 'invitations' },
-    { id: 'schedule', name: 'Plan wydarzeń', icon: 'schedule' },
-    { id: 'badges', name: 'Identyfikatory', icon: 'badges' },
-    { id: 'awards', name: 'Nagrody Targowe', icon: 'awards' },
-  ];
-
-  const handleCategoryChange = useCallback((categoryId: string) => {
-    setActiveCategory(categoryId);
-  }, []);
 
   const renderCategoryIcon = (iconType: string) => {
     const iconProps = { width: "32", height: "32", viewBox: "0 0 24 24", fill: "none" };
