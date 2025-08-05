@@ -8,7 +8,6 @@ import {
   Button,
   AppBar,
   Toolbar,
-  Grid,
   Avatar,
   Chip
 } from '@mui/material';
@@ -21,14 +20,21 @@ import {
 } from '@mui/icons-material';
 import { useAuth } from '../contexts/AuthContext';
 
-const Dashboard = () => {
+interface MenuItem {
+  title: string;
+  description: string;
+  icon: React.ReactNode;
+  color: string;
+}
+
+const Dashboard: React.FC = () => {
   const { user, logout } = useAuth();
 
-  const handleLogout = async () => {
+  const handleLogout = async (): Promise<void> => {
     await logout();
   };
 
-  const menuItems = [
+  const menuItems: MenuItem[] = [
     {
       title: 'Dokumenty',
       description: 'Zarządzaj dokumentami targowymi',
@@ -109,9 +115,9 @@ const Dashboard = () => {
           )}
         </Box>
 
-        <Grid container spacing={3}>
-          {menuItems.map((item, index) => (
-            <Grid item xs={12} sm={6} md={3} key={index}>
+        <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: 3 }}>
+          {menuItems.map((item: MenuItem, index: number) => (
+            <Box key={index}>
               <Card 
                 sx={{ 
                   height: '100%',
@@ -147,9 +153,9 @@ const Dashboard = () => {
                   </Typography>
                 </CardContent>
               </Card>
-            </Grid>
+            </Box>
           ))}
-        </Grid>
+        </Box>
 
         <Box sx={{ mt: 4, p: 3, bgcolor: '#f5f5f5', borderRadius: 2 }}>
           <Typography variant="h6" gutterBottom>
@@ -182,4 +188,4 @@ const Dashboard = () => {
   );
 };
 
-export default Dashboard; 
+export default Dashboard;

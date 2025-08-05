@@ -1,0 +1,62 @@
+// Responsive breakpoints mixins according to project guidelines
+@mixin for-phone-only {
+  @media (max-width: 480px) { @content; }
+}
+
+@mixin for-phone-landscape {
+  @media (min-width: 481px) and (max-width: 600px) { @content; }
+}
+
+@mixin for-tablet-portrait {
+  @media (min-width: 601px) and (max-width: 768px) { @content; }
+}
+
+@mixin for-tablet-landscape {
+  @media (min-width: 769px) and (max-width: 991px) { @content; }
+}
+
+@mixin for-desktop-small {
+  @media (min-width: 992px) and (max-width: 1199.98px) { @content; }
+}
+
+@mixin for-desktop-medium {
+  @media (min-width: 1200px) and (max-width: 1399.98px) { @content; }
+}
+
+@mixin for-desktop-large {
+  @media (min-width: 1400px) { @content; }
+}
+
+// Convenience mixins for common combinations
+@mixin for-mobile {
+  @media (max-width: 600px) { @content; }
+}
+
+@mixin for-tablet {
+  @media (min-width: 601px) and (max-width: 991px) { @content; }
+}
+
+@mixin for-desktop {
+  @media (min-width: 992px) { @content; }
+}
+
+// Legacy mixins for backward compatibility (will be phased out)
+@mixin for-tablet-portrait-up {
+  @media (min-width: 601px) { @content; }
+}
+
+@mixin for-tablet-landscape-up {
+  @media (min-width: 769px) { @content; }
+}
+
+@mixin for-desktop-up {
+  @media (min-width: 992px) { @content; }
+}
+
+@mixin for-big-desktop-up {
+  @media (min-width: 1400px) { @content; }
+} 
+//
+@mixin for-tablet-and-mobile {
+   @media (max-width: 991px) { @content; }
+}

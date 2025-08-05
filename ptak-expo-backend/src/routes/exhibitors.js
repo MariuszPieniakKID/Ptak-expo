@@ -146,6 +146,17 @@ router.post('/', verifyToken, requireAdmin, async (req, res) => {
       passwordHash
     ]);
 
+    // Also create user record for login authentication
+    try {
+      await db.query(
+        'INSERT INTO users (email, password_hash, role, first_name, last_name, company_name, phone, status) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) ON CONFLICT (email) DO NOTHING',
+        [email, passwordHash, 'exhibitor', contactPerson.split(' ')[0] || contactPerson, contactPerson.split(' ').slice(1).join(' ') || '', companyName, phone, 'active']
+      );
+      console.log('✅ User record created for exhibitor login');
+    } catch (userError) {
+      console.error('⚠️ Error creating user record (exhibitor can still be created):', userError);
+    }
+
     const newExhibitor = result.rows[0];
 
     console.log('New exhibitor created with ID:', newExhibitor.id);

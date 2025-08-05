@@ -1,16 +1,25 @@
-import React, { useState } from "react";
+import React, { useState, ChangeEvent, FormEvent } from "react";
 import { useAuth } from '../contexts/AuthContext';
 
-const LoginForm = ({ onLoginSuccess }) => {
-  const [credentials, setCredentials] = useState({
+interface LoginFormProps {
+  onLoginSuccess?: (data: any) => void;
+}
+
+interface Credentials {
+  email: string;
+  password: string;
+}
+
+const LoginForm: React.FC<LoginFormProps> = ({ onLoginSuccess }) => {
+  const [credentials, setCredentials] = useState<Credentials>({
     email: '',
     password: ''
   });
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string>('');
+  const [loading, setLoading] = useState<boolean>(false);
   const { login } = useAuth();
 
-  const handleChange = (e) => {
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setCredentials(prev => ({
       ...prev,
@@ -20,7 +29,7 @@ const LoginForm = ({ onLoginSuccess }) => {
     if (error) setError('');
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError('');
     setLoading(true);
@@ -36,7 +45,7 @@ const LoginForm = ({ onLoginSuccess }) => {
         onLoginSuccess?.(result.data);
       } else {
         console.log('Login failed:', result.error);
-        setError(result.error);
+        setError(result.error || 'Błąd logowania');
       }
     } catch (error) {
       console.error('Login error:', error);
@@ -46,7 +55,7 @@ const LoginForm = ({ onLoginSuccess }) => {
     }
   };
 
-  const handleTestLogin = () => {
+  const handleTestLogin = (): void => {
     setCredentials({
       email: 'test@test.com',
       password: 'test123'
@@ -285,8 +294,8 @@ const LoginForm = ({ onLoginSuccess }) => {
                     color: '#666',
                     textDecoration: 'none'
                   }}
-                  onMouseOver={(e) => e.target.style.textDecoration = 'underline'}
-                  onMouseOut={(e) => e.target.style.textDecoration = 'none'}
+                  onMouseOver={(e) => (e.target as HTMLAnchorElement).style.textDecoration = 'underline'}
+                  onMouseOut={(e) => (e.target as HTMLAnchorElement).style.textDecoration = 'none'}
                 >
                   Przypomnij hasło
                 </a>
@@ -337,4 +346,4 @@ const LoginForm = ({ onLoginSuccess }) => {
   );
 };
 
-export default LoginForm; 
+export default LoginForm;

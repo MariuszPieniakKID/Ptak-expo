@@ -15,7 +15,7 @@ interface AuthContextType {
   token: string | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: (email: string, password: string) => Promise<boolean>;
+  login: (credentials: {email: string, password: string}) => Promise<{success: boolean, data?: any, error?: string}>;
   logout: () => void;
   verifyToken: () => Promise<boolean>;
 }
@@ -108,16 +108,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     initAuth();
   }, []);
 
-  const login = async (email: string, password: string): Promise<boolean> => {
+  const login = async (credentials: {email: string, password: string}) => {
     try {
       setIsLoading(true);
       
-      const response = await fetch(`${config.API_BASE_URL}/api/v1/auth/login`, {
+      const response = await fetch(`${config.API_BASE_URL}/api/v1/auth/exhibitor-login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify(credentials),
       });
 
       const data = await response.json();
@@ -132,14 +132,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         localStorage.setItem('authToken', authToken);
         localStorage.setItem('authUser', JSON.stringify(userData));
         
-        return true;
+        return {success: true, data: userData};
       } else {
         console.error('Login failed:', data.message);
-        return false;
+        return {success: false, error: data.message};
       }
     } catch (error) {
       console.error('Login error:', error);
-      return false;
+      return {success: false, error: 'Błąd serwera podczas logowania'};
     } finally {
       setIsLoading(false);
     }

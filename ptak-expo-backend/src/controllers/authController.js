@@ -15,7 +15,126 @@ const generateToken = (user) => {
   );
 };
 
-// Login endpoint
+// Exhibitor login endpoint (for ptak-expo-web)
+const exhibitorLogin = async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    console.log('🔍 EXHIBITOR LOGIN ATTEMPT - Panel Wystawców');
+    console.log('🔍 Login attempt for email:', email);
+
+    // Validate input
+    if (!email || !password) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email i hasło są wymagane'
+      });
+    }
+
+    // Check database for user
+    if (process.env.DATABASE_URL && process.env.DATABASE_URL !== 'postgresql://username:password@host/dbname?sslmode=require') {
+      try {
+        console.log('🔍 Querying database for exhibitor:', email.toLowerCase());
+        
+        let result;
+        
+        // Try with status column first
+        try {
+          console.log('🔍 Trying query WITH status field...');
+          result = await db.query(
+            'SELECT * FROM users WHERE email = $1 AND status = $2',
+            [email.toLowerCase(), 'active']
+          );
+          console.log('✅ Query with status field successful');
+        } catch (statusError) {
+          console.log('⚠️ Query with status field failed, trying without status:', statusError.message);
+          console.log('🔍 Using SIMPLE QUERY without STATUS field (Railway compatibility)');
+          result = await db.query(
+            'SELECT * FROM users WHERE email = $1',
+            [email.toLowerCase()]
+          );
+          console.log('✅ Query without status field successful');
+        }
+
+        console.log('🔍 Query result:', result.rows.length, 'rows found');
+        if (result.rows.length > 0) {
+          console.log('🔍 Found user:', result.rows[0].email, 'role:', result.rows[0].role);
+          
+          // Check if user has status column and if it's active
+          if (result.rows[0].status && result.rows[0].status !== 'active') {
+            console.log('⚠️ User account is not active:', result.rows[0].status);
+            return res.status(401).json({
+              success: false,
+              message: 'Konto jest nieaktywne'
+            });
+          }
+        }
+        if (result.rows.length === 0) {
+          console.log('🔍 No user found with email:', email.toLowerCase());
+          return res.status(401).json({
+            success: false,
+            message: 'Nieprawidłowy email lub hasło'
+          });
+        }
+
+        const user = result.rows[0];
+        console.log('🔍 User found:', user.email, 'role:', user.role);
+        console.log('🔍 Stored password hash:', user.password_hash);
+        
+        // Sprawdź czy użytkownik ma uprawnienia wystawcy
+        if (user.role !== 'exhibitor') {
+          console.log('🔍 Access denied - user is not exhibitor:', user.role);
+          return res.status(403).json({
+            success: false,
+            message: 'Dostęp tylko dla wystawców'
+          });
+        }
+        
+        const isPasswordValid = await bcrypt.compare(password, user.password_hash);
+        console.log('🔍 Password valid:', isPasswordValid);
+
+        if (!isPasswordValid) {
+          return res.status(401).json({
+            success: false,
+            message: 'Nieprawidłowy email lub hasło'
+          });
+        }
+
+        const token = generateToken(user);
+        return res.json({
+          success: true,
+          message: 'Logowanie zakończone pomyślnie',
+          user: {
+            id: user.id,
+            email: user.email,
+            firstName: user.first_name,
+            lastName: user.last_name,
+            role: user.role,
+            companyName: user.company_name
+          },
+          token
+        });
+
+      } catch (dbError) {
+        console.error('Database error:', dbError);
+      }
+    }
+
+    // If database not configured or user not found
+    return res.status(401).json({
+      success: false,
+      message: 'Nieprawidłowy email lub hasło'
+    });
+
+  } catch (error) {
+    console.error('Exhibitor login error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Błąd serwera podczas logowania'
+    });
+  }
+};
+
+// Admin login endpoint (for ptak-expo-frontend)
 const login = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -193,6 +312,7 @@ const logout = async (req, res) => {
 
 module.exports = {
   login,
+  exhibitorLogin,
   verifyToken,
   logout
 }; 

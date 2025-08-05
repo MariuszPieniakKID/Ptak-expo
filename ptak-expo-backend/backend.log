@@ -1,38 +1,166 @@
 
-> ptak-expo-backend@1.0.0 dev
-> nodemon src/index.js
+> ptak-expo-backend@1.0.0 start
+> node src/index.js
 
-[33m[nodemon] 3.1.10[39m
-[33m[nodemon] to restart at any time, enter `rs`[39m
-[33m[nodemon] watching path(s): *.*[39m
-[33m[nodemon] watching extensions: js,mjs,cjs,json[39m
-[32m[nodemon] starting `node src/index.js`[39m
+🔍 Starting PTAK EXPO Backend...
+🔍 Node.js version: v20.19.1
+🔍 Environment: development
+🔍 Port from env: 3001
+🔍 DATABASE_URL: SET (length: 93)
+🔍 JWT_SECRET: SET (length: 41)
+🔍 CORS_ORIGIN: http://localhost:3000
+🔍 Railway Environment Variables:
+  - RAILWAY_ENVIRONMENT: not set
+  - RAILWAY_SERVICE_NAME: not set
+  - RAILWAY_DEPLOYMENT_ID: not set
+🔍 Local development environment, using local database
+🔍 Database config - Selected URL: SET (starts with: postgresql://postgre...)
+🔍 Database config - NODE_ENV: development
+🔍 Database config - RAILWAY_ENVIRONMENT: not set
+🔍 Database config - SSL mode: disabled
+🔍 Database pool created
+🔍 Database module loaded - initialization will be handled by server startup
+🔍 Loading database config...
+🔍 Will listen on port: 3001
+🔍 CORS allowed origins: [
+  'http://localhost:3000',
+  'http://localhost:3002',
+  'http://localhost:3000',
+  'https://frontend-production-fb96.up.railway.app',
+  'https://ptak-expo-production.up.railway.app'
+]
 🚀 PTAK EXPO Backend API running on port 3001
 📊 Environment: development
-🔗 Health check: http://localhost:3001/api/v1/health
-❌ Error initializing database: Error: getaddrinfo ENOTFOUND postgres.railway.internal
-    at /Users/kid/Ptak-expo/ptak-expo-backend/node_modules/pg-pool/index.js:45:11
-    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
-    at async initializeDatabase (/Users/kid/Ptak-expo/ptak-expo-backend/src/config/database.js:22:5) {
-  errno: -3008,
-  code: 'ENOTFOUND',
-  syscall: 'getaddrinfo',
-  hostname: 'postgres.railway.internal'
+🔗 Health check: http://localhost:3001/
+🔍 DATABASE_URL: Set
+🔍 JWT_SECRET: Set
+🔍 Server started successfully, initializing database in background...
+🔍 Starting database initialization...
+🔍 Testing database connection...
+💾 Connected to PostgreSQL database
+✅ Database connection test successful
+🔍 Creating users table...
+🔍 Checking status column...
+✅ Status column already exists
+🔍 Current users table structure:
+  - id: integer NOT NULL DEFAULT nextval('users_id_seq'::regclass)
+  - email: character varying NOT NULL 
+  - password_hash: character varying NOT NULL 
+  - role: character varying NOT NULL DEFAULT 'guest'::character varying
+  - first_name: character varying NULL 
+  - last_name: character varying NULL 
+  - company_name: character varying NULL 
+  - phone: character varying NULL 
+  - status: character varying NULL DEFAULT 'active'::character varying
+  - created_at: timestamp with time zone NULL DEFAULT now()
+  - updated_at: timestamp with time zone NULL DEFAULT now()
+🔍 Creating exhibitions table...
+🔍 Creating documents table...
+🔍 Creating marketing_materials table...
+🔍 Creating communications table...
+🔍 Creating invitations table...
+🔍 Creating exhibitors table...
+🔍 Creating exhibitor_events table...
+🔍 Creating exhibitor_branding_files table...
+🔍 Creating indexes for exhibitor_branding_files table...
+🔍 Creating trade_info table...
+🔍 Creating trade_build_days table...
+🔍 Creating trade_spaces table...
+🔍 Creating invitation_templates table...
+🔍 Creating invitation_recipients table...
+🔍 Creating exhibitor_documents table...
+🔍 Creating indexes for trade_info and invitations tables...
+🔍 Inserting admin user...
+🔍 Inserting test users...
+🔍 Inserting test exhibitors...
+🔍 Inserting test exhibitions...
+✅ Database tables initialized successfully
+✅ Database initialization completed
+Fetching exhibitions from database...
+Fetching exhibitions from database...
+Found 11 exhibitions
+💾 Connected to PostgreSQL database
+Found 11 exhibitions
+Fetching exhibitions from database...
+Fetching exhibitions from database...
+Found 11 exhibitions
+Found 11 exhibitions
+Fetching exhibitors from database...
+Fetching exhibitors from database...
+Found 10 exhibitors
+Found 10 exhibitors
+Fetching exhibitor with ID: 51
+Fetching exhibitor with ID: 51
+Fetching exhibitor with ID: 51
+Fetching exhibitor with ID: 51
+💾 Connected to PostgreSQL database
+🔍 LOGIN ATTEMPT - Backend Version 3.0 - STATUS FIELD FIXED
+🔍 Login attempt for email: test.admin@ptak-expo.com
+🔍 Request headers: {
+  host: 'localhost:3001',
+  connection: 'keep-alive',
+  'content-length': '57',
+  'sec-ch-ua-platform': '"macOS"',
+  'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/138.0.0.0 Safari/537.36',
+  'sec-ch-ua': '"Not)A;Brand";v="8", "Chromium";v="138", "Google Chrome";v="138"',
+  'content-type': 'application/json',
+  'sec-ch-ua-mobile': '?0',
+  accept: '*/*',
+  origin: 'http://localhost:3000',
+  'sec-fetch-site': 'same-site',
+  'sec-fetch-mode': 'cors',
+  'sec-fetch-dest': 'empty',
+  referer: 'http://localhost:3000/',
+  'accept-encoding': 'gzip, deflate, br, zstd',
+  'accept-language': 'pl-PL,pl;q=0.9,en-US;q=0.8,en;q=0.7'
 }
-[32m[nodemon] clean exit - waiting for changes before restart[39m
-node:events:502
-      throw er; // Unhandled 'error' event
-      ^
-
-Error: read EIO
-    at TTY.onStreamRead (node:internal/stream_base_commons:218:20)
-Emitted 'error' event on ReadStream instance at:
-    at emitErrorNT (node:internal/streams/destroy:169:8)
-    at emitErrorCloseNT (node:internal/streams/destroy:128:3)
-    at process.processTicksAndRejections (node:internal/process/task_queues:82:21) {
-  errno: -5,
-  code: 'EIO',
-  syscall: 'read'
+🔍 Querying database for user: test.admin@ptak-expo.com
+🔍 Trying query WITH status field...
+💾 Connected to PostgreSQL database
+✅ Query with status field successful
+🔍 Query result: 1 rows found
+🔍 Found user: test.admin@ptak-expo.com role: admin
+🔍 User found: test.admin@ptak-expo.com role: admin
+🔍 Stored password hash: $2a$10$NLrhOzCPxUW1Xw/ylXHfwew4XJO90LnkqS.5VuI/kEy7jEU2CLT5G
+🔍 Password valid: true
+Fetching exhibitions from database...
+Found 11 exhibitions
+Fetching exhibitions from database...
+Found 11 exhibitions
+Fetching exhibitors from database...
+Found 10 exhibitors
+Fetching exhibitors from database...
+Found 10 exhibitors
+Fetching exhibitions from database...
+Found 11 exhibitions
+🔍 LOGIN ATTEMPT - Backend Version 3.0 - STATUS FIELD FIXED
+🔍 Login attempt for email: test@test.com
+🔍 Request headers: {
+  host: 'localhost:3001',
+  'user-agent': 'curl/8.7.1',
+  accept: '*/*',
+  'content-type': 'application/json',
+  'content-length': '49'
 }
-
-Node.js v20.19.1
+🔍 Querying database for user: test@test.com
+🔍 Trying query WITH status field...
+✅ Query with status field successful
+🔍 Query result: 1 rows found
+🔍 Found user: test@test.com role: exhibitor
+🔍 User found: test@test.com role: exhibitor
+🔍 Stored password hash: $2a$10$NLrhOzCPxUW1Xw/ylXHfwew4XJO90LnkqS.5VuI/kEy7jEU2CLT5G
+🔍 Access denied - user is not admin: exhibitor
+🔍 LOGIN ATTEMPT - Backend Version 3.0 - STATUS FIELD FIXED
+🔍 Login attempt for email: wystawca@test.com
+🔍 Request headers: {
+  host: 'localhost:3001',
+  'user-agent': 'curl/8.7.1',
+  accept: '*/*',
+  'content-type': 'application/json',
+  'content-length': '53'
+}
+🔍 Querying database for user: wystawca@test.com
+🔍 Trying query WITH status field...
+✅ Query with status field successful
+🔍 Query result: 0 rows found
+🔍 No user found with email: wystawca@test.com

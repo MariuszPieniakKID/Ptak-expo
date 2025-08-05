@@ -1,10 +1,13 @@
 const express = require('express');
-const { login, verifyToken, logout } = require('../controllers/authController');
+const { login, exhibitorLogin, verifyToken, logout } = require('../controllers/authController');
 
 const router = express.Router();
 
-// Login route
+// Admin login route (for ptak-expo-frontend)
 router.post('/login', login);
+
+// Exhibitor login route (for ptak-expo-web)
+router.post('/exhibitor-login', exhibitorLogin);
 
 // Verify token route
 router.get('/verify', verifyToken);

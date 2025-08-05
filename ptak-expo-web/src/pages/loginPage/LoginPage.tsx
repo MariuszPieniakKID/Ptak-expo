@@ -56,9 +56,9 @@ const LoginPage: React.FC = () => {
     setLoading(true);
 
     try {
-      const success = await login(email, password);
+      const result = await login({email, password});
       
-      if (success) {
+      if (result.success) {
         navigate('/dashboard');
       } else {
         setError('Nieprawidłowy email lub hasło. Spróbuj ponownie.');
