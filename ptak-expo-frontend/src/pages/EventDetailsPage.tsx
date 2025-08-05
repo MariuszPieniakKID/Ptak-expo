@@ -31,7 +31,7 @@ const EventDetailsPage: React.FC<EventDetailsPageProps> = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>('');
   const navigate = useNavigate();
-  const { user, token, logout } = useAuth();
+  const { token, logout } = useAuth();
 
   const loadData = useCallback(async (): Promise<void> => {
     if (!token || !exhibitorId || !eventId) {
@@ -81,9 +81,7 @@ const EventDetailsPage: React.FC<EventDetailsPageProps> = () => {
     console.log('Preview catalog for exhibitor:', exhibitor?.id);
   }, [exhibitor]);
 
-  const handleSendReminder = useCallback(() => {
-    console.log('Send reminder to exhibitor:', exhibitor?.id);
-  }, [exhibitor]);
+
 
   // Helper function to format date range
   const formatDateRange = (startDate: string, endDate: string) => {
@@ -135,6 +133,203 @@ const EventDetailsPage: React.FC<EventDetailsPageProps> = () => {
     );
   }
 
+  const [activeCategory, setActiveCategory] = useState<string>('catalog');
+
+  const categories = [
+    { id: 'catalog', name: 'Wpis do katalogu', icon: 'catalog' },
+    { id: 'documents', name: 'Dokumenty', icon: 'documents' },
+    { id: 'invitations', name: 'Zaproszenia', icon: 'invitations' },
+    { id: 'schedule', name: 'Plan wydarzeń', icon: 'schedule' },
+    { id: 'badges', name: 'Identyfikatory', icon: 'badges' },
+    { id: 'awards', name: 'Nagrody Targowe', icon: 'awards' },
+  ];
+
+  const handleCategoryChange = useCallback((categoryId: string) => {
+    setActiveCategory(categoryId);
+  }, []);
+
+  const renderCategoryIcon = (iconType: string) => {
+    const iconProps = { width: "32", height: "32", viewBox: "0 0 24 24", fill: "none" };
+    
+    switch (iconType) {
+      case 'catalog':
+        return (
+          <svg {...iconProps}>
+            <path d="M14 2H6C4.9 2 4 2.9 4 4V20C4 21.1 4.89 22 5.99 22H18C19.1 22 20 21.1 20 20V8L14 2Z" fill="#6F87F6"/>
+          </svg>
+        );
+      case 'documents':
+        return (
+          <svg {...iconProps}>
+            <path d="M16 1H4C2.9 1 2 1.9 2 3V17H4V3H16V1ZM19 5H8C6.9 5 6 5.9 6 7V21C6 22.1 6.9 23 8 23H19C20.1 23 21 22.1 21 21V7C21 5.9 20.1 5 19 5Z" fill="#6F87F6"/>
+          </svg>
+        );
+      case 'invitations':
+        return (
+          <svg {...iconProps}>
+            <path d="M20 4H4C2.9 4 2.01 4.9 2.01 6L2 18C2 19.1 2.9 20 4 20H20C21.1 20 22 19.1 22 18V6C22 4.9 21.1 4 20 4ZM20 8L12 13L4 8V6L12 11L20 6V8Z" fill="#6F87F6"/>
+          </svg>
+        );
+      case 'schedule':
+        return (
+          <svg {...iconProps}>
+            <path d="M19 3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3ZM12 6C13.93 6 15.5 7.57 15.5 9.5S13.93 13 12 13S8.5 11.43 8.5 9.5S10.07 6 12 6ZM19 19H5V17.5C5 15.56 8.94 14.5 12 14.5S19 15.56 19 17.5V19Z" fill="#6F87F6"/>
+          </svg>
+        );
+      case 'badges':
+        return (
+          <svg {...iconProps}>
+            <path d="M12 2C6.48 2 2 6.48 2 12S6.48 22 12 22 22 17.52 22 12 17.52 2 12 2ZM13 17H11V15H13V17ZM13 13H11V7H13V13Z" fill="#6F87F6"/>
+          </svg>
+        );
+      case 'awards':
+        return (
+          <svg {...iconProps}>
+            <path d="M12 2L15.09 8.26L22 9L17 13.74L18.18 20.66L12 17.27L5.82 20.66L7 13.74L2 9L8.91 8.26L12 2Z" fill="#6F87F6"/>
+          </svg>
+        );
+      default:
+        return null;
+    }
+  };
+
+  const renderCategoryContent = () => {
+    switch (activeCategory) {
+      case 'catalog':
+        return (
+          <Box className={styles.catalogContent}>
+            <CustomTypography fontSize="0.875rem" fontWeight={500} color="#fc8a06">
+              Wpis do katalogu targowego
+            </CustomTypography>
+            
+            <Box className={styles.catalogDetails}>
+              <Box className={styles.catalogField}>
+                <CustomTypography className={styles.catalogFieldLabel}>
+                  Nazwa Firmy:
+                </CustomTypography>
+                <CustomTypography className={styles.catalogFieldValue}>
+                  {exhibitor.companyName}
+                </CustomTypography>
+              </Box>
+              
+              <Box className={styles.catalogField}>
+                <CustomTypography className={styles.catalogFieldLabel}>
+                  Logotyp
+                </CustomTypography>
+              </Box>
+              
+              <Box className={styles.catalogField}>
+                <CustomTypography className={styles.catalogFieldLabel}>
+                  Opis:
+                </CustomTypography>
+                <CustomTypography className={styles.catalogFieldValue}>
+                  {exhibitor.companyName} to firma, która oferuje rozwiązania dla różnych typów budynków, takich jak hotele, biurowce i domy mieszkalne.
+                </CustomTypography>
+              </Box>
+              
+              <Box className={styles.catalogField}>
+                <CustomTypography className={styles.catalogFieldLabel}>
+                  Dane kontaktowe:
+                </CustomTypography>
+                <CustomTypography className={styles.catalogFieldValue}>
+                  {exhibitor.contactPerson}
+                </CustomTypography>
+                <CustomTypography className={styles.catalogFieldValue}>
+                  e-mail: {exhibitor.email}
+                </CustomTypography>
+                <CustomTypography className={styles.catalogFieldValue}>
+                  tel: {exhibitor.phone}
+                </CustomTypography>
+              </Box>
+              
+              <Box className={styles.catalogField}>
+                <CustomTypography className={styles.catalogFieldLabel}>
+                  Strona www:
+                </CustomTypography>
+                <CustomTypography className={styles.catalogFieldValue}>
+                  https://www.{exhibitor.companyName.toLowerCase().replace(/\s+/g, '')}.com
+                </CustomTypography>
+              </Box>
+              
+              <Box className={styles.socialMediaSection}>
+                <CustomTypography className={styles.catalogFieldLabel}>
+                  Social Media
+                </CustomTypography>
+                <Box className={styles.socialMediaGrid}>
+                  <CustomTypography className={styles.catalogFieldValue}>
+                    www. facebook/{exhibitor.companyName.toLowerCase().replace(/\s+/g, '')}
+                  </CustomTypography>
+                  <CustomTypography className={styles.catalogFieldValue}>
+                    YouTube
+                  </CustomTypography>
+                  <CustomTypography className={styles.catalogFieldValue}>
+                    Linked-In
+                  </CustomTypography>
+                  <CustomTypography className={styles.catalogFieldValue}>
+                    Instagram
+                  </CustomTypography>
+                </Box>
+              </Box>
+            </Box>
+            
+            <CustomButton
+              onClick={handleCatalogPreview}
+              bgColor="#6F87F6"
+              textColor="#fff"
+              width="auto"
+              height="32px"
+              fontSize="0.6875rem"
+              className={styles.previewButton}
+            >
+              Podejrzyj wygląd wpisu do katalogu
+            </CustomButton>
+          </Box>
+        );
+      
+      case 'documents':
+        return (
+          <Box className={styles.documentsSection}>
+            <CustomTypography fontSize="0.875rem" fontWeight={500} color="#2e2e38">
+              Materiały do pobrania (3)
+            </CustomTypography>
+            
+            <Box className={styles.documentsList}>
+              <Box className={styles.documentItem}>
+                <CustomTypography fontSize="0.6875rem" color="#2e2e38">
+                  Katalog {exhibitor.companyName}.pdf
+                </CustomTypography>
+                <span className={styles.documentType}>PDF</span>
+              </Box>
+              <Box className={styles.documentItem}>
+                <CustomTypography fontSize="0.6875rem" color="#2e2e38">
+                  Cennik {exhibitor.companyName}.pdf
+                </CustomTypography>
+                <span className={styles.documentType}>PDF</span>
+              </Box>
+              <Box className={styles.documentItem}>
+                <CustomTypography fontSize="0.6875rem" color="#2e2e38">
+                  Broszura produktowa.pdf
+                </CustomTypography>
+                <span className={styles.documentType}>PDF</span>
+              </Box>
+            </Box>
+          </Box>
+        );
+      
+      default:
+        return (
+          <Box className={styles.emptyState}>
+            <CustomTypography fontSize="1rem" color="#6f6f6f">
+              Zawartość dla kategorii "{categories.find(c => c.id === activeCategory)?.name}"
+            </CustomTypography>
+            <CustomTypography fontSize="0.875rem" color="#6f6f6f">
+              Ta sekcja będzie dostępna wkrótce.
+            </CustomTypography>
+          </Box>
+        );
+    }
+  };
+
   return (
     <Box className={styles.eventDetailsPage}>
       {/* Background Image */}
@@ -148,10 +343,10 @@ const EventDetailsPage: React.FC<EventDetailsPageProps> = () => {
         {/* User Info and Logout */}
         <Box className={styles.userSection}>
           <Box className={styles.userInfo}>
-            <Avatar src={UserAvatar} alt={user?.firstName || 'User'} className={styles.userAvatar} />
+            <Avatar src={UserAvatar} alt="User" className={styles.userAvatar} />
             <Box className={styles.userText}>
               <CustomTypography fontSize="1rem" fontWeight={500} color="#2e2e38">
-                Dzień dobry, {user?.firstName || 'Użytkowniku'}
+                Dzień dobry, Administratorze
               </CustomTypography>
               <CustomTypography fontSize="0.6875rem" color="#6f6f6f">
                 Sprawdź co możesz dzisiaj zrobić!
@@ -207,32 +402,27 @@ const EventDetailsPage: React.FC<EventDetailsPageProps> = () => {
           </CustomTypography>
         </Box>
 
-        {/* Event Title */}
-        <Box className={styles.eventTitle}>
-          <CustomTypography fontSize="1rem" fontWeight={500} color="#2e2e38">
-            Wydarzenie: {exhibition.name}
-          </CustomTypography>
-        </Box>
-
-        {/* Exhibitor Info Card */}
-        <Box className={styles.exhibitorCard}>
-          <Box className={styles.cardHeader}>
-            <CustomTypography fontSize="1rem" fontWeight={500} color="#2e2e38">
-              Nazwa Wystawcy:
-            </CustomTypography>
-            <CustomTypography fontSize="0.6875rem" color="#6f6f6f">
-              Dane kontakowe:
-            </CustomTypography>
-          </Box>
-          
-          <Box className={styles.cardContent}>
-            <Box className={styles.companyInfo}>
-              <CustomTypography fontSize="0.9375rem" fontWeight={500} color="#2e2e38">
-                {exhibitor.companyName}
-              </CustomTypography>
-              <CustomTypography fontSize="0.6875rem" color="#6f6f6f">
-                {exhibitor.contactPerson}
-              </CustomTypography>
+        {/* Main Card */}
+        <Box className={styles.mainCard}>
+          {/* Exhibitor Info Section */}
+          <Box className={styles.exhibitorCard}>
+            <Box className={styles.cardHeader}>
+              <Box>
+                <CustomTypography fontSize="1rem" fontWeight={500} color="#2e2e38">
+                  Nazwa Wystawcy:
+                </CustomTypography>
+                <CustomTypography fontSize="0.9375rem" fontWeight={500} color="#2e2e38">
+                  {exhibitor.companyName}
+                </CustomTypography>
+              </Box>
+              <Box>
+                <CustomTypography fontSize="0.6875rem" color="#6f6f6f">
+                  Dane kontakowe:
+                </CustomTypography>
+                <CustomTypography fontSize="0.9375rem" fontWeight={500} color="#2e2e38">
+                  {exhibitor.contactPerson}
+                </CustomTypography>
+              </Box>
             </Box>
             
             <Box className={styles.contactInfo}>
@@ -256,182 +446,61 @@ const EventDetailsPage: React.FC<EventDetailsPageProps> = () => {
               </CustomTypography>
             </Box>
           </Box>
-        </Box>
 
-        {/* Event Details Section */}
-        <Box className={styles.eventSection}>
-          <Box className={styles.eventCard}>
-            <img src="/assets/4515f4ed2e86e01309533e2483db0fd4@2x.png" alt="Event" className={styles.eventImage} />
-            <Box className={styles.eventInfo}>
-              <CustomTypography fontSize="0.9375rem" fontWeight={500} color="#2e2e38">
-                {exhibition.name}
-              </CustomTypography>
-              <CustomTypography fontSize="0.9375rem" color="#2e2e38">
-                {formatDateRange(exhibition.start_date, exhibition.end_date)}
-              </CustomTypography>
-              <Box className={styles.readinessInfo}>
-                <CustomTypography fontSize="0.6875rem" color="#6f6f6f">
-                  Gotowość:
+          {/* Categories Menu */}
+          <Box className={styles.categoriesMenu}>
+            {categories.map((category) => (
+              <Box
+                key={category.id}
+                className={`${styles.categoryItem} ${activeCategory === category.id ? styles.active : ''}`}
+                onClick={() => handleCategoryChange(category.id)}
+              >
+                <Box className={styles.categoryIcon}>
+                  {renderCategoryIcon(category.icon)}
+                </Box>
+                <CustomTypography fontSize="0.875rem" color="inherit">
+                  {category.name}
                 </CustomTypography>
-                <Box className={styles.readinessBar}>
-                  <CustomTypography fontSize="1rem" fontWeight={700} color="#fff">
-                    21%
+              </Box>
+            ))}
+          </Box>
+
+          {/* Content Layout - Two Columns */}
+          <Box className={styles.contentLayout}>
+            {/* Left Column - Event Card */}
+            <Box className={styles.eventCardSection}>
+              <Box className={styles.eventCard}>
+                <img 
+                  src="/assets/4515f4ed2e86e01309533e2483db0fd4@2x.png" 
+                  alt="Event" 
+                  className={styles.eventImage} 
+                />
+                <Box className={styles.eventInfo}>
+                  <CustomTypography fontSize="0.9375rem" fontWeight={500} color="#2e2e38">
+                    {exhibition.name}
+                  </CustomTypography>
+                  <CustomTypography fontSize="0.9375rem" color="#2e2e38">
+                    {formatDateRange(exhibition.start_date, exhibition.end_date)}
                   </CustomTypography>
                 </Box>
-              </Box>
-            </Box>
-          </Box>
-        </Box>
-
-        {/* Catalog Entry Section */}
-        <Box className={styles.catalogSection}>
-          <CustomTypography fontSize="0.875rem" fontWeight={500} color="#fc8a06" className={styles.catalogTitle}>
-            Wpis do katalogu
-          </CustomTypography>
-          
-          <Box className={styles.catalogContent}>
-            <Box className={styles.catalogLeft}>
-              <CustomTypography fontSize="0.9375rem" fontWeight={500} color="#2e2e38">
-                Wpis do katalogu targowego
-              </CustomTypography>
-              <CustomTypography fontSize="0.6875rem" color="#6f6f6f">
-                Logotyp
-              </CustomTypography>
-              <CustomTypography fontSize="0.6875rem" color="#6f6f6f">
-                Opis: {exhibitor.companyName} to firma, która oferuje rozwiązania dla różnych typów budynków, takich jak hotele, biurowce i domy mieszkalne.
-              </CustomTypography>
-              <CustomTypography fontSize="0.6875rem" color="#6f6f6f">
-                Strona www: https://www.mtbmodules.com
-              </CustomTypography>
-              <CustomTypography fontSize="0.6875rem" color="#6f6f6f">
-                Social Media
-              </CustomTypography>
-              <CustomTypography fontSize="0.6875rem" color="#6f6f6f">
-                www. facebook/mtbmodules
-              </CustomTypography>
-              <CustomTypography fontSize="0.6875rem" color="#6f6f6f">
-                Linked-In
-              </CustomTypography>
-              <CustomTypography fontSize="0.6875rem" color="#6f6f6f">
-                YouTube
-              </CustomTypography>
-              <CustomTypography fontSize="0.6875rem" color="#6f6f6f">
-                Instagram
-              </CustomTypography>
-            </Box>
-            
-            <CustomButton
-              onClick={handleCatalogPreview}
-              bgColor="#6F87F6"
-              textColor="#fff"
-              width="auto"
-              height="32px"
-              fontSize="0.6875rem"
-              className={styles.previewButton}
-            >
-              Podejrzyj wygląd wpisu do katalogu
-            </CustomButton>
-          </Box>
-        </Box>
-
-        {/* Products Section */}
-        <Box className={styles.productsSection}>
-          <CustomTypography fontSize="0.875rem" fontWeight={500} color="#2e2e38">
-            Prezentowane produkty (2)
-          </CustomTypography>
-          
-          <Box className={styles.productCard}>
-            <img src="/assets/bd9ccd78fffaf95a88c164facb6148a3@2x.png" alt="Product" className={styles.productImage} />
-            <Box className={styles.productInfo}>
-              <CustomTypography fontSize="0.9375rem" fontWeight={500} color="#2e2e38">
-                MTB ONE
-              </CustomTypography>
-              <CustomTypography fontSize="0.6875rem" color="#6f6f6f">
-                Przedstawiamy Państwu ofertę na zakup nowoczesnego domu 35m2 z antresolą. W skład oferty wchodzą wszystkie elementy sprefabrykowane w naszej fabryce. Montaż domu odbywa się za pomocą dołączonej instrukcji, w której szczegółowo, krok po kroku, opisaliśmy każdy etap prac, wraz ze spisem materiałów potrzebnym w danym etapie.
-              </CustomTypography>
-              <Box className={styles.productTags}>
-                <CustomTypography fontSize="0.6875rem" color="#6f6f6f">
-                  Tagi produktowe:
-                </CustomTypography>
-                <Box className={styles.tags}>
-                  <span className={styles.tag}>dom modułowy</span>
-                  <span className={styles.tag}>keramzytobeton</span>
+                <Box className={styles.readinessInfo}>
+                  <CustomTypography fontSize="0.6875rem" color="#6f6f6f">
+                    Gotowość:
+                  </CustomTypography>
+                  <Box className={styles.readinessBar}>
+                    <CustomTypography fontSize="1rem" fontWeight={700} color="#fff">
+                      21%
+                    </CustomTypography>
+                  </Box>
                 </Box>
               </Box>
             </Box>
-          </Box>
-        </Box>
 
-        {/* Documents Section */}
-        <Box className={styles.documentsSection}>
-          <CustomTypography fontSize="0.875rem" fontWeight={500} color="#2e2e38">
-            Materiały do pobrania (3)
-          </CustomTypography>
-          
-          <Box className={styles.documentsList}>
-            <Box className={styles.documentItem}>
-              <CustomTypography fontSize="0.6875rem" color="#2e2e38">
-                Katalog MtbOne.pdf
-              </CustomTypography>
-              <span className={styles.documentType}>PDF</span>
-            </Box>
-            <Box className={styles.documentItem}>
-              <CustomTypography fontSize="0.6875rem" color="#2e2e38">
-                Katalog MtbTwo.pdf
-              </CustomTypography>
-              <span className={styles.documentType}>PDF</span>
-            </Box>
-            <Box className={styles.documentItem}>
-              <CustomTypography fontSize="0.6875rem" color="#2e2e38">
-                Cennik MTB.pdf
-              </CustomTypography>
-              <span className={styles.documentType}>PDF</span>
+            {/* Right Column - Category Content */}
+            <Box className={styles.categoryContent}>
+              {renderCategoryContent()}
             </Box>
           </Box>
-        </Box>
-
-        {/* Categories Section */}
-        <Box className={styles.categoriesSection}>
-          <Box className={styles.categoryItem}>
-            <CustomTypography fontSize="0.875rem" color="#2e2e38">
-              Dokumenty
-            </CustomTypography>
-          </Box>
-          <Box className={styles.categoryItem}>
-            <CustomTypography fontSize="0.875rem" color="#2e2e38">
-              Plan wydarzeń
-            </CustomTypography>
-          </Box>
-          <Box className={styles.categoryItem}>
-            <CustomTypography fontSize="0.875rem" color="#2e2e38">
-              Zaproszenia
-            </CustomTypography>
-          </Box>
-          <Box className={styles.categoryItem}>
-            <CustomTypography fontSize="0.875rem" color="#2e2e38">
-              Identyfikatory
-            </CustomTypography>
-          </Box>
-          <Box className={styles.categoryItem}>
-            <CustomTypography fontSize="0.875rem" color="#2e2e38">
-              Nagrody Targowe
-            </CustomTypography>
-          </Box>
-        </Box>
-
-        {/* Reminder Section */}
-        <Box className={styles.reminderSection}>
-          <CustomButton
-            onClick={handleSendReminder}
-            bgColor="#6F87F6"
-            textColor="#fff"
-            width="auto"
-            height="40px"
-            fontSize="0.6875rem"
-            className={styles.reminderButton}
-          >
-            Przypomnij wystawcy o uzupełnieniu katalogu
-          </CustomButton>
         </Box>
       </Box>
 
