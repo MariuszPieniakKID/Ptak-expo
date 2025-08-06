@@ -1,4 +1,4 @@
-import React, { useState, FC, ChangeEvent, useRef, useEffect, KeyboardEvent } from "react";
+import React, { useState, FC, ChangeEvent, useRef, useEffect, KeyboardEvent, useCallback } from "react";
 import TextField from "@mui/material/TextField";
 import IconButton from "@mui/material/IconButton";
 import InputAdornment from "@mui/material/InputAdornment";
@@ -78,13 +78,13 @@ const CustomField: FC<CustomFieldProps> = ({
   const maxDropdownHeight = Math.min(200, window.innerHeight * 0.4);
 
 
-  const setShowOptions = (visible: boolean) => {
+  const setShowOptions = useCallback((visible: boolean) => {
     if (isControlled) {
       onShowOptionsChange && onShowOptionsChange(visible);
     } else {
       setShowOptionsInternal(visible);
     }
-  };
+  }, [isControlled, onShowOptionsChange]);
 
   // Zamknięcie listy przy kliknięciu poza komponentem
   useEffect(() => {
