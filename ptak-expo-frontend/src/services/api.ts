@@ -204,7 +204,7 @@ export interface AddExhibitorPayload {
   phone: string;
   email: string;
   password: string;
-  exhibitionId?: number | undefined;
+  exhibitionId?: number | null;
 }
 
 export const addExhibitor = async (exhibitorData: AddExhibitorPayload, token: string): Promise<any> => {

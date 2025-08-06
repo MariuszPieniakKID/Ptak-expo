@@ -241,19 +241,18 @@ const initializeDatabase = async () => {
         id SERIAL PRIMARY KEY,
         exhibitor_id INTEGER NULL REFERENCES exhibitors(id) ON DELETE CASCADE,
         exhibition_id INTEGER REFERENCES exhibitions(id) ON DELETE CASCADE,
-        file_type VARCHAR(100) NOT NULL, -- 'kolorowe_tlo_logo_wydarzenia', 'tlo_wydarzenia_logo_zaproszenia', 'biale_logo_identyfikator', 'banner_wystawcy_800', 'banner_wystawcy_1200', 'logo_ptak_expo', 'dokumenty_brandingowe'
+        file_type VARCHAR(100) NOT NULL,
         file_name VARCHAR(255) NOT NULL,
         original_name VARCHAR(255) NOT NULL,
         file_path VARCHAR(500) NOT NULL,
         file_size INTEGER,
         mime_type VARCHAR(100),
-        dimensions VARCHAR(50), -- e.g., '305x106', '800x800', etc.
+        dimensions VARCHAR(50),
         is_approved BOOLEAN DEFAULT false,
         approved_by INTEGER REFERENCES users(id),
         approved_at TIMESTAMPTZ,
         created_at TIMESTAMPTZ DEFAULT NOW(),
-        updated_at TIMESTAMPTZ DEFAULT NOW(),
-        -- Note: UNIQUE constraint handled by partial indexes below to properly handle NULL exhibitor_id
+        updated_at TIMESTAMPTZ DEFAULT NOW()
       )
     `);
 

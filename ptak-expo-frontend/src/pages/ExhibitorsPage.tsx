@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import Menu from '../components/menu/Menu';
-import AddExhibitorModal from '../components/AddExhibitorModal';
+import AddExhibitorModalShort from '../components/addExhibitorModal/AddExhibitorModalShort';
 import CustomTypography from '../components/customTypography/CustomTypography';
 import CustomButton from '../components/customButton/CustomButton';
 import {
@@ -165,7 +165,11 @@ const ExhibitorsPage: React.FC = () => {
             <CustomButton
               variant="contained"
               startIcon={<AddIcon />}
-              onClick={() => setIsAddExhibitorModalOpen(true)}
+              onClick={() => {
+                console.log('🎨 [DEBUG] "Dodaj wystawcę" button clicked!');
+                console.log('🎨 [DEBUG] Opening AddExhibitorModal from addExhibitorModal folder');
+                setIsAddExhibitorModalOpen(true);
+              }}
               bgColor="#6F87F6"
               textColor="#fff"
               width="auto"
@@ -286,7 +290,7 @@ const ExhibitorsPage: React.FC = () => {
       <Box className={styles.filtrBlue}/>
     </Box>
     
-    <AddExhibitorModal
+    <AddExhibitorModalShort
       isOpen={isAddExhibitorModalOpen}
       onClose={handleModalClose}
       onExhibitorAdded={handleExhibitorAdded}
