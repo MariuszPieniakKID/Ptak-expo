@@ -100,7 +100,7 @@ const CustomField: FC<CustomFieldProps> = ({
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [showOptions]);
+  }, [showOptions, setShowOptions]);
 
   //??
   useEffect(() => {

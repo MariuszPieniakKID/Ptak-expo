@@ -16,7 +16,7 @@ export const validateCompanyName = (companyName: string): string => {
   const trimmed = companyName.trim();
   if (!trimmed) return 'Nazwa firmy jest wymagana';
   if (trimmed.length < 2) return 'Nazwa firmy musi zawierać co najmniej 2 znaki.';
-  const re = /^[A-Za-zĄĆĘŁŃÓŚŹŻąćęłńóśźż0-9 .,'"\-\/&+]+$/;
+  const re = /^[A-Za-zĄĆĘŁŃÓŚŹŻąćęłńóśźż0-9 .,'"-/&+]+$/;
   if (!re.test(trimmed))
     return 'Nazwa firmy może zawierać tylko litery, cyfry, spacje oraz . , - / & + \' "';
   return '';
@@ -26,7 +26,7 @@ export const validateAddress = (address: string): string => {
   const trimmed = address.trim();
   if (!trimmed) return 'Adres jest wymagany';
   if (trimmed.length < 5) return 'Adres musi zawierać co najmniej 5 znaków.';
-  const re = /^[A-Za-zĄĆĘŁŃÓŚŹŻąćęłńóśźż0-9\s,.\-\/\\#]+$/;
+  const re = /^[A-Za-zĄĆĘŁŃÓŚŹŻąćęłńóśźż0-9\s,.-/\\#]+$/;
   if (!re.test(trimmed))
     return 'Adres zawiera niedozwolone znaki. Dozwolone są litery, cyfry, spacje oraz , . - / \\ #';
   return '';
@@ -68,7 +68,7 @@ export const validateContactRole = (role: string): string => {
   const trimmed = role.trim();
   if (!trimmed) return 'Rola w organizacji jest wymagana';
   if (trimmed.length < 2) return 'Rola musi mieć co najmniej 2 znaki';
-  const re = /^[A-Za-zĄĆĘŁŃÓŚŹŻąćęłńóśźż0-9\s\-\/&.]+$/;
+  const re = /^[A-Za-zĄĆĘŁŃÓŚŹŻąćęłńóśźż0-9\s-/&.]+$/;
   if (!re.test(trimmed))
     return 'Rola może zawierać tylko litery, cyfry, spacje oraz znaki: - / & .';
   return '';
@@ -90,7 +90,7 @@ export const validateEmail = (email: string): string => {
 };
 export  const validateStandNumber = (standNumber: string): string => {
   if (!standNumber.trim()) return 'Numer stoiska jest wymagany';
-  const re = /^[A-Za-z0-9\-]{1,8}$/;
+  const re = /^[A-Za-z0-9-]{1,8}$/;
   if (!re.test(standNumber))
     return 'Numer stoiska może zawierać tylko litery, cyfry i myślniki (max. 8 znaków)';
   return '';
@@ -101,7 +101,7 @@ export  const validateHallName = (hallName: string): string => {
   if (!trimmed) return 'Nazwa hali jest wymagana';
   if (trimmed.length < 2) return 'Nazwa hali musi zawierać co najmniej 2 znaki';
   if (trimmed.length > 50) return 'Nazwa hali może zawierać maksymalnie 50 znaków';
-  const re = /^[A-Za-zĄĆĘŁŃÓŚŹŻąćęłńóśźż0-9\s.\-\/]+$/;
+  const re = /^[A-Za-zĄĆĘŁŃÓŚŹŻąćęłńóśźż0-9\s.-/]+$/;
   if (!re.test(trimmed))
     return 'Nazwa hali może zawierać tylko litery, cyfry, spacje oraz znaki: . - /';
   return '';
