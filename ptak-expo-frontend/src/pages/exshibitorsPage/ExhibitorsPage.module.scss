@@ -370,12 +370,12 @@ display:flex;
 
 
 ._noEffectsButton {
-
   background-color: transparent !important;
   outline: none !important;
   border: none !important;
   box-shadow: none !important;
   transition: none !important;
+  padding-left: 0.5em!important;
   
   &:hover {
     background-color: transparent !important; 

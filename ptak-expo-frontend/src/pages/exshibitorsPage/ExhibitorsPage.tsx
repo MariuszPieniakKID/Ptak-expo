@@ -21,13 +21,11 @@ import {
   TableHead,
   TableRow,
   Paper,
-  IconButton,
   TablePagination,
   CircularProgress,
   Alert,
   useMediaQuery,
 } from '@mui/material';
-import DeleteIcon from '@mui/icons-material/Delete';
 import { ReactComponent as LogoutIcon } from '../../assets/log-out.svg';
 import styles from './ExhibitorsPage.module.scss';
 import ExhibitorsPageIcon from '../../assets/mask-group-6@2x.png';
@@ -37,6 +35,7 @@ import Applause from '../../assets/applause.png';
 import { ReactComponent as UsersIcon } from '../../assets/addIcon.svg';
 import { ReactComponent as ArrowIcon } from '../../assets/arrowUpIcon.svg';
 import { ReactComponent as EyeIcon } from '../../assets/eyeIcon.svg';
+import { ReactComponent as WastebasketIcon } from '../../assets/wastebasket.svg';
 
 const ExhibitorsPage: React.FC = () => {
   const [exhibitors, setExhibitors] = useState<Exhibitor[]>([]);
@@ -419,14 +418,17 @@ const ExhibitorsPage: React.FC = () => {
                               Zobacz kartę
                             </CustomTypography>
                           </Box>
-
-                          <IconButton 
+                          <WastebasketIcon 
+                            onClick={() => handleDeleteExhibitor(exhibitor.id, exhibitor.companyName)} 
+                            className={styles._noEffectsButton}
+                          />
+                          {/* <IconButton 
                              className={styles._noEffectsButton}
                              onClick={() => handleDeleteExhibitor(exhibitor.id, exhibitor.companyName)} 
                              size="small"
                              disableRipple>
                             <DeleteIcon />
-                          </IconButton>
+                          </IconButton> */}
                         </Box>
 
                       </TableCell>
