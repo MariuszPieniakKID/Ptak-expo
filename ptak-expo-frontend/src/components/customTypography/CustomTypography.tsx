@@ -1,6 +1,7 @@
-import React, { ReactNode } from 'react';
+import React, { MouseEventHandler, ReactNode } from 'react';
 import Typography from '@mui/material/Typography';
 import styles from './CustomTypography.module.scss';
+import { SxProps, Theme } from '@mui/material';
 
 interface CustomTypographyProps {
   children: ReactNode;
@@ -9,6 +10,8 @@ interface CustomTypographyProps {
   fontWeight?:number;
   color?: string;
   component?: React.ElementType;
+  sx?: SxProps<Theme>;
+  onClick?: MouseEventHandler<any>;
 }
 
 const CustomTypography: React.FC<CustomTypographyProps> = ({ 
@@ -18,6 +21,7 @@ const CustomTypography: React.FC<CustomTypographyProps> = ({
   fontWeight,
   color,
   component,
+  onClick,
 }) => (
   <Typography
     {...(component && { component })}
@@ -31,6 +35,7 @@ const CustomTypography: React.FC<CustomTypographyProps> = ({
       fontWeight: fontWeight?fontWeight:600,
       color: color ? color : '#2e2e38',
     }}
+    onClick={onClick} 
   >
     {children}
   </Typography>
