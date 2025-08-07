@@ -55,7 +55,7 @@
 .inputWrapper{
 display: flex;
 flex-direction: column;
-row-gap: 2em;
+row-gap: 0.5em;
 flex-wrap: wrap;
 justify-content:center;
 margin-bottom:'2em';
@@ -82,10 +82,10 @@ margin-bottom:'2em';
 .line{ 
     width: 100%;
     height: 2px;
-    background-color: $color-mediumslateblue;
+    background-color:$color-blue;
     border-radius: 3px;
     margin-top: 1em;
-    margin-bottom: 0em;
+    margin-bottom: 0.5em;
 }
 .actionContainer{
     display:flex;
@@ -193,5 +193,33 @@ margin-bottom:'2em';
 
   @media (max-width: 320px) {
   display: none !important;
+  }
+}
+.addCircleButton{
+
+    &:hover{
+    width: 30px;
+    height: 30px;
+  }
+}
+.closeIcon{
+  position: absolute;
+  top:16px!important;
+  right:16px!important;
+  transition: transform 0.2s ease-in-out;
+
+  
+  @include for-tablet-portrait-up  {
+   top:32px!important;
+   right:32px!important;
+
+  }
+  @media (max-width: 320px) {
+   top:8px!important;
+   right:8px!important;
+
+  }
+  &:hover {
+    transform: scale(1.125); 
   }
 }
