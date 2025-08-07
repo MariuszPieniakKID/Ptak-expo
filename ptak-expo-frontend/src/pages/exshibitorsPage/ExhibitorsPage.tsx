@@ -25,6 +25,8 @@ import {
   CircularProgress,
   Alert,
   useMediaQuery,
+  Breadcrumbs,
+  Link,
 } from '@mui/material';
 import { ReactComponent as LogoutIcon } from '../../assets/log-out.svg';
 import styles from './ExhibitorsPage.module.scss';
@@ -241,7 +243,12 @@ const ExhibitorsPage: React.FC = () => {
                 <img src={ExhibitorsPageIcon} alt="Wystawcy" className={styles._titleIcon} />
                 <CustomTypography className={styles._pageTitle}>Wystawcy</CustomTypography>              
               </Box>
-              <Box className={styles._path}>Home / Baza wystawców</Box>
+                <Box className={styles.breadcrumbs}>
+                <Breadcrumbs aria-label="breadcrumb">
+                    <Link onClick={() => navigate('/dashboard')}> Home</Link>
+                    <CustomTypography className={styles.linkEnd}>Baza wystawców</CustomTypography>
+                </Breadcrumbs>
+              </Box>
             </Box>
             <Box
               className={styles._addExhibitorsContainer}
@@ -422,13 +429,6 @@ const ExhibitorsPage: React.FC = () => {
                             onClick={() => handleDeleteExhibitor(exhibitor.id, exhibitor.companyName)} 
                             className={styles._noEffectsButton}
                           />
-                          {/* <IconButton 
-                             className={styles._noEffectsButton}
-                             onClick={() => handleDeleteExhibitor(exhibitor.id, exhibitor.companyName)} 
-                             size="small"
-                             disableRipple>
-                            <DeleteIcon />
-                          </IconButton> */}
                         </Box>
 
                       </TableCell>

@@ -493,3 +493,23 @@ transform: rotate(180deg);
 .titleTableWithFilter{
   margin-right: 2em;
 }
+.breadcrumbs {
+  a {
+    cursor: pointer;
+    color: $color-almostblack;
+    text-decoration: none;
+    font-size:$font-size-xs !important; 
+    font-weight: 300!important;
+    
+    &:hover {
+      color: $color-blue;
+      text-decoration: underline;
+    }
+  }
+}
+.linkEnd{
+ color:$color-almostblack!important;
+ font-size:$font-size-xs !important; 
+ font-weight: 300!important;
+ padding-top: 0.5em;
+}
