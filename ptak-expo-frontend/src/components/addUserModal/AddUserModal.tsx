@@ -18,6 +18,8 @@ import CloseIcon from '@mui/icons-material/Close';
 import { addUser, AddUserPayload } from '../../services/api';
 import styles from './AddUserModal.module.scss';
 import UsersPageIcon from '../../assets/mask-group-5@2x.png';
+
+
 interface AddUserModalProps {
   isOpen: boolean;
   onClose: () => void;

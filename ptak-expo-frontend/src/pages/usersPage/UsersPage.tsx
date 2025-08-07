@@ -2,11 +2,9 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import Menu from '../../components/menu/Menu';
-//import AddUserModal from '../../components/addUserModal/AddUserModal';
 import CustomTypography from '../../components/customTypography/CustomTypography';
 import CustomButton from '../../components/customButton/CustomButton';
-import { useMediaQuery } from '@mui/material';
-
+import AddUserModalShort from '../../components/addUserModal/AddUserModalShort';
 import {
   fetchUsers,
   deleteUser,
@@ -29,20 +27,21 @@ import {
   CircularProgress,
   Alert,
 } from '@mui/material';
-//import AddIcon from '@mui/icons-material/Add';
+
 import DeleteIcon from '@mui/icons-material/Delete';
-import ArrowUpwardIcon from '@mui/icons-material/ArrowUpward';
-import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
-import LockResetIcon from '@mui/icons-material/LockReset';
-import styles from './UsersPage.module.scss';
+import { useMediaQuery } from '@mui/material';
+
 import UsersPageIcon from '../../assets/mask-group-5@2x.png';
-import { ReactComponent as LogoutIcon2 } from '../../assets/log-out.svg';
 import UserAvatar from '../../assets/7bb764a0137abc7a8142b6438e529133@2x.png';
 import Applause from '../../assets/applause.png';
 
+import { ReactComponent as LogoutIcon } from '../../assets/log-out.svg';
 import { ReactComponent as BackIcon } from '../../assets/back.svg';
-import { ReactComponent as UsersIcon } from '../../assets/group-30485.svg';
-import AddUserModalShort from '../../components/addUserModal/AddUserModalShort';
+import { ReactComponent as UsersIcon } from '../../assets/addIcon.svg';
+import { ReactComponent as KeyIcon } from '../../assets/keyIcon.svg';
+import { ReactComponent as ArrowUp } from '../../assets/arrowUpIcon.svg';
+
+import styles from './UsersPage.module.scss';
 
 const UsersPage: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
@@ -163,7 +162,7 @@ const UsersPage: React.FC = () => {
                 fontSize="0.75em;"
                 className={styles.logOutButton}
                 onClick={handleLogout}
-                icon={<LogoutIcon2 style={{ color: "#6F6F6F", height:"1.25em"}}/>} 
+                icon={<LogoutIcon style={{ color: "#6F6F6F", height:"1.25em"}}/>} 
                 iconPosition="top" 
                 withBorder={false}
                 width="auto"
@@ -256,55 +255,45 @@ const UsersPage: React.FC = () => {
                               <CustomTypography 
                               fontSize="0.875em" 
                               fontWeight={300} 
-                              color="#6F6F6F" 
+                              color="#7F8D8E" 
                               className={styles.leftSTable} 
-                              component="span">
-                                Imię i Nazwisko{' '}
+                              component="div">
+                               
                                 {sortOrder === 'asc' && (
-                                  <>
-                                    <span style={{ fontWeight: 300, marginLeft: 2 }}>A-Z</span>
-                                    <ArrowUpwardIcon 
-                                      fontSize="small" 
-                                      sx={{ verticalAlign: 'middle', color: '#6F87F6',scale:'0.9' }} 
-                                    />
-                                    
-                                  </>
+                                  <div className={styles.titleAndFilterContainer}> 
+                                    <div className={styles.titleTableWithFilter} > Imię i Nazwisko A-Z</div>
+                                    <ArrowUp  className={styles.arrowUpIcon}/>
+                                  </div>
                                 )}
                                 {sortOrder === 'desc' && (
-                                  <>
-                                  <span style={{ fontWeight: 300, marginLeft: 2 }}>Z-A</span>
-                                    <ArrowDownwardIcon 
-                                    fontSize="small" 
-                                    sx={{ verticalAlign: 'middle', color: '#6F87F6',scale:'0.9' }} 
-                                    />
-                                  </>
+                                  <div className={styles.titleAndFilterContainer}>
+                                   <div className={styles.titleTableWithFilter} >Imię i Nazwisko Z-A</div>
+                                   <ArrowUp className={styles.arrowDownIcon}/>
+                                  </div>
                                 )}
                                 {sortOrder === null && (
-                                  <>
-                                    <ArrowUpwardIcon 
-                                    fontSize="small" 
-                                    sx={{ verticalAlign: 'middle', color: '#6F87F6', scale:'0.6' }} 
-                                    />
-                                    <ArrowDownwardIcon 
-                                    fontSize="small" 
-                                    sx={{ verticalAlign: 'middle', color: '#6F87F6', scale:'0.6' , marginLeft: -1 }} 
-                                    />
-                                  </>
+                                  <div className={styles.titleAndFilterContainer}>
+                                  <div className={styles.titleTableWithFilter} >Imię i Nazwisko </div>
+                                  <div className={styles.doubleArrow}>
+                                     <ArrowUp className={styles.arrowUpIcon}/>
+                                     <ArrowUp className={styles.arrowDownIcon}/>
+                                  </div>
+                                  </div>
                                 )}
                               </CustomTypography>
                             </TableCell>
                             <TableCell className={styles.tableCell}>
-                             <CustomTypography fontSize="0.875em" fontWeight={300} color={'#6F6F6F'} className={styles.firstRow}>
+                             <CustomTypography fontSize="0.875em" fontWeight={300} color={'#7F8D8E'} className={styles.firstRow}>
                                 E-mail
                               </CustomTypography>
                             </TableCell>
                             <TableCell className={styles.tableCell}>
-                              <CustomTypography fontSize="0.875em" fontWeight={300} color={'#6F6F6F'} className={styles.firstRow}>
+                              <CustomTypography fontSize="0.875em" fontWeight={300} color={'#7F8D8E'} className={styles.firstRow}>
                                 Telefon
                               </CustomTypography>
                             </TableCell>
                             <TableCell className={styles.tableCell} align="left">
-                              <CustomTypography fontSize="0.875em" fontWeight={300} color={'#6F6F6F'} className={styles.firstRow}>
+                              <CustomTypography fontSize="0.875em" fontWeight={300} color={'#7F8D8E'} className={styles.firstRow}>
                                 Akcja:
                               </CustomTypography>
                             </TableCell>
@@ -321,30 +310,55 @@ const UsersPage: React.FC = () => {
                                   >
                                     {getUserInitials(user.fullName)}
                                   </Avatar>
-                                  <CustomTypography fontSize="0.875rem" fontWeight={500}>
+                                  <CustomTypography fontSize="1em" fontWeight={500}>
                                     {user.fullName}
                                   </CustomTypography>
                                 </Box>
                               </TableCell>
                               <TableCell className={styles.tableCell}>
-                                <CustomTypography fontSize="0.875rem" fontWeight={400}>
+                                <CustomTypography fontSize="0.8125em" fontWeight={400}>
                                   {user.email}
                                 </CustomTypography>
                               </TableCell>
                               <TableCell className={styles.tableCell}>
-                                <CustomTypography fontSize="0.875rem" fontWeight={400}>
+                                <CustomTypography fontSize="0.8125em" fontWeight={400}>
                                   {user.phone || '—'}
                                 </CustomTypography>
                               </TableCell>
                               <TableCell className={styles.tableCell} align="right" >
+
                                 <Box className={styles.actionButtons}>
-                                  <IconButton onClick={() => handleResetPassword(user.id)} size="small">
-                                    <LockResetIcon />
-                                  </IconButton>
-                                  <IconButton onClick={() => handleDeleteUser(user.id, user.fullName)} size="small">
+                                  <Box 
+                                  display="flex" 
+                                  alignItems="center" 
+                                  gap={1} 
+                                  className={styles.actionButtonWithHover}>
+                                    <KeyIcon
+                                      onClick={() => handleResetPassword(user.id)}
+                                      className={styles.iconActionButton}
+                                    />
+                                    <CustomTypography
+                                      onClick={() => handleResetPassword(user.id)}
+                                      className={styles.textActionButton}
+                                      sx={{fontSize:'0.8125em !important'}}
+                                    >
+                                      Wyślij nowe hasło
+                                    </CustomTypography>
+                                  </Box>
+                                  <IconButton 
+                                  onClick={() => handleDeleteUser(user.id, user.fullName)} 
+                                  size="small"
+                                  className={styles.noEffectsButton}
+                                  disableRipple
+                                  sx={{width:'0.5em',
+                                       height:'0.5em',
+                                       paddingLeft:'1em',
+
+                                  }}>
                                     <DeleteIcon />
                                   </IconButton>
                                 </Box>
+
                               </TableCell>
                             </TableRow>
                           ))}

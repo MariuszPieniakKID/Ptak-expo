@@ -1,10 +1,13 @@
 import React, { ChangeEvent,useCallback,useEffect,useState} from 'react';
 import {Alert, Box,CircularProgress,Dialog,DialogActions,DialogTitle, IconButton,Typography} from '@mui/material';
-import CloseIcon from '@mui/icons-material/Close';
+//import CloseIcon from '@mui/icons-material/Close';
 import CustomField from '../customField/CustomField';
 import { addUserByAdmin, AddUserPayloadByAdmin } from '../../services/api';
 import CustomTypography from '../customTypography/CustomTypography';
 import CustomButton from '../customButton/CustomButton';
+
+import { ReactComponent as CloseIcon  } from '../../assets/closeIcon.svg';
+import { ReactComponent as AddCircleButton  } from '../../assets/addCircleButton.svg';
 
 import UsersPageIcon from '../../assets/mask-group-5@2x.png';
 import styles from './AddUserModal.module.scss';
@@ -172,8 +175,19 @@ const [apiError, setApiError] = useState('');
                  <Typography variant="h6" className={styles.modalTitle}>Użytkownicy</Typography>
                  <Typography variant="body2" className={styles.helperTitle}>Dodaj użytkownika</Typography>
              </Box>
-             <IconButton onClick={onClose} sx={{ position: 'absolute', right: 8, top: 8 }}>
-             <CloseIcon />
+             <IconButton 
+             onClick={onClose} 
+             disableRipple
+             sx={{
+                 position: 'absolute', 
+                 right: 8, 
+                 top: 8,
+             }}
+             >
+             {/* <CloseIcon/> */}
+               <CloseIcon 
+                className={styles.closeIcon}
+               />
              </IconButton>
          </DialogTitle> 
         <form onSubmit={handleSubmit}> 
@@ -246,8 +260,29 @@ const [apiError, setApiError] = useState('');
                             Dodaj
                         </CustomButton>
 
-                        <CustomTypography className={styles.addText}>dodaj</CustomTypography>
-                        <button
+                        
+                        {loading || 
+                          !!emailError || 
+                                !!phoneError|| 
+                                !!fullNameError|| 
+                                !fullName ||
+                                !email || 
+                                !phone || 
+                                !!error ?<></>:
+                                <>
+                                  <CustomTypography 
+                                  className={styles.addText}
+                                  >dodaj
+                                  </CustomTypography>
+                                  <AddCircleButton   
+                                  className={styles.addCircleButton} 
+                                  />
+                                </>}
+                 
+                               
+                              
+
+                        {/* <button
                         className={styles.circleButton}
                         disabled={
                                 loading || 
@@ -260,7 +295,7 @@ const [apiError, setApiError] = useState('');
                                 !!error
                               }
                         
-                        ><span className={styles.plusIcon}>+</span></button>
+                        ><span className={styles.plusIcon}>+</span></button> */}
                     </DialogActions>
                 </Box>
             </Box>
