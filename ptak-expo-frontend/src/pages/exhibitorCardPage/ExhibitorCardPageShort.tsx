@@ -3,11 +3,7 @@ import { useParams, useNavigate} from 'react-router-dom';
  import { 
       Exhibitor,
       fetchExhibitor, 
-      deleteExhibitor,
-      resetUserPassword,
-      assignExhibitorToEvent,
-      fetchExhibitions,
-      Exhibition
+      deleteExhibitor
 } from '../../services/api';
 
 import { useAuth } from '../../contexts/AuthContext';
@@ -59,7 +55,6 @@ const ExhibitorCardPage: React.FC = () => {
   const [exhibitor, setExhibitor] = useState<Exhibitor | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>('');
-  const [exhibitions, setExhibitions] = useState<Exhibition[]>([]);
   const [isAssignEventModalOpen, setIsAssignEventModalOpen] = useState<boolean>(false);
   const navigate = useNavigate();
   const { token, user, logout } = useAuth();
@@ -69,7 +64,7 @@ const ExhibitorCardPage: React.FC = () => {
     console.log(`exhibitor: exhibitor${exhibitor}`)
     logout();
     navigate('/login');
-  }, [logout, navigate]);
+  }, [logout, navigate, exhibitor]);
 
   const loadExhibitor = useCallback(async (): Promise<void> => {
     if (!token || !id) {
@@ -95,20 +90,9 @@ const ExhibitorCardPage: React.FC = () => {
     }
   }, [token, id, logout, navigate]);
 
-  const loadExhibitions = useCallback(async (): Promise<void> => {
-    if (!token) return;
-    try {
-      const fetchedExhibitions = await fetchExhibitions(token);
-      setExhibitions(fetchedExhibitions);
-    } catch (err: any) {
-      console.error('Błąd podczas pobierania wystaw:', err);
-    }
-  }, [token]);
-
   useEffect(() => {
     loadExhibitor();
-    loadExhibitions();
-  }, [loadExhibitor, loadExhibitions]);
+  }, [loadExhibitor]);
 
   const handleBack = useCallback(() => {
     navigate('/wystawcy');
