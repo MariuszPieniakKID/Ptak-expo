@@ -26,6 +26,8 @@ import {
   TablePagination,
   CircularProgress,
   Alert,
+  Breadcrumbs,
+  Link,
 } from '@mui/material';
 
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -218,7 +220,13 @@ const UsersPage: React.FC = () => {
                 <img src={UsersPageIcon} alt="Użytkownicy" className={styles.titleIcon} />
                 <CustomTypography className={styles.tableTitle}> Użytkownicy </CustomTypography>
               </Box>
-              <Box className={styles.path}>Home / Użytkownicy</Box>
+        
+              <Box className={styles.breadcrumbs}>
+                <Breadcrumbs aria-label="breadcrumb">
+                    <Link onClick={() => navigate('/dashboard')}> Home</Link>
+                    <CustomTypography className={styles.linkEnd}>Użytkownicy</CustomTypography>
+                </Breadcrumbs>
+              </Box>
             </Box>
             <Box 
               className={styles.addUserContainer}
