@@ -1,0 +1,259 @@
+@import '../styles/variables';
+@import '../styles/mixins';
+
+.dialog {
+  & .MuiDialog-paper {
+    border-radius: $border-radius-lg;
+    box-shadow: $shadow-lg;
+    background-color: $color-white;
+    max-width: 37.5em; // 600px
+    width: 100%;
+    margin: $spacing-lg;
+    
+    @include for-phone-only {
+      margin: $spacing-md;
+      max-width: 95%;
+    }
+    
+    @include for-tablet-portrait {
+      margin: $spacing-xl;
+      max-width: 90%;
+    }
+  }
+}
+
+.dialogTitle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: $spacing-xxl $spacing-xxxl $spacing-lg $spacing-xxxl;
+  border-bottom: 1px solid $color-gainsboro-100;
+  background-color: $color-white;
+  
+  @include for-phone-only {
+    padding: $spacing-xl $spacing-lg $spacing-md $spacing-lg;
+  }
+  
+  @include for-tablet-portrait {
+    padding: $spacing-xl $spacing-xl $spacing-lg $spacing-xl;
+  }
+}
+
+.titleContainer {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+  
+  @include for-phone-only {
+    gap: $spacing-sm;
+  }
+}
+
+.titleIcon {
+  width: 1.75em; // 28px
+  height: 1.75em; // 28px
+  color: $color-dodgerblue;
+  
+  @include for-phone-only {
+    width: 1.5em; // 24px
+    height: 1.5em; // 24px
+  }
+}
+
+.titleText {
+  font-family: $font-roc-grotesk;
+  font-size: $font-size-lg;
+  font-weight: 500;
+  color: $color-darkslategray;
+  margin: 0;
+  
+  @include for-phone-only {
+    font-size: $font-size-base;
+  }
+}
+
+.closeButton {
+  color: $color-darkgray;
+  padding: $spacing-xs;
+  border-radius: $border-radius-sm;
+  transition: $transition-normal;
+  
+  &:hover {
+    color: $color-darkslategray;
+    background-color: $color-gainsboro-100;
+  }
+}
+
+.dialogContent {
+  padding: $spacing-xxl $spacing-xxxl;
+  background-color: $color-whitesmoke;
+  max-height: 60vh;
+  overflow-y: auto;
+  
+  @include for-phone-only {
+    padding: $spacing-lg;
+    max-height: 70vh;
+  }
+  
+  @include for-tablet-portrait {
+    padding: $spacing-xl;
+  }
+}
+
+.form {
+  margin-top: 0;
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: $spacing-xl;
+  margin-bottom: $spacing-xl;
+  
+  @include for-phone-only {
+    grid-template-columns: 1fr;
+    gap: $spacing-lg;
+    margin-bottom: $spacing-lg;
+  }
+  
+  @include for-tablet-portrait {
+    gap: $spacing-lg;
+  }
+}
+
+.formField {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+  
+  &.fullWidth {
+    grid-column: 1 / -1;
+  }
+}
+
+.fieldLabel {
+  font-family: $font-roc-grotesk;
+  font-size: $font-size-sm;
+  font-weight: 500;
+  color: $color-darkslategray;
+  margin-bottom: $spacing-xs;
+  
+  @include for-phone-only {
+    font-size: $font-size-xs;
+  }
+}
+
+.fieldInput {
+  & .MuiOutlinedInput-root {
+    border-radius: $border-radius-md;
+    background-color: $color-white;
+    font-family: $font-open-sans;
+    font-size: $font-size-base;
+    transition: $transition-normal;
+    
+    @include for-phone-only {
+      font-size: $font-size-sm;
+    }
+    
+    &:hover .MuiOutlinedInput-notchedOutline {
+      border-color: $color-dodgerblue;
+    }
+    
+    &.Mui-focused .MuiOutlinedInput-notchedOutline {
+      border-color: $color-mediumslateblue;
+      border-width: 2px;
+    }
+  }
+  
+  & .MuiOutlinedInput-notchedOutline {
+    border-color: $color-gainsboro-200;
+  }
+  
+  & .MuiInputBase-input {
+    padding: $spacing-md $spacing-lg;
+    
+    @include for-phone-only {
+      padding: $spacing-sm $spacing-md;
+    }
+  }
+}
+
+.alert {
+  margin-bottom: $spacing-lg;
+  border-radius: $border-radius-md;
+  
+  @include for-phone-only {
+    margin-bottom: $spacing-md;
+  }
+}
+
+.dialogActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: $spacing-md;
+  padding: $spacing-lg $spacing-xxxl $spacing-xxl $spacing-xxxl;
+  border-top: 1px solid $color-gainsboro-100;
+  background-color: $color-white;
+  
+  @include for-phone-only {
+    padding: $spacing-lg;
+    gap: $spacing-sm;
+    flex-direction: column-reverse;
+  }
+  
+  @include for-tablet-portrait {
+    padding: $spacing-lg $spacing-xl;
+  }
+}
+
+.cancelButton {
+  background-color: transparent;
+  color: $color-darkgray;
+  border: 1px solid $color-gainsboro-200;
+  border-radius: $border-radius-md;
+  font-family: $font-roc-grotesk;
+  font-size: $font-size-base;
+  font-weight: 500;
+  padding: $spacing-md $spacing-xxl;
+  text-transform: none;
+  transition: $transition-normal;
+  
+  @include for-phone-only {
+    padding: $spacing-sm $spacing-lg;
+    font-size: $font-size-sm;
+  }
+  
+  &:hover {
+    background-color: $color-gainsboro-100;
+    border-color: $color-darkgray;
+  }
+}
+
+.submitButton {
+  background-color: $color-dodgerblue;
+  color: $color-white;
+  border: none;
+  border-radius: $border-radius-md;
+  font-family: $font-roc-grotesk;
+  font-size: $font-size-base;
+  font-weight: 500;
+  padding: $spacing-md $spacing-xxl;
+  text-transform: none;
+  box-shadow: 0 0.125em 0.5em rgba(111, 135, 246, 0.3);
+  transition: $transition-normal;
+  
+  @include for-phone-only {
+    padding: $spacing-sm $spacing-lg;
+    font-size: $font-size-sm;
+  }
+  
+  &:hover {
+    background-color: $color-mediumslateblue;
+    box-shadow: 0 0.25em 0.75em rgba(111, 135, 246, 0.4);
+  }
+  
+  &:disabled {
+    background-color: $color-darkgray;
+    box-shadow: none;
+  }
+} 
