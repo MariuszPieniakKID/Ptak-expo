@@ -79,7 +79,7 @@ margin-bottom:'2em';
   }
 
 }
-.line{ 
+.lineBox{ 
     width: 100%;
     height: 2px;
     background-color:$color-blue;
@@ -196,11 +196,19 @@ margin-bottom:'2em';
   }
 }
 .addCircleButton{
+  width: 28px; 
+  height: 28px; 
 
-    &:hover{
-    width: 30px;
-    height: 30px;
+  &:hover{
+  width: 30px;  
+  height: 30px; 
   }
+}
+.actionBox{
+  cursor:pointer;
+  display:flex;
+  flex-direction: row;justify-content: flex-end;
+  column-gap: 0.5em;
 }
 .closeIcon{
   position: absolute;
