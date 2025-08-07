@@ -6,9 +6,9 @@ import ProtectedRoute from './components/ProtectedRoute';
 import LoginPage from './pages/loginPage/LoginPage';
 import DashboardPage from './pages/dashboardPage/DashboardPage';
 import UsersPage from './pages/usersPage/UsersPage';
-import ExhibitorsPage from './pages/ExhibitorsPage';
+import ExhibitorsPage from './pages/exshibitorsPage/ExhibitorsPage'
 import EventsPage from './pages/EventsPage';
-import ExhibitorCardPage from './pages/ExhibitorCardPage';
+import ExhibitorCardPage from './pages/exhibitorCardPage/ExhibitorCardPageShort';
 import EventDetailsPage from './pages/EventDetailsPage';
 import EventDetailPage from './pages/EventDetailPage';
 import './App.scss';

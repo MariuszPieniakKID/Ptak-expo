@@ -65,7 +65,7 @@ const validateExhibitionSupervisor = (
 };
 
 
-const AddExhibitorModalShort: React.FC<AddExhibitorModalProps> = ({
+const AddExhibitorModal: React.FC<AddExhibitorModalProps> = ({
   isOpen,
   onClose,
   onExhibitorAdded,
@@ -612,4 +612,4 @@ const AddExhibitorModalShort: React.FC<AddExhibitorModalProps> = ({
   );
 };
 
-export default AddExhibitorModalShort;
+export default AddExhibitorModal;

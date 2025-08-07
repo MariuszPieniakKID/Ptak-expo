@@ -1,0 +1,89 @@
+@import '../../styles/variables';
+@import '../../styles/mixins';
+
+.eventCardContainer{
+ width: 345px;
+ height:150px;
+ background-color: $color-whitesmoke;
+ border-radius: 20px;
+ padding:12px 21px 12px 21px;
+ border: 2px solid white;
+}
+.eventCardContainer:hover {
+ transform: translateY(-0.125em); // 2px
+ box-shadow: 0 1.5625em 1.875em rgba(100, 109, 150, 0.25); 
+}
+.deleteIconContainer{
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+}
+.wastebasketIcon{
+ height: 13px;
+ width: auto;
+ cursor:pointer;
+ &:hover{
+  fill: $color-blue;
+  transform: scale(1.1);
+ } 
+}
+.container{
+    padding-top: 1em;
+    width:100%;
+    display:flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-start;
+    column-gap: 1em;
+}
+.eventLogo{
+    width:30%;
+}
+.logo{
+    width:auto;
+    height: 55px;
+}
+.eventInfo{
+    width:70%;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    row-gap: 0.25em;
+}
+.dateInfo{
+    color:$color-blue;
+    font-size:0.875em;//14px
+}
+.eventTitle{
+  color:$color-darkslategray;
+  font-size:0.875em;//14px
+  font-weight: 500;
+}
+.actionInfo{
+    display:flex;
+    flex-direction: row;
+    justify-content:space-between;
+    align-items: flex-end;
+}
+.readyText{
+    font-size:  0.6875em!important;
+    color:#6F6F6F;
+    font-weight: 300!important;
+    padding-bottom: 0.25em;
+}
+.progressIcon{
+    width:50px;
+    height: auto;
+}
+.actionButton{
+    cursor: pointer!important;
+}
+.chooseText {
+  color: darkslategray !important;
+  font-size: 11px !important;
+  font-weight: 300 !important;
+  text-decoration: underline;
+}
+.actionButton:hover .chooseText {
+  font-weight: 600 !important;
+}
