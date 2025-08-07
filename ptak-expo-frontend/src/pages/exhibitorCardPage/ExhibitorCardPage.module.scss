@@ -1,5 +1,5 @@
-@import '../styles/variables';
-@import '../styles/mixins';
+@import '../../styles/variables';
+@import '../../styles/mixins';
 
 .exhibitorCardPage {
   position: relative;
@@ -14,7 +14,7 @@
   min-height: 100vh;
   background-color: $color-gray;
   top: -1em; 
-  background-image: url('../assets/tło.png');
+  background-image: url('../../assets/tło.png');
   background-position: center;
   background-size: cover;
   opacity: 0.5;
@@ -22,7 +22,7 @@
   will-change: opacity;
 
   @media (max-width: 600px) {
-    background-image: url('../assets/tlo_m.png');
+    background-image: url('../../assets/tlo_m.png');
   }
   display: flex;
   flex-direction: column;
@@ -440,18 +440,18 @@
     width: 100%;
 }
 .filtrGray{
-   background-image: url('../assets/Rectangle-8313.svg');
+   background-image: url('../../assets/Rectangle-8313.svg');
    background-size: cover;
    background-repeat: no-repeat;
    min-height:60vh;
    width: 100%;
     @include for-tablet-portrait-up  {
-       background-image: url('../assets/Rectangle-8313.svg');
+       background-image: url('../../assets/Rectangle-8313.svg');
        mask-image: linear-gradient(to top, transparent, #6F87F6 50%);
     }
 }
 .filtrBlue{
-   background-image: url('../assets/Rectangle-8378.svg');
+   background-image: url('../../assets/Rectangle-8378.svg');
    background-size: cover;
    background-repeat: no-repeat;
    min-height: 40vh;

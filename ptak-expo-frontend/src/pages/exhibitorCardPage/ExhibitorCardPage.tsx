@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
-import Menu from '../components/menu/Menu';
-import CustomTypography from '../components/customTypography/CustomTypography';
-import CustomButton from '../components/customButton/CustomButton';
-import { fetchExhibitor, deleteExhibitor, Exhibitor } from '../services/api';
+import { useAuth } from '../../contexts/AuthContext';
+import Menu from '../../components/menu/Menu';
+import CustomTypography from '../../components/customTypography/CustomTypography';
+import CustomButton from '../../components/customButton/CustomButton';
+import { fetchExhibitor, deleteExhibitor, Exhibitor } from '../../services/api';
 import {
   Box,
   Container,
@@ -18,11 +18,11 @@ import {
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
-import { ReactComponent as LogoutIcon } from '../assets/log-out.svg';
+import { ReactComponent as LogoutIcon } from '../../assets/log-out.svg';
 import styles from './ExhibitorCardPage.module.scss';
-import ExhibitorsPageIcon from '../assets/mask-group-6@2x.png';
-import EventImage1 from '../assets/image-35@2x.png';
-import EventImage2 from '../assets/mask-group-28@2x.png';
+import ExhibitorsPageIcon from '../../assets/mask-group-6@2x.png';
+import EventImage1 from '../../assets/image-35@2x.png';
+import EventImage2 from '../../assets/mask-group-28@2x.png';
 
 const ExhibitorCardPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();

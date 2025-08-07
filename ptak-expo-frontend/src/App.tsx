@@ -8,10 +8,13 @@ import DashboardPage from './pages/dashboardPage/DashboardPage';
 import UsersPage from './pages/usersPage/UsersPage';
 import ExhibitorsPage from './pages/exshibitorsPage/ExhibitorsPage';
 import EventsPage from './pages/EventsPage';
-import ExhibitorCardPage from './pages/ExhibitorCardPage';
+// import ExhibitorCardPageShort from './pages/exhibitorCardPage/ExhibitorCardPageShort';
+// import ExhibitorCardPage from './pages/exhibitorCardPage/ExhibitorCardPage';
+import ExhibitorCardPage from './pages/exhibitorCardPage/ExhibitorCardPage';
 import EventDetailsPage from './pages/EventDetailsPage';
 import EventDetailPage from './pages/EventDetailPage';
 import './App.scss';
+import ExhibitorCardPageShort from './pages/exhibitorCardPage/ExhibitorCardPageShort';
 
 function App() {
   return (
@@ -50,6 +53,12 @@ function App() {
             <Route path="/wystawcy/:id" element={
               <ProtectedRoute requiredRole="admin">
                 <ExhibitorCardPage />
+              </ProtectedRoute>
+            } />
+                 {/* Protected Exhibitor Card page - Admin only */}
+            <Route path="/wystawcy_short/:id" element={
+              <ProtectedRoute requiredRole="admin">
+                <ExhibitorCardPageShort/>
               </ProtectedRoute>
             } />
             
