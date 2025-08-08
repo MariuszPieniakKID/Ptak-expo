@@ -1,11 +1,8 @@
 import React, { ChangeEvent,useCallback,useEffect,useState} from 'react';
 import {Alert, Box,CircularProgress,Dialog,DialogActions,DialogTitle, IconButton,Typography} from '@mui/material';
-//import CloseIcon from '@mui/icons-material/Close';
 import CustomField from '../customField/CustomField';
 import { addUserByAdmin, AddUserPayloadByAdmin } from '../../services/api';
 import CustomTypography from '../customTypography/CustomTypography';
-import CustomButton from '../customButton/CustomButton';
-
 import { ReactComponent as CloseIcon  } from '../../assets/closeIcon.svg';
 import { ReactComponent as AddCircleButton  } from '../../assets/addCircleButton.svg';
 
@@ -236,31 +233,15 @@ const [apiError, setApiError] = useState('');
             </Box>
 
             <Box>
-                <Box className={styles.line}/>
+                <Box className={styles.lineBox}/>
               
                 {/* Tekst pod linią */}
                 <Box className={styles.actionContainer}>
                     <CustomTypography className={styles.additionalInfo}> 
                       * Na podany e-mail użytkownik otrzyma hasło i dane dostępowe do aplikacji
                     </CustomTypography> 
-                    <DialogActions className={styles.dialogActions}> 
-                        <CustomButton
-                          type="submit"
-                           sx={{display:'none'}}
-                              disabled={
-                                loading || 
-                                !!emailError || 
-                                !!phoneError|| 
-                                !!fullNameError|| 
-                                !fullName ||
-                                !email || 
-                                !phone || 
-                                !!error
-                          } >
-                            Dodaj
-                        </CustomButton>
-
-                        
+                    <DialogActions 
+                      className={styles.dialogActions}> 
                         {loading || 
                           !!emailError || 
                                 !!phoneError|| 
@@ -269,7 +250,9 @@ const [apiError, setApiError] = useState('');
                                 !email || 
                                 !phone || 
                                 !!error ?<></>:
-                                <>
+                                <Box 
+                                className={styles.actionBox}
+                                onClick={handleSubmit}>
                                   <CustomTypography 
                                   className={styles.addText}
                                   >dodaj
@@ -277,25 +260,7 @@ const [apiError, setApiError] = useState('');
                                   <AddCircleButton   
                                   className={styles.addCircleButton} 
                                   />
-                                </>}
-                 
-                               
-                              
-
-                        {/* <button
-                        className={styles.circleButton}
-                        disabled={
-                                loading || 
-                                !!emailError || 
-                                !!phoneError|| 
-                                !!fullNameError|| 
-                                !fullName ||
-                                !email || 
-                                !phone || 
-                                !!error
-                              }
-                        
-                        ><span className={styles.plusIcon}>+</span></button> */}
+                                </Box>}
                     </DialogActions>
                 </Box>
             </Box>

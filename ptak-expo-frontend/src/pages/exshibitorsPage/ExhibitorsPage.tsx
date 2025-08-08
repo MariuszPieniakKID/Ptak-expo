@@ -21,13 +21,13 @@ import {
   TableHead,
   TableRow,
   Paper,
-  IconButton,
   TablePagination,
   CircularProgress,
   Alert,
   useMediaQuery,
+  Breadcrumbs,
+  Link,
 } from '@mui/material';
-import DeleteIcon from '@mui/icons-material/Delete';
 import { ReactComponent as LogoutIcon } from '../../assets/log-out.svg';
 import styles from './ExhibitorsPage.module.scss';
 import ExhibitorsPageIcon from '../../assets/mask-group-6@2x.png';
@@ -37,6 +37,7 @@ import Applause from '../../assets/applause.png';
 import { ReactComponent as UsersIcon } from '../../assets/addIcon.svg';
 import { ReactComponent as ArrowIcon } from '../../assets/arrowUpIcon.svg';
 import { ReactComponent as EyeIcon } from '../../assets/eyeIcon.svg';
+import { ReactComponent as WastebasketIcon } from '../../assets/wastebasket.svg';
 
 const ExhibitorsPage: React.FC = () => {
   const [exhibitors, setExhibitors] = useState<Exhibitor[]>([]);
@@ -242,7 +243,12 @@ const ExhibitorsPage: React.FC = () => {
                 <img src={ExhibitorsPageIcon} alt="Wystawcy" className={styles._titleIcon} />
                 <CustomTypography className={styles._pageTitle}>Wystawcy</CustomTypography>              
               </Box>
-              <Box className={styles._path}>Home / Baza wystawców</Box>
+                <Box className={styles.breadcrumbs}>
+                <Breadcrumbs aria-label="breadcrumb">
+                    <Link onClick={() => navigate('/dashboard')}> Home</Link>
+                    <CustomTypography className={styles.linkEnd}>Baza wystawców</CustomTypography>
+                </Breadcrumbs>
+              </Box>
             </Box>
             <Box
               className={styles._addExhibitorsContainer}
@@ -419,14 +425,10 @@ const ExhibitorsPage: React.FC = () => {
                               Zobacz kartę
                             </CustomTypography>
                           </Box>
-
-                          <IconButton 
-                             className={styles._noEffectsButton}
-                             onClick={() => handleDeleteExhibitor(exhibitor.id, exhibitor.companyName)} 
-                             size="small"
-                             disableRipple>
-                            <DeleteIcon />
-                          </IconButton>
+                          <WastebasketIcon 
+                            onClick={() => handleDeleteExhibitor(exhibitor.id, exhibitor.companyName)} 
+                            className={styles._noEffectsButton}
+                          />
                         </Box>
 
                       </TableCell>

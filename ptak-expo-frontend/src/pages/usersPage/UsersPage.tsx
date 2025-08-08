@@ -21,14 +21,14 @@ import {
   TableHead,
   TableRow,
   Paper,
-  IconButton,
   Avatar,
   TablePagination,
   CircularProgress,
   Alert,
+  Breadcrumbs,
+  Link,
 } from '@mui/material';
 
-import DeleteIcon from '@mui/icons-material/Delete';
 import { useMediaQuery } from '@mui/material';
 
 import UsersPageIcon from '../../assets/mask-group-5@2x.png';
@@ -40,6 +40,7 @@ import { ReactComponent as BackIcon } from '../../assets/back.svg';
 import { ReactComponent as UsersIcon } from '../../assets/addIcon.svg';
 import { ReactComponent as KeyIcon } from '../../assets/keyIcon.svg';
 import { ReactComponent as ArrowUp } from '../../assets/arrowUpIcon.svg';
+import { ReactComponent as WastebasketIcon } from '../../assets/wastebasket.svg';
 
 import styles from './UsersPage.module.scss';
 
@@ -218,7 +219,13 @@ const UsersPage: React.FC = () => {
                 <img src={UsersPageIcon} alt="Użytkownicy" className={styles.titleIcon} />
                 <CustomTypography className={styles.tableTitle}> Użytkownicy </CustomTypography>
               </Box>
-              <Box className={styles.path}>Home / Użytkownicy</Box>
+        
+              <Box className={styles.breadcrumbs}>
+                <Breadcrumbs aria-label="breadcrumb">
+                    <Link onClick={() => navigate('/dashboard')}> Home</Link>
+                    <CustomTypography className={styles.linkEnd}>Użytkownicy</CustomTypography>
+                </Breadcrumbs>
+              </Box>
             </Box>
             <Box 
               className={styles.addUserContainer}
@@ -345,18 +352,11 @@ const UsersPage: React.FC = () => {
                                       Wyślij nowe hasło
                                     </CustomTypography>
                                   </Box>
-                                  <IconButton 
-                                  onClick={() => handleDeleteUser(user.id, user.fullName)} 
-                                  size="small"
-                                  className={styles.noEffectsButton}
-                                  disableRipple
-                                  sx={{width:'0.5em',
-                                       height:'0.5em',
-                                       paddingLeft:'1em',
-
-                                  }}>
-                                    <DeleteIcon />
-                                  </IconButton>
+              
+                                  <WastebasketIcon 
+                                    onClick={() => handleDeleteUser(user.id, user.fullName)} 
+                                    className={styles.noEffectsButton}
+                                  />
                                 </Box>
 
                               </TableCell>
