@@ -4,110 +4,125 @@ const fs = require('fs');
 
 const saveTradeInfo = async (req, res) => {
   try {
-    console.log('🔍 Saving trade info for exhibition:', req.params.exhibitionId);
-    console.log('🔍 Trade info data:', req.body);
+    const exhibitionId = Number.parseInt(req.params.exhibitionId, 10);
+    if (!Number.isFinite(exhibitionId)) {
+      return res.status(400).json({ success: false, message: 'Nieprawidłowe ID wydarzenia' });
+    }
 
-    const exhibitionId = parseInt(req.params.exhibitionId);
-    const { 
-      tradeHours, 
-      contactInfo, 
-      buildDays, 
-      buildType, 
-      tradeSpaces, 
-      tradeMessage 
-    } = req.body;
+    const body = req.body || {};
+    const tradeHours = body.tradeHours || {};
+    const contactInfo = body.contactInfo || {};
+    const buildDays = Array.isArray(body.buildDays) ? body.buildDays : [];
+    const buildType = body.buildType || null;
+    const tradeSpaces = Array.isArray(body.tradeSpaces) ? body.tradeSpaces : [];
+    const tradeMessage = body.tradeMessage || null;
+
+    console.log('🔍 Saving trade info', {
+      exhibitionId,
+      tradeHours,
+      contactInfo,
+      buildDaysCount: buildDays.length,
+      tradeSpacesCount: tradeSpaces.length,
+      buildType,
+      hasTradeMessage: Boolean(tradeMessage)
+    });
 
     const client = await pool.connect();
-    
     try {
       await client.query('BEGIN');
 
-      // Delete existing trade info for this exhibition
-      await client.query(
-        'DELETE FROM trade_info WHERE exhibition_id = $1',
-        [exhibitionId]
-      );
+      // Ensure exhibition exists to avoid FK violation
+      const exhibitionCheck = await client.query('SELECT id FROM exhibitions WHERE id = $1', [exhibitionId]);
+      if (exhibitionCheck.rows.length === 0) {
+        await client.query('ROLLBACK');
+        return res.status(404).json({ success: false, message: 'Wydarzenie nie istnieje' });
+      }
+
+      // Delete existing trade info (cascade removes related rows)
+      await client.query('DELETE FROM trade_info WHERE exhibition_id = $1', [exhibitionId]);
+
+      const exhibitorStart = tradeHours.exhibitorStart || null;
+      const exhibitorEnd = tradeHours.exhibitorEnd || null;
+      const visitorStart = tradeHours.visitorStart || null;
+      const visitorEnd = tradeHours.visitorEnd || null;
+      const guestService = contactInfo.guestService || null;
+      const securityPhone = contactInfo.security || null;
 
       // Insert new trade info
-      const tradeInfoResult = await client.query(`
-        INSERT INTO trade_info (
-          exhibition_id, 
-          exhibitor_start_time, 
-          exhibitor_end_time, 
-          visitor_start_time, 
-          visitor_end_time,
-          guest_service_phone,
-          security_phone,
-          build_type,
-          trade_message,
-          created_at
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW())
-        RETURNING id
-      `, [
-        exhibitionId,
-        tradeHours.exhibitorStart,
-        tradeHours.exhibitorEnd,
-        tradeHours.visitorStart,
-        tradeHours.visitorEnd,
-        contactInfo.guestService,
-        contactInfo.security,
-        buildType,
-        tradeMessage
-      ]);
+      const tradeInfoResult = await client.query(
+        `INSERT INTO trade_info (
+           exhibition_id,
+           exhibitor_start_time,
+           exhibitor_end_time,
+           visitor_start_time,
+           visitor_end_time,
+           guest_service_phone,
+           security_phone,
+           build_type,
+           trade_message,
+           created_at
+         ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW())
+         RETURNING id`,
+        [
+          exhibitionId,
+          exhibitorStart,
+          exhibitorEnd,
+          visitorStart,
+          visitorEnd,
+          guestService,
+          securityPhone,
+          buildType,
+          tradeMessage
+        ]
+      );
 
       const tradeInfoId = tradeInfoResult.rows[0].id;
 
-      // Insert build days
+      // Insert build days (only valid dates)
       for (const day of buildDays) {
-        if (day.date) {
-          await client.query(`
-            INSERT INTO trade_build_days (
-              trade_info_id,
-              build_date,
-              start_time,
-              end_time
-            ) VALUES ($1, $2, $3, $4)
-          `, [tradeInfoId, day.date, day.startTime, day.endTime]);
+        const buildDate = day?.date || null;
+        const startTime = day?.startTime || null;
+        const endTime = day?.endTime || null;
+        if (buildDate) {
+          await client.query(
+            `INSERT INTO trade_build_days (trade_info_id, build_date, start_time, end_time)
+             VALUES ($1, $2, $3, $4)`,
+            [tradeInfoId, buildDate, startTime, endTime]
+          );
         }
       }
 
       // Insert trade spaces
       for (const space of tradeSpaces) {
-        if (space.name || space.hallName) {
-          await client.query(`
-            INSERT INTO trade_spaces (
-              trade_info_id,
-              space_name,
-              hall_name,
-              file_path,
-              original_filename
-            ) VALUES ($1, $2, $3, $4, $5)
-          `, [tradeInfoId, space.name, space.hallName, space.filePath || null, space.originalFilename || null]);
+        const spaceName = space?.name || space?.hallName || null;
+        const hallName = space?.hallName || null;
+        const filePath = space?.filePath || null;
+        const originalFilename = space?.originalFilename || null;
+        if (spaceName || hallName) {
+          await client.query(
+            `INSERT INTO trade_spaces (trade_info_id, space_name, hall_name, file_path, original_filename)
+             VALUES ($1, $2, $3, $4, $5)`,
+            [tradeInfoId, spaceName, hallName, filePath, originalFilename]
+          );
         }
       }
 
       await client.query('COMMIT');
-      
-      res.json({
-        success: true,
-        message: 'Informacje targowe zostały zapisane pomyślnie',
-        tradeInfoId
-      });
-
-    } catch (error) {
+      res.json({ success: true, message: 'Informacje targowe zostały zapisane pomyślnie', tradeInfoId });
+    } catch (err) {
       await client.query('ROLLBACK');
-      throw error;
+      console.error('❌ Error in trade info transaction:', err?.message, err?.stack);
+      return res.status(500).json({
+        success: false,
+        message: 'Błąd podczas zapisywania informacji targowych',
+        error: err?.message
+      });
     } finally {
       client.release();
     }
-
   } catch (error) {
-    console.error('❌ Error saving trade info:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Błąd podczas zapisywania informacji targowych',
-      error: error.message
-    });
+    console.error('❌ Error saving trade info (outer):', error?.message, error?.stack);
+    res.status(500).json({ success: false, message: 'Błąd podczas zapisywania informacji targowych', error: error?.message });
   }
 };
 
