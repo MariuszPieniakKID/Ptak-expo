@@ -323,6 +323,31 @@ const initializeDatabase = async () => {
       )
     `);
 
+    // Ensure trade_spaces has required columns (for older DBs)
+    try {
+      const filePathCol = await pool.query(`
+        SELECT 1 FROM information_schema.columns 
+        WHERE table_name = 'trade_spaces' AND column_name = 'file_path'
+      `);
+      if (filePathCol.rows.length === 0) {
+        console.log('⚠️ Adding missing column trade_spaces.file_path ...');
+        await pool.query(`ALTER TABLE trade_spaces ADD COLUMN file_path VARCHAR(500)`);
+        console.log('✅ Added trade_spaces.file_path');
+      }
+
+      const originalFilenameCol = await pool.query(`
+        SELECT 1 FROM information_schema.columns 
+        WHERE table_name = 'trade_spaces' AND column_name = 'original_filename'
+      `);
+      if (originalFilenameCol.rows.length === 0) {
+        console.log('⚠️ Adding missing column trade_spaces.original_filename ...');
+        await pool.query(`ALTER TABLE trade_spaces ADD COLUMN original_filename VARCHAR(255)`);
+        console.log('✅ Added trade_spaces.original_filename');
+      }
+    } catch (alterErr) {
+      console.error('❌ Error ensuring trade_spaces columns:', alterErr);
+    }
+
     console.log('🔍 Creating invitation_templates table...');
     await pool.query(`
       CREATE TABLE IF NOT EXISTS invitation_templates (
