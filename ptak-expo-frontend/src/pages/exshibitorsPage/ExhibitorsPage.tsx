@@ -46,11 +46,11 @@ const ExhibitorsPage: React.FC = () => {
   const [isAddExhibitorModalOpen, setIsAddExhibitorModalOpen] = useState<boolean>(false);
   const [page, setPage] = useState<number>(0);
   const [rowsPerPage, setRowsPerPage] = useState<number>(5);
-  const navigate = useNavigate();
-  const { token, user, logout } = useAuth();
+  const {token, user, logout } = useAuth();
   const isLargeScreen = useMediaQuery('(min-width:600px)');
   const [sortConfig, setSortConfig] = useState<{ key: keyof Exhibitor | null; direction: 'asc' | 'desc' | null }>({ key: null, direction: null });
-
+ 
+  const navigate = useNavigate();
   const handleLogout = useCallback(() => {
     logout();
     navigate('/login');

@@ -19,6 +19,7 @@ interface SingleEventCardProps {
  handleDeleteEventFromExhibitor:(id:number,exhibitorId:number)=>void;
  iconId:number;
  event_readiness:number;
+  placeholder?:boolean
  }
 
  const SingleEventCard: React.FC<SingleEventCardProps> = ({ 
@@ -29,6 +30,7 @@ interface SingleEventCardProps {
     exhibitorId,
     iconId,
     event_readiness,
+    placeholder=false,
     handleSelectEvent,
     handleDeleteEventFromExhibitor,
  }) => {
@@ -75,7 +77,9 @@ interface SingleEventCardProps {
   return (
     <Box className={styles.eventCardContainer}>
         <Box className={styles.deleteIconContainer}>
-            <WastebasketIcon className={styles.wastebasketIcon} onClick={()=> handleDeleteEventFromExhibitor(id,exhibitorId)}/>
+            {!placeholder 
+            ? <WastebasketIcon className={styles.wastebasketIcon} onClick={()=> handleDeleteEventFromExhibitor(id,exhibitorId)}/>
+            :<Box sx={{height:'13px'}}/>}
         </Box>
         <Box className={styles.container}>
             <Box className={styles.eventLogo}>{renderIcon(iconId)}</Box>
@@ -90,9 +94,10 @@ interface SingleEventCardProps {
                 {renderProgressIcon (event_readiness)}
             </Box>
             <Box className={styles.action}>
+              {!placeholder && 
                 <Box className={styles.actionButton} onClick={()=>handleSelectEvent(id)}>
                    <CustomTypography className={styles.chooseText} >wybierz</CustomTypography>
-                </Box>
+                </Box>}
             </Box>
         </Box>
         

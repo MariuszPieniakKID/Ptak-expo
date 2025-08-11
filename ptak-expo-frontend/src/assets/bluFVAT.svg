@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="15.926" height="22.75" viewBox="0 0 15.926 22.75">
+  <g id="Group_30526" data-name="Group 30526" transform="translate(0.5 0.5)">
+    <g id="Group_180" data-name="Group 180" transform="translate(0 0)">
+      <line id="Line_29" data-name="Line 29" x2="8.261" transform="translate(3.398 8.016)" fill="none" stroke="#6f87f6" stroke-linecap="round" stroke-width="1"/>
+      <line id="Line_30" data-name="Line 30" x2="5.582" transform="translate(3.398 10.76)" fill="none" stroke="#6f87f6" stroke-linecap="round" stroke-width="1"/>
+      <line id="Line_31" data-name="Line 31" x2="3.126" transform="translate(3.398 13.504)" fill="none" stroke="#6f87f6" stroke-linecap="round" stroke-width="1"/>
+      <g id="Group_181" data-name="Group 181">
+        <g id="Group_222" data-name="Group 222">
+          <path id="Path_11669" data-name="Path 11669" d="M2.835,7.434H7.11v-4.6" transform="translate(-2.835 -2.835)" fill="none" stroke="#6f87f6" stroke-linecap="round" stroke-width="1"/>
+          <path id="Path_11670" data-name="Path 11670" d="M14.844,24.585H5.752a2.918,2.918,0,0,1-2.917-2.917V5.752A2.917,2.917,0,0,1,5.752,2.835h9.092a2.917,2.917,0,0,1,2.917,2.917V21.667a2.917,2.917,0,0,1-2.917,2.917Z" transform="translate(-2.835 -2.835)" fill="none" stroke="#6f87f6" stroke-linecap="round" stroke-width="1"/>
+          <path id="Path_11671" data-name="Path 11671" d="M2.835,74.515v1.646a2.917,2.917,0,0,0,2.917,2.917h9.092a2.917,2.917,0,0,0,2.917-2.917V74.515Z" transform="translate(-2.835 -57.328)" fill="#6f87f6" stroke="#6f87f6" stroke-width="1"/>
+          <path id="Path_11672" data-name="Path 11672" d="M2.835,74.515v1.646a2.917,2.917,0,0,0,2.917,2.917h9.092a2.917,2.917,0,0,0,2.917-2.917V74.515Z" transform="translate(-2.835 -57.328)" fill="none" stroke="#6f87f6" stroke-linecap="round" stroke-width="1"/>
+        </g>
+      </g>
+    </g>
+    <text id="F-VAT" transform="translate(1.963 20.32)" fill="#fff" font-size="4" font-family="RocGrotesk-Regular, Roc Grotesk" letter-spacing="0.025em"><tspan x="0" y="0">F-VAT</tspan></text>
+  </g>
+</svg>
