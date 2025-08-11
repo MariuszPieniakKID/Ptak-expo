@@ -15,6 +15,8 @@ interface Event {
   status: string;
 }
 
+// TradeInfoData type no longer used here (loaded on dedicated route)
+
 const ExhibitorDashboardPage: React.FC = () => {
   const { logout, user } = useAuth();
   const navigate = useNavigate();
@@ -22,6 +24,7 @@ const ExhibitorDashboardPage: React.FC = () => {
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  // const [tradeInfo, setTradeInfo] = useState<TradeInfoData | null>(null);
 
   // Load event data from API
   useEffect(() => {
@@ -40,6 +43,7 @@ const ExhibitorDashboardPage: React.FC = () => {
           if (currentEvent) {
             setSelectedEvent(currentEvent);
             console.log('✅ Loaded event:', currentEvent);
+            // Trade info is now loaded on a dedicated route
           } else {
             setError('Nie znaleziono wydarzenia o podanym ID');
           }
@@ -68,7 +72,22 @@ const ExhibitorDashboardPage: React.FC = () => {
   };
 
   const handleMenuClick = (page: string) => {
-    console.log(`Navigating to: ${page}`);
+    if (page === 'info' && selectedEvent) {
+      navigate(`/event/${selectedEvent.id}/trade-info`);
+      return;
+    }
+    if (page === 'documents' && selectedEvent) {
+      // TODO: implement documents route
+      return;
+    }
+    if (page === 'materials' && selectedEvent) {
+      // TODO: implement materials route
+      return;
+    }
+    if (page === 'invitations' && selectedEvent) {
+      // TODO: implement invitations route
+      return;
+    }
   };
 
   const formatDateRange = (startDate: string, endDate: string) => {
@@ -348,6 +367,8 @@ const ExhibitorDashboardPage: React.FC = () => {
       <div className={styles.kontakt}>
         Kontakt • Polityka prywatności • www.warsawexpo.eu
       </div>
+
+      {/* Link to Trade Info page */}
     </div>
   );
 };

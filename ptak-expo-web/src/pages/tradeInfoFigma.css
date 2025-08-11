@@ -1,0 +1,143 @@
+/* Variables copied from grafika/wystawcy-targowe/global.css */
+:root {
+  --color-darkorange: #fc8a06;
+  --color-aquamarine: #89f4c9;
+  --color-darkgray: #a7a7a7;
+  --color-gainsboro: #d7d9dd;
+  --color-gray-200: rgba(255, 255, 255, 0.85);
+  --color-gray-100: #2b2b2d;
+  --color-whitesmoke-300: #eeeff1;
+  --color-whitesmoke-200: #eff3f6;
+  --color-whitesmoke-100: #f5f6f7;
+  --color-dimgray-400: #4d4c4f;
+  --color-dimgray-300: #666a73;
+  --color-dimgray-200: #6f6f6f;
+  --color-dimgray-100: #707070;
+  --color-dodgerblue: #6f87f6;
+  --color-darkslategray: #2e2e38;
+  --color-white: #fff;
+
+  --br-4: 4px;
+  --br-20: 20px;
+
+  --font-open-sans: Open Sans, sans-serif;
+  --font-inter: Inter, sans-serif;
+
+  --font-size-10: 10px;
+  --font-size-11: 11px;
+  --font-size-12: 12px;
+  --font-size-14: 14px;
+  --font-size-16: 16px;
+}
+
+/* Layout classes copied from grafika/wystawcy-targowe/index.css */
+.web-informacje-8 {
+  width: 100%;
+  position: relative;
+  background-color: var(--color-white);
+  height: 1908px;
+  overflow: hidden;
+  text-align: left;
+  font-size: 13px;
+  color: var(--color-white);
+  font-family: var(--font-inter);
+}
+.web-informacje-8-child {
+  position: absolute;
+  top: 0;
+  left: 556px;
+  background-color: var(--color-darkslategray);
+  width: 810px;
+  height: 2067px;
+}
+.informacje-targowe {
+  position: absolute;
+  top: 175px;
+  left: 705px;
+  font-size: 18px;
+  line-height: 20px;
+  -webkit-text-stroke: 1px #000;
+  paint-order: stroke fill;
+}
+.web-informacje-8-item {
+  position: absolute;
+  top: 0;
+  left: 0;
+  background-color: var(--color-dodgerblue);
+  width: 556px;
+  height: 768px;
+}
+.web-informacje-8-inner {
+  position: absolute;
+  top: 178px;
+  left: 147px;
+  border-radius: 50%;
+  border: 1px solid var(--color-dimgray-100);
+  width: 35px;
+  height: 35px;
+  background-color: var(--color-white);
+  box-sizing: border-box;
+}
+.rectangle-div {
+  position: absolute;
+  top: 422px;
+  left: 146px;
+  box-shadow: 0 26px 12px rgba(111, 135, 246, 0.08);
+  border-radius: var(--br-20);
+  border: 1px solid var(--color-whitesmoke-200);
+  width: 370px;
+  height: 285px;
+  background-color: var(--color-white);
+  box-sizing: border-box;
+}
+.path-10-icon { position: absolute; top: 638px; left: 179px; width: 301px; height: 42px; }
+.gratulacje-mamy-wszystko-container { position: absolute; top: 476px; left: 179px; font-size: var(--font-size-16); line-height: 20px; color: var(--color-darkslategray); }
+.id-do-checklisty { position: absolute; top: 650px; left: 276px; font-size: var(--font-size-14); line-height: 20px; }
+.uzupenij-wszystkie-kroki { position: absolute; top: 531px; left: 179px; letter-spacing: 0.03em; line-height: 20px; font-family: var(--font-open-sans); color: var(--color-dimgray-300); display: inline-block; width: 305px; }
+.group-icon { position: absolute; top: 585px; left: 182px; width: 297px; height: 27px; }
+.web-informacje-8-child1 { position: absolute; top: 442px; left: 179px; border-radius: var(--br-4); background-color: var(--color-darkslategray); width: 179px; height: 19px; }
+.do-wydarzenia-zostalo-container { position: absolute; top: 442px; left: 188px; font-size: var(--font-size-11); line-height: 20px; font-family: var(--font-open-sans); }
+.rectangle-parent { position: absolute; top: 493px; left: 428px; width: 50px; height: 23px; text-align: center; font-size: var(--font-size-16); }
+.group-child { position: absolute; top: 1px; left: 0; border-radius: 5px; background: linear-gradient(135deg, #0163fd, #0c9fca); width: 50px; height: 22px; }
+.div { position: absolute; top: 0; left: 6.7px; line-height: 20px; }
+.web-informacje-8-child3 { position: absolute; top: 479.3px; left: 401.5px; width: 15.5px; height: 15.5px; object-fit: cover; }
+.web-informacje-8-child4 { position: absolute; top: 253px; left: 146px; border-radius: var(--br-20); background-color: var(--color-gray-200); border: 1px solid var(--color-white); box-sizing: border-box; width: 370px; height: 149px; }
+.warsaw-industry-weej1 { position: absolute; top: 304px; left: 742px; font-size: var(--font-size-14); line-height: 19px; color: var(--color-darkslategray); display: inline-block; width: 190px; }
+.div2 { position: absolute; top: 279px; left: 742px; font-size: var(--font-size-16); line-height: 16px; color: var(--color-dodgerblue); display: inline-block; width: 205px; }
+.twoje-stoisko-targowe-container { position: absolute; top: 276px; left: 996px; font-size: var(--font-size-14); line-height: 16px; color: var(--color-dodgerblue); }
+.hala-f { position: absolute; top: 318px; left: 996px; font-size: var(--font-size-16); letter-spacing: 0.03em; line-height: 20px; color: var(--color-darkslategray); -webkit-text-stroke: 1px #000; paint-order: stroke fill; }
+.zabudowa-targowa { position: absolute; top: 394px; left: 996px; font-size: var(--font-size-14); line-height: 16px; color: var(--color-darkslategray); }
+.kontakt-podczas-targw { position: absolute; top: 492px; left: 626px; font-size: var(--font-size-14); line-height: 19px; color: var(--color-darkslategray); }
+.obsuga-goci { position: absolute; top: 520px; left: 626px; font-family: var(--font-open-sans); color: var(--color-dimgray-300); line-height: 20px; }
+.ochrona { position: absolute; top: 520px; left: 818px; font-family: var(--font-open-sans); color: var(--color-dimgray-300); line-height: 20px; }
+.div3 { position: absolute; top: 539px; left: 627px; font-size: var(--font-size-12); letter-spacing: 0.03em; color: var(--color-darkslategray); line-height: 20px; -webkit-text-stroke: 1px #000; paint-order: stroke fill; }
+.div4 { position: absolute; top: 539px; left: 818px; font-size: var(--font-size-12); letter-spacing: 0.03em; color: var(--color-darkslategray); line-height: 20px; -webkit-text-stroke: 1px #000; paint-order: stroke fill; }
+.godziny-otwarcia-targw { position: absolute; top: 395px; left: 625px; font-size: var(--font-size-14); line-height: 16px; color: var(--color-darkslategray); }
+.dla-wystawcw { position: absolute; top: 419px; left: 626px; font-family: var(--font-open-sans); color: var(--color-dimgray-300); line-height: 20px; }
+.dla-goci { position: absolute; top: 419px; left: 818px; font-family: var(--font-open-sans); color: var(--color-dimgray-300); line-height: 20px; }
+.div9 { position: absolute; top: 437px; left: 627px; font-size: var(--font-size-14); letter-spacing: 0.03em; color: var(--color-dodgerblue); line-height: 20px; -webkit-text-stroke: 1px #000; paint-order: stroke fill; }
+.div10 { position: absolute; top: 437px; left: 818px; font-size: var(--font-size-14); letter-spacing: 0.03em; color: var(--color-dodgerblue); line-height: 20px; -webkit-text-stroke: 1px #000; paint-order: stroke fill; }
+.f4ed2e86e01309533e2483db0fd4-icon { position: absolute; top: 307px; left: 166px; width: 97px; height: 55px; object-fit: cover; }
+.f4ed2e86e01309533e2483db0fd4-icon1 { position: absolute; top: 295px; left: 625px; width: 97px; height: 55px; object-fit: cover; }
+.web-informacje-8-child7 { position: absolute; top: 249px; left: 597px; box-shadow: 0 26px 12px rgba(111, 135, 246, 0.08); border-radius: var(--br-20); background-color: var(--color-white); border: 1px solid var(--color-whitesmoke-200); box-sizing: border-box; width: 627px; height: 474px; }
+.web-informacje-8-child8 { position: absolute; top: 249px; left: 976px; box-shadow: 0 26px 12px rgba(111, 135, 246, 0.08); border-radius: 0 var(--br-20) 0 var(--br-20); background-color: var(--color-whitesmoke-100); border: 1px solid var(--color-whitesmoke-200); box-sizing: border-box; width: 246px; height: 474px; }
+.web-informacje-8-child12 { position: absolute; top: 763px; left: 595px; box-shadow: 0 -34px 12px rgba(46, 46, 56, 0.05); border-radius: var(--br-20); background-color: var(--color-gray-100); border: 1px solid var(--color-dimgray-400); box-sizing: border-box; width: 627px; height: 1084px; }
+.plan-targw { position: absolute; top: 788px; left: 616px; font-size: var(--font-size-16); line-height: 20px; color: var(--color-white); }
+.rectangle-group, .rectangle-container, .group-div, .rectangle-parent1 { position: absolute; text-align: center; font-size: var(--font-size-10); }
+.rectangle-group { top: 849px; left: 614px; width: 128px; height: 119px; }
+.rectangle-container { top: 849px; left: 767px; width: 128px; height: 119px; }
+.group-div { top: 849px; left: 919px; width: 127px; height: 119px; }
+.rectangle-parent1 { top: 849px; left: 1071px; width: 128px; height: 126px; }
+.group-child1, .group-child3, .group-child4 { position: absolute; top: 0; left: 0; box-shadow: 0 -34px 12px rgba(46, 46, 56, 0.05); border-radius: var(--br-20); background-color: var(--color-gray-100); border: 1px solid var(--color-dimgray-400); box-sizing: border-box; height: 119px; }
+.group-child1, .group-child3 { width: 128px; }
+.group-child3 { width: 127px; }
+.group-child4 { width: 128px; border-color: var(--color-dodgerblue); }
+.hala-b, .hala-c, .hala-d, .hala-e-f { position: absolute; top: 83px; line-height: 13px; color: var(--color-white); }
+.hala-b { left: 48.2px; }
+.hala-c { left: 48.8px; }
+.hala-d { left: 48.9px; }
+.hala-e-f { left: 41.5px; }
+.group-child5 { position: absolute; top: 107px; left: 9px; border-radius: var(--br-4); background-color: var(--color-dodgerblue); width: 110px; height: 19px; }
+.twoje-stoisko-container { position: absolute; top: 109px; left: 13px; font-size: var(--font-size-11); line-height: 14px; text-align: left; font-family: var(--font-open-sans); color: var(--color-white); }
+
+

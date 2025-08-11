@@ -79,6 +79,14 @@ export const exhibitionsAPI = {
     api.get('/api/v1/exhibitions/user-events'),
 };
 
+// Trade Info API methods (viewer for exhibitors)
+export const tradeInfoAPI = {
+  get: (exhibitionId: number): Promise<AxiosResponse<ApiResponse>> =>
+    api.get(`/api/v1/trade-info/${exhibitionId}`),
+  downloadPlan: (exhibitionId: number, spaceId: string): Promise<AxiosResponse<Blob>> =>
+    api.get(`/api/v1/trade-info/${exhibitionId}/download/${spaceId}`, { responseType: 'blob' }),
+};
+
 // Health check
 export const healthAPI = {
   check: (): Promise<AxiosResponse<ApiResponse>> => 

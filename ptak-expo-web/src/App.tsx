@@ -4,6 +4,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import LoginPage from './pages/loginPage/LoginPage';
 import DashboardPage from './pages/DashboardPage';
 import ExhibitorDashboardPage from './pages/ExhibitorDashboardPage';
+import TradeInfoRoutePage from './pages/TradeInfoRoutePage';
 import './global.scss';
 
 function App() {
@@ -29,6 +30,12 @@ function App() {
             <Route path="/event/:eventId" element={
               <ProtectedRoute>
                 <ExhibitorDashboardPage />
+              </ProtectedRoute>
+            } />
+            {/* Protected Trade Info page */}
+            <Route path="/event/:eventId/trade-info" element={
+              <ProtectedRoute>
+                <TradeInfoRoutePage />
               </ProtectedRoute>
             } />
             
