@@ -1,24 +1,8 @@
 import React from 'react';
-import {
-  Box,
-  Container,
-  Typography,
-  Card,
-  CardContent,
-  Button,
-  AppBar,
-  Toolbar,
-  Avatar,
-  Chip
-} from '@mui/material';
-import {
-  Description,
-  Campaign,
-  Notifications,
-  PersonAdd,
-  ExitToApp
-} from '@mui/icons-material';
+import { Box, Container, Typography, Card, CardContent, Button, Chip } from '@mui/material';
+import { Description, Campaign, Notifications, PersonAdd } from '@mui/icons-material';
 import { useAuth } from '../contexts/AuthContext';
+import Menu from './Menu';
 
 interface MenuItem {
   title: string;
@@ -63,33 +47,7 @@ const Dashboard: React.FC = () => {
 
   return (
     <Box>
-      <AppBar position="static">
-        <Toolbar>
-          <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            PTAK EXPO - Portal Wystawców
-          </Typography>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-            <Avatar sx={{ bgcolor: '#ff9800' }}>
-              {user?.firstName?.[0] || user?.email?.[0]?.toUpperCase()}
-            </Avatar>
-            <Box>
-              <Typography variant="subtitle2">
-                {user?.firstName} {user?.lastName}
-              </Typography>
-              <Typography variant="caption" color="inherit" sx={{ opacity: 0.7 }}>
-                {user?.email}
-              </Typography>
-            </Box>
-            <Button
-              color="inherit"
-              startIcon={<ExitToApp />}
-              onClick={handleLogout}
-            >
-              Wyloguj
-            </Button>
-          </Box>
-        </Toolbar>
-      </AppBar>
+      <Menu onLogout={handleLogout} />
 
       <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
         <Box sx={{ mb: 4, textAlign: 'center' }}>
