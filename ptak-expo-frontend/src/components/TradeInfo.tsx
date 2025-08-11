@@ -246,7 +246,7 @@ const TradeInfo: React.FC<TradeInfoProps> = ({ exhibitionId }) => {
     event.target.value = '';
   };
 
-  const handleAddHall = () => {
+  const handleAddHall = async () => {
     if (!newHallName.trim()) {
       setError('Proszę podać nazwę hali');
       return;
@@ -264,14 +264,24 @@ const TradeInfo: React.FC<TradeInfoProps> = ({ exhibitionId }) => {
       originalFilename: null
     };
 
+    // Optimistically add hall to UI
     setHallEntries(prev => [...prev, newHall]);
-    
-    // Reset form
-    setNewHallName('');
-    setNewHallFile(null);
-    
-    setSuccessMessage('Hala została dodana. Kliknij "ZAPISZ" żeby zapisać wraz z plikami.');
-    setTimeout(() => setSuccessMessage(''), 4000);
+
+    // Auto-save immediately and upload file (if provided)
+    // Defer to next tick to ensure state is applied
+    setTimeout(async () => {
+      try {
+        await handleSave();
+        setSuccessMessage('Hala została dodana i zapisana.');
+      } catch (e: any) {
+        setError(e?.message || 'Błąd podczas automatycznego zapisu');
+      } finally {
+        // Reset form after save attempt
+        setNewHallName('');
+        setNewHallFile(null);
+        setTimeout(() => setSuccessMessage(''), 4000);
+      }
+    }, 0);
   };
 
   const handleRemoveHall = (id: string) => {

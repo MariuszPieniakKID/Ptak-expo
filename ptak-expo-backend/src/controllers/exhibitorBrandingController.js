@@ -419,13 +419,15 @@ const serveBrandingFile = async (req, res) => {
       });
     }
 
-    // Set CORS headers for images - use set() to override defaults
-    res.set({
-      'Access-Control-Allow-Origin': 'http://localhost:3000',
-      'Access-Control-Allow-Credentials': 'true',
-      'Cross-Origin-Resource-Policy': 'cross-origin',
-      'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept, Authorization'
-    });
+    // Set permissive CORS/CORP headers for serving files to allowed frontends
+    const requestOrigin = req.headers.origin;
+    res.set('Access-Control-Allow-Credentials', 'true');
+    if (requestOrigin) {
+      res.set('Access-Control-Allow-Origin', requestOrigin);
+    }
+    // Ensure resource can be embedded cross-origin (for images in frontend)
+    res.set('Cross-Origin-Resource-Policy', 'cross-origin');
+    res.set('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
     
     // Serve file
     res.sendFile(filePath);

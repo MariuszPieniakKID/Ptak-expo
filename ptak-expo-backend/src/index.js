@@ -33,7 +33,11 @@ const PORT = process.env.PORT || 3001;
 console.log('🔍 Will listen on port:', PORT);
 
 // Middleware
-app.use(helmet());
+// Configure Helmet to allow cross-origin resource embedding (for images/PDFs served from backend)
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: 'cross-origin' },
+  crossOriginOpenerPolicy: { policy: 'same-origin-allow-popups' }
+}));
 
 // CORS Configuration using Railway environment variables
 const allowedOrigins = [
