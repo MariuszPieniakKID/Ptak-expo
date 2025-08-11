@@ -41,10 +41,22 @@ const saveTradeInfo = async (req, res) => {
       // Delete existing trade info (cascade removes related rows)
       await client.query('DELETE FROM trade_info WHERE exhibition_id = $1', [exhibitionId]);
 
-      const exhibitorStart = tradeHours.exhibitorStart || null;
-      const exhibitorEnd = tradeHours.exhibitorEnd || null;
-      const visitorStart = tradeHours.visitorStart || null;
-      const visitorEnd = tradeHours.visitorEnd || null;
+    const normalizeTime = (value) => {
+      if (!value || typeof value !== 'string') return null;
+      const v = value.trim();
+      if (!v) return null;
+      // If format HH:MM, append :00 for seconds
+      if (/^\d{2}:\d{2}$/.test(v)) return `${v}:00`;
+      // If format H:MM
+      if (/^\d{1}:\d{2}$/.test(v)) return `0${v}:00`;
+      // If format HH:MM:SS or others, pass through
+      return v;
+    };
+
+    const exhibitorStart = normalizeTime(tradeHours.exhibitorStart);
+    const exhibitorEnd = normalizeTime(tradeHours.exhibitorEnd);
+    const visitorStart = normalizeTime(tradeHours.visitorStart);
+    const visitorEnd = normalizeTime(tradeHours.visitorEnd);
       const guestService = contactInfo.guestService || null;
       const securityPhone = contactInfo.security || null;
 
@@ -81,8 +93,8 @@ const saveTradeInfo = async (req, res) => {
       // Insert build days (only valid dates)
       for (const day of buildDays) {
         const buildDate = day?.date || null;
-        const startTime = day?.startTime || null;
-        const endTime = day?.endTime || null;
+        const startTime = normalizeTime(day?.startTime);
+        const endTime = normalizeTime(day?.endTime);
         if (buildDate) {
           await client.query(
             `INSERT INTO trade_build_days (trade_info_id, build_date, start_time, end_time)
