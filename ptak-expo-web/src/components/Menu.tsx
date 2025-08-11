@@ -42,7 +42,7 @@ const Menu: FunctionComponent<MenuType> = ({
   return (
     <>
       {!isMobile ? (
-        <AppBar position="sticky" className={`${styles.appBar} ${className}`}>
+        <AppBar position="static" className={`${styles.appBar} ${className}`}>
           <Toolbar className={styles.toolbar}>
             <Box className={styles.navLogo}>
               <img
