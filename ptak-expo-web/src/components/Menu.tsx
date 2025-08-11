@@ -1,5 +1,6 @@
 import { FunctionComponent } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { AppBar, Toolbar, Button, Box, useMediaQuery } from '@mui/material';
 import styles from './Menu.module.css';
 import Logo from '../assets/group-257@3x.png';
 
@@ -20,12 +21,13 @@ const navItems = [
   // { text: 'Generator zaproszeń', key: 'invitations' },
 ];
 
-const Menu: FunctionComponent<MenuType> = ({ 
+const Menu: FunctionComponent<MenuType> = ({
   className = '',
   onMenuClick,
   onLogout
 }) => {
   const navigate = useNavigate();
+  const isMobile = useMediaQuery('(max-width:600px)');
 
   const handleLogoClick = () => {
     navigate('/dashboard');
@@ -35,43 +37,45 @@ const Menu: FunctionComponent<MenuType> = ({
     if (onMenuClick) {
       onMenuClick(key);
     }
-    console.log(`Menu clicked: ${key}`);
   };
 
   return (
-    <div className={`${styles.appBar} ${className}`}>
-      <div className={styles.toolbar}>
-        <div className={styles.navLogo}>
-          <img
-            src={Logo}
-            alt="Ptak Expo Logo"
-            className={styles.logo}
-            onClick={handleLogoClick}
-          />
-        </div>
-        <div className={styles.navLinks}>
-          {navItems.map((item) => (
-            <button
-              key={item.key}
-              className={styles.navButton}
-              onClick={() => handleMenuItemClick(item.key)}
-            >
-              <span className={styles.buttonText}>
-                {item.text}
-              </span>
-            </button>
-          ))}
-        </div>
-        <div className={styles.navIcon}>
-          {onLogout && (
-            <button className={styles.logoutButton} onClick={onLogout}>
-              <img className={styles.logoutIcon} alt="" src="/group-872.svg" />
-              <span className={styles.logoutText}>Wyloguj</span>
-            </button>
-          )}
-        </div>
-      </div>
-    </div>
+    <>
+      {!isMobile ? (
+        <AppBar position="sticky" className={`${styles.appBar} ${className}`}>
+          <Toolbar className={styles.toolbar}>
+            <Box className={styles.navLogo}>
+              <img
+                src={Logo}
+                alt="Ptak Expo Logo"
+                className={styles.logo}
+                onClick={handleLogoClick}
+              />
+            </Box>
+            <Box className={styles.navLinks}>
+              {navItems.map((item) => (
+                <Button
+                  key={item.key}
+                  onClick={() => handleMenuItemClick(item.key)}
+                  className={styles.navButton}
+                  sx={{ flexDirection: 'column', color: 'inherit', paddingY: 1 }}
+                >
+                  <span className={styles.buttonText}>{item.text}</span>
+                </Button>
+              ))}
+            </Box>
+            <Box className={styles.navIcon}>
+              {onLogout && (
+                <button className={styles.logoutButton} onClick={onLogout}>
+                  <img className={styles.logoutIcon} alt="" src="/group-872.svg" />
+                  <span className={styles.logoutText}>Wyloguj</span>
+                </button>
+              )}
+            </Box>
+          </Toolbar>
+        </AppBar>
+      ) : null}
+    </>
   );
 };
 
