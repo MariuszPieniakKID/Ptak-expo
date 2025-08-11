@@ -38,9 +38,6 @@ const saveTradeInfo = async (req, res) => {
         return res.status(404).json({ success: false, message: 'Wydarzenie nie istnieje' });
       }
 
-      // Delete existing trade info (cascade removes related rows)
-      await client.query('DELETE FROM trade_info WHERE exhibition_id = $1', [exhibitionId]);
-
     const normalizeTime = (value) => {
       if (!value || typeof value !== 'string') return null;
       const v = value.trim();
@@ -60,7 +57,7 @@ const saveTradeInfo = async (req, res) => {
       const guestService = contactInfo.guestService || null;
       const securityPhone = contactInfo.security || null;
 
-      // Insert new trade info
+      // Upsert trade info to avoid unique constraint races
       const tradeInfoResult = await client.query(
         `INSERT INTO trade_info (
            exhibition_id,
@@ -72,9 +69,20 @@ const saveTradeInfo = async (req, res) => {
            security_phone,
            build_type,
            trade_message,
-           created_at
-         ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW())
-         RETURNING id`,
+           created_at,
+           updated_at
+         ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, NOW(), NOW())
+         ON CONFLICT (exhibition_id) DO UPDATE SET
+           exhibitor_start_time = EXCLUDED.exhibitor_start_time,
+           exhibitor_end_time = EXCLUDED.exhibitor_end_time,
+           visitor_start_time = EXCLUDED.visitor_start_time,
+           visitor_end_time = EXCLUDED.visitor_end_time,
+           guest_service_phone = EXCLUDED.guest_service_phone,
+           security_phone = EXCLUDED.security_phone,
+           build_type = EXCLUDED.build_type,
+           trade_message = EXCLUDED.trade_message,
+           updated_at = NOW()
+         RETURNING id` ,
         [
           exhibitionId,
           exhibitorStart,
@@ -89,6 +97,10 @@ const saveTradeInfo = async (req, res) => {
       );
 
       const tradeInfoId = tradeInfoResult.rows[0].id;
+
+      // Replace build days and spaces with current payload
+      await client.query('DELETE FROM trade_build_days WHERE trade_info_id = $1', [tradeInfoId]);
+      await client.query('DELETE FROM trade_spaces WHERE trade_info_id = $1', [tradeInfoId]);
 
       // Insert build days (only valid dates)
       for (const day of buildDays) {
