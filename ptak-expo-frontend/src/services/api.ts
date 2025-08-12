@@ -833,6 +833,18 @@ export interface TradeEvent {
   type: string; // e.g. 'Ceremonia otwarcia'
 }
 
+const mapTradeEventRow = (row: any): TradeEvent => ({
+  id: row.id,
+  exhibition_id: row.exhibition_id,
+  name: row.name,
+  eventDate: row.event_date ?? row.eventDate,
+  startTime: row.start_time ?? row.startTime,
+  endTime: row.end_time ?? row.endTime,
+  hall: row.hall ?? undefined,
+  description: row.description ?? undefined,
+  type: row.type,
+});
+
 export const getTradeEvents = async (
   exhibitionId: number,
   token: string
@@ -845,7 +857,7 @@ export const getTradeEvents = async (
   if (!response.ok) {
     throw new Error(data.message || 'Błąd podczas pobierania wydarzeń targowych');
   }
-  return data;
+  return { success: true, data: Array.isArray(data.data) ? data.data.map(mapTradeEventRow) : [] };
 };
 
 export const createTradeEvent = async (
@@ -865,5 +877,5 @@ export const createTradeEvent = async (
   if (!response.ok) {
     throw new Error(data.message || 'Błąd podczas zapisywania wydarzenia targowego');
   }
-  return data;
+  return { success: true, data: mapTradeEventRow(data.data) };
 };

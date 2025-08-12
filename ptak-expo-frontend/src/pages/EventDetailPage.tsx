@@ -70,6 +70,7 @@ const EventDetailPage: React.FC = () => {
   const [brandingError, setBrandingError] = useState<string>('');
   const [deleteLoading, setDeleteLoading] = useState<boolean>(false);
   const [tradeEvents, setTradeEvents] = useState<TradeEvent[]>([]);
+  const [tradeEventsError, setTradeEventsError] = useState<string>('');
   const [newEvent, setNewEvent] = useState<TradeEvent>({
     name: '',
     eventDate: '',
@@ -110,8 +111,9 @@ const EventDetailPage: React.FC = () => {
         try {
           const res = await getTradeEvents(fetchedExhibition.id, token);
           setTradeEvents(res.data || []);
-        } catch (e) {
-          // non-blocking
+          setTradeEventsError('');
+        } catch (e: any) {
+          setTradeEventsError(e.message || 'Błąd podczas ładowania wydarzeń targowych');
         }
       }
     } catch (err: any) {
@@ -259,11 +261,14 @@ const EventDetailPage: React.FC = () => {
       return;
     }
     try {
-      const res = await createTradeEvent(exhibition.id, newEvent, token);
-      setTradeEvents(prev => [...prev, res.data]);
+      await createTradeEvent(exhibition.id, newEvent, token);
+      // Reload from server to ensure consistency
+      const refreshed = await getTradeEvents(exhibition.id, token);
+      setTradeEvents(refreshed.data || []);
+      setTradeEventsError('');
       setNewEvent({ name: '', eventDate: '', startTime: '', endTime: '', hall: '', description: '', type: 'Ceremonia otwarcia' });
-    } catch (err) {
-      // could show toast
+    } catch (err: any) {
+      setTradeEventsError(err.message || 'Błąd podczas zapisywania wydarzenia targowego');
     }
   };
 
@@ -747,6 +752,9 @@ const EventDetailPage: React.FC = () => {
                     Wydarzenia targowe
                   </CustomTypography>
                   <Box className={styles.tradeEventsSection}>
+                    {tradeEventsError && (
+                      <Alert severity="error" sx={{ mb: 2 }}>{tradeEventsError}</Alert>
+                    )}
                     <Box className={styles.eventCard}>
                       <CustomTypography fontSize="0.875rem" fontWeight={500}>
                         Dodaj wydarzenie

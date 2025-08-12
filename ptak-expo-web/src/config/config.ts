@@ -39,7 +39,7 @@ if (process.env.REACT_APP_API_URL) {
 }
 
 // Debug logging
-if (config.DEBUG) {
+if (config.DEBUG && false) {
   console.log('🔧 Config loaded:', {
     NODE_ENV: config.NODE_ENV,
     API_BASE_URL: config.API_BASE_URL,

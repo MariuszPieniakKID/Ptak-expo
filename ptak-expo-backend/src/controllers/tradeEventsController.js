@@ -11,6 +11,7 @@ const normalizeTime = (value) => {
 exports.listByExhibition = async (req, res) => {
   try {
     const exhibitionId = parseInt(req.params.exhibitionId, 10);
+    console.log('🔍 [trade-events] listByExhibition', { exhibitionId, user: req.user?.email });
     if (Number.isNaN(exhibitionId)) {
       return res.status(400).json({ success: false, message: 'Invalid exhibitionId' });
     }
@@ -30,6 +31,7 @@ exports.create = async (req, res) => {
   const client = await db.pool.connect();
   try {
     const exhibitionId = parseInt(req.params.exhibitionId, 10);
+    console.log('🔍 [trade-events] create request', { exhibitionId, body: req.body, user: req.user?.email });
     if (Number.isNaN(exhibitionId)) {
       return res.status(400).json({ success: false, message: 'Invalid exhibitionId' });
     }
@@ -51,6 +53,7 @@ exports.create = async (req, res) => {
     // Compare on date only (ignore time)
     const onlyDate = (dt) => new Date(dt.getFullYear(), dt.getMonth(), dt.getDate()).getTime();
     if (onlyDate(d) < onlyDate(s) || onlyDate(d) > onlyDate(e)) {
+      console.log('⚠️  [trade-events] date out of range', { eventDate, startDate, endDate });
       return res.status(400).json({ success: false, message: 'Data wydarzenia musi mieścić się w zakresie dat targów' });
     }
 
@@ -64,6 +67,7 @@ exports.create = async (req, res) => {
       [exhibitionId, name, eventDate, normStart, normEnd, hall || null, description || null, type]
     );
     await client.query('COMMIT');
+    console.log('✅ [trade-events] created', insert.rows[0]);
     return res.json({ success: true, data: insert.rows[0] });
   } catch (error) {
     await client.query('ROLLBACK');
