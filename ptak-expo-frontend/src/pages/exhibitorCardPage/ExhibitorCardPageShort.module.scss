@@ -350,6 +350,15 @@ display:flex;
  text-overflow: ellipsis!important; /* Dodaj wielokropek na końcu obciętego tekstu */
  white-space: nowrap!important;     /* Tekst w jednej linii */
 }
+.infoGroupValue_cn{
+ font-size:0.9375em!important;
+ font-weight:600!important;
+ color:$color-darkslategray!important;
+ flex-wrap: nowrap!important;
+ overflow: hidden!important;       /* Ukryj nadmiar tekstu */
+ text-overflow: ellipsis!important; /* Dodaj wielokropek na końcu obciętego tekstu */
+ white-space: nowrap!important;     /* Tekst w jednej linii */
+}
 
 .actionButton{
     padding-left: 0.5em;
@@ -394,7 +403,16 @@ display:flex;
  }   
 }
 .titleForAllPlanedExhibitions{
-  font-size:0.9375em!important;
+ font-size:1em!important;
+ font-weight:600!important;
+ color:$color-darkslategray!important;
+ flex-wrap: nowrap!important;
+ overflow: hidden!important;       /* Ukryj nadmiar tekstu */
+ text-overflow: ellipsis!important; /* Dodaj wielokropek na końcu obciętego tekstu */
+ white-space: nowrap!important;     /* Tekst w jednej linii */
+}
+.noEvents{
+ font-size:0.9375em!important;
  font-weight:500!important;
  color:$color-darkslategray!important;
  flex-wrap: nowrap!important;
@@ -516,4 +534,58 @@ display:flex;
    @include for-desktop-up {
      min-height: 60vh;
    }
+}
+//Pojedyńćze wydarzenie
+.singleEventInfo{
+
+}
+
+.tabPaperContainer {
+ 
+  display: flex;
+  flex-direction: column; /* domyślnie jedna kolumna - mobile first */
+  width: 100wh;
+  row-gap: 2em;
+}
+ @media (min-width: 1100px) {
+//@media (min-width: 600px) {
+  .tabPaperContainer {
+    flex-direction: row;  /* przejście na układ poziomy */
+  }
+
+  .tabPaperContainer > :first-child {
+    flex: 1; /* 1 część */
+    width: 100wh;
+  }
+
+  .tabPaperContainer > :last-child {
+    flex: 2; /* 2 części */
+    width: 100wh;
+  }
+}
+.eventBusinessCard{
+  row-gap: 1em;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+ @media (min-width: 1100px) {
+  //@media (min-width: 600px) {
+    margin-right: 2em;
+    align-items:flex-start;
+  }
+
+ 
+  @media (min-width: 600px) {
+    margin-right: 2em;
+    align-items:flex-start;
+  }
+
+  
+}
+
+
+.selestedTitleWrapper{
+font-size: 1rem !important;
+font-weight: 600 !important;
 }

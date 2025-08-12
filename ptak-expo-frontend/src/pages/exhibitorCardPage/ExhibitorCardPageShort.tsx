@@ -1,25 +1,36 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate} from 'react-router-dom';
- import { 
-      Exhibitor,
-      fetchExhibitor, 
-      deleteExhibitor
+import { 
+       Exhibitor,
+       fetchExhibitor, 
+       deleteExhibitor, 
 } from '../../services/api';
-
+import Tabs, { tabsClasses } from '@mui/material/Tabs';
 import { useAuth } from '../../contexts/AuthContext';
 import Menu from '../../components/menu/Menu';
 import CustomTypography from '../../components/customTypography/CustomTypography';
 import CustomButton from '../../components/customButton/CustomButton';
+import { ReactComponent as  CatalogEntryIcon} from '../../assets/catalog_entryIcon.svg';
+import { ReactComponent as  DocumentsIcon} from '../../assets/documentsIcon.svg';
+import { ReactComponent as  InvitationsIcon} from '../../assets/invitationsIcon.svg';
+import { ReactComponent as  EventScheduleIcon} from '../../assets/event_scheduleIcon.svg';
+import { ReactComponent as  BadgesIcon} from '../../assets/BadgesIcon.svg';
+import { ReactComponent as  TradeAwardcIcon} from '../../assets/trade_fair_awardsIcon.svg';
+
+
 
 import {
   Avatar,
   Box,
   Container,
-  Paper,
+  //Paper,
   CircularProgress,
   Alert,
   Link,
   Breadcrumbs,
+  // TabContext,
+  // TabList,
+  Tab,
 } from '@mui/material';
 // import DeleteIcon from '@mui/icons-material/Delete';
 import { ReactComponent as LogoutIcon } from '../../assets/log-out.svg';
@@ -32,22 +43,10 @@ import { ReactComponent as AddIcon } from '../../assets/addIcon.svg';
 import UserAvatar from '../../assets/7bb764a0137abc7a8142b6438e529133@2x.png';
 import Applause from '../../assets/applause.png';
 import SingleEventCard from '../../components/singleEventCard/SingleEventCard';
-import AssignEventModal from '../../components/AssignEventModal';
-// import EventImage1 from '../../assets/image-35@2x.png';
-// import EventImage2 from '../../assets/mask-group-28@2x.png';
+import ExhibitorWithEvent from '../../components/exhibitorWithEvent/ExhibitorWithEvent';
+// ExhibitorWithEventDetails from '../../components/_exhibitorWithEventDetails/ExhibitorWithEventDetails';
 
 
-// const hardcorExhibition {
-//   id: number;
-//   name: string;
-//   description?: string;
-//   start_date: string;
-//   end_date: string;
-//   location?: string;
-//   status: string;
-//   created_at: string;
-//   updated_at: string;
-// }
 
 
 const ExhibitorCardPage: React.FC = () => {
@@ -55,16 +54,17 @@ const ExhibitorCardPage: React.FC = () => {
   const [exhibitor, setExhibitor] = useState<Exhibitor | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>('');
-  const [isAssignEventModalOpen, setIsAssignEventModalOpen] = useState<boolean>(false);
   const navigate = useNavigate();
-  const { token, user, logout } = useAuth();
+  const {token, user, logout } = useAuth();
+  const [value, setValue] = React.useState(0);
+  const [selectedEvent,setSelectedEvent]=useState<number | null>(null)
 
   
   const handleLogout = useCallback(() => {
     console.log(`exhibitor: exhibitor${exhibitor}`)
     logout();
     navigate('/login');
-  }, [logout, navigate, exhibitor]);
+  }, [logout, navigate]);
 
   const loadExhibitor = useCallback(async (): Promise<void> => {
     if (!token || !id) {
@@ -78,6 +78,7 @@ const ExhibitorCardPage: React.FC = () => {
       setLoading(true);
       const fetchedExhibitor = await fetchExhibitor(parseInt(id), token);
       setExhibitor(fetchedExhibitor);
+      console.log(`setExhibitor: ${exhibitor}`);
       setError('');
     } catch (err: any) {
       setError(err.message || 'Nie udało się pobrać danych wystawcy');
@@ -112,37 +113,22 @@ const ExhibitorCardPage: React.FC = () => {
   }, [exhibitor, token, navigate]);
 
   const handleAddEvent = useCallback(() => {
-    setIsAssignEventModalOpen(true);
-  }, []);
+    console.log('Add event for exhibitor:', exhibitor?.id);
+    // In real app would open modal or navigate to add event page
+  }, [exhibitor]);
 
   const handleSelectEvent = useCallback((eventId: number) => {
     if (exhibitor) {
-      navigate(`/wystawcy/${exhibitor.id}/wydarzenie/${eventId}`);
+      //navigate(`/wystawcy/${exhibitor.id}/wydarzenie/${eventId}`);
+      setSelectedEvent(eventId);
+
     }
   }, [exhibitor, navigate]);
 
-  const handleDeleteEventFromExhibitor = useCallback((eventId: number, exhibitorId: number) => {
+  const handleDeleteEventFromExhibitor=useCallback((eventId:number,exhibitorId:number)=>{
     console.log(`Usuń z palety wystawców nr ${exhibitorId} event o Id ${eventId}`)
-    // TODO: Implement endpoint to remove exhibitor from event
-  }, []);
 
-  const handleResetPassword = useCallback(async () => {
-    if (!token || !exhibitor) return;
-    
-    if (window.confirm(`Czy na pewno chcesz wysłać nowe hasło dla "${exhibitor.companyName}"?`)) {
-      try {
-        // Assuming exhibitor has a userId field, or we need to create a separate endpoint for exhibitors
-        console.log('Reset password for exhibitor:', exhibitor.id);
-        // TODO: Need to implement exhibitor password reset endpoint
-        // await resetUserPassword(exhibitor.userId, token);
-        alert('Nowe hasło zostało wysłane na adres e-mail wystawcy.');
-      } catch (err: any) {
-        setError(err.message || 'Błąd podczas resetowania hasła');
-      }
-    }
-  }, [exhibitor, token]);
-
-
+  },[exhibitor]);
 
 
     const getEventImage = useCallback((index: number): number => {
@@ -150,12 +136,66 @@ const ExhibitorCardPage: React.FC = () => {
       return index % 2 === 0 ? 1: 2;
     }, []);
 
-
-
   const getEventReadiness = useCallback((eventId: number): number => {
-    // Mock readiness based on event ID - in real app would come from API
     return eventId % 3 === 0 ? 21 : 65;
   }, []);
+
+  const handleChange = (_event: React.SyntheticEvent, newValue: number) => {
+    setValue(newValue);
+  };
+  
+  interface TabPanelProps {
+    children?: React.ReactNode;
+    index: number;
+    value: number;
+  }
+
+  function CustomTabPanel(props: TabPanelProps) {
+    const { children, value, index, ...other } = props;
+
+    return (
+      <div
+        role="tabpanel"
+        hidden={value !== index}
+        id={`simple-tabpanel-${index}`}
+        aria-labelledby={`simple-tab-${index}`}
+        {...other}
+      >
+        {value === index && <Box sx={{ padding: '24px 0px' }}>{children}</Box>}
+      </div>
+    );
+  }
+
+  function a11yProps(index: number) {
+    return {
+      id: `simple-tab-${index}`,
+      'aria-controls': `simple-tabpanel-${index}`,
+    };
+  }
+
+  const renderSelectedEvent = () => {
+    if (selectedEvent !== null && exhibitor?.events) {
+      return exhibitor.events
+        .filter(event => event.id === selectedEvent)
+        .map((event, index) => (
+          <Box key={event.id} className={styles.eventBusinessCard}>
+            <CustomTypography className={styles.selestedTitleWrapper}>Wydarzenie:</CustomTypography>
+            <SingleEventCard
+              id={event.id}
+              exhibitorId={exhibitor.id}
+              iconId={getEventImage(index)}
+              event_readiness={getEventReadiness(event.id)}
+              title={event.name}
+              start_date={event.start_date}
+              end_date={event.end_date}
+              handleSelectEvent={handleSelectEvent}
+              handleDeleteEventFromExhibitor={handleDeleteEventFromExhibitor}
+            />
+          </Box>
+        ));
+    }
+    return <CustomTypography>Nie wybrano wydarzenia</CustomTypography>;
+  };
  
  return (
     <>
@@ -242,7 +282,7 @@ const ExhibitorCardPage: React.FC = () => {
                            <Box className={styles.box}>
                                 <Box className={styles.infoGroup}>
                                     <CustomTypography  className={styles.infoGroupLabel} >Nazwa Wystawcy:</CustomTypography>
-                                    <CustomTypography  className={styles.infoGroupValue} >{exhibitor?.companyName}</CustomTypography>
+                                    <CustomTypography  className={styles.infoGroupValue_cn}>{exhibitor?.companyName}</CustomTypography>
                                 </Box>
                                 <Box className={styles.infoGroup}>
                                     <CustomTypography  className={styles.infoGroupLabel} >NIP:</CustomTypography>
@@ -286,10 +326,12 @@ const ExhibitorCardPage: React.FC = () => {
                 <Box className={styles.infoRow}>
                     <Box className={styles.row}>
                         <Box className={styles.sectionTitle}>
-                            <CustomTypography  className={styles.titleForAllPlanedExhibitions} >Zaplanowane wydarzenie wystawcy:</CustomTypography>
+                         {(exhibitor?.events && exhibitor.events.length > 0 )
+                            ? <CustomTypography  className={styles.titleForAllPlanedExhibitions}>  Zaplanowane wydarzenie wystawcy:</CustomTypography>
+                            : <CustomTypography className={styles.noEvents}>Brak zaplanowanych wydarzeń wystawcy</CustomTypography>}  
                         </Box>
                         <Box className={styles.sectionAction}>
-                            <Box className={styles.actionButton} onClick={handleResetPassword}>
+                            <Box className={styles.actionButton} onClick={()=>{console.log("Klik: wyślij nowe hasło")}}>
                                     <KeyIcon className={styles.keyIcon} />
                                     <CustomTypography className={styles.wastebasketText}> wyślij nowe hasło </CustomTypography>
                             </Box>
@@ -302,7 +344,7 @@ const ExhibitorCardPage: React.FC = () => {
                 </Box>
                 <Box className={styles.allExhibitions}>
                      {exhibitor?.events && exhibitor.events.length > 0 
-                     ? ( exhibitor.events.map((event,index) => 
+                     && ( exhibitor.events.map((event,index) =>              
                         <SingleEventCard 
                           id={event.id}
                           exhibitorId={exhibitor.id}
@@ -314,41 +356,194 @@ const ExhibitorCardPage: React.FC = () => {
                           end_date={event.end_date}
                           handleSelectEvent={handleSelectEvent}
                           handleDeleteEventFromExhibitor={handleDeleteEventFromExhibitor}
-                           />
-                        ))
-                     :<></>}
+                           /> 
+                        ))}
 
                 </Box>
-                            
-            </Box>   
 
-            {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+
+            {selectedEvent === null
+             ? <></>
+             : <Box className={styles.singleEventInfo} sx={{flexGrow: 1,width:'100%',bgcolor: 'background.paper'}}>
+                <Box>
+                  <Tabs
+                          value={value}
+                          onChange={handleChange}
+                          variant="scrollable"
+                          scrollButtons="auto"
+                          allowScrollButtonsMobile
+                          aria-label="visible arrows tabs example"
+                          slotProps={{
+                            scrollButtons: {
+                              disableRipple: true,
+                            },
+                          }}
+                          sx={{
+                            minHeight: 48,
+                            '& .MuiTabs-indicator': {
+                              display: 'none',
+                            },
+                            '& .MuiTabs-scroller': {
+                              overflowX: 'auto !important',
+                            },
+                            '& .MuiTab-root': {
+                              flex: 1,
+                              minWidth: 190,
+                              marginRight: 1.5,
+                              textTransform: 'none',
+                              fontSize: 15,
+                              fontWeight: 400,
+                              color: 'black',
+                              minHeight: '48px',
+                              whiteSpace: 'nowrap',
+                              transition: 'color 0.2s, border-bottom 0.2s, background-color 0.2s',
+                              borderBottom: '2px solid transparent',
+                              '&:hover': {
+                                color: '#FC8A06',
+                              },
+                              '&.Mui-selected': {
+                                color: '#FC8A06',
+                              },
+
+
+
+                              '@media (max-width:600px)': {
+                                '& .tab-label-text': {
+                                  display: 'none !important',
+                                },
+                                  flex: 'unset',
+                                  //minWidth: '4em',
+                                    minWidth: 60, // ✅ szerokość minimalna na mobile
+                                  paddingLeft: 0,
+                                  paddingRight: 0,
+                                  justifyContent: 'center', // wycentrowanie ikony
+                                
+                                '&:hover': {
+                                  borderBottom: '2px solid #FC8A06',
+                                  color: '#FC8A06',
+                                  backgroundColor: 'transparent',
+                                },
+                                '&.Mui-selected': {
+                                  borderBottom: '2px solid #FC8A06',
+                                  color: '#FC8A06',
+                                },
+                              },
+
+                            },
+                            '& .MuiTab-root:last-child': {
+                              marginRight: 0,
+                            },
+                            '& .MuiTab-wrapper': {
+                              flexDirection: 'row',
+                              alignItems: 'center',
+                              gap: '8px',
+                              whiteSpace: 'nowrap',
+                              flexShrink: 0, 
+                              '& svg': {
+                                flexShrink: 0, 
+                              },
+                              '@media (max-width:600px)': {
+                                '& .tab-label-text': {
+                                  display: 'none !important',
+                                },
+                              },
+                            },
+                            '& .tab-label-text': {
+                              display: 'inline-block',
+                              borderBottom: '2px solid transparent',
+                              paddingBottom: '1px',
+                              transition: 'border-bottom 0.2s, color 0.2s',
+                            },
+                            '& .Mui-selected .tab-label-text': {
+                              borderBottom: '2px solid #FC8A06',
+                              color: '#FC8A06',
+                              whiteSpace: 'nowrap',
+                            // Media query ukrywające label w mobile
+                              '@media (max-width:600px)': {
+                                '& .tab-label-text': {
+                                  display: 'none !important',
+                                },
+                                '& .Mui-selected .tab-label-text': {
+                                  borderBottom: '2px solid transparent', // usuwamy podkreślenie z tekstu w mobile
+                                },
+                              }},
+                            [`& .${tabsClasses.scrollButtons}`]: {
+                              '&.Mui-disabled': {
+                                opacity: 0.3,
+                              },
+                              '&:hover': {
+                                backgroundColor: 'rgba(0,0,0,0.04)',
+                              },
+                            },
+                          }}
+                        >
+                          <Tab
+                            disableRipple
+                            icon={<CatalogEntryIcon />}
+                            iconPosition="start"
+                            label={<span className="tab-label-text">Wpisz do katalogu</span>}
+                            {...a11yProps(0)}
+                          />
+                          <Tab
+                            disableRipple
+                            icon={<DocumentsIcon />}
+                            iconPosition="start"
+                            label={<span className="tab-label-text">Dokumenty</span>}
+                            {...a11yProps(1)}
+                          />
+                          <Tab
+                            disableRipple
+                            icon={<InvitationsIcon />}
+                            iconPosition="start"
+                            label={<span className="tab-label-text">Zaproszenia</span>}
+                            {...a11yProps(2)}
+                          />
+                          <Tab
+                            disableRipple
+                            icon={<EventScheduleIcon />}
+                            iconPosition="start"
+                            label={<span className="tab-label-text">Plan wydarzeń</span>}
+                            {...a11yProps(3)}
+                          />
+                          <Tab
+                            disableRipple
+                            icon={<BadgesIcon />}
+                            iconPosition="start"
+                            label={<span className="tab-label-text">Identyfikatory</span>}
+                            {...a11yProps(4)}
+                          />
+                          <Tab
+                            disableRipple
+                            icon={<TradeAwardcIcon />}
+                            iconPosition="start"
+                            label={<span className="tab-label-text">Nagrody Targowe</span>}
+                            {...a11yProps(5)}
+                          />
+                  </Tabs>
+                </Box>
+                <CustomTabPanel value={value} index={0}>
+                  <Box className={styles.tabPaperContainer}>
+                    <Box className={styles.leftContainer}>{renderSelectedEvent()}</Box>
+                    <Box className={styles.rightContainer}>{exhibitor ? <ExhibitorWithEvent exhibitorId={exhibitor.id} exhibitor={exhibitor} /> : null}</Box>
+                  </Box>
+                </CustomTabPanel>
+                      <CustomTabPanel value={value} index={1}>2</CustomTabPanel>
+                      <CustomTabPanel value={value} index={2}>3</CustomTabPanel>
+                      <CustomTabPanel value={value} index={3}>4</CustomTabPanel>
+                      <CustomTabPanel value={value} index={4}>5</CustomTabPanel>
+                      <CustomTabPanel value={value} index={5}>6</CustomTabPanel>
+                    </Box>}
+
+            </Box>
+            {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>} 
 
             {loading ? (
             <Box sx={{ display: 'flex', justifyContent: 'center', my: 4 }}>
                 <CircularProgress />
             </Box>
-            ) : (
-            <Paper className={styles._tableContainer}>
-
-
-            </Paper>
-            )}
-        </Container>
+            ) : <></>} 
+         </Container>
      </Box>
-
-      {/* Assign Event Modal */}
-      <AssignEventModal
-        open={isAssignEventModalOpen}
-        onClose={() => setIsAssignEventModalOpen(false)}
-        exhibitorId={exhibitor?.id || 0}
-        exhibitorName={exhibitor?.companyName || ''}
-        onAssignSuccess={(exhibitionName: string) => {
-          alert(`Wystawca został przypisany do wydarzenia: ${exhibitionName}`);
-          loadExhibitor(); // Reload to show new event
-        }}
-        existingEventIds={exhibitor?.events?.map(e => e.id) || []}
-      />
 
       <Box className={styles.footer}>
         <CustomTypography className={styles.cc}>
@@ -364,5 +559,4 @@ const ExhibitorCardPage: React.FC = () => {
   );
 };
 
-export default ExhibitorCardPage
-; 
+export default ExhibitorCardPage;

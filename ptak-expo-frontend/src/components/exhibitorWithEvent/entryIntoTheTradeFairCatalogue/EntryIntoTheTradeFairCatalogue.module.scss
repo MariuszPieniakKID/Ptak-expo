@@ -1,0 +1,153 @@
+@import '../../../styles/variables';
+@import '../../../styles/mixins';
+
+.singleLine{
+  display:flex;
+  justify-content: flex-start;
+  width: 100%;
+  flex-direction: row;
+  padding: 0 0.5em;
+  padding-bottom: 0.5em;
+  padding-top: 0.5em;
+  position: relative; // żeby pseudo-element miał punkt odniesienia
+
+  &::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 16px;   // start 16px od lewej
+    right: 16px;  // stop 16px od prawej
+    height: 1px;
+    background-color: #D7D9DD; // kolor linii
+  }
+}
+
+.singleLineLabel{
+    display:flex;
+    justify-content:flex-start;
+    width:100%;
+    flex-direction: row;
+    padding: 0 0.5em;
+    padding-bottom: 0.5em;
+    padding-top: 0.5em;
+}
+.multipleLine{
+    display:flex;
+    justify-content:flex-start;
+    width:100%;
+    flex-direction: column;
+    column-gap: 1em;
+    row-gap: 1em;
+    padding: 0 0.5em;
+    border-bottom: #D7D9DD 1px solid;
+    padding-bottom: 0.5em;
+    padding-top: 0.5em;
+}
+.icon{
+    padding-right: 0.813em !important;
+    margin: auto 0 !important;
+    vertical-align: baseline;
+    margin-top: 4px !important;
+}
+.mediaIcon{
+    // width:22px!important;
+    height: auto!important;
+    // background-color: red;
+}
+.iconGray{
+    vertical-align: baseline;
+    margin-top: 4px !important;
+    padding-left: 0.5em !important;
+    margin-right: 1.5em !important;
+}
+.label{
+    font-size: 0.813rem!important; //13px
+    color:#A7A7A7!important;
+    margin:auto 0!important;
+    padding-right: 0.25em!important;
+}
+.value{
+    font-size: 0.9375em !important;
+    font-weight: 500 !important;
+    color: $color-darkslategray!important;
+    margin:auto 0!important;
+}
+.rowWrapper {
+  display: flex;
+  flex-direction: row;  // rząd
+  flex-wrap: wrap;      // pozwala na zawijanie
+  justify-content: flex-start;
+  gap: 1em;             // odstęp między elementami
+  width: 100%;
+}
+.rowWrapperIcon{
+    padding-left: 3em !important;
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    row-gap: 1em;
+    margin-bottom: 1em;
+    margin-top: 1em;
+}
+
+.row {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  min-width: 200px;     // minimalna szerokość jednego wiersza
+}
+.mediaRow{
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  min-width: 50%;     // minimalna szerokość jednego wiersza 
+  row-gap: 1em;
+  column-gap: 1em;;
+}
+
+
+
+//
+.actionButton {
+  width: 100%;
+  height: 23px;
+  padding-left: 0.25em;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  column-gap: 1em;
+
+  // reset efektów kliknięcia
+  cursor: default;
+
+  // tylko efekt hover na całość
+  &:hover {
+    .actionIcon {
+      width: 18px; // było 16px → +2px
+      height: 18px;
+    }
+
+    .actionText {
+      font-weight: 700 !important;
+    }
+  }
+}
+
+.actionIcon {
+  width: 16px;
+  height: 16px;
+  transition: width 0.2s ease, height 0.2s ease; // płynne powiększenie
+  padding-top: 4px;
+}
+
+.actionText {
+  color: #2e2e38 !important;
+  font-size: 0.75em !important;
+  font-weight: 300 !important;
+  margin-top: 0.25em !important;
+  text-decoration: underline;
+  white-space: nowrap;
+  transition: font-weight 0.2s ease;
+}

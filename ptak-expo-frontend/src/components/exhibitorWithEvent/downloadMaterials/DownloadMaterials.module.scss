@@ -1,0 +1,71 @@
+@import "../../../styles/variables";
+@import "../../../styles/mixins";
+
+.downloadMaterialcContainer {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.singleDosument {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  min-width: 60px;
+
+
+  outline: none;
+  &:focus,
+  &:active {
+    outline: none;
+    box-shadow: none;
+  }
+}
+
+.icon {
+  width: 35px;
+  height: 35px;
+  background-color: #fff;   // biały okrąg
+  border-radius: 50%;       // kształt koła
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+
+  // zachowujemy oryginalny kolor SVG, więc nie zmieniamy fill ani stroke
+  // jeśli chcesz kontrolować rozmiar SVG względem okręgu, możesz zrobić:
+  svg {
+    width: 40%;   // dostosuj wg potrzeby
+    height: 40%;
+  }
+}
+
+.documentTitle {
+    transition: font-weight 0.2s ease;
+    font-size: 0.9375em !important;
+    font-weight: 500 !important;
+    color: #2e2e38 !important;
+    padding-left: 1em;
+    white-space: nowrap;
+}
+
+.actionWrapper {
+  cursor: pointer !important;
+
+
+  &:hover {
+    .documentTitle {
+      font-weight: 700 !important;
+    }
+
+    & ~ .icon,
+    .singleDosument > .icon {
+      width: 37px;
+      height: 37px;
+    }
+  }
+}

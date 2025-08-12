@@ -213,6 +213,8 @@ CREATE TABLE IF NOT EXISTS trade_spaces (
     trade_info_id INTEGER REFERENCES trade_info(id) ON DELETE CASCADE,
     space_name VARCHAR(255),
     hall_name VARCHAR(255),
+    file_path VARCHAR(500),
+    original_filename VARCHAR(255),
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 

@@ -1,0 +1,108 @@
+/* Trade Info Page styles (web), aligned with app design system */
+
+.container {
+  max-width: 1200px;
+  margin: 24px auto;
+  padding: 0 16px;
+}
+
+.sectionCard {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+  padding: 20px;
+  margin-bottom: 16px;
+}
+
+.sectionTitle {
+  font-family: var(--font-roc-grotesk);
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--color-darkslategray);
+  margin: 0 0 12px 0;
+}
+
+.gridTwoCols {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 16px;
+}
+
+.fieldLabel {
+  font-size: 13px;
+  color: #6f6f6f;
+}
+
+.fieldValue {
+  font-size: 14px;
+  color: var(--color-darkslategray);
+  font-weight: 500;
+}
+
+.buildDaysList {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+}
+
+.buildDayItem {
+  background: #f8f9fa;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.hallsList {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+.hallRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #f8f9fa;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.spacer {
+  flex: 1;
+}
+
+.downloadBtn {
+  background: transparent;
+  color: #6F87F6;
+  border: 1px solid #6F87F6;
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.messageBox {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 12px;
+  font-size: 14px;
+  color: #333;
+}
+
+.meta {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.metaItem {
+  display: flex;
+  flex-direction: column;
+}
+
+.empty {
+  color: #999;
+  font-size: 13px;
+}
+
