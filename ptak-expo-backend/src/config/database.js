@@ -430,6 +430,26 @@ const initializeDatabase = async () => {
     await pool.query(`
       CREATE INDEX IF NOT EXISTS idx_invitation_recipients_email ON invitation_recipients(recipient_email)
     `);
+
+    console.log('🔍 Creating trade_events table...');
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS trade_events (
+        id SERIAL PRIMARY KEY,
+        exhibition_id INTEGER REFERENCES exhibitions(id) ON DELETE CASCADE,
+        name VARCHAR(255) NOT NULL,
+        event_date DATE NOT NULL,
+        start_time TIME NOT NULL,
+        end_time TIME NOT NULL,
+        hall VARCHAR(255),
+        description TEXT,
+        type VARCHAR(100) NOT NULL,
+        created_at TIMESTAMPTZ DEFAULT NOW(),
+        updated_at TIMESTAMPTZ DEFAULT NOW()
+      )
+    `);
+    await pool.query(`
+      CREATE INDEX IF NOT EXISTS idx_trade_events_exhibition_id ON trade_events(exhibition_id)
+    `);
     await pool.query(`
       CREATE INDEX IF NOT EXISTS idx_exhibitor_documents_exhibitor_id ON exhibitor_documents(exhibitor_id)
     `);

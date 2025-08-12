@@ -7,6 +7,8 @@ import CustomButton from '../components/customButton/CustomButton';
 import BrandingFileUpload from '../components/BrandingFileUpload';
 import TradeInfo from '../components/TradeInfo';
 import Invitations from '../components/Invitations';
+import CustomField, { OptionType } from '../components/customField/CustomField';
+import { createTradeEvent, getTradeEvents, TradeEvent } from '../services/api';
 import { 
   fetchExhibition, 
   Exhibition, 
@@ -67,6 +69,21 @@ const EventDetailPage: React.FC = () => {
   const [brandingLoading, setBrandingLoading] = useState<boolean>(false);
   const [brandingError, setBrandingError] = useState<string>('');
   const [deleteLoading, setDeleteLoading] = useState<boolean>(false);
+  const [tradeEvents, setTradeEvents] = useState<TradeEvent[]>([]);
+  const [newEvent, setNewEvent] = useState<TradeEvent>({
+    name: '',
+    eventDate: '',
+    startTime: '',
+    endTime: '',
+    hall: '',
+    description: '',
+    type: 'Ceremonia otwarcia',
+  });
+  const typeOptions: OptionType[] = [
+    { value: 'Ceremonia otwarcia', label: 'Ceremonia otwarcia' },
+    { value: 'Główna konferencja', label: 'Główna konferencja' },
+    { value: 'Spotkania organizatorów', label: 'Spotkania organizatorów' },
+  ];
   const navigate = useNavigate();
   const { user, token, logout } = useAuth();
 
@@ -87,6 +104,15 @@ const EventDetailPage: React.FC = () => {
         // Call after loadBrandingFiles is defined
         const exhibitorId = null; // Global event files
         setTimeout(() => loadBrandingFiles(exhibitorId, fetchedExhibition.id), 0);
+      }
+      // Load trade events
+      if (token) {
+        try {
+          const res = await getTradeEvents(fetchedExhibition.id, token);
+          setTradeEvents(res.data || []);
+        } catch (e) {
+          // non-blocking
+        }
       }
     } catch (err: any) {
       setError(err.message || 'Nie udało się pobrać danych wydarzenia');
@@ -214,6 +240,32 @@ const EventDetailPage: React.FC = () => {
       setDeleteLoading(false);
     }
   }, [exhibition, token, id, navigate, logout]);
+
+  // Handlers for trade events form
+  const handleNewEventChange = (field: keyof TradeEvent) => (e: React.ChangeEvent<HTMLInputElement>) => {
+    setNewEvent(prev => ({ ...prev, [field]: e.target.value }));
+  };
+
+  const handleSaveTradeEvent = async () => {
+    if (!exhibition || !token) return;
+    if (!newEvent.name || !newEvent.eventDate || !newEvent.startTime || !newEvent.endTime || !newEvent.type) return;
+    // Frontend guard: date within exhibition range (ignore time)
+    const d = new Date(newEvent.eventDate);
+    const s = new Date(exhibition.start_date);
+    const e = new Date(exhibition.end_date);
+    const onlyDate = (dt: Date) => new Date(dt.getFullYear(), dt.getMonth(), dt.getDate()).getTime();
+    if (onlyDate(d) < onlyDate(s) || onlyDate(d) > onlyDate(e)) {
+      alert('Data wydarzenia musi mieścić się w zakresie dat targów');
+      return;
+    }
+    try {
+      const res = await createTradeEvent(exhibition.id, newEvent, token);
+      setTradeEvents(prev => [...prev, res.data]);
+      setNewEvent({ name: '', eventDate: '', startTime: '', endTime: '', hall: '', description: '', type: 'Ceremonia otwarcia' });
+    } catch (err) {
+      // could show toast
+    }
+  };
 
   if (loading) {
     return (
@@ -695,65 +747,110 @@ const EventDetailPage: React.FC = () => {
                     Wydarzenia targowe
                   </CustomTypography>
                   <Box className={styles.tradeEventsSection}>
-                    <CustomTypography fontSize="1rem">
-                      Dodatkowe wydarzenia i aktywności podczas targów
-                    </CustomTypography>
-                    
                     <Box className={styles.eventCard}>
                       <CustomTypography fontSize="0.875rem" fontWeight={500}>
-                        Konferencje i seminaria
-                      </CustomTypography>
-                      <CustomTypography fontSize="0.75rem" color="#6c757d">
-                        Organizuj prezentacje i wykłady branżowe
-                      </CustomTypography>
-                      <CustomButton
-                        bgColor="#6F87F6"
-                        textColor="#fff"
-                        width="auto"
-                        height="36px"
-                        fontSize="0.75rem"
-                      >
                         Dodaj wydarzenie
-                      </CustomButton>
+                      </CustomTypography>
+                      <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
+                        <CustomField
+                          type="text"
+                          value={newEvent.name}
+                          onChange={handleNewEventChange('name')}
+                          placeholder="Nazwa wydarzenia"
+                          fullWidth
+                        />
+                        <CustomField
+                          type="date"
+                          value={newEvent.eventDate}
+                          onChange={handleNewEventChange('eventDate')}
+                          placeholder="Data"
+                          fullWidth
+                        />
+                        <CustomField
+                          type="time"
+                          value={newEvent.startTime}
+                          onChange={handleNewEventChange('startTime')}
+                          placeholder="Godzina początku"
+                          fullWidth
+                        />
+                        <CustomField
+                          type="time"
+                          value={newEvent.endTime}
+                          onChange={handleNewEventChange('endTime')}
+                          placeholder="Godzina końca"
+                          fullWidth
+                        />
+                        <CustomField
+                          type="text"
+                          value={newEvent.hall || ''}
+                          onChange={handleNewEventChange('hall')}
+                          placeholder="Hala"
+                          fullWidth
+                        />
+                        <CustomField
+                          type="text"
+                          value={newEvent.type}
+                          onChange={handleNewEventChange('type')}
+                          placeholder="Rodzaj"
+                          options={typeOptions}
+                          forceSelectionFromOptions
+                          fullWidth
+                        />
+                        <CustomField
+                          type="text"
+                          value={newEvent.description || ''}
+                          onChange={handleNewEventChange('description')}
+                          placeholder="Opis"
+                          fullWidth
+                        />
+                      </Box>
+                      <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
+                        <CustomButton
+                          bgColor="#6F87F6"
+                          textColor="#fff"
+                          width="120px"
+                          height="40px"
+                          fontSize="0.875rem"
+                          onClick={handleSaveTradeEvent}
+                        >
+                          Zapisz
+                        </CustomButton>
+                      </Box>
                     </Box>
 
-                    <Box className={styles.eventCard}>
-                      <CustomTypography fontSize="0.875rem" fontWeight={500}>
-                        Networking
-                      </CustomTypography>
-                      <CustomTypography fontSize="0.75rem" color="#6c757d">
-                        Wydarzenia networkingowe dla uczestników
-                      </CustomTypography>
-                      <CustomButton
-                        bgColor="transparent"
-                        textColor="#6F87F6"
-                        width="auto"
-                        height="36px"
-                        fontSize="0.75rem"
-                        sx={{ border: '1px solid #6F87F6' }}
-                      >
-                        Organizuj networking
-                      </CustomButton>
-                    </Box>
-
-                    <Box className={styles.eventCard}>
-                      <CustomTypography fontSize="0.875rem" fontWeight={500}>
-                        Konkursy i nagrody
-                      </CustomTypography>
-                      <CustomTypography fontSize="0.75rem" color="#6c757d">
-                        Zagosuj konkursy dla wystawców
-                      </CustomTypography>
-                      <CustomButton
-                        bgColor="transparent"
-                        textColor="#6F87F6"
-                        width="auto"
-                        height="36px"
-                        fontSize="0.75rem"
-                        sx={{ border: '1px solid #6F87F6' }}
-                      >
-                        Zarządzaj konkursami
-                      </CustomButton>
-                    </Box>
+                    {tradeEvents.map((ev) => (
+                      <details key={ev.id} className={styles.eventCard}>
+                        <summary>
+                          <CustomTypography fontSize="0.875rem" fontWeight={500}>
+                            {ev.eventDate} • {ev.startTime} - {ev.endTime} {ev.hall ? `• Hala: ${ev.hall}` : ''} — {ev.name}
+                          </CustomTypography>
+                        </summary>
+                        <Box sx={{ mt: 1 }}>
+                          <CustomTypography fontSize="0.75rem" color="#6c757d">
+                            Nazwa: {ev.name}
+                          </CustomTypography>
+                          <CustomTypography fontSize="0.75rem" color="#6c757d">
+                            Data: {ev.eventDate}
+                          </CustomTypography>
+                          <CustomTypography fontSize="0.75rem" color="#6c757d">
+                            Godziny: {ev.startTime} - {ev.endTime}
+                          </CustomTypography>
+                          {ev.hall && (
+                            <CustomTypography fontSize="0.75rem" color="#6c757d">
+                              Hala: {ev.hall}
+                            </CustomTypography>
+                          )}
+                          {ev.description && (
+                            <CustomTypography fontSize="0.75rem" color="#6c757d">
+                              Opis: {ev.description}
+                            </CustomTypography>
+                          )}
+                          <CustomTypography fontSize="0.75rem" color="#6c757d">
+                            Rodzaj: {ev.type}
+                          </CustomTypography>
+                        </Box>
+                      </details>
+                    ))}
                   </Box>
                 </Box>
               </TabPanel>

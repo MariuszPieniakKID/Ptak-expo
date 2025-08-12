@@ -818,3 +818,52 @@ export const downloadTradePlan = async (
   console.log('✅ Trade plan download successful');
   return blob;
 }; 
+
+// ============= TRADE EVENTS API =============
+
+export interface TradeEvent {
+  id?: number;
+  exhibition_id?: number;
+  name: string;
+  eventDate: string; // ISO date (YYYY-MM-DD)
+  startTime: string; // HH:mm
+  endTime: string;   // HH:mm
+  hall?: string;
+  description?: string;
+  type: string; // e.g. 'Ceremonia otwarcia'
+}
+
+export const getTradeEvents = async (
+  exhibitionId: number,
+  token: string
+): Promise<{ success: boolean; data: TradeEvent[] }> => {
+  const response = await apiCall(`${config.API_BASE_URL}/api/v1/trade-events/${exhibitionId}`, {
+    method: 'GET',
+    headers: { 'Authorization': `Bearer ${token}` },
+  });
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data.message || 'Błąd podczas pobierania wydarzeń targowych');
+  }
+  return data;
+};
+
+export const createTradeEvent = async (
+  exhibitionId: number,
+  event: TradeEvent,
+  token: string
+): Promise<{ success: boolean; data: TradeEvent }> => {
+  const response = await apiCall(`${config.API_BASE_URL}/api/v1/trade-events/${exhibitionId}`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(event),
+  });
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data.message || 'Błąd podczas zapisywania wydarzenia targowego');
+  }
+  return data;
+};
