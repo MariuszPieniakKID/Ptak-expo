@@ -94,9 +94,9 @@ const ExhibitorCardPage: React.FC = () => {
     loadExhibitor();
   }, [loadExhibitor]);
 
-  const handleBack = useCallback(() => {
+  const handleBack = () => {
     navigate('/wystawcy');
-  }, [navigate]);
+  };
 
   const handleDeleteExhibitor = useCallback(async () => {
     if (!token || !exhibitor) return;
@@ -109,33 +109,30 @@ const ExhibitorCardPage: React.FC = () => {
     }
   }, [exhibitor, token, navigate]);
 
-  const handleAddEvent = useCallback(() => {
+  const handleAddEvent = () => {
     // placeholder: open modal or navigate
-  }, []);
+  };
 
-  const handleSelectEvent = useCallback((eventId: number) => {
+  const handleSelectEvent = (eventId: number) => {
     if (exhibitor) {
-      //navigate(`/wystawcy/${exhibitor.id}/wydarzenie/${eventId}`);
       setSelectedEvent(eventId);
-
     }
-  }, [exhibitor]);
+  };
 
-  const handleDeleteEventFromExhibitor = useCallback((eventId: number, exhibitorId: number) => {
+  const handleDeleteEventFromExhibitor = (eventId: number, exhibitorId: number) => {
     void eventId;
     void exhibitorId;
     // placeholder: implement API call
-  }, []);
+  };
 
 
-    const getEventImage = useCallback((index: number): number => {
-      // Rotate between available images
+    const getEventImage = (index: number): number => {
       return index % 2 === 0 ? 1: 2;
-    }, []);
+    };
 
-  const getEventReadiness = useCallback((eventId: number): number => {
+  const getEventReadiness = (eventId: number): number => {
     return eventId % 3 === 0 ? 21 : 65;
-  }, []);
+  };
 
   const handleChange = (_event: React.SyntheticEvent, newValue: number) => {
     setValue(newValue);
