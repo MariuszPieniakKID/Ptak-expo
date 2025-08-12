@@ -5,6 +5,7 @@ import LoginPage from './pages/loginPage/LoginPage';
 import DashboardPage from './pages/DashboardPage';
 import ExhibitorDashboardPage from './pages/ExhibitorDashboardPage';
 import TradeInfoRoutePage from './pages/TradeInfoRoutePage';
+import ChecklistRoutePage from './pages/ChecklistRoutePage';
 import './global.scss';
 
 function App() {
@@ -36,6 +37,12 @@ function App() {
             <Route path="/event/:eventId/trade-info" element={
               <ProtectedRoute>
                 <TradeInfoRoutePage />
+              </ProtectedRoute>
+            } />
+            {/* Protected Checklist page */}
+            <Route path="/event/:eventId/checklist" element={
+              <ProtectedRoute>
+                <ChecklistRoutePage />
               </ProtectedRoute>
             } />
             

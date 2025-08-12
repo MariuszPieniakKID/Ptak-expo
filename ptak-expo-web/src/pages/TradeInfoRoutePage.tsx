@@ -61,9 +61,21 @@ const TradeInfoRoutePage: React.FC = () => {
     load();
   }, [eventId]);
 
+  const handleMenuClick = (page: string) => {
+    if (!eventId) return;
+    if (page === 'info') {
+      navigate(`/event/${eventId}/trade-info`);
+      return;
+    }
+    if (page === 'checklist') {
+      navigate(`/event/${eventId}/checklist`);
+      return;
+    }
+  };
+
   return (
     <div>
-      <Menu onLogout={() => navigate('/login')} />
+      <Menu onMenuClick={handleMenuClick} onLogout={() => navigate('/login')} />
       {loading ? (
         <div style={{ padding: 24 }}>Ładowanie…</div>
       ) : error ? (
