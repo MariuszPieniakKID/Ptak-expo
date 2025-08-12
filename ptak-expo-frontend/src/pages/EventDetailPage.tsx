@@ -71,6 +71,18 @@ const EventDetailPage: React.FC = () => {
   const [deleteLoading, setDeleteLoading] = useState<boolean>(false);
   const [tradeEvents, setTradeEvents] = useState<TradeEvent[]>([]);
   const [tradeEventsError, setTradeEventsError] = useState<string>('');
+  const dateOnly = (value?: string) => {
+    if (!value) return '';
+    const tIdx = value.indexOf('T');
+    return tIdx > 0 ? value.slice(0, tIdx) : value;
+  };
+  const timeHM = (value?: string) => {
+    if (!value) return '';
+    // Expect formats HH:MM:SS or HH:MM
+    const parts = value.split(':');
+    if (parts.length >= 2) return `${parts[0].padStart(2,'0')}:${parts[1].padStart(2,'0')}`;
+    return value;
+  };
   const [newEvent, setNewEvent] = useState<TradeEvent>({
     name: '',
     eventDate: '',
@@ -830,7 +842,7 @@ const EventDetailPage: React.FC = () => {
                       <details key={ev.id} className={styles.eventCard}>
                         <summary>
                           <CustomTypography fontSize="0.875rem" fontWeight={500}>
-                            {ev.eventDate} • {ev.startTime} - {ev.endTime} {ev.hall ? `• Hala: ${ev.hall}` : ''} — {ev.name}
+                            {dateOnly(ev.eventDate)} • {timeHM(ev.startTime)} - {timeHM(ev.endTime)} {ev.hall ? `• Hala: ${ev.hall}` : ''} — {ev.name}
                           </CustomTypography>
                         </summary>
                         <Box sx={{ mt: 1 }}>
@@ -838,10 +850,10 @@ const EventDetailPage: React.FC = () => {
                             Nazwa: {ev.name}
                           </CustomTypography>
                           <CustomTypography fontSize="0.75rem" color="#6c757d">
-                            Data: {ev.eventDate}
+                            Data: {dateOnly(ev.eventDate)}
                           </CustomTypography>
                           <CustomTypography fontSize="0.75rem" color="#6c757d">
-                            Godziny: {ev.startTime} - {ev.endTime}
+                            Godziny: {timeHM(ev.startTime)} - {timeHM(ev.endTime)}
                           </CustomTypography>
                           {ev.hall && (
                             <CustomTypography fontSize="0.75rem" color="#6c757d">
