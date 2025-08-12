@@ -60,10 +60,10 @@ const ExhibitorCardPage: React.FC = () => {
   const [selectedEvent,setSelectedEvent]=useState<number | null>(null)
 
   
-  const handleLogout = useCallback(() => {
+  const handleLogout = () => {
     logout();
     navigate('/login');
-  }, [logout, navigate]);
+  };
 
   const loadExhibitor = useCallback(async (): Promise<void> => {
     if (!token || !id) {
@@ -98,7 +98,7 @@ const ExhibitorCardPage: React.FC = () => {
     navigate('/wystawcy');
   };
 
-  const handleDeleteExhibitor = useCallback(async () => {
+  const handleDeleteExhibitor = async () => {
     if (!token || !exhibitor) return;
     if (!window.confirm(`Czy na pewno chcesz usunąć wystawcę "${exhibitor.companyName}"?`)) return;
     try {
@@ -107,16 +107,15 @@ const ExhibitorCardPage: React.FC = () => {
     } catch (err: any) {
       setError(err.message || 'Błąd podczas usuwania wystawcy');
     }
-  }, [exhibitor, token, navigate]);
+  };
 
   const handleAddEvent = () => {
     // placeholder: open modal or navigate
   };
 
   const handleSelectEvent = (eventId: number) => {
-    if (exhibitor) {
-      setSelectedEvent(eventId);
-    }
+    if (!exhibitor) return;
+    setSelectedEvent(eventId);
   };
 
   const handleDeleteEventFromExhibitor = (eventId: number, exhibitorId: number) => {
