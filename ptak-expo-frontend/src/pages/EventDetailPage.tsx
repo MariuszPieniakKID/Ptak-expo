@@ -160,13 +160,12 @@ const EventDetailPage: React.FC = () => {
     }
   }, [token, logout, navigate]);
 
-  // Handle upload success - reload files
-  const handleUploadSuccess = useCallback(() => {
-    if (exhibition && token && user) {
-      const exhibitorId = user.role === 'admin' ? 21 : user.id;
+  // Handle upload/delete success - reload files with correct context
+  const handleUploadSuccess = useCallback((exhibitorId: number | null) => {
+    if (exhibition && token) {
       loadBrandingFiles(exhibitorId, exhibition.id);
     }
-  }, [exhibition, token, user, loadBrandingFiles]);
+  }, [exhibition, token, loadBrandingFiles]);
 
   // Handle upload error
   const handleUploadError = useCallback((error: string) => {
@@ -547,9 +546,9 @@ const EventDetailPage: React.FC = () => {
                         exhibitorId={null}
                         exhibitionId={exhibition.id}
                         existingFile={brandingFiles.files['kolorowe_tlo_logo_wydarzenia'] || null}
-                        onUploadSuccess={handleUploadSuccess}
+                        onUploadSuccess={() => handleUploadSuccess(null)}
                         onUploadError={handleUploadError}
-                        onDeleteSuccess={handleUploadSuccess}
+                        onDeleteSuccess={() => handleUploadSuccess(null)}
                       />
                     )}
 
@@ -565,9 +564,9 @@ const EventDetailPage: React.FC = () => {
                         exhibitorId={null}
                         exhibitionId={exhibition.id}
                         existingFile={brandingFiles.files['tlo_wydarzenia_logo_zaproszenia'] || null}
-                        onUploadSuccess={handleUploadSuccess}
+                        onUploadSuccess={() => handleUploadSuccess(null)}
                         onUploadError={handleUploadError}
-                        onDeleteSuccess={handleUploadSuccess}
+                        onDeleteSuccess={() => handleUploadSuccess(null)}
                       />
                     )}
 
@@ -583,9 +582,9 @@ const EventDetailPage: React.FC = () => {
                         exhibitorId={null}
                         exhibitionId={exhibition.id}
                         existingFile={brandingFiles.files['biale_logo_identyfikator'] || null}
-                        onUploadSuccess={handleUploadSuccess}
+                        onUploadSuccess={() => handleUploadSuccess(null)}
                         onUploadError={handleUploadError}
-                        onDeleteSuccess={handleUploadSuccess}
+                        onDeleteSuccess={() => handleUploadSuccess(null)}
                       />
                     )}
 
@@ -601,9 +600,9 @@ const EventDetailPage: React.FC = () => {
                         exhibitorId={null}
                         exhibitionId={exhibition.id}
                         existingFile={brandingFiles.files['banner_wystawcy_800x800'] || null}
-                        onUploadSuccess={handleUploadSuccess}
+                        onUploadSuccess={() => handleUploadSuccess(null)}
                         onUploadError={handleUploadError}
-                        onDeleteSuccess={handleUploadSuccess}
+                        onDeleteSuccess={() => handleUploadSuccess(null)}
                       />
                     )}
 
@@ -619,9 +618,9 @@ const EventDetailPage: React.FC = () => {
                         exhibitorId={null}
                         exhibitionId={exhibition.id}
                         existingFile={brandingFiles.files['banner_wystawcy_1200x1200'] || null}
-                        onUploadSuccess={handleUploadSuccess}
+                        onUploadSuccess={() => handleUploadSuccess(null)}
                         onUploadError={handleUploadError}
-                        onDeleteSuccess={handleUploadSuccess}
+                        onDeleteSuccess={() => handleUploadSuccess(null)}
                       />
                     )}
 
@@ -637,9 +636,9 @@ const EventDetailPage: React.FC = () => {
                         exhibitorId={null}
                         exhibitionId={exhibition.id}
                         existingFile={brandingFiles.files['logo_ptak_expo'] || null}
-                        onUploadSuccess={handleUploadSuccess}
+                        onUploadSuccess={() => handleUploadSuccess(null)}
                         onUploadError={handleUploadError}
-                        onDeleteSuccess={handleUploadSuccess}
+                        onDeleteSuccess={() => handleUploadSuccess(null)}
                       />
                     )}
 
@@ -655,9 +654,9 @@ const EventDetailPage: React.FC = () => {
                         exhibitorId={null}
                         exhibitionId={exhibition.id}
                         existingFile={brandingFiles.files['dokumenty_brandingowe'] || null}
-                        onUploadSuccess={handleUploadSuccess}
+                        onUploadSuccess={() => handleUploadSuccess(null)}
                         onUploadError={handleUploadError}
-                        onDeleteSuccess={handleUploadSuccess}
+                        onDeleteSuccess={() => handleUploadSuccess(null)}
                       />
                     )}
 
