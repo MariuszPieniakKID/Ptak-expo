@@ -77,7 +77,6 @@ const ExhibitorCardPage: React.FC = () => {
       setLoading(true);
       const fetchedExhibitor = await fetchExhibitor(parseInt(id), token);
       setExhibitor(fetchedExhibitor);
-      console.log(`setExhibitor: ${exhibitor}`);
       setError('');
     } catch (err: any) {
       setError(err.message || 'Nie udało się pobrać danych wystawcy');
