@@ -61,7 +61,6 @@ const ExhibitorCardPage: React.FC = () => {
 
   
   const handleLogout = useCallback(() => {
-    console.log(`exhibitor: exhibitor${exhibitor}`)
     logout();
     navigate('/login');
   }, [logout, navigate]);
@@ -101,21 +100,18 @@ const ExhibitorCardPage: React.FC = () => {
 
   const handleDeleteExhibitor = useCallback(async () => {
     if (!token || !exhibitor) return;
-    
-    if (window.confirm(`Czy na pewno chcesz usunąć wystawcę "${exhibitor.companyName}"?`)) {
-      try {
-        await deleteExhibitor(exhibitor.id, token);
-        navigate('/wystawcy');
-      } catch (err: any) {
-        setError(err.message || 'Błąd podczas usuwania wystawcy');
-      }
+    if (!window.confirm(`Czy na pewno chcesz usunąć wystawcę "${exhibitor.companyName}"?`)) return;
+    try {
+      await deleteExhibitor(exhibitor.id, token);
+      navigate('/wystawcy');
+    } catch (err: any) {
+      setError(err.message || 'Błąd podczas usuwania wystawcy');
     }
   }, [exhibitor, token, navigate]);
 
   const handleAddEvent = useCallback(() => {
-    console.log('Add event for exhibitor:', exhibitor?.id);
-    // In real app would open modal or navigate to add event page
-  }, [exhibitor]);
+    // placeholder: open modal or navigate
+  }, []);
 
   const handleSelectEvent = useCallback((eventId: number) => {
     if (exhibitor) {
@@ -123,12 +119,11 @@ const ExhibitorCardPage: React.FC = () => {
       setSelectedEvent(eventId);
 
     }
-  }, [exhibitor, navigate]);
+  }, [exhibitor]);
 
   const handleDeleteEventFromExhibitor=useCallback((eventId:number,exhibitorId:number)=>{
-    console.log(`Usuń z palety wystawców nr ${exhibitorId} event o Id ${eventId}`)
-
-  },[exhibitor]);
+    // placeholder: implement API call
+  },[]);
 
 
     const getEventImage = useCallback((index: number): number => {
