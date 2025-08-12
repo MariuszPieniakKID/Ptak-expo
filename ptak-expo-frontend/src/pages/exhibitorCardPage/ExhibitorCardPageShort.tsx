@@ -121,9 +121,11 @@ const ExhibitorCardPage: React.FC = () => {
     }
   }, [exhibitor]);
 
-  const handleDeleteEventFromExhibitor=useCallback((eventId:number,exhibitorId:number)=>{
+  const handleDeleteEventFromExhibitor = useCallback((eventId: number, exhibitorId: number) => {
+    void eventId;
+    void exhibitorId;
     // placeholder: implement API call
-  },[]);
+  }, []);
 
 
     const getEventImage = useCallback((index: number): number => {
