@@ -81,7 +81,7 @@ const ExhibitorDashboardPage: React.FC = () => {
       return;
     }
     if (page === 'documents' && selectedEvent) {
-      // TODO: implement documents route
+      navigate(`/event/${selectedEvent.id}/documents`);
       return;
     }
     if (page === 'materials' && selectedEvent) {

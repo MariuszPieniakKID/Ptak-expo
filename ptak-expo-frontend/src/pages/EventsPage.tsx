@@ -161,11 +161,8 @@ const EventsPage: React.FC = () => {
             </Box>
           </Box>
         </Box>
-        <Container   
-         maxWidth={false}  
-         sx={{ maxWidth: '78%' }}
-         className={styles.contentWrapper}
-         >
+        <Container maxWidth={false} sx={{ maxWidth: '78%' }} className={styles.contentWrapper}>
+          <Box className={styles.whiteContainer}>
           <Box className={styles.actionButtonsContainer}>
             <CustomButton
               variant="contained"
@@ -204,36 +201,17 @@ const EventsPage: React.FC = () => {
             >
               <CardContent className={styles.eventContent}>
                 <Box className={styles.eventImage}>
-                  <img
-                    src="/assets/zrzut-ekranu-2025059-o-135948@2x.png"
-                    alt={exhibition.name}
-                    className={styles.eventImg}
-                  />
+                  <img src="/assets/zrzut-ekranu-2025059-o-135948@2x.png" alt={exhibition.name} className={styles.eventImg} />
                 </Box>
-                                 <Box className={styles.eventInfo}>
-                   <Box sx={{ mb: 1 }}>
-                     <CustomTypography fontSize="1.25rem" fontWeight={600}>
-                       {exhibition.name}
-                     </CustomTypography>
-                   </Box>
-                   <Box sx={{ mb: 1 }}>
-                     <CustomTypography fontSize="0.875rem" color="#6c757d">
-                       {formatDateRange(exhibition.start_date, exhibition.end_date)}
-                     </CustomTypography>
-                   </Box>
-                   {exhibition.location && (
-                     <Box sx={{ mb: 1 }}>
-                       <CustomTypography fontSize="0.875rem" color="#6c757d">
-                         📍 {exhibition.location}
-                       </CustomTypography>
-                     </Box>
-                   )}
-                   {exhibition.description && (
-                     <CustomTypography fontSize="0.875rem" color="#6c757d">
-                       {exhibition.description}
-                     </CustomTypography>
-                   )}
-                 </Box>
+                <Box className={styles.eventInfo}>
+                  <CustomTypography className={styles.eventDate}>
+                    {formatDateRange(exhibition.start_date, exhibition.end_date)}
+                  </CustomTypography>
+                  <CustomTypography className={styles.eventName}>
+                    {exhibition.name}
+                  </CustomTypography>
+                  <a className={styles.selectLink}>wybierz</a>
+                </Box>
               </CardContent>
             </Card>
           ))}
@@ -246,6 +224,7 @@ const EventsPage: React.FC = () => {
               </CustomTypography>
             </Box>
           )}
+          </Box>
         </Container>
       </Box>
       <Box className={styles.footer}>

@@ -5,6 +5,7 @@ import LoginPage from './pages/loginPage/LoginPage';
 import DashboardPage from './pages/DashboardPage';
 import ExhibitorDashboardPage from './pages/ExhibitorDashboardPage';
 import TradeInfoRoutePage from './pages/TradeInfoRoutePage';
+import DocumentsRoutePage from './pages/DocumentsRoutePage';
 import ChecklistRoutePage from './pages/ChecklistRoutePage';
 import './global.scss';
 
@@ -43,6 +44,12 @@ function App() {
             <Route path="/event/:eventId/checklist" element={
               <ProtectedRoute>
                 <ChecklistRoutePage />
+              </ProtectedRoute>
+            } />
+            {/* Protected Documents page */}
+            <Route path="/event/:eventId/documents" element={
+              <ProtectedRoute>
+                <DocumentsRoutePage />
               </ProtectedRoute>
             } />
             

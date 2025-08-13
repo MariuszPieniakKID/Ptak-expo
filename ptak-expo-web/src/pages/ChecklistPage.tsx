@@ -1,10 +1,13 @@
 import React from 'react';
-import styles from './ChecklistPage.module.css';
+import styles from './ChecklistPage.module.scss';
+import CustomButton from '../components/customButton/CustomButton';
+import CustomTypography from '../components/customTypography/CustomTypography';
+import CustomLink from '../components/customLink/CustomLink';
 
 const ChecklistPage: React.FC = () => {
   return (
     <div className={styles.pageRoot}>
-      {/* Left fixed sidebar (from Figma) */}
+      {/* Left fixed sidebar (as in Figma) */}
       <aside className={styles.leftSidebar}>
         {/* Navigation card */}
         <div className={styles.navCard}>
@@ -46,7 +49,9 @@ const ChecklistPage: React.FC = () => {
             <div className={styles.sidebarPct}>100%</div>
           </div>
           <div className={styles.sidebarCtaRow}>
-            <button className={styles.sidebarCta}>Idź do checklisty</button>
+            <CustomButton className={styles.sidebarCta} height="2rem">
+              Idź do checklisty
+            </CustomButton>
           </div>
           <div className={styles.sidebarCountdown}>Do wydarzenia zostało 386 dni</div>
         </div>
@@ -70,104 +75,114 @@ const ChecklistPage: React.FC = () => {
 
       {/* Right main content area */}
       <main className={styles.mainArea}>
-        {/* Header area (white) */}
-        <div className={styles.headerArea}>
-        <div className={styles.headerIcon} />
-        <div className={styles.nextTaskBlock}>
-          <div className={styles.nextTaskTitle}>Twoje kolejne zadanie:</div>
-          <div className={styles.nextTaskSubtitle}>Wyślij katalog kampanii do akceptacji</div>
-          <button className={styles.primaryCta}>
-            <span>Prześlij katalog</span>
-          </button>
-          <div className={styles.previewLink}>Podejrzyj wpis</div>
-        </div>
-        </div>
-
-      {/* Checklist overview card */}
-      <div className={styles.overviewCard}>
-        <div className={styles.overviewTitle}>Gratulacje, mamy wszystko!</div>
-        <div className={styles.overviewSubtitle}>Wasza gotowość do targów:</div>
-        <div className={styles.overviewHelp}>Uzupełnij wszystkie kroki z checklisty by być jak najlepiej przygotowanym na to wydarzenie.</div>
-        <div className={styles.progressBarWrap}>
-          <div className={styles.progressBarGradient} />
-          <div className={styles.progressPctBadge}>100%</div>
-        </div>
-        <div className={styles.overviewFooter}>Do wydarzenia zostało 386 dni</div>
-      </div>
-
-      {/* Grid of checklist items */}
-      <div className={styles.checklistGrid}>
-        {['Uzupełnij\nKatalog','Dodaj\nprodukty','Wyślij\nZaproszenia','Pobierz\nE-Identyfikatory','Wgraj\nmaterialy','Zaplanuj\nTargi'].map((label) => (
-          <div key={label} className={styles.checkItem}>
-            <div className={styles.checkIconWrap}><div className={styles.checkIcon} /></div>
-            <div className={styles.checkLabel}>{label}</div>
+        <div className={styles.content810}>
+          {/* Header area (white) */}
+          <div className={styles.headerArea}>
+            <div className={styles.nextTaskBlock}>
+              <CustomTypography className={styles.nextTaskTitle} fontSize="1rem" fontWeight={600}>
+                Twoje kolejne zadanie:
+              </CustomTypography>
+              <CustomTypography className={styles.nextTaskSubtitle} fontSize="0.8125rem" fontWeight={400}>
+                Wyślij katalog kampanii do akceptacji
+              </CustomTypography>
+              <div className={styles.headerActionRow}>
+                <CustomButton className={styles.primaryCta} width="226px" height="42px">
+                  Prześlij katalog
+                </CustomButton>
+              </div>
+              <CustomLink className={styles.previewLink} underline>
+                Podejrzyj wpis
+              </CustomLink>
+            </div>
           </div>
-        ))}
-      </div>
 
-      {/* Detailed sections */}
-      <div className={styles.sectionCardGray}>
-        <div className={styles.sectionHeaderLeft}>
-          <div className={styles.sectionCircle} />
-          <div className={styles.sectionTitle}>Wpis do katalogu targowego (1/6)</div>
-        </div>
-        <div className={styles.sectionStatusGood} />
-        <div className={styles.sectionList}>
-          {['Nazwa Firmy','Logotyp','Opis','Dane kontaktowe','Strona www.','Social Media'].map((it) => (
-            <div key={it} className={styles.sectionRow}><span>{it}</span><div className={styles.sectionGoodDot} /></div>
-          ))}
-        </div>
-        <div className={styles.sectionLink}>Podejrzyj wygląd wpisu do katalogu</div>
-      </div>
+          {/* Top container with progress and steps (web checklista 4b) */}
+          <div className={styles.topContainer}>
+            <div className={styles.topCountdown}>Do wydarzenia zostalo 386 dni</div>
+            <div className={styles.topHeading}>Gratulacje, mamy wszystko!       Wasza gotowość do targów: </div>
+            <div className={styles.topSub}>Sprawdź kroki:</div>
+            <div className={styles.topSeparator} />
+            <div className={styles.stepsRow}>
+              {[
+                'Uzupełnij\nKatalog',
+                'Dodaj\nprodukty',
+                'Wyslij \nZaproszenia',
+                'Pobierz\nE-Identyfikatory',
+                'Wgraj\nmateriały',
+                'Zaplanuj\nTargi',
+              ].map((label) => (
+                <div key={label} className={styles.step}>
+                  <div className={styles.stepCircle} />
+                  <div className={styles.stepLabel}>{label}</div>
+                </div>
+              ))}
+            </div>
+          </div>
 
-      <div className={styles.sectionCardWhite}>
-        <div className={styles.sectionHeaderLeft}>
-          <div className={styles.sectionCircleLight} />
-          <div className={styles.sectionTitle}>Prezentowane produkty (1)</div>
-        </div>
-        <div className={styles.sectionStatusGoodSmall} />
-      </div>
+          {/* Detailed sections */}
+          <div className={styles.sectionCardGray}>
+            <div className={styles.sectionHeaderLeft}>
+              <div className={styles.sectionCircle} />
+              <div className={styles.sectionTitle}>Wpis do katalogu targowego (1/6)</div>
+            </div>
+            <div className={styles.sectionStatusGood} />
+            <div className={styles.sectionList}>
+              {['Nazwa Firmy','Logotyp','Opis','Dane kontaktowe','Strona www.','Social Media'].map((it) => (
+                <div key={it} className={styles.sectionRow}><span>{it}</span><div className={styles.sectionGoodDot} /></div>
+              ))}
+            </div>
+            <div className={styles.sectionLink}>Podejrzyj wygląd wpisu do katalogu</div>
+          </div>
 
-      <div className={styles.sectionCardGray}>
-        <div className={styles.sectionHeaderLeft}>
-          <div className={styles.sectionCircle} />
-          <div className={styles.sectionTitle}>Materiały do pobrania (3)</div>
-        </div>
-        <div className={styles.sectionStatusGoodSmall} />
-      </div>
+          <div className={styles.sectionCardWhite}>
+            <div className={styles.sectionHeaderLeft}>
+              <div className={styles.sectionCircleLight} />
+              <div className={styles.sectionTitle}>Prezentowane produkty (1)</div>
+            </div>
+            <div className={styles.sectionStatusGoodSmall} />
+          </div>
 
-      <div className={styles.sectionCardDark}>
-        <div className={styles.sectionHeaderLeft}>
-          <div className={styles.sectionCircleDark} />
-          <div className={styles.sectionTitleDark}>Wysłane zaproszenia (50/50)</div>
-        </div>
-        <div className={styles.sectionStatusGoodSmallDark} />
-      </div>
+          <div className={styles.sectionCardGray}>
+            <div className={styles.sectionHeaderLeft}>
+              <div className={styles.sectionCircle} />
+              <div className={styles.sectionTitle}>Materiały do pobrania (3)</div>
+            </div>
+            <div className={styles.sectionStatusGoodSmall} />
+          </div>
 
-      <div className={styles.sectionCardWhite}>
-        <div className={styles.sectionHeaderLeft}>
-          <div className={styles.sectionCircleLight} />
-          <div className={styles.sectionTitle}>Plan wydarzeń na stoisku (4)</div>
-        </div>
-        <div className={styles.sectionStatusGoodSmall} />
-      </div>
+          <div className={styles.sectionCardDark}>
+            <div className={styles.sectionHeaderLeft}>
+              <div className={styles.sectionCircleDark} />
+              <div className={styles.sectionTitleDark}>Wysłane zaproszenia (50/50)</div>
+            </div>
+            <div className={styles.sectionStatusGoodSmallDark} />
+          </div>
 
-      <div className={styles.sectionCardWhite}>
-        <div className={styles.sectionHeaderLeft}>
-          <div className={styles.sectionCircleLight} />
-          <div className={styles.sectionTitle}>Generuj E-Identyfikatory</div>
-        </div>
-        <div className={styles.sectionStatusGoodSmall} />
-      </div>
+          <div className={styles.sectionCardWhite}>
+            <div className={styles.sectionHeaderLeft}>
+              <div className={styles.sectionCircleLight} />
+              <div className={styles.sectionTitle}>Plan wydarzeń na stoisku (4)</div>
+            </div>
+            <div className={styles.sectionStatusGoodSmall} />
+          </div>
 
-      <div className={styles.optionalLabel}>Opcjonalnie:</div>
+          <div className={styles.sectionCardWhite}>
+            <div className={styles.sectionHeaderLeft}>
+              <div className={styles.sectionCircleLight} />
+              <div className={styles.sectionTitle}>Generuj E-Identyfikatory</div>
+            </div>
+            <div className={styles.sectionStatusGoodSmall} />
+          </div>
 
-      <div className={styles.sectionCardWhite}>
-        <div className={styles.sectionHeaderLeft}>
-          <div className={styles.sectionCircleOrange} />
-          <div className={styles.sectionTitle}>Nagrody targowe</div>
+          <div className={styles.optionalLabel}>Opcjonalnie:</div>
+
+          <div className={styles.sectionCardWhite}>
+            <div className={styles.sectionHeaderLeft}>
+              <div className={styles.sectionCircleOrange} />
+              <div className={styles.sectionTitle}>Nagrody targowe</div>
+            </div>
+          </div>
         </div>
-      </div>
       </main>
     </div>
   );

@@ -1,0 +1,66 @@
+/* Layout based on Figma: left sidebar + right main */
+.layout { display: grid; grid-template-columns: 556px 1fr; min-height: calc(100vh - 0px); }
+
+.sidebar { background: #145d5a; padding: 40px 30px 24px 30px; color: #fff; position: relative; }
+.headerBox { border-radius: 20px; padding: 0 0 16px 0; }
+
+.userRow { display: grid; grid-template-columns: 55px 1fr; gap: 16px; align-items: center; margin-bottom: 24px; }
+.userAvatar { width: 55px; height: 55px; border-radius: 50%; background: #fff; border: 1px solid #707070; }
+.hello { font-size: 16px; color: #fff; }
+.helloSub { font-size: 11px; color: #fff; opacity: 0.9; }
+
+.eventCard { display: grid; grid-template-columns: 97px 1fr auto; gap: 12px; background: rgba(255,255,255,0.85); border: 1px solid #fff; border-radius: 20px; padding: 16px; margin-bottom: 10px; }
+.eventThumb { width: 97px; height: 55px; background: #ddd; border-radius: 6px; }
+.eventMeta { display: grid; gap: 6px; align-content: start; }
+.eventDate { color: #6f87f6; font-size: 14px; }
+.eventName { color: #2e2e38; font-size: 14px; line-height: 19px; }
+.eventChange { color: #2e2e38; font-size: 13px; align-self: end; cursor: pointer; }
+
+.progressCard { background: #fff; border: 1px solid #eff3f6; border-radius: 20px; padding: 16px; }
+.progressHeaderRow { display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: center; }
+.progressHeaderText { display: grid; gap: 4px; }
+.kpiBadge { background: linear-gradient(90deg, #0c9fca 0%, #0163fd 100%); color: #fff; border-radius: 5px; padding: 2px 8px; font-size: 16px; height: 22px; display: inline-flex; align-items: center; }
+.progressTitle { color: #2e2e38; font-size: 16px; font-weight: 600; }
+.progressSub { color: #666a73; font-size: 13px; }
+.bannerBar { height: 27px; border-radius: 6px; margin: 8px 0; background: linear-gradient(90deg,#ff0000 0%,#ec693a 15.76%,#ffe100 34.48%,#3de40e 59.11%,#19e58d 83.25%,#0062ff 100%); }
+.progressBar { margin: 8px 0 12px; height: 22px; background: transparent; border-radius: 5px; position: relative; }
+.progressFill { position: absolute; inset: 0; background: linear-gradient(90deg, #0c9fca 0%, #0163fd 100%); border-radius: 5px; }
+.progressPct { position: absolute; right: 6px; top: 50%; transform: translateY(-50%); color: #fff; font-size: 14px; }
+.progressCtaRow { display: flex; margin-top: 8px; }
+.progressCta { background: #0aa37f; color: #fff; }
+.countdownPill { margin: 8px 0 12px; display: inline-block; background: #2e2e38; color: #fff; font-size: 11px; border-radius: 4px; padding: 2px 8px; }
+
+.footer { position: absolute; bottom: 24px; left: 30px; right: 30px; color: #fff; font-size: 11px; opacity: 0.95; }
+
+.main { background: #f5f6f7; padding: 24px 32px; }
+.mainHeader { background: #fff; border-radius: 20px; padding: 16px 20px; margin-bottom: 24px; }
+.headerInner { display: inline-grid; grid-template-columns: 35px auto; gap: 12px; align-items: center; }
+.headerAvatarSmall { width: 35px; height: 35px; border-radius: 50%; background: #d9d9d9; border: 1px solid #707070; }
+.headerTitle { color: #145d5b; font-size: 18px; font-weight: 700; }
+
+.sectionWhite { background: #fff; border-radius: 20px; border: 1px solid #eff3f6; padding: 16px; margin-bottom: 20px; }
+.sectionGray { background: #f5f6f7; border-radius: 20px; border: 1px solid #fff; padding: 16px; }
+.sectionHeaderRow { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+.list { display: grid; gap: 6px; }
+.listRow { display: grid; grid-template-columns: 1fr auto; align-items: center; background: transparent; padding: 6px 4px; border-radius: 8px; }
+.rowLeft { display: inline-flex; align-items: center; gap: 8px; }
+.rowText { color: #2e2e38; font-size: 13px; }
+.actions { display: inline-flex; align-items: center; gap: 8px; }
+.invoiceIcon { width: 14px; height: 14px; border-radius: 3px; border: 1px solid #2e2e38; position: relative; }
+.invoiceIcon::after { content: ""; position: absolute; right: -3px; top: 2px; width: 6px; height: 6px; border-right: 1px solid #2e2e38; border-top: 1px solid #2e2e38; transform: rotate(45deg); background: transparent; }
+.pdfIcon { width: 14px; height: 14px; border-radius: 3px; border: 1px solid #2e2e38; background: linear-gradient(180deg, rgba(111,135,246,0) 0%, rgba(111,135,246,0.12) 100%); position: relative; }
+.pdfIcon::after { content: "PDF"; position: absolute; left: 2px; top: 50%; transform: translateY(-50%); font-size: 8px; color: #2e2e38; }
+.downloadBtn { width: 29px; height: 29px; border-radius: 50%; border: 1px solid #2e2e38; background: transparent; cursor: pointer; }
+.rowDivider { height: 1px; border-top: 1px dashed #d7d9dd; margin-left: 26px; }
+.redDot { width: 8px; height: 8px; background: #fc0b06; border-radius: 50%; display: inline-block; }
+
+.contactBox { display: grid; grid-template-columns: 300px 1fr; align-items: center; gap: 16px; background: transparent; padding: 16px 0; }
+.contactTitle { color: #2e2e38; font-size: 14px; }
+.contactRow { display: inline-grid; grid-template-columns: 35px 1fr; gap: 12px; align-items: center; }
+.contactAvatar { width: 35px; height: 35px; border-radius: 50%; background: #ddd; border: 1px solid #fff; }
+.contactMeta { display: grid; gap: 2px; }
+.contactName { color: #2e2e38; font-size: 12px; letter-spacing: 0.3px; }
+.contactPhone { color: #2e2e38; font-size: 12px; letter-spacing: 0.3px; }
+.contactMail { color: #6f6f6f; font-size: 11px; }
+
+

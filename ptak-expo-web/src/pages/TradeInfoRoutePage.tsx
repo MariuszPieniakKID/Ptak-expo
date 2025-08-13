@@ -71,6 +71,10 @@ const TradeInfoRoutePage: React.FC = () => {
       navigate(`/event/${eventId}/checklist`);
       return;
     }
+    if (page === 'documents') {
+      navigate(`/event/${eventId}/documents`);
+      return;
+    }
   };
 
   return (

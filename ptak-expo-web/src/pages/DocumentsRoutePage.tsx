@@ -1,12 +1,11 @@
 import React from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Menu from '../components/Menu';
-import ChecklistPage from './ChecklistPage';
+import DocumentsPage from './DocumentsPage';
 
-const ChecklistRoutePage: React.FC = () => {
+const DocumentsRoutePage: React.FC = () => {
   const { eventId } = useParams();
   const navigate = useNavigate();
-  
 
   const handleMenuClick = (page: string) => {
     if (!eventId) return;
@@ -31,11 +30,11 @@ const ChecklistRoutePage: React.FC = () => {
   return (
     <div>
       <Menu onMenuClick={handleMenuClick} onLogout={() => navigate('/login')} />
-      <ChecklistPage />
+      <DocumentsPage />
     </div>
   );
 };
 
-export default ChecklistRoutePage;
+export default DocumentsRoutePage;
 
 
