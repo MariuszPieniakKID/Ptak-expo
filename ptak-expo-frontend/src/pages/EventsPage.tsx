@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import Menu from '../components/menu/Menu';
 import AddEventModal from '../components/AddEventModal';
@@ -210,7 +210,9 @@ const EventsPage: React.FC = () => {
                   <CustomTypography className={styles.eventName}>
                     {exhibition.name}
                   </CustomTypography>
-                  <a className={styles.selectLink}>wybierz</a>
+                  <Link to={`/wydarzenia/${exhibition.id}`} className={styles.selectLink} onClick={(e) => e.stopPropagation()}>
+                    wybierz
+                  </Link>
                 </Box>
               </CardContent>
             </Card>
