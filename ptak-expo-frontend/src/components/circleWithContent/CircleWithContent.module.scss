@@ -1,0 +1,42 @@
+.circleWrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.circleIcon {
+  font-size: 100px; // rozmiar koła
+  color: #e0e0e0;   // kolor tła
+}
+
+.circleChildren {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  pointer-events: none;
+}
+
+.singleLineInvitation {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+}
+
+.numberInvitedguests {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.limit {
+  font-size: 14px;
+  margin-left: 2px;
+  color: #666;
+}
+
+.invitation {
+  font-size: 12px;
+  color: #999;
+}

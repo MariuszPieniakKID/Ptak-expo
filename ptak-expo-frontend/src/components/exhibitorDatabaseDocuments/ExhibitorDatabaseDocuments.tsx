@@ -1,0 +1,201 @@
+import React, { useState } from "react";
+import { Box, Accordion, AccordionSummary, AccordionDetails, Typography } from "@mui/material";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import { ReactComponent as UploadingIcon } from "../../assets/uploadingIcon.svg";
+import styles from "./ExhibitorDatabaseDocuments.module.scss";
+
+// Components
+import UploadDocuments, { SelectedFileEntry } from "./uploadDocuments/UploadDocuments";
+import InvoicesList, { DocumentItem } from "./invoices/InvoicesList";
+import { Exhibitor } from "../../services/api";
+import SendMessageContainer from "./messageContainer/SendMessageContainer";
+
+type ExhibitorDatabaseDocumentsProps = {
+  allowMultiple?: boolean;
+  exhibitorId: number;
+  exhibitor?: Exhibitor;
+};
+
+function ExhibitorDatabaseDocuments({
+  allowMultiple = true,
+  exhibitorId,
+  exhibitor,
+}: ExhibitorDatabaseDocumentsProps) {
+  // Dokumenty startowe
+  const [documents, setDocuments] = useState<DocumentItem[]>([
+    { documentId: 1, documentName: "Faktura_2025-08-10.pdf", documentType: "invoices" },
+    { documentId: 2, documentName: "Umowa_klienta_ABC.docx", documentType: "contracts" },
+    { documentId: 3, documentName: "Notatki_projektowe.txt", documentType: "other" },
+  ]);
+
+  // Obsługa dodawania plików
+  const handleSubmit = (files: SelectedFileEntry[]) => {
+
+    //trest 
+    console.log(`exhibitor: ${exhibitor},exhibitorId: ${exhibitorId}, `)
+    console.log("Zapisuję pliki:", files);
+
+    // przykładowe dodanie do dokumentów
+    const newDocs: DocumentItem[] = files.map((file, idx) => ({
+      documentId: Date.now() + idx,
+      documentName: file.file.name,
+      documentType: "other", // w razie potrzeby można mapować po typach
+    }));
+    setDocuments((prev) => [...prev, ...newDocs]);
+  };
+
+  // Obsługa usuwania dokumentu
+  const handleDeleteDocument = (id: number) => {
+    setDocuments((prev) => prev.filter((doc) => doc.documentId !== id));
+  };
+
+  const handleSendMessage = (msg: string) => {
+    console.log("Wysłana wiadomość:", msg);
+    // tutaj możesz dodać wysyłkę przez API:
+    // fetch("/api/send", { method: "POST", body: JSON.stringify({ text: msg }) })
+  };
+
+  // Definicja sekcji
+  const items = [
+    {
+      icon: <UploadingIcon fontSize="small" />,
+      title: "Wgraj dokumenty",
+      container: <UploadDocuments onSubmit={handleSubmit} />,
+    },
+    {
+      icon: null,
+      title: "Faktury",
+      container: <InvoicesList 
+      documents={documents} 
+      handleDeleteDocument={handleDeleteDocument} 
+      excludeTypes={['other', 'contracts']} // typy dokumentów pominiętych z "invoices" | "contracts" | "other";
+      />,
+    },
+    {
+      icon: null,
+      title: "Dokumenty do pobrania",
+      container: <InvoicesList 
+      documents={documents} 
+      handleDeleteDocument={handleDeleteDocument} 
+      excludeTypes={['invoices']} // typy dokumentów pominiętych z "invoices" | "contracts" | "other";
+      />,
+    },
+    {
+      icon: null,
+      title: "Wiadomości dotyczące dokumentów:",
+      container:   <SendMessageContainer onSend={handleSendMessage} />,
+    },
+  ];
+
+  // Stany accordionów
+  const [expandedAccordions, setExpandedAccordions] = useState<boolean[]>(Array(items.length).fill(false));
+  const [expandedOne, setExpandedOne] = useState<number | false>(false);
+
+  const handleChangeMultiple = (index: number) => (_event: React.SyntheticEvent, isExpanded: boolean) => {
+    setExpandedAccordions((prev) => prev.map((opened, i) => (i === index ? isExpanded : opened)));
+  };
+
+  const handleChangeSingle = (index: number) => (_event: React.SyntheticEvent, isExpanded: boolean) => {
+    setExpandedOne(isExpanded ? index : false);
+  };
+
+  const alwaysOpenIndexes = [0, 1, 2, 3];
+  const overlapIndexes = [1, 2];
+
+  return (
+    <Box className={styles.container}>
+      {items.map((item, idx) => {
+        const isLastAccordion = idx === items.length - 1;
+        const isAlwaysOpen = alwaysOpenIndexes.includes(idx);
+
+        return (
+          <React.Fragment key={item.title}>
+            {isLastAccordion && <Box sx={{ height: 40 }} />}
+
+            <Accordion
+              expanded={isAlwaysOpen ? true : allowMultiple ? expandedAccordions[idx] : expandedOne === idx}
+            onChange={
+            isAlwaysOpen
+              ? () => {} 
+              : allowMultiple
+              ? handleChangeMultiple(idx)
+              : handleChangeSingle(idx)
+          }
+              disableGutters
+              elevation={0}
+              square
+              sx={{
+                padding: "0px 24px !important",
+                borderRadius: "20px",
+                backgroundColor: idx % 2 === 0 ? "#f5f5f5" : "#fff",
+                boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+                border: "none",
+                position: "relative",
+                "&:before": { display: "none" },
+                zIndex: isAlwaysOpen ? 2 : 1,
+                ...(overlapIndexes.includes(idx) && { mt: -3, mb: -3 }),
+                ...(!overlapIndexes.includes(idx) && { marginBottom: "40px" }),
+              }}
+            >
+              <AccordionSummary
+                expandIcon={
+                  !isAlwaysOpen && (
+                    <Box
+                      sx={{
+                        width: 35,
+                        height: 35,
+                        borderRadius: "50%",
+                        backgroundColor: "#fafbfb",
+                        border: "2px solid #fff",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                      }}
+                    >
+                      <ExpandMoreIcon sx={{ color: "#6f87f6", fontSize: 28 }} />
+                    </Box>
+                  )
+                }
+                aria-controls={`panel${idx + 1}-content`}
+                id={`panel${idx + 1}-header`}
+                sx={{
+                  borderRadius: "20px",
+                  minHeight: 56,
+                  "&.Mui-expanded": { minHeight: 56 },
+                }}
+              >
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                  {item.icon && (
+                    <Box
+                      sx={{
+                        width: 40,
+                        height: 40,
+                        borderRadius: "50%",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        backgroundColor: idx % 2 === 0 ? "#fff" : "#f5f5f5",
+                        boxShadow: "0 2px 8px rgba(94,101,119,0.06)",
+                      }}
+                    >
+                      {item.icon}
+                    </Box>
+                  )}
+                  <Typography sx={{ fontWeight: 600, fontSize: "1rem" }} component="span">
+                    {item.title}
+                  </Typography>
+                </Box>
+              </AccordionSummary>
+
+              <AccordionDetails sx={{ borderRadius: "0 0 20px 20px", pb: 2, pt: 1.5 }}>
+                {item.container}
+              </AccordionDetails>
+            </Accordion>
+          </React.Fragment>
+        );
+      })}
+    </Box>
+  );
+}
+
+export default ExhibitorDatabaseDocuments;

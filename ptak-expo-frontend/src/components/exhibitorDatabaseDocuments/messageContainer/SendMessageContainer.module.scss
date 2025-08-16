@@ -1,0 +1,110 @@
+@import '../../../styles/variables';
+@import '../../../styles/mixins';
+
+.messageCard {
+  padding: 0.5em 1em 1em 1em;
+  //border: 1px solid #ccc;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5em;
+}
+
+.textAreaWrapper {
+  position: relative;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding: 0.25em;
+  padding-bottom: 2.5em; // miejsce na toolbar
+  background: white;
+}
+
+.legend {
+  position: absolute;
+  top: -10px;
+  left: 10px;
+  font-size: 11px;
+  background: white;
+  padding: 0 4px;
+  color: #A7A7A7;
+}
+
+.noOutline {
+  border: none !important;
+}
+
+// .toolbar {
+//   position: absolute;
+//   right: 5px;
+//   bottom: 5px;
+//   display: flex;
+//   gap: 0.25em;
+//   background: white;
+//   padding: 2px 4px;
+//   border-radius: 4px;
+// }
+.toolbar {
+  position: absolute;
+  bottom: 5px;
+  right: 1em;
+  display: flex;
+  gap: 0.25em;
+  background: white;
+  padding: 2px 4px;
+  min-width: 80px;
+
+  border-top: 1px solid #D7D9DD;
+  border-left: 1px solid #D7D9DD;
+  border-right: 1px solid #D7D9DD;
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+
+.MuiTooltip-root {
+    display: flex; // żeby padding separatora działał ładnie w poziomie
+
+    & + .MuiTooltip-root {
+      border-left: 1px solid #ccc;
+      margin-left: 4px;
+      padding-left: 8px;
+    }
+  }
+}
+
+.sendButton {
+  align-self: flex-end;
+  background-color: #712222; // zdefiniuj w variables.scss
+  color: white;
+  padding: 0.4em 1em;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background-color: darken(#712222, 8%);
+  }
+}
+.actionSendFile{
+    display:flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    cursor: pointer!important;
+    column-gap: 1em;
+    align-items: center;
+}
+.actionLabel{
+  color: darkslategray !important;
+  font-size: 11px !important;
+  font-weight: 300 !important;
+  text-decoration: underline;
+}
+.actionSendFile:hover .actionLabel {
+  font-weight: 600 !important;
+}
+.icon{
+    width:13px;
+    height: 22px;
+    padding:1px 10px 1px 10px;
+}

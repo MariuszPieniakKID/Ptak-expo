@@ -1,0 +1,107 @@
+
+
+.formControl{
+    position: relative;
+    top:-20px;
+    left: 3em;
+    display:flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    width:calc(100% - 3em);
+}
+.formLabel{
+    font-size: 11px!important;
+    font-weight: 300;
+    color: #A7A7A7!important;
+    padding-bottom: 1em;
+}
+.radioGroup{
+    display:flex!important;
+    flex-direction: row !important;
+    justify-content: flex-start;
+    padding: 1em 0px!important;
+}
+
+.chosenPlikWrapper{
+    display:flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    padding-left:3em;
+    width: calc(100% - 3em);
+    position: relative;
+    top: -20px;
+    gap: 1em;
+}
+
+.actionWrapper{
+    display:flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    padding-left:3em;
+    width: calc(100% - 3em);
+    gap: 1em;
+}
+.actionUploadFile{
+    display:flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    cursor: pointer!important;
+    column-gap: 1em;
+    align-items: center;
+}
+.actionSaveFile{
+    display:flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    cursor: pointer!important;
+    column-gap: 1em;
+    align-items: center;
+}
+.actionLabel{
+  color: darkslategray !important;
+  font-size: 11px !important;
+  font-weight: 300 !important;
+  text-decoration: underline;
+}
+.actionUploadFile:hover .actionLabel {
+  font-weight: 600 !important;
+}
+.actionSaveFile:hover .actionLabel {
+  font-weight: 600 !important;
+}
+
+
+
+
+
+
+.fileList {
+  display: flex;
+  flex-direction: column; /* ustawia elementy pod sobą */
+  gap: 8px; /* odstęp między plikami (ikona, nazwa, krzyżyk w jednym wierszu) */
+}
+
+.singleFile {
+  display: flex;
+  align-items: center;
+  gap: 6px; /* odstęp między ikoną, nazwą i krzyżykiem */
+}
+.noFileChosen{
+font-size: 11px!important;
+font-weight: 300!important;
+color: #A7A7A7!important;
+}
+
+
+
+
+   
+.chooseText {
+  color: darkslategray !important;
+  font-size: 11px !important;
+  font-weight: 300 !important;
+  text-decoration: underline;
+}
