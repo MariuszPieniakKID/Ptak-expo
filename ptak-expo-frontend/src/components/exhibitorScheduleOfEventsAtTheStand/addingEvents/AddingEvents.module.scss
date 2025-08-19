@@ -1,0 +1,169 @@
+@import '../../../styles/variables';
+@import '../../../styles/mixins';
+
+.container{
+    //background-color: red!important;
+}
+.sectionTitle{
+    color:#2E2E38!important;
+    font-size:14px!important;
+    border-top: 1px solid #D7D9DD;
+    padding-top:1em;
+    column-gap: 1em;
+}
+.singleRow{
+    display:flex;
+    flex-direction: row;
+    justify-content: space-between;
+    width: 100%;
+    flex-wrap: wrap;
+ @include for-mobile {
+   flex-direction: column;
+   row-gap:1em!important;
+  }
+}
+
+.singleRowWrap {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  width: 100%;
+  gap: 1em; 
+   @include for-mobile {
+   flex-direction: column;
+   justify-content: flex-start;
+   row-gap:0px!important;
+  }
+}
+
+
+.pickers{
+  display: flex;
+  flex-direction: row;
+  column-gap: 0.5em;
+}
+.halfRowOrganizer {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  min-width: 210px!important;
+   @include for-mobile {
+   justify-content: flex-start;
+  }
+  @media (max-width: 1200px) {
+    justify-content: flex-start;
+  }
+}
+
+.halfRow{
+width:48%;
+display: flex;
+flex-direction: row;
+justify-content: space-between;
+column-gap:1em;
+}
+.halfRowR{
+width:calc(100% - 80px );
+display: flex;
+flex-direction: row;
+justify-content: space-between;
+column-gap:1em;
+}
+.halfRowL{
+min-width:80px;
+display: flex;
+flex-direction: row;
+justify-content:flex-end;
+column-gap:1em;    
+align-items: flex-end;
+}
+
+.date{
+font-size: 13px!important;
+display:flex;
+flex-direction: column;
+vertical-align: middle;
+margin:auto auto!important;
+padding-top:1.25em!important;
+max-width:100px!important;
+
+}
+.date :global(.MuiPickersInputBase-root) {
+  border-radius: 20px;
+  height: 39px;
+  border:0.75px solid #D7D9DD;
+  padding-right: 20px;
+}
+.customBlueArrowIconPadding {
+  padding-left: 0px!important;           
+  box-sizing: content-box;
+}
+.ratioGroupLabel{
+padding-top:2em!important;
+padding-bottom: 1em!important;
+font-size:14px!important;
+color:#2E2E38!important;
+font-weight: 500!important;
+}
+.ratioLabel{
+font-size:13px!important;
+color:#2E2E38!important;
+font-weight: 500!important;
+height: 18px!important;
+padding:0.25em 0em!important;
+}
+
+.actionSaveFile{
+    display:flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    cursor: pointer!important;
+    column-gap: 1em;
+    align-items: center;
+}
+.actionLabel{
+  color: darkslategray !important;
+  font-size: 11px !important;
+  font-weight: 300 !important;
+  text-decoration: underline;
+}
+.actionSaveFile:hover .actionLabel {
+  font-weight: 600 !important;
+}
+
+
+.datePickerHelperText{
+  padding-left: 1em;
+  color:  #a7a7a7!important; 
+  font-family: "Open Sans", sans-serif;
+  margin-top: 0.25em;
+  font-family: "Open Sans", sans-serif!important; 
+  padding-top:1em!important;
+}
+.helperTextNormal{
+  padding-left: 1em;
+  font-size: 11px!important;
+  color:  #a7a7a7!important; 
+  font-family: "Open Sans", sans-serif;
+  margin-top: 0.25em;
+  font-size: 11px!important;
+  font-family: "Open Sans", sans-serif!important; 
+  padding-top:1em!important;
+}
+.helperTextError{
+ padding-left: 1em;
+  //font-size: 0.6875em;
+  color: $color-error!important;
+  font-family: "Open Sans", sans-serif;
+  margin-top: 0.25em;
+font-size: 11px !important;
+  font-family: "Open Sans", sans-serif!important; 
+  padding-top:1em!important;
+}
+
+.organizer{
+    width:200px!important;
+}
+.halfRowRadioGroup{
+    flex-wrap: nowrap;
+}

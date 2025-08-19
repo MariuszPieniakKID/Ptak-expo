@@ -1,0 +1,193 @@
+@import '../../../styles/variables';
+@import '../../../styles/mixins';
+
+.container{
+    width:100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    vertical-align: top;
+    column-gap: 1em;
+    border-bottom:1px solid #EFF3F6!important;
+    border-top:1px solid #EFF3F6!important;
+    padding: 2em 0em;
+      
+    @include for-mobile {
+       column-gap: 0.25em;
+   }
+}
+.date{
+    display:flex;
+    flex-direction: column;
+    justify-content:flex-start;
+    vertical-align: top;
+    width:80px;
+}
+.eventInfo{
+    display:flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    vertical-align: top;
+    width:calc(100% - 80px);
+}
+.editIcon {
+  width: 29px;
+  height: 29px;
+  cursor: pointer;        
+  transition: color 0.2s, fill 0.2s;
+
+  // domyślny kolor - np. szary
+  color: #A7A7A7;
+  fill: #A7A7A7;
+
+  &:hover {
+    color: #6F87F6;
+    fill: #6F87F6;
+  }
+
+  // Usuwanie outline (brak efektu focus)
+  outline: none;
+  &:focus {
+    outline: none;
+  }
+}
+
+.inRow{
+    display:flex;
+    flex-direction: row;
+    justify-content: space-between;
+    vertical-align: top;
+    width:100%;
+    column-gap: 1em;
+}
+
+//
+.iconWith {
+  display: inline-flex;
+  align-items: center;
+  margin: 0px auto !important;
+}
+.coloredCircle {
+  width: 33px;
+  height: 33px;
+  border-radius: 50%;
+  background-color: var(--circle-color, #1976d2);
+  color: var(--circle-text-color, white);
+  font-weight: 500;
+  font-size: 11px;
+  line-height: 1.2;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  user-select: none;
+  text-align: center;
+}
+.startAndEndDate{
+ margin-left: 0px!important;;
+ font-size: 13px!important;
+ color:#2E2E38!important;
+ font-weight: 500;  
+// margin: 0px auto !important;
+ padding-top:20px;
+}
+.eventTitle{
+    font-size: 13px!important;
+    color:#2E2E38!important;
+    font-weight: 700!important;
+}.eventDescription{
+   color:#6F6F6F!important;
+   font-size: 13px!important; 
+   padding-top:1.5em;
+   padding-right: 3em!important;
+}
+.lastRow{
+    padding-top:2em;
+    display:flex;
+    flex-direction: row;
+    justify-content: space-between;
+    vertical-align: middle;
+    width: 100%;
+    column-gap: 0.5em;
+}
+.inLine{
+    display:flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    width: fit-content;
+    flex-wrap: nowrap;
+    column-gap: 0.5em;
+}
+.organizer{
+    display:flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    vertical-align: middle;
+    column-gap: 1em;
+}
+.organizerLabel{
+    font-size: 14px!important;
+    color:#A7A7A7!important;
+    font-weight: 300!important;
+}
+.organizerIcon img {
+  width: 25px;
+  height: auto;
+  display: block; 
+}
+.actionButton{
+ display:flex;
+ flex-direction: row;
+ justify-content: flex-end;
+ vertical-align: middle;
+}
+.addedToOfficialCatalog{
+ font-size: 13px!important;
+ color:#A7A7A7!important;
+ font-weight: 300!important;
+ text-decoration: underline;
+ align-content: center;
+ cursor:none;
+}
+.addedToOfficialCataloglIcon{
+color:#A7A7A7!important; 
+ cursor:none;
+}
+.notAddedToOfficialCatalog{
+ font-size: 13px!important;
+ color:#2E2E38!important;
+ font-weight: 300!important;
+ text-decoration: underline;
+ align-content: center;
+ cursor: pointer;
+}
+.notAddedToOfficialCatalogIcon{
+cursor: pointer;
+}
+
+.inLine:hover .notAddedToOfficialCatalog {
+  font-weight: 600 !important;
+  cursor: pointer;
+}
+.inLine:hover .notAddedToOfficialCatalogIcon {
+  font-size: 40 !important;
+  cursor: pointer;
+}
+.actionLabel{
+  color: darkslategray !important;
+  font-size: 11px !important;
+  font-weight: 300 !important;
+  text-decoration: underline;
+  padding-top: 0.25em;
+  cursor: pointer;
+}
+.inLine:hover .actionLabel {
+  font-weight: 600 !important;
+  cursor: pointer;
+}
+.actionLabelIcon{
+    margin:auto auto!important;
+    height: 13px!important;
+    width: auto;
+    cursor: pointer;
+}

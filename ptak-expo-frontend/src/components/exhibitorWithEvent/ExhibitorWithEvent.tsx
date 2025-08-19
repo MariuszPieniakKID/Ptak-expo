@@ -3,8 +3,9 @@ import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import Typography from '@mui/material/Typography';
 import { ReactComponent as CubeIcon } from '../../assets/cubeIcon.svg';
-import { ReactComponent as DocumentsIcon } from '../../assets/documentsIcon.svg';
+//import { ReactComponent as DocumentsIcon } from '../../assets/documentsIcon.svg';
 import { ReactComponent as DownloadIcon } from '../../assets/downloadIcon.svg';
+import {ReactComponent as DownloadIconBlue} from'../../assets/documentIconBlue.svg';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { Box } from '@mui/material';
 import { useState } from 'react';
@@ -105,7 +106,7 @@ const buildItems = (exhibitor: Exhibitor | undefined) => {
 
   return [
     {
-      icon: <DocumentsIcon fontSize="small" />,
+      icon: <DownloadIconBlue fontSize="small" />,
       title: 'Wpis do katalogu targowego',
       container: (
         <EntryIntoTheTradeFairCatalogue

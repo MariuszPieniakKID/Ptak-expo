@@ -1,0 +1,38 @@
+@import '../../styles/variables';
+@import '../../styles/mixins';
+
+
+
+
+.typeEvents1{
+  font-size:11px!important;
+  color:#2E2E38!important;
+  border:1px solid $color-blue;
+  border-radius: 20px!important;
+  width: fit-content;
+  padding:0px 8px;
+}
+.typeEvents2{
+  font-size:11px!important;
+  color:#2E2E38!important;
+  border:1px solid $color-mint;
+  border-radius: 20px!important;
+  width: fit-content;
+  padding:0px 8px;
+}
+.typeEvents3{
+  font-size:11px!important;
+  color:#2E2E38!important;
+  border:1px solid $color-orange;
+  border-radius: 20px!important;
+  width: fit-content;
+  padding:0px 8px;
+}
+.typeEvents0{
+  font-size:11px!important;
+  color:#2E2E38!important;
+  border:1px solid $color-error;
+  border-radius: 20px!important;
+  width: fit-content;
+  padding:0px 8px;
+}

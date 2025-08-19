@@ -1,0 +1,22 @@
+.bell {
+  min-width: 30px !important;
+}
+
+.iconBellWrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.iconBell {
+  width: 11px !important;
+  height: auto !important;
+  display: block;
+}
+
+.iconGreenCircle {
+  position: absolute;
+  top: 0px;
+  right: -8px;
+  width: 18px;
+  height: 18px;
+}

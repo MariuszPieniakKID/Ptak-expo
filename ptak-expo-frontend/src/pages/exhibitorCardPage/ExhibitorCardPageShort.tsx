@@ -44,6 +44,10 @@ import UserAvatar from '../../assets/7bb764a0137abc7a8142b6438e529133@2x.png';
 import Applause from '../../assets/applause.png';
 import SingleEventCard from '../../components/singleEventCard/SingleEventCard';
 import ExhibitorWithEvent from '../../components/exhibitorWithEvent/ExhibitorWithEvent';
+import ExhibitorDatabaseDocuments from '../../components/exhibitorDatabaseDocuments/ExhibitorDatabaseDocuments';
+import ExhibitoiIdentifiers from '../../components/exhibitoiIdentifiers/ExhibitoiIdentifiers';
+import ExhibitorInvitations from '../../components/exhibitorInvitations/ExhibitorInvitations';
+import ExhibitorScheduleOfEventsAtTheStand from '../../components/exhibitorScheduleOfEventsAtTheStand/ExhibitorScheduleOfEventsAtTheStand';
 // ExhibitorWithEventDetails from '../../components/_exhibitorWithEventDetails/ExhibitorWithEventDetails';
 
 
@@ -519,10 +523,30 @@ const ExhibitorCardPage: React.FC = () => {
                     <Box className={styles.rightContainer}>{exhibitor ? <ExhibitorWithEvent exhibitorId={exhibitor.id} exhibitor={exhibitor} /> : null}</Box>
                   </Box>
                 </CustomTabPanel>
-                      <CustomTabPanel value={value} index={1}>2</CustomTabPanel>
-                      <CustomTabPanel value={value} index={2}>3</CustomTabPanel>
-                      <CustomTabPanel value={value} index={3}>4</CustomTabPanel>
-                      <CustomTabPanel value={value} index={4}>5</CustomTabPanel>
+                <CustomTabPanel value={value} index={1}>
+                  <Box className={styles.tabPaperContainer}>
+                    <Box className={styles.leftContainer}>{renderSelectedEvent()}</Box>
+                    <Box className={styles.rightContainer}>{exhibitor ? <ExhibitorDatabaseDocuments exhibitorId={exhibitor.id}/> : null}</Box>
+                  </Box>                  
+                </CustomTabPanel>
+                <CustomTabPanel value={value} index={2}>
+                  <Box className={styles.tabPaperContainer}>
+                    <Box className={styles.leftContainer}>{renderSelectedEvent()}</Box>
+                    <Box className={styles.rightContainer}>{exhibitor ? <ExhibitorInvitations exhibitorId={exhibitor.id} exhibitor={exhibitor} /> : null}</Box>
+                  </Box>                    
+                </CustomTabPanel>
+                <CustomTabPanel value={value} index={3}>
+                  <Box className={styles.tabPaperContainer}>
+                    <Box className={styles.leftContainer}>{renderSelectedEvent()}</Box>
+                    <Box className={styles.rightContainer}>{exhibitor ? <ExhibitorScheduleOfEventsAtTheStand  exhibitorId={exhibitor.id} exhibitor={exhibitor} />: null}</Box>
+                  </Box>
+                </CustomTabPanel>
+                <CustomTabPanel value={value} index={4}>
+                  <Box className={styles.tabPaperContainer}>
+                    <Box className={styles.leftContainer}>{renderSelectedEvent()}</Box>
+                    <Box className={styles.rightContainer}>{exhibitor ?<ExhibitoiIdentifiers exhibitorId={exhibitor.id} exhibitor={exhibitor} /> : null}</Box>
+                  </Box>  
+                </CustomTabPanel>
                       <CustomTabPanel value={value} index={5}>6</CustomTabPanel>
                     </Box>}
 

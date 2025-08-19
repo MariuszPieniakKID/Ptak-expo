@@ -1,0 +1,78 @@
+
+.invoicesListWrapper{
+position:relative;
+top:-30px;
+padding:1em 0px;
+
+}
+.singleInvoiceInfo {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  row-gap: 1em;
+  border-bottom: 1px solid #EFF3F6 !important;
+  padding: 0.5em 0 !important;
+
+  &:last-child {
+    border-bottom: none !important;
+  }
+}
+.iconWithFileName{
+    display:flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    width:70%;
+    column-gap: 1em;
+    align-items: center;
+}
+.actionButton{
+    display:flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    width:30%;
+    column-gap: 1em;
+    align-items: center;
+}
+.invoiceIcon{
+    width: 14.93px!important;
+    height: auto;
+}
+.invoiceTitle{
+    color:#2E2E38!important;
+    font-size: 13px!important;
+    font-weight: 300!important;
+    white-space: nowrap;
+}
+.actionLabel{
+  color: darkslategray !important;
+  font-size: 11px !important;
+  font-weight: 300 !important;
+  text-decoration: underline;
+}
+.actionButton{
+    cursor: pointer;
+}
+.actionButton:hover .actionLabel {
+  font-weight: 600 !important;
+}
+
+
+@media (max-width: 500px) {
+  .singleInvoiceInfo {
+    flex-direction: column-reverse;
+    align-items: flex-start; // opcjonalnie, żeby elementy ustawiły się do lewej
+    row-gap: 0.5em; // odstępy pionowe, bo column
+  }
+
+  .iconWithFileName,
+  .actionButton {
+    width: 100%;
+    justify-content: space-between; // zależy od efektu jaki chcesz
+  }
+ .iconWithFileName{
+    justify-content: flex-start;
+ }
+    .actionButton{
+   justify-content: flex-end;
+    }
+}

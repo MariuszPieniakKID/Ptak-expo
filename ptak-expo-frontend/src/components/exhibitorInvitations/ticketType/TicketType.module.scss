@@ -1,0 +1,167 @@
+@import '../../../styles/variables';
+@import '../../../styles/mixins';
+
+.ticketType {
+  color: $color-white!important;
+  font-size: 18px!important;
+  font-weight: 500!important;
+}
+
+.ticketPrice {
+  color: #6F87F6!important;
+  font-size: 13px!important;
+  font-weight: 500!important;
+}
+
+.numberOfInvitationSent {
+  color: #a7a7a7!important;
+  font-size: 13px!important;
+  font-weight: 500 !important;
+  padding-top: 0.5em;
+}
+
+.actionBox {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+}
+
+
+
+.singleLine {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  column-gap: 1em;
+}
+
+.singleLineInvitation {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+}
+
+
+.icon {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  svg {
+    font-size: 80px; 
+  }
+
+  .circleContent {
+    position: absolute;
+    top: 45%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    pointer-events: none;
+
+    .numberInvitedguests {
+      display: inline;
+      font-size: 1rem!important;
+      color: white!important;
+      font-weight: 500!important;
+    }
+
+    .limit {
+      display: inline;
+      color: #a7a7a7!important;
+      font-size: 13px!important;
+      font-weight: 500 !important;
+      padding-top: 0.25em;
+    }
+
+    .invitation {
+      display: block;
+      color: white!important;
+      font-size: 11px!important;
+      font-weight: 500 !important;
+    }
+  }
+}
+
+.ticketInfo {
+  padding-bottom: 1em;
+}
+
+.limitationLine {
+  display: flex;
+  flex-wrap: wrap; 
+  justify-content: space-between; 
+  align-items: center;
+  row-gap: 2em !important;
+  padding-bottom: 1.5em;
+}
+
+.inLine1 {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  vertical-align: middle;
+  max-width: 385px;
+  flex: 1 1 auto;
+  min-width: 200px; 
+}
+
+.limitLabel {
+  color: #FC8A06!important;
+  font-size: 14px!important;
+  font-weight: 500!important;
+  margin: auto 0px;
+}
+
+.inLine2 {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  flex-wrap: nowrap;
+  vertical-align: middle;
+  flex: 1 1 auto;
+  min-width: 200px;
+}
+
+
+@media (max-width: 600px) {
+  .inLine1 {
+    order: 1;
+    justify-content: flex-start;
+    width: 100%;
+  }
+
+  .inLine2 {
+    order: 2;
+    justify-content: flex-end;
+    width: 100%;
+  }
+}
+
+.actionBox {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  width: 100%!important;
+  column-gap: 0.5em;
+  cursor: pointer;
+}
+
+.actionLabel {
+  color: darkslategray !important;
+  font-size: 11px !important;
+  font-weight: 300 !important;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.actionBox:hover .actionLabel {
+  font-weight: 600 !important;
+}
+
+.actionIcon {
+  cursor: pointer;
+}

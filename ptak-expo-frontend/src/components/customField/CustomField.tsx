@@ -4,7 +4,6 @@ import IconButton from "@mui/material/IconButton";
 import InputAdornment from "@mui/material/InputAdornment";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
-//import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import styles from './CustomField.module.scss';
@@ -15,7 +14,6 @@ export type OptionType = {
   description?: React.ReactNode; // opcjonalne dodatkowe info
   [key: string]: any; // inne pola, jeśli potrzebujesz
 };
-
 
 type CustomFieldProps = {
   placeholder?: string;
@@ -37,6 +35,11 @@ type CustomFieldProps = {
   showOptionsExternal?: boolean; // Sterowanie widocznością listy z zewnątrz
   onShowOptionsChange?: (visible: boolean) => void; // Callback do zmiany widoczności
   forceSelectionFromOptions?: boolean; // Wymuszanie wyboru tylko spośród opcji
+
+  slots?: {
+    endAdornment?: React.ReactNode;
+    [key: string]: React.ReactNode | undefined;
+  };
 };
 
 const CustomField: FC<CustomFieldProps> = ({
@@ -59,6 +62,7 @@ const CustomField: FC<CustomFieldProps> = ({
   showOptionsExternal,
   onShowOptionsChange,
   forceSelectionFromOptions = false,
+  slots,
 }) => {
   const [focused, setFocused] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -71,12 +75,10 @@ const CustomField: FC<CustomFieldProps> = ({
   const isPasswordField = type === 'password';
   const hasOptions = options.length > 0;
 
-  // Kontrolowana widoczność opcji
   const isControlled = showOptionsExternal !== undefined;
   const showOptions = isControlled ? showOptionsExternal : showOptionsInternal;
-  const [openUpward, setOpenUpward] = useState(false); //??
+  const [openUpward, setOpenUpward] = useState(false);
   const maxDropdownHeight = Math.min(200, window.innerHeight * 0.4);
-
 
   const setShowOptions = useCallback((visible: boolean) => {
     if (isControlled) {
@@ -86,7 +88,6 @@ const CustomField: FC<CustomFieldProps> = ({
     }
   }, [isControlled, onShowOptionsChange]);
 
-  // Zamknięcie listy przy kliknięciu poza komponentem
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (wrapperRef.current && !wrapperRef.current.contains(event.target as Node)) {
@@ -102,25 +103,22 @@ const CustomField: FC<CustomFieldProps> = ({
     };
   }, [showOptions, setShowOptions]);
 
-  //??
   useEffect(() => {
-  if (showOptions && wrapperRef.current) {
-    const rect = wrapperRef.current.getBoundingClientRect();
-    const spaceBelow = window.innerHeight - rect.bottom;
-    const dropdownHeight = 200; // maxHeight Twojej listy w px
+    if (showOptions && wrapperRef.current) {
+      const rect = wrapperRef.current.getBoundingClientRect();
+      const spaceBelow = window.innerHeight - rect.bottom;
+      const dropdownHeight = 200;
 
-    if (spaceBelow < dropdownHeight && rect.top > dropdownHeight) {
-      setOpenUpward(true);
+      if (spaceBelow < dropdownHeight && rect.top > dropdownHeight) {
+        setOpenUpward(true);
+      } else {
+        setOpenUpward(false);
+      }
     } else {
       setOpenUpward(false);
     }
-  } else {
-    setOpenUpward(false);
-  }
-}, [showOptions]);
+  }, [showOptions]);
 
-
-  // Obsługa wyboru opcji - wywołuje onChange z wartością value opcji
   const handleOptionClick = (optionValue: string | number) => {
     const fakeEvent = {
       target: { value: optionValue, name: name ?? undefined },
@@ -131,7 +129,6 @@ const CustomField: FC<CustomFieldProps> = ({
     inputRef.current?.focus();
   };
 
-  // Gdy wylatuje focus - jeśli wymuszamy wybór z listy i wartość nie jest na liście - zeruj
   const handleBlur = () => {
     setFocused(false);
 
@@ -146,19 +143,17 @@ const CustomField: FC<CustomFieldProps> = ({
     }
   };
 
-  // Obsługa wpisywania - dopuszcza wyjątkowo tylko dopasowania (jeśli wymuszamy)
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
     if (forceSelectionFromOptions && hasOptions && newValue) {
       const matches = options.filter((opt) =>
         String(opt.label).toLowerCase().startsWith(newValue.toLowerCase())
       );
-      if (matches.length === 0) return; // blokuj wprowadzenie niedozwolonej wartości
+      if (matches.length === 0) return;
     }
     onChange(e);
   };
 
-  // Obsługa klawiatury dla dropdown
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     if (!hasOptions) return;
 
@@ -192,8 +187,11 @@ const CustomField: FC<CustomFieldProps> = ({
     }
   };
 
-  // Icona na końcu pola
   const getEndAdornment = () => {
+    if (slots?.endAdornment) {
+      return slots.endAdornment;
+    }
+
     if (isPasswordField) {
       return (
         <InputAdornment position="end">
@@ -219,13 +217,7 @@ const CustomField: FC<CustomFieldProps> = ({
             tabIndex={-1}
             disableRipple
           >
-            {!showOptions 
-            ? <ExpandMoreIcon 
-            sx={{color:'#6f87f6'}} 
-            /> 
-            : <ExpandLessIcon
-             sx={{color:'#6f87f6'}} 
-             />}
+            {!showOptions ? <ExpandMoreIcon sx={{ color: '#6f87f6' }} /> : <ExpandLessIcon sx={{ color: '#6f87f6' }} />}
           </IconButton>
         </InputAdornment>
       );
@@ -233,15 +225,6 @@ const CustomField: FC<CustomFieldProps> = ({
     return null;
   };
 
-  // Obliczamy tekst wyświetlany w inpucie, jeśli forceSelectionFromOptions
-  // to pokazujemy label odpowiadający wartości value
-  // const displayValue = React.useMemo(() => {
-  //   if (forceSelectionFromOptions && hasOptions) {
-  //     const found = options.find((opt) => String(opt.value) === String(value));
-  //     return found ? found.label : '';
-  //   }
-  //   return value;
-  // }, [value, forceSelectionFromOptions, options, hasOptions]);
   const displayValue = React.useMemo(() => {
     if (forceSelectionFromOptions && hasOptions) {
       const found = options.find((opt) => String(opt.value) === String(value));
@@ -272,10 +255,10 @@ const CustomField: FC<CustomFieldProps> = ({
         InputProps={{
           endAdornment: getEndAdornment(),
           autoComplete: 'off',
-          readOnly: forceSelectionFromOptions && hasOptions, // wymuszamy wybór z listy
-           style: {
-           color: isPlaceholderActive ? '#A7A7A7' : 'inherit',
-    },
+          readOnly: forceSelectionFromOptions && hasOptions,
+          style: {
+            color: isPlaceholderActive ? '#A7A7A7' : 'inherit',
+          },
         }}
         sx={{
           '& .MuiOutlinedInput-root': {
@@ -299,8 +282,8 @@ const CustomField: FC<CustomFieldProps> = ({
       <span className={styles.helperText}>
         {!error && (focused || (value && String(value) !== '')) && label ? label : '\u00A0'}
       </span>
-    
-        {error && (
+
+      {error && (
         <span className={`${styles.errorMessage} ${errorMessageClassName ?? ''}`}>
           {errorMessage ?? 'Błąd'}
         </span>
@@ -308,37 +291,37 @@ const CustomField: FC<CustomFieldProps> = ({
 
       {showOptions && hasOptions && (
         <ul
-            className={`${styles.dropdownList} ${openUpward ? styles.dropdownListUpward : styles.dropdownListDownward}`}
-            role="listbox"
-            tabIndex={-1}
-            style={{ maxHeight: maxDropdownHeight }}
-          >
-            {options.map((option, index) => (
-              <li
-                key={index}
-                onClick={() => handleOptionClick(option.value)}
-                className={`${styles.dropdownItem} ${highlightedIndex === index ? styles.highlighted : ''}`}
-                role="option"
-                aria-selected={String(option.value) === String(value)}
-                tabIndex={-1}
-                onMouseEnter={() => setHighlightedIndex(index)}
-                onMouseLeave={() => setHighlightedIndex(-1)}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    handleOptionClick(option.value);
-                  }
-                }}
-              >
-                {option.label}
-                {option.description && (
-                  <div className={styles.dropdownDescription}>
-                    {option.description}
-                  </div>
-                )}
-              </li>
-            ))}
-          </ul>
+          className={`${styles.dropdownList} ${openUpward ? styles.dropdownListUpward : styles.dropdownListDownward}`}
+          role="listbox"
+          tabIndex={-1}
+          style={{ maxHeight: maxDropdownHeight }}
+        >
+          {options.map((option, index) => (
+            <li
+              key={index}
+              onClick={() => handleOptionClick(option.value)}
+              className={`${styles.dropdownItem} ${highlightedIndex === index ? styles.highlighted : ''}`}
+              role="option"
+              aria-selected={String(option.value) === String(value)}
+              tabIndex={-1}
+              onMouseEnter={() => setHighlightedIndex(index)}
+              onMouseLeave={() => setHighlightedIndex(-1)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  handleOptionClick(option.value);
+                }
+              }}
+            >
+              {option.label}
+              {option.description && (
+                <div className={styles.dropdownDescription}>
+                  {option.description}
+                </div>
+              )}
+            </li>
+          ))}
+        </ul>
       )}
     </div>
   );
