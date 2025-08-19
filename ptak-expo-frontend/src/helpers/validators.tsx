@@ -114,7 +114,7 @@ export const validateEventName = (eventName: string): string => {
   if (trimmed.length > 100) return 'Nazwa wydarzenia może zawierać maksymalnie 100 znaków';
 
   // Dozwolone: litery PL/ENG, cyfry, spacje oraz . , - / & ( )
-  const re = /^[A-Za-zĄĆĘŁŃÓŚŹŻąćęłńóśźż0-9\s.,\-\/&()]+$/;
+  const re = /^[A-Za-zĄĆĘŁŃÓŚŹŻąćęłńóśźż0-9\s.,\-/&()]+$/;
 
   if (!re.test(trimmed))
     return 'Nazwa wydarzenia może zawierać tylko litery, cyfry, spacje oraz znaki: . , - / & ( )';

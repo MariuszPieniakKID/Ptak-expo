@@ -53,8 +53,8 @@ function ExhibitoiIdentifiers({
   const overlapIndexes = [1, 2];
     
   useEffect(() => {
-     console.log(`exhibitorId: ${exhibitorId},exhibitor ${exhibitor} `)
-    }, []); 
+     console.log('exhibitorId:', exhibitorId, 'exhibitor:', exhibitor)
+    }, [exhibitorId, exhibitor]); 
   
   return (
     <Box className={styles.container}>

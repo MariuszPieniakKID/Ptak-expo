@@ -5,7 +5,7 @@ import Typography from '@mui/material/Typography';
 import { ReactComponent as EnvelopeOnABlackBackground } from '../../assets/envelopeOnABlackBackground.svg';
 import { ReactComponent as GreenCircle } from '../../assets/greenCircleWithChecked.svg';
 import { Box } from '@mui/material';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import styles from './ExhibitorInvitations.module.scss';
 import { Exhibitor } from '../../services/api';
 import TicketType from './ticketType/TicketType';
@@ -15,7 +15,6 @@ import StatusOfSentInvitations from './statusOfSentInvitations/StatusOfSentInvit
 import { mockInvitations } from '../../helpers/mockData';
 
 type ExhibitorInvitationsProps = {
-  allowMultiple?: boolean;
   exhibitorId: number;
   exhibitor?: Exhibitor;
 };
@@ -27,7 +26,6 @@ type ExhibitorInvitationsProps = {
 
 
 function ExhibitorInvitations({ 
-  allowMultiple = true,
   exhibitorId,
   exhibitor
 }: ExhibitorInvitationsProps) {
@@ -60,43 +58,21 @@ function ExhibitorInvitations({
     }
   ];
 
-  const [_expandedAccordions, setExpandedAccordions] = useState<boolean[]>(Array(items.length).fill(true));
-  const [_expandedOne, setExpandedOne] = useState<number | false>(false);
-
-  const handleChangeMultiple = (index: number) => (
-    _event: React.SyntheticEvent,
-    isExpanded: boolean
-  ) => {
-    setExpandedAccordions(prev =>
-      prev.map((opened, i) => (i === index ? isExpanded : opened))
-    );
-  };
-
-  const handleChangeSingle = (index: number) => (
-    _event: React.SyntheticEvent,
-    isExpanded: boolean
-  ) => {
-    setExpandedOne(isExpanded ? index : false);
-  };
+  // Accordions are always expanded in current design; remove unused state to satisfy CI lint rules
 
   useEffect(() => {
-    console.log(`exhibitorId: ${exhibitorId}, exhibitor:`, exhibitor);
-  }, []);
+    console.log('exhibitorId:', exhibitorId, 'exhibitor:', exhibitor);
+  }, [exhibitorId, exhibitor]);
 
   return (
     <Box className={styles.container}>
       {items.map((item, idx) => {
         const isExpanded = true;
 
-        const handleChange = allowMultiple
-          ? handleChangeMultiple(idx)
-          : handleChangeSingle(idx);
-
         return (
           <Accordion
             key={item.id}
             expanded={isExpanded}
-            onChange={handleChange}
             disableGutters
             elevation={0}
             square
