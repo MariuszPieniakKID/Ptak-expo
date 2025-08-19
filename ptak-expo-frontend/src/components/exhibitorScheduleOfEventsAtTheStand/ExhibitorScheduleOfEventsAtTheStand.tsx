@@ -1,40 +1,38 @@
 import React, { useEffect, useState } from "react";
 import { Box, Accordion, AccordionSummary, AccordionDetails, Typography } from "@mui/material";
-import styles from "./ExhibitoiIdentifiers.module.scss";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+//import { ReactComponent as UploadingIcon } from "../../assets/uploadingIcon.svg";
+import { ReactComponent as ScheduleOfEvents } from "../../assets/ScheduleOfEvents2.svg";
+import styles from "./ExhibitorScheduleOfEventsAtTheStand.module.scss";
 import { Exhibitor } from "../../services/api";
-import { ReactComponent as  BadgesIcon} from '../../assets/blue_badgesIcon.svg';
-import IdentifiersCard from "./identifiersCard/IdentifiersCard";
+import AddingEvents from "./addingEvents/AddingEvents";
+import AddedEvents from "./addedEvents/AddedEvents";
+import { sampleEvents } from "../../helpers/mockData";
 
-type ExhibitoiIdentifiersProps = {
+type ExhibitorScheduleOfEventsAtTheStandProps = {
   allowMultiple?: boolean;
   exhibitorId: number;
   exhibitor?: Exhibitor;
 };
 
-function ExhibitoiIdentifiers({
+function ExhibitorScheduleOfEventsAtTheStand({
   allowMultiple = true,
   exhibitorId,
   exhibitor,
-}: ExhibitoiIdentifiersProps) {
-
-  // Dane startowe TODOO
-    const data = [
-    { id: 1, imieNazwisko: "Jan Kowalski", typ: "Obsługa techniczna" },
-    { id: 2, imieNazwisko: "Anna Nowak", typ: "Ekspert/Prelegent" },
-    { id: 3, imieNazwisko: "Piotr Wiśniewski", typ: "Marketing/PR" },
-    ];
-
-
+}: ExhibitorScheduleOfEventsAtTheStandProps) {
 
   // Definicja sekcji
   const items = [
     {
-      icon: <BadgesIcon fontSize="small" />,
-      title: "Identyfikatory",
-      container: <IdentifiersCard data={data}/>,
-    }
-    
+      icon: <ScheduleOfEvents fontSize="small" />,
+      title: `Plan wydarzeń na stoisku ${sampleEvents.length}`,
+      container: <AddingEvents/>
+    },
+    {
+      icon: null,
+      title: "Dodane wydarzenia",
+      container: <AddedEvents events={sampleEvents}/>
+    },
   ];
 
   // Stany accordionów
@@ -49,18 +47,21 @@ function ExhibitoiIdentifiers({
     setExpandedOne(isExpanded ? index : false);
   };
 
-  const alwaysOpenIndexes = [0, 1, 2, 3];
-  const overlapIndexes = [1, 2];
-    
+  const alwaysOpenIndexes = [0, 1];
+  const overlapIndexes: number[] = [];
+
+  // Dane do usunięcia, może potrzebne przy podpięciu akcji
   useEffect(() => {
-     console.log(`exhibitorId: ${exhibitorId},exhibitor ${exhibitor} `)
-    }, []); 
-  
+    console.log(`${exhibitorId}`);  
+    console.log(`${exhibitor}`);
+  }, [exhibitorId, exhibitor]);
+
   return (
     <Box className={styles.container}>
       {items.map((item, idx) => {
         const isLastAccordion = idx === items.length - 1;
         const isAlwaysOpen = alwaysOpenIndexes.includes(idx);
+        const isOverlap = Array.isArray(overlapIndexes) && overlapIndexes.includes(idx);
 
         return (
           <React.Fragment key={item.title}>
@@ -68,13 +69,13 @@ function ExhibitoiIdentifiers({
 
             <Accordion
               expanded={isAlwaysOpen ? true : allowMultiple ? expandedAccordions[idx] : expandedOne === idx}
-            onChange={
-            isAlwaysOpen
-              ? () => {} 
-              : allowMultiple
-              ? handleChangeMultiple(idx)
-              : handleChangeSingle(idx)
-          }
+              onChange={
+                isAlwaysOpen
+                  ? () => {}
+                  : allowMultiple
+                  ? handleChangeMultiple(idx)
+                  : handleChangeSingle(idx)
+              }
               disableGutters
               elevation={0}
               square
@@ -87,8 +88,8 @@ function ExhibitoiIdentifiers({
                 position: "relative",
                 "&:before": { display: "none" },
                 zIndex: isAlwaysOpen ? 2 : 1,
-                ...(overlapIndexes.includes(idx) && { mt: -3, mb: -3 }),
-                ...(!overlapIndexes.includes(idx) && { marginBottom: "40px" }),
+                ...(isOverlap && { mt: -3, mb: -3 }),
+                ...(!isOverlap && { marginBottom: "40px" }),
               }}
             >
               <AccordionSummary
@@ -118,7 +119,7 @@ function ExhibitoiIdentifiers({
                   "&.Mui-expanded": { minHeight: 56 },
                 }}
               >
-                <Box sx={{ display: "flex", alignItems: "center", gap: 1, marginTop:'1em' }}>
+                <Box sx={{ display: "flex", alignItems: "center", gap: 1,marginTop:'1em'}}>
                   {item.icon && (
                     <Box
                       sx={{
@@ -135,13 +136,13 @@ function ExhibitoiIdentifiers({
                       {item.icon}
                     </Box>
                   )}
-                  <Typography sx={{ fontWeight: 600, fontSize: "1rem" }} component="span">
+                  <Typography sx={{ fontWeight: 600, fontSize: "1rem"}} component="span">
                     {item.title}
                   </Typography>
                 </Box>
               </AccordionSummary>
 
-              <AccordionDetails sx={{ borderRadius: "0 0 20px 20px", pb: 2, pt: 1.5 }}>
+              <AccordionDetails sx={{ borderRadius: "0 0 20px 20px", pb: 2, pt: 1.5}}>
                 {item.container}
               </AccordionDetails>
             </Accordion>
@@ -152,4 +153,4 @@ function ExhibitoiIdentifiers({
   );
 }
 
-export default ExhibitoiIdentifiers;
+export default ExhibitorScheduleOfEventsAtTheStand;

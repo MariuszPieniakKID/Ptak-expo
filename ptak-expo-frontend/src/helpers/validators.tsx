@@ -106,3 +106,18 @@ export  const validateHallName = (hallName: string): string => {
     return 'Nazwa hali może zawierać tylko litery, cyfry, spacje oraz znaki: . - /';
   return '';
 };
+export const validateEventName = (eventName: string): string => {
+  const trimmed = eventName.trim();
+
+  if (!trimmed) return 'Nazwa wydarzenia jest wymagana';
+  if (trimmed.length < 3) return 'Nazwa wydarzenia musi zawierać co najmniej 3 znaki';
+  if (trimmed.length > 100) return 'Nazwa wydarzenia może zawierać maksymalnie 100 znaków';
+
+  // Dozwolone: litery PL/ENG, cyfry, spacje oraz . , - / & ( )
+  const re = /^[A-Za-zĄĆĘŁŃÓŚŹŻąćęłńóśźż0-9\s.,\-\/&()]+$/;
+
+  if (!re.test(trimmed))
+    return 'Nazwa wydarzenia może zawierać tylko litery, cyfry, spacje oraz znaki: . , - / & ( )';
+
+  return '';
+};

@@ -47,6 +47,7 @@ import ExhibitorWithEvent from '../../components/exhibitorWithEvent/ExhibitorWit
 import ExhibitorDatabaseDocuments from '../../components/exhibitorDatabaseDocuments/ExhibitorDatabaseDocuments';
 import ExhibitoiIdentifiers from '../../components/exhibitoiIdentifiers/ExhibitoiIdentifiers';
 import ExhibitorInvitations from '../../components/exhibitorInvitations/ExhibitorInvitations';
+import ExhibitorScheduleOfEventsAtTheStand from '../../components/exhibitorScheduleOfEventsAtTheStand/ExhibitorScheduleOfEventsAtTheStand';
 // ExhibitorWithEventDetails from '../../components/_exhibitorWithEventDetails/ExhibitorWithEventDetails';
 
 
@@ -534,7 +535,12 @@ const ExhibitorCardPage: React.FC = () => {
                     <Box className={styles.rightContainer}>{exhibitor ? <ExhibitorInvitations exhibitorId={exhibitor.id} exhibitor={exhibitor} /> : null}</Box>
                   </Box>                    
                 </CustomTabPanel>
-                      <CustomTabPanel value={value} index={3}>4</CustomTabPanel>
+                <CustomTabPanel value={value} index={3}>
+                  <Box className={styles.tabPaperContainer}>
+                    <Box className={styles.leftContainer}>{renderSelectedEvent()}</Box>
+                    <Box className={styles.rightContainer}>{exhibitor ? <ExhibitorScheduleOfEventsAtTheStand  exhibitorId={exhibitor.id} exhibitor={exhibitor} />: null}</Box>
+                  </Box>
+                </CustomTabPanel>
                 <CustomTabPanel value={value} index={4}>
                   <Box className={styles.tabPaperContainer}>
                     <Box className={styles.leftContainer}>{renderSelectedEvent()}</Box>
