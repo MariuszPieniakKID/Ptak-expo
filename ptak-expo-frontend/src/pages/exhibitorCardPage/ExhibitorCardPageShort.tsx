@@ -48,6 +48,7 @@ import ExhibitorDatabaseDocuments from '../../components/exhibitorDatabaseDocume
 import ExhibitoiIdentifiers from '../../components/exhibitoiIdentifiers/ExhibitoiIdentifiers';
 import ExhibitorInvitations from '../../components/exhibitorInvitations/ExhibitorInvitations';
 import ExhibitorScheduleOfEventsAtTheStand from '../../components/exhibitorScheduleOfEventsAtTheStand/ExhibitorScheduleOfEventsAtTheStand';
+import ExhibitorTradeFairAwards from '../../components/exhibitorTradeFairAwards/ExhibitorTradeFairAwards';
 // ExhibitorWithEventDetails from '../../components/_exhibitorWithEventDetails/ExhibitorWithEventDetails';
 
 
@@ -319,7 +320,9 @@ const ExhibitorCardPage: React.FC = () => {
                         </Box> 
                    </Box>
                 </Box>
-                <Box className={styles.infoRow}>
+                {selectedEvent === null
+                ?<>
+                  <Box className={styles.infoRow}>
                     <Box className={styles.row}>
                         <Box className={styles.sectionTitle}>
                          {(exhibitor?.events && exhibitor.events.length > 0 )
@@ -337,25 +340,28 @@ const ExhibitorCardPage: React.FC = () => {
                             </Box>
                         </Box>
                     </Box>
-                </Box>
-                <Box className={styles.allExhibitions}>
-                     {exhibitor?.events && exhibitor.events.length > 0 
-                     && ( exhibitor.events.map((event,index) =>              
-                        <SingleEventCard 
-                          id={event.id}
-                          exhibitorId={exhibitor.id}
-                          iconId={getEventImage(index)}
-                          event_readiness={getEventReadiness(event.id)}
-                          key={event.id} 
-                          title={event.name}
-                          start_date={event.start_date}
-                          end_date={event.end_date}
-                          handleSelectEvent={handleSelectEvent}
-                          handleDeleteEventFromExhibitor={handleDeleteEventFromExhibitor}
-                           /> 
-                        ))}
+                  </Box>
+                  
+                  <Box className={styles.allExhibitions}>
+                      {exhibitor?.events && exhibitor.events.length > 0 
+                      && ( exhibitor.events.map((event,index) =>              
+                          <SingleEventCard 
+                            id={event.id}
+                            exhibitorId={exhibitor.id}
+                            iconId={getEventImage(index)}
+                            event_readiness={getEventReadiness(event.id)}
+                            key={event.id} 
+                            title={event.name}
+                            start_date={event.start_date}
+                            end_date={event.end_date}
+                            handleSelectEvent={handleSelectEvent}
+                            handleDeleteEventFromExhibitor={handleDeleteEventFromExhibitor}
+                            /> 
+                          ))}
 
-                </Box>
+                  </Box>
+              </>
+              :null}
 
 
             {selectedEvent === null
@@ -547,7 +553,12 @@ const ExhibitorCardPage: React.FC = () => {
                     <Box className={styles.rightContainer}>{exhibitor ?<ExhibitoiIdentifiers exhibitorId={exhibitor.id} exhibitor={exhibitor} /> : null}</Box>
                   </Box>  
                 </CustomTabPanel>
-                      <CustomTabPanel value={value} index={5}>6</CustomTabPanel>
+                <CustomTabPanel value={value} index={5}>
+                  <Box className={styles.tabPaperContainer}>
+                    <Box className={styles.leftContainer}>{renderSelectedEvent()}</Box>
+                    <Box className={styles.rightContainer}>{exhibitor ?<ExhibitorTradeFairAwards exhibitorId={exhibitor.id} exhibitor={exhibitor} /> : null}</Box>
+                  </Box>  
+                </CustomTabPanel>
                     </Box>}
 
             </Box>

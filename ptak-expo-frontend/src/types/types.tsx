@@ -38,3 +38,7 @@ export type _AddedEvent =
       isDelete: boolean;
       isEdited: boolean;
     };
+  export interface _TradeAwardsFair {
+  id: number;
+  message: string;
+}

@@ -1,5 +1,5 @@
 import { InvitationStatus } from "../components/exhibitorInvitations/statusOfSentInvitations/StatusOfSentInvitations";
-import { _AddedEvent } from "../types/types";
+import { _AddedEvent, _TradeAwardsFair } from "../types/types";
 
 export const mockInvitations: {
   id: number;
@@ -229,75 +229,14 @@ export const sampleEvents: _AddedEvent[] = [
   },
 ];
 
-// export const sampleEvents: _AddedEvent[] = [
-//   {
-//     id: 1,
-//     exhibition_id: 101,
-//     name: 'Event 1',
-//     eventDate: '2025-08-25',
-//     startTime: '09:00',
-//     endTime: '12:00',
-//     eventType: 'Montaż stoiska',
-//     eventTitle: 'Konferencja branżowa',
-//     description: 'W przeciwieństwie do rozpowszechnionych opinii, Lorem Ipsum nie jest tylko przypadkowym tekstem. Ma ono korzenie w klasycznej łacińskiej literaturze z 45 roku przed Chrystusem, czyli ponad 2000 lat temu! Richard McClintock, wykładowca łaciny na uniwersytecie Hampden-Sydney w Virginii, przyjrzał się uważniej jednemu z najbardziej niejasnych słów w Lorem Ipsum – consectetur – i po wielu poszukiwaniach odnalazł niezaprzeczalne źródło: Lorem Ipsum pochodzi z fragmentów (1.10.32 i 1.10.33) „de Finibus Bonorum et Malorum”, czyli „O granicy dobra i zła”, napisanej właśnie w 45 p.n.e. przez Cycerona. Jest to bardzo popularna w czasach renesansu rozprawa na temat etyki. Pierwszy wiersz Lorem Ipsum, „Lorem ipsum dolor sit amet...” pochodzi właśnie z sekcji 1.10.32.',
-//     organizer: 'Organizator A',
-//     isDelete: false,
-//     isEdited: false,
-//     addedToOfficialCatalog: false,
-//   },
-//   {
-//     id: 2,
-//     exhibition_id: 102,
-//     name: 'Event 2',
-//     eventDate: '2025-08-26',
-//     startTime: '10:00',
-//     endTime: '14:00',
-//     eventType: 'Demontaż stoiska',
-//     eventTitle: 'Warsztaty programistyczne',
-//     description: 'Praktyczne szkolenie z React i TypeScript.',
-//     organizer: 'Organizator B',
-//     isDelete: false,
-//     addedToOfficialCatalog: true,
-//   },
-//   {
-//     id: 3,
-//     exhibition_id: 103,
-//     name: 'Event 3',
-//     eventDate: '2025-08-27',
-//     startTime: '11:00',
-//     endTime: '15:00',
-//     eventType: 'Prezentacja produktów i marek',
-//     eventTitle: 'Wystawa sztuki nowoczesnej',
-//     description: 'Ekspozycja prac lokalnych artystów.',
-//     organizer: 'Organizator C',
-//     isDelete: true,
-//     isEdited: true,
-//     addedToOfficialCatalog: false,
-//   },
-//   {
-//     id: 4,
-//     exhibition_id: 105,
-//     name: 'Event 5',
-//     eventDate: '2025-08-29',
-//     startTime: '08:30',
-//     endTime: '11:30',
-//     eventType: 'Dostawa i montaż sprzętu/materiałów',
-//     eventTitle: 'Seminarium naukowe',
-//     description: 'Wykłady specjalistów z branży medycznej.',
-//     organizer: 'Organizator E',
-//     addedToOfficialCatalog: true,
-//   },
-//   {
-//     id: 5,
-//     exhibition_id: 106,
-//     name: 'Event 6',
-//     eventDate: '2025-08-30',
-//     startTime: '15:00',
-//     endTime: '18:00',
-//     eventType: 'Dostawa i montaż sprzętu/materiałów',
-//     eventTitle: 'Warsztaty kreatywnego pisania',
-//     description: 'Zajęcia z pisania literackiego i storytellingu.',
-//     organizer: 'Organizator F',
-//     addedToOfficialCatalog: false,
-//   },
-// ];
+export const samplrTradeAwardsFair:_TradeAwardsFair[]=[
+  {
+    id: 1,
+    message: "ASTOR jest produktem targowym, który będzie prezentowany na targach Warsaw Industry Week w Nadarzynie w dniach 5-7 listopada 2024 roku (stanowisko B3). W 2023 roku ASTOR brał udział w targach WIW w dniach 24-26 października. ASTOR to czołowy dostawca inteligentnych technologii dla przemysłu, co sugeruje, że prezentowany produkt będzie związany z tą dziedziną. Produkt został również wyróżniony w kategorii „Produkt Targowy”."
+  },
+  {
+    id: 2,
+    message: "Wyróżnienie za innowacyjny produkt"
+  },
+
+];
