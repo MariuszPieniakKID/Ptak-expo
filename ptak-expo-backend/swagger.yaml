@@ -1,0 +1,622 @@
+openapi: 3.0.3
+info:
+  title: PTAK EXPO Backend API
+  version: 1.0.0
+  description: REST API for exhibitor and exhibition management
+servers:
+  - url: http://localhost:3001
+paths:
+  /api/v1/auth/exhibitor-login:
+    post:
+      summary: Exhibitor login (Panel Wystawcy)
+      tags: [Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '200':
+          description: Successful login
+        '400':
+          description: Missing credentials
+        '401':
+          description: Invalid credentials
+  /api/v1/auth/login:
+    post:
+      summary: Admin login
+      tags: [Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email: { type: string }
+                password: { type: string }
+      responses:
+        '200': { description: Successful login }
+        '400': { description: Missing credentials }
+        '401': { description: Invalid credentials }
+  /api/v1/auth/verify:
+    get:
+      summary: Verify token
+      tags: [Auth]
+      security: [ { bearerAuth: [] } ]
+      responses:
+        '200': { description: Valid }
+        '401': { description: Invalid }
+  /api/v1/auth/logout:
+    post:
+      summary: Logout
+      tags: [Auth]
+      security: [ { bearerAuth: [] } ]
+      responses:
+        '200': { description: Logged out }
+  /api/v1/auth/test:
+    get:
+      summary: Test endpoint
+      tags: [Auth]
+      responses:
+        '200': { description: OK }
+  /api/v1/exhibitors:
+    get:
+      summary: List exhibitors (admin)
+      tags: [Exhibitors]
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: List of exhibitors
+    post:
+      summary: Create exhibitor (admin)
+      tags: [Exhibitors]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                nip: { type: string }
+                companyName: { type: string }
+                address: { type: string }
+                postalCode: { type: string }
+                city: { type: string }
+                contactPerson: { type: string }
+                contactRole: { type: string }
+                phone: { type: string }
+                email: { type: string }
+                password: { type: string }
+                exhibitionId: { type: integer, nullable: true }
+      responses:
+        '201': { description: Created }
+  /api/v1/exhibitors/{id}:
+    get:
+      summary: Get exhibitor detail (admin)
+      tags: [Exhibitors]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      responses:
+        '200': { description: Exhibitor }
+    delete:
+      summary: Delete exhibitor (admin)
+      tags: [Exhibitors]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      responses:
+        '200': { description: Deleted }
+  /api/v1/exhibitors/{id}/assign-event:
+    post:
+      summary: Assign exhibitor to exhibition (admin)
+      tags: [Exhibitors]
+      security: [ { bearerAuth: [] } ]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                exhibitionId: { type: integer }
+      responses:
+        '200': { description: Assigned }
+  /api/v1/exhibitor-documents/{exhibitorId}/{exhibitionId}:
+    get:
+      summary: List exhibitor documents for exhibition (admin)
+      tags: [Documents]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: exhibitorId
+          required: true
+          schema: { type: integer }
+        - in: path
+          name: exhibitionId
+          required: true
+          schema: { type: integer }
+      responses:
+        '200': { description: List of documents }
+  /api/v1/exhibitor-documents/{exhibitorId}/{exhibitionId}/upload:
+    post:
+      summary: Upload exhibitor document (admin)
+      tags: [Documents]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: exhibitorId
+          required: true
+          schema: { type: integer }
+        - in: path
+          name: exhibitionId
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                document:
+                  type: string
+                  format: binary
+                title:
+                  type: string
+                category:
+                  type: string
+                  enum: [faktury, umowy, inne_dokumenty]
+      responses:
+        '200': { description: Uploaded }
+  /api/v1/exhibitor-documents/{exhibitorId}/{exhibitionId}/download/{documentId}:
+    get:
+      summary: Download exhibitor document (admin)
+      tags: [Documents]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: exhibitorId
+          required: true
+          schema: { type: integer }
+        - in: path
+          name: exhibitionId
+          required: true
+          schema: { type: integer }
+        - in: path
+          name: documentId
+          required: true
+          schema: { type: integer }
+      responses:
+        '200': { description: File stream }
+  /api/v1/exhibitor-documents/{exhibitorId}/{exhibitionId}/{documentId}:
+    delete:
+      summary: Delete exhibitor document (admin)
+      tags: [Documents]
+      security: [ { bearerAuth: [] } ]
+      parameters:
+        - in: path
+          name: exhibitorId
+          required: true
+          schema: { type: integer }
+        - in: path
+          name: exhibitionId
+          required: true
+          schema: { type: integer }
+        - in: path
+          name: documentId
+          required: true
+          schema: { type: integer }
+      responses:
+        '200': { description: Deleted }
+  /api/v1/exhibitions:
+    get:
+      summary: List exhibitions
+      tags: [Exhibitions]
+      responses:
+        '200': { description: List }
+    post:
+      summary: Create exhibition (admin)
+      tags: [Exhibitions]
+      security: [ { bearerAuth: [] } ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: { type: string }
+                description: { type: string }
+                start_date: { type: string, format: date }
+                end_date: { type: string, format: date }
+                location: { type: string }
+                status: { type: string }
+      responses:
+        '201': { description: Created }
+  /api/v1/exhibitions/{id}:
+    get:
+      summary: Get exhibition
+      tags: [Exhibitions]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      responses:
+        '200': { description: Exhibition }
+    put:
+      summary: Update exhibition (admin)
+      tags: [Exhibitions]
+      security: [ { bearerAuth: [] } ]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200': { description: Updated }
+    delete:
+      summary: Delete exhibition (admin)
+      tags: [Exhibitions]
+      security: [ { bearerAuth: [] } ]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      responses:
+        '200': { description: Deleted }
+  /api/v1/exhibitions/user-events:
+    get:
+      summary: Get current exhibitor user events
+      tags: [Exhibitions]
+      security: [ { bearerAuth: [] } ]
+      responses:
+        '200': { description: List }
+  /api/v1/users:
+    get:
+      summary: List users (admin)
+      tags: [Users]
+      security: [ { bearerAuth: [] } ]
+      responses:
+        '200': { description: List }
+    post:
+      summary: Create user (admin)
+      tags: [Users]
+      security: [ { bearerAuth: [] } ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                first_name: { type: string }
+                last_name: { type: string }
+                email: { type: string }
+                phone: { type: string }
+      responses:
+        '201': { description: Created }
+  /api/v1/users/{id}/reset-password:
+    post:
+      summary: Reset user password (admin)
+      tags: [Users]
+      security: [ { bearerAuth: [] } ]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      responses:
+        '200': { description: Reset initiated }
+  /api/v1/users/create-admin:
+    post:
+      summary: Create admin user (admin)
+      tags: [Users]
+      security: [ { bearerAuth: [] } ]
+      responses:
+        '201': { description: Created }
+  /api/v1/users/{id}:
+    delete:
+      summary: Delete user (admin)
+      tags: [Users]
+      security: [ { bearerAuth: [] } ]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      responses:
+        '200': { description: Deleted }
+  /api/v1/invitations/{exhibitionId}:
+    get:
+      summary: List invitations for exhibition (admin)
+      tags: [Invitations]
+      security: [ { bearerAuth: [] } ]
+      parameters:
+        - in: path
+          name: exhibitionId
+          required: true
+          schema: { type: integer }
+      responses:
+        '200': { description: List }
+    post:
+      summary: Save invitation template (admin)
+      tags: [Invitations]
+      security: [ { bearerAuth: [] } ]
+      parameters:
+        - in: path
+          name: exhibitionId
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200': { description: Saved }
+  /api/v1/invitations/detail/{invitationId}:
+    get:
+      summary: Get invitation by id (admin)
+      tags: [Invitations]
+      security: [ { bearerAuth: [] } ]
+      parameters:
+        - in: path
+          name: invitationId
+          required: true
+          schema: { type: integer }
+      responses:
+        '200': { description: Invitation }
+    delete:
+      summary: Delete invitation (admin)
+      tags: [Invitations]
+      security: [ { bearerAuth: [] } ]
+      parameters:
+        - in: path
+          name: invitationId
+          required: true
+          schema: { type: integer }
+      responses:
+        '200': { description: Deleted }
+  /api/v1/trade-info/{exhibitionId}:
+    get:
+      summary: Get trade info (exhibitor or admin)
+      tags: [TradeInfo]
+      security: [ { bearerAuth: [] } ]
+      parameters:
+        - in: path
+          name: exhibitionId
+          required: true
+          schema: { type: integer }
+      responses:
+        '200': { description: Trade info }
+    post:
+      summary: Save trade info (admin)
+      tags: [TradeInfo]
+      security: [ { bearerAuth: [] } ]
+      parameters:
+        - in: path
+          name: exhibitionId
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200': { description: Saved }
+  /api/v1/trade-info/{exhibitionId}/upload/{spaceId}:
+    post:
+      summary: Upload trade plan (admin)
+      tags: [TradeInfo]
+      security: [ { bearerAuth: [] } ]
+      parameters:
+        - in: path
+          name: exhibitionId
+          required: true
+          schema: { type: integer }
+        - in: path
+          name: spaceId
+          required: true
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                tradePlan:
+                  type: string
+                  format: binary
+      responses:
+        '200': { description: Uploaded }
+  /api/v1/trade-info/{exhibitionId}/download/{spaceId}:
+    get:
+      summary: Download trade plan (exhibitor or admin)
+      tags: [TradeInfo]
+      security: [ { bearerAuth: [] } ]
+      parameters:
+        - in: path
+          name: exhibitionId
+          required: true
+          schema: { type: integer }
+        - in: path
+          name: spaceId
+          required: true
+          schema: { type: string }
+      responses:
+        '200': { description: File stream }
+  /api/v1/trade-events/{exhibitionId}:
+    get:
+      summary: List trade events (admin)
+      tags: [TradeEvents]
+      security: [ { bearerAuth: [] } ]
+      parameters:
+        - in: path
+          name: exhibitionId
+          required: true
+          schema: { type: integer }
+      responses:
+        '200': { description: List }
+    post:
+      summary: Create trade event (admin)
+      tags: [TradeEvents]
+      security: [ { bearerAuth: [] } ]
+      parameters:
+        - in: path
+          name: exhibitionId
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name: { type: string }
+                eventDate: { type: string }
+                startTime: { type: string }
+                endTime: { type: string }
+                hall: { type: string }
+                type: { type: string }
+      responses:
+        '201': { description: Created }
+  /api/v1/exhibitor-branding/upload:
+    post:
+      summary: Upload branding file (admin)
+      tags: [Branding]
+      security: [ { bearerAuth: [] } ]
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file: { type: string, format: binary }
+                exhibitorId: { type: integer, nullable: true }
+                exhibitionId: { type: integer }
+                fileType: { type: string }
+      responses:
+        '200': { description: Uploaded }
+  /api/v1/exhibitor-branding/{exhibitorId}/{exhibitionId}:
+    get:
+      summary: Get branding files (admin)
+      tags: [Branding]
+      security: [ { bearerAuth: [] } ]
+      parameters:
+        - in: path
+          name: exhibitorId
+          required: true
+          schema: { type: integer }
+        - in: path
+          name: exhibitionId
+          required: true
+          schema: { type: integer }
+      responses:
+        '200': { description: Files }
+  /api/v1/exhibitor-branding/file/{fileId}:
+    delete:
+      summary: Delete branding file (admin)
+      tags: [Branding]
+      security: [ { bearerAuth: [] } ]
+      parameters:
+        - in: path
+          name: fileId
+          required: true
+          schema: { type: integer }
+      responses:
+        '200': { description: Deleted }
+  /api/v1/exhibitor-branding/serve/{exhibitorId}/{fileName}:
+    get:
+      summary: Serve branding file (admin)
+      tags: [Branding]
+      security: [ { bearerAuth: [] } ]
+      parameters:
+        - in: path
+          name: exhibitorId
+          required: true
+          schema: { type: integer }
+        - in: path
+          name: fileName
+          required: true
+          schema: { type: string }
+      responses:
+        '200': { description: File }
+  /api/v1/exhibitor-branding/global/{exhibitionId}:
+    get:
+      summary: Get global branding files (admin)
+      tags: [Branding]
+      security: [ { bearerAuth: [] } ]
+      parameters:
+        - in: path
+          name: exhibitionId
+          required: true
+          schema: { type: integer }
+      responses:
+        '200': { description: Files }
+  /api/v1/exhibitor-branding/serve/global/{fileName}:
+    get:
+      summary: Serve global branding file (admin)
+      tags: [Branding]
+      security: [ { bearerAuth: [] } ]
+      parameters:
+        - in: path
+          name: fileName
+          required: true
+          schema: { type: string }
+      responses:
+        '200': { description: File }
+  /api/v1/exhibitor-branding/file-types:
+    get:
+      summary: Get branding file types (admin)
+      tags: [Branding]
+      security: [ { bearerAuth: [] } ]
+      responses:
+        '200': { description: Types }
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+

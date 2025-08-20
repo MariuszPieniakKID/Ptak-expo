@@ -317,6 +317,7 @@ const ExhibitorsPage: React.FC = () => {
                       fontWeight={300} 
                       color={'#7F8D8E'} 
                       className={styles._firstRow}
+                      component="div"
                       sx={{ minWidth: '2em'}}
                       >
                        {sortConfig.key === 'eventNames' && sortConfig.direction === 'asc' && (
@@ -348,7 +349,7 @@ const ExhibitorsPage: React.FC = () => {
                       style={{ cursor: 'pointer', userSelect: 'none' }}
                       onClick={() => handleSort('nearestEventDate')}
                     >
-                      <CustomTypography fontSize="0.875em" fontWeight={300} color={'#7F8D8E'} className={styles._firstRow}>
+                      <CustomTypography fontSize="0.875em" fontWeight={300} color={'#7F8D8E'} className={styles._firstRow} component="div">
                           {sortConfig.key === 'nearestEventDate' && sortConfig.direction === 'asc' && (
                             <div className={styles.titleAndFilterContainer}>
                               <div className={styles.titleTableWithFilter}>Data wydarzenia</div>

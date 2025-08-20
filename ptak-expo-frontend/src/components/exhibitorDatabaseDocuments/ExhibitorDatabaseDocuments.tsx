@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Box, Accordion, AccordionSummary, AccordionDetails, Typography } from "@mui/material";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { ReactComponent as UploadingIcon } from "../../assets/uploadingIcon.svg";
@@ -7,46 +7,95 @@ import styles from "./ExhibitorDatabaseDocuments.module.scss";
 // Components
 import UploadDocuments, { SelectedFileEntry } from "./uploadDocuments/UploadDocuments";
 import InvoicesList, { DocumentItem } from "./invoices/InvoicesList";
-import { Exhibitor } from "../../services/api";
 import SendMessageContainer from "./messageContainer/SendMessageContainer";
+import { useAuth } from "../../contexts/AuthContext";
+import { deleteExhibitorDocument, downloadExhibitorDocument, ExhibitorDocumentCategory, getExhibitorDocuments, uploadExhibitorDocument } from "../../services/api";
 
 type ExhibitorDatabaseDocumentsProps = {
   allowMultiple?: boolean;
   exhibitorId: number;
-  exhibitor?: Exhibitor;
+  exhibitionId?: number | null;
 };
 
 function ExhibitorDatabaseDocuments({
   allowMultiple = true,
   exhibitorId,
-  exhibitor,
+  exhibitionId,
 }: ExhibitorDatabaseDocumentsProps) {
-  // Dokumenty startowe
-  const [documents, setDocuments] = useState<DocumentItem[]>([
-    { documentId: 1, documentName: "Faktura_2025-08-10.pdf", documentType: "invoices" },
-    { documentId: 2, documentName: "Umowa_klienta_ABC.docx", documentType: "contracts" },
-    { documentId: 3, documentName: "Notatki_projektowe.txt", documentType: "other" },
-  ]);
+  const { token } = useAuth();
+  const [documents, setDocuments] = useState<DocumentItem[]>([]);
+
+  // Load documents for exhibitor + selected exhibition
+  useEffect(() => {
+    const loadDocs = async () => {
+      console.log('[ExhibitorDatabaseDocuments] loadDocs called with', { exhibitorId, exhibitionId, hasToken: Boolean(token) });
+      if (!token || !exhibitorId || !exhibitionId) {
+        setDocuments([]);
+        return;
+      }
+      try {
+        console.log('[ExhibitorDatabaseDocuments] fetching documents...');
+        const docs = await getExhibitorDocuments(exhibitorId, exhibitionId, token);
+        console.log('[ExhibitorDatabaseDocuments] documents fetched:', docs);
+        const mapped: DocumentItem[] = docs.map((d) => ({
+          documentId: d.id,
+          documentName: d.originalName || d.title,
+          documentType: d.category === 'faktury' ? 'invoices' : d.category === 'umowy' ? 'contracts' : 'other',
+        }));
+        setDocuments(mapped);
+      } catch (_e) {
+        console.error('[ExhibitorDatabaseDocuments] getExhibitorDocuments error:', _e);
+        setDocuments([]);
+      }
+    };
+    void loadDocs();
+  }, [token, exhibitorId, exhibitionId]);
 
   // Obsługa dodawania plików
-  const handleSubmit = (files: SelectedFileEntry[]) => {
-
-    //trest 
-    console.log(`exhibitor: ${exhibitor},exhibitorId: ${exhibitorId}, `)
-    console.log("Zapisuję pliki:", files);
-
-    // przykładowe dodanie do dokumentów
-    const newDocs: DocumentItem[] = files.map((file, idx) => ({
-      documentId: Date.now() + idx,
-      documentName: file.file.name,
-      documentType: "other", // w razie potrzeby można mapować po typach
-    }));
-    setDocuments((prev) => [...prev, ...newDocs]);
+  const handleSubmit = async (files: SelectedFileEntry[]) => {
+    if (!token || !exhibitionId) return;
+    console.log('[ExhibitorDatabaseDocuments] handleSubmit: uploading', files.map(f => ({ name: f.file.name, type: f.type })), { exhibitorId, exhibitionId });
+    for (const entry of files) {
+      const category: ExhibitorDocumentCategory = entry.type === 'invoices' ? 'faktury' : entry.type === 'contracts' ? 'umowy' : 'inne_dokumenty';
+      try {
+        console.log('[ExhibitorDatabaseDocuments] uploading single file', { name: entry.file.name, category });
+        const { document } = await uploadExhibitorDocument(entry.file, exhibitorId, exhibitionId, category, token);
+        console.log('[ExhibitorDatabaseDocuments] upload success:', document);
+        setDocuments((prev) => [
+          ...prev,
+          {
+            documentId: document.id,
+            documentName: document.originalName || document.title,
+            documentType: entry.type === 'invoices' ? 'invoices' : entry.type === 'contracts' ? 'contracts' : 'other',
+          },
+        ]);
+      } catch (e) {
+        console.error('[ExhibitorDatabaseDocuments] upload error:', e);
+        // optionally show toast
+      }
+    }
   };
 
   // Obsługa usuwania dokumentu
-  const handleDeleteDocument = (id: number) => {
-    setDocuments((prev) => prev.filter((doc) => doc.documentId !== id));
+  const handleDeleteDocument = async (id: number) => {
+    if (!token || !exhibitionId) return;
+    try {
+      console.log('[ExhibitorDatabaseDocuments] delete document', { id, exhibitorId, exhibitionId });
+      await deleteExhibitorDocument(exhibitorId, exhibitionId, id, token);
+      setDocuments((prev) => prev.filter((doc) => doc.documentId !== id));
+    } catch (e) {
+      console.error('[ExhibitorDatabaseDocuments] delete error:', e);
+      // optionally show toast
+    }
+  };
+
+  const handleDownload = async (doc: DocumentItem) => {
+    if (!token || !exhibitionId) return;
+    try {
+      await downloadExhibitorDocument(exhibitorId, exhibitionId, doc.documentId, doc.documentName, token);
+    } catch (e) {
+      console.error('[ExhibitorDatabaseDocuments] download error:', e);
+    }
   };
 
   const handleSendMessage = (msg: string) => {
@@ -60,25 +109,31 @@ function ExhibitorDatabaseDocuments({
     {
       icon: <UploadingIcon fontSize="small" />,
       title: "Wgraj dokumenty",
-      container: <UploadDocuments onSubmit={handleSubmit} />,
+      container: <UploadDocuments onSubmit={handleSubmit} isEventSelected={Boolean(exhibitionId)} />,
     },
     {
       icon: null,
       title: "Faktury",
-      container: <InvoicesList 
-      documents={documents} 
-      handleDeleteDocument={handleDeleteDocument} 
-      excludeTypes={['other', 'contracts']} // typy dokumentów pominiętych z "invoices" | "contracts" | "other";
-      />,
+      container: (
+        <InvoicesList 
+          documents={documents} 
+          handleDeleteDocument={handleDeleteDocument} 
+          excludeTypes={['other', 'contracts']}
+          onDownload={handleDownload}
+        />
+      ),
     },
     {
       icon: null,
       title: "Dokumenty do pobrania",
-      container: <InvoicesList 
-      documents={documents} 
-      handleDeleteDocument={handleDeleteDocument} 
-      excludeTypes={['invoices']} // typy dokumentów pominiętych z "invoices" | "contracts" | "other";
-      />,
+      container: (
+        <InvoicesList 
+          documents={documents} 
+          handleDeleteDocument={handleDeleteDocument} 
+          excludeTypes={['invoices']}
+          onDownload={handleDownload}
+        />
+      ),
     },
     {
       icon: null,
@@ -132,8 +187,10 @@ function ExhibitorDatabaseDocuments({
                 border: "none",
                 position: "relative",
                 "&:before": { display: "none" },
-                zIndex: isAlwaysOpen ? 2 : 1,
-                ...(overlapIndexes.includes(idx) && { mt: -3, mb: -3 }),
+                // Avoid overlaying other UI elements
+                zIndex: "auto",
+                // Remove negative margins to prevent accidental overlays across siblings
+                ...(overlapIndexes.includes(idx) ? {} : {}),
                 ...(!overlapIndexes.includes(idx) && { marginBottom: "40px" }),
               }}
             >

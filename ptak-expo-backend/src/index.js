@@ -25,6 +25,19 @@ const invitationsRoutes = require('./routes/invitations');
 const tradeEventsRoutes = require('./routes/tradeEvents');
 const exhibitorDocumentsRoutes = require('./routes/exhibitorDocuments');
 
+// Swagger UI
+const swaggerUi = require('swagger-ui-express');
+const YAML = require('yamljs');
+const path = require('path');
+const swaggerSpecPath = path.join(__dirname, '../swagger.yaml');
+let swaggerDocument = null;
+try {
+  swaggerDocument = YAML.load(swaggerSpecPath);
+  console.log('🔍 Swagger spec loaded from', swaggerSpecPath);
+} catch (e) {
+  console.warn('⚠️ Swagger spec not found or failed to load:', e.message);
+}
+
 console.log('🔍 Loading database config...');
 const db = require('./config/database');
 
@@ -97,6 +110,21 @@ app.use('/api/v1/trade-info', tradeInfoRoutes);
 app.use('/api/v1/invitations', invitationsRoutes);
 app.use('/api/v1/trade-events', tradeEventsRoutes);
 app.use('/api/v1/exhibitor-documents', exhibitorDocumentsRoutes);
+
+// Serve Swagger UI if spec is available
+if (swaggerDocument) {
+  app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+  console.log('📘 Swagger UI available at /api-docs');
+
+  // Serve raw swagger files for external tools
+  app.get('/swagger.yaml', (req, res) => {
+    res.setHeader('Content-Type', 'application/yaml');
+    res.sendFile(swaggerSpecPath);
+  });
+  app.get('/api-docs.json', (req, res) => {
+    res.json(swaggerDocument);
+  });
+}
 
 // Health check endpoints
 app.get('/', (req, res) => {

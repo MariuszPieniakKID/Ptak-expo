@@ -4,6 +4,7 @@ import {
        Exhibitor,
        fetchExhibitor, 
        deleteExhibitor, 
+       getBrandingFiles,
 } from '../../services/api';
 import Tabs, { tabsClasses } from '@mui/material/Tabs';
 import { useAuth } from '../../contexts/AuthContext';
@@ -63,6 +64,7 @@ const ExhibitorCardPage: React.FC = () => {
   const {token, user, logout } = useAuth();
   const [value, setValue] = React.useState(0);
   const [selectedEvent,setSelectedEvent]=useState<number | null>(null)
+  const [hasLogo, setHasLogo] = useState<boolean>(false);
 
   
   const handleLogout = () => {
@@ -97,6 +99,26 @@ const ExhibitorCardPage: React.FC = () => {
   useEffect(() => {
     loadExhibitor();
   }, [loadExhibitor]);
+
+  // Load branding info for selected event to detect if exhibitor uploaded any logo-like file
+  useEffect(() => {
+    const checkLogo = async () => {
+      if (!token || !exhibitor || !selectedEvent) {
+        setHasLogo(false);
+        return;
+      }
+      try {
+        const resp = await getBrandingFiles(exhibitor.id, selectedEvent, token);
+        const files = resp.files || {};
+        const logoTypes = ['biale_logo_identyfikator', 'banner_wystawcy_800', 'banner_wystawcy_1200'];
+        const hasAnyLogo = logoTypes.some((t) => Boolean(files[t]));
+        setHasLogo(hasAnyLogo);
+      } catch (_e) {
+        setHasLogo(false);
+      }
+    };
+    void checkLogo();
+  }, [token, exhibitor, selectedEvent]);
 
   const handleBack = () => {
     navigate('/wystawcy');
@@ -526,13 +548,13 @@ const ExhibitorCardPage: React.FC = () => {
                 <CustomTabPanel value={value} index={0}>
                   <Box className={styles.tabPaperContainer}>
                     <Box className={styles.leftContainer}>{renderSelectedEvent()}</Box>
-                    <Box className={styles.rightContainer}>{exhibitor ? <ExhibitorWithEvent exhibitorId={exhibitor.id} exhibitor={exhibitor} /> : null}</Box>
+                    <Box className={styles.rightContainer}>{exhibitor ? <ExhibitorWithEvent exhibitorId={exhibitor.id} exhibitor={exhibitor} hasLogo={hasLogo} /> : null}</Box>
                   </Box>
                 </CustomTabPanel>
                 <CustomTabPanel value={value} index={1}>
                   <Box className={styles.tabPaperContainer}>
                     <Box className={styles.leftContainer}>{renderSelectedEvent()}</Box>
-                    <Box className={styles.rightContainer}>{exhibitor ? <ExhibitorDatabaseDocuments exhibitorId={exhibitor.id}/> : null}</Box>
+                    <Box className={styles.rightContainer}>{exhibitor ? <ExhibitorDatabaseDocuments exhibitorId={exhibitor.id} exhibitionId={selectedEvent}/> : null}</Box>
                   </Box>                  
                 </CustomTabPanel>
                 <CustomTabPanel value={value} index={2}>

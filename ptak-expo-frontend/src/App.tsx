@@ -11,6 +11,7 @@ import EventsPage from './pages/EventsPage';
 import ExhibitorCardPage from './pages/exhibitorCardPage/ExhibitorCardPageShort';
 import EventDetailsPage from './pages/EventDetailsPage';
 import EventDetailPage from './pages/EventDetailPage';
+import ApiDocsPage from './pages/ApiDocsPage';
 import './App.scss';
 
 function App() {
@@ -64,6 +65,12 @@ function App() {
             <Route path="/wydarzenia" element={
               <ProtectedRoute requiredRole="admin">
                 <EventsPage />
+              </ProtectedRoute>
+            } />
+            {/* API Docs */}
+            <Route path="/api-docs" element={
+              <ProtectedRoute requiredRole="admin">
+                <ApiDocsPage />
               </ProtectedRoute>
             } />
             

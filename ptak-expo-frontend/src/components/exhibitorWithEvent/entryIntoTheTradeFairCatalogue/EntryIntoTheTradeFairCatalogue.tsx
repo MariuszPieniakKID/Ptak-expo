@@ -11,28 +11,26 @@ import {ReactComponent as YouTobeIcon} from "../../../assets/youTubeIcon.svg";
 import {ReactComponent as EyeIcon} from "../../../assets/eyeIcon.svg";
 import styles from './EntryIntoTheTradeFairCatalogue.module.scss';
 
-const  exhibitors = [
-  {
-    companyName: "MTB Modules Sp. z o.o.",
-    logotyp: null,
-    description: "Opis firmy",
-    daneKontaktowe: {
-      person: "Jan Kowalski",
-      phone: "+48 500 549 393",
-      email: "joanna@mtbmodule.com"
-    },
-    website: "https://www.mtbmodule.com",
-    media: {
-      facebook: "www.facebook.com/mtbmodules",
-      youTube: "",
-      linkedIn: "LinkedIn",
-      instagram: "Instagram"
-    }
-  }
-];
+type ExhibitorsDetails = {
+  companyName: string;
+  logotyp: string | null;
+  description: string;
+  daneKontaktowe: {
+    person: string;
+    phone: string;
+    email: string;
+  };
+  website: string;
+  media: {
+    facebook: string;
+    youTube: string;
+    linkedIn: string;
+    instagram: string;
+  };
+};
 
 type EntryIntoTheTradeFairCatalogueProps = {
-  exhibitorsDetails: typeof  exhibitors[0],
+  exhibitorsDetails: ExhibitorsDetails,
   exhibitorId:number;
   onViewDirectoryEntry: (exhibitorId: number) => void,
 };
@@ -109,12 +107,12 @@ function EntryIntoTheTradeFairCatalogue({
     <Box className={styles.singleLineLabel} >
       {(
       exhibitorsDetails.media.facebook!=='' 
-      && exhibitorsDetails.media.instagram!=='' 
-      && exhibitorsDetails.media.linkedIn!=='' 
-      && exhibitorsDetails.media.youTube!=='' 
+      || exhibitorsDetails.media.instagram!=='' 
+      || exhibitorsDetails.media.linkedIn!=='' 
+      || exhibitorsDetails.media.youTube!=='' 
        )
         ?<GreenCiorcleIcon className={styles.icon}/>
-        :<GrayCircleIcon className={styles.iconGray}/>}
+        :<GrayCircleIcon className={styles.iconGray}/>} 
       <CustomTypography className={styles.label}>Social Media </CustomTypography>
     </Box>
     <Box className={styles.singleLine_}>
