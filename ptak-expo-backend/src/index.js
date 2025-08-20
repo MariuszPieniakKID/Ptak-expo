@@ -115,6 +115,15 @@ app.use('/api/v1/exhibitor-documents', exhibitorDocumentsRoutes);
 if (swaggerDocument) {
   app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
   console.log('📘 Swagger UI available at /api-docs');
+
+  // Serve raw swagger files for external tools
+  app.get('/swagger.yaml', (req, res) => {
+    res.setHeader('Content-Type', 'application/yaml');
+    res.sendFile(swaggerSpecPath);
+  });
+  app.get('/api-docs.json', (req, res) => {
+    res.json(swaggerDocument);
+  });
 }
 
 // Health check endpoints
