@@ -177,7 +177,7 @@ display:flex;
   border-radius: 20px;
   margin:50px 50px;
   position: relative; 
-  z-index: 100 !important;
+  z-index: auto !important; // avoid overlaying header/menu
   //min-width: 600px;
 }
 .tableHeader{
@@ -513,6 +513,7 @@ display:flex;
     left: 0;
     height: 100vh;
     width: 100%;
+    pointer-events: none; // ensure background overlay never blocks clicks
 }
 .filtrGray{
    background-image: url('../../assets/Rectangle-8313.svg');
@@ -520,6 +521,7 @@ display:flex;
    background-repeat: no-repeat;
    min-height:60vh;
    width: 100%;
+   pointer-events: none; // clicks pass through
     @include for-tablet-portrait-up  {
        background-image: url('../../assets/Rectangle-8313.svg');
        mask-image: linear-gradient(to top, transparent, #6F87F6 50%);
@@ -531,6 +533,7 @@ display:flex;
    background-repeat: no-repeat;
    min-height: 40vh;
    width: 100%;
+   pointer-events: none; // clicks pass through
    @include for-desktop-up {
      min-height: 60vh;
    }

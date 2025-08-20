@@ -14,21 +14,24 @@ interface SelectedFileEntry {
 }
 
 interface UploadDocumentsProps {
-  onSubmit: (files: SelectedFileEntry[]) => void; 
+  onSubmit: (files: SelectedFileEntry[]) => void;
+  isEventSelected?: boolean;
 }
 
-function UploadDocuments({ onSubmit }: UploadDocumentsProps) {
+function UploadDocuments({ onSubmit, isEventSelected = true }: UploadDocumentsProps) {
   const [selectedFiles, setSelectedFiles] = useState<SelectedFileEntry[]>([]);
   const [docType, setDocType] = useState<string>("invoices");
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files) {
+      console.log('[UploadDocuments] handleFileSelect: files selected =', event.target.files.length, 'currentDocType =', docType);
       const newFiles: SelectedFileEntry[] = Array.from(event.target.files).map(file => ({
         file,
         type: docType
       }));
       setSelectedFiles(prev => [...prev, ...newFiles]);
+      console.log('[UploadDocuments] selectedFiles state length =', selectedFiles.length + newFiles.length);
     }
   };
 
@@ -45,7 +48,16 @@ function UploadDocuments({ onSubmit }: UploadDocumentsProps) {
   };
 
   const handleSaveFiles = () => {
+    console.log('[UploadDocuments] handleSaveFiles: isEventSelected =', isEventSelected, 'selectedFiles =', selectedFiles.map(f => ({ name: f.file.name, type: f.type })));
+    if (!isEventSelected) {
+      // Optional: show a simple alert; can be replaced by toast
+      alert('Wybierz najpierw wydarzenie dla tego wystawcy, aby przypisać dokument.');
+      return;
+    }
+    if (selectedFiles.length === 0) return;
     onSubmit(selectedFiles);
+    setSelectedFiles([]);
+    console.log('[UploadDocuments] handleSaveFiles: onSubmit called and selectedFiles cleared');
   };
 
   return (
@@ -56,7 +68,7 @@ function UploadDocuments({ onSubmit }: UploadDocumentsProps) {
           <FormLabel className={styles.formLabel}>Wybierz rodzaj dokumentu</FormLabel>
           <RadioGroup
             value={docType}
-            onChange={(e) => setDocType(e.target.value)}
+            onChange={(e) => { console.log('[UploadDocuments] docType changed:', e.target.value); setDocType(e.target.value); }}
             className={styles.radioGroup}
           >
             <FormControlLabel value="invoices" control={<Radio />} label="Faktury"    
@@ -80,6 +92,11 @@ function UploadDocuments({ onSubmit }: UploadDocumentsProps) {
             }}/>
           </RadioGroup>
         </FormControl>
+        {!isEventSelected && (
+          <CustomTypography className={styles.noFileChosen}>
+            Aby wgrać dokument, wybierz najpierw wydarzenie po lewej stronie.
+          </CustomTypography>
+        )}
       </Box>
 
       {/* Lista wybranych plików */}

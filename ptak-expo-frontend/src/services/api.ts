@@ -879,3 +879,151 @@ export const createTradeEvent = async (
   }
   return { success: true, data: mapTradeEventRow(data.data) };
 };
+
+// ============= EXHIBITOR DOCUMENTS API =============
+
+export type ExhibitorDocumentCategory = 'faktury' | 'umowy' | 'inne_dokumenty';
+
+export interface ExhibitorDocument {
+  id: number;
+  title: string;
+  description?: string | null;
+  fileName: string;
+  originalName: string;
+  fileSize: number;
+  mimeType: string;
+  category: ExhibitorDocumentCategory;
+  createdAt: string;
+}
+
+export const getExhibitorDocuments = async (
+  exhibitorId: number,
+  exhibitionId: number,
+  token: string
+): Promise<ExhibitorDocument[]> => {
+  const url = `${config.API_BASE_URL}/api/v1/exhibitor-documents/${exhibitorId}/${exhibitionId}`;
+  if (config.DEBUG) console.log('[api] GET documents', url);
+  const response = await apiCall(url, {
+    method: 'GET',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+    },
+  });
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data.message || data.error || 'Błąd podczas pobierania dokumentów');
+  }
+  // Map DB fields to interface
+  return Array.isArray(data.documents) ? data.documents.map((row: any) => ({
+    id: row.id,
+    title: row.title,
+    description: row.description ?? null,
+    fileName: row.file_name,
+    originalName: row.original_name,
+    fileSize: row.file_size,
+    mimeType: row.mime_type,
+    category: row.category,
+    createdAt: row.created_at,
+  })) : [];
+};
+
+export const uploadExhibitorDocument = async (
+  file: File,
+  exhibitorId: number,
+  exhibitionId: number,
+  category: ExhibitorDocumentCategory,
+  token: string
+): Promise<{ success: boolean; message: string; document: ExhibitorDocument }> => {
+  const formData = new FormData();
+  formData.append('document', file);
+  formData.append('title', file.name);
+  formData.append('category', category);
+  const url = `${config.API_BASE_URL}/api/v1/exhibitor-documents/${exhibitorId}/${exhibitionId}/upload`;
+  if (config.DEBUG) console.log('[api] POST upload document', { url, file: file.name, exhibitorId, exhibitionId, category });
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+    },
+    credentials: 'include',
+    body: formData,
+  });
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data.message || data.error || 'Błąd podczas przesyłania dokumentu');
+  }
+  return {
+    success: true,
+    message: data.message,
+    document: {
+      id: data.document.id,
+      title: data.document.title,
+      description: data.document.description ?? null,
+      fileName: data.document.fileName,
+      originalName: data.document.originalName,
+      fileSize: data.document.fileSize,
+      mimeType: data.document.mimeType,
+      category: data.document.category,
+      createdAt: data.document.createdAt,
+    },
+  };
+};
+
+export const deleteExhibitorDocument = async (
+  exhibitorId: number,
+  exhibitionId: number,
+  documentId: number,
+  token: string
+): Promise<{ success: boolean; message: string }> => {
+  const url = `${config.API_BASE_URL}/api/v1/exhibitor-documents/${exhibitorId}/${exhibitionId}/${documentId}`;
+  if (config.DEBUG) console.log('[api] DELETE document', url);
+  const response = await apiCall(url, {
+    method: 'DELETE',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+    },
+  });
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data.message || data.error || 'Błąd podczas usuwania dokumentu');
+  }
+  return data;
+};
+
+export const downloadExhibitorDocument = async (
+  exhibitorId: number,
+  exhibitionId: number,
+  documentId: number,
+  filename: string,
+  token: string
+): Promise<void> => {
+  const url = `${config.API_BASE_URL}/api/v1/exhibitor-documents/${exhibitorId}/${exhibitionId}/download/${documentId}`;
+  if (config.DEBUG) console.log('[api] DOWNLOAD document', { url, exhibitorId, exhibitionId, documentId, filename });
+
+  const response = await fetch(url, {
+    method: 'GET',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+    },
+    credentials: 'include',
+  });
+
+  if (!response.ok) {
+    try {
+      const errorData = await response.json();
+      throw new Error(errorData.message || errorData.error || 'Błąd podczas pobierania dokumentu');
+    } catch (e) {
+      throw new Error(`Błąd podczas pobierania dokumentu: ${response.status} ${response.statusText}`);
+    }
+  }
+
+  const blob = await response.blob();
+  const blobUrl = window.URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = blobUrl;
+  a.download = filename || 'document';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  window.URL.revokeObjectURL(blobUrl);
+};

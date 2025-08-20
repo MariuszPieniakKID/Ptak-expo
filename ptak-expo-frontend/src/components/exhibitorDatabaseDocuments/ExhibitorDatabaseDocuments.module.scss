@@ -7,10 +7,11 @@
   display: flex; 
   flex-direction: column;
   padding-bottom: 80px;
+  z-index: auto; // ensure it doesn't float above global UI
 }
 
 .action {
-  position: absolute;
+  position: sticky;
   bottom: 0;
   width: 100%;
   background-color: #6F87F6;

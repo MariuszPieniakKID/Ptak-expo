@@ -85,10 +85,10 @@ const handleSubmitDocument=(documentId:number)=>{
 
 
 
-const buildItems = (exhibitor: Exhibitor | undefined) => {
+const buildItems = (exhibitor: Exhibitor | undefined, hasLogo: boolean) => {
   const exhibitorsDetails = {
     companyName: exhibitor?.companyName || '',
-    logotyp: null as null,
+    logotyp: hasLogo ? 'uploaded' : null as null | string,
     description: '',
     daneKontaktowe: {
       person: exhibitor?.contactPerson || '',
@@ -142,15 +142,17 @@ type ExhibitorWithEventProps = {
   allowMultiple?: boolean; // domyślnie false
   exhibitorId: number;
   exhibitor?: Exhibitor;
+  hasLogo?: boolean;
 };
 
 function ExhibitorWithEvent({ 
   allowMultiple = true,
   exhibitorId,
-  exhibitor
+  exhibitor,
+  hasLogo = false
 }: ExhibitorWithEventProps) {
 
-  const items = buildItems(exhibitor);
+  const items = buildItems(exhibitor, hasLogo);
   const [expandedAccordions, setExpandedAccordions] = useState<boolean[]>(Array(items.length).fill(false));
   const [expandedOne, setExpandedOne] = useState<number | false>(false);
 
@@ -204,11 +206,7 @@ function ExhibitorWithEvent({
                '&:before': { 
                 display: 'none',
               },
-              zIndex: isExpanded ? 2 : 1,
-              ...(isExpanded && {
-                mt: idx === 0 ? 0 : -3,
-                mb: -3
-              })
+              zIndex: 'auto',
             }}
           >
             <AccordionSummary
@@ -275,6 +273,7 @@ function ExhibitorWithEvent({
                   margin: '0px 0px',
                   marginBottom: '30px',
                 }}
+                component="div"
               >
                 {item.container}
               </Typography>
