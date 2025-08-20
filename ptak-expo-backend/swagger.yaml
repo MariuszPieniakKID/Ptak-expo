@@ -1,0 +1,166 @@
+openapi: 3.0.3
+info:
+  title: PTAK EXPO Backend API
+  version: 1.0.0
+  description: REST API for exhibitor and exhibition management
+servers:
+  - url: http://localhost:3001
+paths:
+  /api/v1/auth/exhibitor-login:
+    post:
+      summary: Exhibitor login (Panel Wystawcy)
+      tags: [Auth]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '200':
+          description: Successful login
+        '400':
+          description: Missing credentials
+        '401':
+          description: Invalid credentials
+  /api/v1/exhibitors:
+    get:
+      summary: List exhibitors (admin)
+      tags: [Exhibitors]
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: List of exhibitors
+    post:
+      summary: Create exhibitor (admin)
+      tags: [Exhibitors]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                nip: { type: string }
+                companyName: { type: string }
+                address: { type: string }
+                postalCode: { type: string }
+                city: { type: string }
+                contactPerson: { type: string }
+                contactRole: { type: string }
+                phone: { type: string }
+                email: { type: string }
+                password: { type: string }
+                exhibitionId: { type: integer, nullable: true }
+      responses:
+        '201': { description: Created }
+  /api/v1/exhibitors/{id}:
+    get:
+      summary: Get exhibitor detail (admin)
+      tags: [Exhibitors]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      responses:
+        '200': { description: Exhibitor }
+    delete:
+      summary: Delete exhibitor (admin)
+      tags: [Exhibitors]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      responses:
+        '200': { description: Deleted }
+  /api/v1/exhibitor-documents/{exhibitorId}/{exhibitionId}:
+    get:
+      summary: List exhibitor documents for exhibition (admin)
+      tags: [Documents]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: exhibitorId
+          required: true
+          schema: { type: integer }
+        - in: path
+          name: exhibitionId
+          required: true
+          schema: { type: integer }
+      responses:
+        '200': { description: List of documents }
+  /api/v1/exhibitor-documents/{exhibitorId}/{exhibitionId}/upload:
+    post:
+      summary: Upload exhibitor document (admin)
+      tags: [Documents]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: exhibitorId
+          required: true
+          schema: { type: integer }
+        - in: path
+          name: exhibitionId
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                document:
+                  type: string
+                  format: binary
+                title:
+                  type: string
+                category:
+                  type: string
+                  enum: [faktury, umowy, inne_dokumenty]
+      responses:
+        '200': { description: Uploaded }
+  /api/v1/exhibitor-documents/{exhibitorId}/{exhibitionId}/download/{documentId}:
+    get:
+      summary: Download exhibitor document (admin)
+      tags: [Documents]
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: exhibitorId
+          required: true
+          schema: { type: integer }
+        - in: path
+          name: exhibitionId
+          required: true
+          schema: { type: integer }
+        - in: path
+          name: documentId
+          required: true
+          schema: { type: integer }
+      responses:
+        '200': { description: File stream }
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
