@@ -49,6 +49,9 @@ import ExhibitorDatabaseDocuments from '../../components/exhibitorDatabaseDocume
 import ExhibitoiIdentifiers from '../../components/exhibitoiIdentifiers/ExhibitoiIdentifiers';
 import ExhibitorInvitations from '../../components/exhibitorInvitations/ExhibitorInvitations';
 import ExhibitorScheduleOfEventsAtTheStand from '../../components/exhibitorScheduleOfEventsAtTheStand/ExhibitorScheduleOfEventsAtTheStand';
+import ExhibitorTradeFairAwards from '../../components/exhibitorTradeFairAwards/ExhibitorTradeFairAwards';
+//import AddExhibitorModal from '../../components/addExhibitorModal/AddExhibitorModal';
+import AddEventToExhibitorModal from '../../components/addEventToExhibitorModal/AddEventToExhibitorModal';
 // ExhibitorWithEventDetails from '../../components/_exhibitorWithEventDetails/ExhibitorWithEventDetails';
 
 
@@ -64,7 +67,7 @@ const ExhibitorCardPage: React.FC = () => {
   const [value, setValue] = React.useState(0);
   const [selectedEvent,setSelectedEvent]=useState<number | null>(null)
   const [hasLogo, setHasLogo] = useState<boolean>(false);
-
+  const [isEventAddToExhibitor, setIsEventAddToExhibitorn] = useState<boolean>(false);
   
   const handleLogout = () => {
     logout();
@@ -133,15 +136,28 @@ const ExhibitorCardPage: React.FC = () => {
       setError(err.message || 'Błąd podczas usuwania wystawcy');
     }
   };
+//
+  // const handleAddEvent = () => {
+  //   // placeholder: open modal or navigate
+  // };
+  const handleModalClose = useCallback((): void => {
+      setIsEventAddToExhibitorn(false);
+  }, []);
+  const handleEventToExhibitiorAdd = useCallback((): void => {
+      setIsEventAddToExhibitorn(false);
+      //loadExhibitors();
+      console.log("Coś siedzieje?")
+  }, [
+    //loadExhibitors
+  ]);
 
-  const handleAddEvent = () => {
-    // placeholder: open modal or navigate
-  };
 
+  //
   const handleSelectEvent = (eventId: number) => {
     if (!exhibitor) return;
     setSelectedEvent(eventId);
   };
+  
 
   const handleDeleteEventFromExhibitor = (eventId: number, exhibitorId: number) => {
     void eventId;
@@ -341,7 +357,9 @@ const ExhibitorCardPage: React.FC = () => {
                         </Box> 
                    </Box>
                 </Box>
-                <Box className={styles.infoRow}>
+                {selectedEvent === null
+                ?<>
+                  <Box className={styles.infoRow}>
                     <Box className={styles.row}>
                         <Box className={styles.sectionTitle}>
                          {(exhibitor?.events && exhibitor.events.length > 0 )
@@ -353,31 +371,37 @@ const ExhibitorCardPage: React.FC = () => {
                                     <KeyIcon className={styles.keyIcon} />
                                     <CustomTypography className={styles.wastebasketText}> wyślij nowe hasło </CustomTypography>
                             </Box>
-                            <Box className={styles.actionButton} onClick={handleAddEvent}>
+                            <Box className={styles.actionButton} 
+                               //onClick={handleAddEvent}
+                               onClick={() => setIsEventAddToExhibitorn(true)}
+                               >
                                 <AddIcon className={styles.addIcon} />
                                 <CustomTypography className={styles.wastebasketText}> + dodaj wydarzenie </CustomTypography>
                             </Box>
                         </Box>
                     </Box>
-                </Box>
-                <Box className={styles.allExhibitions}>
-                     {exhibitor?.events && exhibitor.events.length > 0 
-                     && ( exhibitor.events.map((event,index) =>              
-                        <SingleEventCard 
-                          id={event.id}
-                          exhibitorId={exhibitor.id}
-                          iconId={getEventImage(index)}
-                          event_readiness={getEventReadiness(event.id)}
-                          key={event.id} 
-                          title={event.name}
-                          start_date={event.start_date}
-                          end_date={event.end_date}
-                          handleSelectEvent={handleSelectEvent}
-                          handleDeleteEventFromExhibitor={handleDeleteEventFromExhibitor}
-                           /> 
-                        ))}
+                  </Box>
+                  
+                  <Box className={styles.allExhibitions}>
+                      {exhibitor?.events && exhibitor.events.length > 0 
+                      && ( exhibitor.events.map((event,index) =>              
+                          <SingleEventCard 
+                            id={event.id}
+                            exhibitorId={exhibitor.id}
+                            iconId={getEventImage(index)}
+                            event_readiness={getEventReadiness(event.id)}
+                            key={event.id} 
+                            title={event.name}
+                            start_date={event.start_date}
+                            end_date={event.end_date}
+                            handleSelectEvent={handleSelectEvent}
+                            handleDeleteEventFromExhibitor={handleDeleteEventFromExhibitor}
+                            /> 
+                          ))}
 
-                </Box>
+                  </Box>
+              </>
+              :null}
 
 
             {selectedEvent === null
@@ -569,7 +593,12 @@ const ExhibitorCardPage: React.FC = () => {
                     <Box className={styles.rightContainer}>{exhibitor ?<ExhibitoiIdentifiers exhibitorId={exhibitor.id} exhibitor={exhibitor} /> : null}</Box>
                   </Box>  
                 </CustomTabPanel>
-                      <CustomTabPanel value={value} index={5}>6</CustomTabPanel>
+                <CustomTabPanel value={value} index={5}>
+                  <Box className={styles.tabPaperContainer}>
+                    <Box className={styles.leftContainer}>{renderSelectedEvent()}</Box>
+                    <Box className={styles.rightContainer}>{exhibitor ?<ExhibitorTradeFairAwards exhibitorId={exhibitor.id} exhibitor={exhibitor} /> : null}</Box>
+                  </Box>  
+                </CustomTabPanel>
                     </Box>}
 
             </Box>
@@ -582,6 +611,16 @@ const ExhibitorCardPage: React.FC = () => {
             ) : <></>} 
          </Container>
      </Box>
+     
+      {exhibitor && <AddEventToExhibitorModal
+        isOpen={isEventAddToExhibitor}
+        onClose={handleModalClose}
+        onEventToExhibitiorAdd={handleEventToExhibitiorAdd}
+        token={token || ''}
+        exhibitorId={exhibitor?.id}
+        companyName={exhibitor?.companyName}
+        exhibitorEvents={exhibitor.events ?? []}
+        />}
 
       <Box className={styles.footer}>
         <CustomTypography className={styles.cc}>

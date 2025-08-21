@@ -12,7 +12,7 @@ interface TextEditorProps {
   legend: string;
   placeholder?: string;
   value: string;
-  onChange: (value: string) => void;
+  onChange?: (value: string) => void;
   maxLength?: number;
   showToolbar?: boolean; // flaga - można wyłączyć pasek gdy niepotrzebny
 }
@@ -28,7 +28,7 @@ const TextEditor: React.FC<TextEditorProps> = ({
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const text = e.target.value;
     if (!maxLength || text.length <= maxLength) {
-      onChange(text);
+      onChange?.(text);
     }
   };
 
