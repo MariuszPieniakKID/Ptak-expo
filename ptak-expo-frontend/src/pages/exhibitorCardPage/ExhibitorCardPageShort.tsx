@@ -50,6 +50,8 @@ import ExhibitoiIdentifiers from '../../components/exhibitoiIdentifiers/Exhibito
 import ExhibitorInvitations from '../../components/exhibitorInvitations/ExhibitorInvitations';
 import ExhibitorScheduleOfEventsAtTheStand from '../../components/exhibitorScheduleOfEventsAtTheStand/ExhibitorScheduleOfEventsAtTheStand';
 import ExhibitorTradeFairAwards from '../../components/exhibitorTradeFairAwards/ExhibitorTradeFairAwards';
+//import AddExhibitorModal from '../../components/addExhibitorModal/AddExhibitorModal';
+import AddEventToExhibitorModal from '../../components/addEventToExhibitorModal/AddEventToExhibitorModal';
 // ExhibitorWithEventDetails from '../../components/_exhibitorWithEventDetails/ExhibitorWithEventDetails';
 
 
@@ -65,7 +67,7 @@ const ExhibitorCardPage: React.FC = () => {
   const [value, setValue] = React.useState(0);
   const [selectedEvent,setSelectedEvent]=useState<number | null>(null)
   const [hasLogo, setHasLogo] = useState<boolean>(false);
-
+  const [isEventAddToExhibitor, setIsEventAddToExhibitorn] = useState<boolean>(false);
   
   const handleLogout = () => {
     logout();
@@ -134,15 +136,28 @@ const ExhibitorCardPage: React.FC = () => {
       setError(err.message || 'Błąd podczas usuwania wystawcy');
     }
   };
+//
+  // const handleAddEvent = () => {
+  //   // placeholder: open modal or navigate
+  // };
+  const handleModalClose = useCallback((): void => {
+      setIsEventAddToExhibitorn(false);
+  }, []);
+  const handleEventToExhibitiorAdd = useCallback((): void => {
+      setIsEventAddToExhibitorn(false);
+      //loadExhibitors();
+      console.log("Coś siedzieje?")
+  }, [
+    //loadExhibitors
+  ]);
 
-  const handleAddEvent = () => {
-    // placeholder: open modal or navigate
-  };
 
+  //
   const handleSelectEvent = (eventId: number) => {
     if (!exhibitor) return;
     setSelectedEvent(eventId);
   };
+  
 
   const handleDeleteEventFromExhibitor = (eventId: number, exhibitorId: number) => {
     void eventId;
@@ -356,7 +371,10 @@ const ExhibitorCardPage: React.FC = () => {
                                     <KeyIcon className={styles.keyIcon} />
                                     <CustomTypography className={styles.wastebasketText}> wyślij nowe hasło </CustomTypography>
                             </Box>
-                            <Box className={styles.actionButton} onClick={handleAddEvent}>
+                            <Box className={styles.actionButton} 
+                               //onClick={handleAddEvent}
+                               onClick={() => setIsEventAddToExhibitorn(true)}
+                               >
                                 <AddIcon className={styles.addIcon} />
                                 <CustomTypography className={styles.wastebasketText}> + dodaj wydarzenie </CustomTypography>
                             </Box>
@@ -593,6 +611,16 @@ const ExhibitorCardPage: React.FC = () => {
             ) : <></>} 
          </Container>
      </Box>
+     
+      {exhibitor && <AddEventToExhibitorModal
+        isOpen={isEventAddToExhibitor}
+        onClose={handleModalClose}
+        onEventToExhibitiorAdd={handleEventToExhibitiorAdd}
+        token={token || ''}
+        exhibitorId={exhibitor?.id}
+        companyName={exhibitor?.companyName}
+        exhibitorEvents={exhibitor.events ?? []}
+        />}
 
       <Box className={styles.footer}>
         <CustomTypography className={styles.cc}>
