@@ -1,0 +1,75 @@
+.appbar {
+  background: transparent !important;
+  box-shadow: none !important;
+  padding: 0.5rem 1rem;
+}
+
+.toolbar {
+  background: white;
+  border-radius: 1rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem;
+}
+
+.logo {
+  display: flex;
+  justify-content: center;
+
+  img {
+    width: 100px;
+    height: auto;
+    padding: 0.2rem;
+    padding-right: 2rem;
+  }
+}
+
+.navItems {
+  display: flex;
+  gap: 2rem;
+  flex-grow: 1;
+  justify-content: center;
+}
+
+.navItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+  color: var(--mui-text-secondary, #666);
+  font-size: 0.8rem;
+  position: relative;
+  transition: color 0.2s ease;
+  justify-content: center;
+
+  &:hover {
+    color: var(--mui-text-primary, #000);
+  }
+
+  span {
+    margin-top: 0.25rem;
+    font-size: 0.75rem;
+  }
+}
+
+.active {
+  color: var(--mui-text-primary, #000);
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 40%;
+    height: 3px;
+    border-radius: 2px;
+    background-color: var(--mui-primary);
+  }
+}
+
+.menuIconContainer {
+  display: flex;
+  flex-direction: row;
+}

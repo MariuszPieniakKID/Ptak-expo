@@ -1,0 +1,11 @@
+{
+  "readiness": "Gotowość",
+  "yourEvent": "Twoje wydarzenie:",
+  "select": "wybierz",
+  "change": "zmień",
+  "selectNoOptionsText": "Brak opcji",
+  "selectClearText": "Wyczyść",
+  "selectLoadingText": "Ładowanie...",
+  "selectCloseText": "Zamknij",
+  "selectOpenText": "Otwórz"
+}

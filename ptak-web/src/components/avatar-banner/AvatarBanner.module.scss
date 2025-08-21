@@ -1,0 +1,6 @@
+@use '../../styles/mixins' as m;
+
+.avatarBanner {
+  @include m.flex-center;
+  gap: 1rem;
+}

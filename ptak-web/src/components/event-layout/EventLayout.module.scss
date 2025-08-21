@@ -1,0 +1,43 @@
+@use '../../styles/mixins' as m;
+
+.container {
+  position: relative;
+  min-width: 300px;
+
+  .header {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 10;
+    padding: 6rem;
+    padding-top: 2rem;
+    @media (max-width: 600px) {
+      padding: 0;
+      gap: 1rem;
+    }
+  }
+
+  .right {
+    min-height: 100vh;
+    padding: 7rem;
+    padding-top: 10rem;
+    @media (max-width: 600px) {
+      padding: 0;
+      gap: 1rem;
+    }
+    @include m.background(light);
+  }
+
+  .left {
+    min-height: 100vh;
+    max-height: fit-content;
+    padding: 7rem;
+    padding-top: 10rem;
+    @media (max-width: 600px) {
+      padding: 1rem;
+      padding-top: 10rem;
+      gap: 1rem;
+    }
+  }
+}
