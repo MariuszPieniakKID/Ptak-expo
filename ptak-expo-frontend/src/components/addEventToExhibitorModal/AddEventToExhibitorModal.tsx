@@ -215,11 +215,11 @@ const AddEventToExhibitorModal: React.FC<AddEventToExhibitorModalProps> = ({
          exhibitionSupervisor: formEventValues.selectedExhibitionId===''? null: formEventValues.exhibitionSupervisor,
          };
 
-        //    console.log(`Dodanie do Wystawcy o id: ${exhibitorId} 
-        //     i nazwie: ${companyName} 
-        //     wydarzenia : ${eventAddedToExhibitor.exhibitionId} 
-        //     z standNumber ${eventAddedToExhibitor.standNumber} 
-        //     oraz opiekunem ${eventAddedToExhibitor.exhibitionSupervisor} DANE ${eventAddedToExhibitor}`)
+           console.log(`Dodanie do Wystawcy o id: ${exhibitorId} 
+            i nazwie: ${companyName} 
+            wydarzenia : ${eventAddedToExhibitor.exhibitionId} 
+            z standNumber ${eventAddedToExhibitor.standNumber} 
+            oraz opiekunem ${eventAddedToExhibitor.exhibitionSupervisor} DANE ${eventAddedToExhibitor}`)
 
         //await addExhibitor(exhibitorData, token);
         //onExhibitorAdded();
