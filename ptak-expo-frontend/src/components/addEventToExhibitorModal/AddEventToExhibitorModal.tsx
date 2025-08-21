@@ -149,7 +149,7 @@ const AddEventToExhibitorModal: React.FC<AddEventToExhibitorModalProps> = ({
     } finally {
       setLoadingExhibitions(false);
     }
-  }, [token]);
+  }, [token, exhibitorEvents]);
 
 
   const loadExhibitionSupervisors= useCallback(async () => {
@@ -225,6 +225,7 @@ const AddEventToExhibitorModal: React.FC<AddEventToExhibitorModalProps> = ({
         //onExhibitorAdded();
 
         resetForm();
+         onEventToExhibitiorAdd();
          onClose();
    
       }catch (err:any){
@@ -236,10 +237,12 @@ const AddEventToExhibitorModal: React.FC<AddEventToExhibitorModalProps> = ({
       }
     },
     [
-        formEventValues, 
-        token, 
-        onEventToExhibitiorAdd, 
-        resetForm
+        formEventValues,
+        resetForm,
+        exhibitorId,
+        companyName,
+        onClose,
+        onEventToExhibitiorAdd
     ]
   );
 
