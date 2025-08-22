@@ -3,6 +3,7 @@
 .container {
   position: relative;
   min-width: 300px;
+  min-height: 100vh;
 
   .header {
     position: absolute;
@@ -21,11 +22,19 @@
   .right {
     min-height: 100vh;
     padding: 7rem;
-    padding-top: 10rem;
-    @media (max-width: 600px) {
-      padding: 0;
+    padding-top: 12rem;
+    @media (max-width: 1280px) {
+      padding: 1rem;
+      padding-top: 10rem;
       gap: 1rem;
     }
+
+    @media (max-width: 900px) {
+      padding-top: 0rem;
+    }
+  }
+
+  .rightBackground {
     @include m.background(light);
   }
 
@@ -33,8 +42,8 @@
     min-height: 100vh;
     max-height: fit-content;
     padding: 7rem;
-    padding-top: 10rem;
-    @media (max-width: 600px) {
+    padding-top: 12rem;
+    @media (max-width: 1280px) {
       padding: 1rem;
       padding-top: 10rem;
       gap: 1rem;

@@ -2,14 +2,14 @@ import { Box } from '@mui/material';
 import EventLayout from '../../components/event-layout/EventLayout';
 import AvatarBanner from '../../components/avatar-banner/AvatarBanner';
 import PlannedEventCard from '../../components/planned-event-card/PlannedEventCard';
-import { useNavigate, useParams } from 'react-router-dom';
-import { mockEvents } from '../../mocks';
-import styles from './EventHome.module.scss';
 import ChecklistProgressCard from '../../components/checklist-progress-card/ChecklistProgressCard';
-import EventHomeMenu from '../../components/event-home-menu/EventHomeMenu';
+import { useNavigate, useParams } from 'react-router-dom';
+import { mockEvents, mockNews } from '../../mocks';
+import styles from './EventNews.module.scss';
 import Footer from '../../components/footer/Footer';
+import News from '../../components/news/News';
 
-const EventHome = () => {
+const EventNews = () => {
   const { id } = useParams();
   //todo get event by id and remove mock
   const event = mockEvents.find((x) => x.id === id)!;
@@ -31,7 +31,9 @@ const EventHome = () => {
       }
       right={
         <Box className={styles.rightContainer}>
-          <EventHomeMenu id={event.id} /> <Footer />
+          {/* todo get news by id and remove mock */}
+          <News news={mockNews} />
+          <Footer />
         </Box>
       }
       colorLeft="#eceef0"
@@ -39,4 +41,4 @@ const EventHome = () => {
   );
 };
 
-export default EventHome;
+export default EventNews;

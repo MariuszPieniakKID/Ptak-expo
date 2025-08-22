@@ -30,42 +30,37 @@
   gap: 2rem;
   flex-grow: 1;
   justify-content: center;
+  align-items: flex-start;
 }
 
 .navItem {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: space-around;
+  padding: 8px 12px;
   cursor: pointer;
-  color: var(--mui-text-secondary, #666);
-  font-size: 0.8rem;
+  color: #555;
   position: relative;
-  transition: color 0.2s ease;
-  justify-content: center;
+  transition: color 0.3s;
 
   &:hover {
-    color: var(--mui-text-primary, #000);
-  }
-
-  span {
-    margin-top: 0.25rem;
-    font-size: 0.75rem;
+    color: #5a6ec8;
   }
 }
 
 .active {
-  color: var(--mui-text-primary, #000);
+  color: #5a6ec8;
 
   &::before {
     content: '';
     position: absolute;
-    top: -10px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 40%;
-    height: 3px;
+    top: 0;
+    left: 0;
+    height: 2px;
+    width: 100%;
+    background-color: #5a6ec8;
     border-radius: 2px;
-    background-color: var(--mui-primary);
   }
 }
 

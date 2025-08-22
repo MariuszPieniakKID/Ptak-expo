@@ -10,12 +10,14 @@ import { mockEvents, mockIndustryOptions } from '../../mocks';
 import type { Event } from '../../components/planned-event-card/PlannedEventCard';
 import SuggestedEventCard from '../../components/suggested-event-card/SuggestedEventCard';
 import MultiSelect, { type SelectOption } from '../../components/multiselect/MultiSelect';
+import { useNavigate } from 'react-router-dom';
 
 const Calendar = () => {
   const { t } = useTranslation('calendar');
   const [similarEvents, setSimilarEvents] = useState<Event[] | null>(null);
   const [otherEvents, setOtherEvents] = useState<Event[] | null>(null);
   const [selectedIndustries, setSelectedIndustries] = useState<SelectOption[]>([]);
+  const navigate = useNavigate();
 
   useEffect(() => {
     //todo remove mocks and create api call
@@ -42,7 +44,12 @@ const Calendar = () => {
         </Grid>
         <Box className={styles.children}>
           <Box className={styles.backButtonContainer}>
-            <IconButton className={styles.backButton}>
+            <IconButton
+              className={styles.backButton}
+              onClick={() => {
+                navigate(`/`);
+              }}
+            >
               <ArrowBackIosIcon className={styles.backIcon} />
             </IconButton>
             <Typography variant="h6" fontWeight={550} style={{ whiteSpace: 'pre-line' }}>
@@ -86,7 +93,7 @@ const Calendar = () => {
               ))}
             </Grid>
           </Box>
-          <Box className={styles.backButtonContainer}>
+          <Box className={styles.backButtonContainer} onClick={() => navigate(`/`)}>
             <IconButton className={styles.backButton}>
               <ArrowBackIosIcon className={styles.backIcon} />
             </IconButton>

@@ -9,6 +9,7 @@ export interface Event {
   dateTo: string;
   readiness: number;
   logoUrl: string;
+  daysLeft: number;
 }
 
 interface PlannedEventCardProps {

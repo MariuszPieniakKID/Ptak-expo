@@ -5,7 +5,7 @@ import styles from './Footer.module.scss';
 const Footer = () => {
   const { t } = useTranslation('home');
   return (
-    <Box mt={8} color={'text.secondary'}>
+    <Box mt={4} color={'text.secondary'}>
       <Link className={styles.link}>{t('contact')}</Link>•
       <Link className={styles.link}>{t('privacyPolicy')}</Link>•
       <Link className={styles.link}>www.warsawexpo.eu</Link>

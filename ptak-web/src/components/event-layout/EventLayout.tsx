@@ -22,14 +22,14 @@ const EventLayout = ({
       <Box className={styles.header}>
         <Header />
       </Box>
-      <Grid container className={styles.content}>
+      <Grid container>
         <Grid size={{ xs: 12, md: 5 }} className={styles.left} sx={{ backgroundColor: colorLeft }}>
           {left}
         </Grid>
         <Grid
           size={{ xs: 12, md: 7 }}
-          className={styles.right}
-          sx={{ backgroundColor: colorRight ? colorRight : 'transparent' }}
+          className={`${styles.right} ${colorRight ? '' : styles.rightBackground}`}
+          sx={{ background: colorRight ?? 'transparent' }}
         >
           {right}
         </Grid>

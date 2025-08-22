@@ -2,6 +2,9 @@
 
 .background {
   @include m.background(light);
+  & {
+    min-height: 100vh;
+  }
 
   .header {
     width: 95%;

@@ -5,6 +5,7 @@
 
   & {
     padding-bottom: 0 !important;
+    min-height: fit-content;
   }
 
   .header {
@@ -42,6 +43,7 @@
   align-items: center;
   gap: 1.6rem;
   padding-top: 4rem;
+  cursor: pointer;
 }
 
 .backButton {

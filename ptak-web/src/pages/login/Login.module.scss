@@ -2,6 +2,9 @@
 
 .background {
   @include m.background;
+  & {
+    min-height: 100vh;
+  }
 }
 
 .loginCard {

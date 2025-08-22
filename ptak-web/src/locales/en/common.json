@@ -7,5 +7,37 @@
   "selectClearText": "Clear",
   "selectLoadingText": "Loading...",
   "selectCloseText": "Close",
-  "selectOpenText": "Open"
+  "selectOpenText": "Open",
+  "progress": {
+    "full": "Congratulations, everything is ready! 🎉",
+    "almost": "Almost ready!",
+    "halfway": "We’re on the right track!",
+    "low": "Time to get to work!",
+    "readiness": "Your readiness for the fair:",
+    "description": "Complete all the steps from the checklist to be as prepared as possible for this event.",
+    "goChecklist": "Go to checklist"
+  },
+  "event": {
+    "daysLeft": "{{count}} days left until the event",
+    "daysLeft_one": "{{count}} day left until the event",
+    "daysLeft_few": "{{count}} days left until the event",
+    "daysLeft_many": "{{count}} days left until the event"
+  },
+  "eventMenu": {
+    "title": "Important matters regarding the event:",
+    "info": "Trade fair information",
+    "docs": "Documents portal",
+    "marketing": "Marketing materials",
+    "invites": "Invitation generator"
+  },
+  "identifier": {
+    "date": "Date",
+    "hour": "Hour",
+    "type": "Ticket type",
+    "place": "Location",
+    "code": "Your entry code"
+  },
+  "news": "Aktualności",
+  "new": "Nowe",
+  "latest": "Wcześniejsze powiadomienia"
 }

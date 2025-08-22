@@ -11,7 +11,6 @@ import {
   ListItemIcon,
   ListItemText,
   useMediaQuery,
-  useTheme,
   ListItemButton,
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
@@ -26,37 +25,57 @@ import MailIcon from '@mui/icons-material/Mail';
 import PowerSettingsNewIcon from '@mui/icons-material/PowerSettingsNew';
 import logo from '../../assets/images/logo.png';
 import styles from './Header.module.scss';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 
 type NavItem = {
   label: string;
   icon: React.ReactNode;
+  getUrl: (id: string) => string;
 };
 
 const navItems: NavItem[] = [
-  { label: 'Home', icon: <HomeIcon /> },
-  { label: 'Aktualności', icon: <ArticleIcon /> },
-  { label: 'E-Identyfikator', icon: <FingerprintIcon /> },
-  { label: 'Checklista targowa', icon: <ListAltIcon /> },
-  { label: 'Portal dokumentów', icon: <DescriptionIcon /> },
-  { label: 'Materiały marketingowe', icon: <ImageIcon /> },
-  { label: 'Informacje targowe', icon: <InfoIcon /> },
-  { label: 'Generator zaproszeń', icon: <MailIcon /> },
+  { label: 'Home', icon: <HomeIcon />, getUrl: (id) => `/event/${id}/home` },
+  { label: 'Aktualności', icon: <ArticleIcon />, getUrl: (id) => `/event/${id}/news` },
+  {
+    label: 'E-Identyfikator',
+    icon: <FingerprintIcon />,
+    getUrl: (id) => `/event/${id}/identifier`,
+  },
+  { label: 'Checklista targowa', icon: <ListAltIcon />, getUrl: (id) => `/event/${id}/checklist` },
+  {
+    label: 'Portal dokumentów',
+    icon: <DescriptionIcon />,
+    getUrl: (id) => `/event/${id}/documents`,
+  },
+  {
+    label: 'Materiały marketingowe',
+    icon: <ImageIcon />,
+    getUrl: (id) => `/event/${id}/marketing`,
+  },
+  { label: 'Informacje targowe', icon: <InfoIcon />, getUrl: (id) => `/event/${id}/info` },
+  { label: 'Generator zaproszeń', icon: <MailIcon />, getUrl: (id) => `/event/${id}/invites` },
 ];
 
 const Header: React.FC = () => {
-  const [activeIndex, setActiveIndex] = useState<number>(0);
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('lg'));
+  const isDrawer = useMediaQuery('(max-width:1260px)');
+  const { id } = useParams<{ id: string }>();
+  const location = useLocation();
+  const navigate = useNavigate();
 
+  const activeIndex = navItems.findIndex((item) =>
+    id ? location.pathname.startsWith(item.getUrl(id)) : false,
+  );
+
+  console.log(activeIndex);
   const handleDrawerToggle = () => setMobileOpen(!mobileOpen);
 
   return (
     <AppBar position="static" className={styles.appbar}>
       <Toolbar className={styles.toolbar}>
         {/* Desktop */}
-        {!isMobile && (
+        {!isDrawer && (
           <Box className={styles.navItems}>
             <Box className={styles.logo}>
               <img src={logo} alt="Logo" />
@@ -64,18 +83,27 @@ const Header: React.FC = () => {
             {navItems.map((item, index) => (
               <Box
                 key={item.label}
-                className={`${styles.navItem} ${index === activeIndex ? styles.active : ''}`}
-                onClick={() => setActiveIndex(index)}
+                className={`${styles.navItem} ${index == activeIndex ? styles.active : ''}`}
+                onClick={() => id && navigate(item.getUrl(id))}
               >
                 {item.icon}
-                <Typography variant="caption">{item.label}</Typography>
+                <Typography
+                  variant="caption"
+                  textAlign={'center'}
+                  fontSize={{
+                    lg: '10px',
+                    xl: '13px',
+                  }}
+                >
+                  {item.label}
+                </Typography>
               </Box>
             ))}
           </Box>
         )}
 
         {/* Mobile */}
-        {isMobile && (
+        {isDrawer && (
           <>
             <Box className={styles.menuIconContainer}>
               <Box className={styles.logo}>
@@ -92,7 +120,7 @@ const Header: React.FC = () => {
                   <ListItem key={item.label} disablePadding>
                     <ListItemButton
                       selected={activeIndex === index}
-                      onClick={() => setActiveIndex(index)}
+                      onClick={() => id && navigate(item.getUrl(id))}
                     >
                       <ListItemIcon>{item.icon}</ListItemIcon>
                       <ListItemText primary={item.label} />

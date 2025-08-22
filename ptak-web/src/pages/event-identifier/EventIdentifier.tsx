@@ -2,17 +2,19 @@ import { Box } from '@mui/material';
 import EventLayout from '../../components/event-layout/EventLayout';
 import AvatarBanner from '../../components/avatar-banner/AvatarBanner';
 import PlannedEventCard from '../../components/planned-event-card/PlannedEventCard';
-import { useNavigate, useParams } from 'react-router-dom';
-import { mockEvents } from '../../mocks';
-import styles from './EventHome.module.scss';
 import ChecklistProgressCard from '../../components/checklist-progress-card/ChecklistProgressCard';
-import EventHomeMenu from '../../components/event-home-menu/EventHomeMenu';
+import { useNavigate, useParams } from 'react-router-dom';
+import { mockEvents, mockIdentifiers } from '../../mocks';
+import styles from './EventIdentifier.module.scss';
 import Footer from '../../components/footer/Footer';
+import IdentifierCard from '../../components/identifier-card/IdentifierCard';
 
-const EventHome = () => {
+const EventIdentifier = () => {
   const { id } = useParams();
   //todo get event by id and remove mock
   const event = mockEvents.find((x) => x.id === id)!;
+  //todo get identifier data by id and remove mock
+  const identifier = mockIdentifiers.find((x) => x.id === id)!;
   const navigate = useNavigate();
   return (
     <EventLayout
@@ -27,16 +29,18 @@ const EventHome = () => {
               navigate(`/event/${event.id}/checklist`);
             }}
           />
+          <Footer />
         </Box>
       }
       right={
         <Box className={styles.rightContainer}>
-          <EventHomeMenu id={event.id} /> <Footer />
+          <IdentifierCard data={identifier} />
         </Box>
       }
-      colorLeft="#eceef0"
+      colorRight="#5a6ec8"
+      colorLeft="#2E2E38"
     />
   );
 };
 
-export default EventHome;
+export default EventIdentifier;

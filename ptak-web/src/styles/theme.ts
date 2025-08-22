@@ -24,6 +24,7 @@ const theme = createTheme({
           padding: 8,
           paddingLeft: 18,
           paddingRight: 18,
+          borderRadius: 8,
         },
       },
     },
