@@ -1,0 +1,43 @@
+{
+  "readiness": "Gotowość",
+  "yourEvent": "Twoje wydarzenie:",
+  "select": "wybierz",
+  "change": "zmień",
+  "selectNoOptionsText": "Brak opcji",
+  "selectClearText": "Wyczyść",
+  "selectLoadingText": "Ładowanie...",
+  "selectCloseText": "Zamknij",
+  "selectOpenText": "Otwórz",
+  "progress": {
+    "full": "Gratulacje, mamy wszystko! 🎉",
+    "almost": "Prawie gotowi!",
+    "halfway": "Jesteśmy na dobrej drodze!",
+    "low": "Czas zabrać się do pracy!",
+    "readiness": "Wasza gotowość do targów:",
+    "description": "Uzupełnij wszystkie kroki z checklisty by być jak najlepiej przygotowanym na to wydarzenie.",
+    "goChecklist": "Idź do checklisty"
+  },
+  "event": {
+    "daysLeft": "Do wydarzenia zostało {{count}} dni",
+    "daysLeft_one": "Do wydarzenia został {{count}} dzień",
+    "daysLeft_few": "Do wydarzenia zostały {{count}} dni",
+    "daysLeft_many": "Do wydarzenia zostało {{count}} dni"
+  },
+  "eventMenu": {
+    "title": "Ważne sprawy dotyczące wydarzenia:",
+    "info": "Informacje targowe",
+    "docs": "Portal dokumentów",
+    "marketing": "Materiały Marketingowe",
+    "invites": "Generator Zaproszeń"
+  },
+  "identifier": {
+    "date": "Data",
+    "hour": "Godzina",
+    "type": "Typ wejściówki",
+    "place": "Miejsce",
+    "code": "Twój kod wstępu"
+  },
+  "news": "Aktualności",
+  "new": "Nowe",
+  "latest": "Wcześniejsze powiadomienia"
+}

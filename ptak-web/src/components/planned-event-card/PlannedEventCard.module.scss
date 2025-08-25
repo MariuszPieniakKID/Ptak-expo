@@ -1,0 +1,67 @@
+@use '../../styles/mixins' as m;
+
+.card {
+  height: 12.6rem;
+  padding: 0.6rem;
+}
+
+.cardContent {
+  display: flex;
+  flex-direction: row;
+  gap: 0.8rem;
+  height: 100%;
+}
+
+.boxLink {
+  @include m.flex-end;
+}
+
+.date {
+  margin-bottom: 0.25rem;
+}
+
+.title {
+  font-weight: 500;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.readiness {
+  color: #fff !important;
+  font-size: large !important;
+  border-radius: 0.5rem !important;
+}
+
+.selectBtn {
+  cursor: pointer;
+}
+
+.red {
+  background: linear-gradient(135deg, #ff4d4f, #d9363e) !important;
+}
+
+.orange {
+  background: linear-gradient(135deg, #ffa940, #d48806) !important;
+}
+
+.green {
+  background: linear-gradient(135deg, #52c41a, #389e0d) !important;
+}
+
+.logoBox {
+  @include m.space-between-column;
+  width: 35%;
+}
+
+.titleBox {
+  @include m.space-between-column;
+  width: 65%;
+}
+
+.avatar {
+  width: 6rem !important;
+  height: 5rem !important;
+}

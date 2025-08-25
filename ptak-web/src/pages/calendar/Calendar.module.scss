@@ -1,0 +1,99 @@
+@use '../../styles/mixins.scss' as m;
+
+.background {
+  @include m.background(light);
+
+  & {
+    padding-bottom: 0 !important;
+    min-height: fit-content;
+  }
+
+  .header {
+    width: 95%;
+    display: flex;
+    justify-content: space-between;
+
+    @media screen and (max-width: 700px) {
+      flex-direction: column-reverse;
+      width: fit-content;
+      justify-content: center;
+      align-items: center;
+      gap: 3rem;
+    }
+  }
+
+  .avatar {
+    display: flex;
+    justify-content: flex-end;
+    align-content: flex-end;
+    width: fit-content;
+  }
+
+  .title {
+    width: 100%;
+    display: flex;
+    align-items: flex-start;
+    padding-top: 4rem;
+  }
+}
+
+.backButtonContainer {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 1.6rem;
+  padding-top: 4rem;
+  cursor: pointer;
+}
+
+.backButton {
+  background-color: #fff !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &:hover {
+    background-color: #f5f5f5 !important;
+  }
+}
+
+.backIcon {
+  color: #7182f2;
+  padding-left: 0.3rem;
+}
+
+.whiteBackground {
+  @include m.flex-center;
+
+  & {
+    padding: 4rem;
+    padding-top: 0.2rem;
+  }
+
+  @media (max-width: 600px) {
+    padding: 0;
+    gap: 1rem;
+  }
+}
+
+.otherEventsContainer {
+  width: 95%;
+  flex-direction: column;
+  @include m.flex-center;
+  margin: 1rem auto;
+}
+
+.filtersContainer {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+
+  & {
+    padding-bottom: 2rem;
+  }
+
+  @media (max-width: 600px) {
+    flex-direction: column;
+  }
+}
