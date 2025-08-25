@@ -8,6 +8,28 @@
  border-radius: 20px;
  padding:12px 21px 12px 21px;
  border: 2px solid white;
+
+//    @media (max-width: 527px) {
+//     padding:21px 8px 21px 8px;
+//     //width:210px;;
+//     //height:150px;      
+//   }
+
+
+  
+   @media (max-width: 440px) {
+    padding: 21px 21px 21px 21px;
+    width: 70vw;
+    height:150px;      
+  }
+    @media (max-width: 320px) {
+    padding:21px 8px 21px 8px;
+    //width:63%;
+    height:auto;      
+  }
+
+
+
 }
 .eventCardContainer:hover {
  transform: translateY(-0.125em); // 2px
@@ -35,13 +57,25 @@
     justify-content: space-between;
     align-items: flex-start;
     column-gap: 1em;
+     @media (max-width: 527px) {
+      column-gap: 0.5em;
+    }
 }
 .eventLogo{
-    width:30%;
+    width:20%;
 }
 .logo{
     width:auto;
     height: 55px;
+    @media (max-width: 527px) {
+    height: 45px;
+    width:auto;
+  }
+    @media (max-width: 440px) {
+    height: 30px;
+    width:auto;     
+  }
+  
 }
 .eventInfo{
     width:70%;
@@ -49,6 +83,12 @@
     flex-direction: column;
     justify-content: flex-start;
     row-gap: 0.25em;
+    @media (max-width: 527px) {
+    width:75%; 
+  }
+    @media (max-width: 320px) {
+    width:65%;       
+  }
 }
 .dateInfo{
     color:$color-blue;
@@ -58,6 +98,9 @@
   color:$color-darkslategray;
   font-size:0.875em;//14px
   font-weight: 500;
+ @media (max-width: 527px) {
+    flex-wrap: wrap;
+  }
 }
 .actionInfo{
     display:flex;
@@ -86,4 +129,137 @@
 }
 .actionButton:hover .chooseText {
   font-weight: 600 !important;
+}
+//modal
+// .confirmModal{
+//   & .MuiDialog-paper {
+//     border-radius: $border-radius-lg;
+//     box-shadow: $shadow-lg;
+//     background-color: $color-white;
+//     max-width: 37.5em; // 600px
+//     width: 100%;
+//     margin: $spacing-lg;
+
+//     @include for-phone-only {
+//       margin: $spacing-md;
+//       max-width: 95%;
+//        margin: 5px!important;
+//     }
+    
+//     @include for-tablet-portrait {
+//       margin: $spacing-xl;
+//       max-width: 90%;
+//       margin: 5px!important;
+      
+//     }
+//   }
+// }
+
+.confirmModal {
+  &.MuiDialog-paper {
+    //width: 500px;
+    //max-width: none; // wyłącza domyślne ograniczenie
+    //height: 300px;   // opcjonalnie
+    width: 233px;
+    height: 329px;
+    border-radius: 20px;
+    display:flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+}
+.customDialogPaper{
+    background-color: #f5f6f7;
+    display:flex;
+    flex-direction: column;
+    vertical-align: middle;
+    justify-content: space-between;
+    border-radius: 20px!important;
+    width: 233px!important;
+    height:329px!important;
+
+}
+.titleConfirmation{
+    font-size: 0.9375em !important;
+    font-weight: 300 !important;
+    color: $color-confirmRedText!important;
+    flex-wrap: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+    margin: 0 auto !important;
+    padding-bottom: 0px !important;
+    margin-top: 2em !important;
+}
+.blackBoldText{
+    font-size: 0.9375em !important;
+    font-weight: 600 !important;
+    color: #2e2e38 !important;
+    flex-wrap: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+    margin: 0 auto !important;
+}
+.messageMidle{
+  display:flex;
+  flex-direction: column;
+vertical-align: middle;
+justify-content: center;
+}
+.greyText{
+    font-size: 13px !important;
+    color: #6F6F6F !important;
+    font-weight: 400 !important;
+    margin: 0 auto !important;
+}
+.descriptionConfirmation{
+    font-size: 0.6875em !important;
+    color: #a7a7a7 !important;
+    font-weight: 400 !important;
+    margin: 0 auto !important;
+}
+.confirmationIcon{
+    padding:1em 0em!important;
+    margin:0 auto!important;
+}
+.dialogAction{
+    padding-top:2em;
+}
+.confirmButton {
+  background: var(--bg-color, #a82d29);
+  color: var(--text-color, #fff);
+  border: none;
+  outline: none;
+  box-shadow: none;
+  transition: background 0.2s, color 0.2s;
+}
+
+.confirmButton:hover {
+  background: var(--text-color, #fff);
+  color: var(--bg-color, #a82d29)!important;
+  border: 1px solid var(--bg-color, #a82d29);
+}
+
+.confirmButton:focus,
+.confirmButton:active {
+  box-shadow: none;
+  outline: none;
+  background: var(--bg-color, #a82d29);
+  color: var(--text-color, #fff);
+}
+
+
+.closeIcon{
+  transform: rotate(45deg); 
+  margin:auto auto;        
+  width: 11px;
+  height: 11px;
+  cursor: pointer;   
+  transition: font-size 0.2s;
+}
+
+.closeIcon:hover {
+   width: 13px!important;
+  height: 13px!important;
 }

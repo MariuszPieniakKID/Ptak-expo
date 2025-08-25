@@ -1,0 +1,91 @@
+@import '../../styles/variables';
+@import '../../styles/mixins';
+
+.confirmModal {
+  &.MuiDialog-paper {
+    width: 233px;
+    height: 329px;
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+  }
+}
+
+.customDialogPaper {
+  background-color: #f5f6f7;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  border-radius: 20px !important;
+  width: 233px !important;
+  height: 329px !important;
+}
+
+.titleConfirmation {
+  font-size: 0.9375em !important;
+  font-weight: 300 !important;
+  color: $color-confirmRedText !important;
+  margin: 2em auto 0 !important;
+  padding-bottom: 0px !important;
+}
+
+.blackBoldText {
+  font-size: 0.9375em !important;
+  font-weight: 600 !important;
+  color: #2e2e38 !important;
+  margin: 0 auto !important;
+}
+
+.messageMidle {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.greyText {
+  font-size: 13px !important;
+  color: #6f6f6f !important;
+  font-weight: 400 !important;
+  margin: 0 auto !important;
+}
+
+.descriptionConfirmation {
+  font-size: 0.6875em !important;
+  color: #a7a7a7 !important;
+  font-weight: 400 !important;
+  margin: 0 auto !important;
+}
+
+.confirmationIcon {
+  padding: 1em 0 !important;
+  margin: 0 auto !important;
+}
+
+.dialogAction {
+  padding-top: 2em;
+}
+
+.confirmButton {
+  background: var(--bg-color, #a82d29);
+  color: var(--text-color, #fff);
+  transition: background 0.2s, color 0.2s;
+}
+
+.confirmButton:hover {
+  background: #fff;
+  color: #a82d29 !important;
+  border: 1px solid #a82d29;
+}
+
+.closeIcon {
+  transform: rotate(45deg);
+  width: 11px;
+  height: 11px;
+  cursor: pointer;
+}
+
+.closeIcon:hover {
+  width: 13px !important;
+  height: 13px !important;
+}
