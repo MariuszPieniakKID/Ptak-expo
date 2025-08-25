@@ -31,7 +31,7 @@ const Menu: FunctionComponent<MenuType> = ({ className = '', onLogout }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const params = useParams<{ eventId: string }>();
-  const isDrawer = useMediaQuery('(max-width:1260px)');
+  const isDrawer = useMediaQuery('(max-width:1100px)');
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const eventId = params.eventId || '1';
