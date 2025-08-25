@@ -129,9 +129,7 @@ const AddEventToExhibitorModal: React.FC<AddEventToExhibitorModalProps> = ({
       const fetchedExhibitions = await fetchExhibitions(token);
       console.log(fetchedExhibitions.map(exh => exh.id));
       const now = new Date();
-      //const upcomingExhibitions = fetchedExhibitions.filter(exh => new Date(exh.end_date) >= now);
- 
-      //Lista Wystaw z wykluczeniem wystaw na które jest już zapisany wystawca oraz posortowane po nazwie
+      //List of Exhibitions excluding exhibitions for which the exhibitor is already registered and sorted by name
       const upcomingExhibitions = fetchedExhibitions
       .filter(exh => {
         const isNotEnded = new Date(exh.end_date) >= now;

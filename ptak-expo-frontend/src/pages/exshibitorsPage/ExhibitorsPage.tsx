@@ -7,7 +7,7 @@ import CustomTypography from '../../components/customTypography/CustomTypography
 import CustomButton from '../../components/customButton/CustomButton';
 import {
   fetchExhibitors,
-  deleteExhibitor,
+  //deleteExhibitor,
   Exhibitor,
 } from '../../services/api';
 import {
@@ -37,7 +37,7 @@ import Applause from '../../assets/applause.png';
 import { ReactComponent as UsersIcon } from '../../assets/addIcon.svg';
 import { ReactComponent as ArrowIcon } from '../../assets/arrowUpIcon.svg';
 import { ReactComponent as EyeIcon } from '../../assets/eyeIcon.svg';
-import { ReactComponent as WastebasketIcon } from '../../assets/wastebasket.svg';
+//import { ReactComponent as WastebasketIcon } from '../../assets/wastebasket.svg';
 
 const ExhibitorsPage: React.FC = () => {
   const [exhibitors, setExhibitors] = useState<Exhibitor[]>([]);
@@ -91,17 +91,17 @@ const ExhibitorsPage: React.FC = () => {
     loadExhibitors();
   }, [loadExhibitors]);
 
-  const handleDeleteExhibitor = useCallback(async (exhibitorId: number, companyName: string): Promise<void> => {
-    if (!token) return;
-    if (window.confirm(`Czy na pewno chcesz usunąć wystawcę "${companyName}"?`)) {
-      try {
-        await deleteExhibitor(exhibitorId, token);
-        setExhibitors(prevExhibitors => prevExhibitors.filter(exhibitor => exhibitor.id !== exhibitorId));
-      } catch (err: any) {
-        setError(err.message || 'Błąd podczas usuwania wystawcy');
-      }
-    }
-  }, [token]);
+  // const handleDeleteExhibitor = useCallback(async (exhibitorId: number, companyName: string): Promise<void> => {
+  //   if (!token) return;
+  //   if (window.confirm(`Czy na pewno chcesz usunąć wystawcę "${companyName}"?`)) {
+  //     try {
+  //       await deleteExhibitor(exhibitorId, token);
+  //       setExhibitors(prevExhibitors => prevExhibitors.filter(exhibitor => exhibitor.id !== exhibitorId));
+  //     } catch (err: any) {
+  //       setError(err.message || 'Błąd podczas usuwania wystawcy');
+  //     }
+  //   }
+  // }, [token]);
 
   const handleViewExhibitorCard = useCallback((exhibitorId: number): void => {
     navigate(`/wystawcy/${exhibitorId}`);
@@ -426,10 +426,10 @@ const ExhibitorsPage: React.FC = () => {
                               Zobacz kartę
                             </CustomTypography>
                           </Box>
-                          <WastebasketIcon 
+                          {/* <WastebasketIcon 
                             onClick={() => handleDeleteExhibitor(exhibitor.id, exhibitor.companyName)} 
                             className={styles._noEffectsButton}
-                          />
+                          /> */}
                         </Box>
 
                       </TableCell>

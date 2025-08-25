@@ -198,6 +198,9 @@ function ExhibitorWithEvent({
             square
             sx={{
               padding: '0px 24px !important',
+               '@media (max-width:440px)': {
+                padding: '0px 8px !important',
+              },
               borderRadius: "20px",
               backgroundColor: accordionBg,
               boxShadow: "none",
@@ -221,7 +224,7 @@ function ExhibitorWithEvent({
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  boxSizing: "border-box",
+                  boxSizing: "border-box",                
                 }}
               >
                 <ExpandMoreIcon sx={{ color: '#6f87f6', fontSize: 28 }} />
@@ -232,7 +235,10 @@ function ExhibitorWithEvent({
               sx={{
                 borderRadius: "20px",
                 minHeight: 56,
-                "&.Mui-expanded": { minHeight: 56 }
+                "&.Mui-expanded": { minHeight: 56 },
+                '@media (max-width:440px)': {
+                  padding: '0px 0px !important',
+                },  
               }}
             >
               <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
@@ -254,7 +260,12 @@ function ExhibitorWithEvent({
                 sx={{ 
                   margin: "24px 0",
                   fontWeight:600,
-                  fontSize:'1rem'
+                  fontSize:'1rem',
+                  '@media (max-width:440px)': {
+                    fontSize:'13px',
+                  },
+
+
                    }} component="span">
                   {item.title}
                 </Typography>

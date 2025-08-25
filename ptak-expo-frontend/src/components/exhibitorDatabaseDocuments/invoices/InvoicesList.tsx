@@ -80,7 +80,7 @@ const InvoicesList: React.FC<InvoicesListProps> = ({
   if (filteredDocuments.length === 0) {
     return (
       <Box className={styles.invoicesListWrapper}>
-        <CustomTypography>Brak dokumentów</CustomTypography>
+        <CustomTypography className={styles.noDocuments}>Brak dokumentów</CustomTypography>
       </Box>
     );
   }
