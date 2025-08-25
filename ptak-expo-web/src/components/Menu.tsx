@@ -1,8 +1,14 @@
-import { FunctionComponent } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { AppBar, Toolbar, Button, Box, useMediaQuery } from '@mui/material';
-import styles from './Menu.module.css';
+import { FunctionComponent, useMemo, useState } from 'react';
+import { useNavigate, useLocation, useParams } from 'react-router-dom';
+import { AppBar, Toolbar, Box, IconButton, Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, Typography, useMediaQuery } from '@mui/material';
+import styles from './Header.module.scss';
 import Logo from '../assets/group-257@3x.png';
+import MenuIcon from '@mui/icons-material/Menu';
+import HomeIcon from '@mui/icons-material/Home';
+import ArticleIcon from '@mui/icons-material/Article';
+import ListAltIcon from '@mui/icons-material/ListAlt';
+import DescriptionIcon from '@mui/icons-material/Description';
+import InfoIcon from '@mui/icons-material/Info';
 
 export type MenuType = {
   className?: string;
@@ -10,72 +16,87 @@ export type MenuType = {
   onLogout?: () => void;
 };
 
-const navItems = [
-  { text: 'Home', key: 'home' },
-  { text: 'Aktualności', key: 'news' },
-  // { text: 'E-Identyfikator', key: 'id' },
-  { text: 'Checklista targowa', key: 'checklist' },
-  { text: 'Portal dokumentów', key: 'documents' },
-  { text: 'Materiały Marketingowe', key: 'materials' },
-  { text: 'Informacje targowe', key: 'info' },
-  // { text: 'Generator zaproszeń', key: 'invitations' },
+type NavItem = { label: string; icon: React.ReactNode; getUrl: (eventId: string) => string; key: string };
+const navItems: NavItem[] = [
+  { label: 'Home', icon: <HomeIcon />, key: 'home', getUrl: (id) => `/event/${id}` },
+  { label: 'Aktualności', icon: <ArticleIcon />, key: 'news', getUrl: (id) => `/event/${id}` },
+  { label: 'Checklista targowa', icon: <ListAltIcon />, key: 'checklist', getUrl: (id) => `/event/${id}/checklist` },
+  { label: 'Portal dokumentów', icon: <DescriptionIcon />, key: 'documents', getUrl: (id) => `/event/${id}/documents` },
+  { label: 'Informacje targowe', icon: <InfoIcon />, key: 'info', getUrl: (id) => `/event/${id}/trade-info` },
 ];
 
-const Menu: FunctionComponent<MenuType> = ({
-  className = '',
-  onMenuClick,
-  onLogout
-}) => {
+const Menu: FunctionComponent<MenuType> = ({ className = '', onLogout }) => {
   const navigate = useNavigate();
-  const isMobile = useMediaQuery('(max-width:600px)');
+  const location = useLocation();
+  const params = useParams<{ eventId: string }>();
+  const isDrawer = useMediaQuery('(max-width:1260px)');
+  const [mobileOpen, setMobileOpen] = useState(false);
 
-  const handleLogoClick = () => {
-    navigate('/dashboard');
-  };
+  const eventId = params.eventId || '1';
+  const activeIndex = useMemo(
+    () => navItems.findIndex((item) => location.pathname.startsWith(item.getUrl(eventId))),
+    [location.pathname, eventId]
+  );
 
-  const handleMenuItemClick = (key: string) => {
-    if (onMenuClick) {
-      onMenuClick(key);
-    }
-  };
+  const handleDrawerToggle = () => setMobileOpen((v) => !v);
 
   return (
-    <>
-      {!isMobile ? (
-        <AppBar position="static" className={`${styles.appBar} ${className}`}>
-          <Toolbar className={styles.toolbar}>
-            <Box className={styles.navLogo}>
-              <img
-                src={Logo}
-                alt="Ptak Expo Logo"
-                className={styles.logo}
-                onClick={handleLogoClick}
-              />
+    <AppBar position="static" className={`${styles.appbar} ${className}`}>
+      <Toolbar className={styles.toolbar}>
+        {!isDrawer && (
+          <Box className={styles.navItems}>
+            <Box className={styles.logo}>
+              <img src={Logo} alt="Logo" onClick={() => navigate('/dashboard')} />
             </Box>
-            <Box className={styles.navLinks}>
-              {navItems.map((item) => (
-                <Button
-                  key={item.key}
-                  onClick={() => handleMenuItemClick(item.key)}
-                  className={styles.navButton}
-                  sx={{ flexDirection: 'column', color: 'inherit', paddingY: 1 }}
-                >
-                  <span className={styles.buttonText}>{item.text}</span>
-                </Button>
-              ))}
+            {navItems.map((item, index) => (
+              <Box
+                key={item.key}
+                className={`${styles.navItem} ${index === activeIndex ? styles.active : ''}`}
+                onClick={() => navigate(item.getUrl(eventId))}
+              >
+                {item.icon}
+                <Typography variant="caption" textAlign={'center'} fontSize={{ lg: '10px', xl: '13px' }}>
+                  {item.label}
+                </Typography>
+              </Box>
+            ))}
+          </Box>
+        )}
+
+        {isDrawer && (
+          <>
+            <Box className={styles.menuIconContainer}>
+              <Box className={styles.logo}>
+                <img src={Logo} alt="Logo" onClick={() => navigate('/dashboard')} />
+              </Box>
+              <IconButton onClick={handleDrawerToggle}>
+                <MenuIcon />
+              </IconButton>
             </Box>
-            <Box className={styles.navIcon}>
-              {onLogout && (
-                <button className={styles.logoutButton} onClick={onLogout}>
-                  <img className={styles.logoutIcon} alt="" src="/group-872.svg" />
-                  <span className={styles.logoutText}>Wyloguj</span>
-                </button>
-              )}
-            </Box>
-          </Toolbar>
-        </AppBar>
-      ) : null}
-    </>
+            <Drawer anchor="left" open={mobileOpen} onClose={handleDrawerToggle}>
+              <List>
+                {navItems.map((item, index) => (
+                  <ListItem key={item.key} disablePadding>
+                    <ListItemButton selected={activeIndex === index} onClick={() => navigate(item.getUrl(eventId))}>
+                      <ListItemIcon>{item.icon}</ListItemIcon>
+                      <ListItemText primary={item.label} />
+                    </ListItemButton>
+                  </ListItem>
+                ))}
+              </List>
+            </Drawer>
+          </>
+        )}
+
+        <Box>
+          {onLogout && (
+            <button className={styles.logoutButton} onClick={onLogout}>
+              <span className={styles.logoutText}>Wyloguj</span>
+            </button>
+          )}
+        </Box>
+      </Toolbar>
+    </AppBar>
   );
 };
 

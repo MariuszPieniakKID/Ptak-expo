@@ -59,7 +59,7 @@ const LoginPage: React.FC = () => {
       const result = await login({email, password});
       
       if (result.success) {
-        navigate('/dashboard');
+        navigate('/event/1');
       } else {
         setError('Nieprawidłowy email lub hasło. Spróbuj ponownie.');
       }

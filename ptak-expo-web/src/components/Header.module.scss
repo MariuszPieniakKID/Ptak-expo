@@ -1,0 +1,71 @@
+.appbar {
+  background: transparent !important;
+  box-shadow: none !important;
+  padding: 0.5rem 1rem;
+}
+
+.toolbar {
+  background: white;
+  border-radius: 1rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem;
+}
+
+.logo {
+  display: flex;
+  justify-content: center;
+
+  img {
+    width: 100px;
+    height: auto;
+    padding: 0.2rem;
+    padding-right: 2rem;
+  }
+}
+
+.navItems {
+  display: flex;
+  gap: 2rem;
+  flex-grow: 1;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.navItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-around;
+  padding: 8px 12px;
+  cursor: pointer;
+  color: #555;
+  position: relative;
+  transition: color 0.3s;
+
+  &:hover {
+    color: #5a6ec8;
+  }
+}
+
+.active {
+  color: #5a6ec8;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 2px;
+    width: 100%;
+    background-color: #5a6ec8;
+    border-radius: 2px;
+  }
+}
+
+.menuIconContainer {
+  display: flex;
+  flex-direction: row;
+}
+

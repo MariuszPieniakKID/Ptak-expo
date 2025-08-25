@@ -302,7 +302,19 @@ const ExhibitorDashboardPage: React.FC = () => {
             </div>
             
             {/* Go to checklist button */}
-            <div className={styles.checklistLink}>
+            <div
+              className={styles.checklistLink}
+              onClick={() => selectedEvent && navigate(`/event/${selectedEvent.id}/checklist`)}
+              role="button"
+              aria-label="Idź do checklisty"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  selectedEvent && navigate(`/event/${selectedEvent.id}/checklist`);
+                }
+              }}
+            >
               <div className={styles.doWydarzeniaZostaloContainer2}>
                 Idź do checklisty
               </div>

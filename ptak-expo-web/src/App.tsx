@@ -3,7 +3,7 @@ import { AuthProvider } from './contexts/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import LoginPage from './pages/loginPage/LoginPage';
 import DashboardPage from './pages/DashboardPage';
-import ExhibitorDashboardPage from './pages/ExhibitorDashboardPage';
+import EventHomePage from './pages/EventHomePage';
 import TradeInfoRoutePage from './pages/TradeInfoRoutePage';
 import DocumentsRoutePage from './pages/DocumentsRoutePage';
 import ChecklistRoutePage from './pages/ChecklistRoutePage';
@@ -31,7 +31,7 @@ function App() {
             {/* Protected Exhibitor Dashboard page - All authenticated users */}
             <Route path="/event/:eventId" element={
               <ProtectedRoute>
-                <ExhibitorDashboardPage />
+                <EventHomePage />
               </ProtectedRoute>
             } />
             {/* Protected Trade Info page */}
