@@ -1,7 +1,7 @@
-.card { padding: 16px; display: grid; gap: 12px; }
-.daysChip { width: fit-content; }
-.readinessContainer { display: flex; align-items: center; gap: 8px; }
-.progressBarWrapper { display: grid; grid-template-columns: repeat(40, 1fr); gap: 2px; }
-.segment { height: 6px; background: #eee; border-radius: 3px; }
-.filled { background: #6f87f6; }
+.card { padding: 1.2rem; border-radius: 16px; box-shadow: 0 4px 12px rgba(0,0,0,0.08); display: flex; flex-direction: column; gap: 0.8rem; }
+.daysChip { align-self: flex-start; font-weight: 500; border-radius: 0.5rem !important; }
+.readinessContainer { display: flex; flex-direction: row; justify-content: space-between; }
+.progressBarWrapper { display: flex; gap: 2px; width: 100%; margin: 8px 0; }
+.segment { flex: 1; height: 30px; border-radius: 3px; opacity: 0.2; transition: opacity 0.3s ease; }
+.filled { opacity: 1; }
 

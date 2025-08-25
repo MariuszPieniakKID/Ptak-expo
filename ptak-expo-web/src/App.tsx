@@ -4,6 +4,8 @@ import ProtectedRoute from './components/ProtectedRoute';
 import LoginPage from './pages/loginPage/LoginPage';
 import DashboardPage from './pages/DashboardPage';
 import EventHomePage from './pages/EventHomePage';
+import EventNewsPage from './pages/EventNewsPage';
+import EventIdentifierPage from './pages/EventIdentifierPage';
 import TradeInfoRoutePage from './pages/TradeInfoRoutePage';
 import DocumentsRoutePage from './pages/DocumentsRoutePage';
 import ChecklistRoutePage from './pages/ChecklistRoutePage';
@@ -37,6 +39,16 @@ function App() {
             <Route path="/event/:eventId/home" element={
               <ProtectedRoute>
                 <EventHomePage />
+              </ProtectedRoute>
+            } />
+            <Route path="/event/:eventId/news" element={
+              <ProtectedRoute>
+                <EventNewsPage />
+              </ProtectedRoute>
+            } />
+            <Route path="/event/:eventId/identifier" element={
+              <ProtectedRoute>
+                <EventIdentifierPage />
               </ProtectedRoute>
             } />
             {/* Protected Trade Info page */}

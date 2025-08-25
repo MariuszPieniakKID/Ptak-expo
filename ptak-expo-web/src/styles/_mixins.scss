@@ -60,3 +60,52 @@
 @mixin for-tablet-and-mobile {
    @media (max-width: 991px) { @content; }
 }
+
+// Background gradient + image mixin (ported from ptak-web)
+@mixin background($variant: default) {
+  padding: 4rem;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  min-height: 100vh;
+  max-height: fit-content;
+  position: relative;
+  overflow: hidden;
+  gap: 2rem;
+
+  background: url('../assets/background.png') no-repeat center bottom;
+  background-size: cover;
+  background-attachment: fixed;
+  background-position: center calc(100% + 240px);
+  z-index: 0;
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    @if $variant == light {
+      background: linear-gradient(
+        to top,
+        rgba(220, 225, 252, 0.8) 0%,
+        rgba(236, 238, 240, 0.95) 40%,
+        rgba(236, 238, 240, 0.95) 60%,
+        rgba(236, 238, 240, 0.9) 100%
+      );
+    } @else {
+      background: linear-gradient(
+        to top,
+        rgba(112, 133, 242, 0.95) 5%,
+        rgba(112, 133, 242, 0.7) 30%,
+        rgba(236, 238, 240, 0.65) 60%,
+        rgba(236, 238, 240, 0.95) 100%
+      );
+    }
+    backdrop-filter: blur(2px);
+    z-index: -1;
+  }
+
+  @media (max-width: 600px) {
+    padding: 0;
+    gap: 1rem;
+  }
+}

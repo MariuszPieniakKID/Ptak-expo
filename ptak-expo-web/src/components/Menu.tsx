@@ -7,6 +7,7 @@ import MenuIcon from '@mui/icons-material/Menu';
 import HomeIcon from '@mui/icons-material/Home';
 import ArticleIcon from '@mui/icons-material/Article';
 import ListAltIcon from '@mui/icons-material/ListAlt';
+import FingerprintIcon from '@mui/icons-material/Fingerprint';
 import DescriptionIcon from '@mui/icons-material/Description';
 import InfoIcon from '@mui/icons-material/Info';
 
@@ -19,7 +20,8 @@ export type MenuType = {
 type NavItem = { label: string; icon: React.ReactNode; getUrl: (eventId: string) => string; key: string };
 const navItems: NavItem[] = [
   { label: 'Home', icon: <HomeIcon />, key: 'home', getUrl: (id) => `/event/${id}/home` },
-  { label: 'Aktualności', icon: <ArticleIcon />, key: 'news', getUrl: (id) => `/event/${id}` },
+  { label: 'Aktualności', icon: <ArticleIcon />, key: 'news', getUrl: (id) => `/event/${id}/news` },
+  { label: 'E-Identyfikator', icon: <FingerprintIcon />, key: 'identifier', getUrl: (id) => `/event/${id}/identifier` },
   { label: 'Checklista targowa', icon: <ListAltIcon />, key: 'checklist', getUrl: (id) => `/event/${id}/checklist` },
   { label: 'Portal dokumentów', icon: <DescriptionIcon />, key: 'documents', getUrl: (id) => `/event/${id}/documents` },
   { label: 'Informacje targowe', icon: <InfoIcon />, key: 'info', getUrl: (id) => `/event/${id}/trade-info` },
