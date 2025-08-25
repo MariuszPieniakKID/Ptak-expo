@@ -80,7 +80,7 @@ const Calendar = () => {
               fullWidth
               label={t('selectIndustry')}
               value={selectedIndustries}
-              onChange={(event, newValue) => handleOnChange(newValue)}
+              onChange={(_, newValue) => handleOnChange(newValue)}
               sx={{ minWidth: '20rem' }}
             />
           </Box>
