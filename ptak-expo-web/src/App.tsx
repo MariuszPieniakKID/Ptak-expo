@@ -34,6 +34,11 @@ function App() {
                 <EventHomePage />
               </ProtectedRoute>
             } />
+            <Route path="/event/:eventId/home" element={
+              <ProtectedRoute>
+                <EventHomePage />
+              </ProtectedRoute>
+            } />
             {/* Protected Trade Info page */}
             <Route path="/event/:eventId/trade-info" element={
               <ProtectedRoute>

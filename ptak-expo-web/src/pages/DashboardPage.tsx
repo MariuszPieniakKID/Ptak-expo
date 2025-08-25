@@ -60,8 +60,8 @@ const DashboardPage: React.FC = () => {
   };
 
   const handleEventSelect = (eventId: number) => {
-    // Navigate to the exhibitor dashboard for this event
-    navigate(`/event/${eventId}`);
+    // Navigate to the event home view for this event
+    navigate(`/event/${eventId}/home`);
   };
 
   // Format date for display

@@ -18,7 +18,7 @@ export type MenuType = {
 
 type NavItem = { label: string; icon: React.ReactNode; getUrl: (eventId: string) => string; key: string };
 const navItems: NavItem[] = [
-  { label: 'Home', icon: <HomeIcon />, key: 'home', getUrl: (id) => `/event/${id}` },
+  { label: 'Home', icon: <HomeIcon />, key: 'home', getUrl: (id) => `/event/${id}/home` },
   { label: 'Aktualności', icon: <ArticleIcon />, key: 'news', getUrl: (id) => `/event/${id}` },
   { label: 'Checklista targowa', icon: <ListAltIcon />, key: 'checklist', getUrl: (id) => `/event/${id}/checklist` },
   { label: 'Portal dokumentów', icon: <DescriptionIcon />, key: 'documents', getUrl: (id) => `/event/${id}/documents` },
@@ -33,10 +33,17 @@ const Menu: FunctionComponent<MenuType> = ({ className = '', onLogout }) => {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const eventId = params.eventId || '1';
-  const activeIndex = useMemo(
-    () => navItems.findIndex((item) => location.pathname.startsWith(item.getUrl(eventId))),
-    [location.pathname, eventId]
-  );
+  const activeIndex = useMemo(() => {
+    const base = `/event/${eventId}`;
+    const home = `${base}/home`;
+    return navItems.findIndex((item) => {
+      const target = item.getUrl(eventId);
+      if (item.key === 'home') {
+        return location.pathname === base || location.pathname.startsWith(home);
+      }
+      return location.pathname.startsWith(target);
+    });
+  }, [location.pathname, eventId]);
 
   const handleDrawerToggle = () => setMobileOpen((v) => !v);
 
