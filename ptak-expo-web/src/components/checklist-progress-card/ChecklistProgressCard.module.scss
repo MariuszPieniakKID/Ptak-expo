@@ -1,0 +1,7 @@
+.card { padding: 16px; display: grid; gap: 12px; }
+.daysChip { width: fit-content; }
+.readinessContainer { display: flex; align-items: center; gap: 8px; }
+.progressBarWrapper { display: grid; grid-template-columns: repeat(40, 1fr); gap: 2px; }
+.segment { height: 6px; background: #eee; border-radius: 3px; }
+.filled { background: #6f87f6; }
+
