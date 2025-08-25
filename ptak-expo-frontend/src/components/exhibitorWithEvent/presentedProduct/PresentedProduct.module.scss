@@ -50,7 +50,12 @@
     display:flex;
     flex-direction: row;
     justify-content: flex-start;
+    flex-wrap: wrap;
+    gap: 0.25em;
+  @include for-tablet-portrait-up  {
     column-gap: 1em;
+    flex-wrap: nowrap;
+  }
 }
 .productTagLabe{
     font-size: 11px!important;

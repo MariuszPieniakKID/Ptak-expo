@@ -45,5 +45,10 @@
   font-size: 1rem !important;
   width: fit-content;
   margin: auto auto;
-  transition: font-weight 0.2s ease; // płynna zmiana pogrubienia
+  transition: font-weight 0.2s ease; 
+  @media (max-width:440px){
+    font-size: 13px!important;
+    text-align: center;
+  }
+  
 }

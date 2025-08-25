@@ -52,6 +52,7 @@ import ExhibitorScheduleOfEventsAtTheStand from '../../components/exhibitorSched
 import ExhibitorTradeFairAwards from '../../components/exhibitorTradeFairAwards/ExhibitorTradeFairAwards';
 //import AddExhibitorModal from '../../components/addExhibitorModal/AddExhibitorModal';
 import AddEventToExhibitorModal from '../../components/addEventToExhibitorModal/AddEventToExhibitorModal';
+import ConfirmationDialog from '../../components/confirmationDialog/ConfirmationDialog';
 // ExhibitorWithEventDetails from '../../components/_exhibitorWithEventDetails/ExhibitorWithEventDetails';
 
 
@@ -68,6 +69,8 @@ const ExhibitorCardPage: React.FC = () => {
   const [selectedEvent,setSelectedEvent]=useState<number | null>(null)
   const [hasLogo, setHasLogo] = useState<boolean>(false);
   const [isEventAddToExhibitor, setIsEventAddToExhibitorn] = useState<boolean>(false);
+  
+  const [openConfirm, setOpenConfirm] = useState(false); //To confirm delete Exhibitor
   
   const handleLogout = () => {
     logout();
@@ -136,10 +139,15 @@ const ExhibitorCardPage: React.FC = () => {
       setError(err.message || 'Błąd podczas usuwania wystawcy');
     }
   };
-//
-  // const handleAddEvent = () => {
-  //   // placeholder: open modal or navigate
-  // };
+
+  const handleConfirmDelete = () => {
+    handleDeleteExhibitor();
+    setOpenConfirm(false);
+  };
+
+
+
+
   const handleModalClose = useCallback((): void => {
       setIsEventAddToExhibitorn(false);
   }, []);
@@ -163,6 +171,7 @@ const ExhibitorCardPage: React.FC = () => {
     void eventId;
     void exhibitorId;
     // placeholder: implement API call
+    console.log("implement API call: handleDeleteEventFromExhibitor (eventId: number, exhibitorId: number)")
   };
 
 
@@ -214,7 +223,7 @@ const ExhibitorCardPage: React.FC = () => {
         .map((event, index) => (
           <Box key={event.id} className={styles.eventBusinessCard}>
             <CustomTypography className={styles.selestedTitleWrapper}>Wydarzenie:</CustomTypography>
-            <SingleEventCard
+            <SingleEventCard 
               id={event.id}
               exhibitorId={exhibitor.id}
               iconId={getEventImage(index)}
@@ -224,6 +233,8 @@ const ExhibitorCardPage: React.FC = () => {
               end_date={event.end_date}
               handleSelectEvent={handleSelectEvent}
               handleDeleteEventFromExhibitor={handleDeleteEventFromExhibitor}
+              showDelete={false}
+              showSelect={false}
             />
           </Box>
         ));
@@ -347,7 +358,7 @@ const ExhibitorCardPage: React.FC = () => {
                         <Box className={styles.exhibitorCardAction}>
                             <Box 
                             className={styles.actionButton}
-                            onClick={handleDeleteExhibitor}
+                             onClick={() => setOpenConfirm(true)}
                             >
                                 <WastebasketIcon 
                                 className={styles.wastebasketIcon} 
@@ -371,10 +382,10 @@ const ExhibitorCardPage: React.FC = () => {
                                     <KeyIcon className={styles.keyIcon} />
                                     <CustomTypography className={styles.wastebasketText}> wyślij nowe hasło </CustomTypography>
                             </Box>
-                            <Box className={styles.actionButton} 
-                               //onClick={handleAddEvent}
-                               onClick={() => setIsEventAddToExhibitorn(true)}
-                               >
+                            <Box 
+                              className={styles.actionButton} 
+                              onClick={() => setIsEventAddToExhibitorn(true)}
+                            >
                                 <AddIcon className={styles.addIcon} />
                                 <CustomTypography className={styles.wastebasketText}> + dodaj wydarzenie </CustomTypography>
                             </Box>
@@ -632,6 +643,14 @@ const ExhibitorCardPage: React.FC = () => {
       <Box className={styles.filtrGray}/>
       <Box className={styles.filtrBlue}/>
     </Box>
+
+    <ConfirmationDialog
+      open={openConfirm}
+      onClose={() => setOpenConfirm(false)}
+      onConfirm={handleConfirmDelete}
+      title="Usuwanie wystawcy"
+      description="Chcesz usunąć wystawcę?"
+    />
     </>
   );
 };

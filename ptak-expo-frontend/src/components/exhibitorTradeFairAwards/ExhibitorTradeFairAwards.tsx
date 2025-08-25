@@ -69,6 +69,9 @@ function ExhibitorTradeFairAwards({
               square
               sx={{
                 padding: "0px 24px !important",
+                '@media (max-width:440px)': {
+                padding: '0px 8px !important',
+              },
                 borderRadius: "20px",
                 // 👇 ZAWSZE biały dla pierwszego, inaczej jak było
                 backgroundColor: isFirstAccordion ? "#fff" : idx % 2 === 0 ? "#f5f5f5" : "#fff",
@@ -106,6 +109,9 @@ function ExhibitorTradeFairAwards({
                   borderRadius: "20px",
                   minHeight: 56,
                   "&.Mui-expanded": { minHeight: 56 },
+                  '@media (max-width:440px)': {
+                  padding: '0px 0px !important',
+                },  
                 }}
               >
                 <Box sx={{ display: "flex", alignItems: "center", gap: 1, marginTop: "1em" }}>
@@ -126,7 +132,13 @@ function ExhibitorTradeFairAwards({
                       {item.icon}
                     </Box>
                   )}
-                  <Typography sx={{ fontWeight: 600, fontSize: "1rem" }} component="span">
+                  <Typography sx={{ 
+                    fontWeight: 600, 
+                    fontSize: "1rem",
+                   '@media (max-width:440px)': {
+                    fontSize:'13px',
+                  },
+                     }} component="span">
                     {item.title}
                   </Typography>
                 </Box>

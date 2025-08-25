@@ -181,6 +181,9 @@ function ExhibitorDatabaseDocuments({
               square
               sx={{
                 padding: "0px 24px !important",
+                '@media (max-width:440px)': {
+                padding: '0px 8px !important',
+              },
                 borderRadius: "20px",
                 backgroundColor: idx % 2 === 0 ? "#f5f5f5" : "#fff",
                 boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
@@ -219,6 +222,9 @@ function ExhibitorDatabaseDocuments({
                   borderRadius: "20px",
                   minHeight: 56,
                   "&.Mui-expanded": { minHeight: 56 },
+                  '@media (max-width:440px)': {
+                  padding: '0px 0px !important',
+                }, 
                 }}
               >
                 <Box sx={{ display: "flex", alignItems: "center", gap: 1,marginTop:'1em' }}>
@@ -238,7 +244,14 @@ function ExhibitorDatabaseDocuments({
                       {item.icon}
                     </Box>
                   )}
-                  <Typography sx={{ fontWeight: 600, fontSize: "1rem" }} component="span">
+                  <Typography 
+                  sx={{ fontWeight: 600, 
+                  fontSize: "1rem",
+                   '@media (max-width:440px)': {
+                    fontSize:'13px',
+                  },
+
+                   }} component="span">
                     {item.title}
                   </Typography>
                 </Box>

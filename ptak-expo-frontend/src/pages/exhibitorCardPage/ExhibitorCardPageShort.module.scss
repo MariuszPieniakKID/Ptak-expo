@@ -40,11 +40,17 @@
   margin-top:1em;
 }
 .logOutButton{
-  position:fixed !important;
-  right: 5% !important;
-  top:4.0% !important;
+  //position:fixed !important;
+  position: absolute!important;
+    right: -6em !important;
+    top: 1.5em !important;
+  // right: 5% !important;
+  // top:4.0% !important;
   background: transparent !important;
   box-shadow: none !important;
+
+
+
   &:hover{
     font-weight: 600;
   } 
@@ -55,24 +61,39 @@
   }
 
   @include for-desktop-medium {
-    right: 3% !important;
+    //right: 3% !important;
+    right: -6em !important;
+    top: 1.5em !important;
    }
   @include for-desktop-small {
-    right: 2% !important;
+    //right: 2% !important;
+    right: -6em !important;
+    top: 1.5em !important;
    }
   @include for-tablet-landscape {
-    right: 1.5em !important; 
+    //right: 1.5em !important; 
+    right: -6em !important;
+    top: 1.5em !important;
+
    }
   @include for-tablet-portrait {
-    right:0.5em!important; 
+    // right:0.5em!important; 
+    right: -6em !important;
+    top: 1.5em !important;
    }
   @include for-phone-landscape {
-    right: 1em !important;
-    top:1em !important;
+    // right: 1em !important;
+    // top:1em !important;
+    right: -2em !important;
+    top:0em !important;
    }
   @include for-phone-only {
-    right: 1em !important;
-    top:1em !important;
+    // right: 1em !important;
+    // top:1em !important;
+    position: absolute!important;
+    right: -2em !important;
+    top:0em !important;
+
    }
 }
 .welcomeMessage{
@@ -186,6 +207,11 @@ display:flex;
   align-items: center;
   flex-wrap: wrap;
   padding: 2em 1.5em;
+
+  @media (max-width: 527px) {
+    padding: 1em 0em !important; 
+  }
+
 }
 .titleTableContainer { 
   display: flex;
@@ -441,8 +467,10 @@ display:flex;
   justify-content: flex-end;
   width:100%;
   column-gap: 2em;
+  flex-wrap: wrap;
   @include for-tablet-landscape-up{
   width:50%;
+  flex-wrap: wrap;
  }
 }
 .addIcon{

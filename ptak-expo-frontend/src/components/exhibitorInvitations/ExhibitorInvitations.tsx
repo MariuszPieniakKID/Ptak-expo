@@ -78,6 +78,9 @@ function ExhibitorInvitations({
             square
             sx={{
               padding: '0px 24px !important',
+              '@media (max-width:440px)': {
+                padding: '0px 8px !important',
+              },
               borderRadius: '20px',
               backgroundColor: '#2B2B2D',
               boxShadow: '0px -34px 24px #2E2E380D',
@@ -96,7 +99,10 @@ function ExhibitorInvitations({
               sx={{
                 borderRadius: '20px',
                 minHeight: 56,
-                "&.Mui-expanded": { minHeight: 56 }
+                "&.Mui-expanded": { minHeight: 56 },
+                '@media (max-width:440px)': {
+                  padding: '0px 0px !important',
+                },                 
               }}
             >
               <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
@@ -140,7 +146,10 @@ function ExhibitorInvitations({
                     margin: "24px 0",
                     fontWeight: 600,
                     fontSize: '1rem',
-                    color: '#EEEFF1'
+                    color: '#EEEFF1',
+                   '@media (max-width:440px)': {
+                    fontSize:'13px',
+                  },
                   }} 
                   component="span"
                 >
