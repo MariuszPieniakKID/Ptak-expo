@@ -1,4 +1,5 @@
 import { Card, CardContent, Typography, Box, Chip, Avatar, Link } from '@mui/material';
+import { brandingAPI } from '../../services/api';
 import styles from './PlannedEventCard.module.scss';
 
 export interface EventData {
@@ -26,7 +27,12 @@ const PlannedEventCard: React.FC<PlannedEventCardProps> = ({ event, onSelect }) 
     <Card className={styles.card}>
       <CardContent className={styles.cardContent}>
         <Box className={styles.logoBox}>
-          <Avatar className={styles.avatar} variant="rounded" src={event.logoUrl} alt={event.title} />
+          <Avatar 
+            className={styles.avatar} 
+            variant="rounded" 
+            src={(event as any).event_logo_file_name ? brandingAPI.serveGlobalUrl((event as any).event_logo_file_name) : event.logoUrl} 
+            alt={event.title} 
+          />
         </Box>
         <Box className={styles.titleBox}>
           <Box>

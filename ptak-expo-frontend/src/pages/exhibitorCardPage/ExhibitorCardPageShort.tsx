@@ -548,6 +548,8 @@ const ExhibitorCardPage: React.FC = () => {
                           />
                           <Tab
                             disableRipple
+                            disabled
+                            sx={{ display: 'none' }}
                             icon={<InvitationsIcon />}
                             iconPosition="start"
                             label={<span className="tab-label-text">Zaproszenia</span>}
@@ -597,7 +599,13 @@ const ExhibitorCardPage: React.FC = () => {
                 <CustomTabPanel value={value} index={3}>
                   <Box className={styles.tabPaperContainer}>
                     <Box className={styles.leftContainer}>{renderSelectedEvent()}</Box>
-                    <Box className={styles.rightContainer}>{exhibitor ? <ExhibitorScheduleOfEventsAtTheStand  exhibitorId={exhibitor.id} exhibitor={exhibitor} />: null}</Box>
+                    <Box className={styles.rightContainer}>{exhibitor ? (
+                      <ExhibitorScheduleOfEventsAtTheStand
+                        exhibitorId={exhibitor.id}
+                        exhibitor={exhibitor}
+                        exhibitionId={selectedEvent ?? undefined}
+                      />
+                    ) : null}</Box>
                   </Box>
                 </CustomTabPanel>
                 <CustomTabPanel value={value} index={4}>

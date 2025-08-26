@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import AvatarBanner from '../avatar-banner/AvatarBanner';
 import PlannedEventCard from '../planned-event-card/PlannedEventCard';
 import ChecklistProgressCard from '../checklist-progress-card/ChecklistProgressCard';
-import { exhibitionsAPI } from '../../services/api';
+import { exhibitionsAPI, brandingAPI } from '../../services/api';
 import styles from '../../pages/EventHomePage.module.scss';
 
 type EventView = {
@@ -59,7 +59,7 @@ const LeftColumn: React.FC<LeftColumnProps> = ({ eventId, isDarkBg = false }) =>
           dateFrom: formatDate(e.start_date || e.startDate),
           dateTo: formatDate(e.end_date || e.endDate),
           readiness: 0,
-          logoUrl: '/assets/logo192.png',
+          logoUrl: e.event_logo_file_name ? brandingAPI.serveGlobalUrl(e.event_logo_file_name) : '/assets/logo192.png',
           daysLeft: calcDaysLeft(e.start_date || e.startDate),
         });
       } catch (_err) {

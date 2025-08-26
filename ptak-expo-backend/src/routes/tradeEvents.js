@@ -9,6 +9,9 @@ router.get('/:exhibitionId', verifyToken, requireAdmin, controller.listByExhibit
 // Create trade event for exhibition (admin only for now)
 router.post('/:exhibitionId', verifyToken, requireAdmin, controller.create);
 
+// Delete trade event (admin only)
+router.delete('/:exhibitionId/:eventId', verifyToken, requireAdmin, controller.remove);
+
 module.exports = router;
 
 

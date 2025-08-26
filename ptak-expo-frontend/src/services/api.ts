@@ -843,6 +843,7 @@ export const downloadTradePlan = async (
 export interface TradeEvent {
   id?: number;
   exhibition_id?: number;
+  exhibitor_id?: number;
   name: string;
   eventDate: string; // ISO date (YYYY-MM-DD)
   startTime: string; // HH:mm
@@ -850,11 +851,13 @@ export interface TradeEvent {
   hall?: string;
   description?: string;
   type: string; // e.g. 'Ceremonia otwarcia'
+  organizer?: string;
 }
 
 const mapTradeEventRow = (row: any): TradeEvent => ({
   id: row.id,
   exhibition_id: row.exhibition_id,
+  exhibitor_id: row.exhibitor_id,
   name: row.name,
   eventDate: row.event_date ?? row.eventDate,
   startTime: row.start_time ?? row.startTime,
@@ -862,13 +865,16 @@ const mapTradeEventRow = (row: any): TradeEvent => ({
   hall: row.hall ?? undefined,
   description: row.description ?? undefined,
   type: row.type,
+  organizer: row.organizer ?? undefined,
 });
 
 export const getTradeEvents = async (
   exhibitionId: number,
-  token: string
+  token: string,
+  exhibitorId?: number
 ): Promise<{ success: boolean; data: TradeEvent[] }> => {
-  const response = await apiCall(`${config.API_BASE_URL}/api/v1/trade-events/${exhibitionId}`, {
+  const query = exhibitorId ? `?exhibitorId=${encodeURIComponent(String(exhibitorId))}` : '';
+  const response = await apiCall(`${config.API_BASE_URL}/api/v1/trade-events/${exhibitionId}${query}`, {
     method: 'GET',
     headers: { 'Authorization': `Bearer ${token}` },
   });
@@ -897,6 +903,24 @@ export const createTradeEvent = async (
     throw new Error(data.message || 'Błąd podczas zapisywania wydarzenia targowego');
   }
   return { success: true, data: mapTradeEventRow(data.data) };
+};
+
+export const deleteTradeEvent = async (
+  exhibitionId: number,
+  eventId: number,
+  token: string
+): Promise<{ success: boolean; message: string }> => {
+  const response = await apiCall(`${config.API_BASE_URL}/api/v1/trade-events/${exhibitionId}/${eventId}` , {
+    method: 'DELETE',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+    },
+  });
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data.message || 'Błąd podczas usuwania wydarzenia targowego');
+  }
+  return data;
 };
 
 // ============= EXHIBITOR DOCUMENTS API =============

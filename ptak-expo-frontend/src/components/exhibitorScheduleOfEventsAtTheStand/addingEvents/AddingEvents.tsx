@@ -1,4 +1,4 @@
-import React, { useState, ChangeEvent, useCallback } from "react";
+import React, { useState, ChangeEvent, useCallback, useRef } from "react";
 import { Box,  FormControlLabel, Radio, RadioGroup} from "@mui/material";
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { TimePicker } from '@mui/x-date-pickers/TimePicker';
@@ -12,7 +12,16 @@ import { ReactComponent as BlueArrowIcon } from "../../../assets/blueArrow.svg";
 import { ReactComponent as BlueCircleSaveIcon } from '../../../assets/submitIconBlueCircleWithCheckMark.svg';
 import dayjs from 'dayjs';  
 import 'dayjs/locale/pl';
+import { useAuth } from '../../../contexts/AuthContext';
+import { createTradeEvent, TradeEvent } from '../../../services/api';
+import { useParams } from 'react-router-dom';
 dayjs.locale('pl');
+
+// Wrap custom SVG to avoid passing unknown props (e.g., ownerState) to DOM
+const OpenPickerIcon: React.FC<any> = ({ ownerState, ...rest }) => <BlueArrowIcon {...rest} />;
+const OpenPickerIconPadded: React.FC<any> = ({ ownerState, className, ...rest }) => (
+  <BlueArrowIcon {...rest} className={`${className || ''} ${styles.customBlueArrowIconPadding || ''}`.trim()} />
+);
 
 interface AddEvent {
   id?: number;
@@ -26,7 +35,10 @@ interface AddEvent {
   organizer: string;
 }
 
-const AddingEvents = () => {
+type AddingEventsProps = { exhibitionId?: number | undefined; exhibitorId: number; onCreated?: (ev: TradeEvent) => void };
+const AddingEvents: React.FC<AddingEventsProps> = ({ exhibitionId, exhibitorId, onCreated }) => {
+  const { token } = useAuth();
+  const params = useParams();
   const [formValues, setFormValues] = useState<AddEvent>({
     name: '',
     eventDate: '',
@@ -109,15 +121,46 @@ const AddingEvents = () => {
     Object.values(formErrors).every(e => e === '') &&
     Object.values(formValues).some(v => String(v).trim() !== '');
 
-  const handleSubmit = useCallback((e: React.FormEvent) => {
+  const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
     if (!isFormValid) {
       console.log("Formularz zawiera błędy", formErrors);
       return;
     }
-    console.log("Wysyłam wydarzenie: ", formValues);
-    // TODO: wywołanie API -> addTradeEvent(formValues)
-  }, [formValues, formErrors, isFormValid]);
+    try {
+      const resolvedExhibitionId = exhibitionId || Number(params.id) || Number((window as any).currentSelectedExhibitionId);
+      if (!resolvedExhibitionId || !token) return;
+      const basePayload: TradeEvent = {
+        name: formValues.name,
+        eventDate: formValues.eventDate,
+        startTime: formValues.startTime,
+        endTime: formValues.endTime,
+        type: formValues.type,
+      };
+      const payload: TradeEvent = { ...basePayload, exhibitor_id: exhibitorId };
+      if (typeof formValues.description === 'string' && formValues.description.trim() !== '') {
+        payload.description = formValues.description;
+      }
+      if (typeof formValues.organizer === 'string' && formValues.organizer.trim() !== '') {
+        payload.organizer = formValues.organizer;
+      }
+      const res = await createTradeEvent(resolvedExhibitionId, payload, token);
+      console.log('✅ Trade event saved', res.data);
+      if (onCreated) {
+        onCreated(res.data);
+      }
+      // Clear form after save
+      setFormValues({ name: '', eventDate: '', startTime: '', endTime: '', description: '', type: '', organizer: '' });
+    } catch (err: any) {
+      console.error('❌ Błąd zapisu wydarzenia', err);
+      const message = (err && err.message) ? String(err.message) : 'Błąd zapisu wydarzenia';
+      if (message.includes('Data wydarzenia musi mieścić się w zakresie dat targów')) {
+        setFormErrors(prev => ({ ...prev, eventDate: 'Data wydarzenia musi mieścić się w zakresie dat targów' }));
+      }
+    }
+  }, [formValues, formErrors, isFormValid, token, params.id, exhibitionId, exhibitorId, onCreated]);
+
+  const submitRef = useRef<HTMLButtonElement | null>(null);
 
   return (
     <Box className={styles.container}>
@@ -149,7 +192,7 @@ const AddingEvents = () => {
                   handleFormValueChange('eventDate')(dateStr);
                 }}
                 slots={{
-                  openPickerIcon: BlueArrowIcon,
+                  openPickerIcon: OpenPickerIcon,
                 }}
                 slotProps={{
                   textField: {
@@ -174,7 +217,7 @@ const AddingEvents = () => {
                   handleFormValueChange('startTime')(timeStr);
                 }}
                 slots={{
-                  openPickerIcon: BlueArrowIcon,
+                  openPickerIcon: OpenPickerIcon,
                 }}
                 slotProps={{
                   textField: {
@@ -196,7 +239,7 @@ const AddingEvents = () => {
                   const timeStr = newValue ? newValue.format('HH:mm') : '';
                   handleFormValueChange('endTime')(timeStr);
                 }}
-                 slots={{openPickerIcon: (props) => <BlueArrowIcon {...props} className={styles.customBlueArrowIconPadding} />}}
+                 slots={{ openPickerIcon: OpenPickerIconPadded }}
                 slotProps={{
                   textField: {
                     error: !!formErrors.endTime,
@@ -287,12 +330,13 @@ const AddingEvents = () => {
           </Box>
           <Box className={styles.halfRowL}>
             <Box 
-              className={styles.actionSaveFile} 
-              //onClick={handleSave}
-              >
-                <CustomTypography className={styles.actionLabel}>zapisz</CustomTypography>
-                <BlueCircleSaveIcon className={styles.actionIcon} />
-              </Box>
+              className={styles.actionSaveFile}
+              onClick={() => submitRef.current?.click()}
+            >
+              <CustomTypography className={styles.actionLabel}>zapisz</CustomTypography>
+              <BlueCircleSaveIcon className={styles.actionIcon} />
+            </Box>
+            <button type="submit" ref={submitRef} style={{ display: 'none' }} />
           </Box>
          
         </Box>

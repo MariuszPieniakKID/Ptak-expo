@@ -48,7 +48,7 @@ const EventHomePage = () => {
           dateFrom: formatDate(e.start_date || e.startDate),
           dateTo: formatDate(e.end_date || e.endDate),
           readiness: 0,
-          logoUrl: '/assets/logo192.png',
+          logoUrl: e.event_logo_file_name ? `/api/v1/exhibitor-branding/serve/global/${encodeURIComponent(e.event_logo_file_name)}` : '/assets/logo192.png',
           daysLeft: calcDaysLeft(e.start_date || e.startDate),
         });
       } catch (_err) {

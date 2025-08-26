@@ -510,6 +510,10 @@ paths:
           name: exhibitionId
           required: true
           schema: { type: integer }
+        - in: query
+          name: exhibitorId
+          required: false
+          schema: { type: integer }
       responses:
         '200': { description: List }
     post:
@@ -534,8 +538,27 @@ paths:
                 endTime: { type: string }
                 hall: { type: string }
                 type: { type: string }
+                exhibitorId: { type: integer }
+                organizer: { type: string }
+                description: { type: string }
       responses:
         '201': { description: Created }
+  /api/v1/trade-events/{exhibitionId}/{eventId}:
+    delete:
+      summary: Delete trade event (admin)
+      tags: [TradeEvents]
+      security: [ { bearerAuth: [] } ]
+      parameters:
+        - in: path
+          name: exhibitionId
+          required: true
+          schema: { type: integer }
+        - in: path
+          name: eventId
+          required: true
+          schema: { type: integer }
+      responses:
+        '200': { description: Deleted }
   /api/v1/exhibitor-branding/upload:
     post:
       summary: Upload branding file (admin)

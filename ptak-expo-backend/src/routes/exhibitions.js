@@ -35,7 +35,16 @@ router.get('/user-events', verifyToken, requireExhibitorOrAdmin, async (req, res
           e.location,
           e.status,
           e.created_at,
-          e.updated_at
+          e.updated_at,
+          (
+            SELECT ebf.file_name
+            FROM exhibitor_branding_files ebf
+            WHERE ebf.exhibition_id = e.id
+              AND ebf.exhibitor_id IS NULL
+              AND ebf.file_type = 'event_logo'
+            ORDER BY ebf.created_at DESC
+            LIMIT 1
+          ) AS event_logo_file_name
         FROM exhibitions e
         INNER JOIN exhibitor_events ee ON e.id = ee.exhibition_id
         WHERE ee.exhibitor_id = $1
@@ -57,7 +66,16 @@ router.get('/user-events', verifyToken, requireExhibitorOrAdmin, async (req, res
           e.location,
           e.status,
           e.created_at,
-          e.updated_at
+          e.updated_at,
+          (
+            SELECT ebf.file_name
+            FROM exhibitor_branding_files ebf
+            WHERE ebf.exhibition_id = e.id
+              AND ebf.exhibitor_id IS NULL
+              AND ebf.file_type = 'event_logo'
+            ORDER BY ebf.created_at DESC
+            LIMIT 1
+          ) AS event_logo_file_name
         FROM exhibitions e
         ORDER BY e.start_date ASC
         LIMIT 3
@@ -76,7 +94,8 @@ router.get('/user-events', verifyToken, requireExhibitorOrAdmin, async (req, res
       location: event.location,
       status: event.status,
       createdAt: event.created_at,
-      updatedAt: event.updated_at
+      updatedAt: event.updated_at,
+      event_logo_file_name: event.event_logo_file_name || null
     }));
     
     res.json({
@@ -142,17 +161,26 @@ router.get('/:id', async (req, res) => {
     
     const result = await db.query(`
       SELECT 
-        id,
-        name,
-        description,
-        start_date,
-        end_date,
-        location,
-        status,
-        created_at,
-        updated_at
-      FROM exhibitions 
-      WHERE id = $1
+        e.id,
+        e.name,
+        e.description,
+        e.start_date,
+        e.end_date,
+        e.location,
+        e.status,
+        e.created_at,
+        e.updated_at,
+        (
+          SELECT ebf.file_name
+          FROM exhibitor_branding_files ebf
+          WHERE ebf.exhibition_id = e.id
+            AND ebf.exhibitor_id IS NULL
+            AND ebf.file_type = 'event_logo'
+          ORDER BY ebf.created_at DESC
+          LIMIT 1
+        ) AS event_logo_file_name
+      FROM exhibitions e
+      WHERE e.id = $1
     `, [id]);
     
     if (result.rows.length === 0) {

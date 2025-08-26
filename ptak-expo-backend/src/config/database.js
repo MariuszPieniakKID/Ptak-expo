@@ -443,11 +443,13 @@ const initializeDatabase = async () => {
       CREATE TABLE IF NOT EXISTS trade_events (
         id SERIAL PRIMARY KEY,
         exhibition_id INTEGER REFERENCES exhibitions(id) ON DELETE CASCADE,
+        exhibitor_id INTEGER REFERENCES exhibitors(id) ON DELETE CASCADE,
         name VARCHAR(255) NOT NULL,
         event_date DATE NOT NULL,
         start_time TIME NOT NULL,
         end_time TIME NOT NULL,
         hall VARCHAR(255),
+        organizer VARCHAR(255),
         description TEXT,
         type VARCHAR(100) NOT NULL,
         created_at TIMESTAMPTZ DEFAULT NOW(),
@@ -456,6 +458,27 @@ const initializeDatabase = async () => {
     `);
     await pool.query(`
       CREATE INDEX IF NOT EXISTS idx_trade_events_exhibition_id ON trade_events(exhibition_id)
+    `);
+    await pool.query(`
+      DO $$ BEGIN
+        IF NOT EXISTS (
+          SELECT 1 FROM information_schema.columns 
+          WHERE table_name = 'trade_events' AND column_name = 'exhibitor_id'
+        ) THEN
+          ALTER TABLE trade_events ADD COLUMN exhibitor_id INTEGER REFERENCES exhibitors(id) ON DELETE CASCADE;
+          CREATE INDEX IF NOT EXISTS idx_trade_events_exhibitor_id ON trade_events(exhibitor_id);
+        END IF;
+      END $$;
+    `);
+    await pool.query(`
+      DO $$ BEGIN
+        IF NOT EXISTS (
+          SELECT 1 FROM information_schema.columns 
+          WHERE table_name = 'trade_events' AND column_name = 'organizer'
+        ) THEN
+          ALTER TABLE trade_events ADD COLUMN organizer VARCHAR(255);
+        END IF;
+      END $$;
     `);
     await pool.query(`
       CREATE INDEX IF NOT EXISTS idx_exhibitor_documents_exhibitor_id ON exhibitor_documents(exhibitor_id)

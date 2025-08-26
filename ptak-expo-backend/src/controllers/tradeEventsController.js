@@ -11,14 +11,18 @@ const normalizeTime = (value) => {
 exports.listByExhibition = async (req, res) => {
   try {
     const exhibitionId = parseInt(req.params.exhibitionId, 10);
-    console.log('🔍 [trade-events] listByExhibition', { exhibitionId, user: req.user?.email });
+    const exhibitorId = req.query.exhibitorId ? parseInt(req.query.exhibitorId, 10) : null;
+    console.log('🔍 [trade-events] listByExhibition', { exhibitionId, exhibitorId, user: req.user?.email });
     if (Number.isNaN(exhibitionId)) {
       return res.status(400).json({ success: false, message: 'Invalid exhibitionId' });
     }
     const result = await db.query(
-      `SELECT id, exhibition_id, name, event_date, start_time, end_time, hall, description, type
-       FROM trade_events WHERE exhibition_id = $1 ORDER BY event_date ASC, start_time ASC`,
-      [exhibitionId]
+      `SELECT id, exhibition_id, exhibitor_id, name, event_date, start_time, end_time, hall, organizer, description, type
+       FROM trade_events 
+       WHERE exhibition_id = $1 
+         AND ($2::int IS NULL OR exhibitor_id = $2)
+       ORDER BY event_date ASC, start_time ASC`,
+      [exhibitionId, exhibitorId]
     );
     return res.json({ success: true, data: result.rows });
   } catch (error) {
@@ -36,7 +40,8 @@ exports.create = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Invalid exhibitionId' });
     }
 
-    const { name, eventDate, startTime, endTime, hall, description, type } = req.body;
+    const { name, eventDate, startTime, endTime, hall, description, type, organizer } = req.body;
+    const exhibitorId = req.body.exhibitorId ?? req.body.exhibitor_id ?? null;
     if (!name || !eventDate || !startTime || !endTime || !type) {
       return res.status(400).json({ success: false, message: 'Brak wymaganych pól' });
     }
@@ -62,9 +67,9 @@ exports.create = async (req, res) => {
 
     await client.query('BEGIN');
     const insert = await client.query(
-      `INSERT INTO trade_events (exhibition_id, name, event_date, start_time, end_time, hall, description, type)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8) RETURNING *`,
-      [exhibitionId, name, eventDate, normStart, normEnd, hall || null, description || null, type]
+      `INSERT INTO trade_events (exhibition_id, exhibitor_id, name, event_date, start_time, end_time, hall, organizer, description, type)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING *`,
+      [exhibitionId, exhibitorId || null, name, eventDate, normStart, normEnd, hall || null, organizer || null, description || null, type]
     );
     await client.query('COMMIT');
     console.log('✅ [trade-events] created', insert.rows[0]);
@@ -75,6 +80,29 @@ exports.create = async (req, res) => {
     return res.status(500).json({ success: false, message: 'Błąd podczas zapisywania wydarzenia targowego' });
   } finally {
     client.release();
+  }
+};
+
+exports.remove = async (req, res) => {
+  try {
+    const exhibitionId = parseInt(req.params.exhibitionId, 10);
+    const eventId = parseInt(req.params.eventId, 10);
+    console.log('🗑️  [trade-events] delete request', { exhibitionId, eventId, user: req.user?.email });
+    if (Number.isNaN(exhibitionId) || Number.isNaN(eventId)) {
+      return res.status(400).json({ success: false, message: 'Invalid parameters' });
+    }
+    const del = await db.query(
+      'DELETE FROM trade_events WHERE id = $1 AND exhibition_id = $2 RETURNING *',
+      [eventId, exhibitionId]
+    );
+    if (del.rowCount === 0) {
+      return res.status(404).json({ success: false, message: 'Nie znaleziono wydarzenia do usunięcia' });
+    }
+    console.log('✅ [trade-events] deleted', del.rows[0]);
+    return res.json({ success: true, message: 'Usunięto wydarzenie', data: del.rows[0] });
+  } catch (error) {
+    console.error('❌ delete trade_event error:', error);
+    return res.status(500).json({ success: false, message: 'Błąd podczas usuwania wydarzenia targowego' });
   }
 };
 

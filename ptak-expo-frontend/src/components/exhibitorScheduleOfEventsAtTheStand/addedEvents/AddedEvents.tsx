@@ -6,18 +6,24 @@ import StarOutlineIcon from '@mui/icons-material/StarOutline';
 import { ReactComponent as Wastebasket } from '../../../assets/wastebasket.svg';
 import { ReactComponent as EditIcon} from '../../../assets/edit.svg';
 import { ReactComponent as EditBlueIcon} from '../../../assets/editBlue.svg';
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { _AddedEvent } from '../../../types/types';
+import { useAuth } from '../../../contexts/AuthContext';
+import { deleteTradeEvent } from '../../../services/api';
 import EventTypeBadge from '../../eventTypeBadge/EventTypeBadge';
 
 
 
 interface AddedEventsProps {
   events: _AddedEvent[];
+  exhibitionId?: number;
+  exhibitorId?: number;
+  onDeleted?: (eventId: number) => void;
 }
 
-const AddedEvents = ({ events }: AddedEventsProps) => {
+const AddedEvents = ({ events, exhibitionId, onDeleted }: AddedEventsProps) => {
   const [editHovered, setEditHovered] = useState<number | null>(null);
+  const { token } = useAuth();
 
  //TO DO 
 function getColorForEvent(eventId: string): string {
@@ -32,9 +38,17 @@ function getColorForEvent(eventId: string): string {
   const handleEditEven = () => {
     console.log("Edycja wydarzenia:");
   }
-  const handleDeleteEven = () => {
-    console.log("Detete event");
-  }
+  const handleDeleteEven = useCallback(async (eventId?: number) => {
+    if (!eventId || !token || !exhibitionId) return;
+    if (!window.confirm('Usunąć to wydarzenie?')) return;
+    try {
+      await deleteTradeEvent(exhibitionId, eventId, token);
+      if (onDeleted) onDeleted(eventId);
+    } catch (e: any) {
+      console.error('❌ Błąd usuwania wydarzenia', e);
+      alert(e.message || 'Błąd podczas usuwania');
+    }
+  }, [token, exhibitionId, onDeleted]);
  //END
 
 
@@ -115,7 +129,7 @@ function getColorForEvent(eventId: string): string {
 
               <Box className={styles.actionButton}>
                 {!('addedToOfficialCatalog' in event) ? (
-                  <Box className={styles.inLine} onClick={handleDeleteEven}>
+                  <Box className={styles.inLine} onClick={() => handleDeleteEven(event.id)}>
                     <Wastebasket className={styles.actionLabelIcon} />
                     <Box className={styles.actionLabel}>Delete</Box>
                   </Box>

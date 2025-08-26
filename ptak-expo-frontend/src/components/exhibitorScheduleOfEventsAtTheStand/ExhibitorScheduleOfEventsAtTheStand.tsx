@@ -7,31 +7,95 @@ import styles from "./ExhibitorScheduleOfEventsAtTheStand.module.scss";
 import { Exhibitor } from "../../services/api";
 import AddingEvents from "./addingEvents/AddingEvents";
 import AddedEvents from "./addedEvents/AddedEvents";
-import { sampleEvents } from "../../helpers/mockData";
+import { useAuth } from '../../contexts/AuthContext';
+import { getTradeEvents, TradeEvent } from '../../services/api';
 
 type ExhibitorScheduleOfEventsAtTheStandProps = {
   allowMultiple?: boolean;
   exhibitorId: number;
   exhibitor?: Exhibitor;
+  exhibitionId?: number; // currently selected exhibition (event) id
 };
 
 function ExhibitorScheduleOfEventsAtTheStand({
   allowMultiple = true,
   exhibitorId,
   exhibitor,
+  exhibitionId,
 }: ExhibitorScheduleOfEventsAtTheStandProps) {
+
+  const { token } = useAuth();
+  const [tradeEvents, setTradeEvents] = useState<TradeEvent[]>([]);
+  const currentExhibitionId = exhibitionId !== undefined
+    ? exhibitionId
+    : (exhibitor?.events && exhibitor.events.length > 0) ? exhibitor.events[0].id : undefined;
+
+  useEffect(() => {
+    const load = async () => {
+      if (!token || !currentExhibitionId) return;
+      try {
+        const res = await getTradeEvents(currentExhibitionId, token, exhibitorId);
+        setTradeEvents(res.data);
+      } catch (_e) {
+        setTradeEvents([]);
+      }
+    };
+    load();
+  }, [token, exhibitorId, currentExhibitionId]);
 
   // Definicja sekcji
   const items = [
     {
       icon: <ScheduleOfEvents fontSize="small" />,
-      title: `Plan wydarzeń na stoisku ${sampleEvents.length}`,
-      container: <AddingEvents/>
+      title: `Plan wydarzeń na stoisku ${tradeEvents.length}`,
+      container: (
+        <AddingEvents
+          exhibitorId={exhibitorId}
+          { ...(currentExhibitionId !== undefined ? { exhibitionId: currentExhibitionId } : {}) }
+          onCreated={(ev) => {
+            // Append newly created event to the list immediately
+            const appended: TradeEvent = {
+              id: ev.id ?? 0,
+              exhibition_id: ev.exhibition_id ?? currentExhibitionId ?? 0,
+              name: ev.name,
+              eventDate: ev.eventDate,
+              startTime: ev.startTime,
+              endTime: ev.endTime,
+              type: ev.type,
+              ...(ev.description ? { description: ev.description } : {}),
+              ...(ev.organizer ? { organizer: ev.organizer } : {}),
+              ...(typeof ev.exhibitor_id === 'number' ? { exhibitor_id: ev.exhibitor_id } : {}),
+            };
+            setTradeEvents(prev => [...prev, appended]);
+          }}
+        />
+      )
     },
     {
       icon: null,
       title: "Dodane wydarzenia",
-      container: <AddedEvents events={sampleEvents}/>
+      container: (
+        <AddedEvents
+          { ...(currentExhibitionId !== undefined ? { exhibitionId: currentExhibitionId } : {}) }
+          onDeleted={(deletedId) => {
+            setTradeEvents(prev => prev.filter(ev => ev.id !== deletedId));
+          }}
+          events={tradeEvents.map(ev => ({
+            id: ev.id ?? 0,
+            exhibition_id: ev.exhibition_id ?? 0,
+            name: ev.name,
+            eventDate: ev.eventDate,
+            startTime: ev.startTime,
+            endTime: ev.endTime,
+            eventType: ev.type as any,
+            eventTitle: ev.name,
+            description: ev.description || '',
+            organizer: '',
+            isDelete: true,
+            isEdited: true,
+          }))}
+        />
+      )
     },
   ];
 

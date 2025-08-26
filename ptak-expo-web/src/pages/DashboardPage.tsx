@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { exhibitionsAPI } from '../services/api';
+import { exhibitionsAPI, brandingAPI } from '../services/api';
 import styles from './DashboardPage.module.css';
 import groupLogo from '../assets/group-257@3x.png';
 
@@ -144,6 +144,9 @@ const DashboardPage: React.FC = () => {
       
       {/* Dynamic event boxes */}
       {!loading && !error && events.map((event, index) => {
+        const logoSrc = (event as any).event_logo_file_name
+          ? brandingAPI.serveGlobalUrl((event as any).event_logo_file_name)
+          : "/image-29@2x.png";
         const completion = getCompletionPercentage(event);
         
         // Define CSS classes for positioning based on index
@@ -192,10 +195,11 @@ const DashboardPage: React.FC = () => {
               >
                 wybierz
               </div>
-              <img 
-                className={styles.image29Icon} 
-                alt="" 
-                src={index === 2 ? "/4515f4ed2e86e01309533e2483db0fd4@2x.png" : "/image-29@2x.png"} 
+              <img
+                className={styles.image29Icon}
+                alt={event.name}
+                src={logoSrc}
+                onError={(e) => { (e.target as HTMLImageElement).src = "/image-29@2x.png"; }}
               />
             </div>
             
