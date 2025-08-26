@@ -201,9 +201,9 @@ const EventsPage: React.FC = () => {
             >
               <CardContent className={styles.eventContent}>
                 <Box className={styles.eventImage}>
-                  {(() => {
+                  {((): React.ReactNode => {
                     const fileName = (exhibition as any).event_logo_file_name as string | undefined;
-                    const src = fileName && token 
+                    const src = fileName && token
                       ? `${getBrandingFileUrl(null, fileName, token)}&cb=${Date.now()}`
                       : '/assets/zrzut-ekranu-2025059-o-135948@2x.png';
                     return (

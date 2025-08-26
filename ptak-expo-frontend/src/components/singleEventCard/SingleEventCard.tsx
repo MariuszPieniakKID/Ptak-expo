@@ -1,4 +1,5 @@
 import { ReactComponent as WastebasketIcon } from '../../assets/wastebasket.svg';
+import { ReactComponent as EditIcon } from '../../assets/editIcon.svg';
 import styles from './SingleEventCard.module.scss';
 import CustomTypography from '../customTypography/CustomTypography';
 import { ReactComponent as EventIconWIW } from '../../assets/warsaw_industry_week.svg';
@@ -11,16 +12,17 @@ import ConfirmationDialog from '../confirmationDialog/ConfirmationDialog';
 
 interface SingleEventCardProps {
   id: number;
-  exhibitorId: number;
+  exhibitorId?: number;
   title: string;
   start_date: string;
   end_date: string;
-  handleSelectEvent: (id: number) => void;
-  handleDeleteEventFromExhibitor: (id: number, exhibitorId: number) => void;
+  handleSelectEvent?: (id: number) => void;
+  handleDeleteEventFromExhibitor?: (id: number, exhibitorId: number) => void;
   iconId: number;
-  event_readiness: number;
+  event_readiness?: number;
   showDelete?: boolean;   
   showSelect?: boolean;  
+  showEdit?: boolean;
 }
 
 const SingleEventCard: React.FC<SingleEventCardProps> = ({
@@ -30,17 +32,19 @@ const SingleEventCard: React.FC<SingleEventCardProps> = ({
   end_date,
   exhibitorId,
   iconId,
-  event_readiness,
+  event_readiness = 0, // domyślnie brak postępu
   handleSelectEvent,
   handleDeleteEventFromExhibitor,
-  showDelete=true,
-  showSelect=true,
+  showDelete = true,
+  showSelect = true,
+  showEdit = false,
 }) => {
   const [openConfirm, setOpenConfirm] = useState(false);
 
   const formatDateRange = useCallback((startDate: string, endDate: string): string => {
     const start = new Date(startDate);
     const end = new Date(endDate);
+
     const startFormatted = start.toLocaleDateString('pl-PL', {
       day: '2-digit',
       month: '2-digit',
@@ -51,6 +55,7 @@ const SingleEventCard: React.FC<SingleEventCardProps> = ({
       month: '2-digit',
       year: 'numeric',
     });
+
     return `${startFormatted}-${endFormatted}`;
   }, []);
 
@@ -65,8 +70,8 @@ const SingleEventCard: React.FC<SingleEventCardProps> = ({
     }
   };
 
-  const renderProgressIcon = (event_readiness: number) => {
-    switch (event_readiness) {
+  const renderProgressIcon = (progress: number) => {
+    switch (progress) {
       case 21:
         return <ProgressIcon21 className={styles.progressIcon} />;
       case 65:
@@ -77,16 +82,17 @@ const SingleEventCard: React.FC<SingleEventCardProps> = ({
   };
 
   const handleConfirmDelete = () => {
-    console.log("Confirmed event removal from exhibitor events ")
-    handleDeleteEventFromExhibitor(id, exhibitorId);
+    if (handleDeleteEventFromExhibitor && exhibitorId !== undefined) {
+      handleDeleteEventFromExhibitor(id, exhibitorId);
+    }
     setOpenConfirm(false);
   };
 
   return (
     <>
       <Box className={styles.eventCardContainer}>
-       <Box className={styles.deleteIconContainer}>
-          {showDelete ? (
+        <Box className={styles.deleteIconContainer}>
+          {showDelete && handleDeleteEventFromExhibitor && exhibitorId !== undefined ? (
             <WastebasketIcon
               className={styles.wastebasketIcon}
               onClick={() => setOpenConfirm(true)}
@@ -95,6 +101,7 @@ const SingleEventCard: React.FC<SingleEventCardProps> = ({
             <Box className={styles.wastebasketIcon} /> 
           )}
         </Box>
+
         <Box className={styles.container}>
           <Box className={styles.eventLogo}>{renderIcon(iconId)}</Box>
           <Box className={styles.eventInfo}>
@@ -102,24 +109,46 @@ const SingleEventCard: React.FC<SingleEventCardProps> = ({
             <Box className={styles.eventTitle}>{title || ""}</Box>
           </Box>
         </Box>
-        <Box className={styles.actionInfo}>
-          <Box className={styles.readyInfo}>
-            <CustomTypography className={styles.readyText}>Gotowość:</CustomTypography>
-            {renderProgressIcon(event_readiness)}
-          </Box>
-         <Box className={styles.action}>
-          {showSelect ? (
-            <Box
-              className={styles.actionButton}
-              onClick={() => handleSelectEvent(id)}
-            >
-              <CustomTypography className={styles.chooseText}>wybierz</CustomTypography>
+
+        {showEdit ? (
+          <Box className={styles.editBox}>
+            <Box className={styles.fieldLabelContainer} >
+              <CustomTypography className={styles.fieldLabel}>Branża:</CustomTypography>
             </Box>
-          ) : (
-            <Box className={styles.actionButton} />  // pusty placeholder
-          )}
-        </Box>
-        </Box>
+
+            <Box className={styles.editInfo}>
+              <CustomTypography className={styles.fieldValue}>Dom</CustomTypography>
+              <Box className={styles.actionEditButton}>
+                <Box 
+                  className={styles.boxWithHover}
+                  onClick={() => console.log("Edit")}
+                > 
+                  <EditIcon className={styles.editEvent}/>         
+                  <CustomTypography className={styles.editEventText}>edytuj</CustomTypography>
+                </Box>         
+              </Box>
+            </Box>
+          </Box>
+        ) : (
+          <Box className={styles.actionInfo}>
+            <Box className={styles.readyInfo}>
+              <CustomTypography className={styles.readyText}>Gotowość:</CustomTypography>
+              {renderProgressIcon(event_readiness)}
+            </Box>
+            <Box className={styles.action}>
+              {showSelect && handleSelectEvent ? (
+                <Box
+                  className={styles.actionButton}
+                  onClick={() => handleSelectEvent(id)}
+                >
+                  <CustomTypography className={styles.chooseText}>wybierz</CustomTypography>
+                </Box>
+              ) : (
+                <Box className={styles.actionButton} />  
+              )}
+            </Box>
+          </Box>
+        )}
       </Box>
 
       <ConfirmationDialog
@@ -132,6 +161,4 @@ const SingleEventCard: React.FC<SingleEventCardProps> = ({
     </>
   );
 };
-
 export default SingleEventCard;
-

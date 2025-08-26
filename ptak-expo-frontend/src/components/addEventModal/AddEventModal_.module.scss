@@ -1,0 +1,547 @@
+@import '../../styles/variables';
+@import '../../styles/mixins';
+
+.dialog {
+  & .MuiDialog-paper {
+    border-radius: $border-radius-lg;
+    box-shadow: $shadow-lg;
+    background-color: $color-white;
+    max-width: 37.5em; // 600px
+    width: 100%;
+    margin: $spacing-lg;
+
+    @include for-phone-only {
+      margin: $spacing-md;
+      max-width: 95%;
+       margin: 5px!important;
+    }
+    
+    @include for-tablet-portrait {
+      margin: $spacing-xl;
+      max-width: 90%;
+      margin: 5px!important;
+      
+    }
+  }
+}
+
+
+.titleContainer {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+  
+  @include for-phone-only {
+    gap: $spacing-sm;
+  }
+}
+
+.titleIcon {
+  width: 1.75em; // 28px
+  height: 1.75em; // 28px
+  color: $color-dodgerblue;
+  
+  @include for-phone-only {
+    width: 1.5em; // 24px
+    height: 1.5em; // 24px
+  }
+}
+
+.titleText {
+  font-family: $font-roc-grotesk;
+  font-size: $font-size-lg;
+  font-weight: 500;
+  color: $color-darkslategray;
+  margin: 0;
+  
+  @include for-phone-only {
+    font-size: $font-size-base;
+  }
+}
+
+.closeButton {
+  color: $color-darkgray;
+  padding: $spacing-xs;
+  border-radius: $border-radius-sm;
+  transition: $transition-normal;
+  
+  &:hover {
+    color: $color-darkslategray;
+    background-color: $color-gainsboro-100;
+  }
+}
+
+.dialogContent {
+  padding: $spacing-xxl $spacing-xxxl;
+  background-color: $color-whitesmoke;
+  max-height: 60vh;
+  overflow-y: auto;
+  
+  @include for-phone-only {
+    padding: $spacing-lg;
+    max-height: 70vh;
+  }
+  
+  @include for-tablet-portrait {
+    padding: $spacing-xl;
+  }
+}
+
+.form {
+  margin-top: 0;
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: $spacing-xl;
+  margin-bottom: $spacing-xl;
+  
+  @include for-phone-only {
+    grid-template-columns: 1fr;
+    gap: $spacing-lg;
+    margin-bottom: $spacing-lg;
+  }
+  
+  @include for-tablet-portrait {
+    gap: $spacing-lg;
+  }
+}
+
+.formField {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-sm;
+  
+  &.fullWidth {
+    grid-column: 1 / -1;
+  }
+}
+
+.fieldLabel {
+  font-family: $font-roc-grotesk;
+  font-size: $font-size-sm;
+  font-weight: 500;
+  color: $color-darkslategray;
+  margin-bottom: $spacing-xs;
+  
+  @include for-phone-only {
+    font-size: $font-size-xs;
+  }
+}
+
+.fieldInput {
+  & .MuiOutlinedInput-root {
+    border-radius: $border-radius-md;
+    background-color: $color-white;
+    font-family: $font-open-sans;
+    font-size: $font-size-base;
+    transition: $transition-normal;
+    
+    @include for-phone-only {
+      font-size: $font-size-sm;
+    }
+    
+    &:hover .MuiOutlinedInput-notchedOutline {
+      border-color: $color-dodgerblue;
+    }
+    
+    &.Mui-focused .MuiOutlinedInput-notchedOutline {
+      border-color: $color-mediumslateblue;
+      border-width: 2px;
+    }
+  }
+  
+  & .MuiOutlinedInput-notchedOutline {
+    border-color: $color-gainsboro-200;
+  }
+  
+  & .MuiInputBase-input {
+    padding: $spacing-md $spacing-lg;
+    
+    @include for-phone-only {
+      padding: $spacing-sm $spacing-md;
+    }
+  }
+}
+
+.errorMessage {
+  color: $color-firebrick;
+  font-family: $font-open-sans;
+  font-size: $font-size-xs;
+  margin-top: $spacing-xs;
+  margin-bottom: 0;
+  
+  @include for-phone-only {
+    font-size: 0.625em; // 10px
+  }
+}
+
+.dialogActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: $spacing-md;
+  padding: $spacing-lg $spacing-xxxl $spacing-xxl $spacing-xxxl;
+  border-top: 1px solid $color-gainsboro-100;
+  background-color: $color-white;
+  
+  @include for-phone-only {
+    padding: $spacing-lg;
+    gap: $spacing-sm;
+    flex-direction: column-reverse;
+  }
+  
+  @include for-tablet-portrait {
+    padding: $spacing-lg $spacing-xl;
+  }
+}
+
+.cancelButton {
+  background-color: transparent;
+  color: $color-darkgray;
+  border: 1px solid $color-gainsboro-200;
+  border-radius: $border-radius-md;
+  font-family: $font-roc-grotesk;
+  font-size: $font-size-base;
+  font-weight: 500;
+  padding: $spacing-md $spacing-xxl;
+  text-transform: none;
+  transition: $transition-normal;
+  
+  @include for-phone-only {
+    padding: $spacing-sm $spacing-lg;
+    font-size: $font-size-sm;
+  }
+  
+  &:hover {
+    background-color: $color-gainsboro-100;
+    border-color: $color-darkgray;
+  }
+}
+
+.submitButton {
+  background-color: $color-dodgerblue;
+  color: $color-white;
+  border: none;
+  border-radius: $border-radius-md;
+  font-family: $font-roc-grotesk;
+  font-size: $font-size-base;
+  font-weight: 500;
+  padding: $spacing-md $spacing-xxl;
+  text-transform: none;
+  box-shadow: 0 0.125em 0.5em rgba(111, 135, 246, 0.3);
+  transition: $transition-normal;
+  
+  @include for-phone-only {
+    padding: $spacing-sm $spacing-lg;
+    font-size: $font-size-sm;
+  }
+  
+  &:hover {
+    background-color: $color-mediumslateblue;
+    box-shadow: 0 0.25em 0.75em rgba(111, 135, 246, 0.4);
+  }
+  
+  &:disabled {
+    background-color: $color-darkgray;
+    box-shadow: none;
+  }
+}
+
+.selectField {
+  border-radius: $border-radius-lg;
+  font-family: $font-open-sans;
+  font-size: $font-size-sm;
+  background-color: $color-white;
+  
+  @include for-phone-only {
+    font-size: $font-size-xs;
+  }
+  
+  & .MuiSelect-select {
+    padding: $spacing-md $spacing-lg;
+    border-radius: $border-radius-lg;
+    
+    @include for-phone-only {
+      padding: $spacing-sm $spacing-md;
+    }
+    
+    &:focus {
+      border-radius: $border-radius-lg;
+      background-color: $color-white;
+    }
+  }
+  
+  & .MuiOutlinedInput-notchedOutline {
+    border-color: $color-gainsboro-200;
+    border-radius: $border-radius-lg;
+  }
+  
+  &:hover .MuiOutlinedInput-notchedOutline {
+    border-color: $color-dodgerblue;
+  }
+  
+  &.Mui-focused .MuiOutlinedInput-notchedOutline {
+    border-color: $color-dodgerblue;
+  }
+}
+
+// Loading state
+.loadingContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: $spacing-xl;
+}
+
+// Alert styles
+.alert {
+  margin-bottom: $spacing-lg;
+  border-radius: $border-radius-md;
+  
+  @include for-phone-only {
+    margin-bottom: $spacing-md;
+  }
+} 
+
+
+//NOWE STYLE
+.customDialogPaper {
+  background-color: $color-gray!important;
+  border-radius: 20px !important;
+  max-width: 600px !important;
+  height: fit-content!important;
+  max-height: 100vh !important;  
+  height: auto !important;
+  overflow-y: auto !important;
+    padding: 16px;
+  @include for-tablet-portrait-up  {
+    padding:24px 50px!important;
+
+  }
+
+   @media (max-width: 320px) {
+   padding:5px 5px!important;
+   width:100%!important;
+   margin:0px!important;
+   padding-right:10px!important;
+
+  }
+   /* Stylowanie scrollbara WebKit */
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent; /* lub inny kolor tła */
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: $color-dodgerblue; /* Twój niebieski kolor z zmiennej SCSS */
+    border-radius: 4px;
+    border: 2px solid transparent; /* Opcjonalne, żeby dodać "padding" */
+    background-clip: content-box;
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background-color: darken($color-dodgerblue, 10%);
+  }
+}
+.dialogTitle {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 1rem;
+  background-color: $color-gray;
+  padding:24px 0px;
+   @include for-tablet-portrait-up  {
+    padding:0 0;
+  }
+}
+
+.titleIcon {
+    width: 43px;
+    height: 43px;
+}
+.modalTitle{
+    color:#5db9a3!important; 
+}
+.helperTitle{
+    color:$color-almostblack;
+}
+.closeIcon{
+  position: absolute;
+  top:16px!important;
+  right:16px!important;
+  transition: transform 0.2s ease-in-out;
+
+  
+  @include for-tablet-portrait-up  {
+   top:32px!important;
+   right:32px!important;
+
+  }
+  @media (max-width: 320px) {
+   top:8px!important;
+   right:8px!important;
+
+  }
+  &:hover {
+    transform: scale(1.125); 
+  }
+}
+.inputWrapper{
+  display: flex;
+  flex-direction: column;
+  row-gap: 0.5em;
+  flex-wrap: wrap;
+  justify-content:center;
+  margin-bottom:'2em';
+
+  @include for-tablet-portrait-up  {
+
+  }
+}
+.formRow{
+   display: flex;
+   flex-direction: row;
+   column-gap: 2em;
+   width:100%;
+   row-gap: 0.5em;
+   @include for-mobile {
+   flex-direction: column;
+   }
+}
+.iconAndTextButton {
+  display: flex;
+  justify-content: flex-start;
+  flex-direction: row;
+  margin: auto auto;
+  column-gap: 5px;
+  cursor: pointer;
+  align-items: center;
+
+  @include for-mobile {
+    margin: 0 1em;
+    padding-top: 1em;
+    padding-bottom: 1em;
+  }
+
+  .importFromGusDataText {
+    font-weight: 400 !important;
+    transition: font-weight 0.3s ease;
+  }
+
+  .iconCheck {
+    transition: transform 0.3s ease;
+    /* lub width/height jeśli wolisz */
+  }
+
+  &:hover {
+    .importFromGusDataText {
+      font-weight: 600 !important;
+    }
+
+    .iconCheck {
+      transform: scale(1.125);
+    }
+  }
+}
+
+.line{ 
+    width: 100%;
+    height: 2px;
+    background-color:$color-blue;
+    border-radius: 3px;
+    margin-top: 1em;
+    margin-bottom: 0em;
+}
+.additionalInfo{
+    padding-left: 1em;
+    font-size: 0.6875em!important;
+    color:  #a7a7a7!important;
+    font-family: "Open Sans", sans-serif;
+    font-weight: 300!important;
+    margin-top: 5px !important;
+    
+  @include for-tablet-portrait-up  {
+    margin-top: 0.25em;
+  }
+
+}
+.addText{
+ color:$color-darkslategray!important;
+ font-size:$font-size-sm !important; //11px
+ font-weight: 300!important;
+ margin: auto 0!important;
+ text-decoration: underline;
+
+  &:hover {
+    font-weight: 600!important;
+  }
+
+  @media (max-width: 320px) {
+  display: none !important;
+  }
+}
+.addCircleButton{
+
+    &:hover{
+    width: 30px;
+    height: 30px;
+  }
+}
+.formRowFooterWithAction{
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+.textInModal{
+  color:$color-darkslategray;
+  //font-size: 0.8125em!important;
+  font-size: 1em!important;
+  padding-left:1em;
+  font-weight: 400!important;
+}
+.importFromGusDataText{
+  color:$color-darkslategray;
+  font-size: 0.8125em!important;
+  font-weight: 400!important;
+  text-decoration: underline;
+}
+.iconCheck{
+  margin:auto 0;
+}
+.boxToKlik{
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  gap: 0.5em;
+  padding-left: 0.5em;
+  cursor: pointer;
+  justify-content: end;
+}
+.boxToKlik:hover {
+    justify-content: end;
+  .addText {
+    color: $color-darkslategray !important;
+    font-size: $font-size-sm !important; // 11px
+    font-weight: 600 !important;  
+    margin: auto 0!important;
+    text-decoration: underline !important;
+  }
+  
+  .addCircleButton {
+    width: 30px;
+    height: 30px;
+  }
+}
+.halfFormRow{
+  width:50%!important;
+  @include for-mobile {
+   width:100%!important;
+  }
+}
+.formRowFooterWithAction{
+  padding-bottom: 2em!important;
+}

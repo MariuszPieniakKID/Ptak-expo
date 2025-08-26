@@ -90,6 +90,19 @@
     width:65%;       
   }
 }
+.editInfo{
+    width:70%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    row-gap: 0.25em;
+    @media (max-width: 527px) {
+    width:75%; 
+  }
+    @media (max-width: 320px) {
+    width:65%;       
+  }
+}
 .dateInfo{
     color:$color-blue;
     font-size:0.875em;//14px
@@ -108,11 +121,45 @@
     justify-content:space-between;
     align-items: flex-end;
 }
+.editInfo{
+    display:flex;
+    flex-direction: row;
+    justify-content:space-between;
+    align-items: flex-end;
+}
 .readyText{
     font-size:  0.6875em!important;
     color:#6F6F6F;
     font-weight: 300!important;
     padding-bottom: 0.25em;
+}
+.fieldLabel{
+    font-size:  0.6875em!important;
+    color:#6F6F6F;
+    font-weight: 300!important;
+    padding-bottom: 0.25em;
+  
+
+}
+.fieldLabelContainer{
+    width: 30%;
+    display:flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    padding-right: 0.25em;
+}
+.fieldValue{
+     font-size:  0.6875em!important;
+    color:$color-almostblack;
+    font-weight: 300!important;
+    padding-bottom: 0.25em;
+}
+.editBox{
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  padding-top:2em;
+ 
 }
 .progressIcon{
     width:50px;
@@ -262,4 +309,98 @@ justify-content: center;
 .closeIcon:hover {
    width: 13px!important;
   height: 13px!important;
+}
+
+.editEventText{
+  font-size: $font-size-sm !important;
+  font-weight: 300!important;
+  color:$color-darkslategray!important;
+  text-decoration: underline;
+  cursor:pointer;
+    @include for-phone-only {
+    display:none;
+  }
+}
+
+.editEvent{
+   cursor:pointer;
+   height: 0.8123em !important;
+   width: auto!important;
+}
+.boxWithHover{
+    cursor: pointer; 
+    display:flex; 
+    align-items: center; 
+    column-gap: 1em;
+  &:hover {
+    .editEventText{
+      font-weight: 500;
+      color: $color-blue!important;
+      font-size: 11px!important;
+    }
+    .editEvent {
+      color: $color-blue!important;
+      fill: $color-blue!important;
+      transition: all 0.2s ease;
+    }
+  }
+}
+.editEventText {
+  transition: all 0.2s ease;
+
+}
+
+.editEvent {
+  width: 16px;
+  height: 16px;
+  transition: all 0.2s ease;
+}
+
+
+._noEffectsButton {
+  background-color: transparent !important;
+  outline: none !important;
+  border: none !important;
+  box-shadow: none !important;
+  transition: none !important;
+  padding-left: 0.5em!important;
+  
+  &:hover {
+    background-color: transparent !important; 
+    
+
+    svg {
+      color: $color-blue !important; 
+    }
+  }
+
+  &:active,
+  &:focus,
+  &:visited,
+  &:focus-visible {
+    background-color: transparent !important;
+    box-shadow: none !important;
+    outline: none !important;
+  }
+}
+.actionEditButton{
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  justify-content: right;
+
+  
+  .MuiIconButton-root {
+    padding: $spacing-sm;
+    border-radius: $border-radius-sm;
+    transition: $transition-normal;
+    
+    @include for-phone-only {
+      padding: $spacing-xs;
+    }
+    
+    &:hover {
+      background-color: $color-gainsboro-100;
+    }
+  }
 }

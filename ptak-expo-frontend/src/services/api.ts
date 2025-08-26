@@ -47,6 +47,7 @@ export interface Exhibition {
   status: string;
   created_at: string;
   updated_at: string;
+  trade?:'Dom'|'Budownictwo'|'Inne';//TODOO
 }
 
 const apiCall = async (url: string, options: RequestInit, retries = 3): Promise<Response> => {
@@ -267,6 +268,7 @@ export interface AddExhibitionPayload {
   end_date: string;
   location?: string;
   status?: string;
+  field?:string; //LISTA ZAMKNIETA?
 }
 
 export const addExhibition = async (exhibitionData: AddExhibitionPayload, token: string): Promise<Exhibition> => {
