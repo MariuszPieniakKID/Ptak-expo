@@ -10,6 +10,11 @@ import styles from './EventCardPage.module.scss';
 import { useState } from 'react';
 import CustomTypography from '../../components/customTypography/CustomTypography';
 import SingleEventCard from '../../components/singleEventCard/SingleEventCard';
+import Branding from '../../components/eventComponents/branding/Branding';
+import TradeFairInformation from '../../components/eventComponents/tradeFairInformation/TradeFairInformation';
+import Invitations from '../../components/eventComponents/invitations/Invitations';
+import TradeFairEvents from '../../components/eventComponents/tradeFairEvents/TradeFairEvents';
+import PushNotification from '../../components/eventComponents/pushNotification/PushNotification';
 
 
 type EventCardPagetProps = {
@@ -236,31 +241,31 @@ function EventCardPage({ event }: EventCardPagetProps) {
                     <CustomTabPanel value={value} index={0}>
                     <Box className={styles.tabPaperContainer}>
                         <Box className={styles.leftContainer}>{renderEvent(event)}</Box>
-                        <Box className={styles.rightContainer}>{event ? <Box>0</Box>: null}</Box>
+                        <Box className={styles.rightContainer}>{event ? <Branding alwaysExpanded event={event}/>: null}</Box>
                     </Box>
                     </CustomTabPanel>
                     <CustomTabPanel value={value} index={1}>
                     <Box className={styles.tabPaperContainer}>
-                        <Box className={styles.leftContainer}>event</Box>
-                        <Box className={styles.rightContainer}>{event ? <Box>1</Box>: null}</Box>
+                        <Box className={styles.leftContainer}>{renderEvent(event)}</Box>
+                        <Box className={styles.rightContainer}>{event ? <TradeFairInformation alwaysExpanded event={event}/>: null}</Box>
                     </Box>                  
                     </CustomTabPanel>
                     <CustomTabPanel value={value} index={2}>
                     <Box className={styles.tabPaperContainer}>
-                        <Box className={styles.leftContainer}>event</Box>
-                        <Box className={styles.rightContainer}>{event ? <Box>2</Box>: null}</Box>
+                        <Box className={styles.leftContainer}>{renderEvent(event)}</Box>
+                        <Box className={styles.rightContainer}>{event ? <Invitations alwaysExpanded event={event}/>: null}</Box>
                     </Box>                    
                     </CustomTabPanel>
                     <CustomTabPanel value={value} index={3}>
                     <Box className={styles.tabPaperContainer}>
-                        <Box className={styles.leftContainer}>event</Box>
-                        <Box className={styles.rightContainer}>{event ? <Box>3</Box>: null}</Box>
+                        <Box className={styles.leftContainer}>{renderEvent(event)}</Box>
+                        <Box className={styles.rightContainer}>{event ? <TradeFairEvents alwaysExpanded event={event}/>: null}</Box>
                     </Box>
                     </CustomTabPanel>
                     <CustomTabPanel value={value} index={4}>
                     <Box className={styles.tabPaperContainer}>
-                        <Box className={styles.leftContainer}>event</Box>
-                        <Box className={styles.rightContainer}>{event ? <Box>4</Box>: null}</Box>
+                        <Box className={styles.leftContainer}>{renderEvent(event)}</Box>
+                        <Box className={styles.rightContainer}>{event ? <PushNotification alwaysExpanded event={event} />: null}</Box>
                     </Box>  
                     </CustomTabPanel>
         </Box>
