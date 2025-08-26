@@ -11,8 +11,8 @@ import styles from './CustomField.module.scss';
 export type OptionType = {
   value: string | number;
   label: React.ReactNode;
-  description?: React.ReactNode; // opcjonalne dodatkowe info
-  [key: string]: any; // inne pola, jeśli potrzebujesz
+  description?: React.ReactNode;
+  [key: string]: any;
 };
 
 type CustomFieldProps = {
@@ -32,10 +32,11 @@ type CustomFieldProps = {
   errorMessageClassName?: string;
   name?: string;
   options?: OptionType[];
-  showOptionsExternal?: boolean; // Sterowanie widocznością listy z zewnątrz
-  onShowOptionsChange?: (visible: boolean) => void; // Callback do zmiany widoczności
-  forceSelectionFromOptions?: boolean; // Wymuszanie wyboru tylko spośród opcji
-
+  showOptionsExternal?: boolean;
+  onShowOptionsChange?: (visible: boolean) => void;
+  forceSelectionFromOptions?: boolean;
+  multiline?: boolean;
+  rows?: number;
   slots?: {
     endAdornment?: React.ReactNode;
     [key: string]: React.ReactNode | undefined;
@@ -62,6 +63,8 @@ const CustomField: FC<CustomFieldProps> = ({
   showOptionsExternal,
   onShowOptionsChange,
   forceSelectionFromOptions = false,
+  multiline = false,
+  rows = 1,
   slots,
 }) => {
   const [focused, setFocused] = useState(false);
@@ -252,6 +255,8 @@ const CustomField: FC<CustomFieldProps> = ({
         onFocus={() => setFocused(true)}
         onBlur={handleBlur}
         onKeyDown={handleKeyDown}
+        multiline={multiline}
+        {...(multiline ? { rows } : {})}
         InputProps={{
           endAdornment: getEndAdornment(),
           autoComplete: 'off',

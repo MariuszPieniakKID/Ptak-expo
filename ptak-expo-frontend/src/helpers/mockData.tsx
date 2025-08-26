@@ -1,3 +1,4 @@
+import { OptionType } from "../components/customField/CustomField";
 import { InvitationStatus } from "../components/exhibitorInvitations/statusOfSentInvitations/StatusOfSentInvitations";
 import { _AddedEvent, _TradeAwardsFair } from "../types/types";
 
@@ -240,3 +241,11 @@ export const samplrTradeAwardsFair:_TradeAwardsFair[]=[
   },
 
 ];
+
+  export const fieldOptions: OptionType[] = [
+    { value: 'all', label: 'Wszystkie' },
+    { value: 'house', label: 'Dom' },
+    { value: 'reaEstate', label: 'Nieruchomości' },
+    { value: 'garden', label: 'Ogród' },
+    { value: 'other', label: 'Inne' },
+  ];

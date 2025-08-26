@@ -201,7 +201,9 @@ const EventsPage: React.FC = () => {
             >
               <CardContent className={styles.eventContent}>
                 <Box className={styles.eventImage}>
-                  <img src="/assets/zrzut-ekranu-2025059-o-135948@2x.png" alt={exhibition.name} className={styles.eventImg} />
+                  <img src="/assets/zrzut-ekranu-2025059-o-135948@2x.png" 
+                  alt={exhibition.name} 
+                  className={styles.eventImg} />
                 </Box>
                 <Box className={styles.eventInfo}>
                   <CustomTypography className={styles.eventDate}>
