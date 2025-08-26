@@ -41,21 +41,23 @@ const upload = multer({
   }
 });
 
-// Routes (tylko admin)
+// Routes (admin for mutations)
 router.post('/upload', verifyToken, requireAdmin, upload.single('file'), uploadBrandingFile);
-router.get('/:exhibitorId/:exhibitionId', verifyToken, requireAdmin, getBrandingFiles);
 router.delete('/file/:fileId', verifyToken, requireAdmin, deleteBrandingFile);
-router.get('/serve/:exhibitorId/:fileName', verifyToken, requireAdmin, serveBrandingFile);
 
-// Alias routes for global branding files
-router.get('/global/:exhibitionId', verifyToken, requireAdmin, (req, res) => {
+// Public read routes for global branding files MUST come before generic param routes
+router.get('/global/:exhibitionId', (req, res) => {
   req.params.exhibitorId = 'global';
   return getBrandingFiles(req, res);
 });
-router.get('/serve/global/:fileName', verifyToken, requireAdmin, (req, res) => {
+router.get('/serve/global/:fileName', (req, res) => {
   req.params.exhibitorId = 'global';
   return serveBrandingFile(req, res);
 });
+
+// Generic read routes (protected)
+router.get('/:exhibitorId/:exhibitionId', verifyToken, requireAdmin, getBrandingFiles);
+router.get('/serve/:exhibitorId/:fileName', verifyToken, serveBrandingFile);
 router.get('/file-types', verifyToken, requireAdmin, (req, res) => {
   res.json({
     success: true,

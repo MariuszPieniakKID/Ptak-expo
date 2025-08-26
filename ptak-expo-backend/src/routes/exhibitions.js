@@ -102,17 +102,26 @@ router.get('/', async (req, res) => {
     
     const result = await db.query(`
       SELECT 
-        id,
-        name,
-        description,
-        start_date,
-        end_date,
-        location,
-        status,
-        created_at,
-        updated_at
-      FROM exhibitions 
-      ORDER BY start_date ASC
+        e.id,
+        e.name,
+        e.description,
+        e.start_date,
+        e.end_date,
+        e.location,
+        e.status,
+        e.created_at,
+        e.updated_at,
+        (
+          SELECT ebf.file_name
+          FROM exhibitor_branding_files ebf
+          WHERE ebf.exhibition_id = e.id
+            AND ebf.exhibitor_id IS NULL
+            AND ebf.file_type = 'event_logo'
+          ORDER BY ebf.created_at DESC
+          LIMIT 1
+        ) AS event_logo_file_name
+      FROM exhibitions e
+      ORDER BY e.start_date ASC
     `);
     
     console.log(`Found ${result.rows.length} exhibitions`);

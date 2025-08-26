@@ -4,7 +4,7 @@ import LeftColumn from '../components/event-left/LeftColumn';
 import IdentifierCard, { type Identifier } from '../components/identifierCard/IdentifierCard';
 import { useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import { exhibitionsAPI, tradeInfoAPI } from '../services/api';
+import { exhibitionsAPI, tradeInfoAPI, brandingAPI } from '../services/api';
 import styles from './EventHomePage.module.scss';
 
 const formatDate = (iso?: string): string => {
@@ -25,9 +25,10 @@ const EventIdentifierPage = () => {
       if (!eventId) return;
       try {
         const idNum = Number(eventId);
-        const [evRes, tradeRes] = await Promise.all([
+        const [evRes, tradeRes, brandingRes] = await Promise.all([
           exhibitionsAPI.getById(idNum),
           tradeInfoAPI.get(idNum).catch(() => null),
+          brandingAPI.getGlobal(idNum).catch(() => null),
         ]);
 
         const e = evRes.data;
@@ -45,6 +46,14 @@ const EventIdentifierPage = () => {
           ? (trade.tradeSpaces[0]?.hallName || '')
           : (e.location || '');
 
+        // Resolve header image from global branding files
+        let headerImageUrl = '/assets/background.png';
+        const files = brandingRes && brandingRes.data && brandingRes.data.success ? brandingRes.data.files : null;
+        const headerFile = files && (files['kolorowe_tlo_logo_wydarzenia'] || files['tlo_wydarzenia_logo_zaproszenia']);
+        if (headerFile?.fileName) {
+          headerImageUrl = brandingAPI.serveGlobalUrl(headerFile.fileName);
+        }
+
         const data: Identifier = {
           id: String(e.id),
           eventName: e.name || '',
@@ -54,7 +63,7 @@ const EventIdentifierPage = () => {
           type: 'Wystawca',
           location: hallName,
           qrCodeUrl: `https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${encodeURIComponent(String(e.id))}`,
-          headerImageUrl: '/assets/background.png',
+          headerImageUrl,
           logoUrl: '/assets/logo192.png',
         };
         setIdentifier(data);

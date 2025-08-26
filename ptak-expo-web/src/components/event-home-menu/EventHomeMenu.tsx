@@ -22,9 +22,15 @@ const EventHomeMenu: React.FC<Props> = ({ id }) => {
       <Grid container spacing={4}>
         {menu.map((tile) => {
           const Icon = tile.icon;
+          const disabled = tile.id === 'info';
           return (
             <Grid size={{ xs: 12, md: 6 }} key={tile.id}>
-              <Card onClick={() => navigate(tile.href)} className={styles.card}>
+              <Card
+                onClick={!disabled ? () => navigate(tile.href) : undefined}
+                aria-disabled={disabled || undefined}
+                className={styles.card}
+                sx={{ cursor: disabled ? 'default' : 'pointer', opacity: disabled ? 0.6 : undefined }}
+              >
                 <CardContent>
                   <Icon sx={{ fontSize: 48, color: 'primary.main', mb: 1 }} />
                   <Typography variant="body1" fontWeight={500}>{tile.title}</Typography>

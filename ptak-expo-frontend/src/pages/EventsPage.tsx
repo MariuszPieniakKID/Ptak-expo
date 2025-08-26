@@ -5,7 +5,7 @@ import Menu from '../components/menu/Menu';
 import AddEventModal from '../components/AddEventModal';
 import CustomTypography from '../components/customTypography/CustomTypography';
 import CustomButton from '../components/customButton/CustomButton';
-import { fetchExhibitions, Exhibition } from '../services/api';
+import { fetchExhibitions, Exhibition, getBrandingFileUrl } from '../services/api';
 import {
   Box,
   Container,
@@ -201,7 +201,20 @@ const EventsPage: React.FC = () => {
             >
               <CardContent className={styles.eventContent}>
                 <Box className={styles.eventImage}>
-                  <img src="/assets/zrzut-ekranu-2025059-o-135948@2x.png" alt={exhibition.name} className={styles.eventImg} />
+                  {(() => {
+                    const fileName = (exhibition as any).event_logo_file_name as string | undefined;
+                    const src = fileName && token 
+                      ? `${getBrandingFileUrl(null, fileName, token)}&cb=${Date.now()}`
+                      : '/assets/zrzut-ekranu-2025059-o-135948@2x.png';
+                    return (
+                      <img
+                        src={src}
+                        onError={(e) => { (e.target as HTMLImageElement).src = '/assets/zrzut-ekranu-2025059-o-135948@2x.png'; }}
+                        alt={exhibition.name}
+                        className={styles.eventImg}
+                      />
+                    );
+                  })()}
                 </Box>
                 <Box className={styles.eventInfo}>
                   <CustomTypography className={styles.eventDate}>
