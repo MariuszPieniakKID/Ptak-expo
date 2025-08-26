@@ -247,7 +247,8 @@ const AddEventToExhibitorModal: React.FC<AddEventToExhibitorModalProps> = ({
         exhibitorId,
         companyName,
         onClose,
-        onEventToExhibitiorAdd
+        onEventToExhibitiorAdd,
+        token
     ]
   );
 
