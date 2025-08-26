@@ -1,4 +1,3 @@
-import React from 'react';
 import styles from './ChecklistPage.module.scss';
 import CustomButton from '../components/customButton/CustomButton';
 import CustomTypography from '../components/customTypography/CustomTypography';
@@ -44,13 +43,14 @@ const ChecklistPage: React.FC = () => {
                 'Pobierz\nE-Identyfikatory',
                 'Wgraj\nmateriały',
                 'Zaplanuj\nTargi',
-              ].map((label) => (
+              ].map((label, i) => (
                 <div key={label} className={styles.step}>
-                  <div className={styles.stepCircle} />
+                  <img src={`/assets/checklist-step-${i + 1}.svg`} alt=""></img>
                   <div className={styles.stepLabel}>{label}</div>
                 </div>
               ))}
             </div>
+            <div className={styles.topHeading}>Zgłoś swój produkt / usługę / projekt do nagrody targowej!</div>
           </div>
 
           {/* Detailed sections */}

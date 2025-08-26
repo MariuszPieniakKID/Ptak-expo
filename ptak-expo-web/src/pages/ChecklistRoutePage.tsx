@@ -9,7 +9,7 @@ const ChecklistRoutePage: React.FC = () => {
   return (
     <EventLayout
       left={<LeftColumn eventId={eventId || '0'} isDarkBg={true} />}
-      right={<ChecklistPage/>}
+      right={<ChecklistPage />}
       colorLeft="#bb1821"
     />
   );
