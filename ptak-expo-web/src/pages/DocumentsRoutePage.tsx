@@ -10,7 +10,7 @@ const DocumentsRoutePage: React.FC = () => {
 
   return (
     <EventLayout
-      left={<LeftColumn eventId={eventId || '0'} />}
+      left={<LeftColumn eventId={eventId || '0'} isDarkBg={true} />}
       right={<Box sx={{ paddingTop: '2rem' }}><DocumentsPage /></Box>}
       colorLeft="#145d5a"
     />

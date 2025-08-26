@@ -67,7 +67,7 @@ const EventIdentifierPage = () => {
 
   return (
     <EventLayout
-      left={<LeftColumn eventId={eventId || '0'} />}
+      left={<LeftColumn eventId={eventId || '0'} isDarkBg={true}/>}
       right={<Box className={styles.rightContainer}>{identifier && <IdentifierCard data={identifier} />}</Box>}
       colorRight="#5a6ec8"
       colorLeft="#2E2E38"
