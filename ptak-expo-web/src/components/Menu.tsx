@@ -35,8 +35,7 @@ const Menu: FunctionComponent<MenuType> = ({ className = '', onLogout }) => {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const eventId = params.eventId || '1';
-  // Temporarily hide checklist from menu
-  const menuItems = useMemo(() => navItems.filter((i) => i.key !== 'checklist'), []);
+  const menuItems = navItems;
   const isDisabled = (key: string) => key === 'info';
   const activeIndex = useMemo(() => {
     const base = `/event/${eventId}`;

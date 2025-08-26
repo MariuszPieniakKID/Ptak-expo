@@ -226,7 +226,8 @@ const AddEventToExhibitorModal: React.FC<AddEventToExhibitorModalProps> = ({
         await assignExhibitorToEvent(
           exhibitorId,
           eventAddedToExhibitor.exhibitionId,
-          token
+          token,
+          eventAddedToExhibitor.exhibitionSupervisor ? Number(eventAddedToExhibitor.exhibitionSupervisor) : null,
         );
 
         resetForm();

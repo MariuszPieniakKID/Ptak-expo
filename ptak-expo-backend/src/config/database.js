@@ -230,9 +230,16 @@ const initializeDatabase = async () => {
         id SERIAL PRIMARY KEY,
         exhibitor_id INTEGER REFERENCES exhibitors(id) ON DELETE CASCADE,
         exhibition_id INTEGER REFERENCES exhibitions(id) ON DELETE CASCADE,
+        supervisor_user_id INTEGER REFERENCES users(id),
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         UNIQUE(exhibitor_id, exhibition_id)
       )
+    `);
+
+    // Ensure supervisor_user_id column exists for older databases
+    await pool.query(`
+      ALTER TABLE exhibitor_events
+      ADD COLUMN IF NOT EXISTS supervisor_user_id INTEGER REFERENCES users(id)
     `);
 
     console.log('🔍 Creating exhibitor_branding_files table...');

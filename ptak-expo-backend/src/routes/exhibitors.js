@@ -258,7 +258,7 @@ router.delete('/:id', verifyToken, requireAdmin, async (req, res) => {
 router.post('/:id/assign-event', verifyToken, requireAdmin, async (req, res) => {
   try {
     const { id } = req.params;
-    const { exhibitionId } = req.body;
+    const { exhibitionId, supervisorUserId } = req.body;
     
     if (!exhibitionId) {
       return res.status(400).json({
@@ -268,6 +268,9 @@ router.post('/:id/assign-event', verifyToken, requireAdmin, async (req, res) => 
     }
     
     console.log(`Assigning exhibitor ${id} to exhibition ${exhibitionId}`);
+    if (supervisorUserId) {
+      console.log(`With supervisor user id: ${supervisorUserId}`);
+    }
     
     // Sprawdź czy wystawca istnieje
     const exhibitorCheck = await db.query(
@@ -295,10 +298,27 @@ router.post('/:id/assign-event', verifyToken, requireAdmin, async (req, res) => 
       });
     }
     
-    // Przypisz wystawcę do wydarzenia (ON CONFLICT DO NOTHING żeby uniknąć duplikatów)
+    // Opcjonalnie sprawdź czy supervisor istnieje
+    let supervisorRecord = null;
+    if (supervisorUserId) {
+      const supCheck = await db.query('SELECT id, first_name, last_name, email FROM users WHERE id = $1', [supervisorUserId]);
+      if (supCheck.rows.length === 0) {
+        return res.status(400).json({
+          success: false,
+          error: 'Nieprawidłowy opiekun. Użytkownik nie istnieje.'
+        });
+      }
+      supervisorRecord = supCheck.rows[0];
+    }
+
+    // Przypisz wystawcę do wydarzenia i zapisz opiekuna (ON CONFLICT aktualizuje opiekuna)
     const assignResult = await db.query(
-      'INSERT INTO exhibitor_events (exhibitor_id, exhibition_id) VALUES ($1, $2) ON CONFLICT (exhibitor_id, exhibition_id) DO NOTHING RETURNING *',
-      [id, exhibitionId]
+      `INSERT INTO exhibitor_events (exhibitor_id, exhibition_id, supervisor_user_id)
+       VALUES ($1, $2, $3)
+       ON CONFLICT (exhibitor_id, exhibition_id)
+       DO UPDATE SET supervisor_user_id = EXCLUDED.supervisor_user_id
+       RETURNING *`,
+      [id, exhibitionId, supervisorUserId || null]
     );
     
     const exhibitor = exhibitorCheck.rows[0];
@@ -313,7 +333,14 @@ router.post('/:id/assign-event', verifyToken, requireAdmin, async (req, res) => 
           exhibitorId: parseInt(id),
           exhibitorName: exhibitor.company_name,
           exhibitionId: parseInt(exhibitionId),
-          exhibitionName: exhibition.name
+          exhibitionName: exhibition.name,
+          supervisorUserId: assignResult.rows[0].supervisor_user_id || null,
+          supervisor: supervisorRecord ? {
+            id: supervisorRecord.id,
+            firstName: supervisorRecord.first_name,
+            lastName: supervisorRecord.last_name,
+            email: supervisorRecord.email
+          } : null
         }
       });
     } else {
@@ -325,7 +352,8 @@ router.post('/:id/assign-event', verifyToken, requireAdmin, async (req, res) => 
           exhibitorId: parseInt(id),
           exhibitorName: exhibitor.company_name,
           exhibitionId: parseInt(exhibitionId),
-          exhibitionName: exhibition.name
+          exhibitionName: exhibition.name,
+          supervisorUserId: assignResult.rows[0]?.supervisor_user_id || null
         }
       });
     }

@@ -1,0 +1,480 @@
+
+> ptak-expo-backend@1.0.0 start
+> node src/index.js
+
+🔍 Starting PTAK EXPO Backend...
+🔍 Node.js version: v20.19.1
+🔍 Environment: development
+🔍 Port from env: 3001
+🔍 DATABASE_URL: SET (length: 93)
+🔍 JWT_SECRET: SET (length: 41)
+🔍 CORS_ORIGIN: http://localhost:3000
+🔍 Railway Environment Variables:
+  - RAILWAY_ENVIRONMENT: not set
+  - RAILWAY_SERVICE_NAME: not set
+  - RAILWAY_DEPLOYMENT_ID: not set
+🔍 Local development environment, using local database
+🔍 Database config - Selected URL: SET (starts with: postgresql://postgre...)
+🔍 Database config - NODE_ENV: development
+🔍 Database config - RAILWAY_ENVIRONMENT: not set
+🔍 Database config - SSL mode: disabled
+🔍 Database pool created
+🔍 Database module loaded - initialization will be handled by server startup
+🔍 Loading database config...
+🔍 Will listen on port: 3001
+🔍 CORS allowed origins: [
+  'http://localhost:3000',
+  'http://localhost:3002',
+  'http://localhost:3000',
+  'https://frontend-production-fb96.up.railway.app',
+  'https://ptak-expo-production.up.railway.app'
+]
+🚀 PTAK EXPO Backend API running on port 3001
+📊 Environment: development
+🔗 Health check: http://localhost:3001/
+🔍 DATABASE_URL: Set
+🔍 JWT_SECRET: Set
+🔍 Server started successfully, initializing database in background...
+🔍 Starting database initialization...
+🔍 Testing database connection...
+💾 Connected to PostgreSQL database
+✅ Database connection test successful
+🔍 Creating users table...
+🔍 Checking status column...
+✅ Status column already exists
+🔍 Current users table structure:
+  - id: integer NOT NULL DEFAULT nextval('users_id_seq'::regclass)
+  - email: character varying NOT NULL 
+  - password_hash: character varying NOT NULL 
+  - role: character varying NOT NULL DEFAULT 'guest'::character varying
+  - first_name: character varying NULL 
+  - last_name: character varying NULL 
+  - company_name: character varying NULL 
+  - phone: character varying NULL 
+  - status: character varying NULL DEFAULT 'active'::character varying
+  - created_at: timestamp with time zone NULL DEFAULT now()
+  - updated_at: timestamp with time zone NULL DEFAULT now()
+🔍 Creating exhibitions table...
+🔍 Creating documents table...
+🔍 Creating marketing_materials table...
+🔍 Creating communications table...
+🔍 Creating invitations table...
+🔍 Creating exhibitors table...
+🔍 Creating exhibitor_events table...
+🔍 Creating exhibitor_branding_files table...
+🔍 Creating indexes for exhibitor_branding_files table...
+🔍 Creating trade_info table...
+🔍 Creating trade_build_days table...
+🔍 Creating trade_spaces table...
+🔍 Creating invitation_templates table...
+🔍 Creating invitation_recipients table...
+🔍 Creating exhibitor_documents table...
+🔍 Creating indexes for trade_info and invitations tables...
+🔍 Creating trade_events table...
+🔍 Inserting admin user...
+🔍 Inserting test users...
+🔍 Inserting test exhibitors...
+🔍 Skipping test exhibitions insertion (disabled to prevent auto-creation)
+✅ Database tables initialized successfully
+✅ Database initialization completed
+Token verification error: TokenExpiredError: jwt expired
+    at /Users/kid/Ptak-expo/ptak-expo-backend/node_modules/jsonwebtoken/verify.js:190:21
+    at getSecret (/Users/kid/Ptak-expo/ptak-expo-backend/node_modules/jsonwebtoken/verify.js:97:14)
+    at module.exports [as verify] (/Users/kid/Ptak-expo/ptak-expo-backend/node_modules/jsonwebtoken/verify.js:101:10)
+    at verifyToken (/Users/kid/Ptak-expo/ptak-expo-backend/src/controllers/authController.js:278:25)
+    at Layer.handle [as handle_request] (/Users/kid/Ptak-expo/ptak-expo-backend/node_modules/express/lib/router/layer.js:95:5)
+    at next (/Users/kid/Ptak-expo/ptak-expo-backend/node_modules/express/lib/router/route.js:149:13)
+    at Route.dispatch (/Users/kid/Ptak-expo/ptak-expo-backend/node_modules/express/lib/router/route.js:119:3)
+    at Layer.handle [as handle_request] (/Users/kid/Ptak-expo/ptak-expo-backend/node_modules/express/lib/router/layer.js:95:5)
+    at /Users/kid/Ptak-expo/ptak-expo-backend/node_modules/express/lib/router/index.js:284:15
+    at Function.process_params (/Users/kid/Ptak-expo/ptak-expo-backend/node_modules/express/lib/router/index.js:346:12) {
+  expiredAt: 2025-08-19T16:19:03.000Z
+}
+Token verification error: TokenExpiredError: jwt expired
+    at /Users/kid/Ptak-expo/ptak-expo-backend/node_modules/jsonwebtoken/verify.js:190:21
+    at getSecret (/Users/kid/Ptak-expo/ptak-expo-backend/node_modules/jsonwebtoken/verify.js:97:14)
+    at module.exports [as verify] (/Users/kid/Ptak-expo/ptak-expo-backend/node_modules/jsonwebtoken/verify.js:101:10)
+    at verifyToken (/Users/kid/Ptak-expo/ptak-expo-backend/src/controllers/authController.js:278:25)
+    at Layer.handle [as handle_request] (/Users/kid/Ptak-expo/ptak-expo-backend/node_modules/express/lib/router/layer.js:95:5)
+    at next (/Users/kid/Ptak-expo/ptak-expo-backend/node_modules/express/lib/router/route.js:149:13)
+    at Route.dispatch (/Users/kid/Ptak-expo/ptak-expo-backend/node_modules/express/lib/router/route.js:119:3)
+    at Layer.handle [as handle_request] (/Users/kid/Ptak-expo/ptak-expo-backend/node_modules/express/lib/router/layer.js:95:5)
+    at /Users/kid/Ptak-expo/ptak-expo-backend/node_modules/express/lib/router/index.js:284:15
+    at Function.process_params (/Users/kid/Ptak-expo/ptak-expo-backend/node_modules/express/lib/router/index.js:346:12) {
+  expiredAt: 2025-08-19T16:19:03.000Z
+}
+🔍 LOGIN ATTEMPT - Backend Version 3.0 - STATUS FIELD FIXED
+🔍 Login attempt for email: test.admin@ptak-expo.com
+🔍 Request headers: {
+  host: 'localhost:3001',
+  accept: '*/*',
+  'content-type': 'application/json',
+  'sec-fetch-site': 'same-site',
+  origin: 'http://localhost:3000',
+  'sec-fetch-mode': 'cors',
+  'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0.1 Safari/605.1.15',
+  referer: 'http://localhost:3000/',
+  'sec-fetch-dest': 'empty',
+  'content-length': '57',
+  'accept-language': 'pl-PL,pl;q=0.9',
+  priority: 'u=3, i',
+  'accept-encoding': 'gzip, deflate',
+  connection: 'keep-alive'
+}
+🔍 Querying database for user: test.admin@ptak-expo.com
+🔍 Trying query WITH status field...
+✅ Query with status field successful
+🔍 Query result: 1 rows found
+🔍 Found user: test.admin@ptak-expo.com role: admin
+🔍 User found: test.admin@ptak-expo.com role: admin
+🔍 Stored password hash: $2a$10$NLrhOzCPxUW1Xw/ylXHfwew4XJO90LnkqS.5VuI/kEy7jEU2CLT5G
+🔍 Password valid: true
+Fetching exhibitions from database...
+Fetching exhibitions from database...
+Found 11 exhibitions
+💾 Connected to PostgreSQL database
+Found 11 exhibitions
+Fetching exhibitors from database...
+Fetching exhibitors from database...
+Found 9 exhibitors
+Found 9 exhibitors
+Fetching exhibitor with ID: 450
+Fetching exhibitor with ID: 450
+Fetching exhibitor with ID: 450
+Fetching exhibitor with ID: 450
+Fetching exhibitor with ID: 450
+Fetching exhibitor with ID: 450
+Fetching exhibitor with ID: 450
+Fetching exhibitor with ID: 450
+💾 Connected to PostgreSQL database
+💾 Connected to PostgreSQL database
+Fetching exhibitor with ID: 450
+Fetching exhibitor with ID: 450
+💾 Connected to PostgreSQL database
+Fetching exhibitor with ID: 450
+Fetching exhibitor with ID: 450
+Fetching exhibitor with ID: 450
+Fetching exhibitions from database...
+Fetching exhibitions from database...
+Found 11 exhibitions
+Found 11 exhibitions
+Fetching exhibitors from database...
+Fetching exhibitors from database...
+Found 9 exhibitors
+Found 9 exhibitors
+Fetching exhibitor with ID: 450
+Fetching exhibitor with ID: 450
+Fetching exhibitor with ID: 450
+Fetching exhibitor with ID: 450
+Fetching exhibitors from database...
+Fetching exhibitors from database...
+Found 9 exhibitors
+Found 9 exhibitors
+Fetching exhibitor with ID: 450
+Fetching exhibitor with ID: 450
+Fetching exhibitions from database...
+Found 11 exhibitions
+Fetching exhibitions from database...
+Found 11 exhibitions
+Fetching exhibitions from database...
+Fetching exhibitions from database...
+Found 11 exhibitions
+Found 11 exhibitions
+Fetching exhibitors from database...
+Fetching exhibitors from database...
+Found 9 exhibitors
+Found 9 exhibitors
+Fetching exhibitor with ID: 450
+Fetching exhibitor with ID: 450
+Fetching exhibitor with ID: 450
+Fetching exhibitions from database...
+Fetching exhibitions from database...
+Found 11 exhibitions
+Found 11 exhibitions
+Fetching exhibitors from database...
+Fetching exhibitors from database...
+Found 9 exhibitors
+Found 9 exhibitors
+Fetching exhibitor with ID: 580
+Fetching exhibitor with ID: 580
+Fetching exhibitors from database...
+Fetching exhibitors from database...
+Found 9 exhibitors
+Found 9 exhibitors
+Fetching exhibitor with ID: 21
+Fetching exhibitor with ID: 21
+Fetching exhibitor with ID: 21
+Fetching exhibitor with ID: 21
+Fetching exhibitor with ID: 21
+Fetching exhibitor with ID: 21
+Fetching exhibitor with ID: 21
+Fetching exhibitor with ID: 21
+Fetching exhibitor with ID: 21
+💾 Connected to PostgreSQL database
+Fetching exhibitor with ID: 21
+Fetching exhibitor with ID: 21
+💾 Connected to PostgreSQL database
+💾 Connected to PostgreSQL database
+Fetching exhibitions from database...
+Fetching exhibitions from database...
+Found 11 exhibitions
+Found 11 exhibitions
+Fetching exhibitors from database...
+Fetching exhibitors from database...
+Found 9 exhibitors
+Found 9 exhibitors
+Fetching exhibitions from database...
+Fetching exhibitions from database...
+Found 11 exhibitions
+Found 11 exhibitions
+Fetching exhibitors from database...
+Fetching exhibitors from database...
+Found 9 exhibitors
+Found 9 exhibitors
+Fetching exhibitor with ID: 21
+Fetching exhibitor with ID: 21
+💾 Connected to PostgreSQL database
+Fetching exhibitor with ID: 21
+Fetching exhibitor with ID: 21
+💾 Connected to PostgreSQL database
+💾 Connected to PostgreSQL database
+Fetching exhibitor with ID: 21
+💾 Connected to PostgreSQL database
+💾 Connected to PostgreSQL database
+💾 Connected to PostgreSQL database
+💾 Connected to PostgreSQL database
+Fetching exhibitors from database...
+Fetching exhibitors from database...
+Found 9 exhibitors
+Found 9 exhibitors
+Fetching exhibitors from database...
+Fetching exhibitors from database...
+Found 9 exhibitors
+Found 9 exhibitors
+Fetching exhibitor with ID: 21
+Fetching exhibitor with ID: 21
+Fetching exhibitors from database...
+Fetching exhibitors from database...
+💾 Connected to PostgreSQL database
+💾 Connected to PostgreSQL database
+Found 9 exhibitors
+Found 9 exhibitors
+Fetching exhibitor with ID: 580
+Fetching exhibitor with ID: 580
+Fetching exhibitors from database...
+Fetching exhibitors from database...
+Found 9 exhibitors
+Found 9 exhibitors
+Fetching exhibitions from database...
+Fetching exhibitions from database...
+Found 11 exhibitions
+Found 11 exhibitions
+Fetching exhibitors from database...
+Fetching exhibitors from database...
+Found 9 exhibitors
+Found 9 exhibitors
+Fetching exhibitor with ID: 21
+Fetching exhibitor with ID: 21
+Fetching exhibitions from database...
+Fetching exhibitions from database...
+Found 11 exhibitions
+Found 11 exhibitions
+Fetching exhibitors from database...
+Fetching exhibitors from database...
+Found 9 exhibitors
+Found 9 exhibitors
+Fetching exhibitor with ID: 21
+Fetching exhibitor with ID: 21
+Fetching exhibitions from database...
+Fetching exhibitions from database...
+Found 11 exhibitions
+Found 11 exhibitions
+Fetching exhibitors from database...
+Fetching exhibitors from database...
+Found 9 exhibitors
+Found 9 exhibitors
+Fetching exhibitor with ID: 21
+Fetching exhibitor with ID: 21
+Fetching exhibitors from database...
+Fetching exhibitors from database...
+Found 9 exhibitors
+Found 9 exhibitors
+Fetching exhibitors from database...
+Fetching exhibitors from database...
+Found 9 exhibitors
+Found 9 exhibitors
+Fetching exhibitors from database...
+Fetching exhibitors from database...
+Found 9 exhibitors
+Found 9 exhibitors
+Fetching exhibitors from database...
+Fetching exhibitors from database...
+Found 9 exhibitors
+Found 9 exhibitors
+Fetching exhibitors from database...
+Fetching exhibitors from database...
+Found 9 exhibitors
+Found 9 exhibitors
+Fetching exhibitors from database...
+Fetching exhibitors from database...
+Found 9 exhibitors
+Found 9 exhibitors
+Fetching exhibitors from database...
+Fetching exhibitors from database...
+Found 9 exhibitors
+Found 9 exhibitors
+Fetching exhibitors from database...
+Fetching exhibitors from database...
+Found 9 exhibitors
+Found 9 exhibitors
+Fetching exhibitors from database...
+Fetching exhibitors from database...
+Found 9 exhibitors
+Found 9 exhibitors
+Fetching exhibitors from database...
+Fetching exhibitors from database...
+Found 9 exhibitors
+Found 9 exhibitors
+Fetching exhibitors from database...
+Fetching exhibitors from database...
+Found 9 exhibitors
+Found 9 exhibitors
+Fetching exhibitors from database...
+Fetching exhibitors from database...
+Found 9 exhibitors
+Found 9 exhibitors
+Fetching exhibitors from database...
+Fetching exhibitors from database...
+Found 9 exhibitors
+Found 9 exhibitors
+Fetching exhibitors from database...
+Fetching exhibitors from database...
+Found 9 exhibitors
+Found 9 exhibitors
+Fetching exhibitor with ID: 21
+Fetching exhibitor with ID: 21
+Fetching exhibitions from database...
+Fetching exhibitions from database...
+Found 11 exhibitions
+Found 11 exhibitions
+Fetching exhibitors from database...
+Fetching exhibitors from database...
+Found 9 exhibitors
+Found 9 exhibitors
+Fetching exhibitor with ID: 21
+Fetching exhibitor with ID: 21
+Fetching exhibitions from database...
+Fetching exhibitions from database...
+Found 11 exhibitions
+Found 11 exhibitions
+Fetching exhibitors from database...
+Fetching exhibitors from database...
+Found 9 exhibitors
+Found 9 exhibitors
+Fetching exhibitor with ID: 580
+Fetching exhibitor with ID: 580
+Fetching exhibitors from database...
+Fetching exhibitors from database...
+Found 9 exhibitors
+Found 9 exhibitors
+Fetching exhibitor with ID: 21
+Fetching exhibitor with ID: 21
+🔍 LOGIN ATTEMPT - Backend Version 3.0 - STATUS FIELD FIXED
+🔍 Login attempt for email: test.admin@ptak-expo.com
+🔍 Request headers: {
+  host: 'localhost:3001',
+  accept: '*/*',
+  'content-type': 'application/json',
+  'sec-fetch-site': 'same-site',
+  origin: 'http://localhost:3000',
+  'sec-fetch-mode': 'cors',
+  'user-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.0.1 Safari/605.1.15',
+  referer: 'http://localhost:3000/',
+  'sec-fetch-dest': 'empty',
+  'content-length': '57',
+  'accept-language': 'pl-PL,pl;q=0.9',
+  priority: 'u=3, i',
+  'accept-encoding': 'gzip, deflate',
+  connection: 'keep-alive'
+}
+🔍 Querying database for user: test.admin@ptak-expo.com
+🔍 Trying query WITH status field...
+✅ Query with status field successful
+🔍 Query result: 1 rows found
+🔍 Found user: test.admin@ptak-expo.com role: admin
+🔍 User found: test.admin@ptak-expo.com role: admin
+🔍 Stored password hash: $2a$10$NLrhOzCPxUW1Xw/ylXHfwew4XJO90LnkqS.5VuI/kEy7jEU2CLT5G
+🔍 Password valid: true
+Fetching exhibitors from database...
+Fetching exhibitors from database...
+Found 9 exhibitors
+Found 9 exhibitors
+Fetching exhibitor with ID: 21
+Fetching exhibitor with ID: 21
+Fetching exhibitors from database...
+Fetching exhibitors from database...
+Found 9 exhibitors
+Found 9 exhibitors
+Fetching exhibitor with ID: 580
+Fetching exhibitor with ID: 580
+Fetching exhibitors from database...
+Fetching exhibitors from database...
+Found 9 exhibitors
+Found 9 exhibitors
+Fetching exhibitor with ID: 21
+Fetching exhibitor with ID: 21
+Fetching exhibitors from database...
+Fetching exhibitors from database...
+Found 9 exhibitors
+Found 9 exhibitors
+Fetching exhibitor with ID: 21
+Fetching exhibitor with ID: 21
+Fetching exhibitors from database...
+Fetching exhibitors from database...
+Found 9 exhibitors
+Found 9 exhibitors
+Fetching exhibitions from database...
+Fetching exhibitions from database...
+Found 11 exhibitions
+Found 11 exhibitions
+Fetching exhibitors from database...
+Fetching exhibitors from database...
+Found 9 exhibitors
+Found 9 exhibitors
+Fetching exhibitor with ID: 21
+Fetching exhibitor with ID: 21
+Fetching exhibitors from database...
+Fetching exhibitors from database...
+Found 9 exhibitors
+Found 9 exhibitors
+Fetching exhibitor with ID: 21
+Fetching exhibitor with ID: 21
+Fetching exhibitions from database...
+Fetching exhibitions from database...
+Found 11 exhibitions
+Found 11 exhibitions
+Fetching exhibitors from database...
+Fetching exhibitors from database...
+Found 9 exhibitors
+Found 9 exhibitors
+Fetching exhibitor with ID: 21
+Fetching exhibitor with ID: 21
+Fetching exhibitions from database...
+Fetching exhibitions from database...
+Found 11 exhibitions
+Found 11 exhibitions
+Fetching exhibitors from database...
+Fetching exhibitors from database...
+Found 9 exhibitors
+Found 9 exhibitors
+Fetching exhibitor with ID: 21
+Fetching exhibitor with ID: 21
+💾 Connected to PostgreSQL database
+Fetching exhibitor with ID: 21
+💾 Connected to PostgreSQL database
+Fetching exhibitors from database...
+Found 9 exhibitors
+Fetching exhibitors from database...
+Found 9 exhibitors
+Fetching exhibitor with ID: 21
+Fetching exhibitor with ID: 21

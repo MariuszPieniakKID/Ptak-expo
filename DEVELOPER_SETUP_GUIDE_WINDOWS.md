@@ -92,6 +92,8 @@ dir
 
 ## Krok 5: Automatyczna Konfiguracja
 
+Po wypakowaniu developer-setup.zip
+
 ```cmd
 # Uruchomienie skryptu PowerShell
 powershell -ExecutionPolicy Bypass -File developer-setup\setup.ps1
@@ -298,8 +300,7 @@ W bazie danych znajdują się następujący użytkownicy:
 | Email | Hasło | Rola |
 |-------|-------|------|
 | admin@ptak-expo.com | admin123 | admin |
-| user1@example.com | user123 | user |
-| user2@example.com | user123 | user |
+| test@test.com | test123 | exhibitor |
 
 ## Struktura Projektu
 

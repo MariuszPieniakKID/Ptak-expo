@@ -705,9 +705,10 @@ export const deleteInvitation = async (
 // ============= EXHIBITOR ASSIGNMENT API =============
 
 export const assignExhibitorToEvent = async (
-  exhibitorId: number, 
-  exhibitionId: number, 
-  token: string
+  exhibitorId: number,
+  exhibitionId: number,
+  token: string,
+  supervisorUserId?: number | null,
 ): Promise<{ success: boolean; message: string; assignment: any }> => {
   const response = await apiCall(`${config.API_BASE_URL}/api/v1/exhibitors/${exhibitorId}/assign-event`, {
     method: 'POST',
@@ -715,7 +716,7 @@ export const assignExhibitorToEvent = async (
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${token}`,
     },
-    body: JSON.stringify({ exhibitionId }),
+    body: JSON.stringify({ exhibitionId, supervisorUserId: supervisorUserId ?? null }),
   });
 
   const data = await response.json();

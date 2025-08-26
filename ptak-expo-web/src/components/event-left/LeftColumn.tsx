@@ -19,9 +19,10 @@ type EventView = {
 
 interface LeftColumnProps {
   eventId: string;
+  isDarkBg?: boolean;
 }
 
-const LeftColumn: React.FC<LeftColumnProps> = ({ eventId }) => {
+const LeftColumn: React.FC<LeftColumnProps> = ({ eventId, isDarkBg = false }) => {
   const navigate = useNavigate();
   const [event, setEvent] = useState<EventView | null>(null);
 
@@ -70,7 +71,7 @@ const LeftColumn: React.FC<LeftColumnProps> = ({ eventId }) => {
 
   return (
     <Box className={styles.leftContainer}>
-      <AvatarBanner />
+      <AvatarBanner isWhite={isDarkBg}/>
       {event && (
         <>
           <PlannedEventCard event={event} onSelect={() => navigate('/dashboard')} />

@@ -9,7 +9,7 @@ import BrandingFileUpload from '../components/BrandingFileUpload';
 import TradeInfo from '../components/TradeInfo';
 import Invitations from '../components/Invitations';
 import CustomField, { OptionType } from '../components/customField/CustomField';
-import { createTradeEvent, getTradeEvents, TradeEvent } from '../services/api';
+import { createTradeEvent, getTradeEvents, TradeEvent, getBrandingFileUrl } from '../services/api';
 import { 
   fetchExhibition, 
   Exhibition, 
@@ -470,10 +470,38 @@ const EventDetailPage: React.FC = () => {
               <CardContent className={styles.eventContent}>
                 <Box className={styles.eventImage}>
                   <img
-                    src="/assets/zrzut-ekranu-2025059-o-135948@2x.png"
+                    src={brandingFiles?.files['event_logo'] && token ? getBrandingFileUrl(null, brandingFiles.files['event_logo'].fileName, token) : '/assets/zrzut-ekranu-2025059-o-135948@2x.png'}
                     alt={exhibition.name}
                     className={styles.eventImg}
                   />
+                  <input
+                    type="file"
+                    accept="image/*"
+                    id="event-logo-input"
+                    style={{ display: 'none' }}
+                    onChange={async (e) => {
+                      const file = e.target.files?.[0];
+                      if (!file || !exhibition || !token) return;
+                      try {
+                        // Reuse upload API for global file with new fileType
+                        const { uploadBrandingFile } = await import('../services/api');
+                        await uploadBrandingFile(file, null, exhibition.id, 'event_logo', token);
+                        loadBrandingFiles(null, exhibition.id);
+                      } catch (err) {
+                        console.error('Upload event logo failed', err);
+                      }
+                    }}
+                  />
+                  <Box
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      const input = document.getElementById('event-logo-input') as HTMLInputElement | null;
+                      input?.click();
+                    }}
+                    sx={{ position: 'absolute', top: 8, right: 8, cursor: 'pointer', background: 'rgba(0,0,0,0.5)', color: '#fff', borderRadius: '12px', padding: '4px 10px', fontSize: '0.75rem' }}
+                  >
+                    edycja
+                  </Box>
                 </Box>
                 <Box className={styles.eventInfo}>
                   <Box sx={{ mb: 2 }}>

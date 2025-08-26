@@ -65,3 +65,6 @@ ptak-expo-backend/uploads/
 # Backend logs
 backend.log
 ptak-expo-backend/backend.log 
+
+# Extracted developer setup
+developer-setup/

@@ -1,0 +1,156 @@
+
+> ptak-expo-frontend@0.1.0 start
+> react-scripts start
+
+(node:42796) [DEP_WEBPACK_DEV_SERVER_ON_AFTER_SETUP_MIDDLEWARE] DeprecationWarning: 'onAfterSetupMiddleware' option is deprecated. Please use the 'setupMiddlewares' option.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+(node:42796) [DEP_WEBPACK_DEV_SERVER_ON_BEFORE_SETUP_MIDDLEWARE] DeprecationWarning: 'onBeforeSetupMiddleware' option is deprecated. Please use the 'setupMiddlewares' option.
+Starting the development server...
+
+Compiled with warnings.
+
+[eslint] 
+src/components/addEventToExhibitorModal/AddEventToExhibitorModal.tsx
+  Line 152:6:  React Hook useCallback has a missing dependency: 'exhibitorEvents'. Either include it or remove the dependency array                                                                                                                                                 react-hooks/exhaustive-deps
+  Line 238:5:  React Hook useCallback has missing dependencies: 'companyName', 'exhibitorId', and 'onClose'. Either include them or remove the dependency array. If 'onClose' changes too often, find the parent component that defines it and wrap that definition in useCallback  react-hooks/exhaustive-deps
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+LOG from ./node_modules/sass-loader/dist/cjs.js sass-loader ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[1]!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[2]!./node_modules/resolve-url-loader/index.js??ruleSet[1].rules[1].oneOf[8].use[3]!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[4]!./src/components/customField/CustomField.module.scss
+<w> Deprecation The legacy JS API is deprecated and will be removed in Dart Sass 2.0.0.
+<w> 
+<w> More info: https://sass-lang.com/d/legacy-js-api
+<w> 
+<w> null
+<w> Deprecation Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+<w> 
+<w> More info and automated migrator: https://sass-lang.com/d/import
+<w> 
+<w> src/components/customField/CustomField.module.scss 1:9  root stylesheet
+<w> 
+<w> Deprecation Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+<w> 
+<w> More info and automated migrator: https://sass-lang.com/d/import
+<w> 
+<w> src/components/customField/CustomField.module.scss 2:9  root stylesheet
+<w>
+
+LOG from ./node_modules/sass-loader/dist/cjs.js sass-loader ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[1]!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[2]!./node_modules/resolve-url-loader/index.js??ruleSet[1].rules[1].oneOf[8].use[3]!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[4]!./src/components/exhibitorTradeFairAwards/ExhibitorTradeFairAwards.module.scss
+<w> Deprecation The legacy JS API is deprecated and will be removed in Dart Sass 2.0.0.
+<w> 
+<w> More info: https://sass-lang.com/d/legacy-js-api
+<w> 
+<w> null
+
+LOG from ./node_modules/sass-loader/dist/cjs.js sass-loader ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[1]!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[2]!./node_modules/resolve-url-loader/index.js??ruleSet[1].rules[1].oneOf[8].use[3]!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[4]!./src/components/addEventToExhibitorModal/AddEventToExhibitorModal.module.scss
+<w> Deprecation The legacy JS API is deprecated and will be removed in Dart Sass 2.0.0.
+<w> 
+<w> More info: https://sass-lang.com/d/legacy-js-api
+<w> 
+<w> null
+<w> Deprecation Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+<w> 
+<w> More info and automated migrator: https://sass-lang.com/d/import
+<w> 
+<w> src/components/addEventToExhibitorModal/AddEventToExhibitorModal.module.scss 1:9  root stylesheet
+<w> 
+<w> Deprecation Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+<w> 
+<w> More info and automated migrator: https://sass-lang.com/d/import
+<w> 
+<w> src/components/addEventToExhibitorModal/AddEventToExhibitorModal.module.scss 2:9  root stylesheet
+<w> 
+<w> Deprecation Global built-in functions are deprecated and will be removed in Dart Sass 3.0.0.
+<w> Use color.adjust instead.
+<w> 
+<w> More info and automated migrator: https://sass-lang.com/d/import
+<w> 
+<w> src/components/addEventToExhibitorModal/AddEventToExhibitorModal.module.scss 349:23  root stylesheet
+<w> 
+<w> Deprecation darken() is deprecated. Suggestions:
+<w> 
+<w> color.scale($color, $lightness: -14.2857142857%)
+<w> color.adjust($color, $lightness: -10%)
+<w> 
+<w> More info: https://sass-lang.com/d/color-functions
+<w> 
+<w> src/components/addEventToExhibitorModal/AddEventToExhibitorModal.module.scss 349:23  root stylesheet
+<w>
+
+LOG from ./node_modules/sass-loader/dist/cjs.js sass-loader ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[1]!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[2]!./node_modules/resolve-url-loader/index.js??ruleSet[1].rules[1].oneOf[8].use[3]!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[4]!./src/components/exhibitorTradeFairAwards/contentOfTheExhibitorsApplication/ContentOfTheExhibitorsApplication.module.scss
+<w> Deprecation The legacy JS API is deprecated and will be removed in Dart Sass 2.0.0.
+<w> 
+<w> More info: https://sass-lang.com/d/legacy-js-api
+<w> 
+<w> null
+<w> Deprecation Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+<w> 
+<w> More info and automated migrator: https://sass-lang.com/d/import
+<w> 
+<w> src/components/exhibitorTradeFairAwards/contentOfTheExhibitorsApplication/ContentOfTheExhibitorsApplication.module.scss 1:9  root stylesheet
+<w> 
+<w> Deprecation Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+<w> 
+<w> More info and automated migrator: https://sass-lang.com/d/import
+<w> 
+<w> src/components/exhibitorTradeFairAwards/contentOfTheExhibitorsApplication/ContentOfTheExhibitorsApplication.module.scss 2:9  root stylesheet
+<w>
+
+WARNING in [eslint] 
+src/components/addEventToExhibitorModal/AddEventToExhibitorModal.tsx
+  Line 152:6:  React Hook useCallback has a missing dependency: 'exhibitorEvents'. Either include it or remove the dependency array                                                                                                                                                 react-hooks/exhaustive-deps
+  Line 238:5:  React Hook useCallback has missing dependencies: 'companyName', 'exhibitorId', and 'onClose'. Either include them or remove the dependency array. If 'onClose' changes too often, find the parent component that defines it and wrap that definition in useCallback  react-hooks/exhaustive-deps
+
+webpack compiled with 1 warning
+No issues found.
+Compiling...
+Compiled with warnings.
+
+[eslint] 
+src/components/addEventToExhibitorModal/AddEventToExhibitorModal.tsx
+  Line 238:5:  React Hook useCallback has unnecessary dependencies: 'onEventToExhibitiorAdd' and 'token'. Either exclude them or remove the dependency array  react-hooks/exhaustive-deps
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+WARNING in [eslint] 
+src/components/addEventToExhibitorModal/AddEventToExhibitorModal.tsx
+  Line 238:5:  React Hook useCallback has unnecessary dependencies: 'onEventToExhibitiorAdd' and 'token'. Either exclude them or remove the dependency array  react-hooks/exhaustive-deps
+
+webpack compiled with 1 warning
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+ERROR in src/components/addEventToExhibitorModal/AddEventToExhibitorModal.tsx:61:3
+TS6133: 'onEventToExhibitiorAdd' is declared but its value is never read.
+    59 |   isOpen,
+    60 |   onClose,
+  > 61 |   onEventToExhibitiorAdd,
+       |   ^^^^^^^^^^^^^^^^^^^^^^
+    62 |   token,
+    63 |   exhibitorId,
+    64 |   companyName,
+
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+ERROR in src/components/addEventToExhibitorModal/AddEventToExhibitorModal.tsx:61:3
+TS6133: 'onEventToExhibitiorAdd' is declared but its value is never read.
+    59 |   isOpen,
+    60 |   onClose,
+  > 61 |   onEventToExhibitiorAdd,
+       |   ^^^^^^^^^^^^^^^^^^^^^^
+    62 |   token,
+    63 |   exhibitorId,
+    64 |   companyName,
+
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+No issues found.

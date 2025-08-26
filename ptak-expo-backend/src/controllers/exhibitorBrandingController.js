@@ -23,6 +23,12 @@ const FILE_TYPES = {
     allowedFormats: ['png', 'svg'],
     maxSize: 2 * 1024 * 1024 // 2MB
   },
+  'event_logo': {
+    name: 'Logo wydarzenia (lista i szczegóły wydarzenia)',
+    dimensions: null,
+    allowedFormats: ['png', 'jpg', 'jpeg', 'svg'],
+    maxSize: 5 * 1024 * 1024 // 5MB
+  },
   'banner_wystawcy_800': {
     name: 'Banner dla wystawcy z miejscem na logo',
     dimensions: '800x800',
@@ -245,6 +251,12 @@ const uploadBrandingFile = async (req, res) => {
 
 // Get branding files for exhibitor and exhibition
 const getBrandingFiles = async (req, res) => {
+  console.log('📥 [branding] getBrandingFiles called', {
+    exhibitorId: req.params?.exhibitorId,
+    exhibitionId: req.params?.exhibitionId,
+    user: req.user?.email,
+    role: req.user?.role,
+  });
   const client = await pool.connect();
   
   try {
@@ -378,6 +390,14 @@ const deleteBrandingFile = async (req, res) => {
 
 // Serve branding file
 const serveBrandingFile = async (req, res) => {
+  console.log('📥 [branding] serveBrandingFile called', {
+    exhibitorId: req.params?.exhibitorId,
+    fileName: req.params?.fileName,
+    user: req.user?.email,
+    role: req.user?.role,
+    hasAuthHeader: !!req.headers.authorization,
+    hasTokenQuery: !!req.query.token,
+  });
   try {
     const { exhibitorId, fileName } = req.params;
     

@@ -90,6 +90,35 @@ export const tradeInfoAPI = {
     api.get(`/api/v1/trade-info/${exhibitionId}/download/${spaceId}`, { responseType: 'blob' }),
 };
 
+// Branding files (global per exhibition)
+export interface BrandingFilesResponse {
+  success: boolean;
+  exhibitorId: number;
+  exhibitionId: number;
+  files: Record<string, {
+    id: number;
+    fileType: string;
+    fileName: string;
+    originalName: string;
+    filePath: string;
+    fileSize: number;
+    mimeType: string;
+    dimensions: string | null;
+    createdAt: string;
+    updatedAt?: string;
+  }>;
+}
+
+export const brandingAPI = {
+  getGlobal: (exhibitionId: number): Promise<AxiosResponse<BrandingFilesResponse>> =>
+    api.get(`/api/v1/exhibitor-branding/global/${exhibitionId}`),
+  serveGlobalUrl: (fileName: string): string => {
+    const base = `${config.API_BASE_URL}/api/v1/exhibitor-branding/serve/global/${encodeURIComponent(fileName)}`;
+    const token = localStorage.getItem('authToken');
+    return token ? `${base}?token=${encodeURIComponent(token)}` : base;
+  },
+};
+
 // Health check
 export const healthAPI = {
   check: (): Promise<AxiosResponse<ApiResponse>> => 
