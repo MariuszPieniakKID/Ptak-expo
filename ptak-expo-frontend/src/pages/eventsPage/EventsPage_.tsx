@@ -24,10 +24,10 @@ import Applause from '../../assets/applause.png';
 import { ReactComponent as UsersIcon } from '../../assets/addIcon.svg';
 import { Exhibition, fetchExhibitions } from '../../services/api';
 import { getEventAssets } from '../../helpers/getEventAssets';
-import CustomField, { OptionType } from '../../components/customField/CustomField';
-//import AddEventModal from '../../components/AddEventModal';
+import CustomField from '../../components/customField/CustomField';
 import AddEventModal_ from '../../components/addEventModal/AddEventModal_';
-
+import { fieldOptions } from '../../helpers/mockData';
+import EventCardPage from '../eventCardPage/EventCardPage';
 
 
 
@@ -35,22 +35,12 @@ import AddEventModal_ from '../../components/addEventModal/AddEventModal_';
 const EventsPage_: React.FC = () => {
   const [exhibitions, setExhibitions] = useState<Exhibition[]>([]);
   const [isAddEventModalOpen,setIsAddEventModalOpen]=useState<boolean>(false);
+  const [selectedExhibition,setSelectedExhibition]=useState<Exhibition>();
   const [loading, setLoading] = useState<boolean>(false); // na starcie true
   const [error, setError] = useState<string>('');
   const navigate = useNavigate();
   const { token, user, logout } = useAuth();
-  const [selectedField,setSelectedField]=useState<string>('all')
-  //const isLargeScreen = useMediaQuery('(min-width:600px)');
-  
-
-//JAKIE BRANŻE? TODOO
-  const fieldOptions: OptionType[] = [
-    { value: 'all', label: 'Wszystkie' },
-    { value: 'house', label: 'Dom' },
-    { value: 'reaEstate', label: 'Nieruchomości' },
-    { value: 'garden', label: 'Ogród' },
-    { value: 'other', label: 'Inne' },
-  ];
+  const [selectedField,setSelectedField]=useState<string>('all')  
 
 
   const loadExhibitions = useCallback(async (): Promise<void> => {
@@ -102,11 +92,6 @@ const filteredEvents = useMemo(() => {
   // );
 }, [exhibitions, selectedField]);
 
-  // const handleSelectEvent = useCallback((eventId: number) => {
-  //     //navigate(`/wydarzenia/${eventId}`);
-  //     console.log(`Kliknięto w event ${eventId}`)
-  // }, [navigate]);
-
 const formatDateRange = useCallback((startDate: string, endDate: string): string => {
   const start = new Date(startDate);
   const end = new Date(endDate);
@@ -121,12 +106,12 @@ const formatDateRange = useCallback((startDate: string, endDate: string): string
   return `${format(start)} - ${format(end)}`;
 }, []);
 
-//TODO
+//TODO nadchodzące wydarzenia jakie są kryteria jak poniżej to ok:
   const currentEvents = exhibitions.filter(event => 
     new Date(event.start_date) >= new Date() || event.status === 'active'
   );
 
-//MODAL ADD
+//Dane do modalu dodania eventu
   const handleOpenModal = useCallback(() => {
     setIsAddEventModalOpen(true);
   }, []);
@@ -140,6 +125,10 @@ const formatDateRange = useCallback((startDate: string, endDate: string): string
     loadExhibitions(); 
   }, [loadExhibitions]);
 
+  // Obsługa pojedyńczego eventu
+  const handleSelectEvent=(exhibition:Exhibition)=>{
+   setSelectedExhibition(exhibition);
+  }
  return (
     <>
     <Box className={styles.eventsPage}>
@@ -171,7 +160,7 @@ const formatDateRange = useCallback((startDate: string, endDate: string): string
             <Box className={styles._welcomeMessage}>
               <Box 
                 className={styles._backContainer}
-                onClick={ () => navigate(-1)}
+                onClick={ () => {navigate(-1)}}
               >
                 <BackIcon className={styles._backIcon} />
                 <CustomTypography className={styles.backText}> wstecz </CustomTypography>
@@ -209,10 +198,19 @@ const formatDateRange = useCallback((startDate: string, endDate: string): string
                 <CustomTypography className={styles.pageTitle}>Wydarzenia</CustomTypography>              
               </Box>
               <Box className={styles.breadcrumbs}>
-                <Breadcrumbs aria-label="breadcrumb">
-                    <Link onClick={() => navigate('/dashboard')}> Home</Link>
-                    <CustomTypography className={styles.linkEnd}>Wydarzenia</CustomTypography>
-                </Breadcrumbs>
+                
+                     {selectedExhibition
+                     ?<Breadcrumbs aria-label="breadcrumb">
+                        <Link onClick={() => navigate('/dashboard')}> Home</Link>
+                        <Link onClick={()=>setSelectedExhibition(undefined)}> Wydarzenia</Link>
+                        <CustomTypography className={styles.linkEnd}>{selectedExhibition.name}</CustomTypography>
+                     </Breadcrumbs>
+                     :<Breadcrumbs aria-label="breadcrumb">
+                        <Link onClick={() => navigate('/dashboard')}> Home</Link>
+                        <CustomTypography className={styles.linkEnd}>Wydarzenia</CustomTypography>
+                       </Breadcrumbs>
+                     }
+                
               </Box>
             </Box>
             <Box
@@ -233,134 +231,146 @@ const formatDateRange = useCallback((startDate: string, endDate: string): string
           </Box>
          : 
           <>
-            <Box className={styles.currentEvents}>
-                <CustomTypography className={styles.sectionTitle}>Nadchodzące Wydarzenia:</CustomTypography>
-                <Box className={styles.eventsCardWrapper}>
-                 {currentEvents
-                 ?
-                 currentEvents.map((exhibition)=> {
-                    const { background, logo } = getEventAssets(exhibition.name);
+           {selectedExhibition
+           ? <EventCardPage event={selectedExhibition}/>
+           : <>
+              <Box className={styles.currentEvents}>
+                  <CustomTypography className={styles.sectionTitle}>Nadchodzące Wydarzenia:</CustomTypography>
+                  <Box className={styles.eventsCardWrapper}>
+                  {currentEvents
+                  ?
+                  currentEvents.map((exhibition)=> {
+                      const { background, logo } = getEventAssets(exhibition.name);
 
-                    return (
-                        <Box 
-                        key={exhibition.id} 
-                        className={styles.singleEventCard}
-                        >
-                          <Box className={styles.logoOnPhoto}>
-                            <img 
-                              src={background} 
-                              alt={exhibition.name} 
-                              className={styles.eventImgBackground} 
-                            />
-                            <Box>
+                      return (
+                          <Box 
+                          key={exhibition.id} 
+                          className={styles.singleEventCard}
+                          >
+                            <Box className={styles.logoOnPhoto}>
                               <img 
-                                src={logo} 
-                                alt={`${exhibition.name} logo`} 
-                                className={styles.eventLogo} 
+                                src={background} 
+                                alt={exhibition.name} 
+                                className={styles.eventImgBackground} 
                               />
+                              <Box>
+                                <img 
+                                  src={logo} 
+                                  alt={`${exhibition.name} logo`} 
+                                  className={styles.eventLogo} 
+                                />
+                              </Box>
                             </Box>
-                          </Box>
 
-                          <Box className={styles.eventInfo}>
-                            <CustomTypography className={styles.eventInfoData}>
-                              {formatDateRange(exhibition.start_date, exhibition.end_date)}
-                            </CustomTypography>
-                            <CustomTypography className={styles.eventInfoTitle}>
-                              {exhibition.name}
-                            </CustomTypography>
-                            <Box className={styles.action}>
-                              <Box className={styles.actionButton}>
-                                <CustomTypography className={styles.chooseText}>wybierz</CustomTypography>
+                            <Box className={styles.eventInfo}>
+                              <CustomTypography className={styles.eventInfoData}>
+                                {formatDateRange(exhibition.start_date, exhibition.end_date)}
+                              </CustomTypography>
+                              <CustomTypography className={styles.eventInfoTitle}>
+                                {exhibition.name}
+                              </CustomTypography>
+                              <Box className={styles.action}>
+                                <Box 
+                                className={styles.actionButton}
+                                onClick={() => handleSelectEvent(exhibition)}
+                                >
+                                  <CustomTypography className={styles.chooseText}>wybierz</CustomTypography>
+                                </Box>
                               </Box>
                             </Box>
                           </Box>
-                        </Box>
-                    )
-                  })
-                 :<CustomTypography className={styles.noData}>Brak danych</CustomTypography>
-                }
+                      )
+                    })
+                  :<CustomTypography className={styles.noData}>Brak danych</CustomTypography>
+                  }
 
-                </Box>
-            </Box>
-
-            <Box className={styles.upcomingEvents}>
-                <CustomTypography className={styles.sectionTitle}>Pozostałe wydarzenia:</CustomTypography>
-                <Box className={styles.selectTypeRow}>
-                  <Box className={styles.columnLabel}>
-                     <CustomTypography className={styles.selectField}>Wybierz branżę:</CustomTypography> 
                   </Box>
-                  <Box className={styles.columnSelect}>
-                    <CustomField
-                      type="text"
-                      value={selectedField}
-                      onChange={e => handleSelectFieldOfExhibitions(e.target.value)}
-                      placeholder="Wszystkie"
-                      options={fieldOptions}
-                      forceSelectionFromOptions
-                      fullWidth
-                      className={styles.selectBox}
-                    />
-                   </Box>
+              </Box>
 
-                </Box>
-                
-                <Box className={styles.eventsCardWrapper}>
+              <Box className={styles.filteredEvents}>
+                  <CustomTypography className={styles.sectionTitle}>Pozostałe wydarzenia:</CustomTypography>
+                  <Box className={styles.selectTypeRow}>
+                    <Box className={styles.columnLabel}>
+                      <CustomTypography className={styles.selectField}>Wybierz branżę:</CustomTypography> 
+                    </Box>
+                    <Box className={styles.columnSelect}>
+                      <CustomField
+                        type="text"
+                        value={selectedField}
+                        onChange={e => handleSelectFieldOfExhibitions(e.target.value)}
+                        placeholder="Wszystkie"
+                        options={fieldOptions}
+                        forceSelectionFromOptions
+                        fullWidth
+                        className={styles.selectBox}
+                      />
+                    </Box>
 
-                 {filteredEvents
-                 ? 
+                  </Box>
+                  
+                  <Box className={styles.eventsCardWrapper}>
 
-                  filteredEvents.map((exhibition)=> {
-                    const { background, logo } = getEventAssets(exhibition.name);
+                  {filteredEvents
+                  ? 
 
-                    return (
-                        <Box 
-                        key={exhibition.id} 
-                        className={styles.singleEventCard}>
-                          <Box className={styles.logoOnPhoto}>
-                            <img 
-                              src={background} 
-                              alt={exhibition.name} 
-                              className={styles.eventImgBackground} 
-                            />
-                            <Box>
+                    filteredEvents.map((exhibition)=> {
+                      const { background, logo } = getEventAssets(exhibition.name);
+
+                      return (
+                          <Box 
+                          key={exhibition.id} 
+                          className={styles.singleEventCard}>
+                            <Box className={styles.logoOnPhoto}>
                               <img 
-                                src={logo} 
-                                alt={`${exhibition.name} logo`} 
-                                className={styles.eventLogo} 
+                                src={background} 
+                                alt={exhibition.name} 
+                                className={styles.eventImgBackground} 
                               />
+                              <Box>
+                                <img 
+                                  src={logo} 
+                                  alt={`${exhibition.name} logo`} 
+                                  className={styles.eventLogo} 
+                                />
+                              </Box>
                             </Box>
-                          </Box>
 
-                          <Box className={styles.eventInfo}>
-                            <CustomTypography className={styles.eventInfoData}>
-                              {formatDateRange(exhibition.start_date, exhibition.end_date)}
-                            </CustomTypography>
-                            <CustomTypography className={styles.eventInfoTitle}>
-                              {exhibition.name}
-                            </CustomTypography>
-                            <Box className={styles.action}>
-                              <Box className={styles.actionButton}>
-                                <CustomTypography className={styles.chooseText}>wybierz</CustomTypography>
+                            <Box className={styles.eventInfo}>
+                              <CustomTypography className={styles.eventInfoData}>
+                                {formatDateRange(exhibition.start_date, exhibition.end_date)}
+                              </CustomTypography>
+                              <CustomTypography className={styles.eventInfoTitle}>
+                                {exhibition.name}
+                              </CustomTypography>
+                              <Box className={styles.action}>
+                                <Box 
+                                className={styles.actionButton}
+                                onClick={() => handleSelectEvent(exhibition)}
+                                >
+                                  <CustomTypography className={styles.chooseText}>wybierz</CustomTypography>
+                                </Box>
                               </Box>
                             </Box>
                           </Box>
-                        </Box>
-                    )
-                    
-                  })
-                 :<CustomTypography className={styles.noData}>Brak danych</CustomTypography>
-                }
+                      )
+                      
+                    })
+                  :<CustomTypography className={styles.noData}>Brak danych</CustomTypography>
+                  }
 
-                </Box>
-            </Box>
-            <Box 
-              className={styles._backContainer}
-              onClick={ () => navigate(-1)}
-              sx={{paddingBottom:'2em'}}
-              >
-               <BackIcon className={styles._backIcon} />
-               <CustomTypography className={styles.backText}> wstecz </CustomTypography>
-            </Box>
+                  </Box>
+              </Box>
+              <Box 
+                className={styles._backContainer}
+                onClick={ () => navigate(-1)}
+                sx={{paddingBottom:'2em'}}
+                >
+                <BackIcon className={styles._backIcon} />
+                <CustomTypography className={styles.backText}> wstecz </CustomTypography>
+              </Box>
+           </>
+           }
+          
           </>
         }
         </Container>
@@ -377,13 +387,7 @@ const formatDateRange = useCallback((startDate: string, endDate: string): string
       <Box className={styles.filtrBlue}/>
     </Box>
 
-      {/* <AddEventModal
-      isOpen={isAddEventModalOpen}
-      onClose={handleCloseModal}
-      onEventAdded={handleEventAdded}
-    /> */}
-
-          <AddEventModal_
+    <AddEventModal_
       isOpen={isAddEventModalOpen}
       onClose={handleCloseModal}
       onEventAdded={handleEventAdded}
