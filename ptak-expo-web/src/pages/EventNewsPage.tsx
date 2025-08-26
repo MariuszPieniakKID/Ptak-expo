@@ -1,21 +1,9 @@
 import { Box } from '@mui/material';
 import EventLayout from '../components/eventLayout/EventLayout';
-import AvatarBanner from '../components/avatar-banner/AvatarBanner';
-import PlannedEventCard from '../components/planned-event-card/PlannedEventCard';
-import ChecklistProgressCard from '../components/checklist-progress-card/ChecklistProgressCard';
-import { useNavigate, useParams } from 'react-router-dom';
+import LeftColumn from '../components/event-left/LeftColumn';
+import { useParams } from 'react-router-dom';
 import styles from './EventHomePage.module.scss';
 import News, { type NewsItem } from '../components/news/News';
-
-const mockEvent = {
-  id: '1',
-  title: 'International Trade Fair',
-  dateFrom: '11.03.2026',
-  dateTo: '15.03.2026',
-  readiness: 65,
-  logoUrl: '/assets/logo192.png',
-  daysLeft: 365,
-};
 
 const mockNews: NewsItem[] = [
   { id: 1, title: 'Zmiana statusu zaproszenia', description: 'Potwierdzono zaproszenie jako VIP', category: 'Portal dokumentów', date: new Date() },
@@ -25,22 +13,10 @@ const mockNews: NewsItem[] = [
 
 const EventNewsPage = () => {
   const { eventId } = useParams();
-  const navigate = useNavigate();
-  const event = { ...mockEvent, id: eventId || '1' };
 
   return (
     <EventLayout
-      left={
-        <Box className={styles.leftContainer}>
-          <AvatarBanner />
-          <PlannedEventCard event={event} />
-          <ChecklistProgressCard
-            readiness={event.readiness}
-            daysLeft={event.daysLeft}
-            onChecklistClick={() => navigate(`/event/${event.id}/checklist`)}
-          />
-        </Box>
-      }
+      left={<LeftColumn eventId={eventId || '0'} />}
       right={
         <Box className={styles.rightContainer}>
           <Box className="children">

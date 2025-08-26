@@ -35,17 +35,20 @@ const Menu: FunctionComponent<MenuType> = ({ className = '', onLogout }) => {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const eventId = params.eventId || '1';
+  // Temporarily hide checklist from menu
+  const menuItems = useMemo(() => navItems.filter((i) => i.key !== 'checklist'), []);
+  const isDisabled = (key: string) => key === 'info';
   const activeIndex = useMemo(() => {
     const base = `/event/${eventId}`;
     const home = `${base}/home`;
-    return navItems.findIndex((item) => {
+    return menuItems.findIndex((item) => {
       const target = item.getUrl(eventId);
       if (item.key === 'home') {
         return location.pathname === base || location.pathname.startsWith(home);
       }
       return location.pathname.startsWith(target);
     });
-  }, [location.pathname, eventId]);
+  }, [location.pathname, eventId, menuItems]);
 
   const handleDrawerToggle = () => setMobileOpen((v) => !v);
 
@@ -57,18 +60,23 @@ const Menu: FunctionComponent<MenuType> = ({ className = '', onLogout }) => {
             <Box className={styles.logo}>
               <img src={Logo} alt="Logo" onClick={() => navigate('/dashboard')} />
             </Box>
-            {navItems.map((item, index) => (
-              <Box
-                key={item.key}
-                className={`${styles.navItem} ${index === activeIndex ? styles.active : ''}`}
-                onClick={() => navigate(item.getUrl(eventId))}
-              >
-                {item.icon}
-                <Typography variant="caption" textAlign={'center'} fontSize={{ lg: '10px', xl: '13px' }}>
-                  {item.label}
-                </Typography>
-              </Box>
-            ))}
+            {menuItems.map((item, index) => {
+              const disabled = isDisabled(item.key);
+              return (
+                <Box
+                  key={item.key}
+                  className={`${styles.navItem} ${index === activeIndex ? styles.active : ''}`}
+                  onClick={!disabled ? () => navigate(item.getUrl(eventId)) : undefined}
+                  aria-disabled={disabled || undefined}
+                  sx={{ cursor: disabled ? 'default' : 'pointer', opacity: disabled ? 0.6 : undefined }}
+                >
+                  {item.icon}
+                  <Typography variant="caption" textAlign={'center'} fontSize={{ lg: '10px', xl: '13px' }}>
+                    {item.label}
+                  </Typography>
+                </Box>
+              );
+            })}
           </Box>
         )}
 
@@ -84,14 +92,17 @@ const Menu: FunctionComponent<MenuType> = ({ className = '', onLogout }) => {
             </Box>
             <Drawer anchor="left" open={mobileOpen} onClose={handleDrawerToggle}>
               <List>
-                {navItems.map((item, index) => (
-                  <ListItem key={item.key} disablePadding>
-                    <ListItemButton selected={activeIndex === index} onClick={() => navigate(item.getUrl(eventId))}>
-                      <ListItemIcon>{item.icon}</ListItemIcon>
-                      <ListItemText primary={item.label} />
-                    </ListItemButton>
-                  </ListItem>
-                ))}
+                {menuItems.map((item, index) => {
+                  const disabled = isDisabled(item.key);
+                  return (
+                    <ListItem key={item.key} disablePadding>
+                      <ListItemButton selected={activeIndex === index} onClick={!disabled ? () => navigate(item.getUrl(eventId)) : undefined} disabled={disabled}>
+                        <ListItemIcon>{item.icon}</ListItemIcon>
+                        <ListItemText primary={item.label} />
+                      </ListItemButton>
+                    </ListItem>
+                  );
+                })}
               </List>
             </Drawer>
           </>

@@ -1,7 +1,6 @@
 import React from 'react';
 import styles from './DocumentsPage.module.scss';
 import CustomTypography from '../components/customTypography/CustomTypography';
-import CustomButton from '../components/customButton/CustomButton';
 
 const DocumentsPage: React.FC = () => {
   const invoices = [
@@ -21,51 +20,7 @@ const DocumentsPage: React.FC = () => {
 
   return (
     <div className={styles.layout}>
-      {/* Sidebar */}
-      <aside className={styles.sidebar}>
-        <div className={styles.headerBox}>
-          <div className={styles.userRow}>
-            <div className={styles.userAvatar} />
-            <div>
-              <div className={styles.hello}>Dzień dobry, MTB Modules</div>
-              <div className={styles.helloSub}>Sprawdź co możesz dzisiaj zrobić!</div>
-            </div>
-          </div>
-
-          <div className={styles.eventCard}>
-            <div className={styles.eventThumb} />
-            <div className={styles.eventMeta}>
-              <div className={styles.eventDate}>11.03.2026-15.03.2026</div>
-              <div className={styles.eventName}>Warsaw Industry Weej Targi Innowacyjnych Rozwiązań dla Przemysłu</div>
-            </div>
-            <div className={styles.eventChange}>zmień</div>
-          </div>
-
-          <div className={styles.countdownPill}>Do wydarzenia zostalo 386 dni</div>
-
-          <div className={styles.progressCard}>
-            <div className={styles.progressHeaderRow}>
-              <div className={styles.progressHeaderText}>
-                <div className={styles.progressTitle}>Gratulacje, mamy wszystko!</div>
-                <div className={styles.progressSub}>Wasza gotowość do targów:</div>
-              </div>
-              <div className={styles.kpiBadge}>100%</div>
-            </div>
-            <div className={styles.bannerBar} />
-            <div className={styles.progressBar}>
-              <div className={styles.progressFill} />
-              <div className={styles.progressPct}>100%</div>
-            </div>
-            <div className={styles.progressCtaRow}>
-              <CustomButton className={styles.progressCta} height="2rem">Idź do checklisty</CustomButton>
-            </div>
-          </div>
-        </div>
-
-        <div className={styles.footer}>Kontakt • Polityka prywatności • www.warsawexpo.eu</div>
-      </aside>
-
-      {/* Main area */}
+      {/* Main area only (left column is now provided by EventLayout) */}
       <main className={styles.main}>
         <div className={styles.mainHeader}>
           <div className={styles.headerInner}>

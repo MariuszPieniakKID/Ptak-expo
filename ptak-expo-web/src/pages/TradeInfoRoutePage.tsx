@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import Menu from '../components/Menu';
+import { useParams } from 'react-router-dom';
+import EventLayout from '../components/eventLayout/EventLayout';
+import LeftColumn from '../components/event-left/LeftColumn';
 import TradeInfoPage from './TradeInfoPage';
 import { tradeInfoAPI, exhibitionsAPI } from '../services/api';
 
@@ -15,7 +16,6 @@ interface TradeInfoData {
 
 const TradeInfoRoutePage: React.FC = () => {
   const { eventId } = useParams();
-  const navigate = useNavigate();
   const [tradeInfo, setTradeInfo] = useState<TradeInfoData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -61,54 +61,43 @@ const TradeInfoRoutePage: React.FC = () => {
     load();
   }, [eventId]);
 
-  const handleMenuClick = (page: string) => {
-    if (!eventId) return;
-    if (page === 'info') {
-      navigate(`/event/${eventId}/trade-info`);
-      return;
-    }
-    if (page === 'checklist') {
-      navigate(`/event/${eventId}/checklist`);
-      return;
-    }
-    if (page === 'documents') {
-      navigate(`/event/${eventId}/documents`);
-      return;
-    }
-  };
+  // left menu navigation handled by EventHomeMenu buttons linking directly
 
   return (
-    <div>
-      <Menu onMenuClick={handleMenuClick} onLogout={() => navigate('/login')} />
-      {loading ? (
-        <div style={{ padding: 24 }}>Ładowanie…</div>
-      ) : error ? (
-        <div style={{ padding: 24, color: '#dc3545' }}>{error}</div>
-      ) : (
-        <TradeInfoPage
-          tradeInfo={tradeInfo}
-          eventName={eventName}
-          eventDateRange={eventDateRange}
-          {...(daysUntilEvent !== null && daysUntilEvent !== undefined ? { daysUntilEvent } : {})}
-          onDownloadPlan={(spaceId, filename) => {
-            if (!eventId) return;
-            tradeInfoAPI
-              .downloadPlan(parseInt(eventId, 10), spaceId)
-              .then((resp) => {
-                const url = window.URL.createObjectURL(new Blob([resp.data]));
-                const link = document.createElement('a');
-                link.href = url;
-                link.download = filename;
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
-                window.URL.revokeObjectURL(url);
-              })
-              .catch(() => alert('Błąd pobierania pliku.'));
-          }}
-        />
-      )}
-    </div>
+    <EventLayout
+      left={<LeftColumn eventId={eventId || '0'} />}
+      right={
+        loading ? (
+          <div style={{ padding: 24 }}>Ładowanie…</div>
+        ) : error ? (
+          <div style={{ padding: 24, color: '#dc3545' }}>{error}</div>
+        ) : (
+          <TradeInfoPage
+            tradeInfo={tradeInfo}
+            eventName={eventName}
+            eventDateRange={eventDateRange}
+            {...(daysUntilEvent !== null && daysUntilEvent !== undefined ? { daysUntilEvent } : {})}
+            onDownloadPlan={(spaceId, filename) => {
+              if (!eventId) return;
+              tradeInfoAPI
+                .downloadPlan(parseInt(eventId, 10), spaceId)
+                .then((resp) => {
+                  const url = window.URL.createObjectURL(new Blob([resp.data]));
+                  const link = document.createElement('a');
+                  link.href = url;
+                  link.download = filename;
+                  document.body.appendChild(link);
+                  link.click();
+                  document.body.removeChild(link);
+                  window.URL.revokeObjectURL(url);
+                })
+                .catch(() => alert('Błąd pobierania pliku.'));
+            }}
+          />
+        )
+      }
+      colorLeft="#eceef0"
+    />
   );
 };
 

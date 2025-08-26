@@ -5,6 +5,7 @@ import {
        fetchExhibitor, 
        deleteExhibitor, 
        getBrandingFiles,
+       unassignExhibitorFromEvent,
 } from '../../services/api';
 import Tabs, { tabsClasses } from '@mui/material/Tabs';
 import { useAuth } from '../../contexts/AuthContext';
@@ -153,11 +154,9 @@ const ExhibitorCardPage: React.FC = () => {
   }, []);
   const handleEventToExhibitiorAdd = useCallback((): void => {
       setIsEventAddToExhibitorn(false);
-      //loadExhibitors();
-      console.log("Coś siedzieje?")
-  }, [
-    //loadExhibitors
-  ]);
+      // Reload exhibitor to reflect newly assigned event
+      loadExhibitor();
+  }, [loadExhibitor]);
 
 
   //
@@ -167,11 +166,14 @@ const ExhibitorCardPage: React.FC = () => {
   };
   
 
-  const handleDeleteEventFromExhibitor = (eventId: number, exhibitorId: number) => {
-    void eventId;
-    void exhibitorId;
-    // placeholder: implement API call
-    console.log("implement API call: handleDeleteEventFromExhibitor (eventId: number, exhibitorId: number)")
+  const handleDeleteEventFromExhibitor = async (eventId: number, exhibitorId: number) => {
+    if (!token) return;
+    try {
+      await unassignExhibitorFromEvent(exhibitorId, eventId, token);
+      await loadExhibitor();
+    } catch (err: any) {
+      setError(err.message || 'Błąd podczas odłączania wydarzenia od wystawcy');
+    }
   };
 
 

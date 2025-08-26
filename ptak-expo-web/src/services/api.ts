@@ -77,6 +77,9 @@ export const exhibitionsAPI = {
   // Get exhibitor's events
   getMyEvents: (): Promise<AxiosResponse<ApiResponse>> =>
     api.get('/api/v1/exhibitions/user-events'),
+  // Get single exhibition by id
+  getById: (id: number): Promise<AxiosResponse<any>> =>
+    api.get(`/api/v1/exhibitions/${id}`),
 };
 
 // Trade Info API methods (viewer for exhibitors)

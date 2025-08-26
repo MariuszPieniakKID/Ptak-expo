@@ -727,6 +727,24 @@ export const assignExhibitorToEvent = async (
   return data;
 };
 
+export const unassignExhibitorFromEvent = async (
+  exhibitorId: number,
+  exhibitionId: number,
+  token: string
+): Promise<{ success: boolean; message: string }> => {
+  const response = await apiCall(`${config.API_BASE_URL}/api/v1/exhibitors/${exhibitorId}/assign-event/${exhibitionId}`, {
+    method: 'DELETE',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+    },
+  });
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data.error || data.message || 'Błąd podczas odłączania wystawcy od wydarzenia');
+  }
+  return data;
+};
+
 // ============= TRADE PLAN FILES API =============
 
 export interface TradePlanUploadResponse {

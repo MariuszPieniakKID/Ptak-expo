@@ -145,6 +145,22 @@ paths:
                 exhibitionId: { type: integer }
       responses:
         '200': { description: Assigned }
+  /api/v1/exhibitors/{id}/assign-event/{exhibitionId}:
+    delete:
+      summary: Unassign exhibitor from exhibition (admin)
+      tags: [Exhibitors]
+      security: [ { bearerAuth: [] } ]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+        - in: path
+          name: exhibitionId
+          required: true
+          schema: { type: integer }
+      responses:
+        '200': { description: Unassigned }
   /api/v1/exhibitor-documents/{exhibitorId}/{exhibitionId}:
     get:
       summary: List exhibitor documents for exhibition (admin)

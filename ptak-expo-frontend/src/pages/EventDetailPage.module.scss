@@ -95,6 +95,19 @@
   }
 }
 
+.pageHeaderRow{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.backLink{
+  align-self: flex-start;
+  padding: 0;
+  margin: 0;
+}
+
 .mainContent {
   display: grid;
   grid-template-columns: 1fr 2fr;

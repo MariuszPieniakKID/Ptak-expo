@@ -1,7 +1,7 @@
 import { ChangeEvent, useCallback, useEffect, useState } from 'react';
 import CustomField, { OptionType } from '../customField/CustomField';
 import CustomTypography from '../customTypography/CustomTypography';
-import {Exhibition, ExhibitorEvent, fetchExhibitions, fetchUsers, User } from '../../services/api';
+import {Exhibition, ExhibitorEvent, fetchExhibitions, fetchUsers, User, assignExhibitorToEvent } from '../../services/api';
 import {validateHallName,validateStandNumber} from '../../helpers/validators';
 
 import { Box, CircularProgress, Dialog, DialogTitle, IconButton, Typography } from '@mui/material';
@@ -220,16 +220,21 @@ const AddEventToExhibitorModal: React.FC<AddEventToExhibitorModalProps> = ({
             wydarzenia : ${eventAddedToExhibitor.exhibitionId} 
             z standNumber ${eventAddedToExhibitor.standNumber} 
             oraz opiekunem ${eventAddedToExhibitor.exhibitionSupervisor} DANE ${eventAddedToExhibitor}`)
-
-        //await addExhibitor(exhibitorData, token);
-        //onExhibitorAdded();
+        if (!eventAddedToExhibitor.exhibitionId) {
+          throw new Error('Wybierz wydarzenie');
+        }
+        await assignExhibitorToEvent(
+          exhibitorId,
+          eventAddedToExhibitor.exhibitionId,
+          token
+        );
 
         resetForm();
          onEventToExhibitiorAdd();
          onClose();
    
       }catch (err:any){
-        setError(err.message || 'Błąd podczas dodawania wystawcy');
+        setError(err.message || 'Błąd podczas przypisywania wydarzenia do wystawcy');
 
       }finally{
 

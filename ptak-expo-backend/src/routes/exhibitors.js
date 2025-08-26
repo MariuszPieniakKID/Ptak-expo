@@ -340,6 +340,71 @@ router.post('/:id/assign-event', verifyToken, requireAdmin, async (req, res) => 
   }
 });
 
+// DELETE /api/v1/exhibitors/:id/assign-event/:exhibitionId - odłącz wystawcę od wydarzenia (tylko admin)
+router.delete('/:id/assign-event/:exhibitionId', verifyToken, requireAdmin, async (req, res) => {
+  try {
+    const { id, exhibitionId } = req.params;
+
+    console.log(`Unassigning exhibitor ${id} from exhibition ${exhibitionId}`);
+
+    // Sprawdź czy wystawca istnieje
+    const exhibitorCheck = await db.query(
+      'SELECT id, company_name FROM exhibitors WHERE id = $1',
+      [id]
+    );
+
+    if (exhibitorCheck.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        error: 'Wystawca nie został znaleziony'
+      });
+    }
+
+    // Sprawdź czy wydarzenie istnieje
+    const exhibitionCheck = await db.query(
+      'SELECT id, name FROM exhibitions WHERE id = $1',
+      [exhibitionId]
+    );
+
+    if (exhibitionCheck.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        error: 'Wydarzenie nie zostało znalezione'
+      });
+    }
+
+    // Usuń przypisanie (odłączenie)
+    const deleteResult = await db.query(
+      'DELETE FROM exhibitor_events WHERE exhibitor_id = $1 AND exhibition_id = $2',
+      [id, exhibitionId]
+    );
+
+    const exhibitor = exhibitorCheck.rows[0];
+    const exhibition = exhibitionCheck.rows[0];
+
+    if (deleteResult.rowCount > 0) {
+      console.log(`✅ Unassigned ${exhibitor.company_name} from ${exhibition.name}`);
+      return res.json({
+        success: true,
+        message: `Wystawca "${exhibitor.company_name}" został odłączony od wydarzenia "${exhibition.name}"`
+      });
+    }
+
+    console.log(`⚠️ No assignment found for exhibitor ${id} and exhibition ${exhibitionId}`);
+    return res.json({
+      success: true,
+      message: `Wystawca nie był przypisany do tego wydarzenia`
+    });
+  } catch (error) {
+    console.error('Error unassigning exhibitor from event:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Błąd podczas odłączania wystawcy od wydarzenia',
+      message: error.message
+    });
+  }
+});
+
 // GET /api/v1/exhibitors/:id - pobierz szczegóły wystawcy (tylko admin)
 router.get('/:id', verifyToken, requireAdmin, async (req, res) => {
   try {

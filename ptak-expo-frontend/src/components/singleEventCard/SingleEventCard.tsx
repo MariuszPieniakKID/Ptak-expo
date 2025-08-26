@@ -126,8 +126,8 @@ const SingleEventCard: React.FC<SingleEventCardProps> = ({
         open={openConfirm}
         onClose={() => setOpenConfirm(false)}
         onConfirm={handleConfirmDelete}
-        title="Usuwanie wydarzenia"
-        description="Chcesz usunąć to wydarzenie?"
+        title="Odłącz wydarzenie od wystawcy"
+        description="Czy na pewno chcesz odłączyć to wydarzenie od tego wystawcy?"
       />
     </>
   );

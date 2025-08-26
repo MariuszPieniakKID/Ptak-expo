@@ -4,6 +4,7 @@ import { useAuth } from '../contexts/AuthContext';
 import Menu from '../components/menu/Menu';
 import CustomTypography from '../components/customTypography/CustomTypography';
 import CustomButton from '../components/customButton/CustomButton';
+import CustomLink from '../components/customLink/CustomLink';
 import BrandingFileUpload from '../components/BrandingFileUpload';
 import TradeInfo from '../components/TradeInfo';
 import Invitations from '../components/Invitations';
@@ -441,31 +442,24 @@ const EventDetailPage: React.FC = () => {
          sx={{ maxWidth: '78%' }}
          className={styles.contentWrapper}
          >
-        {/* Header with back button */}
-        <Box className={styles.header}>
+        {/* Header with back link */}
+        <Box className={styles.pageHeaderRow}>
           <Box className={styles.titleContainer}>
             <img src={EventsPageIcon} alt="Wydarzenia" className={styles.titleIcon} />
             <CustomTypography fontSize="2rem" fontWeight={600}>
               Szczegóły Wydarzenia
             </CustomTypography>
           </Box>
-          <CustomButton
-            onClick={handleBack}
-            startIcon={<ArrowBackIcon />}
-            bgColor="transparent"
-            textColor="#6F87F6"
-            width="auto"
-            height="auto"
-            sx={{
-              border: '1px solid #6F87F6',
-              '&:hover': {
-                backgroundColor: '#6F87F6',
-                color: '#fff',
-              },
-            }}
+          <CustomLink
+            onClick={(e) => { e.preventDefault(); handleBack(); }}
+            fontSize="0.875rem"
+            fontWeight={400}
+            color="#6F87F6"
+            hoverColor="#5041d0"
+            className={styles.backLink}
           >
             Wróć do listy
-          </CustomButton>
+          </CustomLink>
         </Box>
 
         {/* Main content with two columns */}

@@ -1,37 +1,19 @@
 import React from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import Menu from '../components/Menu';
+import { useParams } from 'react-router-dom';
+import { Box } from '@mui/material';
+import EventLayout from '../components/eventLayout/EventLayout';
+import LeftColumn from '../components/event-left/LeftColumn';
 import DocumentsPage from './DocumentsPage';
 
 const DocumentsRoutePage: React.FC = () => {
   const { eventId } = useParams();
-  const navigate = useNavigate();
-
-  const handleMenuClick = (page: string) => {
-    if (!eventId) return;
-    if (page === 'info') {
-      navigate(`/event/${eventId}/trade-info`);
-      return;
-    }
-    if (page === 'checklist') {
-      navigate(`/event/${eventId}/checklist`);
-      return;
-    }
-    if (page === 'documents') {
-      navigate(`/event/${eventId}/documents`);
-      return;
-    }
-    if (page === 'home') {
-      navigate(`/event/${eventId}`);
-      return;
-    }
-  };
 
   return (
-    <div>
-      <Menu onMenuClick={handleMenuClick} onLogout={() => navigate('/login')} />
-      <DocumentsPage />
-    </div>
+    <EventLayout
+      left={<LeftColumn eventId={eventId || '0'} />}
+      right={<Box sx={{ paddingTop: '2rem' }}><DocumentsPage /></Box>}
+      colorLeft="#145d5a"
+    />
   );
 };
 
