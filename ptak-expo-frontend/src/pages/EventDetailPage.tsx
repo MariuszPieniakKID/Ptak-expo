@@ -8,9 +8,11 @@ import CustomLink from '../components/customLink/CustomLink';
 // import TradeInfo from '../components/TradeInfo';
 import TradeFairInformationContent from '../components/eventComponents/tradeFairInformation/tradeFairInformationContent/TradeFairInformationContent';
 import BrandingContent from '../components/eventComponents/branding/brandingContent/BrandingContent';
-import Invitations from '../components/Invitations';
-import CustomField, { OptionType } from '../components/customField/CustomField';
-import { createTradeEvent, getTradeEvents, TradeEvent, getBrandingFileUrl } from '../services/api';
+// import Invitations from '../components/Invitations';
+import InvitationsContent from '../components/eventComponents/invitations/invitationsContent/InvitationsContent';
+import TradeFairEventsContent from '../components/eventComponents/tradeFairEvents/tradeFairEventsContent/TradeFairEventsContent';
+import PushNotificationContent from '../components/eventComponents/pushNotification/pushNotificationContent/PushNotificationContent';
+import { getBrandingFileUrl } from '../services/api';
 import { 
   fetchExhibition, 
   Exhibition, 
@@ -69,34 +71,9 @@ const EventDetailPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<number>(0);
   const [brandingFiles, setBrandingFiles] = useState<BrandingFilesResponse | null>(null);
   const [deleteLoading, setDeleteLoading] = useState<boolean>(false);
-  const [tradeEvents, setTradeEvents] = useState<TradeEvent[]>([]);
-  const [tradeEventsError, setTradeEventsError] = useState<string>('');
-  const dateOnly = (value?: string) => {
-    if (!value) return '';
-    const tIdx = value.indexOf('T');
-    return tIdx > 0 ? value.slice(0, tIdx) : value;
-  };
-  const timeHM = (value?: string) => {
-    if (!value) return '';
-    // Expect formats HH:MM:SS or HH:MM
-    const parts = value.split(':');
-    if (parts.length >= 2) return `${parts[0].padStart(2,'0')}:${parts[1].padStart(2,'0')}`;
-    return value;
-  };
-  const [newEvent, setNewEvent] = useState<TradeEvent>({
-    name: '',
-    eventDate: '',
-    startTime: '',
-    endTime: '',
-    hall: '',
-    description: '',
-    type: 'Ceremonia otwarcia',
-  });
-  const typeOptions: OptionType[] = [
-    { value: 'Ceremonia otwarcia', label: 'Ceremonia otwarcia' },
-    { value: 'Główna konferencja', label: 'Główna konferencja' },
-    { value: 'Spotkania organizatorów', label: 'Spotkania organizatorów' },
-  ];
+  // trade events state moved to TradeFairEventsContent
+  // dateOnly/timeHM moved with trade events
+  // trade events form options moved to TradeFairEventsContent
   const navigate = useNavigate();
   const { user, token, logout } = useAuth();
 
@@ -118,16 +95,7 @@ const EventDetailPage: React.FC = () => {
         const exhibitorId = null; // Global event files
         setTimeout(() => loadBrandingFiles(exhibitorId, fetchedExhibition.id), 0);
       }
-      // Load trade events
-      if (token) {
-        try {
-          const res = await getTradeEvents(fetchedExhibition.id, token);
-          setTradeEvents(res.data || []);
-          setTradeEventsError('');
-        } catch (e: any) {
-          setTradeEventsError(e.message || 'Błąd podczas ładowania wydarzeń targowych');
-        }
-      }
+      // trade events are handled inside TradeFairEventsContent
     } catch (err: any) {
       setError(err.message || 'Nie udało się pobrać danych wydarzenia');
       if (err.message.includes('401') && token) {
@@ -236,34 +204,7 @@ const EventDetailPage: React.FC = () => {
     }
   }, [exhibition, token, id, navigate, logout]);
 
-  // Handlers for trade events form
-  const handleNewEventChange = (field: keyof TradeEvent) => (e: React.ChangeEvent<HTMLInputElement>) => {
-    setNewEvent(prev => ({ ...prev, [field]: e.target.value }));
-  };
-
-  const handleSaveTradeEvent = async () => {
-    if (!exhibition || !token) return;
-    if (!newEvent.name || !newEvent.eventDate || !newEvent.startTime || !newEvent.endTime || !newEvent.type) return;
-    // Frontend guard: date within exhibition range (ignore time)
-    const d = new Date(newEvent.eventDate);
-    const s = new Date(exhibition.start_date);
-    const e = new Date(exhibition.end_date);
-    const onlyDate = (dt: Date) => new Date(dt.getFullYear(), dt.getMonth(), dt.getDate()).getTime();
-    if (onlyDate(d) < onlyDate(s) || onlyDate(d) > onlyDate(e)) {
-      alert('Data wydarzenia musi mieścić się w zakresie dat targów');
-      return;
-    }
-    try {
-      await createTradeEvent(exhibition.id, newEvent, token);
-      // Reload from server to ensure consistency
-      const refreshed = await getTradeEvents(exhibition.id, token);
-      setTradeEvents(refreshed.data || []);
-      setTradeEventsError('');
-      setNewEvent({ name: '', eventDate: '', startTime: '', endTime: '', hall: '', description: '', type: 'Ceremonia otwarcia' });
-    } catch (err: any) {
-      setTradeEventsError(err.message || 'Błąd podczas zapisywania wydarzenia targowego');
-    }
-  };
+  // trade events handlers moved to TradeFairEventsContent
 
   if (loading) {
     return (
@@ -597,218 +538,20 @@ const EventDetailPage: React.FC = () => {
 
               <TabPanel value={activeTab} index={2}>
                 {exhibition && (
-                  <Invitations exhibitionId={exhibition.id} />
+                  <InvitationsContent event={exhibition} />
                 )}
               </TabPanel>
 
               <TabPanel value={activeTab} index={3}>
-                <Box className={styles.tabContent}>
-                  <CustomTypography fontSize="1.25rem" fontWeight={600}>
-                    Wydarzenia targowe
-                  </CustomTypography>
-                  <Box className={styles.tradeEventsSection}>
-                    {tradeEventsError && (
-                      <Alert severity="error" sx={{ mb: 2 }}>{tradeEventsError}</Alert>
-                    )}
-                    <Box className={styles.eventCard}>
-                      <CustomTypography fontSize="0.875rem" fontWeight={500}>
-                        Dodaj wydarzenie
-                      </CustomTypography>
-                      <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
-                        <CustomField
-                          type="text"
-                          value={newEvent.name}
-                          onChange={handleNewEventChange('name')}
-                          placeholder="Nazwa wydarzenia"
-                          fullWidth
-                        />
-                        <CustomField
-                          type="date"
-                          value={newEvent.eventDate}
-                          onChange={handleNewEventChange('eventDate')}
-                          placeholder="Data"
-                          fullWidth
-                        />
-                        <CustomField
-                          type="time"
-                          value={newEvent.startTime}
-                          onChange={handleNewEventChange('startTime')}
-                          placeholder="Godzina początku"
-                          fullWidth
-                        />
-                        <CustomField
-                          type="time"
-                          value={newEvent.endTime}
-                          onChange={handleNewEventChange('endTime')}
-                          placeholder="Godzina końca"
-                          fullWidth
-                        />
-                        <CustomField
-                          type="text"
-                          value={newEvent.hall || ''}
-                          onChange={handleNewEventChange('hall')}
-                          placeholder="Hala"
-                          fullWidth
-                        />
-                        <CustomField
-                          type="text"
-                          value={newEvent.type}
-                          onChange={handleNewEventChange('type')}
-                          placeholder="Rodzaj"
-                          options={typeOptions}
-                          forceSelectionFromOptions
-                          fullWidth
-                        />
-                        <CustomField
-                          type="text"
-                          value={newEvent.description || ''}
-                          onChange={handleNewEventChange('description')}
-                          placeholder="Opis"
-                          fullWidth
-                        />
-                      </Box>
-                      <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
-                        <CustomButton
-                          bgColor="#6F87F6"
-                          textColor="#fff"
-                          width="120px"
-                          height="40px"
-                          fontSize="0.875rem"
-                          onClick={handleSaveTradeEvent}
-                        >
-                          Zapisz
-                        </CustomButton>
-                      </Box>
-                    </Box>
-
-                    {tradeEvents.map((ev) => (
-                      <details key={ev.id} className={styles.eventCard}>
-                        <summary>
-                          <CustomTypography fontSize="0.875rem" fontWeight={500}>
-                            {dateOnly(ev.eventDate)} • {timeHM(ev.startTime)} - {timeHM(ev.endTime)} {ev.hall ? `• Hala: ${ev.hall}` : ''} — {ev.name}
-                          </CustomTypography>
-                        </summary>
-                        <Box sx={{ mt: 1 }}>
-                          <CustomTypography fontSize="0.75rem" color="#6c757d">
-                            Nazwa: {ev.name}
-                          </CustomTypography>
-                          <CustomTypography fontSize="0.75rem" color="#6c757d">
-                            Data: {dateOnly(ev.eventDate)}
-                          </CustomTypography>
-                          <CustomTypography fontSize="0.75rem" color="#6c757d">
-                            Godziny: {timeHM(ev.startTime)} - {timeHM(ev.endTime)}
-                          </CustomTypography>
-                          {ev.hall && (
-                            <CustomTypography fontSize="0.75rem" color="#6c757d">
-                              Hala: {ev.hall}
-                            </CustomTypography>
-                          )}
-                          {ev.description && (
-                            <CustomTypography fontSize="0.75rem" color="#6c757d">
-                              Opis: {ev.description}
-                            </CustomTypography>
-                          )}
-                          <CustomTypography fontSize="0.75rem" color="#6c757d">
-                            Rodzaj: {ev.type}
-                          </CustomTypography>
-                        </Box>
-                      </details>
-                    ))}
-                  </Box>
-                </Box>
+                {exhibition && (
+                  <TradeFairEventsContent event={exhibition} />
+                )}
               </TabPanel>
 
               <TabPanel value={activeTab} index={4}>
-                <Box className={styles.tabContent}>
-                  <CustomTypography fontSize="1.25rem" fontWeight={600}>
-                    Powiadomienia Push
-                  </CustomTypography>
-                  <Box className={styles.notificationsSection}>
-                    <CustomTypography fontSize="1rem">
-                      Wyślij powiadomienia do uczestników wydarzenia
-                    </CustomTypography>
-                    
-                    <Box className={styles.notificationCard}>
-                      <CustomTypography fontSize="0.875rem" fontWeight={500}>
-                        Ogłoszenia targowe
-                      </CustomTypography>
-                      <CustomTypography fontSize="0.75rem" color="#6c757d">
-                        Informacje o rozpoczęciu, przerwach i zakończeniu
-                      </CustomTypography>
-                      <CustomButton
-                        bgColor="#6F87F6"
-                        textColor="#fff"
-                        width="auto"
-                        height="36px"
-                        fontSize="0.75rem"
-                      >
-                        Wyślij ogłoszenie
-                      </CustomButton>
-                    </Box>
-
-                    <Box className={styles.notificationCard}>
-                      <CustomTypography fontSize="0.875rem" fontWeight={500}>
-                        Przypomnienia
-                      </CustomTypography>
-                      <CustomTypography fontSize="0.75rem" color="#6c757d">
-                        Automatyczne przypomnienia o ważnych terminach
-                      </CustomTypography>
-                      <CustomButton
-                        bgColor="transparent"
-                        textColor="#6F87F6"
-                        width="auto"
-                        height="36px"
-                        fontSize="0.75rem"
-                        sx={{ border: '1px solid #6F87F6' }}
-                      >
-                        Ustaw przypomnienia
-                      </CustomButton>
-                    </Box>
-
-                    <Box className={styles.notificationCard}>
-                      <CustomTypography fontSize="0.875rem" fontWeight={500}>
-                        Wydarzenia specjalne
-                      </CustomTypography>
-                      <CustomTypography fontSize="0.75rem" color="#6c757d">
-                        Powiadomienia o konkursach i dodatkowych atrakcjach
-                      </CustomTypography>
-                      <CustomButton
-                        bgColor="transparent"
-                        textColor="#6F87F6"
-                        width="auto"
-                        height="36px"
-                        fontSize="0.75rem"
-                        sx={{ border: '1px solid #6F87F6' }}
-                      >
-                        Powiadom o wydarzenia
-                      </CustomButton>
-                    </Box>
-
-                    <Box className={styles.notificationHistory}>
-                      <CustomTypography fontSize="0.875rem" fontWeight={500}>
-                        Historia powiadomień
-                      </CustomTypography>
-                      <Box className={styles.historyList}>
-                        <Box className={styles.historyItem}>
-                          <CustomTypography fontSize="0.75rem">
-                            "Rozpoczęcie rejestracji na targi" - wysłano 2 dni temu
-                          </CustomTypography>
-                          <CustomTypography fontSize="0.65rem" color="#6c757d">
-                            Dostarczono do 156 odbiorców
-                          </CustomTypography>
-                        </Box>
-                        <Box className={styles.historyItem}>
-                          <CustomTypography fontSize="0.75rem">
-                            "Przypomnienie o terminie zgłoszeń" - wysłano 5 dni temu
-                          </CustomTypography>
-                          <CustomTypography fontSize="0.65rem" color="#6c757d">
-                            Dostarczono do 203 odbiorców
-                          </CustomTypography>
-                        </Box>
-                      </Box>
-                    </Box>
-                  </Box>
-                </Box>
+                {exhibition && (
+                  <PushNotificationContent event={exhibition} />
+                )}
               </TabPanel>
             </Box>
           </Box>
