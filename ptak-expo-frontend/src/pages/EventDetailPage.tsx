@@ -11,6 +11,7 @@ import BrandingContent from '../components/eventComponents/branding/brandingCont
 // import Invitations from '../components/Invitations';
 import InvitationsContent from '../components/eventComponents/invitations/invitationsContent/InvitationsContent';
 import TradeFairEventsContent from '../components/eventComponents/tradeFairEvents/tradeFairEventsContent/TradeFairEventsContent';
+import PushNotificationContent from '../components/eventComponents/pushNotification/pushNotificationContent/PushNotificationContent';
 import { getBrandingFileUrl } from '../services/api';
 import { 
   fetchExhibition, 
@@ -548,96 +549,9 @@ const EventDetailPage: React.FC = () => {
               </TabPanel>
 
               <TabPanel value={activeTab} index={4}>
-                <Box className={styles.tabContent}>
-                  <CustomTypography fontSize="1.25rem" fontWeight={600}>
-                    Powiadomienia Push
-                  </CustomTypography>
-                  <Box className={styles.notificationsSection}>
-                    <CustomTypography fontSize="1rem">
-                      Wyślij powiadomienia do uczestników wydarzenia
-                    </CustomTypography>
-                    
-                    <Box className={styles.notificationCard}>
-                      <CustomTypography fontSize="0.875rem" fontWeight={500}>
-                        Ogłoszenia targowe
-                      </CustomTypography>
-                      <CustomTypography fontSize="0.75rem" color="#6c757d">
-                        Informacje o rozpoczęciu, przerwach i zakończeniu
-                      </CustomTypography>
-                      <CustomButton
-                        bgColor="#6F87F6"
-                        textColor="#fff"
-                        width="auto"
-                        height="36px"
-                        fontSize="0.75rem"
-                      >
-                        Wyślij ogłoszenie
-                      </CustomButton>
-                    </Box>
-
-                    <Box className={styles.notificationCard}>
-                      <CustomTypography fontSize="0.875rem" fontWeight={500}>
-                        Przypomnienia
-                      </CustomTypography>
-                      <CustomTypography fontSize="0.75rem" color="#6c757d">
-                        Automatyczne przypomnienia o ważnych terminach
-                      </CustomTypography>
-                      <CustomButton
-                        bgColor="transparent"
-                        textColor="#6F87F6"
-                        width="auto"
-                        height="36px"
-                        fontSize="0.75rem"
-                        sx={{ border: '1px solid #6F87F6' }}
-                      >
-                        Ustaw przypomnienia
-                      </CustomButton>
-                    </Box>
-
-                    <Box className={styles.notificationCard}>
-                      <CustomTypography fontSize="0.875rem" fontWeight={500}>
-                        Wydarzenia specjalne
-                      </CustomTypography>
-                      <CustomTypography fontSize="0.75rem" color="#6c757d">
-                        Powiadomienia o konkursach i dodatkowych atrakcjach
-                      </CustomTypography>
-                      <CustomButton
-                        bgColor="transparent"
-                        textColor="#6F87F6"
-                        width="auto"
-                        height="36px"
-                        fontSize="0.75rem"
-                        sx={{ border: '1px solid #6F87F6' }}
-                      >
-                        Powiadom o wydarzenia
-                      </CustomButton>
-                    </Box>
-
-                    <Box className={styles.notificationHistory}>
-                      <CustomTypography fontSize="0.875rem" fontWeight={500}>
-                        Historia powiadomień
-                      </CustomTypography>
-                      <Box className={styles.historyList}>
-                        <Box className={styles.historyItem}>
-                          <CustomTypography fontSize="0.75rem">
-                            "Rozpoczęcie rejestracji na targi" - wysłano 2 dni temu
-                          </CustomTypography>
-                          <CustomTypography fontSize="0.65rem" color="#6c757d">
-                            Dostarczono do 156 odbiorców
-                          </CustomTypography>
-                        </Box>
-                        <Box className={styles.historyItem}>
-                          <CustomTypography fontSize="0.75rem">
-                            "Przypomnienie o terminie zgłoszeń" - wysłano 5 dni temu
-                          </CustomTypography>
-                          <CustomTypography fontSize="0.65rem" color="#6c757d">
-                            Dostarczono do 203 odbiorców
-                          </CustomTypography>
-                        </Box>
-                      </Box>
-                    </Box>
-                  </Box>
-                </Box>
+                {exhibition && (
+                  <PushNotificationContent event={exhibition} />
+                )}
               </TabPanel>
             </Box>
           </Box>
