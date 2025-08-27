@@ -5,8 +5,12 @@ import CustomLink from '../components/customLink/CustomLink';
 import ChecklistCard from '../components/checklist/checklistCard';
 import { Typography } from '@mui/material';
 import ProductsInfo from '../components/checklist/ProductsInfo';
+import CompanyInfo from '../components/checklist/CompanyInfo';
+import { useChecklist } from '../contexts/ChecklistContext';
+import { ApplyGreenCheck } from '../components/checklist/ApplyGreenCheck';
 
 const ChecklistPage: React.FC = () => {
+  var {filled} = useChecklist();
   return (
     <div className={styles.pageRoot}>
       {/* Right main content area */}
@@ -48,7 +52,7 @@ const ChecklistPage: React.FC = () => {
                 'Zaplanuj\nTargi',
               ].map((label, i) => (
                 <div key={label} className={styles.step}>
-                  <img src={`/assets/checklist-step-${i + 1}.svg`} alt=""></img>
+                  <ApplyGreenCheck checked={filled[i]}><img src={`/assets/checklist-step-${i + 1}.svg`} alt=""></img></ApplyGreenCheck>
                   <div className={styles.stepLabel}>{label}</div>
                 </div>
               ))}
@@ -57,18 +61,7 @@ const ChecklistPage: React.FC = () => {
           </div>
 
           {/* Detailed sections */}
-          <ChecklistCard title={<>
-              <img src={`/assets/checklist-step-1.svg`} alt=""></img>
-              <Typography fontSize={16}>Wpis do katalogu targowego (1/6)</Typography>
-            </>}>
-                  
-            <div className={styles.sectionList}>
-              {['Nazwa Firmy','Logotyp','Opis','Dane kontaktowe','Strona www.','Social Media'].map((it) => (
-                <div key={it} className={styles.sectionRow}><span>{it}</span><div className={styles.sectionGoodDot} /></div>
-              ))}
-            </div>
-            <div className={styles.sectionLink}>Podejrzyj wygląd wpisu do katalogu</div>
-          </ChecklistCard>
+          <CompanyInfo />
 
           <ProductsInfo />
 

@@ -53,10 +53,10 @@ export interface Checklist {
 	events: Event[],
 	electrionicIds: ElectrionicId[],
 }
-const ExampleChecklist: Checklist = {
+let ExampleChecklist: Checklist = {
 	companyInfo: {
 		contactInfo: "tel: 22 111 22 33\nfax: 22 111 22 34",
-		description: "Opis",
+		description: null,
 		logo: "/assets/logo192.png",
 		name: "Testowa firma",
 		socials: "fb.com/testowa_firma",
@@ -82,5 +82,5 @@ const ExampleChecklist: Checklist = {
 
 export const getChecklist = async (_: number) => ExampleChecklist;
 export const updateCompanyInfo = async (companyInfo: CompanyInfo) => {
-	ExampleChecklist.companyInfo = companyInfo;
+	ExampleChecklist = {...ExampleChecklist, companyInfo};
 }
