@@ -7,12 +7,12 @@ import LoginPage from './pages/loginPage/LoginPage';
 import DashboardPage from './pages/dashboardPage/DashboardPage';
 import UsersPage from './pages/usersPage/UsersPage';
 import ExhibitorsPage from './pages/exshibitorsPage/ExhibitorsPage'
-import EventsPage from './pages/EventsPage';
 import ExhibitorCardPage from './pages/exhibitorCardPage/ExhibitorCardPageShort';
 import EventDetailsPage from './pages/EventDetailsPage';
 import EventDetailPage from './pages/EventDetailPage';
 import ApiDocsPage from './pages/ApiDocsPage';
 import './App.scss';
+import EventsPage_ from './pages/eventsPage/EventsPage_';
 
 function App() {
   return (
@@ -60,17 +60,10 @@ function App() {
                 <EventDetailsPage />
               </ProtectedRoute>
             } />
-            
-            {/* Protected Events page - Admin only */}
-            <Route path="/wydarzenia_" element={
-              <ProtectedRoute requiredRole="admin">
-                <EventsPage />
-              </ProtectedRoute>
-            } />
             {/* Protected Events page - Admin only */}
             <Route path="/wydarzenia" element={
               <ProtectedRoute requiredRole="admin">
-                <EventsPage />
+                <EventsPage_ />
               </ProtectedRoute>
             } />
             {/* API Docs */}
