@@ -42,4 +42,6 @@ export type _AddedEvent =
   id: number;
   message: string;
 }
+export type _BrandingImg ={
 
+}

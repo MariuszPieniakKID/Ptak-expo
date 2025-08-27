@@ -1,11 +1,12 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { Box, Alert, CircularProgress } from '@mui/material';
-import CustomTypography from '../../../../components/customTypography/CustomTypography';
+//import CustomTypography from '../../../../components/customTypography/CustomTypography';
 import CustomButton from '../../../../components/customButton/CustomButton';
 import BrandingFileUpload from '../../../../components/BrandingFileUpload';
 import { useAuth } from '../../../../contexts/AuthContext';
 import { Exhibition, getBrandingFiles, BrandingFilesResponse } from '../../../../services/api';
 import styles from './BrandingContent.module.scss';
+import BrandingFileUpload_ from './brandingFileUpload_/BrandingFileUpload_';
 
 interface BrandingContentProps {
   event: Exhibition;
@@ -57,9 +58,6 @@ const BrandingContent: React.FC<BrandingContentProps> = ({ event }) => {
 
   return (
     <Box className={styles.tabContent}>
-      <CustomTypography fontSize="1.25rem" fontWeight={600}>
-        Branding wystawcy
-      </CustomTypography>
 
       {brandingError && (
         <Alert severity="error" sx={{ mb: 2 }}>
@@ -73,12 +71,8 @@ const BrandingContent: React.FC<BrandingContentProps> = ({ event }) => {
         </Box>
       ) : (
         <Box className={styles.brandingSection}>
-          <CustomTypography fontSize="1rem">
-            Materiały brandingowe i promocyjne dla wydarzenia
-          </CustomTypography>
-
           {event && brandingFiles && user && (
-            <BrandingFileUpload
+            <BrandingFileUpload_
               fileType="kolorowe_tlo_logo_wydarzenia"
               title="Kolorowe tło z logiem wydarzenia (E-Identyfikator wystawcy)"
               description="Format: png, jpg"
