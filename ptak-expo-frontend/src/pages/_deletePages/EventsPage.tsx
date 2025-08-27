@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
-import Menu from '../components/menu/Menu';
-import AddEventModal from '../components/AddEventModal';
-import CustomTypography from '../components/customTypography/CustomTypography';
-import CustomButton from '../components/customButton/CustomButton';
-import { fetchExhibitions, Exhibition, getBrandingFileUrl } from '../services/api';
+import { useAuth } from '../../contexts/AuthContext';
+import Menu from '../../components/menu/Menu';
+import AddEventModal from '../../components/AddEventModal';
+import CustomTypography from '../../components/customTypography/CustomTypography';
+import CustomButton from '../../components/customButton/CustomButton';
+import { fetchExhibitions, Exhibition, getBrandingFileUrl } from '../../services/api';
 import {
   Box,
   Container,

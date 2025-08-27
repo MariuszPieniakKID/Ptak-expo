@@ -361,12 +361,12 @@ const formatDateRange = useCallback((startDate: string, endDate: string): string
                   </Box>
               </Box>
               <Box 
-                className={styles._backContainer}
+                className={styles.backContainerFooter}
                 onClick={ () => navigate(-1)}
                 sx={{paddingBottom:'2em'}}
                 >
-                <BackIcon className={styles._backIcon} />
-                <CustomTypography className={styles.backText}> wstecz </CustomTypography>
+                <BackIcon className={styles.backIconFooter} />
+                <CustomTypography className={styles.backTextFooter}> wstecz </CustomTypography>
               </Box>
            </>
            }
