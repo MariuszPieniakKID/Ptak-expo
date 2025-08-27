@@ -1,17 +1,20 @@
-import { Box } from "@mui/material";
-import { Exhibition } from "../../../../services/api";
-
+import React from 'react';
+import { Exhibition } from '../../../../services/api';
+import TradeInfo from '../../../../components/TradeInfo';
+import styles from './TradeFairInformationContent.module.scss';
 
 interface TradeFairInformationContentProps {
   event: Exhibition;
 }
 
-function TradeFairInformationContent({ event }: TradeFairInformationContentProps) {
-
-
+const TradeFairInformationContent: React.FC<TradeFairInformationContentProps> = ({ event }) => {
   return (
-    <Box>2:{event.name}</Box>
+    <div className={styles.container}>
+      <TradeInfo exhibitionId={event.id} />
+    </div>
   );
-}
+};
 
 export default TradeFairInformationContent;
+
+// duplicate declarations removed

@@ -5,7 +5,8 @@ import Menu from '../components/menu/Menu';
 import CustomTypography from '../components/customTypography/CustomTypography';
 import CustomButton from '../components/customButton/CustomButton';
 import CustomLink from '../components/customLink/CustomLink';
-import TradeInfo from '../components/TradeInfo';
+// import TradeInfo from '../components/TradeInfo';
+import TradeFairInformationContent from '../components/eventComponents/tradeFairInformation/tradeFairInformationContent/TradeFairInformationContent';
 import BrandingContent from '../components/eventComponents/branding/brandingContent/BrandingContent';
 import Invitations from '../components/Invitations';
 import CustomField, { OptionType } from '../components/customField/CustomField';
@@ -590,7 +591,7 @@ const EventDetailPage: React.FC = () => {
 
               <TabPanel value={activeTab} index={1}>
                 {exhibition && (
-                  <TradeInfo exhibitionId={exhibition.id} />
+                  <TradeFairInformationContent event={exhibition} />
                 )}
               </TabPanel>
 
