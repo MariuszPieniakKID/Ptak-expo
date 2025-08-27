@@ -1,18 +1,18 @@
-import { Box } from "@mui/material";
-import { Exhibition } from "../../../../services/api";
-//import styles from './InvitationsContent.module.scss';
-
+import React from 'react';
+import { Exhibition } from '../../../../services/api';
+import Invitations from '../../../../components/Invitations';
+import styles from './InvitationsContent.module.scss';
 
 interface InvitationsContentProps {
   event: Exhibition;
 }
 
-function InvitationsContent({ event }: InvitationsContentProps) {
-
-
+const InvitationsContent: React.FC<InvitationsContentProps> = ({ event }) => {
   return (
-    <Box>3:{event.name}</Box>
+    <div className={styles.container}>
+      <Invitations exhibitionId={event.id} />
+    </div>
   );
-}
+};
 
 export default InvitationsContent;

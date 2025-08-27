@@ -8,7 +8,8 @@ import CustomLink from '../components/customLink/CustomLink';
 // import TradeInfo from '../components/TradeInfo';
 import TradeFairInformationContent from '../components/eventComponents/tradeFairInformation/tradeFairInformationContent/TradeFairInformationContent';
 import BrandingContent from '../components/eventComponents/branding/brandingContent/BrandingContent';
-import Invitations from '../components/Invitations';
+// import Invitations from '../components/Invitations';
+import InvitationsContent from '../components/eventComponents/invitations/invitationsContent/InvitationsContent';
 import CustomField, { OptionType } from '../components/customField/CustomField';
 import { createTradeEvent, getTradeEvents, TradeEvent, getBrandingFileUrl } from '../services/api';
 import { 
@@ -597,7 +598,7 @@ const EventDetailPage: React.FC = () => {
 
               <TabPanel value={activeTab} index={2}>
                 {exhibition && (
-                  <Invitations exhibitionId={exhibition.id} />
+                  <InvitationsContent event={exhibition} />
                 )}
               </TabPanel>
 
