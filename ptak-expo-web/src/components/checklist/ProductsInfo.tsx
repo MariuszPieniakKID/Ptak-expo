@@ -5,10 +5,11 @@ import { useChecklist } from "../../contexts/ChecklistContext";
 export default function ProductsInfo() {
 	var {checklist} = useChecklist();
 	return (
-	<ChecklistCard title={<>
-			<img src={`/assets/checklist-step-1.svg`} alt=""></img>
-			<Typography fontSize={16}>Prezentowane produkty ({checklist.products.length})</Typography>
-		</>}>
+	<ChecklistCard 
+			icon={<img src={`/assets/checklist-step-1.svg`} alt=""></img>}
+			title={<Typography fontSize={16}>Prezentowane produkty ({checklist.products.length})</Typography>}
+			checked={checklist.products.length > 0}
+		>
 		{checklist.products.map(cp => 
 		<Box display={"flex"} alignItems="center" gap="10px" marginY="16px" width="100%">
 			<Box component="img"  sx={{ width: 40, height: 40, objectFit: "cover", objectPosition: "center", borderRadius: "20px" }}src={cp.img} alt=""/>

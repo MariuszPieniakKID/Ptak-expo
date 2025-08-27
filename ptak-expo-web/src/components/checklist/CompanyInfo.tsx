@@ -49,10 +49,11 @@ function StringEdit({name, value, onChange, multiline}: {name: string, value: st
 export default function CompanyInfo() {
 	var {checklist, saveCompanyInfo, companyInfoFilledCount} = useChecklist();
 	return (
-	<ChecklistCard title={<>
-			<img src={`/assets/checklist-step-1.svg`} alt=""></img>
-			<Typography fontSize={16}>Wpis do katalogu targowego ({companyInfoFilledCount}/6)</Typography>
-		</>}>
+	<ChecklistCard
+			icon={<img src={`/assets/checklist-step-1.svg`} alt=""></img>}
+			title={<Typography fontSize={16}>Wpis do katalogu targowego ({companyInfoFilledCount}/6)</Typography>}
+			checked={companyInfoFilledCount === 6}
+		>
 		<StringEdit name="Nazwa firmy" value={checklist.companyInfo.name} onChange={(v) => 
 			saveCompanyInfo({ ...checklist.companyInfo, name: v})}/>
 		<StringEdit name="Opis" value={checklist.companyInfo.description} onChange={(v) => 

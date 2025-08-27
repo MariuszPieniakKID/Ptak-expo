@@ -1,8 +1,9 @@
 import { ReactNode } from "react";
 import { Accordion, AccordionDetails, AccordionSummary } from "@mui/material";
 import { ExpandMore } from "@mui/icons-material";
+import { ApplyGreenCheck } from "./ApplyGreenCheck";
 
-export default function ChecklistCard({children, title} : {children: ReactNode, title: ReactNode}) {
+export default function ChecklistCard({children, title, icon, checked} : {children: ReactNode, title: ReactNode, icon: ReactNode, checked: boolean}) {
 	return <Accordion sx={{
 		borderRadius: "20px",
 		'&:before': {
@@ -12,6 +13,7 @@ export default function ChecklistCard({children, title} : {children: ReactNode, 
 				slotProps={{content: {sx: {alignItems: "center", gap: "10px"}}}}
 				expandIcon={<ExpandMore />}
 			>
+				<ApplyGreenCheck checked={checked} nomargin>{icon}</ApplyGreenCheck>
 				{title}
 			</AccordionSummary>
 			<AccordionDetails>{children}</AccordionDetails>

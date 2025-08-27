@@ -65,10 +65,9 @@ const ChecklistPage: React.FC = () => {
 
           <ProductsInfo />
 
-          <ChecklistCard title={<>
-              <img src={`/assets/checklist-step-3.svg`} alt=""></img>
-              <Typography fontSize={16}>Materiały do pobrania (3)</Typography>
-            </>}>
+          <ChecklistCard icon={
+              <img src={`/assets/checklist-step-3.svg`} alt=""></img>} 
+              title={<Typography fontSize={16}>Materiały do pobrania (3)</Typography>} checked={filled[2]}> 
                   
             <div className={styles.sectionList}>
               {['Nazwa Firmy','Logotyp','Opis','Dane kontaktowe','Strona www.','Social Media'].map((it) => (
