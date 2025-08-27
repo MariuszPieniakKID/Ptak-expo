@@ -69,7 +69,7 @@ const AddEventModal_: React.FC<AddEventModalProps> = ({
     field:'all',
   });
  const [loading,setLoading] = useState(false);
- const [_error, setError] = useState<string | null>(null);
+ const [, setError] = useState<string | null>(null);
 //   const [formEventValues, setFormEventValues] = useState<EventProps>({
 //     selectedExhibitionId: '',
 //     standNumber: '',
