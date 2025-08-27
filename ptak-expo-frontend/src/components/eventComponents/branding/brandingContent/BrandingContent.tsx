@@ -1,13 +1,11 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { Box, Alert, CircularProgress } from '@mui/material';
-//import CustomTypography from '../../../../components/customTypography/CustomTypography';
-import CustomButton from '../../../../components/customButton/CustomButton';
-import BrandingFileUpload from '../../../../components/BrandingFileUpload';
 import { useAuth } from '../../../../contexts/AuthContext';
 import { Exhibition, getBrandingFiles, BrandingFilesResponse } from '../../../../services/api';
 import styles from './BrandingContent.module.scss';
-import BrandingFileUpload_ from './brandingFileUpload_/BrandingFileUpload_';
-
+import BrandingFileUpload from './brandingFileUpload/BrandingFileUpload';
+import CustomTypography from '../../../customTypography/CustomTypography';
+import { ReactComponent as BlueCircleSaveIcon } from '../../../../assets/submitIconBlueCircleWithCheckMark.svg';
 interface BrandingContentProps {
   event: Exhibition;
 }
@@ -72,7 +70,7 @@ const BrandingContent: React.FC<BrandingContentProps> = ({ event }) => {
       ) : (
         <Box className={styles.brandingSection}>
           {event && brandingFiles && user && (
-            <BrandingFileUpload_
+            <BrandingFileUpload
               fileType="kolorowe_tlo_logo_wydarzenia"
               title="Kolorowe tło z logiem wydarzenia (E-Identyfikator wystawcy)"
               description="Format: png, jpg"
@@ -191,15 +189,14 @@ const BrandingContent: React.FC<BrandingContentProps> = ({ event }) => {
           )}
 
           <Box className={styles.saveButtonContainer}>
-            <CustomButton
-              bgColor="#6F87F6"
-              textColor="#fff"
-              width="120px"
-              height="40px"
-              fontSize="0.875rem"
-            >
-              Zapisz
-            </CustomButton>
+            <Box 
+              className={styles.actionSaveFile}
+              onClick={()=>console.log("Do podpięcia endpoint")}
+            > 
+              <BlueCircleSaveIcon className={styles.actionIcon} />
+              <CustomTypography className={styles.actionLabel}>zapisz</CustomTypography>
+                         
+            </Box>
           </Box>
         </Box>
       )}

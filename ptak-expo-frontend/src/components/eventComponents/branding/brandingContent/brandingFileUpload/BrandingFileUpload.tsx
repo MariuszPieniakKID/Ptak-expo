@@ -3,10 +3,14 @@ import { Box, CircularProgress } from '@mui/material';
 import { useAuth } from '../../../../../contexts/AuthContext';
 import { deleteBrandingFile, getBrandingFileUrl, uploadBrandingFile } from '../../../../../services/api';
 import CustomTypography from '../../../../customTypography/CustomTypography';
-import CustomButton from '../../../../customButton/CustomButton';
-import styles from './BrandingFileUpload_.module.scss';
+//import CustomButton from '../../../../customButton/CustomButton';
+import styles from './BrandingFileUpload.module.scss';
 
-
+import { ReactComponent as GreenCiorcleIcon} from '../../../../../assets/greenCircleWithACheck.svg';
+import { ReactComponent as GrayCircleIcon} from '../../../../../assets/grayDashedCircle.svg';
+import { ReactComponent as MoreInfoIcon} from '../../../../../assets/moreInfoIcon.svg';
+import { ReactComponent as ImgIcon} from '../../../../../assets/imgIcon.svg';
+import { ReactComponent as WastebasketIcon } from "../../../../../assets/wastebasket.svg";
 
 
 
@@ -31,7 +35,7 @@ interface BrandingFileUploadProps {
   onDeleteSuccess?: () => void;
 }
 
-const BrandingFileUpload_: React.FC<BrandingFileUploadProps> = ({
+const BrandingFileUpload: React.FC<BrandingFileUploadProps> = ({
   fileType,
   title,
   description,
@@ -209,137 +213,138 @@ const BrandingFileUpload_: React.FC<BrandingFileUploadProps> = ({
   return (
    <>
    <Box className={styles.brandingContainer}>
-    <Box>hello</Box>
-   </Box>
-
-    <Box className={styles.brandingCard}>
-      <CustomTypography fontSize="0.875rem" fontWeight={500}>
-        {title}
-      </CustomTypography>
-      <CustomTypography fontSize="0.75rem" color="#6c757d">
-        {description}
-        {dimensions && ` • Wymiary: ${dimensions}px`}
-      </CustomTypography>
-      
-      {/* Upload Area */}
-      <Box 
-        className={`${styles.uploadArea} ${isDragOver ? styles.dragOver : ''} ${isUploading ? styles.uploading : ''}`}
-        onDrop={handleDrop}
-        onDragOver={handleDragOver}
-        onDragLeave={handleDragLeave}
-      >
-        {isUploading ? (
-          <Box className={styles.uploadingContainer}>
-            <CircularProgress size={24} />
-            <CustomTypography fontSize="0.75rem" color="#6c757d">
-              Przesyłanie pliku...
-            </CustomTypography>
-          </Box>
-        ) : (
-          <>
-            <CustomTypography fontSize="0.75rem" color="#6c757d">
-              Przeciągnij i upuść, aby dodać plik
-            </CustomTypography>
-            <CustomButton
-              bgColor="transparent"
-              textColor="#6F87F6"
-              width="auto"
-              height="32px"
-              fontSize="0.75rem"
-              sx={{ border: '1px solid #6F87F6', mt: 1 }}
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                handleButtonClick();
-              }}
-              disabled={isUploading}
-            >
-              Wgraj plik
-            </CustomButton>
-          </>
-        )}
-        
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept={allowedFormats.map(format => `.${format}`).join(',')}
-          onChange={handleFileSelect}
-          style={{ display: 'none' }}
-          disabled={isUploading}
-        />
+    <Box className={styles.titleWithUpload}>
+      <Box className={styles.titleInLine}>
+        <Box className={styles.iconBox}>
+          {(isImage||isPdf)
+          ?<GreenCiorcleIcon className={styles.icon} />
+          :<GrayCircleIcon className={styles.iconGray}/>
+         }
+        </Box>
+        <CustomTypography className={styles.titleUpload}>{title}</CustomTypography>
+         <Box className={styles.iconBox}>
+          <MoreInfoIcon 
+          className={styles.moreInfoIcon}
+          onClick={()=>console.log(`Please add more info about: ${title} event.`)}
+          />
+        </Box>
       </Box>
-
-      {/* Preview Area */}
-      <Box className={styles.previewArea}>
-        <CustomTypography fontSize="0.75rem" fontWeight={500}>
-          Podgląd:
-        </CustomTypography>
-        
-        {existingFile ? (
-          <Box className={styles.filePreview}>
-            {isImage && (
-              <img 
-                src={getPreviewUrl() || ''} 
-                alt={existingFile.originalName}
-                className={styles.imagePreview}
-                onError={(e) => {
-                  (e.target as HTMLImageElement).style.display = 'none';
-                }}
-              />
-            )}
-            
-            {isPdf && (
-              <Box className={styles.pdfPreview}>
-                <CustomTypography fontSize="0.75rem" fontWeight={500}>
-                  📄 {existingFile.originalName}
-                </CustomTypography>
-                <CustomTypography fontSize="0.6rem" color="#6c757d">
-                  PDF • {formatFileSize(existingFile.fileSize)}
-                </CustomTypography>
-              </Box>
-            )}
-            
-            <Box className={styles.fileInfo}>
-              <CustomTypography fontSize="0.6rem" color="#6c757d">
-                {existingFile.originalName} • {formatFileSize(existingFile.fileSize)}
+      <Box className={styles.technicalInfoView}>
+        <Box className={styles.technicalInfoViewText}> {description}</Box>
+        <Box className={styles.technicalInfoViewText}> {dimensions} px</Box>
+      </Box>
+      <Box className={styles.uploadBox}>
+        <Box 
+          className={`${styles.uploadBoxIn} ${isDragOver ? styles.dragOver : ''} ${isUploading ? styles.uploading : ''}`}
+          onDrop={handleDrop}
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+        >
+          {isUploading ? (
+            <Box className={styles.uploadingContainer}>
+              <CircularProgress size={24} />
+              <CustomTypography fontSize="0.75rem" color="#6c757d">
+                Przesyłanie pliku...
               </CustomTypography>
             </Box>
-            
-            <Box className={styles.deleteButtonContainer}>
-              <CustomButton
-                variant="outlined"
-                size="small"
-                onClick={handleDeleteFile}
-                disabled={isDeleting || isUploading}
-                style={{
-                  borderColor: '#dc3545',
-                  color: '#dc3545',
-                  fontSize: '0.7rem',
-                  padding: '4px 12px',
-                  minHeight: 'auto'
+          ) : (
+            <>
+            <Box
+                className={styles.uploadBox}
+                onClick={(e) => {
+                  if (isUploading) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    return; 
+                  }
+                  handleButtonClick();
+                }}
+                sx={{
+                  ...(isUploading ? {
+                    pointerEvents: "none",
+                    opacity: 0.6,
+                    cursor: "not-allowed",
+                  } : {}),
                 }}
               >
-                {isDeleting ? (
-                  <>
-                    <CircularProgress size={12} style={{ marginRight: 4, color: '#dc3545' }} />
-                    Usuwanie...
-                  </>
-                ) : (
-                  '🗑️ Usuń obrazek'
-                )}
-              </CustomButton>
+                 <Box className={styles.iconCircle}><ImgIcon/></Box>
+                <CustomTypography className={styles.infoInUploadBox}>
+                  {existingFile && (isImage || isPdf)
+                    ? existingFile.originalName + " • " + formatFileSize(existingFile?.fileSize)
+                    : "Przeciągnij i upuść, aby dodać plik"}
+                </CustomTypography>
             </Box>
-          </Box>
-        ) : (
-          <CustomTypography fontSize="0.75rem" color="#6c757d">
-            Brak wgranego pliku
-          </CustomTypography>
-        )}
+             
+            </>
+          )}
+          
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept={allowedFormats.map(format => `.${format}`).join(',')}
+            onChange={handleFileSelect}
+            style={{ display: 'none' }}
+            disabled={isUploading}
+          />
+        </Box>
       </Box>
     </Box>
-    </>
+    <Box className={styles.showView}>
+      <CustomTypography className={styles.viewLabel}>Podgląd:</CustomTypography>
+      {(isImage || isPdf)
+      ? <Box className={styles.previewArea}>
+          {existingFile 
+          ? (<Box className={styles.filePreview}>
 
+             {(isDeleting
+              ?  <CircularProgress size={48} style={{ margin: 'auto auto', color: '#6F87F6' }} />
+              : <>
+                  {isImage && (
+                  <img 
+                    src={getPreviewUrl() || ''} 
+                    alt={existingFile.originalName}
+                    className={styles.imagePreview}
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).style.display = 'none';
+                    }}
+                  />
+                )}
+
+                {isPdf && (
+                <Box className={styles.pdfPreview}>
+                  <CustomTypography fontSize="0.75rem" fontWeight={500}>
+                    📄 {existingFile.originalName}
+                  </CustomTypography>
+                  <CustomTypography fontSize="0.6rem" color="#6c757d">
+                    PDF • {formatFileSize(existingFile.fileSize)}
+                  </CustomTypography>
+                </Box>
+                )}
+               </>  
+             )} 
+                {(isDeleting || isUploading)
+                ? null
+                : <Box
+                  className={styles.actionButton}
+                  onClick={handleDeleteFile}
+                  >
+                    <WastebasketIcon className={styles.actionIcon} />
+                    <CustomTypography className={styles.actionLabel}>
+                      Usuń
+                    </CustomTypography>
+                  </Box>}
+
+            </Box>) 
+          : 
+          (<CustomTypography fontSize="0.75rem" color="#6c757d">{null}</CustomTypography>)
+          }
+        </Box>
+      :null
+      }
+    </Box>
+   </Box>
+    </>
   );
 };
 
-export default BrandingFileUpload_; 
+export default BrandingFileUpload; 

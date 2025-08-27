@@ -7,8 +7,8 @@ import CustomTooltip from "../customTooltip/CustomTooltip";
 
 interface BellProps {
   reminder: boolean | null | undefined;
- tooltipText?: string | undefined;
-boxShadowColor?: string | undefined;
+  tooltipText?: string | undefined;
+  boxShadowColor?: string | undefined;
 }
 
 const Bell: React.FC<BellProps> = ({ reminder, tooltipText, boxShadowColor }) => {
