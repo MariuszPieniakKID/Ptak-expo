@@ -2,6 +2,9 @@ import styles from './ChecklistPage.module.scss';
 import CustomButton from '../components/customButton/CustomButton';
 import CustomTypography from '../components/customTypography/CustomTypography';
 import CustomLink from '../components/customLink/CustomLink';
+import ChecklistCard from '../components/checklist/checklistCard';
+import { Typography } from '@mui/material';
+import ProductsInfo from '../components/checklist/ProductsInfo';
 
 const ChecklistPage: React.FC = () => {
   return (
@@ -54,35 +57,33 @@ const ChecklistPage: React.FC = () => {
           </div>
 
           {/* Detailed sections */}
-          <div className={styles.sectionCardGray}>
-            <div className={styles.sectionHeaderLeft}>
-              <div className={styles.sectionCircle} />
-              <div className={styles.sectionTitle}>Wpis do katalogu targowego (1/6)</div>
-            </div>
-            <div className={styles.sectionStatusGood} />
+          <ChecklistCard title={<>
+              <img src={`/assets/checklist-step-1.svg`} alt=""></img>
+              <Typography fontSize={16}>Wpis do katalogu targowego (1/6)</Typography>
+            </>}>
+                  
             <div className={styles.sectionList}>
               {['Nazwa Firmy','Logotyp','Opis','Dane kontaktowe','Strona www.','Social Media'].map((it) => (
                 <div key={it} className={styles.sectionRow}><span>{it}</span><div className={styles.sectionGoodDot} /></div>
               ))}
             </div>
             <div className={styles.sectionLink}>Podejrzyj wygląd wpisu do katalogu</div>
-          </div>
+          </ChecklistCard>
 
-          <div className={styles.sectionCardWhite}>
-            <div className={styles.sectionHeaderLeft}>
-              <div className={styles.sectionCircleLight} />
-              <div className={styles.sectionTitle}>Prezentowane produkty (1)</div>
-            </div>
-            <div className={styles.sectionStatusGoodSmall} />
-          </div>
+          <ProductsInfo />
 
-          <div className={styles.sectionCardGray}>
-            <div className={styles.sectionHeaderLeft}>
-              <div className={styles.sectionCircle} />
-              <div className={styles.sectionTitle}>Materiały do pobrania (3)</div>
+          <ChecklistCard title={<>
+              <img src={`/assets/checklist-step-3.svg`} alt=""></img>
+              <Typography fontSize={16}>Materiały do pobrania (3)</Typography>
+            </>}>
+                  
+            <div className={styles.sectionList}>
+              {['Nazwa Firmy','Logotyp','Opis','Dane kontaktowe','Strona www.','Social Media'].map((it) => (
+                <div key={it} className={styles.sectionRow}><span>{it}</span><div className={styles.sectionGoodDot} /></div>
+              ))}
             </div>
-            <div className={styles.sectionStatusGoodSmall} />
-          </div>
+            <div className={styles.sectionLink}>Podejrzyj wygląd wpisu do katalogu</div>
+          </ChecklistCard>
 
           <div className={styles.sectionCardDark}>
             <div className={styles.sectionHeaderLeft}>
