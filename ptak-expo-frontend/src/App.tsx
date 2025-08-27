@@ -12,7 +12,7 @@ import EventDetailsPage from './pages/EventDetailsPage';
 import EventDetailPage from './pages/EventDetailPage';
 import ApiDocsPage from './pages/ApiDocsPage';
 import './App.scss';
-import EventsPage_ from './pages/eventsPage/EventsPage_';
+import EventsPageAlt from './pages/eventsPage/EventsPage_';
 
 function App() {
   return (
@@ -63,7 +63,7 @@ function App() {
             {/* Protected Events page - Admin only */}
             <Route path="/wydarzenia" element={
               <ProtectedRoute requiredRole="admin">
-                <EventsPage_ />
+                <EventsPageAlt />
               </ProtectedRoute>
             } />
             {/* API Docs */}

@@ -328,12 +328,13 @@ const AddEventModal_: React.FC<AddEventModalProps> = ({
     }
   };
   
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const handleClose = useCallback(() => {
     if (!loading) {
       resetForm();
       onClose();
     }
-   }, [loading, onClose]);
+   }, [loading, onClose, resetForm]);
 
   return (
     <Dialog 

@@ -25,7 +25,7 @@ import { ReactComponent as UsersIcon } from '../../assets/addIcon.svg';
 import { Exhibition, fetchExhibitions } from '../../services/api';
 import { getEventAssets } from '../../helpers/getEventAssets';
 import CustomField from '../../components/customField/CustomField';
-import AddEventModal_ from '../../components/addEventModal/AddEventModal_';
+import AddEventModal from '../../components/addEventModal/AddEventModal_';
 import { fieldOptions } from '../../helpers/mockData';
 import EventCardPage from '../eventCardPage/EventCardPage';
 
@@ -387,7 +387,7 @@ const formatDateRange = useCallback((startDate: string, endDate: string): string
       <Box className={styles.filtrBlue}/>
     </Box>
 
-    <AddEventModal_
+    <AddEventModal
       isOpen={isAddEventModalOpen}
       onClose={handleCloseModal}
       onEventAdded={handleEventAdded}
