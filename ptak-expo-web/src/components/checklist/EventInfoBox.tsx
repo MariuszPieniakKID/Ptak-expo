@@ -32,8 +32,8 @@ export default function EventInfoBox({event}: {event: EventInfo}) {
 				<DateCircle date={event.date}/>
 			</Grid> 
 			<Grid size={10}>
-				<Chip variant="outlined" color="primary" label={getEventKindString(event.kind)}/>
-				<Typography fontSize="16px" fontWeight="bold" marginTop="10px">{event.name}</Typography>
+				<Chip variant="outlined" color="primary" label={getEventKindString(event.kind)} size="small"/>
+				<Typography fontSize="16px" fontWeight="bold" marginTop="5px">{event.name}</Typography>
 			</Grid> 
 			<Grid size={12} height="20px"/>
 			<Grid size={2} display="flex" flexDirection="column" alignItems="center">

@@ -84,8 +84,13 @@ export const updateCompanyInfo = async (companyInfo: CompanyInfo) => {
 	ExampleChecklist = {...ExampleChecklist, companyInfo};
 }
 export const addProduct = async (productInfo: ProductInfo) => {
-	ExampleChecklist = {...ExampleChecklist, products: [...ExampleChecklist.products, productInfo]};
+	ExampleChecklist = {...ExampleChecklist, products: [...ExampleChecklist.products, productInfo].sort(
+		(a, b) =>(a.name).localeCompare(b.name)
+)};
+	
 }
 export const addEvent = async (event: EventInfo) => {
-	ExampleChecklist = {...ExampleChecklist, events: [...ExampleChecklist.events, event]};
+	ExampleChecklist = {...ExampleChecklist, events: [...ExampleChecklist.events, event].sort(
+		(a, b) =>(a.date + a.startTime).localeCompare(b.date + b.startTime)
+)};
 }
