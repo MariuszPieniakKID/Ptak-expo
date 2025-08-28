@@ -290,7 +290,9 @@ const BrandingFileUpload: React.FC<BrandingFileUploadProps> = ({
       </Box>
     </Box>
     <Box className={styles.showView}>
-      <CustomTypography className={styles.viewLabel}>Podgląd:</CustomTypography>
+      <CustomTypography className={styles.viewLabel}>
+        {isPdf? "Twoje pliki": "Podgląd"}
+        </CustomTypography>
       {(isImage || isPdf)
       ? <Box className={styles.previewArea}>
           {existingFile 
@@ -311,14 +313,17 @@ const BrandingFileUpload: React.FC<BrandingFileUploadProps> = ({
                 )}
 
                 {isPdf && (
-                <Box className={styles.pdfPreview}>
-                  <CustomTypography fontSize="0.75rem" fontWeight={500}>
-                    📄 {existingFile.originalName}
-                  </CustomTypography>
-                  <CustomTypography fontSize="0.6rem" color="#6c757d">
-                    PDF • {formatFileSize(existingFile.fileSize)}
-                  </CustomTypography>
-                </Box>
+                  <Box className={styles.pdfRow}>
+
+                  </Box>
+                // <Box className={styles.pdfPreview}>
+                //   <CustomTypography fontSize="0.75rem" fontWeight={500}>
+                //     📄 {existingFile.originalName}
+                //   </CustomTypography>
+                //   <CustomTypography fontSize="0.6rem" color="#6c757d">
+                //     PDF • {formatFileSize(existingFile.fileSize)}
+                //   </CustomTypography>
+                // </Box>
                 )}
                </>  
              )} 

@@ -377,3 +377,10 @@ color:#A7A7A7!important
     margin-top: 0.75rem;
   }
 } 
+.pdfRow{
+  display:flex;
+  flex-direction:row;
+  justify-content: flex-start;
+  background-color: pink;
+  height: 1em;;
+}
