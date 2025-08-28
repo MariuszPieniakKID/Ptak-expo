@@ -12,8 +12,11 @@ import { ReactComponent as MoreInfoIcon} from '../../../../../assets/moreInfoIco
 import { ReactComponent as ImgIcon} from '../../../../../assets/imgIcon.svg';
 import { ReactComponent as WastebasketIcon } from "../../../../../assets/wastebasket.svg";
 
-
-
+//
+import { ReactComponent as ContractIcon } from "../../../../../assets/redPDF.svg";
+import { ReactComponent as RedXIcon } from '../../../../../assets/redX.svg';
+import { ReactComponent as BlackUploadIcon } from '../../../../../assets/blackUploadIcon.svg';
+import CustomField from '../../../../customField/CustomField';
 interface BrandingFileUploadProps {
   fileType: string;
   title: string;
@@ -54,6 +57,7 @@ const BrandingFileUpload: React.FC<BrandingFileUploadProps> = ({
   const [isDragOver, setIsDragOver] = useState(false);
   const { token } = useAuth();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [newPdfName,setNewPdfName]=useState('');
 
   const formatFileSize = (bytes: number): string => {
     if (bytes === 0) return '0 Bytes';
@@ -206,148 +210,188 @@ const BrandingFileUpload: React.FC<BrandingFileUploadProps> = ({
     if (!existingFile || !token) return null;
     return getBrandingFileUrl(exhibitorId ?? null, existingFile.fileName, token);
   };
+const handleChangePdfName = (e: React.ChangeEvent<HTMLInputElement>) => {
+  setNewPdfName(e.target.value);
+};
 
   const isImage = existingFile?.mimeType?.startsWith('image/');
   const isPdf = existingFile?.mimeType === 'application/pdf';
 
   return (
-   <>
-   <Box className={styles.brandingContainer}>
-    <Box className={styles.titleWithUpload}>
-      <Box className={styles.titleInLine}>
-        <Box className={styles.iconBox}>
-          {(isImage||isPdf)
-          ?<GreenCiorcleIcon className={styles.icon} />
-          :<GrayCircleIcon className={styles.iconGray}/>
-         }
-        </Box>
-        <CustomTypography className={styles.titleUpload}>{title}</CustomTypography>
-         <Box className={styles.iconBox}>
-          <MoreInfoIcon 
-          className={styles.moreInfoIcon}
-          onClick={()=>console.log(`Please add more info about: ${title} event.`)}
-          />
-        </Box>
-      </Box>
-      <Box className={styles.technicalInfoView}>
-        <Box className={styles.technicalInfoViewText}> {description}</Box>
-        <Box className={styles.technicalInfoViewText}> {dimensions} px</Box>
-      </Box>
-      <Box className={styles.uploadBox}>
-        <Box 
-          className={`${styles.uploadBoxIn} ${isDragOver ? styles.dragOver : ''} ${isUploading ? styles.uploading : ''}`}
-          onDrop={handleDrop}
-          onDragOver={handleDragOver}
-          onDragLeave={handleDragLeave}
-        >
-          {isUploading ? (
-            <Box className={styles.uploadingContainer}>
-              <CircularProgress size={24} />
-              <CustomTypography fontSize="0.75rem" color="#6c757d">
-                Przesyłanie pliku...
-              </CustomTypography>
-            </Box>
-          ) : (
-            <>
-            <Box
-                className={styles.uploadBox}
-                onClick={(e) => {
-                  if (isUploading) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    return; 
-                  }
-                  handleButtonClick();
-                }}
-                sx={{
-                  ...(isUploading ? {
-                    pointerEvents: "none",
-                    opacity: 0.6,
-                    cursor: "not-allowed",
-                  } : {}),
-                }}
-              >
-                 <Box className={styles.iconCircle}><ImgIcon/></Box>
-                <CustomTypography className={styles.infoInUploadBox}>
-                  {existingFile && (isImage || isPdf)
-                    ? existingFile.originalName + " • " + formatFileSize(existingFile?.fileSize)
-                    : "Przeciągnij i upuść, aby dodać plik"}
-                </CustomTypography>
-            </Box>
-             
-            </>
-          )}
-          
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept={allowedFormats.map(format => `.${format}`).join(',')}
-            onChange={handleFileSelect}
-            style={{ display: 'none' }}
-            disabled={isUploading}
-          />
-        </Box>
-      </Box>
-    </Box>
-    <Box className={styles.showView}>
-      <CustomTypography className={styles.viewLabel}>
-        {isPdf? "Twoje pliki": "Podgląd"}
-        </CustomTypography>
-      {(isImage || isPdf)
-      ? <Box className={styles.previewArea}>
-          {existingFile 
-          ? (<Box className={styles.filePreview}>
-
-             {(isDeleting
-              ?  <CircularProgress size={48} style={{ margin: 'auto auto', color: '#6F87F6' }} />
-              : <>
-                  {isImage && (
-                  <img 
-                    src={getPreviewUrl() || ''} 
-                    alt={existingFile.originalName}
-                    className={styles.imagePreview}
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).style.display = 'none';
-                    }}
-                  />
-                )}
-
-                {isPdf && (
-                  <Box className={styles.pdfRow}>
-
-                  </Box>
-                // <Box className={styles.pdfPreview}>
-                //   <CustomTypography fontSize="0.75rem" fontWeight={500}>
-                //     📄 {existingFile.originalName}
-                //   </CustomTypography>
-                //   <CustomTypography fontSize="0.6rem" color="#6c757d">
-                //     PDF • {formatFileSize(existingFile.fileSize)}
-                //   </CustomTypography>
-                // </Box>
-                )}
-               </>  
-             )} 
-                {(isDeleting || isUploading)
-                ? null
-                : <Box
-                  className={styles.actionButton}
-                  onClick={handleDeleteFile}
-                  >
-                    <WastebasketIcon className={styles.actionIcon} />
-                    <CustomTypography className={styles.actionLabel}>
-                      Usuń
-                    </CustomTypography>
-                  </Box>}
-
-            </Box>) 
-          : 
-          (<CustomTypography fontSize="0.75rem" color="#6c757d">{null}</CustomTypography>)
+   <> 
+    <Box className={styles.brandingContainer}>
+      <Box className={styles.titleWithUpload}>
+        <Box className={styles.titleInLine}>
+          <Box className={styles.iconBox}>
+            {(isImage||isPdf)
+            ?<GreenCiorcleIcon className={styles.icon} />
+            :<GrayCircleIcon className={styles.iconGray}/>
           }
+          </Box>
+          <CustomTypography className={styles.titleUpload}>{title}</CustomTypography>
+          <Box className={styles.iconBox}>
+            <MoreInfoIcon 
+            className={styles.moreInfoIcon}
+            onClick={()=>console.log(`Please add more info about: ${title} event.`)}
+            />
+          </Box>
         </Box>
-      :null
-      }
+        <Box className={styles.technicalInfoView}>
+          <Box className={styles.technicalInfoViewText}> {description}</Box>
+          {description!=="Format: PDF" &&<Box className={styles.technicalInfoViewText}> {dimensions} px</Box>}
+        </Box>
+        {description==="Format: PDF" 
+        ?<Box className={styles.pdfUploadBox}>
+          <Box className={styles.changeFileName}>
+            <CustomField 
+              type={'text'}
+              value={newPdfName}
+              onChange={handleChangePdfName}   
+              placeholder='Nazwa' 
+              label="Nazwa dokumentu" 
+              fullWidth   
+            />
+          </Box>
+          <Box className={styles.actionUploadFile} 
+              onDrop={handleDrop}
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              //onClick={()=>console.log("Dlaczego nie otwiera się okno do wyboru pliku")}
+              onClick={(e) => {
+                      if (isUploading) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        return; 
+                      }
+                      handleButtonClick();
+              }}
+            >
+            <BlackUploadIcon className={styles.actionIcon} />
+            <CustomTypography className={styles.actionLabel}>wgraj plik</CustomTypography>
+          </Box>
+
+        </Box>
+        :
+          <Box className={styles.uploadBox}>
+          <Box 
+            className={`${styles.uploadBoxIn} ${isDragOver ? styles.dragOver : ''} ${isUploading ? styles.uploading : ''}`}
+            onDrop={handleDrop}
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+          >
+            {isUploading ? (
+              <Box className={styles.uploadingContainer}>
+                <CircularProgress size={24} />
+                <CustomTypography fontSize="0.75rem" color="#6c757d">
+                  Przesyłanie pliku...
+                </CustomTypography>
+              </Box>
+            ) : (
+              <>
+                <Box
+                    className={styles.uploadBox}
+                    onClick={(e) => {
+                      if (isUploading) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        return; 
+                      }
+                      handleButtonClick();
+                    }}
+                    sx={{
+                      ...(isUploading ? {
+                        pointerEvents: "none",
+                        opacity: 0.6,
+                        cursor: "not-allowed",
+                      } : {}),
+                    }}
+                  >
+                    <Box className={styles.iconCircle}><ImgIcon/></Box>
+                    <CustomTypography className={styles.infoInUploadBox}>
+                      {existingFile && (isImage || isPdf)
+                        ? existingFile.originalName + " • " + formatFileSize(existingFile?.fileSize)
+                        : "Przeciągnij i upuść, aby dodać plik"}
+                    </CustomTypography>
+                </Box>
+              </>
+            )}
+            
+            <input 
+              type="file"
+              ref={fileInputRef}
+              style={{ display: 'none' }}
+              onChange={handleFileSelect}
+              accept={allowedFormats.map(format => `.${format}`).join(',')}
+              disabled={isUploading}
+              multiple={isPdf?true:false}
+            />
+          </Box>
+          </Box>
+        }
+      </Box>
+      <Box className={styles.showView}>
+        <CustomTypography className={styles.viewLabel}>
+          {isPdf? "Twoje pliki": "Podgląd"}
+          </CustomTypography>
+        {(isImage || isPdf)
+        ? <Box className={styles.previewArea}>
+            {existingFile 
+            ? (<Box className={styles.filePreview}>
+
+              {(isDeleting
+                ?  <CircularProgress size={48} style={{ margin: 'auto auto', color: '#6F87F6' }} />
+                : <>
+                    {isImage && (
+                    <img 
+                      src={getPreviewUrl() || ''} 
+                      alt={existingFile.originalName}
+                      className={styles.imagePreview}
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).style.display = 'none';
+                      }}
+                    />
+                  )}
+
+                  {isPdf && (
+                    <Box className={styles.pdfRow}>
+                      <Box className={styles.chosenPlikWrapper}>
+                        <Box className={styles.fileList}>
+                            <Box  className={styles.singleFile}>
+                            <ContractIcon/>
+                              <CustomTypography className={styles.viewPdfTitle}>{existingFile.originalName}</CustomTypography>
+                              <RedXIcon 
+                              onClick={handleDeleteFile} 
+                              style={{ cursor: "pointer" }} 
+                              />
+                            </Box>
+                        </Box>
+                      </Box>
+                    </Box>
+                  )}
+                </>  
+              )} 
+                  {(isDeleting || isUploading ||isPdf)
+                  ? null
+                  : <Box
+                    className={styles.actionButton}
+                    onClick={handleDeleteFile}
+                    >
+                      <WastebasketIcon className={styles.actionIcon} />
+                      <CustomTypography className={styles.actionLabel}>
+                        Usuń
+                      </CustomTypography>
+                    </Box>}
+
+              </Box>) 
+            : 
+            (<CustomTypography fontSize="0.75rem" color="#6c757d">{null}</CustomTypography>)
+            }
+          </Box>
+        :null
+        }
+      </Box>
     </Box>
-   </Box>
+  
     </>
   );
 };

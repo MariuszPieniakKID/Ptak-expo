@@ -188,6 +188,7 @@ const BrandingContent: React.FC<BrandingContentProps> = ({ event }) => {
             />
           )}
 
+
           <Box className={styles.saveButtonContainer}>
             <Box 
               className={styles.actionSaveFile}

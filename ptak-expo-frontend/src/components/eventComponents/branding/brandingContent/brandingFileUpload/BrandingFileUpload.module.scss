@@ -381,6 +381,69 @@ color:#A7A7A7!important
   display:flex;
   flex-direction:row;
   justify-content: flex-start;
-  background-color: pink;
-  height: 1em;;
+  flex-wrap: nowrap;
+}
+.viewPdfTitle{
+color:#2E2E38!important;
+font-size:13px!important;
+font-weight: 300!important;
+}
+
+.chosenPlikWrapper{
+    display:flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    align-items: center;
+    width: 100%;
+    position: relative;
+    gap: 1em;
+
+  @media (max-width: 499px) {
+   margin-left:-8px!important;
+  }
+}
+.fileList {
+  display: flex;
+  flex-direction: column; /* ustawia elementy pod sobą */
+  gap: 8px; /* odstęp między plikami (ikona, nazwa, krzyżyk w jednym wierszu) */
+}
+
+.singleFile {
+  display: flex;
+  align-items: center;
+  gap: 6px; /* odstęp między ikoną, nazwą i krzyżykiem */
+}
+.actionUploadFile{
+    display:flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    cursor: pointer!important;
+    column-gap: 1em;
+    align-items: center;
+}
+.actionLabel{
+  color: darkslategray !important;
+  font-size: 11px !important;
+  font-weight: 300 !important;
+  text-decoration: underline;
+}
+.actionUploadFile:hover .actionLabel {
+  font-weight: 600 !important;
+}
+.pdfUploadBox{
+  display:flex;
+  flex-direction: column;
+  row-gap:1em;
+  padding-left:30px;
+  @media (max-width: 499px) {
+   padding-left:0px;
+   padding-right: 0px;
+     flex-direction: column;
+  }
+
+}
+.changeFileName{
+  display:flex;
+  flex-direction: column;
+  justify-content: flex-start;
 }
