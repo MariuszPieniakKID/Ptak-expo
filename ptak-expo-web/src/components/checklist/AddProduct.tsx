@@ -41,7 +41,6 @@ export default function EditProduct({productNum, onClose} :{productNum?: number,
 		/>
 		{editedProduct.img && <img src={editedProduct.img} alt="Zdjęcie produktu"/>}
 		<Button
-			variant="contained"
 			component="label"
 			fullWidth
 		>
