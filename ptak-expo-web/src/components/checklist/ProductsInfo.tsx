@@ -1,9 +1,13 @@
-import { Box, Typography } from "@mui/material";
+import { Box, IconButton, Typography } from "@mui/material";
 import ChecklistCard from "./checklistCard";
 import { useChecklist } from "../../contexts/ChecklistContext";
+import { Add } from "@mui/icons-material";
+import { useState } from "react";
+import AddProduct from "./AddProduct";
 
 export default function ProductsInfo() {
 	var {checklist} = useChecklist();
+	var [showAdd, setShowAdd] = useState(false);
 	return (
 	<ChecklistCard 
 			icon={<img src={`/assets/checklist-step-1.svg`} alt=""></img>}
@@ -11,7 +15,7 @@ export default function ProductsInfo() {
 			checked={checklist.products.length > 0}
 		>
 		{checklist.products.map(cp => 
-		<Box display={"flex"} alignItems="center" gap="10px" marginY="16px" width="100%">
+		<Box display={"flex"} alignItems="center" gap="10px" marginY="16px" width="100%" key={cp.name}>
 			<Box component="img"  sx={{ width: 40, height: 40, objectFit: "cover", objectPosition: "center", borderRadius: "20px" }}src={cp.img} alt=""/>
 			<Box flex="1 1 auto" minWidth={0}>
 				<Typography fontSize={16} fontWeight={"bold"}>{cp.name}</Typography>
@@ -19,5 +23,7 @@ export default function ProductsInfo() {
 			</Box>
 		</Box>
 	)}
+	{!showAdd && <><IconButton onClick={() => setShowAdd(true)}><Add/></IconButton> Dodaj produkt</>}
+	{showAdd && <AddProduct key={checklist.products.length} onClose={() => setShowAdd(false)}/>}
 	</ChecklistCard>)
 }

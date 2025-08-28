@@ -84,3 +84,6 @@ export const getChecklist = async (_: number) => ExampleChecklist;
 export const updateCompanyInfo = async (companyInfo: CompanyInfo) => {
 	ExampleChecklist = {...ExampleChecklist, companyInfo};
 }
+export const addProduct = async (productInfo: ProductInfo) => {
+	ExampleChecklist = {...ExampleChecklist, products: [...ExampleChecklist.products, productInfo]};
+}
