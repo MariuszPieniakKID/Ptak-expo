@@ -32,4 +32,3 @@ return <svg {...props} width="19" height="30" viewBox="0 -7 19 23" fill="none" x
 
 
 }
-

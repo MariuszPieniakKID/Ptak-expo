@@ -1,6 +1,6 @@
 import { Box, Button, IconButton, SvgIcon, TextField, Typography } from "@mui/material";
 import ChecklistCard from "./checklistCard";
-import { ReactNode, useEffect, useState } from "react";
+import { ReactNode, useCallback, useEffect, useState } from "react";
 import { useChecklist } from "../../contexts/ChecklistContext";
 import GreenCheck from "./GreenCheck";
 
@@ -38,6 +38,40 @@ function StringEdit({name, value, onChange, multiline}: {name: string, value: st
 			<Button onClick={() => {onChange(editText !== "" ? editText : null); setIsEdit(false);}}>Zapisz</Button>
 		</Box>);
 }
+function ImageEdit({name, onChange,  value}: {name: string, value: string | null, onChange: (s: string | null) => void, multiline?: boolean}) {
+	const [isEdit, setIsEdit] = useState(false);
+	const handleFileInput = useCallback((e : React.ChangeEvent<HTMLInputElement>) => {
+		if (e.target.files == null) return;
+		const file = e.target.files[0];
+		if (file == null) return;
+		const reader = new FileReader();
+		reader.onload = le => {
+			onChange(le.target?.result?.toString() || ""); // set <img src> to file content
+		};
+    reader.readAsDataURL(file);
+
+	}, [onChange])
+	if (!isEdit) {
+		return <DisplayEdit text={name} onEdit={() => setIsEdit(true)} checked={value != null} />	}
+	return (
+		<Box display="flex" alignItems="center">
+				<Box width="30px" alignItems="center" justifyContent="center">
+					{value != null && <GreenCheck/>}
+				</Box>
+			<Button
+				component="label"
+				fullWidth
+			>
+				Dodaj logotyp
+				<input
+					onChange={handleFileInput}
+					type="file"
+					hidden
+					accept="image/*"
+				/>
+			</Button>
+		</Box>);
+}
 
 /*function TextBoxEdit({name, value}: {name: string, value: string | null, onChange?: (s: string | null) => void}) {
 	const [isEdit, setIsEdit] = useState(false);
@@ -56,6 +90,8 @@ export default function CompanyInfo() {
 		>
 		<StringEdit name="Nazwa firmy" value={checklist.companyInfo.name} onChange={(v) => 
 			saveCompanyInfo({ ...checklist.companyInfo, name: v})}/>
+		<ImageEdit name="Logotyp" value={checklist.companyInfo.logo} onChange={(v) => 
+			saveCompanyInfo({ ...checklist.companyInfo, logo: v})}/>
 		<StringEdit name="Opis" value={checklist.companyInfo.description} onChange={(v) => 
 			saveCompanyInfo({ ...checklist.companyInfo, description: v})} multiline/>
 		<StringEdit name="Dane kontaktowe" value={checklist.companyInfo.contactInfo} onChange={(v) => 

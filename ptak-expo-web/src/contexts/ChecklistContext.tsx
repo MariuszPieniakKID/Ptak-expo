@@ -1,9 +1,12 @@
 import { createContext, ReactNode, useContext, useEffect, useMemo, useState } from "react";
-import { Checklist, CompanyInfo, getChecklist, updateCompanyInfo } from "../services/checkListApi";
+import { addEvent, addMaterial, addProduct, Checklist, CompanyInfo, DownloadMaterial, EventInfo, getChecklist, ProductInfo, updateCompanyInfo } from "../services/checklistApi";
 
 interface ChecklistContextType {
   checklist: Checklist;
 	saveCompanyInfo: (ci: CompanyInfo) => void;
+	addProduct: (pi: ProductInfo) => void;
+	addEvent: (ei: EventInfo) => void;
+	addMaterial: (dm: DownloadMaterial) => void;
 	filled: boolean[];
 	companyInfoFilledCount: number;
 }
@@ -28,15 +31,7 @@ const emptyChecklist: Checklist = {
 
 export const ChecklistProvider = ({ children, eventId }: {children: ReactNode, eventId: number}) => {
 	const [checklist, setChecklist] = useState<Checklist>(emptyChecklist);
-	useEffect(() => { 
-		getChecklist(eventId)
-			.then(setChecklist)
-			.catch(error => {
-				console.error('Error loading checklist:', error);
-				// Jeśli wystąpi błąd, używamy pustej checklisty
-				setChecklist(emptyChecklist);
-			});
-	}, [eventId]);
+	useEffect(() => { getChecklist(eventId).then(setChecklist); }, [eventId]);
 	const companyInfoFilledCount = 
 			(checklist.companyInfo.contactInfo != null ? 1 : 0) +
 			(checklist.companyInfo.description != null ? 1 : 0) +
@@ -48,22 +43,18 @@ export const ChecklistProvider = ({ children, eventId }: {children: ReactNode, e
 		const ret = [];
 		ret.push(companyInfoFilledCount === 6);
 		ret.push(checklist.products.length > 0);
-		ret.push(checklist.downloadMaterials.length > 0);
 		ret.push(checklist.sentInvitesCount > 0);
-		ret.push(checklist.events.length > 0);
 		ret.push(checklist.electrionicIds.length > 0);
+		ret.push(checklist.downloadMaterials.length > 0);
+		ret.push(checklist.events.length > 0);
 		return ret;
 	}, [checklist, companyInfoFilledCount]);
 	const value = {
 		checklist,
-		saveCompanyInfo: (ci: CompanyInfo) => { 
-			updateCompanyInfo(ci)
-				.then(() => getChecklist(eventId))
-				.then(setChecklist)
-				.catch(error => {
-					console.error('Error saving company info:', error);
-				});
-		},
+		saveCompanyInfo: (ci: CompanyInfo) => { updateCompanyInfo(ci).then(() => getChecklist(eventId)).then(setChecklist);},
+		addProduct: (ci: ProductInfo) => { addProduct(ci).then(() => getChecklist(eventId)).then(setChecklist);},
+		addEvent: (ci: EventInfo) => { addEvent(ci).then(() => getChecklist(eventId)).then(setChecklist);},
+		addMaterial: (ci: DownloadMaterial) => { addMaterial(ci).then(() => getChecklist(eventId)).then(setChecklist);},
 		filled,
 		companyInfoFilledCount
 	}
