@@ -8,6 +8,7 @@ import ProductsInfo from '../components/checklist/ProductsInfo';
 import CompanyInfo from '../components/checklist/CompanyInfo';
 import { useChecklist } from '../contexts/ChecklistContext';
 import { ApplyGreenCheck } from '../components/checklist/ApplyGreenCheck';
+import EventSchedule from '../components/checklist/EventSchedule';
 
 const ChecklistPage: React.FC = () => {
   var {filled} = useChecklist();
@@ -39,7 +40,7 @@ const ChecklistPage: React.FC = () => {
           {/* Top container with progress and steps (web checklista 4b) */}
           <div className={styles.topContainer}>
             <div className={styles.topCountdown}>Do wydarzenia zostalo 386 dni</div>
-            <div className={styles.topHeading}>Gratulacje, mamy wszystko!       Wasza gotowość do targów: </div>
+            <div className={styles.topHeading}>{filled.every(f => f) && "Gratulacje, mamy wszystko!🎉"}Wasza gotowość do targów: </div>
             <div className={styles.topSub}>Sprawdź kroki:</div>
             <div className={styles.topSeparator} />
             <div className={styles.stepsRow}>
@@ -84,14 +85,7 @@ const ChecklistPage: React.FC = () => {
             </div>
             <div className={styles.sectionStatusGoodSmallDark} />
           </div>
-
-          <div className={styles.sectionCardWhite}>
-            <div className={styles.sectionHeaderLeft}>
-              <div className={styles.sectionCircleLight} />
-              <div className={styles.sectionTitle}>Plan wydarzeń na stoisku (4)</div>
-            </div>
-            <div className={styles.sectionStatusGoodSmall} />
-          </div>
+          <EventSchedule />
 
           <div className={styles.sectionCardWhite}>
             <div className={styles.sectionHeaderLeft}>

@@ -30,10 +30,9 @@ export enum EventKind {
 	PRESENTATION,
 	LIVE,
 	WORKSHOP,
-	EDUCATION,
-	CLOSED
+	EDUCATION
 }
-export interface Event {
+export interface EventInfo {
 	date: string,
 	startTime: string,
 	endTime: string,
@@ -50,7 +49,7 @@ export interface Checklist {
 	downloadMaterials: DownloadMaterial[],
 	sentInvitesCount: number,
 	availableInvitesCount: number,
-	events: Event[],
+	events: EventInfo[],
 	electrionicIds: ElectrionicId[],
 }
 let ExampleChecklist: Checklist = {
@@ -86,4 +85,7 @@ export const updateCompanyInfo = async (companyInfo: CompanyInfo) => {
 }
 export const addProduct = async (productInfo: ProductInfo) => {
 	ExampleChecklist = {...ExampleChecklist, products: [...ExampleChecklist.products, productInfo]};
+}
+export const addEvent = async (event: EventInfo) => {
+	ExampleChecklist = {...ExampleChecklist, events: [...ExampleChecklist.events, event]};
 }

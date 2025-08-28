@@ -52,8 +52,7 @@ export default function EditProduct({productNum, onClose} :{productNum?: number,
 				accept="image/*"
 			/>
 		</Button>
-		<Button onClick={()=> { addProduct(editedProduct); onClose();}} disabled={!canSave} fullWidth>Zapisz</Button>
+		{/* TODO support update */}
+		<Button onClick={()=> { addProduct(editedProduct); onClose();}} disabled={!canSave} fullWidth>Zapisz</Button> 
 	</Box>
-
-
 }
