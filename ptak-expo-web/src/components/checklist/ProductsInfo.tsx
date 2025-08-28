@@ -3,7 +3,7 @@ import ChecklistCard from "./checklistCard";
 import { useChecklist } from "../../contexts/ChecklistContext";
 import { Add } from "@mui/icons-material";
 import { useState } from "react";
-import AddProduct from "./AddProduct";
+import EditProduct from "./EditProduct";
 
 export default function ProductsInfo() {
 	var {checklist} = useChecklist();
@@ -24,6 +24,6 @@ export default function ProductsInfo() {
 		</Box>
 	)}
 	{!showAdd && <><IconButton onClick={() => setShowAdd(true)}><Add/></IconButton> Dodaj produkt</>}
-	{showAdd && <AddProduct key={checklist.products.length} onClose={() => setShowAdd(false)}/>}
+	{showAdd && <EditProduct key={checklist.products.length} onClose={() => setShowAdd(false)}/>}
 	</ChecklistCard>)
 }
