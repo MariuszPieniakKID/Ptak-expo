@@ -1,6 +1,6 @@
 import { EventKind, EventType } from "../services/checklistApi";
 
-export function getEventKindString(kind: EventKind) 
+export function getEventKindString(kind: EventKind): string 
 {
 	switch(kind) {
 		case EventKind.EDUCATION:
