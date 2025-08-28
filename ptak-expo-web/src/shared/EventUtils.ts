@@ -1,4 +1,4 @@
-import { EventKind, EventType } from "../services/checklistApi";
+import { EventKind, EventType } from "../services/checkListApi";
 
 export function getEventKindString(kind: EventKind): string 
 {

@@ -1,5 +1,5 @@
 import { Box, Chip, Grid, Typography } from "@mui/material";
-import { EventInfo } from "../../services/checklistApi";
+import { EventInfo } from "../../services/checkListApi";
 import { getEventKindString } from "../../shared/EventUtils";
 const months = [
 	"sty",

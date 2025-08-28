@@ -1,5 +1,5 @@
 import { createContext, ReactNode, useContext, useEffect, useMemo, useState } from "react";
-import { addEvent, addMaterial, addProduct, Checklist, CompanyInfo, DownloadMaterial, EventInfo, getChecklist, ProductInfo, updateCompanyInfo } from "../services/checklistApi";
+import { addEvent, addMaterial, addProduct, Checklist, CompanyInfo, DownloadMaterial, EventInfo, getChecklist, ProductInfo, updateCompanyInfo } from "../services/checkListApi";
 
 interface ChecklistContextType {
   checklist: Checklist;

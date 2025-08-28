@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { ProductInfo } from "../../services/checklistApi"
+import { ProductInfo } from "../../services/checkListApi"
 import { Box, Button, TextField } from "@mui/material";
 import { useChecklist } from "../../contexts/ChecklistContext";
 

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { EventInfo, EventKind, EventType } from "../../services/checklistApi"
+import { EventInfo, EventKind, EventType } from "../../services/checkListApi"
 import { Button, FormControl, Grid, InputLabel, MenuItem, Select, TextField } from "@mui/material";
 import { useChecklist } from "../../contexts/ChecklistContext";
 import { eventKinds, eventTypes, getEventKindString, getEventTypeString } from "../../shared/EventUtils";
