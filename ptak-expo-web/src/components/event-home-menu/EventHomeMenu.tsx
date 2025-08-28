@@ -19,7 +19,7 @@ const EventHomeMenu: React.FC<Props> = ({ id }) => {
   return (
     <Box sx={{ mt: 4 }} className={styles.container}>
       <Typography variant="subtitle1" sx={{ mb: 4 }}>Menu wydarzenia</Typography>
-      <Grid container spacing={4}>
+      <Grid container spacing={6}>
         {menu.map((tile) => {
           const Icon = tile.icon;
           const disabled = tile.id === 'info';

@@ -64,15 +64,12 @@ const TradeFairEventsContent: React.FC<TradeFairEventsContentProps> = ({ event }
 
   const handleSaveTradeEvent = async () => {
     if (!token) return;
-    if (!newEvent.name || !newEvent.eventDate || !newEvent.startTime || !newEvent.endTime || !newEvent.type) return;
-    const d = new Date(newEvent.eventDate);
-    const s = new Date(event.start_date);
-    const e = new Date(event.end_date);
-    const onlyDate = (dt: Date) => new Date(dt.getFullYear(), dt.getMonth(), dt.getDate()).getTime();
-    if (onlyDate(d) < onlyDate(s) || onlyDate(d) > onlyDate(e)) {
-      alert('Data wydarzenia musi mieścić się w zakresie dat targów');
+    // Relax validation: require only name and date; times optional
+    if (!newEvent.name || !newEvent.eventDate) {
+      setTradeEventsError('Podaj co najmniej nazwę i datę wydarzenia');
       return;
     }
+    // Rely on backend to validate date range to avoid false negatives on the client
     try {
       await createTradeEvent(event.id, newEvent, token);
       const refreshed = await getTradeEvents(event.id, token);

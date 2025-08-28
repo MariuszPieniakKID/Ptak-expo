@@ -2,8 +2,15 @@ import styles from './ChecklistPage.module.scss';
 import CustomButton from '../components/customButton/CustomButton';
 import CustomTypography from '../components/customTypography/CustomTypography';
 import CustomLink from '../components/customLink/CustomLink';
+import ChecklistCard from '../components/checklist/checklistCard';
+import { Typography } from '@mui/material';
+import ProductsInfo from '../components/checklist/ProductsInfo';
+import CompanyInfo from '../components/checklist/CompanyInfo';
+import { useChecklist } from '../contexts/ChecklistContext';
+import { ApplyGreenCheck } from '../components/checklist/ApplyGreenCheck';
 
 const ChecklistPage: React.FC = () => {
+  var {filled} = useChecklist();
   return (
     <div className={styles.pageRoot}>
       {/* Right main content area */}
@@ -32,7 +39,8 @@ const ChecklistPage: React.FC = () => {
           {/* Top container with progress and steps (web checklista 4b) */}
           <div className={styles.topContainer}>
             <div className={styles.topCountdown}>Do wydarzenia zostalo 386 dni</div>
-            <div className={styles.topHeading}>Gratulacje, mamy wszystko!       Wasza gotowość do targów: </div>
+            <div className={styles.topHeading}>Gratulacje, mamy wszystko!
+Wasza gotowość do targów: </div>
             <div className={styles.topSub}>Sprawdź kroki:</div>
             <div className={styles.topSeparator} />
             <div className={styles.stepsRow}>
@@ -45,7 +53,7 @@ const ChecklistPage: React.FC = () => {
                 'Zaplanuj\nTargi',
               ].map((label, i) => (
                 <div key={label} className={styles.step}>
-                  <img src={`/assets/checklist-step-${i + 1}.svg`} alt=""></img>
+                  <ApplyGreenCheck checked={filled[i]}><img src={`/assets/checklist-step-${i + 1}.svg`} alt=""></img></ApplyGreenCheck>
                   <div className={styles.stepLabel}>{label}</div>
                 </div>
               ))}
@@ -54,35 +62,21 @@ const ChecklistPage: React.FC = () => {
           </div>
 
           {/* Detailed sections */}
-          <div className={styles.sectionCardGray}>
-            <div className={styles.sectionHeaderLeft}>
-              <div className={styles.sectionCircle} />
-              <div className={styles.sectionTitle}>Wpis do katalogu targowego (1/6)</div>
-            </div>
-            <div className={styles.sectionStatusGood} />
+          <CompanyInfo />
+
+          <ProductsInfo />
+
+          <ChecklistCard icon={
+              <img src={`/assets/checklist-step-3.svg`} alt=""></img>} 
+              title={<Typography fontSize={16}>Materiały do pobrania (3)</Typography>} checked={filled[2]}> 
+                  
             <div className={styles.sectionList}>
               {['Nazwa Firmy','Logotyp','Opis','Dane kontaktowe','Strona www.','Social Media'].map((it) => (
                 <div key={it} className={styles.sectionRow}><span>{it}</span><div className={styles.sectionGoodDot} /></div>
               ))}
             </div>
             <div className={styles.sectionLink}>Podejrzyj wygląd wpisu do katalogu</div>
-          </div>
-
-          <div className={styles.sectionCardWhite}>
-            <div className={styles.sectionHeaderLeft}>
-              <div className={styles.sectionCircleLight} />
-              <div className={styles.sectionTitle}>Prezentowane produkty (1)</div>
-            </div>
-            <div className={styles.sectionStatusGoodSmall} />
-          </div>
-
-          <div className={styles.sectionCardGray}>
-            <div className={styles.sectionHeaderLeft}>
-              <div className={styles.sectionCircle} />
-              <div className={styles.sectionTitle}>Materiały do pobrania (3)</div>
-            </div>
-            <div className={styles.sectionStatusGoodSmall} />
-          </div>
+          </ChecklistCard>
 
           <div className={styles.sectionCardDark}>
             <div className={styles.sectionHeaderLeft}>
@@ -123,5 +117,3 @@ const ChecklistPage: React.FC = () => {
 };
 
 export default ChecklistPage;
-
-

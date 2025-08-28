@@ -57,6 +57,7 @@ app.use(helmet({
 const allowedOrigins = [
   'http://localhost:3000', 
   'http://localhost:3002',
+  'http://localhost:3003',
   process.env.CORS_ORIGIN,
   'https://frontend-production-fb96.up.railway.app',
   'https://ptak-expo-production.up.railway.app'

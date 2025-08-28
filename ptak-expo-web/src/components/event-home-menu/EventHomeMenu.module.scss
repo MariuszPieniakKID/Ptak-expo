@@ -12,11 +12,15 @@
   }
   .card {
     cursor: pointer;
-    border-radius: 2rem;
+    border-radius: 20px !important;
     text-align: center;
-    opacity: 0.8;
+    // Make only background semi-transparent, not the content
+    background: rgba(255, 255, 255, 0.5) !important;
     transition: 0.3s;
-    aspect-ratio: 1 / 0.8;
+    // Approx. 243x173 proportions
+    aspect-ratio: 243 / 173;
+    transform: scale(1.15);
+    transform-origin: center;
     display: flex;
     flex-direction: column;
     align-items: center;

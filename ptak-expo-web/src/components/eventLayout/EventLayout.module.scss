@@ -19,25 +19,10 @@
     }
   }
 
-  .innerScale {
-    transform: scale(0.765);
-    transform-origin: top left;
-    width: 100%;
-  }
-
-  // Push only the inner content of the left column to the right,
-  // keeping the background at full width
-  .leftContent {
-    margin-left: 24rem;
-    @media (max-width: 1280px) {
-      margin-left: 6rem;
-    }
-  }
-
   .right {
     min-height: 100vh;
-    padding: 6rem;
-    padding-top: 10.2rem;
+    padding: 7rem;
+    padding-top: 12rem;
     @media (max-width: 1280px) {
       padding: 1rem;
       padding-top: 10rem;
@@ -49,11 +34,6 @@
     }
   }
 
-  // Push only the inner content of the right column down by 20px
-  .rightContent {
-    margin-top: 25px;
-  }
-
   .rightBackground {
     @include m.background(light);
   }
@@ -61,8 +41,8 @@
   .left {
     min-height: 100vh;
     max-height: fit-content;
-    padding: 6rem;
-    padding-top: 10.2rem;
+    padding: 7rem;
+    padding-top: 12rem;
     @media (max-width: 1280px) {
       padding: 1rem;
       padding-top: 10rem;

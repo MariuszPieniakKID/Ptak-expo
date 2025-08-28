@@ -18,10 +18,10 @@ const EventLayout = ({ left, right, colorLeft = '#eceef0', colorRight }: EventLa
       </Box>
       <Box display="grid" gridTemplateColumns={{ xs: '1fr', md: '5fr 7fr' }}>
         <Box className={styles.left} sx={{ backgroundColor: colorLeft }}>
-          <Box className={`${styles.innerScale} ${styles.leftContent}`}>{left}</Box>
+          {left}
         </Box>
         <Box className={`${styles.right} ${colorRight ? '' : styles.rightBackground}`} sx={{ background: colorRight ?? 'transparent' }}>
-          <Box className={`${styles.innerScale} ${styles.rightContent}`}>{right}</Box>
+          {right}
         </Box>
       </Box>
     </Box>
