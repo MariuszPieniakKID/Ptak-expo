@@ -2,13 +2,12 @@ import styles from './ChecklistPage.module.scss';
 import CustomButton from '../components/customButton/CustomButton';
 import CustomTypography from '../components/customTypography/CustomTypography';
 import CustomLink from '../components/customLink/CustomLink';
-import ChecklistCard from '../components/checklist/checklistCard';
-import { Typography } from '@mui/material';
-import ProductsInfo from '../components/checklist/ProductsInfo';
+import ProductsInfo from '../components/checklist/ProductsInfoCard';
 import CompanyInfo from '../components/checklist/CompanyInfo';
 import { useChecklist } from '../contexts/ChecklistContext';
 import { ApplyGreenCheck } from '../components/checklist/ApplyGreenCheck';
 import EventSchedule from '../components/checklist/EventSchedule';
+import MaterialsCard from '../components/checklist/MaterialsCard';
 
 const ChecklistPage: React.FC = () => {
   var {filled} = useChecklist();
@@ -66,17 +65,8 @@ const ChecklistPage: React.FC = () => {
 
           <ProductsInfo />
 
-          <ChecklistCard icon={
-              <img src={`/assets/checklist-step-3.svg`} alt=""></img>} 
-              title={<Typography fontSize={16}>Materiały do pobrania (3)</Typography>} checked={filled[2]}> 
-                  
-            <div className={styles.sectionList}>
-              {['Nazwa Firmy','Logotyp','Opis','Dane kontaktowe','Strona www.','Social Media'].map((it) => (
-                <div key={it} className={styles.sectionRow}><span>{it}</span><div className={styles.sectionGoodDot} /></div>
-              ))}
-            </div>
-            <div className={styles.sectionLink}>Podejrzyj wygląd wpisu do katalogu</div>
-          </ChecklistCard>
+          <MaterialsCard />
+
 
           <div className={styles.sectionCardDark}>
             <div className={styles.sectionHeaderLeft}>
