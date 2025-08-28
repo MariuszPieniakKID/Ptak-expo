@@ -213,13 +213,16 @@ const formatDateRange = useCallback((startDate: string, endDate: string): string
                 
               </Box>
             </Box>
-            <Box
+          {!selectedExhibition
+            ?<Box
               className={styles.addEventsContainer}
               onClick={handleOpenModal}
             >
               <UsersIcon className={styles.addEventIcon} />
               <CustomTypography className={styles.addEventText}> + dodaj wydarzenie </CustomTypography>    
-            </Box> 
+            </Box>
+            :null
+          } 
           </Box>   
 
         {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
@@ -361,12 +364,12 @@ const formatDateRange = useCallback((startDate: string, endDate: string): string
                   </Box>
               </Box>
               <Box 
-                className={styles._backContainer}
+                className={styles.backContainerFooter}
                 onClick={ () => navigate(-1)}
                 sx={{paddingBottom:'2em'}}
                 >
-                <BackIcon className={styles._backIcon} />
-                <CustomTypography className={styles.backText}> wstecz </CustomTypography>
+                <BackIcon className={styles.backIconFooter} />
+                <CustomTypography className={styles.backTextFooter}> wstecz </CustomTypography>
               </Box>
            </>
            }

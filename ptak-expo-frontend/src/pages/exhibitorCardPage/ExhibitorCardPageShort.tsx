@@ -548,8 +548,8 @@ const ExhibitorCardPage: React.FC = () => {
                           />
                           <Tab
                             disableRipple
-                            disabled
-                            sx={{ display: 'none' }}
+                            //disabled
+                            //sx={{ display: 'none' }}
                             icon={<InvitationsIcon />}
                             iconPosition="start"
                             label={<span className="tab-label-text">Zaproszenia</span>}

@@ -1,7 +1,8 @@
 import React from 'react';
 import { Exhibition } from '../../../../services/api';
-import Invitations from '../../../../components/Invitations';
+
 import styles from './InvitationsContent.module.scss';
+import Invitations from '../../../Invitations';
 
 interface InvitationsContentProps {
   event: Exhibition;
