@@ -1,11 +1,12 @@
 import { createContext, ReactNode, useContext, useEffect, useMemo, useState } from "react";
-import { addEvent, addProduct, Checklist, CompanyInfo, EventInfo, getChecklist, ProductInfo, updateCompanyInfo } from "../services/checklistApi";
+import { addEvent, addMaterial, addProduct, Checklist, CompanyInfo, DownloadMaterial, EventInfo, getChecklist, ProductInfo, updateCompanyInfo } from "../services/checklistApi";
 
 interface ChecklistContextType {
   checklist: Checklist;
 	saveCompanyInfo: (ci: CompanyInfo) => void;
 	addProduct: (pi: ProductInfo) => void;
 	addEvent: (ei: EventInfo) => void;
+	addMaterial: (dm: DownloadMaterial) => void;
 	filled: boolean[];
 	companyInfoFilledCount: number;
 }
@@ -53,6 +54,7 @@ export const ChecklistProvider = ({ children, eventId }: {children: ReactNode, e
 		saveCompanyInfo: (ci: CompanyInfo) => { updateCompanyInfo(ci).then(() => getChecklist(eventId)).then(setChecklist);},
 		addProduct: (ci: ProductInfo) => { addProduct(ci).then(() => getChecklist(eventId)).then(setChecklist);},
 		addEvent: (ci: EventInfo) => { addEvent(ci).then(() => getChecklist(eventId)).then(setChecklist);},
+		addMaterial: (ci: DownloadMaterial) => { addMaterial(ci).then(() => getChecklist(eventId)).then(setChecklist);},
 		filled,
 		companyInfoFilledCount
 	}

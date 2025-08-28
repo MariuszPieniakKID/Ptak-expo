@@ -13,15 +13,15 @@ const emptyEvent: EventInfo = {
 	kind: EventKind.PRESENTATION,
 	type: EventType.OPEN
 }
-const startDate = "2025-10-23";
-const endDate = "2025-10-27";
+const startDate = "2025-10-20";
+const endDate = "2025-11-04";
 function getDatesBetween(startDate: string, endDate: string) {
   const dates = [];
-  let current = new Date(startDate);
+  let current = new Date(startDate + "T00:00:00Z");
 
-  while (current <= new Date(endDate)) {
+  while (current <= new Date(endDate + "T00:00:00Z")) {
     dates.push(current.toISOString().split('T')[0]); // YYYY-MM-DD
-    current.setDate(current.getDate() + 1);
+    current = new Date(current.valueOf() + 24 * 60 * 60 * 1000);
   }
 
   return dates;
