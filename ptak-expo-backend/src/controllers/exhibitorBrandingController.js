@@ -177,8 +177,20 @@ const uploadBrandingFile = async (req, res) => {
       : path.join('exhibitions', exhibitionId.toString(), 'branding', uniqueFilename);
 
     // Move uploaded file to final location; also read into buffer for DB fallback
-    const tempBuffer = await fs.readFile(uploadedFile.path);
-    await fs.rename(uploadedFile.path, filePath);
+    let tempBuffer = null;
+    try {
+      // Try fast move; if cross-device, fall back to copy+unlink
+      await fs.rename(uploadedFile.path, filePath);
+    } catch (renameErr) {
+      if (renameErr && renameErr.code === 'EXDEV') {
+        const data = await fs.readFile(uploadedFile.path);
+        await fs.writeFile(filePath, data);
+        await fs.unlink(uploadedFile.path);
+        tempBuffer = data;
+      } else {
+        throw renameErr;
+      }
+    }
 
     // Delete existing file of same type (if any) - legacy code, will be replaced by new logic below
     const legacyExistingFile = await client.query(
