@@ -263,6 +263,12 @@ const initializeDatabase = async () => {
       )
     `);
 
+    // Ensure blob storage column exists for environments without persistent filesystem
+    await pool.query(`
+      ALTER TABLE exhibitor_branding_files
+      ADD COLUMN IF NOT EXISTS file_blob BYTEA
+    `);
+
     console.log('🔍 Creating indexes for exhibitor_branding_files table...');
     await pool.query(`
       CREATE INDEX IF NOT EXISTS idx_exhibitor_branding_files_exhibitor_id ON exhibitor_branding_files(exhibitor_id)

@@ -3,6 +3,14 @@ const fs = require('fs').promises;
 const { v4: uuidv4 } = require('uuid');
 const { pool } = require('../config/database');
 
+// Base directory for uploads; on Railway point this to a mounted volume (e.g., /data/uploads)
+const getUploadsBase = () => {
+  const base = process.env.UPLOADS_DIR && process.env.UPLOADS_DIR.trim().length > 0
+    ? path.resolve(process.env.UPLOADS_DIR)
+    : path.join(__dirname, '../../uploads');
+  return base;
+};
+
 // File type configurations with dimensions and allowed formats
 const FILE_TYPES = {
   'kolorowe_tlo_logo_wydarzenia': {
@@ -58,13 +66,14 @@ const FILE_TYPES = {
 // Create uploads directory structure
 const ensureUploadDir = async (exhibitorId, exhibitionId) => {
   let uploadDir;
+  const uploadsBase = getUploadsBase();
   
   if (exhibitorId) {
     // Individual exhibitor files
-    uploadDir = path.join(__dirname, '../../uploads/exhibitors', exhibitorId.toString(), 'branding');
+    uploadDir = path.join(uploadsBase, 'exhibitors', exhibitorId.toString(), 'branding');
   } else {
     // Global exhibition files
-    uploadDir = path.join(__dirname, '../../uploads/exhibitions', exhibitionId.toString(), 'branding');
+    uploadDir = path.join(uploadsBase, 'exhibitions', exhibitionId.toString(), 'branding');
   }
   
   try {
@@ -162,11 +171,13 @@ const uploadBrandingFile = async (req, res) => {
     const filePath = path.join(uploadDir, uniqueFilename);
     
     // Set relative path based on whether it's individual or global file
+    // Store path relative to uploads base (without leading 'uploads' folder)
     const relativePath = exhibitorId 
-      ? path.join('uploads/exhibitors', exhibitorId.toString(), 'branding', uniqueFilename)
-      : path.join('uploads/exhibitions', exhibitionId.toString(), 'branding', uniqueFilename);
+      ? path.join('exhibitors', exhibitorId.toString(), 'branding', uniqueFilename)
+      : path.join('exhibitions', exhibitionId.toString(), 'branding', uniqueFilename);
 
-    // Move uploaded file to final location
+    // Move uploaded file to final location; also read into buffer for DB fallback
+    const tempBuffer = await fs.readFile(uploadedFile.path);
     await fs.rename(uploadedFile.path, filePath);
 
     // Delete existing file of same type (if any) - legacy code, will be replaced by new logic below
@@ -176,7 +187,10 @@ const uploadBrandingFile = async (req, res) => {
     );
 
     if (legacyExistingFile.rows.length > 0) {
-      const oldFilePath = path.join(__dirname, '../..', legacyExistingFile.rows[0].file_path);
+      const uploadsBase = getUploadsBase();
+      const oldStored = legacyExistingFile.rows[0].file_path || '';
+      const normalized = oldStored.startsWith('uploads/') ? oldStored.replace(/^uploads\//, '') : oldStored;
+      const oldFilePath = path.join(uploadsBase, normalized);
       try {
         await fs.unlink(oldFilePath);
       } catch (error) {
@@ -197,7 +211,10 @@ const uploadBrandingFile = async (req, res) => {
     
     if (existingFile.rows.length > 0) {
       // Delete existing file from filesystem
-      const oldFilePath = path.resolve(existingFile.rows[0].file_path);
+      const uploadsBase = getUploadsBase();
+      const oldStored = existingFile.rows[0].file_path || '';
+      const normalized = oldStored.startsWith('uploads/') ? oldStored.replace(/^uploads\//, '') : oldStored;
+      const oldFilePath = path.join(uploadsBase, normalized);
       try {
         await fs.unlink(oldFilePath);
       } catch (error) {
@@ -215,11 +232,11 @@ const uploadBrandingFile = async (req, res) => {
     // Save file info to database
     const result = await client.query(
       `INSERT INTO exhibitor_branding_files 
-       (exhibitor_id, exhibition_id, file_type, file_name, original_name, file_path, file_size, mime_type, dimensions)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+       (exhibitor_id, exhibition_id, file_type, file_name, original_name, file_path, file_size, mime_type, dimensions, file_blob)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
        RETURNING *`,
       [exhibitorId, exhibitionId, fileType, uniqueFilename, uploadedFile.originalname, 
-       relativePath, uploadedFile.size, uploadedFile.mimetype, config.dimensions]
+       relativePath, uploadedFile.size, uploadedFile.mimetype, config.dimensions, tempBuffer]
     );
 
     res.json({
@@ -396,35 +413,65 @@ const serveBrandingFile = async (req, res) => {
     }
 
     let filePath;
+    let fileRow = null;
     if (exhibitorId === 'global') {
       // For global files, we need the exhibition ID - extract from file metadata or use different approach
       // For now, let's find the file in the database first
       const client = await pool.connect();
       try {
         const result = await client.query(
-          'SELECT file_path FROM exhibitor_branding_files WHERE exhibitor_id IS NULL AND file_name = $1',
+          'SELECT file_path, mime_type, file_blob FROM exhibitor_branding_files WHERE exhibitor_id IS NULL AND file_name = $1',
           [fileName]
         );
         
         if (result.rows.length === 0) {
           return res.status(404).json({ error: 'File not found' });
         }
-        
-        filePath = path.join(__dirname, '../..', result.rows[0].file_path);
+        fileRow = result.rows[0];
+        {
+          const uploadsBase = getUploadsBase();
+          const stored = fileRow.file_path || '';
+          const normalized = stored.startsWith('uploads/') ? stored.replace(/^uploads\//, '') : stored;
+          filePath = path.join(uploadsBase, normalized);
+        }
       } finally {
         client.release();
       }
     } else {
-      filePath = path.join(__dirname, '../../uploads/exhibitors', exhibitorId.toString(), 'branding', fileName);
+      // Look up row for exhibitor-specific file as well
+      const client = await pool.connect();
+      try {
+        const result = await client.query(
+          'SELECT file_path, mime_type, file_blob FROM exhibitor_branding_files WHERE exhibitor_id = $1 AND file_name = $2',
+          [parseInt(exhibitorId), fileName]
+        );
+        if (result.rows.length > 0) {
+          fileRow = result.rows[0];
+          const uploadsBase = getUploadsBase();
+          const stored = fileRow.file_path || '';
+          const normalized = stored.startsWith('uploads/') ? stored.replace(/^uploads\//, '') : stored;
+          filePath = path.join(uploadsBase, normalized);
+        } else {
+          // Fallback to expected path if DB row not found
+          const uploadsBase = getUploadsBase();
+          filePath = path.join(uploadsBase, 'exhibitors', exhibitorId.toString(), 'branding', fileName);
+        }
+      } finally {
+        client.release();
+      }
     }
     
     // Check if file exists
     try {
       await fs.access(filePath);
     } catch (error) {
-      return res.status(404).json({
-        error: 'File not found'
-      });
+      // If file missing on filesystem but blob exists in DB, stream from DB
+      if (fileRow && fileRow.file_blob) {
+        if (fileRow.mime_type) res.set('Content-Type', fileRow.mime_type);
+        res.set('Accept-Ranges', 'bytes');
+        return res.end(fileRow.file_blob);
+      }
+      return res.status(404).json({ error: 'File not found' });
     }
 
     // Set permissive CORS/CORP headers for serving files to allowed frontends
