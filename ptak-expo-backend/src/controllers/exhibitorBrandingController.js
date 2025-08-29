@@ -205,6 +205,15 @@ const uploadBrandingFile = async (req, res) => {
       }
     }
 
+    // Ensure DB blob is stored even when rename succeeded (for resilience across deployments)
+    if (!tempBuffer) {
+      try {
+        tempBuffer = await fs.readFile(filePath);
+      } catch (_) {
+        tempBuffer = null;
+      }
+    }
+
     // Delete existing file of same type (if any) - legacy code, will be replaced by new logic below
     const legacyExistingFile = await client.query(
       'SELECT file_path FROM exhibitor_branding_files WHERE exhibitor_id = $1 AND exhibition_id = $2 AND file_type = $3',
@@ -486,17 +495,33 @@ const serveBrandingFile = async (req, res) => {
       }
     }
     
-    // Check if file exists
+    // Check if file exists; if missing, try alternate base paths before falling back to DB blob
     try {
       await fs.access(filePath);
     } catch (error) {
-      // If file missing on filesystem but blob exists in DB, stream from DB
-      if (fileRow && fileRow.file_blob) {
-        if (fileRow.mime_type) res.set('Content-Type', fileRow.mime_type);
-        res.set('Accept-Ranges', 'bytes');
-        return res.end(fileRow.file_blob);
+      const uploadsBase = getUploadsBase();
+      const stored = (fileRow && fileRow.file_path) ? fileRow.file_path : '';
+      const normalized = stored.startsWith('uploads/') ? stored.replace(/^uploads\//, '') : stored;
+      const altPaths = [
+        path.join(__dirname, '../..', 'uploads', normalized),
+        path.join('/data/uploads', normalized),
+        path.join(uploadsBase, normalized),
+      ];
+      let foundAlt = null;
+      for (const p of altPaths) {
+        try { await fs.access(p); foundAlt = p; break; } catch (_) {}
       }
-      return res.status(404).json({ error: 'File not found' });
+      if (foundAlt) {
+        filePath = foundAlt;
+      } else {
+        // If file missing on filesystem but blob exists in DB, stream from DB
+        if (fileRow && fileRow.file_blob) {
+          if (fileRow.mime_type) res.set('Content-Type', fileRow.mime_type);
+          res.set('Accept-Ranges', 'bytes');
+          return res.end(fileRow.file_blob);
+        }
+        return res.status(404).json({ error: 'File not found' });
+      }
     }
 
     // Set permissive CORS/CORP headers for serving files to allowed frontends
