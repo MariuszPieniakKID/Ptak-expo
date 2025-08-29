@@ -52,8 +52,8 @@ export const ChecklistProvider = ({ children, eventId }: {children: ReactNode, e
 	}, [checklist, companyInfoFilledCount]);
 	const value = {
 		checklist,
-		saveCompanyInfo: (ci: CompanyInfo) => { updateCompanyInfo(ci).then(() => getChecklist(eventId)).then(setChecklist);},
-		addProduct: (ci: ProductInfo) => { addProduct(ci).then(() => getChecklist(eventId)).then(setChecklist);},
+		saveCompanyInfo: (ci: CompanyInfo) => { updateCompanyInfo(ci, eventId).then(() => getChecklist(eventId)).then(setChecklist);},
+		addProduct: (ci: ProductInfo) => { addProduct(ci, eventId).then(() => getChecklist(eventId)).then(setChecklist);},
 		addEvent: (ci: EventInfo) => { addEvent(ci).then(() => getChecklist(eventId)).then(setChecklist);},
 		addMaterial: (ci: DownloadMaterial) => { addMaterial(ci).then(() => getChecklist(eventId)).then(setChecklist);},
 		filled,

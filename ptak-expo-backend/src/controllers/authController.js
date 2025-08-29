@@ -1,3 +1,4 @@
+
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const db = require('../config/database');
@@ -19,8 +20,7 @@ const generateToken = (user) => {
 const exhibitorLogin = async (req, res) => {
   try {
     const { email, password } = req.body;
-    console.log('🔍 EXHIBITOR LOGIN ATTEMPT - Panel Wystawców');
-    console.log('🔍 Login attempt for email:', email);
+    // Exhibitor login
 
     // Validate input
     if (!email || !password) {
@@ -33,35 +33,34 @@ const exhibitorLogin = async (req, res) => {
     // Check database for user
     if (process.env.DATABASE_URL && process.env.DATABASE_URL !== 'postgresql://username:password@host/dbname?sslmode=require') {
       try {
-        console.log('🔍 Querying database for exhibitor:', email.toLowerCase());
+        // Query database for exhibitor
         
         let result;
         
         // Try with status column first
         try {
-          console.log('🔍 Trying query WITH status field...');
+          // Try query WITH status field
           result = await db.query(
             'SELECT * FROM users WHERE email = $1 AND status = $2',
             [email.toLowerCase(), 'active']
           );
-          console.log('✅ Query with status field successful');
+          // Query with status succeeded
         } catch (statusError) {
-          console.log('⚠️ Query with status field failed, trying without status:', statusError.message);
-          console.log('🔍 Using SIMPLE QUERY without STATUS field (Railway compatibility)');
+          // Fallback without status column
           result = await db.query(
             'SELECT * FROM users WHERE email = $1',
             [email.toLowerCase()]
           );
-          console.log('✅ Query without status field successful');
+          // Simple query succeeded
         }
 
-        console.log('🔍 Query result:', result.rows.length, 'rows found');
+        // Query result
         if (result.rows.length > 0) {
-          console.log('🔍 Found user:', result.rows[0].email, 'role:', result.rows[0].role);
+          // Found user
           
           // Check if user has status column and if it's active
           if (result.rows[0].status && result.rows[0].status !== 'active') {
-            console.log('⚠️ User account is not active:', result.rows[0].status);
+            // Inactive account
             return res.status(401).json({
               success: false,
               message: 'Konto jest nieaktywne'
@@ -69,7 +68,7 @@ const exhibitorLogin = async (req, res) => {
           }
         }
         if (result.rows.length === 0) {
-          console.log('🔍 No user found with email:', email.toLowerCase());
+          // No user found
           return res.status(401).json({
             success: false,
             message: 'Nieprawidłowy email lub hasło'
@@ -77,12 +76,11 @@ const exhibitorLogin = async (req, res) => {
         }
 
         const user = result.rows[0];
-        console.log('🔍 User found:', user.email, 'role:', user.role);
-        console.log('🔍 Stored password hash:', user.password_hash);
+        // User found
         
         // Sprawdź czy użytkownik ma uprawnienia wystawcy
         if (user.role !== 'exhibitor') {
-          console.log('🔍 Access denied - user is not exhibitor:', user.role);
+          // Not exhibitor
           return res.status(403).json({
             success: false,
             message: 'Dostęp tylko dla wystawców'
@@ -90,7 +88,7 @@ const exhibitorLogin = async (req, res) => {
         }
         
         const isPasswordValid = await bcrypt.compare(password, user.password_hash);
-        console.log('🔍 Password valid:', isPasswordValid);
+        // Password check
 
         if (!isPasswordValid) {
           return res.status(401).json({
@@ -138,9 +136,7 @@ const exhibitorLogin = async (req, res) => {
 const login = async (req, res) => {
   try {
     const { email, password } = req.body;
-    console.log('🔍 LOGIN ATTEMPT - Backend Version 3.0 - STATUS FIELD FIXED');
-    console.log('🔍 Login attempt for email:', email);
-    console.log('🔍 Request headers:', req.headers);
+    // Admin login
 
     // Validate input
     if (!email || !password) {
@@ -153,35 +149,34 @@ const login = async (req, res) => {
     // Check database for user
     if (process.env.DATABASE_URL && process.env.DATABASE_URL !== 'postgresql://username:password@host/dbname?sslmode=require') {
       try {
-        console.log('🔍 Querying database for user:', email.toLowerCase());
+        // Query database for user
         
         let result;
         
         // Try with status column first
         try {
-          console.log('🔍 Trying query WITH status field...');
+          // Try query WITH status field
           result = await db.query(
             'SELECT * FROM users WHERE email = $1 AND status = $2',
             [email.toLowerCase(), 'active']
           );
-          console.log('✅ Query with status field successful');
+          // Query with status succeeded
         } catch (statusError) {
-          console.log('⚠️ Query with status field failed, trying without status:', statusError.message);
-          console.log('🔍 Using SIMPLE QUERY without STATUS field (Railway compatibility)');
+          // Fallback without status column
           result = await db.query(
             'SELECT * FROM users WHERE email = $1',
             [email.toLowerCase()]
           );
-          console.log('✅ Query without status field successful');
+          // Simple query succeeded
         }
 
-        console.log('🔍 Query result:', result.rows.length, 'rows found');
+        // Query result
         if (result.rows.length > 0) {
-          console.log('🔍 Found user:', result.rows[0].email, 'role:', result.rows[0].role);
+          // Found user
           
           // Check if user has status column and if it's active
           if (result.rows[0].status && result.rows[0].status !== 'active') {
-            console.log('⚠️ User account is not active:', result.rows[0].status);
+            // Inactive account
             return res.status(401).json({
               success: false,
               message: 'Konto jest nieaktywne'
@@ -189,7 +184,7 @@ const login = async (req, res) => {
           }
         }
         if (result.rows.length === 0) {
-          console.log('🔍 No user found with email:', email.toLowerCase());
+          // No user found
           return res.status(401).json({
             success: false,
             message: 'Nieprawidłowy email lub hasło'
@@ -197,12 +192,11 @@ const login = async (req, res) => {
         }
 
         const user = result.rows[0];
-        console.log('🔍 User found:', user.email, 'role:', user.role);
-        console.log('🔍 Stored password hash:', user.password_hash);
+        // User found
         
         // Sprawdź czy użytkownik ma uprawnienia administratora
         if (user.role !== 'admin') {
-          console.log('🔍 Access denied - user is not admin:', user.role);
+          // Not admin
           return res.status(403).json({
             success: false,
             message: 'Dostęp tylko dla administratorów'
@@ -210,7 +204,7 @@ const login = async (req, res) => {
         }
         
         const isPasswordValid = await bcrypt.compare(password, user.password_hash);
-        console.log('🔍 Password valid:', isPasswordValid);
+        // Password check
 
         if (!isPasswordValid) {
           return res.status(401).json({

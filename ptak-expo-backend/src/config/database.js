@@ -547,6 +547,31 @@ const initializeDatabase = async () => {
     */
 
     console.log('✅ Database tables initialized successfully');
+    // Ensure exhibitor_catalog_entries exists and has products column
+    try {
+      await pool.query(`
+        CREATE TABLE IF NOT EXISTS exhibitor_catalog_entries (
+          id SERIAL PRIMARY KEY,
+          exhibitor_id INTEGER REFERENCES exhibitors(id) ON DELETE CASCADE,
+          exhibition_id INTEGER NULL REFERENCES exhibitions(id) ON DELETE SET NULL,
+          name VARCHAR(255),
+          logo TEXT,
+          description TEXT,
+          contact_info TEXT,
+          website TEXT,
+          socials TEXT,
+          contact_email VARCHAR(255),
+          created_at TIMESTAMPTZ DEFAULT NOW(),
+          updated_at TIMESTAMPTZ DEFAULT NOW()
+        )
+      `);
+      await pool.query(`ALTER TABLE exhibitor_catalog_entries ADD COLUMN IF NOT EXISTS products JSONB`);
+      // Optional: index for faster global lookups
+      await pool.query(`CREATE INDEX IF NOT EXISTS idx_catalog_entries_exhibitor ON exhibitor_catalog_entries(exhibitor_id)`);
+      await pool.query(`CREATE INDEX IF NOT EXISTS idx_catalog_entries_updated_at ON exhibitor_catalog_entries(updated_at DESC)`);
+    } catch (e) {
+      console.error('❌ Error ensuring exhibitor_catalog_entries/products:', e);
+    }
   } catch (error) {
     console.error('❌ Error initializing database:', error);
     console.error('❌ Database error details:', error.message);

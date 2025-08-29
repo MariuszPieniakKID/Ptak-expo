@@ -24,6 +24,7 @@ const tradeInfoRoutes = require('./routes/tradeInfo');
 const invitationsRoutes = require('./routes/invitations');
 const tradeEventsRoutes = require('./routes/tradeEvents');
 const exhibitorDocumentsRoutes = require('./routes/exhibitorDocuments');
+const catalogRoutes = require('./routes/catalog');
 
 // Swagger UI
 const swaggerUi = require('swagger-ui-express');
@@ -88,8 +89,12 @@ app.use(cors({
   credentials: true
 }));
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+// Handle all preflight requests
+app.options('*', cors());
+
+// Increase body size limits to support base64 logo payloads from web
+app.use(express.json({ limit: '8mb' }));
+app.use(express.urlencoded({ extended: true, limit: '8mb' }));
 
 // API Routes
 // Test CORS endpoint
@@ -111,6 +116,7 @@ app.use('/api/v1/trade-info', tradeInfoRoutes);
 app.use('/api/v1/invitations', invitationsRoutes);
 app.use('/api/v1/trade-events', tradeEventsRoutes);
 app.use('/api/v1/exhibitor-documents', exhibitorDocumentsRoutes);
+app.use('/api/v1/catalog', catalogRoutes);
 
 // Serve Swagger UI if spec is available
 if (swaggerDocument) {

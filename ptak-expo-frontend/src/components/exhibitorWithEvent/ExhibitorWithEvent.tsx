@@ -8,16 +8,16 @@ import { ReactComponent as DownloadIcon } from '../../assets/downloadIcon.svg';
 import {ReactComponent as DownloadIconBlue} from'../../assets/documentIconBlue.svg';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { Box } from '@mui/material';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import styles from './ExhibitorWithEvent.module.scss';
 import EntryIntoTheTradeFairCatalogue from './entryIntoTheTradeFairCatalogue/EntryIntoTheTradeFairCatalogue';
 import PresentedProduct from './presentedProduct/PresentedProduct';
 import productImg from '../../assets/product.png';
-import productImg_m from '../../assets/product_m.png';
 import DownloadMaterials from './downloadMaterials/DownloadMaterials';
 import NotificationsNoneIcon from '@mui/icons-material/NotificationsNone';
 import CustomTypography from '../customTypography/CustomTypography';
-import { Exhibitor } from '../../services/api';
+import { Exhibitor, getBrandingFiles, getBrandingFileUrl } from '../../services/api';
+import config from '../../config/config';
 
 //1 TAB - DATA – wypełniane danymi wystawcy przekazanymi w props
 
@@ -25,27 +25,13 @@ const handleViewDirectoryEntry = (exhibitorId: number) => {
   console.log(`Klik w handleViewDirectoryEntry :${exhibitorId}`);
 };
 
-//2 TAB - DATA
-const productsList = [
-  {
-    imageSrc: productImg,
-    title: 'MTB ONE',
-    description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
-    tabList: ['tag1', 'tag2', 'tag3']
-  },
-  {
-    imageSrc: productImg_m ,
-    title: 'Produkt 2',
-    description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
-    tabList: ['tag1', 'tag2', 'tag3','tag4', 'tag5', 'tag6']
-  },
-    {
-    imageSrc: productImg_m ,
-    title: 'Produkt 3',
-    description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.',
-    tabList: null
-  }
-];
+// Typ produktu prezentowanego w UI
+type PresentedProductItem = {
+  imageSrc: string;
+  title: string;
+  description: string;
+  tabList?: string[] | null;
+};
 
 //3 TAB-DATA
 
@@ -85,17 +71,24 @@ const handleSubmitDocument=(documentId:number)=>{
 
 
 
-const buildItems = (exhibitor: Exhibitor | undefined, hasLogo: boolean) => {
+const buildItems = (
+  exhibitor: Exhibitor | undefined,
+  description: string,
+  website: string,
+  logoFileName: string | null,
+  logoUrl: string | null,
+  products: PresentedProductItem[]
+) => {
   const exhibitorsDetails = {
     companyName: exhibitor?.companyName || '',
-    logotyp: hasLogo ? 'uploaded' : null as null | string,
-    description: '',
+    logotyp: logoFileName,
+    description: description || '',
     daneKontaktowe: {
       person: exhibitor?.contactPerson || '',
       phone: exhibitor?.phone || '',
       email: exhibitor?.email || '',
     },
-    website: '',
+    website: website || '',
     media: {
       facebook: '',
       youTube: '',
@@ -113,13 +106,14 @@ const buildItems = (exhibitor: Exhibitor | undefined, hasLogo: boolean) => {
           exhibitorsDetails={exhibitorsDetails}
           onViewDirectoryEntry={handleViewDirectoryEntry}
           exhibitorId={exhibitor?.id ?? 0}
+          logoUrl={logoUrl}
         />
       ),
     },
   {
     icon: <CubeIcon fontSize="small" />,
-    title: `Prezentowane produkty (${productsList.length})`,
-    container:<PresentedProduct  products={productsList}/>
+    title: `Prezentowane produkty (${products.length})`,
+    container:<PresentedProduct  products={products}/>
   },
   {
     icon: <DownloadIcon fontSize="small" />,
@@ -148,11 +142,115 @@ type ExhibitorWithEventProps = {
 function ExhibitorWithEvent({ 
   allowMultiple = true,
   exhibitorId,
-  exhibitor,
-  hasLogo = false
+  exhibitor
 }: ExhibitorWithEventProps) {
+  const [catalogDescription, setCatalogDescription] = useState<string>('');
+  const [catalogWebsite, setCatalogWebsite] = useState<string>('');
+  const [logoFileName, setLogoFileName] = useState<string | null>(null);
+  const [logoUrl, setLogoUrl] = useState<string | null>(null);
+  const [products, setProducts] = useState<PresentedProductItem[]>([]);
 
-  const items = buildItems(exhibitor, hasLogo);
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        if (!exhibitor?.id) return;
+        const token = localStorage.getItem('authToken') || '';
+        let fallbackCatalogLogoDataUrl: string | null = null;
+        let nextLogoFileName: string | null = null;
+        let nextLogoUrl: string | null = null;
+
+        // 1) Fetch catalog entry (admin view)
+        try {
+          const res = await fetch(`${config.API_BASE_URL}/api/v1/catalog/admin/${exhibitor.id}`, {
+            headers: { 'Authorization': `Bearer ${token}` },
+            credentials: 'include'
+          });
+          if (res.ok) {
+            const json = await res.json();
+            const data = json?.data || null;
+            if (data) {
+              setCatalogDescription(data.description || '');
+              setCatalogWebsite(data.website || '');
+              fallbackCatalogLogoDataUrl = data.logo || null;
+            } else {
+              setCatalogDescription('');
+              setCatalogWebsite('');
+              fallbackCatalogLogoDataUrl = null;
+            }
+          }
+        } catch {}
+
+        // 2) Fetch branding files to determine logo filename and URL
+        const exhibitionId = Array.isArray(exhibitor.events) && exhibitor.events.length > 0
+          ? (exhibitor.events[0] as any).id
+          : undefined;
+        if (exhibitionId) {
+          try {
+            const filesResp = await getBrandingFiles(exhibitor.id, exhibitionId, token);
+            const files = filesResp.files || {};
+            // Prefer event_logo, else first file that contains 'logo' in key, else any
+            const preferredKey = files['event_logo']
+              ? 'event_logo'
+              : Object.keys(files).find(k => k.toLowerCase().includes('logo'))
+                || Object.keys(files)[0];
+            if (preferredKey && files[preferredKey]) {
+              const file = files[preferredKey];
+              nextLogoFileName = file.originalName || file.fileName;
+              nextLogoUrl = getBrandingFileUrl(exhibitor.id, file.fileName, token);
+            } else {
+              nextLogoFileName = null;
+              nextLogoUrl = null;
+            }
+          } catch {
+            nextLogoFileName = null;
+            nextLogoUrl = null;
+          }
+        } else {
+          nextLogoFileName = null;
+          nextLogoUrl = null;
+        }
+
+        // 3) Fallback to catalogue stored data URL (base64) if no branding file
+        if (!nextLogoUrl && fallbackCatalogLogoDataUrl) {
+          // Try to infer extension from data URL
+          const match = /^data:(.*?);base64,/.exec(fallbackCatalogLogoDataUrl);
+          const mime = match?.[1] || 'image/png';
+          const ext = mime.includes('jpeg') ? 'jpg' : (mime.split('/')[1] || 'png');
+          nextLogoFileName = `logo.${ext}`;
+          nextLogoUrl = fallbackCatalogLogoDataUrl;
+        }
+
+        setLogoFileName(nextLogoFileName);
+        setLogoUrl(nextLogoUrl);
+
+        // 4) Fetch presented products from catalog (admin endpoint)
+        try {
+          const prodRes = await fetch(`${config.API_BASE_URL}/api/v1/catalog/admin/${exhibitor.id}/products`, {
+            headers: { 'Authorization': `Bearer ${token}` },
+            credentials: 'include'
+          });
+          if (prodRes.ok) {
+            const prodJson = await prodRes.json();
+            const raw = Array.isArray(prodJson?.data) ? prodJson.data : [];
+            const mapped: PresentedProductItem[] = raw.map((p: any) => ({
+              imageSrc: p.img || productImg,
+              title: p.name || '',
+              description: p.description || '',
+              tabList: Array.isArray(p.tabList) ? p.tabList : null
+            }));
+            setProducts(mapped);
+          } else {
+            setProducts([]);
+          }
+        } catch {
+          setProducts([]);
+        }
+      } catch {}
+    };
+    loadData();
+  }, [exhibitor?.id]);
+
+  const items = buildItems(exhibitor, catalogDescription, catalogWebsite, logoFileName, logoUrl, products);
   const [expandedAccordions, setExpandedAccordions] = useState<boolean[]>(Array(items.length).fill(false));
   const [expandedOne, setExpandedOne] = useState<number | false>(false);
 

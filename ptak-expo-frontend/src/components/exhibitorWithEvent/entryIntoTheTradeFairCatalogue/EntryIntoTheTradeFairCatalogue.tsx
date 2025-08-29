@@ -33,12 +33,14 @@ type EntryIntoTheTradeFairCatalogueProps = {
   exhibitorsDetails: ExhibitorsDetails,
   exhibitorId:number;
   onViewDirectoryEntry: (exhibitorId: number) => void,
+  logoUrl?: string | null,
 };
 
 function EntryIntoTheTradeFairCatalogue({ 
     exhibitorsDetails,
     exhibitorId, 
-    onViewDirectoryEntry
+    onViewDirectoryEntry,
+    logoUrl
 
 }: EntryIntoTheTradeFairCatalogueProps) {
   return (
@@ -46,7 +48,7 @@ function EntryIntoTheTradeFairCatalogue({
     <Box className={styles.singleLine}>
       {exhibitorsDetails.companyName
       ?<GreenCiorcleIcon className={styles.icon}/>
-      :<GrayCircleIcon className={styles.iconGray}/>}
+      :<GrayCircleIcon className={styles.iconGray}/>} 
       <CustomTypography className={styles.label}>Nazwa firmy: </CustomTypography>
       {exhibitorsDetails.companyName!=='' 
       &&<CustomTypography className={styles.value}>{exhibitorsDetails.companyName}</CustomTypography>}
@@ -54,15 +56,22 @@ function EntryIntoTheTradeFairCatalogue({
      <Box className={styles.singleLine}>
       {exhibitorsDetails.logotyp
       ?<GreenCiorcleIcon className={styles.icon}/>
-      :<GrayCircleIcon className={styles.iconGray}/>}
+      :<GrayCircleIcon className={styles.iconGray}/>} 
       <CustomTypography className={styles.label}>Logotyp: </CustomTypography>
-      {exhibitorsDetails.logotyp!==null 
-      &&<CustomTypography className={styles.value}>{exhibitorsDetails.logotyp}</CustomTypography>}
+      {exhibitorsDetails.logotyp!==null && (
+        logoUrl ? (
+          <a href={logoUrl} className={styles.value} download>
+            {exhibitorsDetails.logotyp}
+          </a>
+        ) : (
+          <CustomTypography className={styles.value}>{exhibitorsDetails.logotyp}</CustomTypography>
+        )
+      )}
     </Box> 
     <Box className={styles.singleLine}>
       {exhibitorsDetails.description
       ?<GreenCiorcleIcon className={styles.icon}/>
-      :<GrayCircleIcon className={styles.iconGray}/>}
+      :<GrayCircleIcon className={styles.iconGray}/>} 
       <CustomTypography className={styles.label}>Opis: </CustomTypography>
      {exhibitorsDetails.description !=='' 
      &&<CustomTypography className={styles.value}>{exhibitorsDetails.description}</CustomTypography>}
@@ -97,7 +106,7 @@ function EntryIntoTheTradeFairCatalogue({
     <Box className={styles.singleLine}>
         {exhibitorsDetails.website !==''
         ?<GreenCiorcleIcon className={styles.icon}/>
-        :<GrayCircleIcon className={styles.iconGray}/>}
+        :<GrayCircleIcon className={styles.iconGray}/>} 
       <CustomTypography className={styles.label}>strona www: </CustomTypography>
       {exhibitorsDetails.website !==''  
       && <CustomTypography className={styles.value}>{exhibitorsDetails.website}</CustomTypography>}

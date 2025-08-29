@@ -47,30 +47,42 @@ function ImageEdit({name, onChange,  value}: {name: string, value: string | null
 		const reader = new FileReader();
 		reader.onload = le => {
 			onChange(le.target?.result?.toString() || ""); // set <img src> to file content
+			setIsEdit(false);
 		};
     reader.readAsDataURL(file);
 
 	}, [onChange])
 	if (!isEdit) {
-		return <DisplayEdit text={name} onEdit={() => setIsEdit(true)} checked={value != null} />	}
+		return (
+			<Box>
+				<DisplayEdit text={name} onEdit={() => setIsEdit(true)} checked={value != null} />
+				{value && (
+					<Box mt={1} display="flex" alignItems="center" gap={2}>
+						<img src={value} alt="Podgląd logotypu" style={{ maxHeight: 120, borderRadius: 8 }} />
+						<Button variant="outlined" size="small" onClick={() => setIsEdit(true)}>Podmień</Button>
+					</Box>
+				)}
+			</Box>
+		);
+	}
 	return (
-		<Box display="flex" alignItems="center">
+		<Box>
+			<Box display="flex" alignItems="center">
 				<Box width="30px" alignItems="center" justifyContent="center">
 					{value != null && <GreenCheck/>}
 				</Box>
-			<Button
-				component="label"
-				fullWidth
-			>
-				Dodaj logotyp
-				<input
-					onChange={handleFileInput}
-					type="file"
-					hidden
-					accept="image/*"
-				/>
-			</Button>
-		</Box>);
+				<Button component="label" fullWidth>
+					Wybierz plik
+					<input onChange={handleFileInput} type="file" hidden accept="image/*" />
+				</Button>
+			</Box>
+			{value && (
+				<Box mt={1}>
+					<img src={value} alt="Podgląd logotypu" style={{ maxHeight: 120, borderRadius: 8 }} />
+				</Box>
+			)}
+		</Box>
+	);
 }
 
 /*function TextBoxEdit({name, value}: {name: string, value: string | null, onChange?: (s: string | null) => void}) {

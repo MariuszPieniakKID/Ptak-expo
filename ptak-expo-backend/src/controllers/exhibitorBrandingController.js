@@ -251,12 +251,7 @@ const uploadBrandingFile = async (req, res) => {
 
 // Get branding files for exhibitor and exhibition
 const getBrandingFiles = async (req, res) => {
-  console.log('📥 [branding] getBrandingFiles called', {
-    exhibitorId: req.params?.exhibitorId,
-    exhibitionId: req.params?.exhibitionId,
-    user: req.user?.email,
-    role: req.user?.role,
-  });
+  // Get branding files
   const client = await pool.connect();
   
   try {
@@ -390,14 +385,7 @@ const deleteBrandingFile = async (req, res) => {
 
 // Serve branding file
 const serveBrandingFile = async (req, res) => {
-  console.log('📥 [branding] serveBrandingFile called', {
-    exhibitorId: req.params?.exhibitorId,
-    fileName: req.params?.fileName,
-    user: req.user?.email,
-    role: req.user?.role,
-    hasAuthHeader: !!req.headers.authorization,
-    hasTokenQuery: !!req.query.token,
-  });
+  // Serve branding file
   try {
     const { exhibitorId, fileName } = req.params;
     
