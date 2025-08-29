@@ -1,10 +1,13 @@
+import config from '../config/config';
+
 export interface CompanyInfo {
 	name: string | null,
 	logo: string | null, //Upload and download support
 	description: string | null,
 	contactInfo: string | null,
 	website: string | null,
-	socials: string | null
+	socials: string | null,
+	contactEmail?: string | null
 }
 export interface ProductInfo {
 	name: string,
@@ -74,8 +77,46 @@ let ExampleChecklist: Checklist = {
 ]
 }
 
-export const getChecklist = async (_: number) => ExampleChecklist;
+export const getChecklist = async (_: number) => {
+	try {
+		const token = localStorage.getItem('authToken') || '';
+		const res = await fetch(`${config.API_BASE_URL}/api/v1/exhibitors/me`, {
+			headers: { 'Authorization': `Bearer ${token}` }
+		});
+		if (!res.ok) return ExampleChecklist;
+		const json = await res.json();
+		if (!json.success || !json.data) return ExampleChecklist;
+		const e = json.data;
+		ExampleChecklist = {
+			...ExampleChecklist,
+			companyInfo: {
+				name: e.companyName ?? null,
+				logo: ExampleChecklist.companyInfo.logo,
+				description: ExampleChecklist.companyInfo.description,
+				contactInfo: ExampleChecklist.companyInfo.contactInfo,
+				website: ExampleChecklist.companyInfo.website,
+				socials: ExampleChecklist.companyInfo.socials,
+				contactEmail: e.email ?? null
+			}
+		};
+		return ExampleChecklist;
+	} catch {
+		return ExampleChecklist;
+	}
+}
 export const updateCompanyInfo = async (companyInfo: CompanyInfo) => {
+	const token = localStorage.getItem('authToken') || '';
+	const body: any = {};
+	if (companyInfo.name !== undefined) body.companyName = companyInfo.name;
+	if (companyInfo.contactEmail !== undefined) body.email = companyInfo.contactEmail;
+	await fetch(`${config.API_BASE_URL}/api/v1/exhibitors/me`, {
+		method: 'PUT',
+		headers: {
+			'Content-Type': 'application/json',
+			'Authorization': `Bearer ${token}`
+		},
+		body: JSON.stringify(body)
+	});
 	ExampleChecklist = {...ExampleChecklist, companyInfo};
 }
 export const addProduct = async (productInfo: ProductInfo) => {

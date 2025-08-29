@@ -38,10 +38,11 @@ export const ChecklistProvider = ({ children, eventId }: {children: ReactNode, e
 			(checklist.companyInfo.logo != null ? 1 : 0) +
 			(checklist.companyInfo.name != null ? 1 : 0) +
 			(checklist.companyInfo.socials != null ? 1 : 0) +
-			(checklist.companyInfo.website != null ? 1 : 0);
+			(checklist.companyInfo.website != null ? 1 : 0) +
+			((checklist.companyInfo as any).contactEmail != null ? 1 : 0);
 	const filled = useMemo(() => {
 		const ret = [];
-		ret.push(companyInfoFilledCount === 6);
+		ret.push(companyInfoFilledCount === 7);
 		ret.push(checklist.products.length > 0);
 		ret.push(checklist.sentInvitesCount > 0);
 		ret.push(checklist.electrionicIds.length > 0);

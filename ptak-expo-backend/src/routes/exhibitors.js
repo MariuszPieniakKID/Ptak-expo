@@ -2,7 +2,124 @@ const express = require('express');
 const router = express.Router();
 const db = require('../config/database');
 const { verifyToken, requireAdmin } = require('../middleware/auth');
+const { requireExhibitorOrAdmin } = require('../middleware/auth');
 const bcrypt = require('bcryptjs');
+
+// --- SELF-SERVICE (EXHIBITOR) ENDPOINTS ---
+// IMPORTANT: Keep these above dynamic `/:id` routes so `/me` doesn't match `:id`
+// GET /api/v1/exhibitors/me - get current exhibitor profile (role: exhibitor or admin)
+router.get('/me', verifyToken, requireExhibitorOrAdmin, async (req, res) => {
+  try {
+    const email = req.user.email;
+    const result = await db.query(
+      `SELECT 
+        id, nip, company_name, address, postal_code, city,
+        contact_person, contact_role, phone, email, status,
+        created_at, updated_at
+       FROM exhibitors WHERE email = $1 LIMIT 1`,
+      [email]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ success: false, message: 'Wystawca nie został znaleziony' });
+    }
+
+    const e = result.rows[0];
+    return res.json({
+      success: true,
+      data: {
+        id: e.id,
+        nip: e.nip,
+        companyName: e.company_name,
+        address: e.address,
+        postalCode: e.postal_code,
+        city: e.city,
+        contactPerson: e.contact_person,
+        contactRole: e.contact_role,
+        phone: e.phone,
+        email: e.email,
+        status: e.status,
+        createdAt: e.created_at,
+        updatedAt: e.updated_at
+      }
+    });
+  } catch (error) {
+    console.error('Error fetching exhibitor self profile:', error);
+    return res.status(500).json({ success: false, message: 'Błąd podczas pobierania profilu wystawcy' });
+  }
+});
+
+// PUT /api/v1/exhibitors/me - update current exhibitor basic data (role: exhibitor or admin)
+router.put('/me', verifyToken, requireExhibitorOrAdmin, async (req, res) => {
+  try {
+    const email = req.user.email;
+    const {
+      companyName,
+      address,
+      postalCode,
+      city,
+      contactPerson,
+      contactRole,
+      phone,
+      email: newEmail
+    } = req.body || {};
+
+    // Find exhibitor id
+    const findRes = await db.query('SELECT id FROM exhibitors WHERE email = $1 LIMIT 1', [email]);
+    if (findRes.rows.length === 0) {
+      return res.status(404).json({ success: false, message: 'Wystawca nie został znaleziony' });
+    }
+    const exhibitorId = findRes.rows[0].id;
+
+    // Build dynamic update
+    const fields = [];
+    const values = [];
+    let idx = 1;
+    const pushField = (col, val) => { fields.push(`${col} = $${idx++}`); values.push(val); };
+    if (companyName !== undefined) pushField('company_name', companyName);
+    if (address !== undefined) pushField('address', address);
+    if (postalCode !== undefined) pushField('postal_code', postalCode);
+    if (city !== undefined) pushField('city', city);
+    if (contactPerson !== undefined) pushField('contact_person', contactPerson);
+    if (contactRole !== undefined) pushField('contact_role', contactRole);
+    if (phone !== undefined) pushField('phone', phone);
+    if (newEmail !== undefined) pushField('email', newEmail);
+    pushField('updated_at', new Date());
+
+    if (fields.length === 1) { // only updated_at
+      return res.json({ success: true, message: 'Brak zmian', updated: 0 });
+    }
+
+    const query = `UPDATE exhibitors SET ${fields.join(', ')} WHERE id = $${idx} RETURNING 
+      id, nip, company_name, address, postal_code, city, contact_person, contact_role, phone, email, status, created_at, updated_at`;
+    values.push(exhibitorId);
+
+    const updRes = await db.query(query, values);
+    const e = updRes.rows[0];
+    return res.json({
+      success: true,
+      message: 'Profil zaktualizowany',
+      data: {
+        id: e.id,
+        nip: e.nip,
+        companyName: e.company_name,
+        address: e.address,
+        postalCode: e.postal_code,
+        city: e.city,
+        contactPerson: e.contact_person,
+        contactRole: e.contact_role,
+        phone: e.phone,
+        email: e.email,
+        status: e.status,
+        createdAt: e.created_at,
+        updatedAt: e.updated_at
+      }
+    });
+  } catch (error) {
+    console.error('Error updating exhibitor self profile:', error);
+    return res.status(500).json({ success: false, message: 'Błąd podczas aktualizacji profilu' });
+  }
+});
 
 // GET /api/v1/exhibitors - pobierz wszystkich wystawców (tylko admin)
 router.get('/', verifyToken, requireAdmin, async (req, res) => {
