@@ -248,7 +248,7 @@ function ExhibitorWithEvent({
       } catch {}
     };
     loadData();
-  }, [exhibitor?.id]);
+  }, [exhibitor?.id, exhibitor?.events]);
 
   const items = buildItems(exhibitor, catalogDescription, catalogWebsite, logoFileName, logoUrl, products);
   const [expandedAccordions, setExpandedAccordions] = useState<boolean[]>(Array(items.length).fill(false));
