@@ -1,7 +1,7 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import CustomField from '../customField/CustomField';
 import CustomTypography from '../customTypography/CustomTypography';
-import { AddExhibitionPayload, Exhibition, updateExhibition, uploadBrandingFile } from '../../services/api';
+import { AddExhibitionPayload, Exhibition, updateExhibition, uploadBrandingFile, getBrandingFileUrl } from '../../services/api';
 import { Box, CircularProgress, Dialog, DialogTitle, IconButton, Typography } from '@mui/material';
 import { ReactComponent as CloseIcon } from '../../assets/closeIcon.svg';
 import EventsPageIcon from '../../assets/eventIcon.png';
@@ -30,6 +30,8 @@ const EditEventModal_: React.FC<EditEventModalProps> = ({ isOpen, onClose, event
   const [loading, setLoading] = useState(false);
   const [, setError] = useState<string | null>(null);
   const [eventLogoFile, setEventLogoFile] = useState<File | null>(null);
+  const [logoPreview, setLogoPreview] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
     if (isOpen && event) {
@@ -43,6 +45,11 @@ const EditEventModal_: React.FC<EditEventModalProps> = ({ isOpen, onClose, event
         field: (event as any).field || 'all',
       });
       setEventLogoFile(null);
+      // reset preview
+      if (logoPreview) {
+        try { URL.revokeObjectURL(logoPreview); } catch (_) {}
+      }
+      setLogoPreview(null);
       setError(null);
     }
   }, [isOpen, event]);
@@ -85,6 +92,23 @@ const EditEventModal_: React.FC<EditEventModalProps> = ({ isOpen, onClose, event
       onClose();
     }
   }, [loading, onClose]);
+
+  // Handle logo selection with preview
+  const handleSelectLogo = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] || null;
+    if (logoPreview) {
+      try { URL.revokeObjectURL(logoPreview); } catch (_) {}
+    }
+    if (file) {
+      setEventLogoFile(file);
+      setLogoPreview(URL.createObjectURL(file));
+    } else {
+      setEventLogoFile(null);
+      setLogoPreview(null);
+    }
+  };
+
+  useEffect(() => () => { if (logoPreview) { try { URL.revokeObjectURL(logoPreview); } catch(_){} } }, [logoPreview]);
 
   return (
     <Dialog 
@@ -206,32 +230,38 @@ const EditEventModal_: React.FC<EditEventModalProps> = ({ isOpen, onClose, event
                 </Box>
               </Box>
 
-              <Box className={styles.formRow}>
-                <Box className={styles.halfFormRow}>
-                  <CustomTypography className={styles.textInModal}>Logo wystawy</CustomTypography>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e)=> setEventLogoFile(e.target.files?.[0] || null)}
-                    style={{ marginTop: '8px' }}
-                  />
-                  {eventLogoFile ? (
-                    <CustomTypography className={styles.helperTitle}>
-                      Wybrano: {eventLogoFile.name}
-                    </CustomTypography>
-                  ) : (event as any).event_logo_file_name ? (
-                    <CustomTypography className={styles.helperTitle}>
-                      Aktualne logo: {(event as any).event_logo_file_name}
-                    </CustomTypography>
-                  ) : null}
+              <Box className={styles.singleFormRow}>
+                <CustomTypography className={styles.textInModal}>Logo wystawy</CustomTypography>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleSelectLogo}
+                  style={{ display: 'none' }}
+                />
+                <Box
+                  className={styles.logoUploadBox}
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  {logoPreview ? (
+                    <img src={logoPreview} alt="Podgląd logo" className={styles.logoPreviewImg} />
+                  ) : ((event as any).event_logo_file_name && token) ? (
+                    <img
+                      src={getBrandingFileUrl(null, (event as any).event_logo_file_name, token)}
+                      alt="Aktualne logo"
+                      className={styles.logoPreviewImg}
+                    />
+                  ) : (
+                    <CustomTypography className={styles.logoHint}>Kliknij, aby wgrać logo</CustomTypography>
+                  )}
                 </Box>
-                <Box className={styles.halfFormRow}>
-                  <Box 
-                    className={styles.boxToKlik}
-                    onClick={() => handleSubmit()}
-                  >
-                    <CustomTypography className={styles.addText}>zapisz</CustomTypography>
-                  </Box>
+              </Box>
+              <Box className={styles.singleFormRow}>
+                <Box 
+                  className={styles.boxToKlik}
+                  onClick={() => handleSubmit()}
+                >
+                  <CustomTypography className={styles.addText}>zapisz</CustomTypography>
                 </Box>
               </Box>
 

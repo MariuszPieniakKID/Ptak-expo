@@ -542,6 +542,34 @@
    width:100%!important;
   }
 }
+.logoUploadBox{
+  margin-top: 8px;
+  width: 100%;
+  height: 70px;
+  border-radius: 12px;
+  background: $color-whitesmoke;
+  border: 1px solid $color-gainsboro-200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  box-shadow: 0 2px 8px rgba(94,101,119,0.06);
+  &:hover{
+    border-color: $color-dodgerblue;
+    box-shadow: 0 4px 12px rgba(111,135,246,0.15);
+  }
+}
+.logoHint{
+  color:#6f6f6f !important;
+  font-size: 0.8125em !important;
+}
+.logoPreviewImg{
+  max-height: 100%;
+  max-width: 100%;
+  object-fit: contain;
+  border-radius: 10px;
+}
 .formRowFooterWithAction{
   padding-bottom: 2em!important;
 }

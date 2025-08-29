@@ -1,4 +1,4 @@
-import {  useCallback, useState } from 'react';
+import {  useCallback, useEffect, useRef, useState } from 'react';
 import CustomField from '../customField/CustomField';
 import CustomTypography from '../customTypography/CustomTypography';
 import { addExhibition, AddExhibitionPayload, uploadBrandingFile} from '../../services/api';
@@ -71,6 +71,8 @@ const AddEventModal_: React.FC<AddEventModalProps> = ({
  const [loading,setLoading] = useState(false);
  const [, setError] = useState<string | null>(null);
   const [eventLogoFile, setEventLogoFile] = useState<File | null>(null);
+  const [logoPreview, setLogoPreview] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 //   const [formEventValues, setFormEventValues] = useState<EventProps>({
 //     selectedExhibitionId: '',
 //     standNumber: '',
@@ -285,6 +287,23 @@ const AddEventModal_: React.FC<AddEventModalProps> = ({
     }));
     setError(null);
   }, []);
+
+  // Handle logo file selection with preview
+  const handleSelectLogo = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] || null;
+    if (logoPreview) {
+      try { URL.revokeObjectURL(logoPreview); } catch (_) {}
+    }
+    if (file) {
+      setEventLogoFile(file);
+      setLogoPreview(URL.createObjectURL(file));
+    } else {
+      setEventLogoFile(null);
+      setLogoPreview(null);
+    }
+  };
+
+  useEffect(() => () => { if (logoPreview) { try { URL.revokeObjectURL(logoPreview); } catch(_){} } }, [logoPreview]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -555,30 +574,33 @@ const AddEventModal_: React.FC<AddEventModalProps> = ({
               </Box>
 
 
-              <Box className={styles.formRow}>
-                <Box className={styles.halfFormRow}>
-                    <CustomTypography className={styles.textInModal}>Logo wystawy</CustomTypography>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={(e)=> setEventLogoFile(e.target.files?.[0] || null)}
-                      style={{ marginTop: '8px' }}
-                    />
-                    {eventLogoFile ? (
-                      <CustomTypography className={styles.helperTitle}>
-                        Wybrano: {eventLogoFile.name}
-                      </CustomTypography>
-                    ) : null}
+              <Box className={styles.singleFormRow}>
+                <CustomTypography className={styles.textInModal}>Logo wystawy</CustomTypography>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleSelectLogo}
+                  style={{ display: 'none' }}
+                />
+                <Box 
+                  className={styles.logoUploadBox}
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  {logoPreview ? (
+                    <img src={logoPreview} alt="Podgląd logo" className={styles.logoPreviewImg} />
+                  ) : (
+                    <CustomTypography className={styles.logoHint}>Kliknij, aby wgrać logo</CustomTypography>
+                  )}
                 </Box>
-                <Box className={styles.halfFormRow}>
-                  <Box 
-                    className={styles.boxToKlik}
-                    onClick={handleSubmit}
-                    sx={{}}
-                  >
-                    <CustomTypography className={styles.addText}>dodaj</CustomTypography>
-                    <AddCircleButton className={styles.addCircleButton} />
-                  </Box>
+              </Box>
+              <Box className={styles.singleFormRow}>
+                <Box 
+                  className={styles.boxToKlik}
+                  onClick={handleSubmit}
+                >
+                  <CustomTypography className={styles.addText}>dodaj</CustomTypography>
+                  <AddCircleButton className={styles.addCircleButton} />
                 </Box>
               </Box>
 

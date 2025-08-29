@@ -101,6 +101,7 @@ function EventCardPage({ event }: EventCardPagetProps) {
 };
   
  return (
+    <>
     <Box className={styles.tableHeader}>
        <Box className={styles.singleEventInfo} sx={{flexGrow: 1,width:'100%',bgcolor: 'background.paper'}}>
                     <Box>
@@ -290,6 +291,7 @@ function EventCardPage({ event }: EventCardPagetProps) {
       event={event}
       onEventUpdated={() => setIsEditOpen(false)}
     />
+    </>
   );
 };
 
