@@ -45,10 +45,7 @@ const EditEventModal_: React.FC<EditEventModalProps> = ({ isOpen, onClose, event
         field: (event as any).field || 'all',
       });
       setEventLogoFile(null);
-      // reset preview
-      if (logoPreview) {
-        try { URL.revokeObjectURL(logoPreview); } catch (_) {}
-      }
+      // reset preview (no dependency on logoPreview to avoid CI warning)
       setLogoPreview(null);
       setError(null);
     }
@@ -108,7 +105,13 @@ const EditEventModal_: React.FC<EditEventModalProps> = ({ isOpen, onClose, event
     }
   };
 
-  useEffect(() => () => { if (logoPreview) { try { URL.revokeObjectURL(logoPreview); } catch(_){} } }, [logoPreview]);
+  useEffect(() => {
+    return () => {
+      if (logoPreview) {
+        try { URL.revokeObjectURL(logoPreview); } catch(_){}
+      }
+    };
+  }, [logoPreview]);
 
   return (
     <Dialog 
