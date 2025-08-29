@@ -48,6 +48,7 @@ export interface Exhibition {
   created_at: string;
   updated_at: string;
   trade?:'Dom'|'Budownictwo'|'Inne';//TODOO
+  event_logo_file_name?: string | null;
 }
 
 const apiCall = async (url: string, options: RequestInit, retries = 3): Promise<Response> => {

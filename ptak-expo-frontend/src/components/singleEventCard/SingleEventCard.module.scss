@@ -31,6 +31,9 @@
 
 
 }
+.hasLogoCard {
+  background-image: none !important;
+}
 .eventCardContainer:hover {
  transform: translateY(-0.125em); // 2px
  box-shadow: 0 1.5625em 1.875em rgba(100, 109, 150, 0.25); 
@@ -63,8 +66,13 @@
 }
 .eventLogo{
     width:20%;
+    background: none !important;
 }
+.hasLogo { position: relative; }
+.hasLogo svg { display: none !important; }
+.hasLogo *:not(img) { display: none !important; }
 .logo{
+    display: block;
     width:auto;
     height: 55px;
     @media (max-width: 527px) {

@@ -22,7 +22,7 @@ import { ReactComponent as BackIcon } from '../../assets/back.svg';
 import UserAvatar from '../../assets/7bb764a0137abc7a8142b6438e529133@2x.png';
 import Applause from '../../assets/applause.png';
 import { ReactComponent as UsersIcon } from '../../assets/addIcon.svg';
-import { Exhibition, fetchExhibitions } from '../../services/api';
+import { Exhibition, fetchExhibitions, getBrandingFileUrl } from '../../services/api';
 import { getEventAssets } from '../../helpers/getEventAssets';
 import CustomField from '../../components/customField/CustomField';
 import AddEventModal from '../../components/addEventModal/AddEventModal_';
@@ -244,6 +244,10 @@ const formatDateRange = useCallback((startDate: string, endDate: string): string
                   ?
                   currentEvents.map((exhibition)=> {
                       const { background, logo } = getEventAssets(exhibition.name);
+                      const hasCustomLogo = Boolean(exhibition.event_logo_file_name && token);
+                      const eventLogoUrl = hasCustomLogo
+                        ? getBrandingFileUrl(null, exhibition.event_logo_file_name as string, token as string)
+                        : logo;
 
                       return (
                           <Box 
@@ -251,14 +255,16 @@ const formatDateRange = useCallback((startDate: string, endDate: string): string
                           className={styles.singleEventCard}
                           >
                             <Box className={styles.logoOnPhoto}>
-                              <img 
-                                src={background} 
-                                alt={exhibition.name} 
-                                className={styles.eventImgBackground} 
-                              />
+                              {!hasCustomLogo && (
+                                <img 
+                                  src={background} 
+                                  alt={exhibition.name} 
+                                  className={styles.eventImgBackground} 
+                                />
+                              )}
                               <Box>
                                 <img 
-                                  src={logo} 
+                                  src={eventLogoUrl} 
                                   alt={`${exhibition.name} logo`} 
                                   className={styles.eventLogo} 
                                 />
@@ -318,20 +324,26 @@ const formatDateRange = useCallback((startDate: string, endDate: string): string
 
                     filteredEvents.map((exhibition)=> {
                       const { background, logo } = getEventAssets(exhibition.name);
+                      const hasCustomLogo = Boolean(exhibition.event_logo_file_name && token);
+                      const eventLogoUrl = hasCustomLogo
+                        ? getBrandingFileUrl(null, exhibition.event_logo_file_name as string, token as string)
+                        : logo;
 
                       return (
                           <Box 
                           key={exhibition.id} 
                           className={styles.singleEventCard}>
                             <Box className={styles.logoOnPhoto}>
-                              <img 
-                                src={background} 
-                                alt={exhibition.name} 
-                                className={styles.eventImgBackground} 
-                              />
+                              {!hasCustomLogo && (
+                                <img 
+                                  src={background} 
+                                  alt={exhibition.name} 
+                                  className={styles.eventImgBackground} 
+                                />
+                              )}
                               <Box>
                                 <img 
-                                  src={logo} 
+                                  src={eventLogoUrl} 
                                   alt={`${exhibition.name} logo`} 
                                   className={styles.eventLogo} 
                                 />

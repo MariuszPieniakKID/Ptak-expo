@@ -661,14 +661,14 @@ transform: rotate(180deg);
 }
 .logoOnPhoto{
     width: 35% !important;
-    background-color: gray;
+    background-color: transparent;
     border-bottom-left-radius: 20px;
     border-top-left-radius: 20px;
     display: flex;
     flex-direction: column;
     justify-content: center;
     vertical-align: middle;
-    padding: 1em;
+    padding: 0;
     position: relative;
     width: 100%;
     overflow: hidden;  
@@ -734,10 +734,12 @@ transform: rotate(180deg);
    z-index: 1;
 }
 .eventLogo {
-  position: relative;  
+  position: absolute;
+  inset: 0;
   z-index: 2;
-  width: 90%;  
-  height: auto;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
 }
 .selectTypeRow{
 display:flex;

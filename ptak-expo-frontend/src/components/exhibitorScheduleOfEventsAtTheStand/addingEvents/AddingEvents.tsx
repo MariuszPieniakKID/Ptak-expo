@@ -1,6 +1,5 @@
 import React, { useState, ChangeEvent, useCallback, useRef } from "react";
 import { Box,  FormControlLabel, Radio, RadioGroup} from "@mui/material";
-import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { TimePicker } from '@mui/x-date-pickers/TimePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
@@ -15,6 +14,7 @@ import 'dayjs/locale/pl';
 import { useAuth } from '../../../contexts/AuthContext';
 import { createTradeEvent, TradeEvent } from '../../../services/api';
 import { useParams } from 'react-router-dom';
+import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
 dayjs.locale('pl');
 
 // Wrap custom SVG to avoid passing unknown props (e.g., ownerState) to DOM
@@ -185,29 +185,15 @@ const AddingEvents: React.FC<AddingEventsProps> = ({ exhibitionId, exhibitorId, 
         <Box className={styles.singleRowWrap}>
           <Box className={styles.pickers}>
             <LocalizationProvider dateAdapter={AdapterDayjs}>
-              <DatePicker
-                value={formValues.eventDate ? dayjs(formValues.eventDate) : null}
-                onChange={(newValue) => {
-                  const dateStr = newValue ? newValue.format('YYYY-MM-DD') : '';
-                  handleFormValueChange('eventDate')(dateStr);
-                }}
-                slots={{
-                  openPickerIcon: OpenPickerIcon,
-                }}
-                slotProps={{
-                  textField: {
-                    error: !!formErrors.eventDate,
-                    //helperText: formErrors.eventDate || '',
-                    helperText: formErrors.eventDate ||'Data',
-                    FormHelperTextProps: {className: styles.datePickerHelperText},
-                    fullWidth: true,
-                    placeholder: "DD.MMM",
-                    className: styles.date,
-                  }
-                }}
-
-                  format="D MMM"
-              />
+              <Box sx={{ background: '#f6f8fa', borderRadius: '8px' }}>
+                <DateCalendar
+                  value={formValues.eventDate ? dayjs(formValues.eventDate) : null}
+                  onChange={(newValue) => {
+                    const dateStr = newValue ? newValue.format('YYYY-MM-DD') : '';
+                    handleFormValueChange('eventDate')(dateStr);
+                  }}
+                />
+              </Box>
             </LocalizationProvider>
             <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="pl">
               <TimePicker

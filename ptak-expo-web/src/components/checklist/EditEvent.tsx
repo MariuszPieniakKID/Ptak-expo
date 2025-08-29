@@ -1,8 +1,12 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { EventInfo, EventKind, EventType } from "../../services/checkListApi"
 import { Button, FormControl, Grid, InputLabel, MenuItem, Select, TextField } from "@mui/material";
 import { useChecklist } from "../../contexts/ChecklistContext";
 import { eventKinds, eventTypes, getEventKindString, getEventTypeString } from "../../shared/EventUtils";
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import dayjs from 'dayjs';
 
 const emptyEvent: EventInfo = {
 	name: "",
@@ -13,19 +17,7 @@ const emptyEvent: EventInfo = {
 	kind: EventKind.PRESENTATION,
 	type: EventType.OPEN
 }
-const startDate = "2025-10-20";
-const endDate = "2025-11-04";
-function getDatesBetween(startDate: string, endDate: string) {
-  const dates = [];
-  let current = new Date(startDate + "T00:00:00Z");
-
-  while (current <= new Date(endDate + "T00:00:00Z")) {
-    dates.push(current.toISOString().split('T')[0]); // YYYY-MM-DD
-    current = new Date(current.valueOf() + 24 * 60 * 60 * 1000);
-  }
-
-  return dates;
-}
+// Previously used to generate a list of dates; replaced by DateCalendar
 const times: string[] = [];
 for(let i = 8; i <= 21; i++) {
 	const h = i.toString().padStart(2, "0");
@@ -40,7 +32,6 @@ export default function EditEvent({eventNum, onClose} :{eventNum?: number, onClo
 	const {checklist, addEvent} = useChecklist();
 	const event = checklist.events[eventNum || -1];
 	const [editedEvent, setEditedEvent] = useState<EventInfo>(emptyEvent);
-	const dates = useMemo(() => getDatesBetween(startDate, endDate), [])
 	const canSave = 
 		editedEvent.description && 
 		editedEvent.date && 
@@ -61,19 +52,13 @@ export default function EditEvent({eventNum, onClose} :{eventNum?: number, onClo
 			</Grid>
 		<Grid size={6}/>
 		<Grid size={2}>
-			<FormControl variant="standard" fullWidth>
-        <InputLabel id="date-label">Data</InputLabel>
-        <Select
-          labelId="date-label"
-          id="date-select"
-          value={editedEvent.date}
-          onChange={e => setEditedEvent({...editedEvent, date: e.target.value})}
-          label="Data"
-        >
-					<MenuItem value="">Wybierz</MenuItem>
-					{dates.map(d => <MenuItem value={d} key={d}>{d}</MenuItem>)}
-        </Select>
-      </FormControl>
+			<LocalizationProvider dateAdapter={AdapterDayjs}>
+				<DatePicker 
+					value={editedEvent.date ? dayjs(editedEvent.date) : null}
+					onChange={(val:any) => setEditedEvent({...editedEvent, date: val ? val.format('YYYY-MM-DD') : ''})}
+					format={'YYYY-MM-DD'}
+				/>
+			</LocalizationProvider>
 		</Grid>
 		<Grid size={2}>
 			<FormControl variant="standard" fullWidth>
@@ -82,7 +67,6 @@ export default function EditEvent({eventNum, onClose} :{eventNum?: number, onClo
           labelId="start-time-label"
           id="start-time-select"
           value={editedEvent.startTime}
-					fullWidth
           onChange={e => setEditedEvent({...editedEvent, startTime: e.target.value})}
           label="Początek"
         >
@@ -95,7 +79,6 @@ export default function EditEvent({eventNum, onClose} :{eventNum?: number, onClo
 			<FormControl variant="standard" fullWidth>
         <InputLabel id="end-time-label">Koniec</InputLabel>
         <Select
-					inputProps={{fullWidth: true}}
           labelId="end-time-label"
           id="end-time-select"
           value={editedEvent.endTime}
@@ -122,7 +105,6 @@ export default function EditEvent({eventNum, onClose} :{eventNum?: number, onClo
 			<FormControl variant="standard" fullWidth>
         <InputLabel id="event-type-label">Określ typ wydarzenia</InputLabel>
         <Select
-					inputProps={{fullWidth: true}}
           labelId="event-type-label"
           id="event-type-select"
           value={editedEvent.type}
@@ -138,7 +120,6 @@ export default function EditEvent({eventNum, onClose} :{eventNum?: number, onClo
 			<FormControl variant="standard" fullWidth>
         <InputLabel id="event-type-label">Określ rodzaj wydarzenia</InputLabel>
         <Select
-					inputProps={{fullWidth: true}}
           labelId="event-kind-label"
           id="event-kind-select"
           value={eventKinds.indexOf(editedEvent.kind)}
@@ -150,6 +131,6 @@ export default function EditEvent({eventNum, onClose} :{eventNum?: number, onClo
       </FormControl>
 		</Grid>
 		{/* TODO support update */}
-		<Button onClick={()=> { addEvent(editedEvent); onClose();}} disabled={!canSave} fullWidth>Zapisz</Button> 
+		<Button onClick={()=> { addEvent(editedEvent); onClose();}} disabled={!canSave}>Zapisz</Button> 
 	</Grid>
 }

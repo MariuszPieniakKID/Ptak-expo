@@ -4,6 +4,8 @@ import styles from './SingleEventCard.module.scss';
 import CustomTypography from '../customTypography/CustomTypography';
 import { ReactComponent as EventIconWIW } from '../../assets/warsaw_industry_week.svg';
 import { ReactComponent as EventIconIBW } from '../../assets/industrial_bulding_week.svg';
+import { getBrandingFileUrl } from '../../services/api';
+import { useAuth } from '../../contexts/AuthContext';
 import { ReactComponent as ProgressIcon21 } from '../../assets/21%.svg';
 import { ReactComponent as ProgressIcon65 } from '../../assets/65%.svg';
 import { Box } from '@mui/material';
@@ -23,6 +25,7 @@ interface SingleEventCardProps {
   showDelete?: boolean;   
   showSelect?: boolean;  
   showEdit?: boolean;
+  eventLogoFileName?: string | null;
 }
 
 const SingleEventCard: React.FC<SingleEventCardProps> = ({
@@ -38,8 +41,10 @@ const SingleEventCard: React.FC<SingleEventCardProps> = ({
   showDelete = true,
   showSelect = true,
   showEdit = false,
+  eventLogoFileName,
 }) => {
   const [openConfirm, setOpenConfirm] = useState(false);
+  const { token } = useAuth();
 
   const formatDateRange = useCallback((startDate: string, endDate: string): string => {
     const start = new Date(startDate);
@@ -90,7 +95,7 @@ const SingleEventCard: React.FC<SingleEventCardProps> = ({
 
   return (
     <>
-      <Box className={styles.eventCardContainer}>
+      <Box className={`${styles.eventCardContainer} ${token && eventLogoFileName ? styles.hasLogoCard : ''}`}>
         <Box className={styles.deleteIconContainer}>
           {showDelete && handleDeleteEventFromExhibitor && exhibitorId !== undefined ? (
             <WastebasketIcon
@@ -103,7 +108,15 @@ const SingleEventCard: React.FC<SingleEventCardProps> = ({
         </Box>
 
         <Box className={styles.container}>
-          <Box className={styles.eventLogo}>{renderIcon(iconId)}</Box>
+          <Box className={`${styles.eventLogo} ${token && eventLogoFileName ? styles.hasLogo : ''}`}>
+            {token && eventLogoFileName ? (
+              <img
+                src={getBrandingFileUrl(null, eventLogoFileName, token)}
+                alt={`${title} logo`}
+                className={styles.logo}
+              />
+            ) : renderIcon(iconId)}
+          </Box>
           <Box className={styles.eventInfo}>
             <Box className={styles.dateInfo}>{formatDateRange(start_date, end_date)}</Box>
             <Box className={styles.eventTitle}>{title || ""}</Box>

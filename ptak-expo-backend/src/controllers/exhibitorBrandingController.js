@@ -1,14 +1,27 @@
 const path = require('path');
 const fs = require('fs').promises;
+const fsSync = require('fs');
 const { v4: uuidv4 } = require('uuid');
 const { pool } = require('../config/database');
 
 // Base directory for uploads; on Railway point this to a mounted volume (e.g., /data/uploads)
 const getUploadsBase = () => {
-  const base = process.env.UPLOADS_DIR && process.env.UPLOADS_DIR.trim().length > 0
-    ? path.resolve(process.env.UPLOADS_DIR)
-    : path.join(__dirname, '../../uploads');
-  return base;
+  if (process.env.UPLOADS_DIR && process.env.UPLOADS_DIR.trim().length > 0) {
+    return path.resolve(process.env.UPLOADS_DIR);
+  }
+  // Prefer Railway volume if present
+  const railwayVolume = '/data/uploads';
+  if (fsSync.existsSync('/data')) {
+    try {
+      if (!fsSync.existsSync(railwayVolume)) {
+        fsSync.mkdirSync(railwayVolume, { recursive: true });
+      }
+      return railwayVolume;
+    } catch (_e) {
+      // fall through to local uploads
+    }
+  }
+  return path.join(__dirname, '../../uploads');
 };
 
 // File type configurations with dimensions and allowed formats

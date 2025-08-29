@@ -2,6 +2,7 @@ const express = require('express');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs').promises;
+const fsSync = require('fs');
 const { verifyToken, requireAdmin } = require('../middleware/auth');
 
 const router = express.Router();
@@ -11,10 +12,22 @@ const db = require('../config/database');
 
 // Resolve uploads base (Railway volume support)
 const getUploadsBase = () => {
-  const base = process.env.UPLOADS_DIR && process.env.UPLOADS_DIR.trim().length > 0
-    ? path.resolve(process.env.UPLOADS_DIR)
-    : path.join(__dirname, '../../uploads');
-  return base;
+  if (process.env.UPLOADS_DIR && process.env.UPLOADS_DIR.trim().length > 0) {
+    return path.resolve(process.env.UPLOADS_DIR);
+  }
+  // Prefer Railway volume if present
+  const railwayVolume = '/data/uploads';
+  if (fsSync.existsSync('/data')) {
+    try {
+      if (!fsSync.existsSync(railwayVolume)) {
+        fsSync.mkdirSync(railwayVolume, { recursive: true });
+      }
+      return railwayVolume;
+    } catch (_e) {
+      // fall through to local uploads
+    }
+  }
+  return path.join(__dirname, '../../uploads');
 };
 
 // Configure multer for file uploads

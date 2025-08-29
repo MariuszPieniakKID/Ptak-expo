@@ -55,7 +55,9 @@ function UploadDocuments({ onSubmit, isEventSelected = true }: UploadDocumentsPr
       return;
     }
     if (selectedFiles.length === 0) return;
-    onSubmit(selectedFiles);
+    // Ensure files are saved under the currently selected docType
+    const filesToSubmit = selectedFiles.map(entry => ({ ...entry, type: docType }));
+    onSubmit(filesToSubmit);
     setSelectedFiles([]);
     console.log('[UploadDocuments] handleSaveFiles: onSubmit called and selectedFiles cleared');
   };

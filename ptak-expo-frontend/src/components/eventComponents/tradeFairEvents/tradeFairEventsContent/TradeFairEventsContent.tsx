@@ -6,6 +6,11 @@ import CustomField from '../../../../components/customField/CustomField';
 import { useAuth } from '../../../../contexts/AuthContext';
 import { Exhibition, TradeEvent, createTradeEvent, getTradeEvents } from '../../../../services/api';
 import styles from './TradeFairEventsContent.module.scss';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
+import dayjs from 'dayjs';
+import 'dayjs/locale/pl';
 
 interface TradeFairEventsContentProps {
   event: Exhibition;
@@ -102,13 +107,17 @@ const TradeFairEventsContent: React.FC<TradeFairEventsContentProps> = ({ event }
               placeholder="Nazwa wydarzenia"
               fullWidth
             />
-            <CustomField
-              type="date"
-              value={newEvent.eventDate}
-              onChange={handleNewEventChange('eventDate')}
-              placeholder="Data"
-              fullWidth
-            />
+            <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="pl">
+              <Box sx={{ background: '#f6f8fa', borderRadius: '8px' }}>
+                <DateCalendar
+                  value={newEvent.eventDate ? dayjs(newEvent.eventDate) : null}
+                  onChange={(val: any) => {
+                    const dateStr = val ? val.format('YYYY-MM-DD') : '';
+                    setNewEvent(prev => ({ ...prev, eventDate: dateStr }));
+                  }}
+                />
+              </Box>
+            </LocalizationProvider>
             <CustomField
               type="time"
               value={newEvent.startTime}

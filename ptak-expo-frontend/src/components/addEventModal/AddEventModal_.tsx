@@ -1,7 +1,7 @@
 import {  useCallback, useState } from 'react';
 import CustomField from '../customField/CustomField';
 import CustomTypography from '../customTypography/CustomTypography';
-import { addExhibition, AddExhibitionPayload} from '../../services/api';
+import { addExhibition, AddExhibitionPayload, uploadBrandingFile} from '../../services/api';
 
 
 import { Box, CircularProgress, Dialog, DialogTitle, IconButton, Typography } from '@mui/material';
@@ -70,6 +70,7 @@ const AddEventModal_: React.FC<AddEventModalProps> = ({
   });
  const [loading,setLoading] = useState(false);
  const [, setError] = useState<string | null>(null);
+  const [eventLogoFile, setEventLogoFile] = useState<File | null>(null);
 //   const [formEventValues, setFormEventValues] = useState<EventProps>({
 //     selectedExhibitionId: '',
 //     standNumber: '',
@@ -317,8 +318,20 @@ const AddEventModal_: React.FC<AddEventModalProps> = ({
     setError(null);
 
     try {
-      await addExhibition(formData, token!);
+      const created = await addExhibition(formData, token!);
+
+      // If logo selected, upload it as global event logo (exhibitorId = null)
+      if (eventLogoFile && created?.id) {
+        try {
+          await uploadBrandingFile(eventLogoFile, null, created.id, 'event_logo', token!);
+        } catch (uploadErr) {
+          // Inform user but proceed with created event
+          console.error('Błąd podczas przesyłania logo wydarzenia:', uploadErr);
+          setError('Wydarzenie dodane, ale nie udało się wgrać logo.');
+        }
+      }
       resetForm();
+      setEventLogoFile(null);
       onEventAdded();
       onClose();
     } catch (err) {
@@ -544,19 +557,29 @@ const AddEventModal_: React.FC<AddEventModalProps> = ({
 
               <Box className={styles.formRow}>
                 <Box className={styles.halfFormRow}>
-                      Grafika
+                    <CustomTypography className={styles.textInModal}>Logo wystawy</CustomTypography>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e)=> setEventLogoFile(e.target.files?.[0] || null)}
+                      style={{ marginTop: '8px' }}
+                    />
+                    {eventLogoFile ? (
+                      <CustomTypography className={styles.helperTitle}>
+                        Wybrano: {eventLogoFile.name}
+                      </CustomTypography>
+                    ) : null}
                 </Box>
                 <Box className={styles.halfFormRow}>
-                    <Box 
-                        className={styles.boxToKlik}  
-                        onClick={handleSubmit}
-                        sx={{}}
-                   >
+                  <Box 
+                    className={styles.boxToKlik}
+                    onClick={handleSubmit}
+                    sx={{}}
+                  >
                     <CustomTypography className={styles.addText}>dodaj</CustomTypography>
                     <AddCircleButton className={styles.addCircleButton} />
                   </Box>
                 </Box>
-               
               </Box>
 
             </Box>

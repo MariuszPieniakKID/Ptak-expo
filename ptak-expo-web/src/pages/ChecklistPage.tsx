@@ -1,7 +1,4 @@
 import styles from './ChecklistPage.module.scss';
-import CustomButton from '../components/customButton/CustomButton';
-import CustomTypography from '../components/customTypography/CustomTypography';
-import CustomLink from '../components/customLink/CustomLink';
 import ProductsInfo from '../components/checklist/ProductsInfoCard';
 import CompanyInfo from '../components/checklist/CompanyInfo';
 import { useChecklist } from '../contexts/ChecklistContext';
@@ -17,25 +14,7 @@ const ChecklistPage: React.FC = () => {
       {/* Right main content area */}
       <main className={styles.mainArea}>
         <div className={styles.content810}>
-          {/* Header area (white) */}
-          <div className={styles.headerArea}>
-            <div className={styles.nextTaskBlock}>
-              <CustomTypography className={styles.nextTaskTitle} fontSize="1rem" fontWeight={600}>
-                Twoje kolejne zadanie:
-              </CustomTypography>
-              <CustomTypography className={styles.nextTaskSubtitle} fontSize="0.8125rem" fontWeight={400}>
-                Wyślij katalog kampanii do akceptacji
-              </CustomTypography>
-              <div className={styles.headerActionRow}>
-                <CustomButton className={styles.primaryCta} width="226px" height="42px">
-                  Prześlij katalog
-                </CustomButton>
-              </div>
-              <CustomLink className={styles.previewLink} underline>
-                Podejrzyj wpis
-              </CustomLink>
-            </div>
-          </div>
+          {/* Header area intentionally hidden: removed next task title, CTA, and preview link */}
 
           {/* Top container with progress and steps (web checklista 4b) */}
           <div className={styles.topContainer}>
