@@ -11,7 +11,7 @@ interface Props { id: string }
 const EventHomeMenu: React.FC<Props> = ({ id }) => {
   const navigate = useNavigate();
   const menu = [
-    { id: 'info', title: 'Informacje targowe', icon: NotificationsIcon, href: `/event/${id}/trade-info` },
+    { id: 'checklist', title: 'Checklista targowa', icon: NotificationsIcon, href: `/event/${id}/checklist` },
     { id: 'docs', title: 'Portal dokumentów', icon: DescriptionIcon, href: `/event/${id}/documents` },
     { id: 'marketing', title: 'Materiały marketingowe', icon: CampaignIcon, href: `/event/${id}` },
     { id: 'invites', title: 'Generator zaproszeń', icon: EmailIcon, href: `/event/${id}` },
@@ -22,7 +22,7 @@ const EventHomeMenu: React.FC<Props> = ({ id }) => {
       <Grid container spacing={6}>
         {menu.map((tile) => {
           const Icon = tile.icon;
-          const disabled = false;
+          const disabled = tile.id === 'info';
           return (
             <Grid size={{ xs: 12, md: 6 }} key={tile.id}>
               <Card
