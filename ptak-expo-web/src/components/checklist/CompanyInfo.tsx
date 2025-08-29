@@ -1,5 +1,5 @@
 import { Box, Button, IconButton, SvgIcon, TextField, Typography } from "@mui/material";
-import ChecklistCard from "./checklistCard";
+import ChecklistCard from "./ChecklistCard";
 import { ReactNode, useCallback, useEffect, useState } from "react";
 import { useChecklist } from "../../contexts/ChecklistContext";
 import GreenCheck from "./GreenCheck";

@@ -1,6 +1,6 @@
 import { IconButton, Typography } from "@mui/material";
 import { useChecklist } from "../../contexts/ChecklistContext";
-import ChecklistCard from "./checklistCard";
+import ChecklistCard from "./ChecklistCard";
 import AddEvent from "./EditEvent";
 import { useState } from "react";
 import { Add } from "@mui/icons-material";

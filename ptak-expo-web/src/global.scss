@@ -43,3 +43,9 @@ body {
   --font-size-14: 14px;
   --font-size-16: #{$font-size-base};
 }
+
+.eid-img-logo {
+  max-height: min(300px, 50vh);
+  width: 100%;
+  max-width: min(500px, 80vw);
+}
