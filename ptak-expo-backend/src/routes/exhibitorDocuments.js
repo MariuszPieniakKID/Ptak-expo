@@ -9,11 +9,19 @@ const router = express.Router();
 // Database connection - use existing configuration
 const db = require('../config/database');
 
+// Resolve uploads base (Railway volume support)
+const getUploadsBase = () => {
+  const base = process.env.UPLOADS_DIR && process.env.UPLOADS_DIR.trim().length > 0
+    ? path.resolve(process.env.UPLOADS_DIR)
+    : path.join(__dirname, '../../uploads');
+  return base;
+};
+
 // Configure multer for file uploads
 const storage = multer.diskStorage({
   destination: async (req, file, cb) => {
     const { exhibitorId, exhibitionId } = req.params;
-    const uploadDir = path.join(__dirname, '../../uploads/exhibitor-documents', exhibitorId, exhibitionId);
+    const uploadDir = path.join(getUploadsBase(), 'exhibitor-documents', exhibitorId, exhibitionId);
     
     try {
       await fs.mkdir(uploadDir, { recursive: true });

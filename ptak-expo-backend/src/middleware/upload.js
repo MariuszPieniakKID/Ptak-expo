@@ -2,8 +2,16 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 
-// Ensure uploads directory exists
-const uploadsDir = path.join(__dirname, '../../uploads/trade-plans');
+// Resolve uploads base from env (Railway volume) or fallback to local folder
+const getUploadsBase = () => {
+  const base = process.env.UPLOADS_DIR && process.env.UPLOADS_DIR.trim().length > 0
+    ? path.resolve(process.env.UPLOADS_DIR)
+    : path.join(__dirname, '../../uploads');
+  return base;
+};
+
+// Ensure uploads directory exists (place trade-plans on the same filesystem as final uploads)
+const uploadsDir = path.join(getUploadsBase(), 'trade-plans');
 if (!fs.existsSync(uploadsDir)) {
   fs.mkdirSync(uploadsDir, { recursive: true });
 }
