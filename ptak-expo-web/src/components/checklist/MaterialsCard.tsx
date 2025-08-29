@@ -1,5 +1,5 @@
 import { Box, IconButton, Typography } from "@mui/material";
-import ChecklistCard from "./checklistCard";
+import ChecklistCard from "./ChecklistCard";
 import { useChecklist } from "../../contexts/ChecklistContext";
 import { Add } from "@mui/icons-material";
 import { useCallback } from "react";
@@ -38,7 +38,7 @@ export default function MaterialsCard() {
 	return (
 	<ChecklistCard icon={
 			<img src={`/assets/checklist-step-3.svg`} alt=""></img>} 
-			title={<Typography fontSize={16}>Materiały do pobrania ({checklist.downloadMaterials.length})</Typography>} checked={filled[4]}> 
+			title={<Typography fontSize={16}>Materiały do pobrania ({checklist.downloadMaterials.length})</Typography>} checked={filled[2]}> 
 				{checklist.downloadMaterials.map(dm => 
 					<Box display="flex" flexDirection={"row"} alignItems="center" component="a" href={dm.fileUri} target="_blank" rel="noreferrer" margin="20px 20px" gap="20px">
 						<img src="/assets/pdf-file.svg" alt=""/><Typography fontSize="16px" color="var(--color-darkslategray)" sx={{textDecoration:"none"}}>{dm.fileName}</Typography>

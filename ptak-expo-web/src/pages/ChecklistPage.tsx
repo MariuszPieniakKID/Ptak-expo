@@ -8,6 +8,7 @@ import { useChecklist } from '../contexts/ChecklistContext';
 import { ApplyGreenCheck } from '../components/checklist/ApplyGreenCheck';
 import EventSchedule from '../components/checklist/EventSchedule';
 import MaterialsCard from '../components/checklist/MaterialsCard';
+import ElectronicIdsCard from '../components/checklist/ElectronicIdsCard';
 
 const ChecklistPage: React.FC = () => {
   var {filled} = useChecklist();
@@ -77,13 +78,7 @@ const ChecklistPage: React.FC = () => {
           </div>
           <EventSchedule />
 
-          <div className={styles.sectionCardWhite}>
-            <div className={styles.sectionHeaderLeft}>
-              <div className={styles.sectionCircleLight} />
-              <div className={styles.sectionTitle}>Generuj E-Identyfikatory</div>
-            </div>
-            <div className={styles.sectionStatusGoodSmall} />
-          </div>
+          <ElectronicIdsCard />
 
           <div className={styles.optionalLabel}>Opcjonalnie:</div>
 

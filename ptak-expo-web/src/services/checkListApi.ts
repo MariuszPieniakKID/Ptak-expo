@@ -95,3 +95,8 @@ export const addMaterial = async (material: DownloadMaterial) => {
 		(a, b) =>(a.fileName).localeCompare(b.fileName)
 )};
 }
+export const addElectronicId = async (electronicId: ElectrionicId) => {
+	ExampleChecklist = {...ExampleChecklist, electrionicIds: [...ExampleChecklist.electrionicIds, electronicId].sort(
+		(a, b) =>(a.name).localeCompare(b.name)
+)};
+}
