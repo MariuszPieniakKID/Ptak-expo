@@ -22,7 +22,7 @@ const EventHomeMenu: React.FC<Props> = ({ id }) => {
       <Grid container spacing={6}>
         {menu.map((tile) => {
           const Icon = tile.icon;
-          const disabled = tile.id === 'info';
+          const disabled = false;
           return (
             <Grid size={{ xs: 12, md: 6 }} key={tile.id}>
               <Card

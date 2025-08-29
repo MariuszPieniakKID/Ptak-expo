@@ -36,7 +36,7 @@ const Menu: FunctionComponent<MenuType> = ({ className = '', onLogout }) => {
 
   const eventId = params.eventId || '1';
   const menuItems = navItems;
-  const isDisabled = (key: string) => key === 'info';
+  const isDisabled = (key: string) => false;
   const activeIndex = useMemo(() => {
     const base = `/event/${eventId}`;
     const home = `${base}/home`;
