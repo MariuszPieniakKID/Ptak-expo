@@ -134,7 +134,10 @@ const SingleEventCard: React.FC<SingleEventCardProps> = ({
               <Box className={styles.actionEditButton}>
                 <Box 
                   className={styles.boxWithHover}
-                  onClick={() => console.log("Edit")}
+                  onClick={() => {
+                    const evt = new CustomEvent('open-edit-event-modal', { detail: { id, title, start_date, end_date } });
+                    window.dispatchEvent(evt);
+                  }}
                 > 
                   <EditIcon className={styles.editEvent}/>         
                   <CustomTypography className={styles.editEventText}>edytuj</CustomTypography>

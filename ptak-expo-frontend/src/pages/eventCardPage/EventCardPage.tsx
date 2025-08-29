@@ -7,7 +7,7 @@ import { ReactComponent as  EventScheduleIcon} from '../../assets/event_schedule
 import { ReactComponent as  BadgesIcon} from '../../assets/BadgesIcon.svg';
 import {Box, Tab} from '@mui/material';
 import styles from './EventCardPage.module.scss';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import CustomTypography from '../../components/customTypography/CustomTypography';
 import SingleEventCard from '../../components/singleEventCard/SingleEventCard';
 import Branding from '../../components/eventComponents/branding/Branding';
@@ -15,6 +15,7 @@ import TradeFairInformation from '../../components/eventComponents/tradeFairInfo
 import Invitations from '../../components/eventComponents/invitations/Invitations';
 import TradeFairEvents from '../../components/eventComponents/tradeFairEvents/TradeFairEvents';
 import PushNotification from '../../components/eventComponents/pushNotification/PushNotification';
+import EditEventModal from '../../components/addEventModal/EditEventModal_';
 
 
 type EventCardPagetProps = {
@@ -25,6 +26,7 @@ type EventCardPagetProps = {
 function EventCardPage({ event }: EventCardPagetProps) {
 
   const [value, setValue] = useState(0);
+  const [isEditOpen, setIsEditOpen] = useState(false);
   
 
   interface TabPanelProps {
@@ -61,6 +63,17 @@ function EventCardPage({ event }: EventCardPagetProps) {
   };
 
 
+
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const ce = e as CustomEvent;
+      if (ce.detail && ce.detail.id === event.id) {
+        setIsEditOpen(true);
+      }
+    };
+    window.addEventListener('open-edit-event-modal', handler as EventListener);
+    return () => window.removeEventListener('open-edit-event-modal', handler as EventListener);
+  }, [event]);
 
   const renderEvent = (event: any) => {
   if (event) {
@@ -271,6 +284,12 @@ function EventCardPage({ event }: EventCardPagetProps) {
                     </CustomTabPanel>
         </Box>
     </Box> 
+    <EditEventModal 
+      isOpen={isEditOpen}
+      onClose={() => setIsEditOpen(false)}
+      event={event}
+      onEventUpdated={() => setIsEditOpen(false)}
+    />
   );
 };
 
