@@ -36,7 +36,7 @@ const Menu: FunctionComponent<MenuType> = ({ className = '', onLogout }) => {
 
   const eventId = params.eventId || '1';
   const menuItems = navItems;
-  const isDisabled = (key: string) => false;
+  const isDisabled = () => false;
   const activeIndex = useMemo(() => {
     const base = `/event/${eventId}`;
     const home = `${base}/home`;
@@ -60,7 +60,7 @@ const Menu: FunctionComponent<MenuType> = ({ className = '', onLogout }) => {
               <img src={Logo} alt="Logo" onClick={() => navigate('/dashboard')} />
             </Box>
             {menuItems.map((item, index) => {
-              const disabled = isDisabled(item.key);
+              const disabled = isDisabled();
               return (
                 <Box
                   key={item.key}
@@ -92,7 +92,7 @@ const Menu: FunctionComponent<MenuType> = ({ className = '', onLogout }) => {
             <Drawer anchor="left" open={mobileOpen} onClose={handleDrawerToggle}>
               <List>
                 {menuItems.map((item, index) => {
-                  const disabled = isDisabled(item.key);
+                  const disabled = isDisabled();
                   return (
                     <ListItem key={item.key} disablePadding>
                       <ListItemButton selected={activeIndex === index} onClick={!disabled ? () => navigate(item.getUrl(eventId)) : undefined} disabled={disabled}>
