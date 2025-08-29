@@ -1,5 +1,5 @@
 import { Box, IconButton, Typography } from "@mui/material";
-import ChecklistCard from "./ChecklistCard";
+import ChecklistCard from "./checklistCard";
 import { useChecklist } from "../../contexts/ChecklistContext";
 import { Add } from "@mui/icons-material";
 import { useCallback } from "react";

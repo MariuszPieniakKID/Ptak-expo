@@ -1,5 +1,5 @@
 import { Box, createTheme, FormControl, InputLabel, MenuItem, Select, TextField, ThemeProvider, Typography } from "@mui/material";
-import ChecklistCard from "./ChecklistCard";
+import ChecklistCard from "./checklistCard";
 import { useChecklist } from "../../contexts/ChecklistContext";
 const boxSx = {
 	backgroundColor: 'var(--color-darkslategray)',
