@@ -1,0 +1,43 @@
+@import '../../styles/variables';
+@import '../../styles/mixins';
+
+.container {
+  display: flex;
+  flex-direction: row;
+  gap: 1rem;
+  align-items: center;
+  cursor: pointer; // cały box jest klikalny
+
+  // Hover - wszystkie akcje tylko tu
+  &:hover {
+    .actionIcon {
+      transform: scale(1.125); // powiększenie o 2px (~12-13% na bazie 16px)
+    }
+    .actionTitle {
+      font-weight: 600 !important;
+    }
+  }
+}
+
+.actionIcon {
+  height: 16px;
+  width: 16px;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.actionTitle {
+  font-size: $font-size-sm !important;
+  font-weight: 300 !important;
+  color: $color-darkslategray !important;
+  text-decoration: underline;
+  transition: none !important; // wyłączone niepotrzebne efekty
+  cursor: pointer;
+ 
+}
+
+.hideOnMobile {
+  @media (max-width: 599px) {
+    display: none;
+  }
+}

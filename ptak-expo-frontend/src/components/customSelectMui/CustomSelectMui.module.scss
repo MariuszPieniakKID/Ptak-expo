@@ -1,0 +1,158 @@
+@import '../../styles/mixins';
+@import '../../styles/variables';
+
+.fieldContainer {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-xs;
+  width: 100%;
+}
+
+.fieldLabel {
+  font-family: $font-roc-grotesk;
+  font-size: $font-size-sm;
+  font-weight: 500;
+  color: $color-darkslategray;
+  margin-bottom: $spacing-xs;
+  
+  @include for-phone-only {
+    font-size: $font-size-xs;
+  }
+}
+
+.fieldInput {
+  font-family: $font-open-sans;
+  font-size: $font-size-base;
+  padding: $spacing-md $spacing-lg;
+  border: 1px solid $color-gainsboro;
+  border-radius: $border-radius-md;
+  background-color: $color-white;
+  color: $color-darkslategray;
+  transition: $transition-normal;
+  
+  @include for-phone-only {
+    padding: $spacing-sm $spacing-md;
+    font-size: $font-size-sm;
+  }
+  
+  &:focus {
+    outline: none;
+    border-color: $color-dodgerblue;
+    box-shadow: 0 0 0 0.125em rgba(111, 135, 246, 0.2);
+  }
+  
+  &::placeholder {
+    color: $color-darkgray;
+  }
+  
+  &.error {
+    border-color: $color-error;
+    
+    &:focus {
+      border-color: $color-error;
+      box-shadow: 0 0 0 0.125em rgba(199, 53, 60, 0.2);
+    }
+  }
+}
+
+.errorMessage {
+  color: $color-error;
+  padding-left: $spacing-lg;
+  font-size: $font-size-xs;
+  font-family: $font-open-sans;
+  //margin-top: $spacing-xs;
+  display: flex;
+  flex-direction: row;
+  
+  @include for-phone-only {
+    padding-left: $spacing-md;
+    font-size: 0.625em; // 10px
+  }
+}
+
+.helperText {
+  padding-left: $spacing-lg;
+  font-size: $font-size-xs;
+  color: $color-darkgray;
+  font-family: $font-open-sans;
+  margin-top: $spacing-xs;
+  
+  @include for-phone-only {
+    padding-left: $spacing-md;
+    font-size: 0.625em; // 10px
+  }
+}
+.dropdownList {
+  //osition: absolute;
+  left: 0;
+  right: 0;
+  background-color: white;
+  //box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  border-radius: 8px;
+  margin: 0;
+  padding: 4px 0;
+  list-style: none;
+  max-height: 200px; // lub zmienną
+  overflow-y: auto;
+  z-index: 1000;
+  
+    margin-top: -28px;
+    position: relative;
+}
+
+.dropdownListUpward {
+  bottom: 100%;
+}
+
+.dropdownListDownward {
+  top: 100%;
+}
+
+.dropdownItem {
+  padding: 10px 20px;
+  cursor: pointer;
+  border-bottom: 1px solid #eee;
+  transition: background-color 0.15s ease;
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  &:hover, &.highlighted {
+    //background-color: #e6f0ff;
+    background-color: $color-gray;
+  }
+}
+
+.dropdownDescription {
+  font-size: 12px;
+  color: #666;
+  margin-top: 4px;
+}
+/* Stylizacja scrollbar dla WebKit (Chrome, Safari) */
+.dropdownList {
+  scrollbar-width: thin;           /* Firefox */
+  scrollbar-color: #6f87f6 transparent; /* Firefox: kolor thumb i tło track */
+
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: #6f87f6;    /* kolor suwaka na niebieski */
+    border-radius: 4px;
+    border: 2px solid transparent;
+    background-clip: content-box;
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background-color: #5577d1;   /* ciemniejszy niebieski na hover */
+  }
+}
+.dropdownItem:first-child {
+  color: $color-darkgray; // lub inny odcień szarości, jakiego potrzebujesz
+}

@@ -1,0 +1,20 @@
+.documentContainer {
+  display: flex;
+  flex-direction: row;
+  column-gap: 1em;
+  align-items: center; /* Wyrównanie elementów w pionie na środku */
+}
+.fileName{
+font-size: 13px!important;
+color:#2E2E38!important;
+font-weight: 300!important;
+}
+
+.deleteIcon {
+  cursor: pointer; /* Ręcznie dodajemy kursor pointer dla ikony */
+  transition: transform 0.2s ease; /* Płynna animacja dla powiększenia */
+}
+
+.deleteIcon:hover {
+  transform: scale(1.125); /* Powiększenie ikony o ~12.5% (2px + na 16px bazie) */
+}
