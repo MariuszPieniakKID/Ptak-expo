@@ -80,23 +80,29 @@ let ExampleChecklist: Checklist = {
 export const getChecklist = async (exhibitionId: number) => {
 	try {
 		const token = localStorage.getItem('authToken') || '';
-		const res = await fetch(`${config.API_BASE_URL}/api/v1/exhibitors/me`, {
-			headers: { 'Authorization': `Bearer ${token}` }
-		});
-		if (!res.ok) return ExampleChecklist;
-		const json = await res.json();
-		if (!json.success || !json.data) return ExampleChecklist;
-		const e = json.data;
+		// Try to resolve current exhibitor profile (may fail for admins)
+		let e: any = null;
+		try {
+			const res = await fetch(`${config.API_BASE_URL}/api/v1/exhibitors/me`, {
+				headers: { 'Authorization': `Bearer ${token}` }
+			});
+			if (res.ok) {
+				const json = await res.json();
+				if (json.success && json.data) {
+					e = json.data;
+				}
+			}
+		} catch {}
 		ExampleChecklist = {
 			...ExampleChecklist,
 			companyInfo: {
-				name: e.companyName ?? null,
+				name: e?.companyName ?? ExampleChecklist.companyInfo.name ?? null,
 				logo: ExampleChecklist.companyInfo.logo,
 				description: ExampleChecklist.companyInfo.description,
 				contactInfo: ExampleChecklist.companyInfo.contactInfo,
 				website: ExampleChecklist.companyInfo.website,
 				socials: ExampleChecklist.companyInfo.socials,
-				contactEmail: e.email ?? null
+				contactEmail: e?.email ?? (ExampleChecklist.companyInfo as any).contactEmail ?? null
 			}
 		};
 
@@ -124,9 +130,13 @@ export const getChecklist = async (exhibitionId: number) => {
 				}
 			}
 		} catch {}
-		// Load exhibitor-specific trade events for this exhibition
+		// Load trade events for this exhibition
 		try {
-			const tevRes = await fetch(`${config.API_BASE_URL}/api/v1/trade-events/${exhibitionId}?exhibitorId=${encodeURIComponent(String(e.id))}`, {
+			// If exhibitor profile exists, filter to exhibitor; otherwise load all events for exhibition (admin view)
+			const tevUrl = e?.id
+				? `${config.API_BASE_URL}/api/v1/trade-events/${exhibitionId}?exhibitorId=${encodeURIComponent(String(e.id))}`
+				: `${config.API_BASE_URL}/api/v1/trade-events/${exhibitionId}`;
+			const tevRes = await fetch(tevUrl, {
 				headers: { 'Authorization': `Bearer ${token}` }
 			});
 			if (tevRes.ok) {
@@ -151,6 +161,23 @@ export const getChecklist = async (exhibitionId: number) => {
 						type: EventType.OPEN,
 						kind: kindMap[String(row.type || '').trim()] ?? EventKind.PRESENTATION,
 					})).sort((a: EventInfo, b: EventInfo) => (a.date + a.startTime).localeCompare(b.date + b.startTime))
+				};
+			}
+		} catch {}
+		// Load exhibitor documents as download materials (persisted on backend)
+		try {
+			const docsRes = await fetch(`${config.API_BASE_URL}/api/v1/exhibitor-documents/${encodeURIComponent(String(e.id))}/${encodeURIComponent(String(exhibitionId))}`, {
+				headers: { 'Authorization': `Bearer ${token}` }
+			});
+			if (docsRes.ok) {
+				const docsJson = await docsRes.json();
+				const docs = Array.isArray(docsJson.documents) ? docsJson.documents : [];
+				ExampleChecklist = {
+					...ExampleChecklist,
+					downloadMaterials: docs.map((row: any) => ({
+						fileName: row.original_name || row.title || row.file_name,
+						fileUri: `${config.API_BASE_URL}/api/v1/exhibitor-documents/${encodeURIComponent(String(e.id))}/${encodeURIComponent(String(exhibitionId))}/download/${encodeURIComponent(String(row.id))}?token=${encodeURIComponent(token)}`
+					})).sort((a: DownloadMaterial, b: DownloadMaterial) => (a.fileName).localeCompare(b.fileName))
 				};
 			}
 		} catch {}
@@ -269,5 +296,30 @@ export const addMaterial = async (material: DownloadMaterial) => {
 export const addElectronicId = async (electronicId: ElectrionicId) => {
 	ExampleChecklist = {...ExampleChecklist, electrionicIds: [...ExampleChecklist.electrionicIds, electronicId].sort(
 		(a, b) =>(a.name).localeCompare(b.name)
-)};
+	)};
+}
+
+export const addMaterialFile = async (file: File, exhibitionId: number) => {
+	const token = localStorage.getItem('authToken') || '';
+	try {
+		const meRes = await fetch(`${config.API_BASE_URL}/api/v1/exhibitors/me`, {
+			headers: { 'Authorization': `Bearer ${token}` }
+		});
+		const meJson = await meRes.json();
+		const exhibitorId: number | null = meJson?.data?.id ?? null;
+		if (typeof exhibitorId !== 'number') return;
+
+		const formData = new FormData();
+		formData.append('document', file);
+		formData.append('title', file.name);
+		formData.append('category', 'inne_dokumenty');
+
+		const url = `${config.API_BASE_URL}/api/v1/exhibitor-documents/${encodeURIComponent(String(exhibitorId))}/${encodeURIComponent(String(exhibitionId))}/upload`;
+		await fetch(url, {
+			method: 'POST',
+			headers: { 'Authorization': `Bearer ${token}` },
+			body: formData,
+			credentials: 'include'
+		});
+	} catch {}
 }

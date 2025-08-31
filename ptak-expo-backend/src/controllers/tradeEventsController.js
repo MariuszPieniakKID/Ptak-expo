@@ -16,13 +16,20 @@ exports.listByExhibition = async (req, res) => {
     if (Number.isNaN(exhibitionId)) {
       return res.status(400).json({ success: false, message: 'Invalid exhibitionId' });
     }
+    // If exhibitor role, force exhibitorId to self
+    let effectiveExhibitorId = exhibitorId;
+    if (req.user?.role === 'exhibitor') {
+      // Map user email to exhibitor id
+      const me = await db.query('SELECT id FROM exhibitors WHERE email = $1 LIMIT 1', [req.user.email]);
+      effectiveExhibitorId = me.rows?.[0]?.id || null;
+    }
     const result = await db.query(
       `SELECT id, exhibition_id, exhibitor_id, name, event_date, start_time, end_time, hall, organizer, description, type
        FROM trade_events 
        WHERE exhibition_id = $1 
          AND ($2::int IS NULL OR exhibitor_id = $2)
        ORDER BY event_date ASC, start_time ASC`,
-      [exhibitionId, exhibitorId]
+      [exhibitionId, effectiveExhibitorId]
     );
     return res.json({ success: true, data: result.rows });
   } catch (error) {
@@ -41,7 +48,12 @@ exports.create = async (req, res) => {
     }
 
     const { name, eventDate, startTime, endTime, hall, description, type, organizer } = req.body;
-    const exhibitorId = req.body.exhibitorId ?? req.body.exhibitor_id ?? null;
+    let exhibitorId = req.body.exhibitorId ?? req.body.exhibitor_id ?? null;
+    // If exhibitor role, force ownership
+    if (req.user?.role === 'exhibitor') {
+      const me = await db.query('SELECT id FROM exhibitors WHERE email = $1 LIMIT 1', [req.user.email]);
+      exhibitorId = me.rows?.[0]?.id ?? null;
+    }
     if (!name || !eventDate || !startTime || !endTime || !type) {
       return res.status(400).json({ success: false, message: 'Brak wymaganych pól' });
     }

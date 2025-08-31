@@ -1,4 +1,4 @@
-import React, { useState, ChangeEvent, useCallback, useRef } from "react";
+import React, { useState, ChangeEvent, useCallback, useRef, useEffect, useMemo } from "react";
 import { Box,  FormControlLabel, Radio, RadioGroup} from "@mui/material";
 import { TimePicker } from '@mui/x-date-pickers/TimePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -12,7 +12,7 @@ import { ReactComponent as BlueCircleSaveIcon } from '../../../assets/submitIcon
 import dayjs from 'dayjs';  
 import 'dayjs/locale/pl';
 import { useAuth } from '../../../contexts/AuthContext';
-import { createTradeEvent, TradeEvent } from '../../../services/api';
+import { createTradeEvent, TradeEvent, fetchExhibition, Exhibition } from '../../../services/api';
 import { useParams } from 'react-router-dom';
 import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
 dayjs.locale('pl');
@@ -39,13 +39,18 @@ type AddingEventsProps = { exhibitionId?: number | undefined; exhibitorId: numbe
 const AddingEvents: React.FC<AddingEventsProps> = ({ exhibitionId, exhibitorId, onCreated }) => {
   const { token } = useAuth();
   const params = useParams();
+  const resolvedExhibitionId = useMemo(() => {
+    return exhibitionId || Number(params.id) || Number((window as any).currentSelectedExhibitionId);
+  }, [exhibitionId, params.id]);
+  const [exhibitionRange, setExhibitionRange] = useState<{ start: string; end: string } | null>(null);
   const [formValues, setFormValues] = useState<AddEvent>({
     name: '',
     eventDate: '',
     startTime: '',
     endTime: '',
     description: '',
-    type: '',
+    // Default to a valid type so backend doesn't reject empty value
+    type: 'Montaż stoiska',
     organizer: '',
   });
 
@@ -64,6 +69,12 @@ const AddingEvents: React.FC<AddingEventsProps> = ({ exhibitionId, exhibitorId, 
     eventDate: (value) => {
       if (!value.trim()) return "Data jest wymagana";
       if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return "Niepoprawny format (YYYY-MM-DD)";
+      // Range check vs exhibition dates if available
+      if (exhibitionRange) {
+        if (value < exhibitionRange.start || value > exhibitionRange.end) {
+          return `Data poza zakresem (${exhibitionRange.start} – ${exhibitionRange.end})`;
+        }
+      }
       return '';
     },
     startTime: (value) => {
@@ -117,18 +128,24 @@ const AddingEvents: React.FC<AddingEventsProps> = ({ exhibitionId, exhibitorId, 
     setFormErrors(prev => ({ ...prev, description: errorMessage || '' }));
   };
 
-  const isFormValid =
-    Object.values(formErrors).every(e => e === '') &&
-    Object.values(formValues).some(v => String(v).trim() !== '');
+  const validateAll = useCallback(() => {
+    const nextErrors: Record<string, string> = {
+      name: validators.name?.(formValues.name) || '',
+      eventDate: validators.eventDate?.(formValues.eventDate) || '',
+      startTime: validators.startTime?.(formValues.startTime) || '',
+      endTime: validators.endTime?.(formValues.endTime) || '',
+      description: validators.description?.(formValues.description || '') || '',
+      type: validators.type?.(formValues.type) || '',
+      organizer: validators.organizer?.(formValues.organizer) || '',
+    };
+    setFormErrors(nextErrors);
+    return Object.values(nextErrors).every(e => e === '');
+  }, [formValues, validators, exhibitionRange]);
 
   const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!isFormValid) {
-      console.log("Formularz zawiera błędy", formErrors);
-      return;
-    }
+    if (!validateAll()) return;
     try {
-      const resolvedExhibitionId = exhibitionId || Number(params.id) || Number((window as any).currentSelectedExhibitionId);
       if (!resolvedExhibitionId || !token) return;
       const basePayload: TradeEvent = {
         name: formValues.name,
@@ -150,7 +167,7 @@ const AddingEvents: React.FC<AddingEventsProps> = ({ exhibitionId, exhibitorId, 
         onCreated(res.data);
       }
       // Clear form after save
-      setFormValues({ name: '', eventDate: '', startTime: '', endTime: '', description: '', type: '', organizer: '' });
+      setFormValues({ name: '', eventDate: '', startTime: '', endTime: '', description: '', type: 'Montaż stoiska', organizer: '' });
     } catch (err: any) {
       console.error('❌ Błąd zapisu wydarzenia', err);
       const message = (err && err.message) ? String(err.message) : 'Błąd zapisu wydarzenia';
@@ -158,7 +175,23 @@ const AddingEvents: React.FC<AddingEventsProps> = ({ exhibitionId, exhibitorId, 
         setFormErrors(prev => ({ ...prev, eventDate: 'Data wydarzenia musi mieścić się w zakresie dat targów' }));
       }
     }
-  }, [formValues, formErrors, isFormValid, token, params.id, exhibitionId, exhibitorId, onCreated]);
+  }, [formValues, validateAll, token, resolvedExhibitionId, exhibitorId, onCreated]);
+
+  // Load exhibition date range to constrain calendar
+  useEffect(() => {
+    const loadRange = async () => {
+      try {
+        if (!resolvedExhibitionId) return;
+        const ex: Exhibition = await fetchExhibition(resolvedExhibitionId, token || undefined);
+        // ex.start_date / ex.end_date are ISO strings; keep only date part
+        const toDateOnly = (s?: string) => (s ? s.slice(0, 10) : '');
+        const start = toDateOnly(ex.start_date);
+        const end = toDateOnly(ex.end_date);
+        if (start && end) setExhibitionRange({ start, end });
+      } catch {}
+    };
+    loadRange();
+  }, [resolvedExhibitionId, token]);
 
   const submitRef = useRef<HTMLButtonElement | null>(null);
 

@@ -3,7 +3,7 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs').promises;
 const fsSync = require('fs');
-const { verifyToken, requireAdmin } = require('../middleware/auth');
+const { verifyToken } = require('../middleware/auth');
 
 const router = express.Router();
 
@@ -69,7 +69,7 @@ const upload = multer({
 });
 
 // Upload document
-router.post('/:exhibitorId/:exhibitionId/upload', verifyToken, requireAdmin, upload.single('document'), async (req, res) => {
+router.post('/:exhibitorId/:exhibitionId/upload', verifyToken, upload.single('document'), async (req, res) => {
   try {
     const { exhibitorId, exhibitionId } = req.params;
     const { title, description, category } = req.body;
@@ -87,9 +87,23 @@ router.post('/:exhibitorId/:exhibitionId/upload', verifyToken, requireAdmin, upl
       return res.status(400).json({ success: false, error: 'Nieprawidłowa kategoria' });
     }
 
-    // Verify exhibitor and exhibition exist
+    // Verify exhibitor and exhibition exist and ownership if not admin
     const exhibitorCheck = await db.query('SELECT id FROM exhibitors WHERE id = $1', [exhibitorId]);
     const exhibitionCheck = await db.query('SELECT id FROM exhibitions WHERE id = $1', [exhibitionId]);
+    // If not admin, ensure user is uploading for self (map by email or supervisor relationship)
+    if (req.user.role !== 'admin') {
+      let selfExhibitorId = null;
+      const meByEmail = await db.query('SELECT id FROM exhibitors WHERE email = $1 LIMIT 1', [req.user.email]);
+      if (meByEmail.rows?.[0]?.id) {
+        selfExhibitorId = meByEmail.rows[0].id;
+      } else {
+        const rel = await db.query('SELECT exhibitor_id FROM exhibitor_events WHERE supervisor_user_id = $1 LIMIT 1', [req.user.id]);
+        selfExhibitorId = rel.rows?.[0]?.exhibitor_id ?? null;
+      }
+      if (String(selfExhibitorId) !== String(exhibitorId)) {
+        return res.status(403).json({ success: false, error: 'Brak uprawnień do przesyłania dokumentów dla innego wystawcy' });
+      }
+    }
 
     if (exhibitorCheck.rows.length === 0) {
       return res.status(404).json({ success: false, error: 'Wystawca nie został znaleziony' });
@@ -143,10 +157,22 @@ router.post('/:exhibitorId/:exhibitionId/upload', verifyToken, requireAdmin, upl
 });
 
 // Get documents for exhibitor+exhibition
-router.get('/:exhibitorId/:exhibitionId', verifyToken, requireAdmin, async (req, res) => {
+router.get('/:exhibitorId/:exhibitionId', verifyToken, async (req, res) => {
   try {
     const { exhibitorId, exhibitionId } = req.params;
-
+    if (req.user.role !== 'admin') {
+      let selfExhibitorId = null;
+      const meByEmail = await db.query('SELECT id FROM exhibitors WHERE email = $1 LIMIT 1', [req.user.email]);
+      if (meByEmail.rows?.[0]?.id) {
+        selfExhibitorId = meByEmail.rows[0].id;
+      } else {
+        const rel = await db.query('SELECT exhibitor_id FROM exhibitor_events WHERE supervisor_user_id = $1 LIMIT 1', [req.user.id]);
+        selfExhibitorId = rel.rows?.[0]?.exhibitor_id ?? null;
+      }
+      if (String(selfExhibitorId) !== String(exhibitorId)) {
+        return res.status(403).json({ success: false, error: 'Brak uprawnień do przeglądania dokumentów innego wystawcy' });
+      }
+    }
     const result = await db.query(`
       SELECT 
         id, title, description, file_name, original_name, file_size, 
@@ -168,9 +194,22 @@ router.get('/:exhibitorId/:exhibitionId', verifyToken, requireAdmin, async (req,
 });
 
 // Download document
-router.get('/:exhibitorId/:exhibitionId/download/:documentId', verifyToken, requireAdmin, async (req, res) => {
+router.get('/:exhibitorId/:exhibitionId/download/:documentId', verifyToken, async (req, res) => {
   try {
     const { exhibitorId, exhibitionId, documentId } = req.params;
+    if (req.user.role !== 'admin') {
+      let selfExhibitorId = null;
+      const meByEmail = await db.query('SELECT id FROM exhibitors WHERE email = $1 LIMIT 1', [req.user.email]);
+      if (meByEmail.rows?.[0]?.id) {
+        selfExhibitorId = meByEmail.rows[0].id;
+      } else {
+        const rel = await db.query('SELECT exhibitor_id FROM exhibitor_events WHERE supervisor_user_id = $1 LIMIT 1', [req.user.id]);
+        selfExhibitorId = rel.rows?.[0]?.exhibitor_id ?? null;
+      }
+      if (String(selfExhibitorId) !== String(exhibitorId)) {
+        return res.status(403).json({ success: false, error: 'Brak uprawnień do pobierania dokumentów innego wystawcy' });
+      }
+    }
 
     const result = await db.query(`
       SELECT file_path, original_name, mime_type 
@@ -200,9 +239,22 @@ router.get('/:exhibitorId/:exhibitionId/download/:documentId', verifyToken, requ
 });
 
 // Delete document
-router.delete('/:exhibitorId/:exhibitionId/:documentId', verifyToken, requireAdmin, async (req, res) => {
+router.delete('/:exhibitorId/:exhibitionId/:documentId', verifyToken, async (req, res) => {
   try {
     const { exhibitorId, exhibitionId, documentId } = req.params;
+    if (req.user.role !== 'admin') {
+      let selfExhibitorId = null;
+      const meByEmail = await db.query('SELECT id FROM exhibitors WHERE email = $1 LIMIT 1', [req.user.email]);
+      if (meByEmail.rows?.[0]?.id) {
+        selfExhibitorId = meByEmail.rows[0].id;
+      } else {
+        const rel = await db.query('SELECT exhibitor_id FROM exhibitor_events WHERE supervisor_user_id = $1 LIMIT 1', [req.user.id]);
+        selfExhibitorId = rel.rows?.[0]?.exhibitor_id ?? null;
+      }
+      if (String(selfExhibitorId) !== String(exhibitorId)) {
+        return res.status(403).json({ success: false, error: 'Brak uprawnień do usuwania dokumentów innego wystawcy' });
+      }
+    }
 
     // Get document info first
     const docResult = await db.query(`

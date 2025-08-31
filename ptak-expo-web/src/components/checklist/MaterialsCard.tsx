@@ -4,18 +4,14 @@ import { useChecklist } from "../../contexts/ChecklistContext";
 import { Add } from "@mui/icons-material";
 import { useCallback } from "react";
 
-function AddMaterial({ onChange }: {onChange: (name: string, uri: string) => void}) {
+function AddMaterial({ onChangeFile }: {onChangeFile: (file: File) => void}) {
 	const handleFileInput = useCallback((e : React.ChangeEvent<HTMLInputElement>) => {
 		if (e.target.files == null) return;
 		const file = e.target.files[0];
 		if (file == null) return;
-		const reader = new FileReader();
-		reader.onload = le => {
-			onChange(file.name, le.target?.result?.toString() || ""); 
-		};
-    reader.readAsDataURL(file);
+		onChangeFile(file);
 
-	}, [onChange])
+	}, [onChangeFile])
 	return (
 
 		<Box display="flex" alignItems="center">
@@ -33,7 +29,7 @@ function AddMaterial({ onChange }: {onChange: (name: string, uri: string) => voi
 		</Box>);
 }
 export default function MaterialsCard() {
-	const {filled, checklist, addMaterial} = useChecklist();
+	const {filled, checklist, uploadMaterialFile} = useChecklist();
 
 	return (
 	<ChecklistCard icon={
@@ -43,7 +39,7 @@ export default function MaterialsCard() {
 					<Box display="flex" flexDirection={"row"} alignItems="center" component="a" href={dm.fileUri} target="_blank" rel="noreferrer" margin="20px 20px" gap="20px">
 						<img src="/assets/pdf-file.svg" alt=""/><Typography fontSize="16px" color="var(--color-darkslategray)" sx={{textDecoration:"none"}}>{dm.fileName}</Typography>
 					</Box>)}
-			<AddMaterial onChange={(fileName, fileUri) => { addMaterial({fileName, fileUri}); } }/>
+			<AddMaterial onChangeFile={async (file) => { await uploadMaterialFile(file);} }/>
 	</ChecklistCard>
 	)
 }

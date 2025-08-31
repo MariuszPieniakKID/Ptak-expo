@@ -3,11 +3,13 @@ const router = express.Router();
 const { verifyToken, requireAdmin } = require('../middleware/auth');
 const controller = require('../controllers/tradeEventsController');
 
-// List trade events for exhibition (admin only for now)
-router.get('/:exhibitionId', verifyToken, requireAdmin, controller.listByExhibition);
+// List trade events for exhibition
+// Admin: all, Exhibitor: only own (via query exhibitorId)
+router.get('/:exhibitionId', verifyToken, controller.listByExhibition);
 
-// Create trade event for exhibition (admin only for now)
-router.post('/:exhibitionId', verifyToken, requireAdmin, controller.create);
+// Create trade event for exhibition
+// Admin: can create for any exhibitor, Exhibitor: can create only for self
+router.post('/:exhibitionId', verifyToken, controller.create);
 
 // Delete trade event (admin only)
 router.delete('/:exhibitionId/:eventId', verifyToken, requireAdmin, controller.remove);
