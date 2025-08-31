@@ -1,4 +1,4 @@
-import React, { useState, ChangeEvent, useCallback, useRef, useEffect, useMemo } from "react";
+import React, { useState, ChangeEvent, useRef, useEffect, useMemo } from "react";
 import { Box,  FormControlLabel, Radio, RadioGroup} from "@mui/material";
 import { TimePicker } from '@mui/x-date-pickers/TimePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -142,7 +142,7 @@ const AddingEvents: React.FC<AddingEventsProps> = ({ exhibitionId, exhibitorId, 
     return Object.values(nextErrors).every(e => e === '');
   };
 
-  const handleSubmit = useCallback(async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validateAll()) return;
     try {
@@ -175,7 +175,7 @@ const AddingEvents: React.FC<AddingEventsProps> = ({ exhibitionId, exhibitorId, 
         setFormErrors(prev => ({ ...prev, eventDate: 'Data wydarzenia musi mieścić się w zakresie dat targów' }));
       }
     }
-  }, [formValues, token, resolvedExhibitionId, exhibitorId, onCreated]);
+  };
 
   // Load exhibition date range to constrain calendar
   useEffect(() => {
