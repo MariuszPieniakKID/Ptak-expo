@@ -520,7 +520,14 @@ const serveBrandingFile = async (req, res) => {
           res.set('Accept-Ranges', 'bytes');
           return res.end(fileRow.file_blob);
         }
-        return res.status(404).json({ error: 'File not found' });
+        // Fallback: serve 1x1 transparent PNG to avoid breaking UI
+        const transparentPng = Buffer.from(
+          'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR4nGNgYAAAAAMAASsJTYQAAAAASUVORK5CYII=',
+          'base64'
+        );
+        res.set('Content-Type', 'image/png');
+        res.set('Cache-Control', 'no-store');
+        return res.end(transparentPng);
       }
     }
 
