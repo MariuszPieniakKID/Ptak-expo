@@ -249,3 +249,8 @@ export const samplrTradeAwardsFair:_TradeAwardsFair[]=[
     { value: 'garden', label: 'Ogród' },
     { value: 'other', label: 'Inne' },
   ];
+
+export const buildDaysOption: OptionType[] = [
+  { value: 'indywidualny', label: 'Montaż indywidualny' },
+  { value: 'systemowy', label: 'Montaż systemowy' },
+];

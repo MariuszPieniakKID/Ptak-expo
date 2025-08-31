@@ -1,7 +1,7 @@
 import React from 'react';
 import { Exhibition } from '../../../../services/api';
-import TradeInfo from '../../../../components/TradeInfo';
 import styles from './TradeFairInformationContent.module.scss';
+import TradeInfo from './tradeInfo/TradeInfo';
 
 interface TradeFairInformationContentProps {
   event: Exhibition;
@@ -16,5 +16,3 @@ const TradeFairInformationContent: React.FC<TradeFairInformationContentProps> = 
 };
 
 export default TradeFairInformationContent;
-
-// duplicate declarations removed

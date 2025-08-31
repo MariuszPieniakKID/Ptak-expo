@@ -1,0 +1,676 @@
+// TradeInfo.module.scss
+// Używa design system z --color-dodgerblue: #6f87f6, --color-mediumslateblue: #5041d0, --color-darkslategray: #2e2e38
+// @import '../styles/variables';
+@import '../../../../../styles/variables';
+@import '../../../../../styles/mixins';
+
+.tradeInfo_{
+  display: flex;
+  width:100%;
+  //background-color: #A7A7A7;
+  flex-direction: column;
+  font-family: 'Roc Grotesk', sans-serif;   
+  overflow: hidden;
+}
+.section_{
+    display:flex;
+    flex-direction:column;
+    justify-content: flex-start;
+    margin-top:1em;
+    margin-bottom: 1em;
+}
+.subsectionTitle_{
+    font-size:14px!important;
+    color:#2E2E38;
+    font-weight: 600!important;
+    padding-bottom:1em;
+}
+
+.hoursWrapper_{
+    display:flex;
+    flex-direction: row;
+    justify-content: space-between;
+    width:90%;
+    column-gap: 1em;
+    flex-wrap: wrap;
+
+}
+.hoursForGroup_{
+    display:flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    width:50%;
+}
+.hoursGrup_{
+    color:#666A73!important;
+    font-size: 13px!important;
+    font-weight:300!important;
+}
+.timeBox_{
+    display:flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    width:100%; 
+    align-items: center;
+    padding-bottom:1em;
+}
+.timeSeparator_{
+  font-weight: 600;
+  color: var(--color-darkslategray, #2e2e38);
+  padding: 0 0.5rem;
+  font-size: 1.25rem;
+  margin-top: -1rem!important;
+  
+ @media (max-width: 350px) {
+   
+  padding: 0 0;
+  font-size: 1.25rem;
+  }
+
+  @media (max-width: 334px) {
+   display:none;
+  }
+
+}
+.widthChange_{
+   width:105px;
+}
+
+
+.divider_ {
+  margin: 0.5rem 0;
+  border-color: #e0e0e0;
+}
+.contactWrapper_{
+    display:flex;
+    flex-direction: row;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    width: 100%;
+}
+.contactWidth_{
+  width:48%;
+  min-width:170px;
+   @media (max-width: 1099px) {
+   width:48%;
+   min-width:170px;
+  }
+  @media (max-width: 570px) {
+   width:100%;
+  }
+}
+.LabelInfo_{
+    padding-left:1em;
+    font-size: 11px!important;
+    color:#A7A7A7!important;
+    font-weight: 300!important;
+    margin-top: -2em!important;
+}
+.technicalsWrapper_ {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  width: 100%;
+
+  @media (max-width: 1400px) {
+    width: 100%;
+    flex-direction: column;
+    row-gap: 1em;
+  }
+  @media (max-width: 1099px) {
+    flex-direction: row;
+  }
+  @media (max-width: 992px) {
+    flex-direction: column;
+    row-gap: 1em;
+  }
+}
+.sectionWithAction{
+  display:flex;
+  flex-direction:row;
+  justify-content: flex-end;
+  column-gap: 1em;
+  padding-top:1em;
+}
+
+//Action Box
+.actionBox {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  white-space: nowrap;
+  column-gap: 0.5em;
+  cursor: pointer; /* ustawiamy ogólnie */
+}
+
+/* Efekt hover */
+.actionBox:hover .actionIcon {
+  transform: scale(1.15); /* np. +15% zamiast ręcznego +2px */
+  transition: transform 0.15s ease-in-out;
+}
+
+.actionBox:hover .actionLabel {
+  font-weight: 600 !important;
+  transition: font-weight 0.15s ease-in-out;
+}
+
+/* Ikona na równi (lekki offset jak był) */
+.actionIcon {
+  padding-top: 0.15em;
+  transition: transform 0.15s ease-in-out;
+}
+
+/* Tekst */
+.actionLabel {
+  font-size: 0.75em !important;
+  font-weight: 300 !important;
+  color: #2e2e38 !important;
+  text-decoration: underline;
+  transition: font-weight 0.15s ease-in-out;
+}
+
+/* Reset focus/active (usuwa np. outline z klikalnych elementów) */
+.actionBox:focus,
+.actionBox:active {
+  outline: none;
+  box-shadow: none;
+}
+//End actionBox
+
+
+
+.selectWrtapper_{
+  width:200px;
+  display:flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  padding-right: 16px;
+
+  @media (max-width: 1400px) {
+    min-width: none;
+    width: 100%;
+    padding-right: 0px;
+  }
+  @media (max-width: 1099px) {
+   width:280px;
+  }
+   @media (max-width: 992px) {
+   width:100%;
+  }
+}
+.dataWrapper_{
+    display:flex;
+    flex-direction: column;
+    justify-content: flex-start !important;
+    width:calc(100% - 200px);
+
+  @media (min-width: 1550px) {
+    display:flex;
+    flex-direction: column;
+    justify-content: flex-start !important;
+  }
+  
+  @media (max-width: 1400px) {
+    display:flex;
+    flex-direction: column;
+    justify-content: flex-start !important;
+    width:100%; 
+  }
+
+  @media (max-width: 1099px) {
+    margin-left:1em;
+    width: calc(100% - 1em);
+  }
+
+  @media (max-width: 992px) {
+    width:100%;
+    margin:0; 
+  }
+
+}
+.startEndTime_{
+  display:flex;
+  flex-direction: row;
+  padding-left:1rem;
+    @media (max-width: 660px) {
+    flex-direction: row;
+    justify-content: flex-start!important;
+    width:fit-content;
+    padding:0px;
+  }
+  @media (min-width: 661px) and (max-width: 690px) {
+     padding-left: 0.25rem;
+  }
+}
+.singleDate_{
+  display:flex;
+  flex-direction: row;
+  column-gap:0.25em;
+  line-height: 0.1;
+
+  @media (max-width: 662px) {
+    flex-direction: column;
+    width: fit-content;
+    min-width:100%
+  }
+    @media (min-width: 670px) {
+    flex-direction: row;
+    width:100%;
+    flex-wrap: wrap;
+  }
+  @media (min-width: 1400px) {
+    justify-content: flex-start;
+  }
+
+}
+// .dateInfo_{
+//   width:165px!important;
+// }
+.dataPart_{
+width:150px;
+}
+.separator_{
+  font-weight: 600;
+  color: var(--color-darkslategray, #2e2e38);
+  padding: 0 0.5rem;
+  font-size: 1.25rem;
+  margin: 1em auto!important
+}
+.separatorIndustry_{
+  font-weight: 600;
+  color: var(--color-darkslategray, #2e2e38);
+  padding: 0 0.5rem;
+  font-size: 1.25rem;
+  margin: 1em auto!important;
+  @media (min-width: 661px) and (max-width: 690px) {
+    padding: 0 0.25rem;
+ }
+   @media  (max-width: 355px) {
+    display:none;
+    
+ }
+}
+.selectLabel_{
+    padding-left:1em;
+    font-size: 11px!important;
+    color:#A7A7A7!important;
+    font-weight: 300!important; 
+    padding-bottom: 0.5em;
+
+}
+.technicalDate_{
+  width:100%;
+  //background-color: pink;
+   @media (min-width: 1550px) {
+    //justify-content: flex-start;
+    //width:300px!important;
+    //background-color: #dc3545;
+  }
+}
+.technicalTime_{
+    width:105px!important;
+}
+////
+.tradeInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  font-family: 'Roc Grotesk', sans-serif;
+}
+
+.sectionTitle {
+  margin-bottom: 0.5rem;
+  color: var(--color-darkslategray, #2e2e38);
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.subsectionTitle {
+  color: var(--color-darkslategray, #2e2e38);
+  margin-bottom: 0.5rem;
+}
+
+.divider {
+  margin: 0.5rem 0;
+  border-color: #e0e0e0;
+}
+
+// Godziny otwarcia
+.hoursGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+}
+
+.hoursGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.timeFields {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.timeField {
+  flex: 1;
+  min-width: 120px;
+}
+
+.timeSeparator {
+  font-weight: 600;
+  color: var(--color-darkslategray, #2e2e38);
+  padding: 0 0.5rem;
+  font-size: 1.25rem;
+}
+
+// Kontakt
+.contactGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+}
+
+.contactField {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+// Zabudowa targowa
+.buildSection {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.buildTypeField {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  max-width: 300px;
+}
+
+.buildDay {
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: var(--br-10, 10px);
+  border: 1px solid #e9ecef;
+}
+
+.buildDayFields {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  
+  > div:first-child {
+    min-width: 150px;
+  }
+  
+  > div:nth-child(2),
+  > div:nth-child(4) {
+    min-width: 100px;
+  }
+}
+
+.removeButton {
+  color: #dc3545;
+  
+  &:hover {
+    background-color: rgba(220, 53, 69, 0.1);
+  }
+}
+
+// Plan targów
+.planSection {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.planSpace {
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: var(--br-10, 10px);
+  border: 1px solid #e9ecef;
+}
+
+.spaceFields {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  
+  > div {
+    min-width: 180px;
+    flex: 1;
+  }
+}
+
+.planUpload {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: var(--br-10, 10px);
+  border: 1px solid #e9ecef;
+}
+
+.uploadedFile {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  background: #e9ecef;
+  border-radius: var(--br-5, 5px);
+}
+
+// Wiadomości
+.messageSection {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.messageHelp {
+  margin-bottom: 0.5rem;
+}
+
+.messageField {
+  .MuiOutlinedInput-root {
+    font-family: 'Open Sans', sans-serif;
+  }
+}
+
+.messageActions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 0.5rem;
+}
+
+// Przycisk zapisz
+.saveSection {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 1rem;
+  border-top: 1px solid #e0e0e0;
+  margin-top: 1rem;
+}
+
+// Responsive adjustments
+@media (max-width: 968px) {
+  .tradeInfo {
+    padding: 1rem;
+    gap: 1rem;
+  }
+  
+  .buildDayFields,
+  .spaceFields {
+    flex-direction: column;
+    align-items: stretch;
+    
+    > div {
+      min-width: unset;
+    }
+  }
+  
+  .timeFields {
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: stretch;
+    
+    .timeSeparator {
+      align-self: center;
+      padding: 0.25rem 0;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .tradeInfo {
+    padding: 0.75rem;
+  }
+  
+  .messageActions {
+    flex-direction: column;
+    gap: 0.75rem;
+    align-items: stretch;
+    
+    button {
+      align-self: flex-end;
+    }
+  }
+} 
+
+.removeButton_{
+  padding-left:0.5rem;
+  padding-top:1.75rem;
+}
+.IconTrash{
+  @media  (max-width: 662px) {
+    width:30px;
+    order:2;
+ }
+}
+@media (max-width: 662px) {
+  .singleDate_ {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content:space-between;
+    width:fit-content;
+  }
+  .singleDate_ .dataPart_ {
+    order: 1;
+  }
+  .singleDate_ .IconTrash {
+    order: 2;
+  }
+  .singleDate_ .startEndTime_ {
+    order: 3;
+  }
+}
+.fairPlnRow{
+  display:flex;
+  flex-direction: row;
+  justify-content: space-between;
+  width:100%;
+
+  @media  (max-width: 600px) {
+    flex-direction: column;
+    justify-content: flex-start;
+ }
+}
+.fairPlnIn{
+ width:48%;
+}
+.fairPlnIn .actionBox {
+  justify-content: unset; /* lub inna wartość, np. flex-start */
+}
+.fileListTitle_{
+    color:#666A73!important;
+    font-size: 13px!important;
+    font-weight:300!important;
+    padding-bottom: 1em;;
+}
+.wrapperHallList_{
+  display:flex;
+  flex-direction: column;
+  column-gap: 1rem;
+}
+.singleHallFile_{
+  display:flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  column-gap: 1em !important;
+  margin-bottom: 0.25em;
+  @media (max-width: 600px) {
+    flex-direction: column;
+ }
+} 
+.hallNameLabel_{
+  color:#666A73!important;
+  font-size: 11px!important;
+  font-weight:300!important;
+  white-space: nowrap;
+  margin: auto 0 !important;
+}
+.hallName_{
+  color:black;
+  font-size: 11px!important;
+  font-weight:600!important;
+  white-space: nowrap;
+  margin: auto 0 !important;
+}
+.noFile_{
+  color:#666A73!important;
+  font-size: 11px!important;
+  font-weight:300!important;
+  margin: auto 0 !important;
+}
+.actionRow_{
+  display:flex;
+  flex-direction: row;
+  justify-content: space-between;
+  min-width: calc(100% - 122px);
+  margin: auto 0 !important;
+    @media (max-width: 600px) {
+    width:100%;
+ }
+}
+.actionRow{
+padding:1rem 0rem;
+}
+.infoHallRow_{
+  display:flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  flex-wrap: nowrap;
+  margin:auto 0!important;
+  column-gap: 0.25em!important;
+  min-width: 120px;
+}
+.saveButtonRow{
+  display:flex;
+  flex-direction: row;
+  justify-content: flex-end!important;
+  margin:auto 0!important;
+}

@@ -15,6 +15,8 @@ interface TextEditorProps {
   onChange?: (value: string) => void;
   maxLength?: number;
   showToolbar?: boolean; // flaga - można wyłączyć pasek gdy niepotrzebny
+  legendBackground?: string;
+  textAreaBackground?: string;
 }
 
 const TextEditor: React.FC<TextEditorProps> = ({
@@ -24,6 +26,8 @@ const TextEditor: React.FC<TextEditorProps> = ({
   onChange,
   maxLength,
   showToolbar = true,
+  legendBackground='white',
+  textAreaBackground='white',
 }) => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const text = e.target.value;
@@ -33,8 +37,14 @@ const TextEditor: React.FC<TextEditorProps> = ({
   };
 
   return (
-    <Box className={styles.textAreaWrapper}>
-      <legend className={styles.legend}>{legend}</legend>
+    <Box 
+    className={styles.textAreaWrapper}
+     style={{ background: textAreaBackground }}
+     >
+      <legend 
+      className={styles.legend}
+      style={{ background: legendBackground }}
+      >{legend}</legend>
       <TextField
         value={value}
         onChange={handleChange}

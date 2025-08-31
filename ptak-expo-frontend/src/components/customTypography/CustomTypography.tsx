@@ -12,6 +12,7 @@ interface CustomTypographyProps {
   component?: React.ElementType;
   sx?: SxProps<Theme>;
   onClick?: MouseEventHandler<any>;
+  
 }
 
 const CustomTypography: React.FC<CustomTypographyProps> = ({ 

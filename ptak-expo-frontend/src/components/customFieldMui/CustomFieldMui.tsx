@@ -1,0 +1,345 @@
+import React, { useState, FC, ChangeEvent, useRef, useEffect, KeyboardEvent, useCallback } from "react";
+import TextField from "@mui/material/TextField";
+import IconButton from "@mui/material/IconButton";
+import InputAdornment from "@mui/material/InputAdornment";
+import Visibility from "@mui/icons-material/Visibility";
+import VisibilityOff from "@mui/icons-material/VisibilityOff";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import ExpandLessIcon from "@mui/icons-material/ExpandLess";
+import styles from "./CustomFieldMui.module.scss";
+import { ReactComponent as BlueArrowIcon } from "../../assets/blueArrow.svg";
+
+export type OptionType = {
+  value: string | number;
+  label: React.ReactNode;
+  description?: React.ReactNode;
+  [key: string]: any;
+};
+
+type CustomFieldProps = {
+  placeholder?: string;
+  label?: string;
+  size?: "small" | "medium";
+  margin?: "none" | "dense" | "normal";
+  fullWidth?: boolean;
+  error?: boolean;
+  errorMessage?: string;
+  type: string;
+  value: string;
+  onChange: (e: ChangeEvent<HTMLInputElement>) => void;
+  borderColor?: string;
+  activeBorderColor?: string;
+  className?: string;
+  errorMessageClassName?: string;
+  name?: string;
+  options?: OptionType[];
+  showOptionsExternal?: boolean;
+  onShowOptionsChange?: (visible: boolean) => void;
+  forceSelectionFromOptions?: boolean;
+  multiline?: boolean;
+  rows?: number;
+  slots?: {
+    endAdornment?: React.ReactNode;
+    [key: string]: React.ReactNode | undefined;
+  };
+};
+
+const CustomFieldMui: FC<CustomFieldProps> = ({
+  placeholder,
+  label,
+  size,
+  margin,
+  fullWidth,
+  error,
+  errorMessage,
+  type,
+  value,
+  onChange,
+  borderColor = "#D7D9DD",
+  activeBorderColor = "#6F87F6",
+  className,
+  name,
+  options = [],
+  showOptionsExternal,
+  onShowOptionsChange,
+  forceSelectionFromOptions = false,
+  multiline = false,
+  rows = 1,
+  slots,
+}) => {
+  const [_focused, setFocused] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showOptionsInternal, setShowOptionsInternal] = useState(false);
+  const [highlightedIndex, setHighlightedIndex] = useState<number>(-1);
+
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const isPasswordField = type === "password";
+  const hasOptions = options.length > 0;
+
+  const isControlled = showOptionsExternal !== undefined;
+  const showOptions = isControlled ? showOptionsExternal : showOptionsInternal;
+  const [openUpward, setOpenUpward] = useState(false);
+  const maxDropdownHeight = Math.min(200, window.innerHeight * 0.4);
+
+  const setShowOptions = useCallback(
+    (visible: boolean) => {
+      if (isControlled) {
+        onShowOptionsChange && onShowOptionsChange(visible);
+      } else {
+        setShowOptionsInternal(visible);
+      }
+    },
+    [isControlled, onShowOptionsChange]
+  );
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (wrapperRef.current && !wrapperRef.current.contains(event.target as Node)) {
+        setShowOptions(false);
+        setHighlightedIndex(-1);
+      }
+    }
+    if (showOptions) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showOptions, setShowOptions]);
+
+  useEffect(() => {
+    if (showOptions && wrapperRef.current) {
+      const rect = wrapperRef.current.getBoundingClientRect();
+      const spaceBelow = window.innerHeight - rect.bottom;
+      const dropdownHeight = 200;
+
+      if (spaceBelow < dropdownHeight && rect.top > dropdownHeight) {
+        setOpenUpward(true);
+      } else {
+        setOpenUpward(false);
+      }
+    } else {
+      setOpenUpward(false);
+    }
+  }, [showOptions]);
+
+  const handleOptionClick = (optionValue: string | number) => {
+    const fakeEvent = {
+      target: { value: optionValue, name: name ?? undefined },
+    } as ChangeEvent<HTMLInputElement>;
+    onChange(fakeEvent);
+    setShowOptions(false);
+    setHighlightedIndex(-1);
+    inputRef.current?.focus();
+  };
+
+  const handleBlur = () => {
+    setFocused(false);
+
+    if (forceSelectionFromOptions && hasOptions) {
+      const allowedValues = options.map((opt) => String(opt.value));
+      if (!allowedValues.includes(String(value))) {
+        const fakeEvent = {
+          target: { value: "", name: name ?? undefined },
+        } as ChangeEvent<HTMLInputElement>;
+        onChange(fakeEvent);
+      }
+    }
+  };
+
+  const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const newValue = e.target.value;
+    if (forceSelectionFromOptions && hasOptions && newValue) {
+      const matches = options.filter((opt) =>
+        String(opt.label).toLowerCase().startsWith(newValue.toLowerCase())
+      );
+      if (matches.length === 0) return;
+    }
+    onChange(e);
+  };
+
+  const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
+    if (!hasOptions) return;
+
+    switch (e.key) {
+      case "ArrowDown":
+        e.preventDefault();
+        setShowOptions(true);
+        setHighlightedIndex((prev) => (prev < options.length - 1 ? prev + 1 : 0));
+        break;
+      case "ArrowUp":
+        e.preventDefault();
+        setShowOptions(true);
+        setHighlightedIndex((prev) => (prev > 0 ? prev - 1 : options.length - 1));
+        break;
+      case "Enter":
+        if (showOptions && highlightedIndex >= 0 && highlightedIndex < options.length) {
+          e.preventDefault();
+          handleOptionClick(options[highlightedIndex].value);
+        }
+        break;
+      case "Escape":
+      case "Tab":
+        setShowOptions(false);
+        setHighlightedIndex(-1);
+        break;
+      default:
+        break;
+    }
+  };
+
+  const getEndAdornment = () => {
+    if (slots?.endAdornment) {
+      return slots.endAdornment;
+    }
+
+    if (isPasswordField) {
+      return (
+        <InputAdornment position="end">
+          <IconButton
+            aria-label="toggle password visibility"
+            onClick={() => setShowPassword((prev) => !prev)}
+            edge="end"
+            size={size ?? "medium"}
+          >
+            {showPassword ? <VisibilityOff /> : <Visibility />}
+          </IconButton>
+        </InputAdornment>
+      );
+    }
+
+    if (type === "time") {
+    return (
+        <InputAdornment position="end">
+        <IconButton
+            edge="end"
+            size={size ?? "medium"}
+            aria-label="choose time"
+            onClick={() => {
+            inputRef.current?.focus();
+            inputRef.current?.click();
+            }}
+            tabIndex={-1}
+        >
+            <BlueArrowIcon />
+        </IconButton>
+        </InputAdornment>
+    );
+    }
+
+    if (hasOptions) {
+      return (
+        <InputAdornment position="end">
+          <IconButton
+            aria-label={showOptions ? "Ukryj opcje" : "Pokaż opcje"}
+            onClick={() => setShowOptions(!showOptions)}
+            edge="end"
+            size={size ?? "medium"}
+            tabIndex={-1}
+            disableRipple
+          >
+            {!showOptions ? <ExpandMoreIcon sx={{ color: "#6f87f6" }} /> : <ExpandLessIcon sx={{ color: "#6f87f6" }} />}
+          </IconButton>
+        </InputAdornment>
+      );
+    }
+
+    return null;
+  };
+
+  const displayValue = React.useMemo(() => {
+    if (forceSelectionFromOptions && hasOptions) {
+      const found = options.find((opt) => String(opt.value) === String(value));
+      return found ? String(found.label) : "";
+    }
+    return value;
+  }, [value, forceSelectionFromOptions, options, hasOptions]);
+
+  const isPlaceholderActive = !displayValue && !!placeholder;
+
+  return (
+    <div style={{ position: "relative" }} className={className} ref={wrapperRef}>
+      <TextField
+        inputRef={inputRef}
+        label={label ?? ""}
+        variant="outlined"
+        type={isPasswordField ? (showPassword ? "text" : "password") : type}
+        value={displayValue as string}
+        onChange={handleChange}
+        placeholder={placeholder ?? ""}
+        size={size ?? "small"}
+        margin={margin ?? "normal"}
+        fullWidth={!!fullWidth}
+        error={!!error}
+        helperText={error ? errorMessage ?? "Błąd" : ""}
+        onFocus={() => setFocused(true)}
+        onBlur={handleBlur}
+        onKeyDown={handleKeyDown}
+        multiline={multiline}
+        {...(multiline ? { rows } : {})}
+        InputProps={{
+          endAdornment: getEndAdornment(),
+          autoComplete: "off",
+          readOnly: forceSelectionFromOptions && hasOptions,
+          style: {
+            color: isPlaceholderActive ? "#A7A7A7" : "inherit",
+          },
+        }}
+        sx={{
+          "& .MuiOutlinedInput-root": {
+            borderRadius: "20px",
+            "& fieldset": {
+              borderColor: borderColor,
+            },
+            "&:hover fieldset": {
+              borderColor: activeBorderColor,
+            },
+            "&.Mui-focused fieldset": {
+              borderColor: activeBorderColor,
+            },
+            "&.Mui-error fieldset": {
+              borderColor: "#c7353c",
+            },
+          },
+        }}
+      />
+
+      {showOptions && hasOptions && (
+        <ul
+          className={`${styles.dropdownList} ${
+            openUpward ? styles.dropdownListUpward : styles.dropdownListDownward
+          }`}
+          role="listbox"
+          tabIndex={-1}
+          style={{ maxHeight: maxDropdownHeight }}
+        >
+          {options.map((option, index) => (
+            <li
+              key={index}
+              onClick={() => handleOptionClick(option.value)}
+              className={`${styles.dropdownItem} ${highlightedIndex === index ? styles.highlighted : ""}`}
+              role="option"
+              aria-selected={String(option.value) === String(value)}
+              tabIndex={-1}
+              onMouseEnter={() => setHighlightedIndex(index)}
+              onMouseLeave={() => setHighlightedIndex(-1)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  handleOptionClick(option.value);
+                }
+              }}
+            >
+              {option.label}
+              {option.description && <div className={styles.dropdownDescription}>{option.description}</div>}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+};
+
+export default CustomFieldMui;
