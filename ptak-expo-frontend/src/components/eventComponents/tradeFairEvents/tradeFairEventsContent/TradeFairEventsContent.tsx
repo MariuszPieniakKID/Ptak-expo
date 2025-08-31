@@ -23,8 +23,8 @@ const TradeFairEventsContent: React.FC<TradeFairEventsContentProps> = ({ event }
   const [newEvent, setNewEvent] = useState<TradeEvent>({
     name: '',
     eventDate: '',
-    startTime: '',
-    endTime: '',
+    startTime: '09:00',
+    endTime: '17:00',
     hall: '',
     description: '',
     type: 'Ceremonia otwarcia',
@@ -69,18 +69,24 @@ const TradeFairEventsContent: React.FC<TradeFairEventsContentProps> = ({ event }
 
   const handleSaveTradeEvent = async () => {
     if (!token) return;
-    // Relax validation: require only name and date; times optional
+    // Require name and date; ensure times are set (backend requires them)
     if (!newEvent.name || !newEvent.eventDate) {
       setTradeEventsError('Podaj co najmniej nazwę i datę wydarzenia');
       return;
     }
+    // Fill default times if missing
+    const payload: TradeEvent = {
+      ...newEvent,
+      startTime: newEvent.startTime || '09:00',
+      endTime: newEvent.endTime || '17:00',
+    };
     // Rely on backend to validate date range to avoid false negatives on the client
     try {
-      await createTradeEvent(event.id, newEvent, token);
+      await createTradeEvent(event.id, payload, token);
       const refreshed = await getTradeEvents(event.id, token);
       setTradeEvents(refreshed.data || []);
       setTradeEventsError('');
-      setNewEvent({ name: '', eventDate: '', startTime: '', endTime: '', hall: '', description: '', type: 'Ceremonia otwarcia' });
+      setNewEvent({ name: '', eventDate: '', startTime: '09:00', endTime: '17:00', hall: '', description: '', type: 'Ceremonia otwarcia' });
     } catch (err: any) {
       setTradeEventsError(err.message || 'Błąd podczas zapisywania wydarzenia targowego');
     }
