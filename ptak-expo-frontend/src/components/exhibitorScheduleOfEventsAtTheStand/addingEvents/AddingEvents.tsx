@@ -128,7 +128,7 @@ const AddingEvents: React.FC<AddingEventsProps> = ({ exhibitionId, exhibitorId, 
     setFormErrors(prev => ({ ...prev, description: errorMessage || '' }));
   };
 
-  const validateAll = useCallback(() => {
+  const validateAll = () => {
     const nextErrors: Record<string, string> = {
       name: validators.name?.(formValues.name) || '',
       eventDate: validators.eventDate?.(formValues.eventDate) || '',
@@ -140,7 +140,7 @@ const AddingEvents: React.FC<AddingEventsProps> = ({ exhibitionId, exhibitorId, 
     };
     setFormErrors(nextErrors);
     return Object.values(nextErrors).every(e => e === '');
-  }, [formValues, validators, exhibitionRange]);
+  };
 
   const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault();
@@ -175,7 +175,7 @@ const AddingEvents: React.FC<AddingEventsProps> = ({ exhibitionId, exhibitorId, 
         setFormErrors(prev => ({ ...prev, eventDate: 'Data wydarzenia musi mieścić się w zakresie dat targów' }));
       }
     }
-  }, [formValues, validateAll, token, resolvedExhibitionId, exhibitorId, onCreated]);
+  }, [formValues, token, resolvedExhibitionId, exhibitorId, onCreated]);
 
   // Load exhibition date range to constrain calendar
   useEffect(() => {
