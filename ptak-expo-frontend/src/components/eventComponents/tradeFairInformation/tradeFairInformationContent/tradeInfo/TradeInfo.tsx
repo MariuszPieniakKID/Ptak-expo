@@ -91,7 +91,7 @@ const [buildType, setBuildType] = useState<string>('Montaż indywidualny');
   
   // Loading and error states
   const [loading, setLoading] = useState<boolean>(true);
-  const [_saving, setSaving] = useState<boolean>(false);
+  const [, setSaving] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
   const [successMessage, setSuccessMessage] = useState<string>('');
 
