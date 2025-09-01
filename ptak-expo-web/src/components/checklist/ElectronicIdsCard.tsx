@@ -15,7 +15,7 @@ const boxSx = {
 	color: "white",
 	gap: "10px"
 }; 
-const theme = createTheme({
+export const blackTheme = createTheme({
   colorSchemes: {
     dark: true,
   },
@@ -32,7 +32,7 @@ function AddElectronicId() {
 	const isValidEmail = editedId == null || /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(editedId.email);
 	const isValid = editedId.name && editedId.email && editedId.type >= 0 && isValidEmail;
 	return (
-		<ThemeProvider theme={theme}>
+		<ThemeProvider theme={blackTheme}>
 			<Box sx={boxSx} >
 				{checklist.companyInfo.logo && <img src={checklist.companyInfo.logo} alt="Logo firmy" className="eid-img-logo" />}
 				<Typography> E-Identyfikator </Typography>
@@ -67,7 +67,7 @@ export default function ElectronicIdsCard() {
 
 	return (
 	<ChecklistCard icon={
-			<img src={`/assets/checklist-step-4.svg`} alt=""></img>} 
+			<img src={`/assets/checklist-step-6.svg`} alt=""></img>} 
 			title={<Typography fontSize={16}> Generuj E-identyfikatory ({checklist.electrionicIds.length})</Typography>} checked={filled[3]}> 
 			<AddElectronicId />
 			<Table>
