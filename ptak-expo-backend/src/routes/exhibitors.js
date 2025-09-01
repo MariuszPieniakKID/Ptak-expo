@@ -632,3 +632,44 @@ router.get('/:id', verifyToken, requireAdmin, async (req, res) => {
 });
 
 module.exports = router; 
+ 
+// People endpoints for current exhibitor
+router.get('/me/people', verifyToken, requireExhibitorOrAdmin, async (req, res) => {
+  try {
+    const email = req.user.email;
+    const exRes = await db.query('SELECT id FROM exhibitors WHERE email = $1 LIMIT 1', [email]);
+    if (exRes.rows.length === 0) return res.status(404).json({ success: false, message: 'Wystawca nie został znaleziony' });
+    const exhibitorId = exRes.rows[0].id;
+    const exhibitionId = req.query.exhibitionId ? parseInt(req.query.exhibitionId, 10) : null;
+    let people;
+    if (Number.isInteger(exhibitionId)) {
+      people = await db.query('SELECT id, full_name, position, email, created_at FROM exhibitor_people WHERE exhibitor_id = $1 AND exhibition_id = $2 ORDER BY created_at DESC', [exhibitorId, exhibitionId]);
+    } else {
+      people = await db.query('SELECT id, full_name, position, email, created_at FROM exhibitor_people WHERE exhibitor_id = $1 ORDER BY created_at DESC', [exhibitorId]);
+    }
+    return res.json({ success: true, data: people.rows });
+  } catch (e) {
+    console.error('Error fetching exhibitor people:', e);
+    return res.status(500).json({ success: false, message: 'Błąd podczas pobierania osób' });
+  }
+});
+
+router.post('/me/people', verifyToken, requireExhibitorOrAdmin, async (req, res) => {
+  try {
+    const email = req.user.email;
+    const exRes = await db.query('SELECT id FROM exhibitors WHERE email = $1 LIMIT 1', [email]);
+    if (exRes.rows.length === 0) return res.status(404).json({ success: false, message: 'Wystawca nie został znaleziony' });
+    const exhibitorId = exRes.rows[0].id;
+    const { fullName, position, email: personEmail, exhibitionId } = req.body || {};
+    if (!fullName) return res.status(400).json({ success: false, message: 'Imię i nazwisko są wymagane' });
+    const exId = Number.isInteger(parseInt(exhibitionId, 10)) ? parseInt(exhibitionId, 10) : null;
+    const ins = await db.query(
+      'INSERT INTO exhibitor_people (exhibitor_id, exhibition_id, full_name, position, email) VALUES ($1, $2, $3, $4, $5) RETURNING id, full_name, position, email, created_at',
+      [exhibitorId, exId, fullName, position || null, personEmail || null]
+    );
+    return res.status(201).json({ success: true, data: ins.rows[0] });
+  } catch (e) {
+    console.error('Error creating exhibitor person:', e);
+    return res.status(500).json({ success: false, message: 'Błąd podczas zapisu osoby' });
+  }
+});

@@ -300,3 +300,125 @@ Fetching exhibitor with ID: 767
 💾 Connected to PostgreSQL database
 💾 Connected to PostgreSQL database
 💾 Connected to PostgreSQL database
+Fetching exhibitions from database...
+Fetching exhibitions from database...
+💾 Connected to PostgreSQL database
+💾 Connected to PostgreSQL database
+Found 11 exhibitions
+Found 11 exhibitions
+💾 Connected to PostgreSQL database
+💾 Connected to PostgreSQL database
+🔍 Getting trade info for exhibition: 718
+🔍 Getting trade info for exhibition: 718
+Fetching invitations for exhibition 718...
+Fetching invitations for exhibition 718...
+🔍 [trade-events] listByExhibition {
+  exhibitionId: 718,
+  exhibitorId: null,
+  user: 'test.admin@ptak-expo.com'
+}
+🔍 [trade-events] listByExhibition {
+  exhibitionId: 718,
+  exhibitorId: null,
+  user: 'test.admin@ptak-expo.com'
+}
+Fetching exhibitors from database...
+Fetching exhibitors from database...
+Found 10 exhibitors
+Found 10 exhibitors
+Fetching exhibitor with ID: 767
+Fetching exhibitor with ID: 767
+Fetching events for user 983 (ja4@ja.com)
+Found linked exhibitor 767 for user ja4@ja.com
+Found 2 assigned events for exhibitor 767
+Fetching events for user 983 (ja4@ja.com)
+Fetching events for user 983 (ja4@ja.com)
+Found linked exhibitor 767 for user ja4@ja.com
+Found 2 assigned events for exhibitor 767
+Found linked exhibitor 767 for user ja4@ja.com
+Found 2 assigned events for exhibitor 767
+🔍 [trade-events] listByExhibition { exhibitionId: 672, exhibitorId: 767, user: 'ja4@ja.com' }
+🔍 [trade-events] listByExhibition { exhibitionId: 672, exhibitorId: 767, user: 'ja4@ja.com' }
+Fetching events for user 983 (ja4@ja.com)
+Found linked exhibitor 767 for user ja4@ja.com
+Found 2 assigned events for exhibitor 767
+Fetching events for user 983 (ja4@ja.com)
+Found linked exhibitor 767 for user ja4@ja.com
+Found 2 assigned events for exhibitor 767
+Fetching events for user 983 (ja4@ja.com)
+Found linked exhibitor 767 for user ja4@ja.com
+Found 2 assigned events for exhibitor 767
+Fetching events for user 983 (ja4@ja.com)
+Found linked exhibitor 767 for user ja4@ja.com
+Found 2 assigned events for exhibitor 767
+Fetching events for user 983 (ja4@ja.com)
+Found linked exhibitor 767 for user ja4@ja.com
+Found 2 assigned events for exhibitor 767
+Fetching events for user 983 (ja4@ja.com)
+Found linked exhibitor 767 for user ja4@ja.com
+Found 2 assigned events for exhibitor 767
+🔍 Getting trade info for exhibition: 718
+🔍 Getting trade info for exhibition: 718
+💾 Connected to PostgreSQL database
+🔍 [trade-events] listByExhibition { exhibitionId: 718, exhibitorId: 767, user: 'ja4@ja.com' }
+🔍 [trade-events] listByExhibition { exhibitionId: 718, exhibitorId: 767, user: 'ja4@ja.com' }
+💾 Connected to PostgreSQL database
+💾 Connected to PostgreSQL database
+🔍 Getting trade info for exhibition: 718
+💾 Connected to PostgreSQL database
+Fetching events for user 983 (ja4@ja.com)
+Found linked exhibitor 767 for user ja4@ja.com
+Found 2 assigned events for exhibitor 767
+Fetching events for user 983 (ja4@ja.com)
+Fetching events for user 983 (ja4@ja.com)
+Found linked exhibitor 767 for user ja4@ja.com
+Found linked exhibitor 767 for user ja4@ja.com
+Found 2 assigned events for exhibitor 767
+Found 2 assigned events for exhibitor 767
+Fetching events for user 983 (ja4@ja.com)
+Fetching events for user 983 (ja4@ja.com)
+Found linked exhibitor 767 for user ja4@ja.com
+Found linked exhibitor 767 for user ja4@ja.com
+Found 2 assigned events for exhibitor 767
+Found 2 assigned events for exhibitor 767
+💾 Connected to PostgreSQL database
+Fetching events for user 983 (ja4@ja.com)
+Found linked exhibitor 767 for user ja4@ja.com
+Found 2 assigned events for exhibitor 767
+Fetching events for user 983 (ja4@ja.com)
+Found linked exhibitor 767 for user ja4@ja.com
+Found 2 assigned events for exhibitor 767
+💾 Connected to PostgreSQL database
+🔍 Getting trade info for exhibition: 718
+🔍 Getting trade info for exhibition: 718
+💾 Connected to PostgreSQL database
+🔍 [trade-events] listByExhibition { exhibitionId: 718, exhibitorId: 767, user: 'ja4@ja.com' }
+🔍 [trade-events] listByExhibition { exhibitionId: 718, exhibitorId: 767, user: 'ja4@ja.com' }
+💾 Connected to PostgreSQL database
+💾 Connected to PostgreSQL database
+💾 Connected to PostgreSQL database
+🔍 [trade-events] listByExhibition { exhibitionId: 718, exhibitorId: 767, user: 'ja4@ja.com' }
+🔍 [trade-events] listByExhibition { exhibitionId: 718, exhibitorId: 767, user: 'ja4@ja.com' }
+💾 Connected to PostgreSQL database
+💾 Connected to PostgreSQL database
+🔍 [trade-events] listByExhibition { exhibitionId: 718, exhibitorId: 767, user: 'ja4@ja.com' }
+🔍 [trade-events] listByExhibition { exhibitionId: 718, exhibitorId: 767, user: 'ja4@ja.com' }
+💾 Connected to PostgreSQL database
+🔍 [trade-events] listByExhibition { exhibitionId: 718, exhibitorId: 767, user: 'ja4@ja.com' }
+🔍 [trade-events] listByExhibition { exhibitionId: 718, exhibitorId: 767, user: 'ja4@ja.com' }
+🔍 [trade-events] listByExhibition { exhibitionId: 718, exhibitorId: 767, user: 'ja4@ja.com' }
+🔍 [trade-events] listByExhibition { exhibitionId: 718, exhibitorId: 767, user: 'ja4@ja.com' }
+💾 Connected to PostgreSQL database
+💾 Connected to PostgreSQL database
+💾 Connected to PostgreSQL database
+🔍 [trade-events] listByExhibition { exhibitionId: 718, exhibitorId: 767, user: 'ja4@ja.com' }
+🔍 [trade-events] listByExhibition { exhibitionId: 718, exhibitorId: 767, user: 'ja4@ja.com' }
+💾 Connected to PostgreSQL database
+💾 Connected to PostgreSQL database
+🔍 [trade-events] listByExhibition { exhibitionId: 718, exhibitorId: 767, user: 'ja4@ja.com' }
+🔍 [trade-events] listByExhibition { exhibitionId: 718, exhibitorId: 767, user: 'ja4@ja.com' }
+🔍 Getting trade info for exhibition: 718
+💾 Connected to PostgreSQL database
+🔍 Getting trade info for exhibition: 718
+🔍 [trade-events] listByExhibition { exhibitionId: 718, exhibitorId: 767, user: 'ja4@ja.com' }
+🔍 [trade-events] listByExhibition { exhibitionId: 718, exhibitorId: 767, user: 'ja4@ja.com' }

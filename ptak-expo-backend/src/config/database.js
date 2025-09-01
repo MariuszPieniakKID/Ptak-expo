@@ -496,6 +496,36 @@ const initializeDatabase = async () => {
       CREATE INDEX IF NOT EXISTS idx_exhibitor_documents_category ON exhibitor_documents(category)
     `);
 
+    // Create exhibitor_people table to store contacts/badges linked to exhibitor
+    console.log('🔍 Creating exhibitor_people table...');
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS exhibitor_people (
+        id SERIAL PRIMARY KEY,
+        exhibitor_id INTEGER REFERENCES exhibitors(id) ON DELETE CASCADE,
+        exhibition_id INTEGER REFERENCES exhibitions(id) ON DELETE CASCADE,
+        full_name VARCHAR(255) NOT NULL,
+        position VARCHAR(255),
+        email VARCHAR(255),
+        created_at TIMESTAMPTZ DEFAULT NOW()
+      )
+    `);
+    await pool.query(`
+      CREATE INDEX IF NOT EXISTS idx_exhibitor_people_exhibitor_id ON exhibitor_people(exhibitor_id)
+    `);
+    await pool.query(`
+      DO $$ BEGIN
+        IF NOT EXISTS (
+          SELECT 1 FROM information_schema.columns 
+          WHERE table_name = 'exhibitor_people' AND column_name = 'exhibition_id'
+        ) THEN
+          ALTER TABLE exhibitor_people ADD COLUMN exhibition_id INTEGER REFERENCES exhibitions(id) ON DELETE CASCADE;
+        END IF;
+      END $$;
+    `);
+    await pool.query(`
+      CREATE INDEX IF NOT EXISTS idx_exhibitor_people_exhibition_id ON exhibitor_people(exhibition_id)
+    `);
+
     console.log('🔍 Inserting admin user...');
     await pool.query(`
       INSERT INTO users (email, password_hash, role, first_name, last_name) 

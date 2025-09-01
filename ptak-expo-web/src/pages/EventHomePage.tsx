@@ -67,7 +67,6 @@ const EventHomePage = () => {
             <>
               <PlannedEventCard event={event} onSelect={() => navigate('/dashboard')} />
               <ChecklistProgressCard
-                readiness={event.readiness}
                 daysLeft={event.daysLeft}
                 onChecklistClick={() => navigate(`/event/${event.id}/checklist`)}
               />
