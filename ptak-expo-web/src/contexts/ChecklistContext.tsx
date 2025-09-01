@@ -33,6 +33,7 @@ const emptyChecklist: Checklist = {
 
 export const ChecklistProvider = ({ children, eventId }: {children: ReactNode, eventId: number}) => {
 	const [checklist, setChecklist] = useState<Checklist>(emptyChecklist);
+	useEffect(() => { (window as any).currentSelectedExhibitionId = eventId; }, [eventId]);
 	useEffect(() => { getChecklist(eventId).then(setChecklist); }, [eventId]);
 	const companyInfoFilledCount = 
 			(checklist.companyInfo.contactInfo != null ? 1 : 0) +
@@ -54,9 +55,9 @@ export const ChecklistProvider = ({ children, eventId }: {children: ReactNode, e
 	}, [checklist, companyInfoFilledCount]);
 	const value = {
 		checklist,
-		saveCompanyInfo: (ci: CompanyInfo) => { updateCompanyInfo(ci, eventId).then(() => getChecklist(eventId)).then(setChecklist);},
-		addProduct: (ci: ProductInfo) => { addProduct(ci, eventId).then(() => getChecklist(eventId)).then(setChecklist);},
-		addEvent: (ci: EventInfo) => { addEvent(ci, eventId).then(() => getChecklist(eventId)).then(setChecklist);},
+		saveCompanyInfo: (ci: CompanyInfo) => { updateCompanyInfo(ci).then(() => getChecklist(eventId)).then(setChecklist);},
+		addProduct: (ci: ProductInfo) => { addProduct(ci).then(() => getChecklist(eventId)).then(setChecklist);},
+		addEvent: (ci: EventInfo) => { addEvent(ci).then(() => getChecklist(eventId)).then(setChecklist);},
 		addMaterial: (ci: DownloadMaterial) => { addMaterial(ci).then(() => getChecklist(eventId)).then(setChecklist);},
 		uploadMaterialFile: (file: File) => { addMaterialFile(file, eventId).then(() => getChecklist(eventId)).then(setChecklist);},
 		addElectronicId: (ci: ElectrionicId) => { addElectronicId(ci).then(() => getChecklist(eventId)).then(setChecklist);},

@@ -36,7 +36,7 @@ export default function MaterialsCard() {
 			<img src={`/assets/checklist-step-3.svg`} alt=""></img>} 
 			title={<Typography fontSize={16}>Materiały do pobrania ({checklist.downloadMaterials.length})</Typography>} checked={filled[2]}> 
 				{checklist.downloadMaterials.map(dm => 
-					<Box display="flex" flexDirection={"row"} alignItems="center" component="a" href={dm.fileUri} target="_blank" rel="noreferrer" margin="20px 20px" gap="20px">
+					<Box key={dm.fileUri || dm.fileName} display="flex" flexDirection={"row"} alignItems="center" component="a" href={dm.fileUri} target="_blank" rel="noreferrer" margin="20px 20px" gap="20px">
 						<img src="/assets/pdf-file.svg" alt=""/><Typography fontSize="16px" color="var(--color-darkslategray)" sx={{textDecoration:"none"}}>{dm.fileName}</Typography>
 					</Box>)}
 			<AddMaterial onChangeFile={async (file) => { await uploadMaterialFile(file);} }/>

@@ -1,24 +1,25 @@
 import { Box, Button, createTheme, FormControl, InputLabel, MenuItem, Select, Table, TableBody, TableCell, TableRow, TextField, ThemeProvider, Typography } from "@mui/material";
-import ChecklistCard from "./ChecklistCard";
+import ChecklistCard from "./checklistCard";
 import { useChecklist } from "../../contexts/ChecklistContext";
-import { EidType, ElectrionicId } from "../../services/checklistApi";
+import { EidType, ElectrionicId } from "../../services/checkListApi";
 import { useState } from "react";
 import { eidTypes, getEidTypeString } from "../../shared/EventUtils";
 const boxSx = {
-	backgroundColor: 'var(--color-darkslategray)',
+	backgroundColor: '#fff',
 	padding: "40px",
 	margin:"0px -16px",
 	borderRadius: "20px",
 	display: "flex",
 	flexDirection: "column",
 	alignItems: "center",
-	color: "white",
-	gap: "10px"
+	color: 'var(--color-darkslategray)',
+	gap: "10px",
+	position: 'relative',
+	zIndex: 1,
+	overflow: 'hidden'
 }; 
 export const blackTheme = createTheme({
-  colorSchemes: {
-    dark: true,
-  },
+	palette: { mode: 'light' }
 });
 const emptyId : ElectrionicId = {
 	email: "",
@@ -27,14 +28,14 @@ const emptyId : ElectrionicId = {
 }
 
 function AddElectronicId() {
-	const { checklist, addElectronicId } = useChecklist()
+	const { addElectronicId } = useChecklist()
 	const [editedId, setEditedId] = useState(emptyId);
 	const isValidEmail = editedId.email === "" || /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(editedId.email);
 	const isValid = editedId.name && editedId.email && editedId.type >= 0 && isValidEmail;
 	return (
 		<ThemeProvider theme={blackTheme}>
 			<Box sx={boxSx} >
-				{checklist.companyInfo.logo && <img src={checklist.companyInfo.logo} alt="Logo firmy" className="eid-img-logo" />}
+				{/* Usunięto grafikę/logo z formularza e-identyfikatorów */}
 				<Typography> E-Identyfikator </Typography>
 				<TextField label="Imię nazwisko gościa" variant="standard" fullWidth 
 					value={editedId.name} onChange = {e => setEditedId({...editedId, name: e.target.value})}/>
@@ -44,14 +45,14 @@ function AddElectronicId() {
 				<FormControl variant="standard" fullWidth>
 					<InputLabel id="event-type-label">Określ typ wydarzenia</InputLabel>
 					<Select
-						inputProps={{fullWidth: true}}
 						labelId="event-type-label"
 						id="event-type-select"
 						value={editedId.type}
 						onChange={e => setEditedId({...editedId, type: eidTypes[+e.target.value]})}
 						label="Określ typ wydarzenia"
+						fullWidth
 					>
-						{eidTypes.map((d, i) => <MenuItem value={i} key={d}>{getEidTypeString(d)}</MenuItem>)}
+						{eidTypes.map((d, i) => <MenuItem value={i} key={String(d)}>{getEidTypeString(d)}</MenuItem>)}
 					</Select>
 				</FormControl>
 				<Button variant="contained" fullWidth disabled = {!isValid} onClick={() => {addElectronicId(editedId); setEditedId(emptyId)}}>Generuj i wyślij</Button>
@@ -73,7 +74,7 @@ export default function ElectronicIdsCard() {
 			<Table>
 				<TableBody>
 					{checklist.electrionicIds.map((eid, i) => 
-						<TableRow key={eid.name}>
+						<TableRow key={`${eid.email}-${i}`}>
 							<TableCell>{i+1}</TableCell>
 							<TableCell>{eid.name}</TableCell>
 							<TableCell>{eid.email}</TableCell>
@@ -83,6 +84,6 @@ export default function ElectronicIdsCard() {
 				</TableBody>
 			</Table>
 
-	</ChecklistCard>
+		</ChecklistCard>
 	)
 }
