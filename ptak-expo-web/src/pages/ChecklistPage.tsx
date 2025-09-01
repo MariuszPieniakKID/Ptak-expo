@@ -6,6 +6,7 @@ import { ApplyGreenCheck } from '../components/checklist/ApplyGreenCheck';
 import EventSchedule from '../components/checklist/EventSchedule';
 import MaterialsCard from '../components/checklist/MaterialsCard';
 import ElectronicIdsCard from '../components/checklist/ElectronicIdsCard';
+import InvitesCard from '../components/checklist/InvitesCard';
 
 const ChecklistPage: React.FC = () => {
   var {filled} = useChecklist();
@@ -26,10 +27,10 @@ const ChecklistPage: React.FC = () => {
               {[
                 'Uzupełnij\nKatalog',
                 'Dodaj\nprodukty',
-                'Wyslij \nZaproszenia',
-                'Pobierz\nE-Identyfikatory',
                 'Wgraj\nmateriały',
+                'Wyslij \nZaproszenia',
                 'Zaplanuj\nTargi',
+                'Pobierz\nE-Identyfikatory',
               ].map((label, i) => (
                 <div key={label} className={styles.step}>
                   <ApplyGreenCheck checked={filled[i]}><img src={`/assets/checklist-step-${i + 1}.svg`} alt=""></img></ApplyGreenCheck>
@@ -42,21 +43,10 @@ const ChecklistPage: React.FC = () => {
 
           {/* Detailed sections */}
           <CompanyInfo />
-
           <ProductsInfo />
-
           <MaterialsCard />
-
-
-          <div className={styles.sectionCardDark}>
-            <div className={styles.sectionHeaderLeft}>
-              <div className={styles.sectionCircleDark} />
-              <div className={styles.sectionTitleDark}>Wysłane zaproszenia (50/50)</div>
-            </div>
-            <div className={styles.sectionStatusGoodSmallDark} />
-          </div>
+          <InvitesCard />
           <EventSchedule />
-
           <ElectronicIdsCard />
 
           <div className={styles.optionalLabel}>Opcjonalnie:</div>

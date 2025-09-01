@@ -46,10 +46,10 @@ export const ChecklistProvider = ({ children, eventId }: {children: ReactNode, e
 		const ret = [];
 		ret.push(companyInfoFilledCount === 7);
 		ret.push(checklist.products.length > 0);
-		ret.push(checklist.sentInvitesCount > 0);
-		ret.push(checklist.electrionicIds.length > 0);
 		ret.push(checklist.downloadMaterials.length > 0);
+		ret.push(checklist.sentInvitesCount > 0);
 		ret.push(checklist.events.length > 0);
+		ret.push(checklist.electrionicIds.length > 0);
 		return ret;
 	}, [checklist, companyInfoFilledCount]);
 	const value = {
