@@ -29,7 +29,7 @@ const emptyId : ElectrionicId = {
 function AddElectronicId() {
 	const { checklist, addElectronicId } = useChecklist()
 	const [editedId, setEditedId] = useState(emptyId);
-	const isValidEmail = editedId == null || /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(editedId.email);
+	const isValidEmail = editedId.email === "" || /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(editedId.email);
 	const isValid = editedId.name && editedId.email && editedId.type >= 0 && isValidEmail;
 	return (
 		<ThemeProvider theme={blackTheme}>
