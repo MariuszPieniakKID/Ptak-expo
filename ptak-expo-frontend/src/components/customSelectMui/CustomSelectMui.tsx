@@ -13,11 +13,12 @@ type CustomSelectProps = {
   placeholder?: string;
   size?: "small" | "medium";
   fullWidth?: boolean;
-  value: string | number;
-  onChange: (value: string) => void;
+  value: string | number | Array<string | number>;
+  onChange: (value: string | number | Array<string | number>) => void;
   options: OptionType[];
   error?: boolean;
   helperText?: string;
+  multiple?: boolean;
 };
 
 const CustomSelectMui: FC<CustomSelectProps> = ({
@@ -29,9 +30,99 @@ const CustomSelectMui: FC<CustomSelectProps> = ({
   onChange,
   options,
   error,
-  helperText
+  helperText,
+  multiple = false,
 }) => {
   const [open, setOpen] = useState(false);
+
+
+  // const renderSelectValue = (selected: unknown) => {
+  //   if (
+  //     (selected === "" ||
+  //       selected === null ||
+  //       selected === undefined ||
+  //       (Array.isArray(selected) && selected.length === 0)) &&
+  //     placeholder
+  //   ) {
+  //     return <span style={{ color: "#A7A7A7" }}>{placeholder}</span>;
+  //   }
+  //   if (Array.isArray(selected)) {
+  //     const labels = options
+  //       .filter((o) => selected.includes(o.value))
+  //       .map((o) => o.label);
+  //     return labels.length > 0 ? labels.join(", ") : "";
+  //   }
+  //   if (typeof selected === "string" || typeof selected === "number") {
+  //     const found = options.find((o) => o.value === selected);
+  //     return found ? found.label : "";
+  //   }
+  //   return ""; // fallback
+  // };
+  const renderSelectValue = (selected: unknown) => {
+  if (
+    (selected === "" ||
+      selected === null ||
+      selected === undefined ||
+      (Array.isArray(selected) && selected.length === 0)) &&
+    placeholder
+  ) {
+    return <span style={{ color: "#A7A7A7" }}>{placeholder}</span>;
+  }
+  if (Array.isArray(selected)) {
+    const labels = options
+      .filter((o) => selected.includes(o.value))
+      .map((o) => o.label);
+
+    return (
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(120px, 1fr))",
+          gap: "4px",
+          maxHeight: 60,
+          overflowY: "auto",
+          paddingRight: 4,
+        }}
+      >
+        {labels.map((label, i) => (
+          <div
+            key={i}
+            style={{
+              backgroundColor: "#dde5ff",
+              borderRadius: 12,
+              padding: "2px 8px",
+              fontSize: "0.85rem",
+              whiteSpace: "nowrap",
+              textOverflow: "ellipsis",
+              overflow: "hidden",
+            }}
+            title={typeof label === "string" ? label : undefined}
+          >
+            {label}
+          </div>
+        ))}
+      </div>
+    );
+  }
+  if (typeof selected === "string" || typeof selected === "number") {
+    const found = options.find((o) => o.value === selected);
+    return found ? found.label : "";
+  }
+  return "";
+};
+
+  // Obsługa zmiany wyboru przy multi i single
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedValue = e.target.value;
+    if (multiple) {
+      // e.target.value jest string, należy przekonwertować na tablicę
+      // W MUI przy multi select e.target.value jest tablicą lub stringiem z joinem
+      // Dlatego wymuszamy typowanie na tablicę
+      onChange(selectedValue as unknown as Array<string | number>);
+    } else {
+      onChange(selectedValue);
+    }
+  };
 
   return (
     <TextField
@@ -40,22 +131,17 @@ const CustomSelectMui: FC<CustomSelectProps> = ({
       fullWidth={fullWidth}
       size={size}
       value={value}
-      onChange={(e) => onChange(e.target.value)}
+      onChange={handleChange}
       error={!!error}
       helperText={error ? helperText : ""}
       SelectProps={{
+        multiple,
         displayEmpty: !!placeholder,
         open: open,
         onOpen: () => setOpen(true),
         onClose: () => setOpen(false),
-        IconComponent: () => null,  // Ukrywa domyślną ikonę MUI
-        renderValue: (selected) => {
-          if ((selected === "" || selected === null || selected === undefined) && placeholder) {
-            return <span style={{ color: "#A7A7A7" }}>{placeholder}</span>;
-          }
-          const found = options.find((o) => o.value === selected);
-          return found ? found.label : "";
-        },
+        IconComponent: () => null, // Ukrywa domyślną ikonę MUI
+        renderValue: renderSelectValue,
       }}
       InputProps={{
         endAdornment: (
@@ -93,7 +179,7 @@ const CustomSelectMui: FC<CustomSelectProps> = ({
         },
       }}
     >
-      {placeholder && (
+      {placeholder && !multiple && (
         <MenuItem value="" disabled>
           {placeholder}
         </MenuItem>

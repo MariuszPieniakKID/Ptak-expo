@@ -2,7 +2,7 @@ import React from 'react';
 import { Exhibition } from '../../../../services/api';
 
 import styles from './InvitationsContent.module.scss';
-import Invitations from '../../../Invitations';
+import Invitation from './invitation/Invitation';
 
 interface InvitationsContentProps {
   event: Exhibition;
@@ -11,7 +11,8 @@ interface InvitationsContentProps {
 const InvitationsContent: React.FC<InvitationsContentProps> = ({ event }) => {
   return (
     <div className={styles.container}>
-      <Invitations exhibitionId={event.id} />
+      <Invitation exhibitionId={event.id} />
+
     </div>
   );
 };

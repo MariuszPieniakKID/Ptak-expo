@@ -6,12 +6,12 @@
   flex-direction: row;
   gap: 1rem;
   align-items: center;
-  cursor: pointer; // cały box jest klikalny
+  cursor: pointer; // entire box clickable
 
-  // Hover - wszystkie akcje tylko tu
+  // Hover - all actions only here
   &:hover {
     .actionIcon {
-      transform: scale(1.125); // powiększenie o 2px (~12-13% na bazie 16px)
+      transform: scale(1.125); // grow 12-13%
     }
     .actionTitle {
       font-weight: 600 !important;
@@ -31,13 +31,35 @@
   font-weight: 300 !important;
   color: $color-darkslategray !important;
   text-decoration: underline;
-  transition: none !important; // wyłączone niepotrzebne efekty
+  transition: none !important;
+  white-space: nowrap;
   cursor: pointer;
- 
 }
 
 .hideOnMobile {
   @media (max-width: 599px) {
     display: none;
+  }
+}
+
+// New disabled styles
+.disabled {
+  cursor: default !important;
+  pointer-events: none;
+  opacity: 0.5;  // visually grayed out
+
+  // disable hover effects as pointer-events none disables all interaction
+  &:hover {
+    .actionIcon {
+      transform: none !important;
+    }
+    .actionTitle {
+      font-weight: 300 !important;
+    }
+  }
+
+  .actionIcon,
+  .actionTitle {
+    cursor: default !important;
   }
 }
