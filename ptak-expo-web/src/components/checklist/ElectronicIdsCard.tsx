@@ -1,6 +1,9 @@
-import { Box, createTheme, FormControl, InputLabel, MenuItem, Select, TextField, ThemeProvider, Typography } from "@mui/material";
+import { Box, Button, createTheme, FormControl, InputLabel, MenuItem, Select, Table, TableBody, TableCell, TableRow, TextField, ThemeProvider, Typography } from "@mui/material";
 import ChecklistCard from "./ChecklistCard";
 import { useChecklist } from "../../contexts/ChecklistContext";
+import { EidType, ElectrionicId } from "../../services/checklistApi";
+import { useState } from "react";
+import { eidTypes, getEidTypeString } from "../../shared/EventUtils";
 const boxSx = {
 	backgroundColor: 'var(--color-darkslategray)',
 	padding: "40px",
@@ -9,35 +12,47 @@ const boxSx = {
 	display: "flex",
 	flexDirection: "column",
 	alignItems: "center",
-	color: "white"
+	color: "white",
+	gap: "10px"
 }; 
 const theme = createTheme({
   colorSchemes: {
     dark: true,
   },
 });
+const emptyId : ElectrionicId = {
+	email: "",
+	name: "",
+	type: EidType.TECH_WORKER,
+}
 
 function AddElectronicId() {
-	const { checklist } = useChecklist()
+	const { checklist, addElectronicId } = useChecklist()
+	const [editedId, setEditedId] = useState(emptyId);
+	const isValid = editedId.name && editedId.email && editedId.type >= 0;
 	return (
 		<ThemeProvider theme={theme}>
 			<Box sx={boxSx} >
 				{checklist.companyInfo.logo && <img src={checklist.companyInfo.logo} alt="Logo firmy" className="eid-img-logo" />}
 				<Typography> E-Identyfikator </Typography>
-				<TextField label="Imię nazwisko gościa" variant="standard" fullWidth/>
-				<TextField label="Email" variant="standard" fullWidth/>
+				<TextField label="Imię nazwisko gościa" variant="standard" fullWidth 
+					value={editedId.name} onChange = {e => setEditedId({...editedId, name: e.target.value})}/>
+				<TextField label="Email" variant="standard" fullWidth
+					value={editedId.email} onChange = {e => setEditedId({...editedId, email: e.target.value})}/>
 				<FormControl variant="standard" fullWidth>
-					<InputLabel id="position-label">Stanowisko</InputLabel>
+					<InputLabel id="event-type-label">Określ typ wydarzenia</InputLabel>
 					<Select
-						labelId="position-label"
-						id="position-select"
-						/*value={}
-						onChange={e => setEditedEvent({...editedEvent, date: e.target.value})}
-						label="Data"*/
+						inputProps={{fullWidth: true}}
+						labelId="event-type-label"
+						id="event-type-select"
+						value={editedId.type}
+						onChange={e => setEditedId({...editedId, type: eidTypes[+e.target.value]})}
+						label="Określ typ wydarzenia"
 					>
-						<MenuItem value="" disabled>Wybierz</MenuItem>
+						{eidTypes.map((d, i) => <MenuItem value={i} key={d}>{getEidTypeString(d)}</MenuItem>)}
 					</Select>
 				</FormControl>
+				<Button variant="contained" fullWidth disabled = {!isValid} onClick={() => {addElectronicId(editedId); setEditedId(emptyId)}}>Generuj i wyślij</Button>
 
 			</Box>
 		</ThemeProvider>
@@ -46,15 +61,26 @@ function AddElectronicId() {
 }
 
 export default function ElectronicIdsCard() {
-	const {filled} = useChecklist();
+	const {filled, checklist} = useChecklist();
 
 	return (
 	<ChecklistCard icon={
 			<img src={`/assets/checklist-step-4.svg`} alt=""></img>} 
-			title={<Typography fontSize={16}> Generuj E-identyfikatory </Typography>} checked={filled[3]}> 
+			title={<Typography fontSize={16}> Generuj E-identyfikatory ({checklist.electrionicIds.length})</Typography>} checked={filled[3]}> 
 			<AddElectronicId />
+			<Table>
+				<TableBody>
+					{checklist.electrionicIds.map((eid, i) => 
+						<TableRow key={eid.name}>
+							<TableCell>{i+1}</TableCell>
+							<TableCell>{eid.name}</TableCell>
+							<TableCell>{eid.email}</TableCell>
+							<TableCell>{getEidTypeString(eid.type)}</TableCell>
+						</TableRow>)}
 
-			None
+				</TableBody>
+			</Table>
+
 	</ChecklistCard>
 	)
 }

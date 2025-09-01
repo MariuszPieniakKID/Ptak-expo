@@ -17,9 +17,14 @@ export interface DownloadMaterial {
 }
 export interface ElectrionicId {
 	name: string,
-	type: string
+	type: EidType,
 	email: string,
 }
+export enum EidType {
+	TECH_WORKER,
+	GUEST
+}
+
 export enum EventType {
 	OPEN,
 	CLOSED

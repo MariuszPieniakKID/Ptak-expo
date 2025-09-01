@@ -1,4 +1,4 @@
-import { EventKind, EventType } from "../services/checklistApi";
+import { EidType, EventKind, EventType } from "../services/checklistApi";
 
 export function getEventKindString(kind: EventKind): string 
 {
@@ -26,6 +26,17 @@ export function getEventTypeString(type: EventType)
 			return "Zamknięte";
 	}
 }
+export function getEidTypeString(type: EidType) 
+{
+	switch(type) {
+		case EidType.TECH_WORKER:
+			return "Obsługa techniczna";
+		case EidType.GUEST:
+			return "Gość";
+	}
+}
+export const eidTypes = [EidType.TECH_WORKER, EidType.GUEST]
+
 export const eventTypes = [EventType.OPEN, EventType.CLOSED]
 export const eventKinds = [
 	EventKind.PRESENTATION,
