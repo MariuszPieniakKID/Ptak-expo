@@ -29,7 +29,8 @@ const emptyId : ElectrionicId = {
 function AddElectronicId() {
 	const { checklist, addElectronicId } = useChecklist()
 	const [editedId, setEditedId] = useState(emptyId);
-	const isValid = editedId.name && editedId.email && editedId.type >= 0;
+	const isValidEmail = editedId == null || /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(editedId.email);
+	const isValid = editedId.name && editedId.email && editedId.type >= 0 && isValidEmail;
 	return (
 		<ThemeProvider theme={theme}>
 			<Box sx={boxSx} >
@@ -38,6 +39,7 @@ function AddElectronicId() {
 				<TextField label="Imię nazwisko gościa" variant="standard" fullWidth 
 					value={editedId.name} onChange = {e => setEditedId({...editedId, name: e.target.value})}/>
 				<TextField label="Email" variant="standard" fullWidth
+					error={!isValidEmail} helperText={!isValidEmail && "To nie jest poprawny adres e-mail"}
 					value={editedId.email} onChange = {e => setEditedId({...editedId, email: e.target.value})}/>
 				<FormControl variant="standard" fullWidth>
 					<InputLabel id="event-type-label">Określ typ wydarzenia</InputLabel>

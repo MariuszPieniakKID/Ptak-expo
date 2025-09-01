@@ -102,6 +102,6 @@ export const addMaterial = async (material: DownloadMaterial) => {
 }
 export const addElectronicId = async (electronicId: ElectrionicId) => {
 	ExampleChecklist = {...ExampleChecklist, electrionicIds: [...ExampleChecklist.electrionicIds, electronicId].sort(
-		(a, b) =>(a.name).localeCompare(b.name)
+		(a, b) =>(a.type.toString() + a.name).localeCompare(b.type.toString() + b.name)
 )};
 }
