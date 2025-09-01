@@ -605,6 +605,17 @@ const initializeDatabase = async () => {
       // Optional: index for faster global lookups
       await pool.query(`CREATE INDEX IF NOT EXISTS idx_catalog_entries_exhibitor ON exhibitor_catalog_entries(exhibitor_id)`);
       await pool.query(`CREATE INDEX IF NOT EXISTS idx_catalog_entries_updated_at ON exhibitor_catalog_entries(updated_at DESC)`);
+      // Tags dictionary for suggestions
+      await pool.query(`
+        CREATE TABLE IF NOT EXISTS catalog_tags (
+          id SERIAL PRIMARY KEY,
+          tag VARCHAR(255) UNIQUE NOT NULL,
+          usage_count INTEGER NOT NULL DEFAULT 0,
+          created_at TIMESTAMPTZ DEFAULT NOW(),
+          updated_at TIMESTAMPTZ DEFAULT NOW()
+        )
+      `);
+      await pool.query(`CREATE INDEX IF NOT EXISTS idx_catalog_tags_usage ON catalog_tags(usage_count DESC)`);
     } catch (e) {
       console.error('❌ Error ensuring exhibitor_catalog_entries/products:', e);
     }

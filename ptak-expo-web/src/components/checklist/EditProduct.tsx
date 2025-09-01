@@ -1,6 +1,6 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { ProductInfo } from "../../services/checkListApi"
-import { Box, Button, TextField, Typography } from "@mui/material";
+import { Autocomplete, Box, Button, Chip, TextField } from "@mui/material";
 import { useChecklist } from "../../contexts/ChecklistContext";
 
 const emptyProduct: ProductInfo = {
@@ -13,11 +13,10 @@ export default function EditProduct({productNum, onClose} :{productNum?: number,
 	const {checklist, addProduct} = useChecklist()
 	const product = checklist.products[productNum || -1];
 	const [editedProduct, setEditedProduct] = useState<ProductInfo>(emptyProduct)
-	const [tagsText, setTagsText] = useState<string>("")
+	const [tagOptions, setTagOptions] = useState<string[]>([]);
 	const canSave = editedProduct.description && editedProduct.img && editedProduct.name;
 	useEffect(() => { 
 		setEditedProduct(product || emptyProduct);
-		setTagsText(((product?.tags) || []).join(", "));
 	}, [product]);
 	const handleFileInput = useCallback((e : React.ChangeEvent<HTMLInputElement>) => {
 		if (e.target.files == null) return;
@@ -30,6 +29,27 @@ export default function EditProduct({productNum, onClose} :{productNum?: number,
     reader.readAsDataURL(file);
 
 	}, [editedProduct])
+
+	const debouncedFetch = useMemo(() => {
+		let t: any;
+		return (q: string) => {
+			clearTimeout(t);
+			t = setTimeout(async () => {
+				try {
+					const token = localStorage.getItem('authToken') || '';
+					const res = await fetch(`${(window as any).API_BASE_URL || ''}/api/v1/catalog/tags?query=${encodeURIComponent(q)}`, {
+						headers: { Authorization: `Bearer ${token}` }
+					});
+					if (res.ok) {
+						const json = await res.json();
+						const arr = Array.isArray(json.data) ? json.data.map((r: any) => String(r.tag)) : [];
+						setTagOptions(arr);
+					}
+				} catch {}
+			}, 250);
+		};
+	}, []);
+
 	return <Box display="flex" flexDirection="column" gap="10px">
 	<TextField 
 			label="Nazwa" 
@@ -44,16 +64,27 @@ export default function EditProduct({productNum, onClose} :{productNum?: number,
 			value={editedProduct.description} 
 			onChange={e => setEditedProduct({...editedProduct, description: e.target.value})}
 		/>
-	<TextField 
-			label="Tagi (oddzielone przecinkami)" 
-			fullWidth
-			placeholder="np. dom, drewniany, premium"
-			value={tagsText}
-			onChange={e => setTagsText(e.target.value)}
-		/>
-		{(editedProduct.tags && editedProduct.tags.length > 0) && (
-			<Typography variant="caption" color="text.secondary">Tagi: {(editedProduct.tags || []).join(', ')}</Typography>
+	<Autocomplete
+		multiple
+		freeSolo
+		options={tagOptions}
+		value={editedProduct.tags || []}
+		onInputChange={(_, q) => debouncedFetch(q)}
+		onChange={(_, value) => setEditedProduct({ ...editedProduct, tags: (value as string[]).map(v => String(v).trim()).filter(Boolean) })}
+		renderTags={(value: readonly string[], getTagProps) =>
+			value.map((option: string, index: number) => (
+				<Chip variant="outlined" label={option} {...getTagProps({ index })} />
+			))
+		}
+		renderInput={(params) => (
+			<TextField
+				{...(params as any)}
+				size="small"
+				label="Tagi (wybierz z listy lub wpisz)"
+				placeholder="np. dom, drewniany, premium"
+			/>
 		)}
+	/>
 		{editedProduct.img && <img src={editedProduct.img} alt="Zdjęcie produktu"/>}
 		<Button
 			component="label"
@@ -67,10 +98,8 @@ export default function EditProduct({productNum, onClose} :{productNum?: number,
 				accept="image/*"
 			/>
 		</Button>
-		{/* TODO support update */}
 		<Button onClick={()=> { 
-			const tags = tagsText.split(',').map(s => s.trim()).filter(Boolean);
-			addProduct({...editedProduct, tags}); 
+			addProduct({...editedProduct}); 
 			onClose();
 		}} disabled={!canSave} fullWidth>Zapisz</Button> 
 	</Box>

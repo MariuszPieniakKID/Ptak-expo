@@ -9,6 +9,48 @@ const getLinkedExhibitorIdByEmail = async (email) => {
   return result.rows.length > 0 ? result.rows[0].id : null;
 };
 
+// Suggest catalog tags (optionally filtered by prefix)
+router.get('/tags', verifyToken, requireExhibitorOrAdmin, async (req, res) => {
+  try {
+    const q = String(req.query.query || '').trim().toLowerCase();
+    let result;
+    if (q) {
+      result = await db.query(
+        `SELECT tag, usage_count FROM catalog_tags WHERE LOWER(tag) LIKE $1 ORDER BY usage_count DESC, tag ASC LIMIT 50`,
+        [q + '%']
+      );
+    } else {
+      result = await db.query(
+        `SELECT tag, usage_count FROM catalog_tags ORDER BY usage_count DESC, tag ASC LIMIT 50`
+      );
+    }
+    return res.json({ success: true, data: result.rows });
+  } catch (e) {
+    console.error('Error fetching catalog tags:', e);
+    return res.status(500).json({ success: false, message: 'Failed to fetch tags' });
+  }
+});
+
+// Upsert catalog tags
+router.post('/tags', verifyToken, requireExhibitorOrAdmin, async (req, res) => {
+  try {
+    const { tags } = req.body || {};
+    if (!Array.isArray(tags)) return res.status(400).json({ success: false, message: 'tags must be an array' });
+    const cleaned = Array.from(new Set(tags.map(t => String(t || '').trim()).filter(Boolean)));
+    for (const tag of cleaned) {
+      await db.query(
+        `INSERT INTO catalog_tags(tag, usage_count) VALUES($1, 1)
+         ON CONFLICT (tag) DO UPDATE SET usage_count = catalog_tags.usage_count + 1, updated_at = NOW()`,
+        [tag]
+      );
+    }
+    return res.json({ success: true });
+  } catch (e) {
+    console.error('Error upserting catalog tags:', e);
+    return res.status(500).json({ success: false, message: 'Failed to upsert tags' });
+  }
+});
+
 // GET current exhibitor entry (exhibitor/admin) - event-specific with fallbacks
 router.get('/:exhibitionId', verifyToken, requireExhibitorOrAdmin, async (req, res) => {
   try {
@@ -133,14 +175,16 @@ router.post('/:exhibitionId', verifyToken, requireExhibitorOrAdmin, async (req, 
       result = insertRes;
     }
 
-    // synchronise catalogTags opportunistically into socials if no dedicated column exists
-    if (catalogTags !== null && catalogTags !== undefined) {
-      try {
+    // synchronise catalogTags by upserting to catalog_tags dictionary (no direct column yet)
+    if (catalogTags) {
+      const list = String(catalogTags).split(',').map(s => s.trim()).filter(Boolean);
+      for (const tag of list) {
         await db.query(
-          `UPDATE exhibitor_catalog_entries SET socials = $1, updated_at = NOW() WHERE exhibitor_id = $2 AND exhibition_id IS NULL`,
-          [socials ?? null, exhibitorId]
+          `INSERT INTO catalog_tags(tag, usage_count) VALUES($1, 1)
+           ON CONFLICT (tag) DO UPDATE SET usage_count = catalog_tags.usage_count + 1, updated_at = NOW()`,
+          [tag]
         );
-      } catch {}
+      }
     }
 
     // Synchronize key fields back to exhibitors table so admin sees the same data
@@ -221,6 +265,16 @@ router.post('/:exhibitionId/products', verifyToken, requireExhibitorOrAdmin, asy
     );
 
     if (upd.rows.length > 0) {
+      // Upsert tags dictionary
+      if (Array.isArray(tags)) {
+        for (const tag of Array.from(new Set(tags.map(t => String(t || '').trim()).filter(Boolean)))) {
+          await db.query(
+            `INSERT INTO catalog_tags(tag, usage_count) VALUES($1, 1)
+             ON CONFLICT (tag) DO UPDATE SET usage_count = catalog_tags.usage_count + 1, updated_at = NOW()`,
+            [tag]
+          );
+        }
+      }
       return res.json({ success: true, message: 'Product added', data: upd.rows[0].products });
     }
 
@@ -239,6 +293,16 @@ router.post('/:exhibitionId/products', verifyToken, requireExhibitorOrAdmin, asy
        RETURNING products`,
       [exhibitorId, name, img || null, description || '', Array.isArray(tabList) ? JSON.stringify(tabList) : null, Array.isArray(tags) ? JSON.stringify(tags) : JSON.stringify([])]
     );
+    // Upsert tags dictionary
+    if (Array.isArray(tags)) {
+      for (const tag of Array.from(new Set(tags.map(t => String(t || '').trim()).filter(Boolean)))) {
+        await db.query(
+          `INSERT INTO catalog_tags(tag, usage_count) VALUES($1, 1)
+           ON CONFLICT (tag) DO UPDATE SET usage_count = catalog_tags.usage_count + 1, updated_at = NOW()`,
+          [tag]
+        );
+      }
+    }
     return res.json({ success: true, message: 'Product added', data: ins.rows[0].products });
   } catch (error) {
     console.error('Error adding catalog product:', error);
