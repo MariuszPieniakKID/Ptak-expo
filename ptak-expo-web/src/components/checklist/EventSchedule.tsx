@@ -12,8 +12,8 @@ export default function EventSchedule() {
 	return (
 		<ChecklistCard 
 				title={<Typography fontSize={16}>Plan wydarzeń na stoisku ({checklist.events.length})</Typography>} 
-				icon={<img src={`/assets/checklist-step-5.svg`} alt=""></img>} 
-				checked={filled[5]}
+				icon={<img src={`/assets/checklist-step-4.svg`} alt=""></img>} 
+				checked={filled[4]}
 		>
 			{checklist.events.map(e => <EventInfoBox event={e}/>)}
 
