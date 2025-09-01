@@ -581,7 +581,7 @@ const ExhibitorCardPage: React.FC = () => {
                 <CustomTabPanel value={value} index={0}>
                   <Box className={styles.tabPaperContainer}>
                     <Box className={styles.leftContainer}>{renderSelectedEvent()}</Box>
-                    <Box className={styles.rightContainer}>{exhibitor ? <ExhibitorWithEvent exhibitorId={exhibitor.id} exhibitor={exhibitor} hasLogo={hasLogo} /> : null}</Box>
+                    <Box className={styles.rightContainer}>{exhibitor ? <ExhibitorWithEvent exhibitorId={exhibitor.id} exhibitor={exhibitor} hasLogo={hasLogo} exhibitionId={selectedEvent ?? undefined} /> : null}</Box>
                   </Box>
                 </CustomTabPanel>
                 <CustomTabPanel value={value} index={1}>

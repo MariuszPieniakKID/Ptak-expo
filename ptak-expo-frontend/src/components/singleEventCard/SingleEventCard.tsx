@@ -9,7 +9,8 @@ import { useAuth } from '../../contexts/AuthContext';
 import { ReactComponent as ProgressIcon21 } from '../../assets/21%.svg';
 import { ReactComponent as ProgressIcon65 } from '../../assets/65%.svg';
 import { Box } from '@mui/material';
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
+import { getBrandingFiles } from '../../services/api';
 import ConfirmationDialog from '../confirmationDialog/ConfirmationDialog';
 
 interface SingleEventCardProps {
@@ -45,6 +46,7 @@ const SingleEventCard: React.FC<SingleEventCardProps> = ({
 }) => {
   const [openConfirm, setOpenConfirm] = useState(false);
   const { token } = useAuth();
+  const [resolvedLogoUrl, setResolvedLogoUrl] = useState<string | null>(null);
 
   const formatDateRange = useCallback((startDate: string, endDate: string): string => {
     const start = new Date(startDate);
@@ -93,6 +95,49 @@ const SingleEventCard: React.FC<SingleEventCardProps> = ({
     setOpenConfirm(false);
   };
 
+  // Resolve event logo dynamically
+  useEffect(() => {
+    const resolveLogo = async () => {
+      try {
+        if (!token) {
+          setResolvedLogoUrl(null);
+          return;
+        }
+        // 1) Prefer exhibitor-scoped branding for this event
+        if (typeof exhibitorId === 'number') {
+          try {
+            const filesResp = await getBrandingFiles(exhibitorId, id, token);
+            const files = filesResp.files || {};
+            const preferredKey = files['event_logo']
+              ? 'event_logo'
+              : Object.keys(files).find(k => k.toLowerCase().includes('logo'))
+                || Object.keys(files)[0];
+            if (preferredKey && files[preferredKey]) {
+              setResolvedLogoUrl(getBrandingFileUrl(exhibitorId, files[preferredKey].fileName, token));
+              return;
+            }
+          } catch {
+            // ignore, try global
+          }
+        }
+        // 2) Fall back to global event_logo
+        try {
+          const g = await getBrandingFiles(null, id, token);
+          if (g.files && g.files['event_logo']) {
+            setResolvedLogoUrl(getBrandingFileUrl(null, g.files['event_logo'].fileName, token));
+            return;
+          }
+        } catch {
+          // ignore
+        }
+        setResolvedLogoUrl(null);
+      } catch {
+        setResolvedLogoUrl(null);
+      }
+    };
+    void resolveLogo();
+  }, [token, id, exhibitorId]);
+
   return (
     <>
       <Box className={`${styles.eventCardContainer} ${token && eventLogoFileName ? styles.hasLogoCard : ''}`}>
@@ -108,10 +153,10 @@ const SingleEventCard: React.FC<SingleEventCardProps> = ({
         </Box>
 
         <Box className={styles.container}>
-          <Box className={`${styles.eventLogo} ${token && eventLogoFileName ? styles.hasLogo : ''}`}>
-            {token && eventLogoFileName ? (
+          <Box className={`${styles.eventLogo} ${(token && (resolvedLogoUrl || eventLogoFileName)) ? styles.hasLogo : ''}`}>
+            {token && (resolvedLogoUrl || eventLogoFileName) ? (
               <img
-                src={getBrandingFileUrl(null, eventLogoFileName, token)}
+                src={resolvedLogoUrl || getBrandingFileUrl(null, eventLogoFileName as string, token)}
                 alt={`${title} logo`}
                 className={styles.logo}
               />

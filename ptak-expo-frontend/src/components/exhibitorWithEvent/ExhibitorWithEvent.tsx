@@ -137,12 +137,14 @@ type ExhibitorWithEventProps = {
   exhibitorId: number;
   exhibitor?: Exhibitor;
   hasLogo?: boolean;
+  exhibitionId?: number; // preferowany wybrany event
 };
 
 function ExhibitorWithEvent({ 
   allowMultiple = true,
   exhibitorId,
-  exhibitor
+  exhibitor,
+  exhibitionId: preferredExhibitionId
 }: ExhibitorWithEventProps) {
   const [catalogDescription, setCatalogDescription] = useState<string>('');
   const [catalogWebsite, setCatalogWebsite] = useState<string>('');
@@ -181,14 +183,14 @@ function ExhibitorWithEvent({
         } catch {}
 
         // 2) Fetch branding files to determine logo filename and URL
-        const exhibitionId = Array.isArray(exhibitor.events) && exhibitor.events.length > 0
+        const exhibitionId = preferredExhibitionId ?? (Array.isArray(exhibitor.events) && exhibitor.events.length > 0
           ? (exhibitor.events[0] as any).id
-          : undefined;
+          : undefined);
         if (exhibitionId) {
           try {
             const filesResp = await getBrandingFiles(exhibitor.id, exhibitionId, token);
             const files = filesResp.files || {};
-            // Prefer event_logo, else first file that contains 'logo' in key, else any
+            // Prefer exhibitor-scoped event_logo, else first key containing 'logo', else any
             const preferredKey = files['event_logo']
               ? 'event_logo'
               : Object.keys(files).find(k => k.toLowerCase().includes('logo'))
@@ -197,13 +199,24 @@ function ExhibitorWithEvent({
               const file = files[preferredKey];
               nextLogoFileName = file.originalName || file.fileName;
               nextLogoUrl = getBrandingFileUrl(exhibitor.id, file.fileName, token);
-            } else {
-              nextLogoFileName = null;
-              nextLogoUrl = null;
             }
           } catch {
-            nextLogoFileName = null;
-            nextLogoUrl = null;
+            // ignore, will try global fallback below
+          }
+
+          // If exhibitor-scoped logo not found, fall back to global event logo
+          if (!nextLogoUrl) {
+            try {
+              const globalFilesResp = await getBrandingFiles(null, exhibitionId, token);
+              const gfiles = globalFilesResp.files || {};
+              if (gfiles['event_logo']) {
+                const file = gfiles['event_logo'];
+                nextLogoFileName = file.originalName || file.fileName;
+                nextLogoUrl = getBrandingFileUrl(null, file.fileName, token);
+              }
+            } catch {
+              // ignore, will try catalogue fallback below
+            }
           }
         } else {
           nextLogoFileName = null;
@@ -248,7 +261,7 @@ function ExhibitorWithEvent({
       } catch {}
     };
     loadData();
-  }, [exhibitor?.id, exhibitor?.events]);
+  }, [exhibitor?.id, exhibitor?.events, preferredExhibitionId]);
 
   const items = buildItems(exhibitor, catalogDescription, catalogWebsite, logoFileName, logoUrl, products);
   const [expandedAccordions, setExpandedAccordions] = useState<boolean[]>(Array(items.length).fill(false));
