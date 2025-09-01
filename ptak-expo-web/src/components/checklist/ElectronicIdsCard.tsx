@@ -68,7 +68,7 @@ export default function ElectronicIdsCard() {
 	return (
 	<ChecklistCard icon={
 			<img src={`/assets/checklist-step-6.svg`} alt=""></img>} 
-			title={<Typography fontSize={16}> Generuj E-identyfikatory ({checklist.electrionicIds.length})</Typography>} checked={filled[3]}> 
+			title={<Typography fontSize={16}> Generuj E-identyfikatory ({checklist.electrionicIds.length})</Typography>} checked={filled[5]}> 
 			<AddElectronicId />
 			<Table>
 				<TableBody>
