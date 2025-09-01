@@ -44,7 +44,12 @@ const PlannedEventCard: React.FC<PlannedEventCardProps> = ({ event, onSelect }) 
             </Typography>
           </Box>
           <Box className={styles.boxLink}>
-            <Chip label={`${event.readiness}%`} className={`${styles.readiness} ${getReadinessClass(event.readiness)}`} />
+            {/* Hide readiness visually, keep DOM minimal for future use */}
+            <Chip
+              label={`${event.readiness}%`}
+              className={`${styles.readiness} ${getReadinessClass(event.readiness)}`}
+              sx={{ visibility: 'hidden' }}
+            />
             <Link onClick={onSelect} className={styles.selectBtn} color="text.primary">
               Zmień
             </Link>

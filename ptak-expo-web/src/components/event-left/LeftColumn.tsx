@@ -53,13 +53,28 @@ const LeftColumn: React.FC<LeftColumnProps> = ({ eventId, isDarkBg = false }) =>
       try {
         const res = await exhibitionsAPI.getById(Number(eventId));
         const e = res.data;
+        // Try loading global branding files to resolve event_logo
+        let logoUrl = '/assets/logo192.png';
+        try {
+          const branding = await brandingAPI.getGlobal(Number(eventId));
+          const files = branding.data?.files || {};
+          if (files['event_logo']?.fileName) {
+            logoUrl = brandingAPI.serveGlobalUrl(files['event_logo'].fileName);
+          } else if (e.event_logo_file_name) {
+            logoUrl = brandingAPI.serveGlobalUrl(e.event_logo_file_name);
+          }
+        } catch {
+          if (e.event_logo_file_name) {
+            logoUrl = brandingAPI.serveGlobalUrl(e.event_logo_file_name);
+          }
+        }
         setEvent({
           id: String(e.id),
           title: e.name,
           dateFrom: formatDate(e.start_date || e.startDate),
           dateTo: formatDate(e.end_date || e.endDate),
           readiness: 0,
-          logoUrl: e.event_logo_file_name ? brandingAPI.serveGlobalUrl(e.event_logo_file_name) : '/assets/logo192.png',
+          logoUrl,
           daysLeft: calcDaysLeft(e.start_date || e.startDate),
         });
       } catch (_err) {
@@ -75,8 +90,8 @@ const LeftColumn: React.FC<LeftColumnProps> = ({ eventId, isDarkBg = false }) =>
       {event && (
         <>
           <PlannedEventCard event={event} onSelect={() => navigate('/dashboard')} />
+          {/* Hide readiness for now */}
           <ChecklistProgressCard
-            readiness={event.readiness}
             daysLeft={event.daysLeft}
             onChecklistClick={() => navigate(`/event/${event.id}/checklist`)}
           />

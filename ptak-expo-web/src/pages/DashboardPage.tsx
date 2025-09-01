@@ -203,25 +203,14 @@ const DashboardPage: React.FC = () => {
               />
             </div>
             
-            {/* Progress bar - only for first 3 events */}
+            {/* Hide progress percentage and bar (keep structure minimal if needed later) */}
             {index < 3 && (
-              <>
-                {index === 0 ? (
-                  <div className={getProgressContainerClass(index)}>
-                    <div className={getProgressBarClass(index, completion < 50)}>
-                      <b className={styles.b}>{completion}%</b>
-                    </div>
-                    <div className={getProgressTextClass(index)}>Gotowość:</div>
-                  </div>
-                ) : (
-                  <>
-                    <div className={getProgressBarClass(index, completion < 50)}>
-                      <b className={styles.b}>{completion}%</b>
-                    </div>
-                    <div className={getProgressTextClass(index)}>Gotowość:</div>
-                  </>
-                )}
-              </>
+              <div className={getProgressContainerClass(index)} style={{ visibility: 'hidden' }}>
+                <div className={getProgressBarClass(index, completion < 50)}>
+                  <b className={styles.b}>{completion}%</b>
+                </div>
+                <div className={getProgressTextClass(index)}>Gotowość:</div>
+              </div>
             )}
           </div>
         );
