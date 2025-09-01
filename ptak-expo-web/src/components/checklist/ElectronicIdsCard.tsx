@@ -2,6 +2,7 @@ import { Box, createTheme, TextField, ThemeProvider, Typography, Button } from "
 import ChecklistCard from "./checklistCard";
 import { useChecklist } from "../../contexts/ChecklistContext";
 import api from '../../services/api';
+import { useParams } from 'react-router-dom';
 const boxSx = {
 	backgroundColor: '#fff',
 	padding: "40px",
@@ -83,14 +84,14 @@ function AddElectronicId({ eventId }: { eventId: number }) {
 
 export default function ElectronicIdsCard() {
 	const {filled} = useChecklist();
-	// Use global selection as event context (ChecklistProvider already set this in route)
-	const eventId = Number((window as any).currentSelectedExhibitionId) || 0;
+	const { eventId } = useParams();
+	const eventIdNum = Number(eventId) || 0;
 
 	return (
 	<ChecklistCard icon={
 			<img src={`/assets/checklist-step-4.svg`} alt=""></img>} 
 			title={<Typography fontSize={16}> Generuj E-identyfikatory </Typography>} checked={filled[3]}> 
-			<AddElectronicId eventId={eventId} />
+			<AddElectronicId eventId={eventIdNum} />
 
 			None
 		</ChecklistCard>

@@ -662,7 +662,13 @@ router.post('/me/people', verifyToken, requireExhibitorOrAdmin, async (req, res)
     const exhibitorId = exRes.rows[0].id;
     const { fullName, position, email: personEmail, exhibitionId } = req.body || {};
     if (!fullName) return res.status(400).json({ success: false, message: 'Imię i nazwisko są wymagane' });
-    const exId = Number.isInteger(parseInt(exhibitionId, 10)) ? parseInt(exhibitionId, 10) : null;
+    let exId = null;
+    try {
+      const parsed = parseInt(exhibitionId, 10);
+      if (Number.isInteger(parsed) && parsed > 0) {
+        exId = parsed;
+      }
+    } catch {}
     const ins = await db.query(
       'INSERT INTO exhibitor_people (exhibitor_id, exhibition_id, full_name, position, email) VALUES ($1, $2, $3, $4, $5) RETURNING id, full_name, position, email, created_at',
       [exhibitorId, exId, fullName, position || null, personEmail || null]
@@ -670,6 +676,6 @@ router.post('/me/people', verifyToken, requireExhibitorOrAdmin, async (req, res)
     return res.status(201).json({ success: true, data: ins.rows[0] });
   } catch (e) {
     console.error('Error creating exhibitor person:', e);
-    return res.status(500).json({ success: false, message: 'Błąd podczas zapisu osoby' });
+    return res.status(500).json({ success: false, message: 'Błąd podczas zapisu osoby', details: e?.message });
   }
 });
