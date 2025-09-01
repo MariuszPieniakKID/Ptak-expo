@@ -92,8 +92,6 @@ export default function ElectronicIdsCard() {
 			<img src={`/assets/checklist-step-4.svg`} alt=""></img>} 
 			title={<Typography fontSize={16}> Generuj E-identyfikatory </Typography>} checked={filled[3]}> 
 			<AddElectronicId eventId={eventIdNum} />
-
-			None
 		</ChecklistCard>
 	)
 }
