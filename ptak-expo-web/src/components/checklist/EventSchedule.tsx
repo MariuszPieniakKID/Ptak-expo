@@ -15,7 +15,7 @@ export default function EventSchedule() {
 				icon={<img src={`/assets/checklist-step-5.svg`} alt=""></img>} 
 				checked={filled[4]}
 		>
-			{checklist.events.map(e => <EventInfoBox event={e}/>)}
+			{checklist.events.map((e, i) => <EventInfoBox key={`${e.name}-${e.date}-${e.startTime}-${i}`} event={e}/>)}
 
 			{!showAdd && <><IconButton onClick={() => setShowAdd(true)}><Add/></IconButton> Dodaj wydarzenie</>}
 			{showAdd && <AddEvent key={checklist.events.length} onClose={() => setShowAdd(false)}/>}

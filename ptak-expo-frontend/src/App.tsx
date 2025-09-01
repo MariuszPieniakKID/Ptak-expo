@@ -13,6 +13,7 @@ import EventDetailPage from './pages/EventDetailPage';
 import ApiDocsPage from './pages/ApiDocsPage';
 import './App.scss';
 import EventsPageAlt from './pages/eventsPage/EventsPage_';
+import DatabasePage from './pages/databasePage/DatabasePage';
 
 function App() {
   return (
@@ -37,6 +38,12 @@ function App() {
             <Route path="/uzytkownicy" element={
               <ProtectedRoute requiredRole="admin">
                 <UsersPage />
+              </ProtectedRoute>
+            } />
+            {/* Protected Database page - Admin only */}
+            <Route path="/baza-danych" element={
+              <ProtectedRoute requiredRole="admin">
+                <DatabasePage />
               </ProtectedRoute>
             } />
             

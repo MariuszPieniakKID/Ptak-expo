@@ -112,6 +112,8 @@ export default function CompanyInfo() {
 			saveCompanyInfo({ ...checklist.companyInfo, website: v})}/>
 		<StringEdit name="Adres e-mail" value={(checklist.companyInfo as any).contactEmail || null} onChange={(v) => 
 			saveCompanyInfo({ ...checklist.companyInfo, contactEmail: v as any})}/>
+		<StringEdit name="Tagi dla katalogu (po przecinku)" value={(checklist.companyInfo as any).catalogTags || null} onChange={(v) => 
+			saveCompanyInfo({ ...(checklist.companyInfo as any), catalogTags: v as any})}/>
 		<StringEdit name="Social Media" value={checklist.companyInfo.socials} onChange={(v) => 
 			saveCompanyInfo({ ...checklist.companyInfo, socials: v})} multiline/>
 

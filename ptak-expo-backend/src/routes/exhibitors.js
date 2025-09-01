@@ -330,6 +330,53 @@ router.post('/', verifyToken, requireAdmin, async (req, res) => {
   }
 });
 
+// People endpoints for current exhibitor (must be BEFORE dynamic "/:id" routes)
+router.get('/me/people', verifyToken, requireExhibitorOrAdmin, async (req, res) => {
+  try {
+    const email = req.user.email;
+    const exRes = await db.query('SELECT id FROM exhibitors WHERE email = $1 LIMIT 1', [email]);
+    if (exRes.rows.length === 0) return res.status(404).json({ success: false, message: 'Wystawca nie został znaleziony' });
+    const exhibitorId = exRes.rows[0].id;
+    const exhibitionId = req.query.exhibitionId ? parseInt(req.query.exhibitionId, 10) : null;
+    let people;
+    if (Number.isInteger(exhibitionId)) {
+      people = await db.query('SELECT id, full_name, position, email, created_at FROM exhibitor_people WHERE exhibitor_id = $1 AND exhibition_id = $2 ORDER BY created_at DESC', [exhibitorId, exhibitionId]);
+    } else {
+      people = await db.query('SELECT id, full_name, position, email, created_at FROM exhibitor_people WHERE exhibitor_id = $1 ORDER BY created_at DESC', [exhibitorId]);
+    }
+    return res.json({ success: true, data: people.rows });
+  } catch (e) {
+    console.error('Error fetching exhibitor people:', e);
+    return res.status(500).json({ success: false, message: 'Błąd podczas pobierania osób' });
+  }
+});
+
+router.post('/me/people', verifyToken, requireExhibitorOrAdmin, async (req, res) => {
+  try {
+    const email = req.user.email;
+    const exRes = await db.query('SELECT id FROM exhibitors WHERE email = $1 LIMIT 1', [email]);
+    if (exRes.rows.length === 0) return res.status(404).json({ success: false, message: 'Wystawca nie został znaleziony' });
+    const exhibitorId = exRes.rows[0].id;
+    const { fullName, position, email: personEmail, exhibitionId } = req.body || {};
+    if (!fullName) return res.status(400).json({ success: false, message: 'Imię i nazwisko są wymagane' });
+    let exId = null;
+    try {
+      const parsed = parseInt(exhibitionId, 10);
+      if (Number.isInteger(parsed) && parsed > 0) {
+        exId = parsed;
+      }
+    } catch {}
+    const ins = await db.query(
+      'INSERT INTO exhibitor_people (exhibitor_id, exhibition_id, full_name, position, email) VALUES ($1, $2, $3, $4, $5) RETURNING id, full_name, position, email, created_at',
+      [exhibitorId, exId, fullName, position || null, personEmail || null]
+    );
+    return res.status(201).json({ success: true, data: ins.rows[0] });
+  } catch (e) {
+    console.error('Error creating exhibitor person:', e);
+    return res.status(500).json({ success: false, message: 'Błąd podczas zapisu osoby', details: e?.message });
+  }
+});
+
 // DELETE /api/v1/exhibitors/:id - usuń wystawcę (tylko admin)
 router.delete('/:id', verifyToken, requireAdmin, async (req, res) => {
   try {
@@ -547,6 +594,67 @@ router.delete('/:id/assign-event/:exhibitionId', verifyToken, requireAdmin, asyn
       error: 'Błąd podczas odłączania wystawcy od wydarzenia',
       message: error.message
     });
+  }
+});
+
+// GET /api/v1/exhibitors/people - lista wszystkich osób (e-identyfikatory) dodanych przez wystawców (tylko admin)
+router.get('/people', verifyToken, requireAdmin, async (req, res) => {
+  try {
+    console.log('[exhibitors/people] request', { user: req.user?.email, role: req.user?.role, query: req.query });
+    const exhibitionId = req.query.exhibitionId ? parseInt(req.query.exhibitionId, 10) : null;
+
+    // Ensure table exists; if not, return empty list instead of 500
+    const existsCheck = await db.query(`
+      SELECT EXISTS (
+        SELECT 1 FROM information_schema.tables 
+        WHERE table_name = 'exhibitor_people'
+      ) as exists
+    `);
+    const tableExists = Boolean(existsCheck?.rows?.[0]?.exists);
+    if (!tableExists) {
+      console.log('[exhibitors/people] exhibitor_people table does not exist, returning empty list');
+      return res.json({ success: true, data: [] });
+    }
+
+    let query = `
+      SELECT 
+        p.id,
+        p.full_name,
+        p.email,
+        p.position AS person_position,
+        p.exhibition_id,
+        p.created_at,
+        e.id as exhibitor_id,
+        e.company_name
+      FROM exhibitor_people p
+      LEFT JOIN exhibitors e ON e.id = p.exhibitor_id
+    `;
+    const params = [];
+    if (Number.isInteger(exhibitionId)) {
+      query += ' WHERE p.exhibition_id = $1';
+      params.push(exhibitionId);
+    }
+    query += ' ORDER BY p.created_at DESC';
+
+    console.log('[exhibitors/people] executing query', { query, params });
+    const result = await db.query(query, params);
+    console.log('[exhibitors/people] rows', result.rows?.length || 0);
+    const data = result.rows.map(row => ({
+      id: row.id,
+      fullName: row.full_name,
+      email: row.email,
+      type: row.person_position,
+      exhibitionId: row.exhibition_id,
+      createdAt: row.created_at,
+      exhibitorId: row.exhibitor_id,
+      exhibitorCompanyName: row.company_name
+    }));
+
+    return res.json({ success: true, data });
+  } catch (error) {
+    console.error('Error fetching people list:', error?.message || error);
+    if (error?.stack) console.error(error.stack);
+    return res.status(500).json({ success: false, message: 'Błąd podczas pobierania bazy danych', details: String(error?.message || error) });
   }
 });
 

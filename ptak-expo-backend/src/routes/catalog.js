@@ -96,7 +96,8 @@ router.post('/:exhibitionId', verifyToken, requireExhibitorOrAdmin, async (req, 
       contactInfo = null,
       website = null,
       socials = null,
-      contactEmail = null
+      contactEmail = null,
+      catalogTags = null
     } = req.body || {};
 
     // Upsert catalog entry
@@ -130,6 +131,16 @@ router.post('/:exhibitionId', verifyToken, requireExhibitorOrAdmin, async (req, 
         [exhibitorId, name, logo, description, contactInfo, website, socials, contactEmail]
       );
       result = insertRes;
+    }
+
+    // synchronise catalogTags opportunistically into socials if no dedicated column exists
+    if (catalogTags !== null && catalogTags !== undefined) {
+      try {
+        await db.query(
+          `UPDATE exhibitor_catalog_entries SET socials = $1, updated_at = NOW() WHERE exhibitor_id = $2 AND exhibition_id IS NULL`,
+          [socials ?? null, exhibitorId]
+        );
+      } catch {}
     }
 
     // Synchronize key fields back to exhibitors table so admin sees the same data
@@ -186,7 +197,7 @@ router.post('/:exhibitionId/products', verifyToken, requireExhibitorOrAdmin, asy
   try {
     const exhibitorId = await getLinkedExhibitorIdByEmail(req.user.email);
     if (!exhibitorId) return res.status(400).json({ success: false, message: 'Exhibitor not linked to user' });
-    const { name, img, description, tabList } = req.body || {};
+    const { name, img, description, tabList, tags } = req.body || {};
     if (!name) return res.status(400).json({ success: false, message: 'Missing product name' });
 
     
@@ -199,13 +210,14 @@ router.post('/:exhibitionId/products', verifyToken, requireExhibitorOrAdmin, asy
              'name', $2::text,
              'img', $3::text,
              'description', $4::text,
-             'tabList', COALESCE($5::jsonb, 'null'::jsonb)
+             'tabList', COALESCE($5::jsonb, 'null'::jsonb),
+             'tags', COALESCE($6::jsonb, '[]'::jsonb)
            )
          ),
              updated_at = NOW()
        WHERE exhibitor_id = $1 AND exhibition_id IS NULL
        RETURNING products`,
-      [exhibitorId, name, img || null, description || '', Array.isArray(tabList) ? JSON.stringify(tabList) : null]
+      [exhibitorId, name, img || null, description || '', Array.isArray(tabList) ? JSON.stringify(tabList) : null, Array.isArray(tags) ? JSON.stringify(tags) : JSON.stringify([])]
     );
 
     if (upd.rows.length > 0) {
@@ -220,11 +232,12 @@ router.post('/:exhibitionId/products', verifyToken, requireExhibitorOrAdmin, asy
            'name', $2::text,
            'img', $3::text,
            'description', $4::text,
-           'tabList', COALESCE($5::jsonb, 'null'::jsonb)
+           'tabList', COALESCE($5::jsonb, 'null'::jsonb),
+           'tags', COALESCE($6::jsonb, '[]'::jsonb)
          )
        ))
        RETURNING products`,
-      [exhibitorId, name, img || null, description || '', Array.isArray(tabList) ? JSON.stringify(tabList) : null]
+      [exhibitorId, name, img || null, description || '', Array.isArray(tabList) ? JSON.stringify(tabList) : null, Array.isArray(tags) ? JSON.stringify(tags) : JSON.stringify([])]
     );
     return res.json({ success: true, message: 'Product added', data: ins.rows[0].products });
   } catch (error) {

@@ -9,6 +9,17 @@ export interface User {
   phone?: string;
 }
 
+export interface ExhibitorPerson {
+  id: number;
+  fullName: string;
+  email: string | null;
+  type: string | null;
+  exhibitorId: number;
+  exhibitorCompanyName: string;
+  exhibitionId?: number | null;
+  createdAt: string;
+}
+
 export interface Exhibitor {
   id: number;
   nip: string;
@@ -193,6 +204,20 @@ export const deleteExhibitor = async (exhibitorId: number, token: string): Promi
     throw new Error(errorData.error || 'Failed to delete exhibitor');
   }
   return response.json();
+};
+
+// People (E-identyfikatory) API
+export const fetchExhibitorPeople = async (token: string, exhibitionId?: number): Promise<ExhibitorPerson[]> => {
+  const query = typeof exhibitionId === 'number' ? `?exhibitionId=${encodeURIComponent(String(exhibitionId))}` : '';
+  const response = await apiCall(`${config.API_BASE_URL}/api/v1/exhibitors/people${query}`, {
+    headers: { 'Authorization': `Bearer ${token}` },
+  });
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data?.message || 'Nie udało się pobrać bazy danych');
+  }
+  const list = Array.isArray(data.data) ? data.data : [];
+  return list.sort((a: ExhibitorPerson, b: ExhibitorPerson) => a.fullName.localeCompare(b.fullName));
 };
 
 export interface AddExhibitorPayload {
