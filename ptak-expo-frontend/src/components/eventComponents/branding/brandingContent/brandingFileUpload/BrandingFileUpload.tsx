@@ -12,15 +12,11 @@ import { ReactComponent as MoreInfoIcon} from '../../../../../assets/moreInfoIco
 import { ReactComponent as ImgIcon} from '../../../../../assets/imgIcon.svg';
 import { ReactComponent as WastebasketIcon } from "../../../../../assets/wastebasket.svg";
 
-//
 import { ReactComponent as ContractIcon } from "../../../../../assets/redPDF.svg";
 import { ReactComponent as RedXIcon } from '../../../../../assets/redX.svg';
 import { ReactComponent as BlackUploadIcon } from '../../../../../assets/blackUploadIcon.svg';
 import CustomField from '../../../../customField/CustomField';
-<<<<<<< HEAD
-=======
 
->>>>>>> origin/frontend-admin-panel-cd-events-details
 interface BrandingFileUploadProps {
   fileType: string;
   title: string;
@@ -80,14 +76,12 @@ const BrandingFileUpload: React.FC<BrandingFileUploadProps> = ({
       maxSize
     });
 
-    // Check file format
     const fileExtension = file.name.split('.').pop()?.toLowerCase();
     if (!fileExtension || !allowedFormats.includes(fileExtension)) {
       console.log('❌ Invalid format:', fileExtension, 'allowed:', allowedFormats);
       return `Nieprawidłowy format pliku. Dozwolone formaty: ${allowedFormats.join(', ')}`;
     }
 
-    // Check file size
     if (file.size > maxSize) {
       console.log('❌ File too large:', file.size, 'max:', maxSize);
       return `Plik jest za duży. Maksymalny rozmiar: ${formatFileSize(maxSize)}`;
@@ -111,7 +105,7 @@ const BrandingFileUpload: React.FC<BrandingFileUploadProps> = ({
       exhibitionId,
       fileType,
       hasToken: !!token,
-              note: exhibitorId ? 'Using exhibitor-specific branding' : 'Using global event branding'
+      note: exhibitorId ? 'Using exhibitor-specific branding' : 'Using global event branding'
     });
     
     if (!token) {
@@ -134,11 +128,11 @@ const BrandingFileUpload: React.FC<BrandingFileUploadProps> = ({
       console.log('📤 Calling uploadBrandingFile API...');
       await uploadBrandingFile(file, exhibitorId ?? null, exhibitionId, fileType, token);
       console.log('✅ Upload successful!');
-      resetFileInput(); // Reset input after successful upload
+      resetFileInput();
       onUploadSuccess();
     } catch (error: any) {
       console.error('❌ Upload error:', error);
-      resetFileInput(); // Reset input also on error to allow retry
+      resetFileInput();
       onUploadError(error.message || 'Błąd podczas przesyłania pliku');
     } finally {
       setIsUploading(false);
@@ -214,9 +208,10 @@ const BrandingFileUpload: React.FC<BrandingFileUploadProps> = ({
     if (!existingFile || !token) return null;
     return getBrandingFileUrl(exhibitorId ?? null, existingFile.fileName, token);
   };
-const handleChangePdfName = (e: React.ChangeEvent<HTMLInputElement>) => {
-  setNewPdfName(e.target.value);
-};
+
+  const handleChangePdfName = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setNewPdfName(e.target.value);
+  };
 
   const isImage = existingFile?.mimeType?.startsWith('image/');
   const isPdf = existingFile?.mimeType === 'application/pdf';
@@ -260,7 +255,6 @@ const handleChangePdfName = (e: React.ChangeEvent<HTMLInputElement>) => {
               onDrop={handleDrop}
               onDragOver={handleDragOver}
               onDragLeave={handleDragLeave}
-              //onClick={()=>console.log("Dlaczego nie otwiera się okno do wyboru pliku")}
               onClick={(e) => {
                       if (isUploading) {
                         e.preventDefault();

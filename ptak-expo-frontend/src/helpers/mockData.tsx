@@ -48,7 +48,7 @@ export const sampleEvents: _AddedEvent[] = [
     endTime: '14:00',
     eventType: 'Demontaż stoiska',
     eventTitle: 'Warsztaty programistyczne',
-    description: 'Ogólnie znana teza głosi, iż użytkownika może rozpraszać zrozumiała zawartość strony, kiedy ten chce zobaczyć sam jej wygląd. Jedną z mocnych stron używania Lorem Ipsum jest to, że ma wiele różnych „kombinacji” zdań, słów i akapitów, w przeciwieństwie do zwykłego: „tekst, tekst, tekst”, sprawiającego, że wygląda to „zbyt czytelnie” po polsku. Wielu webmasterów i designerów używa Lorem Ipsum jako domyślnego modelu tekstu i wpisanie w internetowej wyszukiwarce ‘lorem ipsum’ spowoduje znalezienie bardzo wielu stron, które wciąż są w budowie. Wiele wersji tekstu ewoluowało i zmieniało się przez lata, czasem przez przypadek, czasem specjalnie (humorystyczne wstawki itd).',
+    description: 'Ogólnie znana teza ...',
     organizer: 'Organizator B',
     isDelete: false,
     isEdited: false,
@@ -62,7 +62,7 @@ export const sampleEvents: _AddedEvent[] = [
     endTime: '15:00',
     eventType: 'Prezentacja produktów i marek',
     eventTitle: 'Wystawa sztuki nowoczesnej',
-    description: 'Ogólnie znana teza głosi, iż użytkownika może rozpraszać zrozumiała zawartość strony, kiedy ten chce zobaczyć sam jej wygląd. Jedną z mocnych stron używania Lorem Ipsum jest to, że ma wiele różnych „kombinacji” zdań, słów i akapitów, w przeciwieństwie do zwykłego: „tekst, tekst, tekst”, sprawiającego, że wygląda to „zbyt czytelnie” po polsku. Wielu webmasterów i designerów używa Lorem Ipsum jako domyślnego modelu tekstu i wpisanie w internetowej wyszukiwarce ‘lorem ipsum’ spowoduje znalezienie bardzo wielu stron, które wciąż są w budowie. Wiele wersji tekstu ewoluowało i zmieniało się przez lata, czasem przez przypadek, czasem specjalnie (humorystyczne wstawki itd).',
+    description: 'Ogólnie znana teza ...',
     organizer: 'Organizator C',
     addedToOfficialCatalog: true,
   },
@@ -233,47 +233,38 @@ export const sampleEvents: _AddedEvent[] = [
 export const samplrTradeAwardsFair:_TradeAwardsFair[]=[
   {
     id: 1,
-    message: "ASTOR jest produktem targowym, który będzie prezentowany na targach Warsaw Industry Week w Nadarzynie w dniach 5-7 listopada 2024 roku (stanowisko B3). W 2023 roku ASTOR brał udział w targach WIW w dniach 24-26 października. ASTOR to czołowy dostawca inteligentnych technologii dla przemysłu, co sugeruje, że prezentowany produkt będzie związany z tą dziedziną. Produkt został również wyróżniony w kategorii „Produkt Targowy”."
+    message: "ASTOR jest produktem targowym..."
   },
   {
     id: 2,
     message: "Wyróżnienie za innowacyjny produkt"
   },
-
 ];
 
 export const fieldOptions: OptionType[] = [
-    { value: 'all', label: 'Wszystkie' },
-    { value: 'house', label: 'Dom' },
-    { value: 'reaEstate', label: 'Nieruchomości' },
-    { value: 'garden', label: 'Ogród' },
-    { value: 'other', label: 'Inne' },
-<<<<<<< HEAD
-  ];
-=======
+  { value: 'all', label: 'Wszystkie' },
+  { value: 'house', label: 'Dom' },
+  { value: 'reaEstate', label: 'Nieruchomości' },
+  { value: 'garden', label: 'Ogród' },
+  { value: 'other', label: 'Inne' },
 ];
->>>>>>> origin/frontend-admin-panel-cd-events-details
 
 export const buildDaysOption: OptionType[] = [
   { value: 'indywidualny', label: 'Montaż indywidualny' },
   { value: 'systemowy', label: 'Montaż systemowy' },
 ];
-<<<<<<< HEAD
-=======
+
 export const invitationOptions:OptionType[]=[
   { value: 'standard', label: 'Standardowe' },
   { value: 'exhibitore', label: 'Dla wystawców' },
   { value: 'guest', label: 'Dla gości' },
   { value: 'vip', label: 'VIP' },
-]
+];
+
 export const specialOffersOptions:OptionType[]=[
   { value: 'fastTrack', label: '🚀 Fast Track – szybkie wejście bez kolejki' },
-  { value: 'personalizedPackage', label: '📦 Imienny pakiet – dostarczony przed wydarzeniem  ' },
+  { value: 'personalizedPackage', label: '📦 Imienny pakiet – dostarczony przed wydarzeniem' },
   { value: 'welcomPack', label: '🎁 Welcome Pack z upominkiem' },
   { value: 'accessToConferencesAndWorkshops', label: '🎤 Dostęp do konferencji i warsztatów' },
-  { value: 'FreeparkingAndConciergrService', label:` 🤝 Darmowy parking i opiekę concierge`},
-]
-
-
-
->>>>>>> origin/frontend-admin-panel-cd-events-details
+  { value: 'FreeparkingAndConciergrService', label: ` 🤝 Darmowy parking i opiekę concierge`},
+];
