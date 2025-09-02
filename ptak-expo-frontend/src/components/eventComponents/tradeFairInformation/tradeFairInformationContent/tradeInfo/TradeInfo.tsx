@@ -71,27 +71,19 @@ const TradeInfo: React.FC<TradeInfoProps> = ({ exhibitionId }) => {
     { id: '1', date: '', startTime: '09:00', endTime: '17:00' }
   ]);
 
-const [buildType, setBuildType] = useState<string>('Montaż indywidualny');
-
-
-
-
+  const [buildType, setBuildType] = useState<string>('');
 
   const [tradeSpaces, setTradeSpaces] = useState<TradeSpace[]>([
     { id: '1', name: '', hallName: 'HALA A' }
   ]);
 
-
-  
-  // Nowy stan dla uproszczonej funkcjonalności Plan Targów
   const [hallEntries, setHallEntries] = useState<HallEntry[]>([]);
   const [newHallName, setNewHallName] = useState<string>('');
   const [newHallFile, setNewHallFile] = useState<File | null>(null);
   const [tradeMessage, setTradeMessage] = useState<string>('');
   
-  // Loading and error states
   const [loading, setLoading] = useState<boolean>(true);
-  const [, setSaving] = useState<boolean>(false);
+  const [_saving, setSaving] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
   const [successMessage, setSuccessMessage] = useState<string>('');
 
@@ -111,9 +103,6 @@ const [buildType, setBuildType] = useState<string>('Montaż indywidualny');
     }
   };
 
-
-
-  // Load existing trade info when component mounts
   useEffect(() => {
     const loadTradeInfo = async () => {
       if (!token) return;
@@ -135,10 +124,7 @@ const [buildType, setBuildType] = useState<string>('Montaż indywidualny');
           setTradeSpaces(data.tradeSpaces.length > 0 ? data.tradeSpaces : [
             { id: '1', name: '', hallName: 'HALA A' }
           ]);
-          
 
-
-          // Load hall entries from tradeSpaces
           const existingHalls: HallEntry[] = data.tradeSpaces.map(space => ({
             id: space.id,
             hallName: space.hallName,
@@ -170,12 +156,11 @@ const [buildType, setBuildType] = useState<string>('Montaż indywidualny');
       setError('');
       setSuccessMessage('');
 
-      // Convert hall entries back to tradeSpaces format for saving
       const spacesFromHalls: TradeSpace[] = hallEntries.map((hall, index) => ({
         id: (index + 1).toString(),
         name: hall.hallName,
         hallName: hall.hallName,
-        filePath: null, // Will be set after file upload
+        filePath: null,
         originalFilename: null
       }));
 
@@ -188,11 +173,9 @@ const [buildType, setBuildType] = useState<string>('Montaż indywidualny');
         tradeMessage
       };
 
-      // First save trade info (creates trade_spaces in database)
       const response = await saveTradeInfo(exhibitionId, tradeInfoData, token);
       
       if (response.success) {
-        // Now upload files for halls that have them
         const hallsWithFiles = hallEntries.filter(hall => hall.file);
         
         if (hallsWithFiles.length > 0) {
@@ -201,11 +184,9 @@ const [buildType, setBuildType] = useState<string>('Montaż indywidualny');
           for (let i = 0; i < hallsWithFiles.length; i++) {
             const hall = hallsWithFiles[i];
             try {
-              // Use index+1 as spaceId to match database structure
               const spaceId = (hallEntries.indexOf(hall) + 1).toString();
               const result = await uploadTradePlan(hall.file!, exhibitionId, spaceId, token!);
               
-              // Update hall entry with file info
               setHallEntries(prev => 
                 prev.map(h => 
                   h.id === hall.id 
@@ -213,7 +194,7 @@ const [buildType, setBuildType] = useState<string>('Montaż indywidualny');
                         ...h, 
                         filePath: result.file.path,
                         originalFilename: result.file.originalname,
-                        file: null // Clear local file after upload
+                        file: null 
                       }
                     : h
                 )
@@ -237,9 +218,6 @@ const [buildType, setBuildType] = useState<string>('Montaż indywidualny');
     }
   };
 
-
-
-  // Nowe funkcje dla uproszczonej funkcjonalności Plan Targów
   const handleNewHallFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file && file.type === 'application/pdf') {
@@ -247,7 +225,6 @@ const [buildType, setBuildType] = useState<string>('Montaż indywidualny');
     } else if (file) {
       setError('Proszę wybrać plik PDF');
     }
-    // Clear the input
     event.target.value = '';
   };
   
@@ -255,79 +232,6 @@ const [buildType, setBuildType] = useState<string>('Montaż indywidualny');
 
   const handleButtonClick = () => {
     inputRef.current?.click();
-  };
-
-
-  const handleAddHall = async () => {
-    if (!newHallName.trim()) {
-      setError('Proszę podać nazwę hali');
-      return;
-    }
-
-    setError('');
-    const newId = Date.now().toString();
-    
-    // Add to hall entries (locally, without uploading yet)
-    const newHall: HallEntry = {
-      id: newId,
-      hallName: newHallName.trim(),
-      file: newHallFile, // Store file locally for now
-      filePath: null,
-      originalFilename: null
-    };
-
-    // Optimistically add hall to UI
-    setHallEntries(prev => [...prev, newHall]);
-
-    // Auto-save immediately and upload file (if provided)
-    // Defer to next tick to ensure state is applied
-    setTimeout(async () => {
-      try {
-        await handleSave();
-        setSuccessMessage('Hala została dodana i zapisana.');
-      } catch (e: any) {
-        setError(e?.message || 'Błąd podczas automatycznego zapisu');
-      } finally {
-        // Reset form after save attempt
-        setNewHallName('');
-        setNewHallFile(null);
-        setTimeout(() => setSuccessMessage(''), 4000);
-      }
-    }, 0);
-  };
-
-  const handleRemoveHall = (id: string) => {
-    setHallEntries(prev => prev.filter(hall => hall.id !== id));
-    setSuccessMessage('Hala została usunięta');
-    setTimeout(() => setSuccessMessage(''), 3000);
-  };
-
-  const handleDownloadHallFile = async (hallId: string, filename: string) => {
-    try {
-      const blob = await downloadTradePlan(exhibitionId, hallId, token!);
-      
-      // Create download link
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = filename;
-      document.body.appendChild(link);
-      link.click();
-      
-      // Cleanup
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
-      
-    } catch (error: any) {
-      console.error('Error downloading file:', error);
-      setError(error.message || 'Błąd podczas pobierania pliku');
-    }
-  };
-
-  const handleSendMessage = () => {
-    // Logika wysyłania wiadomości
-    console.log('Sending trade message...', tradeMessage);
-    setTradeMessage('');
   };
 
   if (loading) {
@@ -344,21 +248,18 @@ const [buildType, setBuildType] = useState<string>('Montaż indywidualny');
     <Box className={styles.tradeInfo_}>
        <Divider className={styles.divider_}/>
       
-      {/* Error Message */}
       {error && (
         <Alert severity="error" sx={{ mb: 2 }}>
           {error}
         </Alert>
       )}
 
-      {/* Success Message */}
       {successMessage && (
         <Alert severity="success" sx={{ mb: 2 }}>
           {successMessage}
         </Alert>
       )}
 
-      {/* Godziny otwarcia targów */}
       <Box className={styles.section_}>
         <CustomTypography className={styles.subsectionTitle_}> Godziny otwarcia targów:</CustomTypography>
         <Box className={styles.hoursWrapper_}>
@@ -419,7 +320,6 @@ const [buildType, setBuildType] = useState<string>('Montaż indywidualny');
 
       <Divider className={styles.divider_}/>
 
-      {/* Kontakt podczas targów */}
       <Box  className={styles.section_}>
         <CustomTypography className={styles.subsectionTitle_}> Kontakt podczas targów:</CustomTypography>
         <Box className={styles.contactWrapper_}>
@@ -452,7 +352,6 @@ const [buildType, setBuildType] = useState<string>('Montaż indywidualny');
 
       <Divider className={styles.divider_} />
 
-      {/* Zabudowa targowa */}
       <Box className={styles.section_}>
         <CustomTypography className={styles.subsectionTitle_}>Zabudowa targowa:</CustomTypography>
         <Box className={styles.technicalsWrapper_}>
@@ -461,8 +360,8 @@ const [buildType, setBuildType] = useState<string>('Montaż indywidualny');
                 <CustomSelectMui
                     label=""
                     placeholder="Wybierz typ"
-                    value={buildType}
-                    onChange={(buildType) => setBuildType(buildType)}
+                    value={buildType} 
+                    onChange={(value) => setBuildType(String(value))}
                     options={buildDaysOption}
                     size="small"
                     fullWidth
@@ -540,7 +439,6 @@ const [buildType, setBuildType] = useState<string>('Montaż indywidualny');
       </Box>
       <Divider className={styles.divider} />
 
-      {/* Plan Targów - Nowa uproszczona wersja */}
       <Box className={styles.section_}>
         <CustomTypography className={styles.subsectionTitle_}>Plan Targów:</CustomTypography>
         <Box className={styles.fairPlnRow}>
@@ -594,14 +492,15 @@ const [buildType, setBuildType] = useState<string>('Montaż indywidualny');
             {(newHallFile && newHallName.trim() !== '' )
             &&<Box 
             className={styles.actionBox} 
-            onClick={handleAddHall}>
+            onClick={async () => {
+              await handleSave();
+            }}>
               <AddIconSVG className={styles.actionIcon}/>
               <CustomTypography className={styles.actionLabel}>dodaj przestrzeń</CustomTypography>
             </Box>}
           </Box>
         </Box>
         <Box className={styles.planSection}>
-          {/* Lista dodanych hal */}
           {hallEntries.length > 0 && (
             <Box className={styles.wrapperHallList_}>
               <CustomTypography className={styles.fileListTitle_}>Przestrzeń:</CustomTypography>
@@ -615,13 +514,19 @@ const [buildType, setBuildType] = useState<string>('Montaż indywidualny');
                   ?<Box className={styles.actionRow_}> 
                       <ComponentWithDocument 
                         documentType={'pdf'} 
-                        handleDelete={() => handleRemoveHall(hall.id)}
+                        handleDelete={() => setHallEntries(prev => prev.filter(h => h.id !== hall.id))}
                         documentName={hall.originalFilename} 
                         deleteIcon={'cross'}
                         />
                       <ComponentWithAction 
                         iconType={'download'} 
-                        handleAction={() => handleDownloadHallFile(hall.id, hall.originalFilename!)}
+                        handleAction={async () => {
+                          try {
+                            await downloadTradePlan(exhibitionId, hall.id, token!);
+                          } catch (e) {
+                            console.error(e);
+                          }
+                        }}
                         buttonTitle={''}
                         />
                     </Box>
@@ -629,7 +534,7 @@ const [buildType, setBuildType] = useState<string>('Montaż indywidualny');
                     ? <Box className={styles.actionRow_}>
                         <ComponentWithDocument 
                         documentType={'pdf'} 
-                        handleDelete={() => handleRemoveHall(hall.id)}
+                        handleDelete={() => setHallEntries(prev => prev.filter(h => h.id !== hall.id))}
                         documentName={`${hall.file.name} (nie zapisany)`} 
                         deleteIcon={'cross'}
                         />
@@ -638,7 +543,7 @@ const [buildType, setBuildType] = useState<string>('Montaż indywidualny');
                         <CustomTypography className={styles.noFile_}>Brak pliku</CustomTypography>
                         <ComponentWithDocument 
                         documentType={'noFile'} 
-                        handleDelete={() => handleRemoveHall(hall.id)}
+                        handleDelete={() => setHallEntries(prev => prev.filter(h => h.id !== hall.id))}
                         documentName={``} 
                         deleteIcon={'cross'}
                         />
@@ -653,8 +558,6 @@ const [buildType, setBuildType] = useState<string>('Montaż indywidualny');
 
       <Divider className={styles.divider} />
 
-      {/* Zapisz button */}
-
       <Box className={styles.section_}>
         <Box className={styles.saveButtonRow}>
             <ComponentWithAction
@@ -667,12 +570,14 @@ const [buildType, setBuildType] = useState<string>('Montaż indywidualny');
         </Box>
       <Divider className={styles.divider} />
 
-      {/* Wiadomości dotyczące targów */}
       <Box className={styles.section_}>
         <CustomTypography className={styles.subsectionTitle_}>Wiadomości dotyczące targów:</CustomTypography>
         <Box className={styles.messageWrapper_}>
           <SendMessageContainer
-             onSend={  handleSendMessage}
+             onSend={() => {
+               console.log('Sending trade message...', tradeMessage);
+               setTradeMessage('');
+             }}
              paperBackground={'#f5f5f5'}
              legendBackground={'#f5f5f5'}
              textAreaBackground={'#f5f5f5'}

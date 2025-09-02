@@ -2,9 +2,9 @@
 > ptak-expo-frontend@0.2.0 start
 > react-scripts start
 
-(node:96349) [DEP_WEBPACK_DEV_SERVER_ON_AFTER_SETUP_MIDDLEWARE] DeprecationWarning: 'onAfterSetupMiddleware' option is deprecated. Please use the 'setupMiddlewares' option.
+(node:94244) [DEP_WEBPACK_DEV_SERVER_ON_AFTER_SETUP_MIDDLEWARE] DeprecationWarning: 'onAfterSetupMiddleware' option is deprecated. Please use the 'setupMiddlewares' option.
 (Use `node --trace-deprecation ...` to show where the warning was created)
-(node:96349) [DEP_WEBPACK_DEV_SERVER_ON_BEFORE_SETUP_MIDDLEWARE] DeprecationWarning: 'onBeforeSetupMiddleware' option is deprecated. Please use the 'setupMiddlewares' option.
+(node:94244) [DEP_WEBPACK_DEV_SERVER_ON_BEFORE_SETUP_MIDDLEWARE] DeprecationWarning: 'onBeforeSetupMiddleware' option is deprecated. Please use the 'setupMiddlewares' option.
 Starting the development server...
 
 Compiled successfully!
@@ -12,24 +12,3126 @@ Compiled successfully!
 You can now view ptak-expo-frontend in the browser.
 
   Local:            http://localhost:3000
-  On Your Network:  http://172.20.10.4:3000
+  On Your Network:  http://192.168.100.190:3000
 
 Note that the development build is not optimized.
 To create a production build, use npm run build.
 
+LOG from ./node_modules/sass-loader/dist/cjs.js sass-loader ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[7].use[1]!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[7].use[2]!./node_modules/resolve-url-loader/index.js??ruleSet[1].rules[1].oneOf[7].use[3]!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[7].use[4]!./src/index.scss
+<w> Deprecation The legacy JS API is deprecated and will be removed in Dart Sass 2.0.0.
+<w> 
+<w> More info: https://sass-lang.com/d/legacy-js-api
+<w> 
+<w> null
+<w> Deprecation Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+<w> 
+<w> More info and automated migrator: https://sass-lang.com/d/import
+<w> 
+<w> src/index.scss 1:9  root stylesheet
+<w> 
+<w> Deprecation Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+<w> 
+<w> More info and automated migrator: https://sass-lang.com/d/import
+<w> 
+<w> src/index.scss 2:9  root stylesheet
+<w> 
+<w> Deprecation Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+<w> 
+<w> More info and automated migrator: https://sass-lang.com/d/import
+<w> 
+<w> src/index.scss 3:9  root stylesheet
+<w>
+
+LOG from ./node_modules/sass-loader/dist/cjs.js sass-loader ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[7].use[1]!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[7].use[2]!./node_modules/resolve-url-loader/index.js??ruleSet[1].rules[1].oneOf[7].use[3]!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[7].use[4]!./src/App.scss
+<w> Deprecation The legacy JS API is deprecated and will be removed in Dart Sass 2.0.0.
+<w> 
+<w> More info: https://sass-lang.com/d/legacy-js-api
+<w> 
+<w> null
+
+LOG from ./node_modules/sass-loader/dist/cjs.js sass-loader ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[1]!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[2]!./node_modules/resolve-url-loader/index.js??ruleSet[1].rules[1].oneOf[8].use[3]!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[4]!./src/pages/EventDetailPage.module.scss
+<w> Deprecation The legacy JS API is deprecated and will be removed in Dart Sass 2.0.0.
+<w> 
+<w> More info: https://sass-lang.com/d/legacy-js-api
+<w> 
+<w> null
+<w> Deprecation Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+<w> 
+<w> More info and automated migrator: https://sass-lang.com/d/import
+<w> 
+<w> src/pages/EventDetailPage.module.scss 3:9  root stylesheet
+<w> 
+<w> Deprecation Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+<w> 
+<w> More info and automated migrator: https://sass-lang.com/d/import
+<w> 
+<w> src/pages/EventDetailPage.module.scss 4:9  root stylesheet
+<w> 
+<w> Deprecation Sass's behavior for declarations that appear after nested
+<w> rules will be changing to match the behavior specified by CSS in an upcoming
+<w> version. To keep the existing behavior, move the declaration above the nested
+<w> rule. To opt into the new behavior, wrap the declaration in `& {}`.
+<w> 
+<w> More info: https://sass-lang.com/d/mixed-decls
+<w> 
+<w> src/pages/EventDetailPage.module.scss 29:3  root stylesheet
+<w> 
+<w> Deprecation Sass's behavior for declarations that appear after nested
+<w> rules will be changing to match the behavior specified by CSS in an upcoming
+<w> version. To keep the existing behavior, move the declaration above the nested
+<w> rule. To opt into the new behavior, wrap the declaration in `& {}`.
+<w> 
+<w> More info: https://sass-lang.com/d/mixed-decls
+<w> 
+<w> src/pages/EventDetailPage.module.scss 30:3  root stylesheet
+<w> 
+<w> Deprecation Sass's behavior for declarations that appear after nested
+<w> rules will be changing to match the behavior specified by CSS in an upcoming
+<w> version. To keep the existing behavior, move the declaration above the nested
+<w> rule. To opt into the new behavior, wrap the declaration in `& {}`.
+<w> 
+<w> More info: https://sass-lang.com/d/mixed-decls
+<w> 
+<w> src/pages/EventDetailPage.module.scss 31:3  root stylesheet
+<w>
+
+LOG from ./node_modules/sass-loader/dist/cjs.js sass-loader ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[1]!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[2]!./node_modules/resolve-url-loader/index.js??ruleSet[1].rules[1].oneOf[8].use[3]!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[4]!./src/pages/EventDetailsPage.module.scss
+<w> Deprecation The legacy JS API is deprecated and will be removed in Dart Sass 2.0.0.
+<w> 
+<w> More info: https://sass-lang.com/d/legacy-js-api
+<w> 
+<w> null
+<w> Deprecation Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+<w> 
+<w> More info and automated migrator: https://sass-lang.com/d/import
+<w> 
+<w> src/pages/EventDetailsPage.module.scss 2:9  root stylesheet
+<w> 
+<w> Deprecation Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+<w> 
+<w> More info and automated migrator: https://sass-lang.com/d/import
+<w> 
+<w> src/pages/EventDetailsPage.module.scss 3:9  root stylesheet
+<w> 
+<w> Deprecation Sass's behavior for declarations that appear after nested
+<w> rules will be changing to match the behavior specified by CSS in an upcoming
+<w> version. To keep the existing behavior, move the declaration above the nested
+<w> rule. To opt into the new behavior, wrap the declaration in `& {}`.
+<w> 
+<w> More info: https://sass-lang.com/d/mixed-decls
+<w> 
+<w> src/pages/EventDetailsPage.module.scss 26:3  root stylesheet
+<w> 
+<w> Deprecation Sass's behavior for declarations that appear after nested
+<w> rules will be changing to match the behavior specified by CSS in an upcoming
+<w> version. To keep the existing behavior, move the declaration above the nested
+<w> rule. To opt into the new behavior, wrap the declaration in `& {}`.
+<w> 
+<w> More info: https://sass-lang.com/d/mixed-decls
+<w> 
+<w> src/pages/EventDetailsPage.module.scss 27:3  root stylesheet
+<w> 
+<w> Deprecation Sass's behavior for declarations that appear after nested
+<w> rules will be changing to match the behavior specified by CSS in an upcoming
+<w> version. To keep the existing behavior, move the declaration above the nested
+<w> rule. To opt into the new behavior, wrap the declaration in `& {}`.
+<w> 
+<w> More info: https://sass-lang.com/d/mixed-decls
+<w> 
+<w> src/pages/EventDetailsPage.module.scss 28:3  root stylesheet
+<w>
+
+LOG from ./node_modules/sass-loader/dist/cjs.js sass-loader ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[1]!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[2]!./node_modules/resolve-url-loader/index.js??ruleSet[1].rules[1].oneOf[8].use[3]!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[4]!./src/pages/loginPage/LoginPage.module.scss
+<w> Deprecation The legacy JS API is deprecated and will be removed in Dart Sass 2.0.0.
+<w> 
+<w> More info: https://sass-lang.com/d/legacy-js-api
+<w> 
+<w> null
+<w> Deprecation Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+<w> 
+<w> More info and automated migrator: https://sass-lang.com/d/import
+<w> 
+<w> src/pages/loginPage/LoginPage.module.scss 1:9  root stylesheet
+<w> 
+<w> Deprecation Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+<w> 
+<w> More info and automated migrator: https://sass-lang.com/d/import
+<w> 
+<w> src/pages/loginPage/LoginPage.module.scss 2:9  root stylesheet
+<w>
+
+LOG from ./node_modules/sass-loader/dist/cjs.js sass-loader ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[1]!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[2]!./node_modules/resolve-url-loader/index.js??ruleSet[1].rules[1].oneOf[8].use[3]!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[4]!./src/pages/usersPage/UsersPage.module.scss
+<w> Deprecation The legacy JS API is deprecated and will be removed in Dart Sass 2.0.0.
+<w> 
+<w> More info: https://sass-lang.com/d/legacy-js-api
+<w> 
+<w> null
+<w> Deprecation Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+<w> 
+<w> More info and automated migrator: https://sass-lang.com/d/import
+<w> 
+<w> src/pages/usersPage/UsersPage.module.scss 1:9  root stylesheet
+<w> 
+<w> Deprecation Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+<w> 
+<w> More info and automated migrator: https://sass-lang.com/d/import
+<w> 
+<w> src/pages/usersPage/UsersPage.module.scss 2:9  root stylesheet
+<w> 
+<w> Deprecation Sass's behavior for declarations that appear after nested
+<w> rules will be changing to match the behavior specified by CSS in an upcoming
+<w> version. To keep the existing behavior, move the declaration above the nested
+<w> rule. To opt into the new behavior, wrap the declaration in `& {}`.
+<w> 
+<w> More info: https://sass-lang.com/d/mixed-decls
+<w> 
+<w> src/pages/usersPage/UsersPage.module.scss 24:3  root stylesheet
+<w> 
+<w> Deprecation Sass's behavior for declarations that appear after nested
+<w> rules will be changing to match the behavior specified by CSS in an upcoming
+<w> version. To keep the existing behavior, move the declaration above the nested
+<w> rule. To opt into the new behavior, wrap the declaration in `& {}`.
+<w> 
+<w> More info: https://sass-lang.com/d/mixed-decls
+<w> 
+<w> src/pages/usersPage/UsersPage.module.scss 25:3  root stylesheet
+<w> 
+<w> Deprecation Sass's behavior for declarations that appear after nested
+<w> rules will be changing to match the behavior specified by CSS in an upcoming
+<w> version. To keep the existing behavior, move the declaration above the nested
+<w> rule. To opt into the new behavior, wrap the declaration in `& {}`.
+<w> 
+<w> More info: https://sass-lang.com/d/mixed-decls
+<w> 
+<w> src/pages/usersPage/UsersPage.module.scss 26:3  root stylesheet
+<w>
+
+LOG from ./node_modules/sass-loader/dist/cjs.js sass-loader ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[1]!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[2]!./node_modules/resolve-url-loader/index.js??ruleSet[1].rules[1].oneOf[8].use[3]!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[4]!./src/pages/exshibitorsPage/ExhibitorsPage.module.scss
+<w> Deprecation The legacy JS API is deprecated and will be removed in Dart Sass 2.0.0.
+<w> 
+<w> More info: https://sass-lang.com/d/legacy-js-api
+<w> 
+<w> null
+<w> Deprecation Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+<w> 
+<w> More info and automated migrator: https://sass-lang.com/d/import
+<w> 
+<w> src/pages/exshibitorsPage/ExhibitorsPage.module.scss 1:9  root stylesheet
+<w> 
+<w> Deprecation Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+<w> 
+<w> More info and automated migrator: https://sass-lang.com/d/import
+<w> 
+<w> src/pages/exshibitorsPage/ExhibitorsPage.module.scss 2:9  root stylesheet
+<w> 
+<w> Deprecation Sass's behavior for declarations that appear after nested
+<w> rules will be changing to match the behavior specified by CSS in an upcoming
+<w> version. To keep the existing behavior, move the declaration above the nested
+<w> rule. To opt into the new behavior, wrap the declaration in `& {}`.
+<w> 
+<w> More info: https://sass-lang.com/d/mixed-decls
+<w> 
+<w> src/pages/exshibitorsPage/ExhibitorsPage.module.scss 24:3  root stylesheet
+<w> 
+<w> Deprecation Sass's behavior for declarations that appear after nested
+<w> rules will be changing to match the behavior specified by CSS in an upcoming
+<w> version. To keep the existing behavior, move the declaration above the nested
+<w> rule. To opt into the new behavior, wrap the declaration in `& {}`.
+<w> 
+<w> More info: https://sass-lang.com/d/mixed-decls
+<w> 
+<w> src/pages/exshibitorsPage/ExhibitorsPage.module.scss 25:3  root stylesheet
+<w> 
+<w> Deprecation Sass's behavior for declarations that appear after nested
+<w> rules will be changing to match the behavior specified by CSS in an upcoming
+<w> version. To keep the existing behavior, move the declaration above the nested
+<w> rule. To opt into the new behavior, wrap the declaration in `& {}`.
+<w> 
+<w> More info: https://sass-lang.com/d/mixed-decls
+<w> 
+<w> src/pages/exshibitorsPage/ExhibitorsPage.module.scss 26:3  root stylesheet
+<w>
+
+LOG from ./node_modules/sass-loader/dist/cjs.js sass-loader ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[1]!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[2]!./node_modules/resolve-url-loader/index.js??ruleSet[1].rules[1].oneOf[8].use[3]!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[4]!./src/pages/dashboardPage/DashboardPage.module.scss
+<w> Deprecation The legacy JS API is deprecated and will be removed in Dart Sass 2.0.0.
+<w> 
+<w> More info: https://sass-lang.com/d/legacy-js-api
+<w> 
+<w> null
+<w> Deprecation Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+<w> 
+<w> More info and automated migrator: https://sass-lang.com/d/import
+<w> 
+<w> src/pages/dashboardPage/DashboardPage.module.scss 1:9  root stylesheet
+<w> 
+<w> Deprecation Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+<w> 
+<w> More info and automated migrator: https://sass-lang.com/d/import
+<w> 
+<w> src/pages/dashboardPage/DashboardPage.module.scss 2:9  root stylesheet
+<w> 
+<w> Deprecation Sass's behavior for declarations that appear after nested
+<w> rules will be changing to match the behavior specified by CSS in an upcoming
+<w> version. To keep the existing behavior, move the declaration above the nested
+<w> rule. To opt into the new behavior, wrap the declaration in `& {}`.
+<w> 
+<w> More info: https://sass-lang.com/d/mixed-decls
+<w> 
+<w> src/pages/dashboardPage/DashboardPage.module.scss 27:3  root stylesheet
+<w> 
+<w> Deprecation Sass's behavior for declarations that appear after nested
+<w> rules will be changing to match the behavior specified by CSS in an upcoming
+<w> version. To keep the existing behavior, move the declaration above the nested
+<w> rule. To opt into the new behavior, wrap the declaration in `& {}`.
+<w> 
+<w> More info: https://sass-lang.com/d/mixed-decls
+<w> 
+<w> src/pages/dashboardPage/DashboardPage.module.scss 28:3  root stylesheet
+<w> 
+<w> Deprecation Sass's behavior for declarations that appear after nested
+<w> rules will be changing to match the behavior specified by CSS in an upcoming
+<w> version. To keep the existing behavior, move the declaration above the nested
+<w> rule. To opt into the new behavior, wrap the declaration in `& {}`.
+<w> 
+<w> More info: https://sass-lang.com/d/mixed-decls
+<w> 
+<w> src/pages/dashboardPage/DashboardPage.module.scss 29:3  root stylesheet
+<w>
+
+LOG from ./node_modules/sass-loader/dist/cjs.js sass-loader ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[1]!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[2]!./node_modules/resolve-url-loader/index.js??ruleSet[1].rules[1].oneOf[8].use[3]!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[4]!./src/pages/exhibitorCardPage/ExhibitorCardPageShort.module.scss
+<w> Deprecation The legacy JS API is deprecated and will be removed in Dart Sass 2.0.0.
+<w> 
+<w> More info: https://sass-lang.com/d/legacy-js-api
+<w> 
+<w> null
+<w> Deprecation Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+<w> 
+<w> More info and automated migrator: https://sass-lang.com/d/import
+<w> 
+<w> src/pages/exhibitorCardPage/ExhibitorCardPageShort.module.scss 1:9  root stylesheet
+<w> 
+<w> Deprecation Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+<w> 
+<w> More info and automated migrator: https://sass-lang.com/d/import
+<w> 
+<w> src/pages/exhibitorCardPage/ExhibitorCardPageShort.module.scss 2:9  root stylesheet
+<w> 
+<w> Deprecation Sass's behavior for declarations that appear after nested
+<w> rules will be changing to match the behavior specified by CSS in an upcoming
+<w> version. To keep the existing behavior, move the declaration above the nested
+<w> rule. To opt into the new behavior, wrap the declaration in `& {}`.
+<w> 
+<w> More info: https://sass-lang.com/d/mixed-decls
+<w> 
+<w> src/pages/exhibitorCardPage/ExhibitorCardPageShort.module.scss 24:3  root stylesheet
+<w> 
+<w> Deprecation Sass's behavior for declarations that appear after nested
+<w> rules will be changing to match the behavior specified by CSS in an upcoming
+<w> version. To keep the existing behavior, move the declaration above the nested
+<w> rule. To opt into the new behavior, wrap the declaration in `& {}`.
+<w> 
+<w> More info: https://sass-lang.com/d/mixed-decls
+<w> 
+<w> src/pages/exhibitorCardPage/ExhibitorCardPageShort.module.scss 25:3  root stylesheet
+<w> 
+<w> Deprecation Sass's behavior for declarations that appear after nested
+<w> rules will be changing to match the behavior specified by CSS in an upcoming
+<w> version. To keep the existing behavior, move the declaration above the nested
+<w> rule. To opt into the new behavior, wrap the declaration in `& {}`.
+<w> 
+<w> More info: https://sass-lang.com/d/mixed-decls
+<w> 
+<w> src/pages/exhibitorCardPage/ExhibitorCardPageShort.module.scss 26:3  root stylesheet
+<w>
+
+LOG from ./node_modules/sass-loader/dist/cjs.js sass-loader ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[1]!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[2]!./node_modules/resolve-url-loader/index.js??ruleSet[1].rules[1].oneOf[8].use[3]!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[4]!./src/pages/eventsPage/EventsPage_.module.scss
+<w> Deprecation The legacy JS API is deprecated and will be removed in Dart Sass 2.0.0.
+<w> 
+<w> More info: https://sass-lang.com/d/legacy-js-api
+<w> 
+<w> null
+<w> Deprecation Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+<w> 
+<w> More info and automated migrator: https://sass-lang.com/d/import
+<w> 
+<w> src/pages/eventsPage/EventsPage_.module.scss 1:9  root stylesheet
+<w> 
+<w> Deprecation Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+<w> 
+<w> More info and automated migrator: https://sass-lang.com/d/import
+<w> 
+<w> src/pages/eventsPage/EventsPage_.module.scss 2:9  root stylesheet
+<w> 
+<w> Deprecation Sass's behavior for declarations that appear after nested
+<w> rules will be changing to match the behavior specified by CSS in an upcoming
+<w> version. To keep the existing behavior, move the declaration above the nested
+<w> rule. To opt into the new behavior, wrap the declaration in `& {}`.
+<w> 
+<w> More info: https://sass-lang.com/d/mixed-decls
+<w> 
+<w> src/pages/eventsPage/EventsPage_.module.scss 24:3  root stylesheet
+<w> 
+<w> Deprecation Sass's behavior for declarations that appear after nested
+<w> rules will be changing to match the behavior specified by CSS in an upcoming
+<w> version. To keep the existing behavior, move the declaration above the nested
+<w> rule. To opt into the new behavior, wrap the declaration in `& {}`.
+<w> 
+<w> More info: https://sass-lang.com/d/mixed-decls
+<w> 
+<w> src/pages/eventsPage/EventsPage_.module.scss 25:3  root stylesheet
+<w> 
+<w> Deprecation Sass's behavior for declarations that appear after nested
+<w> rules will be changing to match the behavior specified by CSS in an upcoming
+<w> version. To keep the existing behavior, move the declaration above the nested
+<w> rule. To opt into the new behavior, wrap the declaration in `& {}`.
+<w> 
+<w> More info: https://sass-lang.com/d/mixed-decls
+<w> 
+<w> src/pages/eventsPage/EventsPage_.module.scss 26:3  root stylesheet
+<w>
+
+LOG from ./node_modules/sass-loader/dist/cjs.js sass-loader ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[1]!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[2]!./node_modules/resolve-url-loader/index.js??ruleSet[1].rules[1].oneOf[8].use[3]!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[4]!./src/components/menu/Menu.module.scss
+<w> Deprecation The legacy JS API is deprecated and will be removed in Dart Sass 2.0.0.
+<w> 
+<w> More info: https://sass-lang.com/d/legacy-js-api
+<w> 
+<w> null
+<w> Deprecation Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+<w> 
+<w> More info and automated migrator: https://sass-lang.com/d/import
+<w> 
+<w> src/components/menu/Menu.module.scss 1:9  root stylesheet
+<w> 
+<w> Deprecation Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+<w> 
+<w> More info and automated migrator: https://sass-lang.com/d/import
+<w> 
+<w> src/components/menu/Menu.module.scss 2:9  root stylesheet
+<w>
+
+LOG from ./node_modules/sass-loader/dist/cjs.js sass-loader ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[1]!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[2]!./node_modules/resolve-url-loader/index.js??ruleSet[1].rules[1].oneOf[8].use[3]!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[4]!./src/components/customLink/CustomLink.module.scss
+<w> Deprecation The legacy JS API is deprecated and will be removed in Dart Sass 2.0.0.
+<w> 
+<w> More info: https://sass-lang.com/d/legacy-js-api
+<w> 
+<w> null
+<w> Deprecation Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+<w> 
+<w> More info and automated migrator: https://sass-lang.com/d/import
+<w> 
+<w> src/components/customLink/CustomLink.module.scss 1:9  root stylesheet
+<w> 
+<w> Deprecation Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+<w> 
+<w> More info and automated migrator: https://sass-lang.com/d/import
+<w> 
+<w> src/components/customLink/CustomLink.module.scss 2:9  root stylesheet
+<w>
+
+LOG from ./node_modules/sass-loader/dist/cjs.js sass-loader ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[1]!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[2]!./node_modules/resolve-url-loader/index.js??ruleSet[1].rules[1].oneOf[8].use[3]!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[4]!./src/components/customField/CustomField.module.scss
+<w> Deprecation The legacy JS API is deprecated and will be removed in Dart Sass 2.0.0.
+<w> 
+<w> More info: https://sass-lang.com/d/legacy-js-api
+<w> 
+<w> null
+<w> Deprecation Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+<w> 
+<w> More info and automated migrator: https://sass-lang.com/d/import
+<w> 
+<w> src/components/customField/CustomField.module.scss 1:9  root stylesheet
+<w> 
+<w> Deprecation Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+<w> 
+<w> More info and automated migrator: https://sass-lang.com/d/import
+<w> 
+<w> src/components/customField/CustomField.module.scss 2:9  root stylesheet
+<w>
+
+LOG from ./node_modules/sass-loader/dist/cjs.js sass-loader ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[1]!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[2]!./node_modules/resolve-url-loader/index.js??ruleSet[1].rules[1].oneOf[8].use[3]!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[4]!./src/components/addExhibitorModal/AddExhibitorModal.module.scss
+<w> Deprecation The legacy JS API is deprecated and will be removed in Dart Sass 2.0.0.
+<w> 
+<w> More info: https://sass-lang.com/d/legacy-js-api
+<w> 
+<w> null
+<w> Deprecation Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+<w> 
+<w> More info and automated migrator: https://sass-lang.com/d/import
+<w> 
+<w> src/components/addExhibitorModal/AddExhibitorModal.module.scss 1:9  root stylesheet
+<w> 
+<w> Deprecation Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+<w> 
+<w> More info and automated migrator: https://sass-lang.com/d/import
+<w> 
+<w> src/components/addExhibitorModal/AddExhibitorModal.module.scss 2:9  root stylesheet
+<w> 
+<w> Deprecation Global built-in functions are deprecated and will be removed in Dart Sass 3.0.0.
+<w> Use color.adjust instead.
+<w> 
+<w> More info and automated migrator: https://sass-lang.com/d/import
+<w> 
+<w> src/components/addExhibitorModal/AddExhibitorModal.module.scss 347:23  root stylesheet
+<w> 
+<w> Deprecation darken() is deprecated. Suggestions:
+<w> 
+<w> color.scale($color, $lightness: -14.2857142857%)
+<w> color.adjust($color, $lightness: -10%)
+<w> 
+<w> More info: https://sass-lang.com/d/color-functions
+<w> 
+<w> src/components/addExhibitorModal/AddExhibitorModal.module.scss 347:23  root stylesheet
+<w>
+
+LOG from ./node_modules/sass-loader/dist/cjs.js sass-loader ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[1]!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[2]!./node_modules/resolve-url-loader/index.js??ruleSet[1].rules[1].oneOf[8].use[3]!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[4]!./src/components/customTypography/CustomTypography.module.scss
+<w> Deprecation The legacy JS API is deprecated and will be removed in Dart Sass 2.0.0.
+<w> 
+<w> More info: https://sass-lang.com/d/legacy-js-api
+<w> 
+<w> null
+<w> Deprecation Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+<w> 
+<w> More info and automated migrator: https://sass-lang.com/d/import
+<w> 
+<w> src/components/customTypography/CustomTypography.module.scss 1:9  root stylesheet
+<w> 
+<w> Deprecation Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+<w> 
+<w> More info and automated migrator: https://sass-lang.com/d/import
+<w> 
+<w> src/components/customTypography/CustomTypography.module.scss 2:9  root stylesheet
+<w>
+
+LOG from ./node_modules/sass-loader/dist/cjs.js sass-loader ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[1]!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[2]!./node_modules/resolve-url-loader/index.js??ruleSet[1].rules[1].oneOf[8].use[3]!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[4]!./src/components/addUserModal/AddUserModal.module.scss
+<w> Deprecation The legacy JS API is deprecated and will be removed in Dart Sass 2.0.0.
+<w> 
+<w> More info: https://sass-lang.com/d/legacy-js-api
+<w> 
+<w> null
+<w> Deprecation Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+<w> 
+<w> More info and automated migrator: https://sass-lang.com/d/import
+<w> 
+<w> src/components/addUserModal/AddUserModal.module.scss 1:9  root stylesheet
+<w> 
+<w> Deprecation Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+<w> 
+<w> More info and automated migrator: https://sass-lang.com/d/import
+<w> 
+<w> src/components/addUserModal/AddUserModal.module.scss 2:9  root stylesheet
+<w>
+
+LOG from ./node_modules/sass-loader/dist/cjs.js sass-loader ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[1]!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[2]!./node_modules/resolve-url-loader/index.js??ruleSet[1].rules[1].oneOf[8].use[3]!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[4]!./src/components/exhibitorWithEvent/ExhibitorWithEvent.module.scss
+<w> Deprecation The legacy JS API is deprecated and will be removed in Dart Sass 2.0.0.
+<w> 
+<w> More info: https://sass-lang.com/d/legacy-js-api
+<w> 
+<w> null
+<w> Deprecation Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+<w> 
+<w> More info and automated migrator: https://sass-lang.com/d/import
+<w> 
+<w> src/components/exhibitorWithEvent/ExhibitorWithEvent.module.scss 1:9  root stylesheet
+<w> 
+<w> Deprecation Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+<w> 
+<w> More info and automated migrator: https://sass-lang.com/d/import
+<w> 
+<w> src/components/exhibitorWithEvent/ExhibitorWithEvent.module.scss 2:9  root stylesheet
+<w>
+
+LOG from ./node_modules/sass-loader/dist/cjs.js sass-loader ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[1]!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[2]!./node_modules/resolve-url-loader/index.js??ruleSet[1].rules[1].oneOf[8].use[3]!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[4]!./src/components/singleEventCard/SingleEventCard.module.scss
+<w> Deprecation The legacy JS API is deprecated and will be removed in Dart Sass 2.0.0.
+<w> 
+<w> More info: https://sass-lang.com/d/legacy-js-api
+<w> 
+<w> null
+<w> Deprecation Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+<w> 
+<w> More info and automated migrator: https://sass-lang.com/d/import
+<w> 
+<w> src/components/singleEventCard/SingleEventCard.module.scss 1:9  root stylesheet
+<w> 
+<w> Deprecation Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+<w> 
+<w> More info and automated migrator: https://sass-lang.com/d/import
+<w> 
+<w> src/components/singleEventCard/SingleEventCard.module.scss 2:9  root stylesheet
+<w>
+
+LOG from ./node_modules/sass-loader/dist/cjs.js sass-loader ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[1]!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[2]!./node_modules/resolve-url-loader/index.js??ruleSet[1].rules[1].oneOf[8].use[3]!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[4]!./src/components/exhibitorTradeFairAwards/ExhibitorTradeFairAwards.module.scss
+<w> Deprecation The legacy JS API is deprecated and will be removed in Dart Sass 2.0.0.
+<w> 
+<w> More info: https://sass-lang.com/d/legacy-js-api
+<w> 
+<w> null
+
+LOG from ./node_modules/sass-loader/dist/cjs.js sass-loader ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[1]!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[2]!./node_modules/resolve-url-loader/index.js??ruleSet[1].rules[1].oneOf[8].use[3]!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[4]!./src/components/eventComponents/tradeFairInformation/tradeFairInformationContent/TradeFairInformationContent.module.scss
+<w> Deprecation The legacy JS API is deprecated and will be removed in Dart Sass 2.0.0.
+<w> 
+<w> More info: https://sass-lang.com/d/legacy-js-api
+<w> 
+<w> null
+<w> Deprecation Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+<w> 
+<w> More info and automated migrator: https://sass-lang.com/d/import
+<w> 
+<w> src/components/eventComponents/tradeFairInformation/tradeFairInformationContent/TradeFairInformationContent.module.scss 5:9  root stylesheet
+<w> 
+<w> Deprecation Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+<w> 
+<w> More info and automated migrator: https://sass-lang.com/d/import
+<w> 
+<w> src/components/eventComponents/tradeFairInformation/tradeFairInformationContent/TradeFairInformationContent.module.scss 6:9  root stylesheet
+<w>
+
+LOG from ./node_modules/sass-loader/dist/cjs.js sass-loader ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[1]!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[2]!./node_modules/resolve-url-loader/index.js??ruleSet[1].rules[1].oneOf[8].use[3]!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[4]!./src/components/exhibitorScheduleOfEventsAtTheStand/ExhibitorScheduleOfEventsAtTheStand.module.scss
+<w> Deprecation The legacy JS API is deprecated and will be removed in Dart Sass 2.0.0.
+<w> 
+<w> More info: https://sass-lang.com/d/legacy-js-api
+<w> 
+<w> null
+<w> Deprecation Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+<w> 
+<w> More info and automated migrator: https://sass-lang.com/d/import
+<w> 
+<w> src/components/exhibitorScheduleOfEventsAtTheStand/ExhibitorScheduleOfEventsAtTheStand.module.scss 1:9  root stylesheet
+<w> 
+<w> Deprecation Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+<w> 
+<w> More info and automated migrator: https://sass-lang.com/d/import
+<w> 
+<w> src/components/exhibitorScheduleOfEventsAtTheStand/ExhibitorScheduleOfEventsAtTheStand.module.scss 2:9  root stylesheet
+<w>
+
+LOG from ./node_modules/sass-loader/dist/cjs.js sass-loader ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[1]!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[2]!./node_modules/resolve-url-loader/index.js??ruleSet[1].rules[1].oneOf[8].use[3]!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[4]!./src/components/eventComponents/invitations/invitationsContent/InvitationsContent.module.scss
+<w> Deprecation The legacy JS API is deprecated and will be removed in Dart Sass 2.0.0.
+<w> 
+<w> More info: https://sass-lang.com/d/legacy-js-api
+<w> 
+<w> null
+<w> Deprecation Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+<w> 
+<w> More info and automated migrator: https://sass-lang.com/d/import
+<w> 
+<w> src/components/eventComponents/invitations/invitationsContent/InvitationsContent.module.scss 5:9  root stylesheet
+<w> 
+<w> Deprecation Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+<w> 
+<w> More info and automated migrator: https://sass-lang.com/d/import
+<w> 
+<w> src/components/eventComponents/invitations/invitationsContent/InvitationsContent.module.scss 6:9  root stylesheet
+<w>
+
+LOG from ./node_modules/sass-loader/dist/cjs.js sass-loader ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[1]!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[2]!./node_modules/resolve-url-loader/index.js??ruleSet[1].rules[1].oneOf[8].use[3]!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[4]!./src/components/exhibitoiIdentifiers/ExhibitoiIdentifiers.module.scss
+<w> Deprecation The legacy JS API is deprecated and will be removed in Dart Sass 2.0.0.
+<w> 
+<w> More info: https://sass-lang.com/d/legacy-js-api
+<w> 
+<w> null
+
+LOG from ./node_modules/sass-loader/dist/cjs.js sass-loader ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[1]!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[2]!./node_modules/resolve-url-loader/index.js??ruleSet[1].rules[1].oneOf[8].use[3]!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[4]!./src/components/eventComponents/branding/brandingContent/BrandingContent.module.scss
+<w> Deprecation The legacy JS API is deprecated and will be removed in Dart Sass 2.0.0.
+<w> 
+<w> More info: https://sass-lang.com/d/legacy-js-api
+<w> 
+<w> null
+<w> Deprecation Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+<w> 
+<w> More info and automated migrator: https://sass-lang.com/d/import
+<w> 
+<w> src/components/eventComponents/branding/brandingContent/BrandingContent.module.scss 1:9  root stylesheet
+<w> 
+<w> Deprecation Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+<w> 
+<w> More info and automated migrator: https://sass-lang.com/d/import
+<w> 
+<w> src/components/eventComponents/branding/brandingContent/BrandingContent.module.scss 2:9  root stylesheet
+<w> 
+<w> Deprecation Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+<w> 
+<w> More info and automated migrator: https://sass-lang.com/d/import
+<w> 
+<w> src/components/eventComponents/branding/brandingContent/BrandingContent.module.scss 80:9  root stylesheet
+<w> 
+<w> Deprecation Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+<w> 
+<w> More info and automated migrator: https://sass-lang.com/d/import
+<w> 
+<w> src/components/eventComponents/branding/brandingContent/BrandingContent.module.scss 81:9  root stylesheet
+<w>
+
+LOG from ./node_modules/sass-loader/dist/cjs.js sass-loader ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[1]!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[2]!./node_modules/resolve-url-loader/index.js??ruleSet[1].rules[1].oneOf[8].use[3]!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[4]!./src/components/eventComponents/tradeFairEvents/tradeFairEventsContent/TradeFairEventsContent.module.scss
+<w> Deprecation The legacy JS API is deprecated and will be removed in Dart Sass 2.0.0.
+<w> 
+<w> More info: https://sass-lang.com/d/legacy-js-api
+<w> 
+<w> null
+<w> Deprecation Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+<w> 
+<w> More info and automated migrator: https://sass-lang.com/d/import
+<w> 
+<w> src/components/eventComponents/tradeFairEvents/tradeFairEventsContent/TradeFairEventsContent.module.scss 19:9  root stylesheet
+<w> 
+<w> Deprecation Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+<w> 
+<w> More info and automated migrator: https://sass-lang.com/d/import
+<w> 
+<w> src/components/eventComponents/tradeFairEvents/tradeFairEventsContent/TradeFairEventsContent.module.scss 20:9  root stylesheet
+<w>
+
+LOG from ./node_modules/sass-loader/dist/cjs.js sass-loader ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[1]!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[2]!./node_modules/resolve-url-loader/index.js??ruleSet[1].rules[1].oneOf[8].use[3]!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[4]!./src/components/exhibitorDatabaseDocuments/ExhibitorDatabaseDocuments.module.scss
+<w> Deprecation The legacy JS API is deprecated and will be removed in Dart Sass 2.0.0.
+<w> 
+<w> More info: https://sass-lang.com/d/legacy-js-api
+<w> 
+<w> null
+<w> Deprecation Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+<w> 
+<w> More info and automated migrator: https://sass-lang.com/d/import
+<w> 
+<w> src/components/exhibitorDatabaseDocuments/ExhibitorDatabaseDocuments.module.scss 1:9  root stylesheet
+<w> 
+<w> Deprecation Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+<w> 
+<w> More info and automated migrator: https://sass-lang.com/d/import
+<w> 
+<w> src/components/exhibitorDatabaseDocuments/ExhibitorDatabaseDocuments.module.scss 2:9  root stylesheet
+<w>
+
+LOG from ./node_modules/sass-loader/dist/cjs.js sass-loader ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[1]!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[2]!./node_modules/resolve-url-loader/index.js??ruleSet[1].rules[1].oneOf[8].use[3]!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[4]!./src/components/eventComponents/pushNotification/pushNotificationContent/PushNotificationContent.module.scss
+<w> Deprecation The legacy JS API is deprecated and will be removed in Dart Sass 2.0.0.
+<w> 
+<w> More info: https://sass-lang.com/d/legacy-js-api
+<w> 
+<w> null
+<w> Deprecation Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+<w> 
+<w> More info and automated migrator: https://sass-lang.com/d/import
+<w> 
+<w> src/components/eventComponents/pushNotification/pushNotificationContent/PushNotificationContent.module.scss 5:9  root stylesheet
+<w> 
+<w> Deprecation Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+<w> 
+<w> More info and automated migrator: https://sass-lang.com/d/import
+<w> 
+<w> src/components/eventComponents/pushNotification/pushNotificationContent/PushNotificationContent.module.scss 6:9  root stylesheet
+<w>
+
+LOG from ./node_modules/sass-loader/dist/cjs.js sass-loader ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[1]!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[2]!./node_modules/resolve-url-loader/index.js??ruleSet[1].rules[1].oneOf[8].use[3]!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[4]!./src/components/confirmationDialog/ConfirmationDialog.module.scss
+<w> Deprecation The legacy JS API is deprecated and will be removed in Dart Sass 2.0.0.
+<w> 
+<w> More info: https://sass-lang.com/d/legacy-js-api
+<w> 
+<w> null
+<w> Deprecation Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+<w> 
+<w> More info and automated migrator: https://sass-lang.com/d/import
+<w> 
+<w> src/components/confirmationDialog/ConfirmationDialog.module.scss 1:9  root stylesheet
+<w> 
+<w> Deprecation Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+<w> 
+<w> More info and automated migrator: https://sass-lang.com/d/import
+<w> 
+<w> src/components/confirmationDialog/ConfirmationDialog.module.scss 2:9  root stylesheet
+<w>
+
+LOG from ./node_modules/sass-loader/dist/cjs.js sass-loader ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[1]!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[2]!./node_modules/resolve-url-loader/index.js??ruleSet[1].rules[1].oneOf[8].use[3]!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[4]!./src/components/addEventToExhibitorModal/AddEventToExhibitorModal.module.scss
+<w> Deprecation The legacy JS API is deprecated and will be removed in Dart Sass 2.0.0.
+<w> 
+<w> More info: https://sass-lang.com/d/legacy-js-api
+<w> 
+<w> null
+<w> Deprecation Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+<w> 
+<w> More info and automated migrator: https://sass-lang.com/d/import
+<w> 
+<w> src/components/addEventToExhibitorModal/AddEventToExhibitorModal.module.scss 1:9  root stylesheet
+<w> 
+<w> Deprecation Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+<w> 
+<w> More info and automated migrator: https://sass-lang.com/d/import
+<w> 
+<w> src/components/addEventToExhibitorModal/AddEventToExhibitorModal.module.scss 2:9  root stylesheet
+<w> 
+<w> Deprecation Global built-in functions are deprecated and will be removed in Dart Sass 3.0.0.
+<w> Use color.adjust instead.
+<w> 
+<w> More info and automated migrator: https://sass-lang.com/d/import
+<w> 
+<w> src/components/addEventToExhibitorModal/AddEventToExhibitorModal.module.scss 349:23  root stylesheet
+<w> 
+<w> Deprecation darken() is deprecated. Suggestions:
+<w> 
+<w> color.scale($color, $lightness: -14.2857142857%)
+<w> color.adjust($color, $lightness: -10%)
+<w> 
+<w> More info: https://sass-lang.com/d/color-functions
+<w> 
+<w> src/components/addEventToExhibitorModal/AddEventToExhibitorModal.module.scss 349:23  root stylesheet
+<w>
+
+LOG from ./node_modules/sass-loader/dist/cjs.js sass-loader ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[1]!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[2]!./node_modules/resolve-url-loader/index.js??ruleSet[1].rules[1].oneOf[8].use[3]!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[4]!./src/components/exhibitorInvitations/ExhibitorInvitations.module.scss
+<w> Deprecation The legacy JS API is deprecated and will be removed in Dart Sass 2.0.0.
+<w> 
+<w> More info: https://sass-lang.com/d/legacy-js-api
+<w> 
+<w> null
+<w> Deprecation Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+<w> 
+<w> More info and automated migrator: https://sass-lang.com/d/import
+<w> 
+<w> src/components/exhibitorInvitations/ExhibitorInvitations.module.scss 2:9  root stylesheet
+<w> 
+<w> Deprecation Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+<w> 
+<w> More info and automated migrator: https://sass-lang.com/d/import
+<w> 
+<w> src/components/exhibitorInvitations/ExhibitorInvitations.module.scss 3:9  root stylesheet
+<w>
+
+LOG from ./node_modules/sass-loader/dist/cjs.js sass-loader ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[1]!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[2]!./node_modules/resolve-url-loader/index.js??ruleSet[1].rules[1].oneOf[8].use[3]!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[4]!./src/components/addEventModal/AddEventModal_.module.scss
+<w> Deprecation The legacy JS API is deprecated and will be removed in Dart Sass 2.0.0.
+<w> 
+<w> More info: https://sass-lang.com/d/legacy-js-api
+<w> 
+<w> null
+<w> Deprecation Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+<w> 
+<w> More info and automated migrator: https://sass-lang.com/d/import
+<w> 
+<w> src/components/addEventModal/AddEventModal_.module.scss 1:9  root stylesheet
+<w> 
+<w> Deprecation Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+<w> 
+<w> More info and automated migrator: https://sass-lang.com/d/import
+<w> 
+<w> src/components/addEventModal/AddEventModal_.module.scss 2:9  root stylesheet
+<w> 
+<w> Deprecation Global built-in functions are deprecated and will be removed in Dart Sass 3.0.0.
+<w> Use color.adjust instead.
+<w> 
+<w> More info and automated migrator: https://sass-lang.com/d/import
+<w> 
+<w> src/components/addEventModal/AddEventModal_.module.scss 347:23  root stylesheet
+<w> 
+<w> Deprecation darken() is deprecated. Suggestions:
+<w> 
+<w> color.scale($color, $lightness: -14.2857142857%)
+<w> color.adjust($color, $lightness: -10%)
+<w> 
+<w> More info: https://sass-lang.com/d/color-functions
+<w> 
+<w> src/components/addEventModal/AddEventModal_.module.scss 347:23  root stylesheet
+<w>
+
+LOG from ./node_modules/sass-loader/dist/cjs.js sass-loader ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[1]!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[2]!./node_modules/resolve-url-loader/index.js??ruleSet[1].rules[1].oneOf[8].use[3]!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[4]!./src/pages/eventCardPage/EventCardPage.module.scss
+<w> Deprecation The legacy JS API is deprecated and will be removed in Dart Sass 2.0.0.
+<w> 
+<w> More info: https://sass-lang.com/d/legacy-js-api
+<w> 
+<w> null
+<w> Deprecation Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+<w> 
+<w> More info and automated migrator: https://sass-lang.com/d/import
+<w> 
+<w> src/pages/eventCardPage/EventCardPage.module.scss 1:9  root stylesheet
+<w> 
+<w> Deprecation Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+<w> 
+<w> More info and automated migrator: https://sass-lang.com/d/import
+<w> 
+<w> src/pages/eventCardPage/EventCardPage.module.scss 2:9  root stylesheet
+<w> 
+<w> Deprecation Sass's behavior for declarations that appear after nested
+<w> rules will be changing to match the behavior specified by CSS in an upcoming
+<w> version. To keep the existing behavior, move the declaration above the nested
+<w> rule. To opt into the new behavior, wrap the declaration in `& {}`.
+<w> 
+<w> More info: https://sass-lang.com/d/mixed-decls
+<w> 
+<w> src/pages/eventCardPage/EventCardPage.module.scss 24:3  root stylesheet
+<w> 
+<w> Deprecation Sass's behavior for declarations that appear after nested
+<w> rules will be changing to match the behavior specified by CSS in an upcoming
+<w> version. To keep the existing behavior, move the declaration above the nested
+<w> rule. To opt into the new behavior, wrap the declaration in `& {}`.
+<w> 
+<w> More info: https://sass-lang.com/d/mixed-decls
+<w> 
+<w> src/pages/eventCardPage/EventCardPage.module.scss 25:3  root stylesheet
+<w> 
+<w> Deprecation Sass's behavior for declarations that appear after nested
+<w> rules will be changing to match the behavior specified by CSS in an upcoming
+<w> version. To keep the existing behavior, move the declaration above the nested
+<w> rule. To opt into the new behavior, wrap the declaration in `& {}`.
+<w> 
+<w> More info: https://sass-lang.com/d/mixed-decls
+<w> 
+<w> src/pages/eventCardPage/EventCardPage.module.scss 26:3  root stylesheet
+<w>
+
+LOG from ./node_modules/sass-loader/dist/cjs.js sass-loader ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[1]!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[2]!./node_modules/resolve-url-loader/index.js??ruleSet[1].rules[1].oneOf[8].use[3]!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[4]!./src/components/menu_mobile/Menu_mobile.module.scss
+<w> Deprecation The legacy JS API is deprecated and will be removed in Dart Sass 2.0.0.
+<w> 
+<w> More info: https://sass-lang.com/d/legacy-js-api
+<w> 
+<w> null
+<w> Deprecation Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+<w> 
+<w> More info and automated migrator: https://sass-lang.com/d/import
+<w> 
+<w> src/components/menu_mobile/Menu_mobile.module.scss 1:9  root stylesheet
+<w> 
+<w> Deprecation Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+<w> 
+<w> More info and automated migrator: https://sass-lang.com/d/import
+<w> 
+<w> src/components/menu_mobile/Menu_mobile.module.scss 2:9  root stylesheet
+<w>
+
+LOG from ./node_modules/sass-loader/dist/cjs.js sass-loader ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[1]!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[2]!./node_modules/resolve-url-loader/index.js??ruleSet[1].rules[1].oneOf[8].use[3]!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[4]!./src/components/Invitations.module.scss
+<w> Deprecation The legacy JS API is deprecated and will be removed in Dart Sass 2.0.0.
+<w> 
+<w> More info: https://sass-lang.com/d/legacy-js-api
+<w> 
+<w> null
+<w> Deprecation Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+<w> 
+<w> More info and automated migrator: https://sass-lang.com/d/import
+<w> 
+<w> src/components/Invitations.module.scss 2:9  root stylesheet
+<w>
+
+LOG from ./node_modules/sass-loader/dist/cjs.js sass-loader ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[1]!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[2]!./node_modules/resolve-url-loader/index.js??ruleSet[1].rules[1].oneOf[8].use[3]!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[4]!./src/components/exhibitorWithEvent/downloadMaterials/DownloadMaterials.module.scss
+<w> Deprecation The legacy JS API is deprecated and will be removed in Dart Sass 2.0.0.
+<w> 
+<w> More info: https://sass-lang.com/d/legacy-js-api
+<w> 
+<w> null
+<w> Deprecation Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+<w> 
+<w> More info and automated migrator: https://sass-lang.com/d/import
+<w> 
+<w> src/components/exhibitorWithEvent/downloadMaterials/DownloadMaterials.module.scss 1:9  root stylesheet
+<w> 
+<w> Deprecation Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+<w> 
+<w> More info and automated migrator: https://sass-lang.com/d/import
+<w> 
+<w> src/components/exhibitorWithEvent/downloadMaterials/DownloadMaterials.module.scss 2:9  root stylesheet
+<w>
+
+LOG from ./node_modules/sass-loader/dist/cjs.js sass-loader ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[1]!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[2]!./node_modules/resolve-url-loader/index.js??ruleSet[1].rules[1].oneOf[8].use[3]!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[4]!./src/components/exhibitorWithEvent/entryIntoTheTradeFairCatalogue/EntryIntoTheTradeFairCatalogue.module.scss
+<w> Deprecation The legacy JS API is deprecated and will be removed in Dart Sass 2.0.0.
+<w> 
+<w> More info: https://sass-lang.com/d/legacy-js-api
+<w> 
+<w> null
+<w> Deprecation Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+<w> 
+<w> More info and automated migrator: https://sass-lang.com/d/import
+<w> 
+<w> src/components/exhibitorWithEvent/entryIntoTheTradeFairCatalogue/EntryIntoTheTradeFairCatalogue.module.scss 1:9  root stylesheet
+<w> 
+<w> Deprecation Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+<w> 
+<w> More info and automated migrator: https://sass-lang.com/d/import
+<w> 
+<w> src/components/exhibitorWithEvent/entryIntoTheTradeFairCatalogue/EntryIntoTheTradeFairCatalogue.module.scss 2:9  root stylesheet
+<w>
+
+LOG from ./node_modules/sass-loader/dist/cjs.js sass-loader ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[1]!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[2]!./node_modules/resolve-url-loader/index.js??ruleSet[1].rules[1].oneOf[8].use[3]!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[4]!./src/components/exhibitorWithEvent/presentedProduct/PresentedProduct.module.scss
+<w> Deprecation The legacy JS API is deprecated and will be removed in Dart Sass 2.0.0.
+<w> 
+<w> More info: https://sass-lang.com/d/legacy-js-api
+<w> 
+<w> null
+<w> Deprecation Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+<w> 
+<w> More info and automated migrator: https://sass-lang.com/d/import
+<w> 
+<w> src/components/exhibitorWithEvent/presentedProduct/PresentedProduct.module.scss 1:9  root stylesheet
+<w> 
+<w> Deprecation Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+<w> 
+<w> More info and automated migrator: https://sass-lang.com/d/import
+<w> 
+<w> src/components/exhibitorWithEvent/presentedProduct/PresentedProduct.module.scss 2:9  root stylesheet
+<w>
+
+LOG from ./node_modules/sass-loader/dist/cjs.js sass-loader ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[1]!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[2]!./node_modules/resolve-url-loader/index.js??ruleSet[1].rules[1].oneOf[8].use[3]!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[4]!./src/components/exhibitorTradeFairAwards/contentOfTheExhibitorsApplication/ContentOfTheExhibitorsApplication.module.scss
+<w> Deprecation The legacy JS API is deprecated and will be removed in Dart Sass 2.0.0.
+<w> 
+<w> More info: https://sass-lang.com/d/legacy-js-api
+<w> 
+<w> null
+<w> Deprecation Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+<w> 
+<w> More info and automated migrator: https://sass-lang.com/d/import
+<w> 
+<w> src/components/exhibitorTradeFairAwards/contentOfTheExhibitorsApplication/ContentOfTheExhibitorsApplication.module.scss 1:9  root stylesheet
+<w> 
+<w> Deprecation Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+<w> 
+<w> More info and automated migrator: https://sass-lang.com/d/import
+<w> 
+<w> src/components/exhibitorTradeFairAwards/contentOfTheExhibitorsApplication/ContentOfTheExhibitorsApplication.module.scss 2:9  root stylesheet
+<w>
+
+LOG from ./node_modules/sass-loader/dist/cjs.js sass-loader ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[1]!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[2]!./node_modules/resolve-url-loader/index.js??ruleSet[1].rules[1].oneOf[8].use[3]!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[4]!./src/components/exhibitorInvitations/statusOfSentInvitations/StatusOfSentInvitations.module.scss
+<w> Deprecation The legacy JS API is deprecated and will be removed in Dart Sass 2.0.0.
+<w> 
+<w> More info: https://sass-lang.com/d/legacy-js-api
+<w> 
+<w> null
+<w> Deprecation Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+<w> 
+<w> More info and automated migrator: https://sass-lang.com/d/import
+<w> 
+<w> src/components/exhibitorInvitations/statusOfSentInvitations/StatusOfSentInvitations.module.scss 2:9  root stylesheet
+<w> 
+<w> Deprecation Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+<w> 
+<w> More info and automated migrator: https://sass-lang.com/d/import
+<w> 
+<w> src/components/exhibitorInvitations/statusOfSentInvitations/StatusOfSentInvitations.module.scss 3:9  root stylesheet
+<w>
+
+LOG from ./node_modules/sass-loader/dist/cjs.js sass-loader ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[1]!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[2]!./node_modules/resolve-url-loader/index.js??ruleSet[1].rules[1].oneOf[8].use[3]!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[4]!./src/components/exhibitorInvitations/ticketType/TicketType.module.scss
+<w> Deprecation The legacy JS API is deprecated and will be removed in Dart Sass 2.0.0.
+<w> 
+<w> More info: https://sass-lang.com/d/legacy-js-api
+<w> 
+<w> null
+<w> Deprecation Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+<w> 
+<w> More info and automated migrator: https://sass-lang.com/d/import
+<w> 
+<w> src/components/exhibitorInvitations/ticketType/TicketType.module.scss 1:9  root stylesheet
+<w> 
+<w> Deprecation Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+<w> 
+<w> More info and automated migrator: https://sass-lang.com/d/import
+<w> 
+<w> src/components/exhibitorInvitations/ticketType/TicketType.module.scss 2:9  root stylesheet
+<w>
+
+LOG from ./node_modules/sass-loader/dist/cjs.js sass-loader ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[1]!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[2]!./node_modules/resolve-url-loader/index.js??ruleSet[1].rules[1].oneOf[8].use[3]!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[4]!./src/components/exhibitorScheduleOfEventsAtTheStand/addedEvents/AddedEvents.module.scss
+<w> Deprecation The legacy JS API is deprecated and will be removed in Dart Sass 2.0.0.
+<w> 
+<w> More info: https://sass-lang.com/d/legacy-js-api
+<w> 
+<w> null
+<w> Deprecation Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+<w> 
+<w> More info and automated migrator: https://sass-lang.com/d/import
+<w> 
+<w> src/components/exhibitorScheduleOfEventsAtTheStand/addedEvents/AddedEvents.module.scss 1:9  root stylesheet
+<w> 
+<w> Deprecation Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+<w> 
+<w> More info and automated migrator: https://sass-lang.com/d/import
+<w> 
+<w> src/components/exhibitorScheduleOfEventsAtTheStand/addedEvents/AddedEvents.module.scss 2:9  root stylesheet
+<w>
+
+LOG from ./node_modules/sass-loader/dist/cjs.js sass-loader ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[1]!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[2]!./node_modules/resolve-url-loader/index.js??ruleSet[1].rules[1].oneOf[8].use[3]!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[4]!./src/components/eventComponents/tradeFairInformation/tradeFairInformationContent/tradeInfo/TradeInfo.module.scss
+<w> Deprecation The legacy JS API is deprecated and will be removed in Dart Sass 2.0.0.
+<w> 
+<w> More info: https://sass-lang.com/d/legacy-js-api
+<w> 
+<w> null
+<w> Deprecation Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+<w> 
+<w> More info and automated migrator: https://sass-lang.com/d/import
+<w> 
+<w> src/components/eventComponents/tradeFairInformation/tradeFairInformationContent/tradeInfo/TradeInfo.module.scss 4:9  root stylesheet
+<w> 
+<w> Deprecation Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+<w> 
+<w> More info and automated migrator: https://sass-lang.com/d/import
+<w> 
+<w> src/components/eventComponents/tradeFairInformation/tradeFairInformationContent/tradeInfo/TradeInfo.module.scss 5:9  root stylesheet
+<w>
+
+LOG from ./node_modules/sass-loader/dist/cjs.js sass-loader ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[1]!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[2]!./node_modules/resolve-url-loader/index.js??ruleSet[1].rules[1].oneOf[8].use[3]!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[4]!./src/components/exhibitorDatabaseDocuments/uploadDocuments/UploadDocuments.module.scss
+<w> Deprecation The legacy JS API is deprecated and will be removed in Dart Sass 2.0.0.
+<w> 
+<w> More info: https://sass-lang.com/d/legacy-js-api
+<w> 
+<w> null
+
+LOG from ./node_modules/sass-loader/dist/cjs.js sass-loader ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[1]!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[2]!./node_modules/resolve-url-loader/index.js??ruleSet[1].rules[1].oneOf[8].use[3]!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[4]!./src/components/exhibitorDatabaseDocuments/messageContainer/SendMessageContainer.module.scss
+<w> Deprecation The legacy JS API is deprecated and will be removed in Dart Sass 2.0.0.
+<w> 
+<w> More info: https://sass-lang.com/d/legacy-js-api
+<w> 
+<w> null
+<w> Deprecation Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+<w> 
+<w> More info and automated migrator: https://sass-lang.com/d/import
+<w> 
+<w> src/components/exhibitorDatabaseDocuments/messageContainer/SendMessageContainer.module.scss 1:9  root stylesheet
+<w> 
+<w> Deprecation Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+<w> 
+<w> More info and automated migrator: https://sass-lang.com/d/import
+<w> 
+<w> src/components/exhibitorDatabaseDocuments/messageContainer/SendMessageContainer.module.scss 2:9  root stylesheet
+<w> 
+<w> Deprecation Global built-in functions are deprecated and will be removed in Dart Sass 3.0.0.
+<w> Use color.adjust instead.
+<w> 
+<w> More info and automated migrator: https://sass-lang.com/d/import
+<w> 
+<w> src/components/exhibitorDatabaseDocuments/messageContainer/SendMessageContainer.module.scss 77:23  root stylesheet
+<w> 
+<w> Deprecation darken() is deprecated. Suggestions:
+<w> 
+<w> color.scale($color, $lightness: -27.7551020408%)
+<w> color.adjust($color, $lightness: -8%)
+<w> 
+<w> More info: https://sass-lang.com/d/color-functions
+<w> 
+<w> src/components/exhibitorDatabaseDocuments/messageContainer/SendMessageContainer.module.scss 77:23  root stylesheet
+<w>
+
+LOG from ./node_modules/sass-loader/dist/cjs.js sass-loader ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[1]!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[2]!./node_modules/resolve-url-loader/index.js??ruleSet[1].rules[1].oneOf[8].use[3]!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[4]!./src/components/exhibitorDatabaseDocuments/invoices/InvoicesList.module.scss
+<w> Deprecation The legacy JS API is deprecated and will be removed in Dart Sass 2.0.0.
+<w> 
+<w> More info: https://sass-lang.com/d/legacy-js-api
+<w> 
+<w> null
+
+LOG from ./node_modules/sass-loader/dist/cjs.js sass-loader ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[1]!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[2]!./node_modules/resolve-url-loader/index.js??ruleSet[1].rules[1].oneOf[8].use[3]!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[4]!./src/components/exhibitorScheduleOfEventsAtTheStand/addingEvents/AddingEvents.module.scss
+<w> Deprecation The legacy JS API is deprecated and will be removed in Dart Sass 2.0.0.
+<w> 
+<w> More info: https://sass-lang.com/d/legacy-js-api
+<w> 
+<w> null
+<w> Deprecation Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+<w> 
+<w> More info and automated migrator: https://sass-lang.com/d/import
+<w> 
+<w> src/components/exhibitorScheduleOfEventsAtTheStand/addingEvents/AddingEvents.module.scss 1:9  root stylesheet
+<w> 
+<w> Deprecation Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+<w> 
+<w> More info and automated migrator: https://sass-lang.com/d/import
+<w> 
+<w> src/components/exhibitorScheduleOfEventsAtTheStand/addingEvents/AddingEvents.module.scss 2:9  root stylesheet
+<w>
+
+LOG from ./node_modules/sass-loader/dist/cjs.js sass-loader ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[1]!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[2]!./node_modules/resolve-url-loader/index.js??ruleSet[1].rules[1].oneOf[8].use[3]!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[4]!./src/components/eventComponents/branding/brandingContent/brandingFileUpload/BrandingFileUpload.module.scss
+<w> Deprecation The legacy JS API is deprecated and will be removed in Dart Sass 2.0.0.
+<w> 
+<w> More info: https://sass-lang.com/d/legacy-js-api
+<w> 
+<w> null
+<w> Deprecation Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+<w> 
+<w> More info and automated migrator: https://sass-lang.com/d/import
+<w> 
+<w> src/components/eventComponents/branding/brandingContent/brandingFileUpload/BrandingFileUpload.module.scss 1:9  root stylesheet
+<w> 
+<w> Deprecation Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+<w> 
+<w> More info and automated migrator: https://sass-lang.com/d/import
+<w> 
+<w> src/components/eventComponents/branding/brandingContent/brandingFileUpload/BrandingFileUpload.module.scss 2:9  root stylesheet
+<w>
+
+LOG from ./node_modules/sass-loader/dist/cjs.js sass-loader ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[1]!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[2]!./node_modules/resolve-url-loader/index.js??ruleSet[1].rules[1].oneOf[8].use[3]!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[4]!./src/components/exhibitoiIdentifiers/identifiersCard/IdentifiersCard.module.scss
+<w> Deprecation The legacy JS API is deprecated and will be removed in Dart Sass 2.0.0.
+<w> 
+<w> More info: https://sass-lang.com/d/legacy-js-api
+<w> 
+<w> null
+<w> Deprecation Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+<w> 
+<w> More info and automated migrator: https://sass-lang.com/d/import
+<w> 
+<w> src/components/exhibitoiIdentifiers/identifiersCard/IdentifiersCard.module.scss 1:9  root stylesheet
+<w> 
+<w> Deprecation Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+<w> 
+<w> More info and automated migrator: https://sass-lang.com/d/import
+<w> 
+<w> src/components/exhibitoiIdentifiers/identifiersCard/IdentifiersCard.module.scss 2:9  root stylesheet
+<w>
+
+LOG from ./node_modules/sass-loader/dist/cjs.js sass-loader ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[1]!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[2]!./node_modules/resolve-url-loader/index.js??ruleSet[1].rules[1].oneOf[8].use[3]!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[4]!./src/components/eventComponents/tradeFairEvents/TradeFairEvents.module.scss
+<w> Deprecation The legacy JS API is deprecated and will be removed in Dart Sass 2.0.0.
+<w> 
+<w> More info: https://sass-lang.com/d/legacy-js-api
+<w> 
+<w> null
+<w> Deprecation Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+<w> 
+<w> More info and automated migrator: https://sass-lang.com/d/import
+<w> 
+<w> src/components/eventComponents/tradeFairEvents/TradeFairEvents.module.scss 1:9  root stylesheet
+<w> 
+<w> Deprecation Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+<w> 
+<w> More info and automated migrator: https://sass-lang.com/d/import
+<w> 
+<w> src/components/eventComponents/tradeFairEvents/TradeFairEvents.module.scss 2:9  root stylesheet
+<w>
+
+LOG from ./node_modules/sass-loader/dist/cjs.js sass-loader ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[1]!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[2]!./node_modules/resolve-url-loader/index.js??ruleSet[1].rules[1].oneOf[8].use[3]!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[4]!./src/components/eventComponents/tradeFairInformation/TradeFairInformation.module.scss
+<w> Deprecation The legacy JS API is deprecated and will be removed in Dart Sass 2.0.0.
+<w> 
+<w> More info: https://sass-lang.com/d/legacy-js-api
+<w> 
+<w> null
+<w> Deprecation Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+<w> 
+<w> More info and automated migrator: https://sass-lang.com/d/import
+<w> 
+<w> src/components/eventComponents/tradeFairInformation/TradeFairInformation.module.scss 1:9  root stylesheet
+<w> 
+<w> Deprecation Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+<w> 
+<w> More info and automated migrator: https://sass-lang.com/d/import
+<w> 
+<w> src/components/eventComponents/tradeFairInformation/TradeFairInformation.module.scss 2:9  root stylesheet
+<w>
+
+LOG from ./node_modules/sass-loader/dist/cjs.js sass-loader ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[1]!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[2]!./node_modules/resolve-url-loader/index.js??ruleSet[1].rules[1].oneOf[8].use[3]!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[4]!./src/components/eventComponents/pushNotification/PushNotification.module.scss
+<w> Deprecation The legacy JS API is deprecated and will be removed in Dart Sass 2.0.0.
+<w> 
+<w> More info: https://sass-lang.com/d/legacy-js-api
+<w> 
+<w> null
+<w> Deprecation Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+<w> 
+<w> More info and automated migrator: https://sass-lang.com/d/import
+<w> 
+<w> src/components/eventComponents/pushNotification/PushNotification.module.scss 1:9  root stylesheet
+<w> 
+<w> Deprecation Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+<w> 
+<w> More info and automated migrator: https://sass-lang.com/d/import
+<w> 
+<w> src/components/eventComponents/pushNotification/PushNotification.module.scss 2:9  root stylesheet
+<w>
+
+LOG from ./node_modules/sass-loader/dist/cjs.js sass-loader ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[1]!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[2]!./node_modules/resolve-url-loader/index.js??ruleSet[1].rules[1].oneOf[8].use[3]!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[4]!./src/components/eventComponents/invitations/Invitations.module.scss
+<w> Deprecation The legacy JS API is deprecated and will be removed in Dart Sass 2.0.0.
+<w> 
+<w> More info: https://sass-lang.com/d/legacy-js-api
+<w> 
+<w> null
+<w> Deprecation Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+<w> 
+<w> More info and automated migrator: https://sass-lang.com/d/import
+<w> 
+<w> src/components/eventComponents/invitations/Invitations.module.scss 1:9  root stylesheet
+<w> 
+<w> Deprecation Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+<w> 
+<w> More info and automated migrator: https://sass-lang.com/d/import
+<w> 
+<w> src/components/eventComponents/invitations/Invitations.module.scss 2:9  root stylesheet
+<w>
+
+LOG from ./node_modules/sass-loader/dist/cjs.js sass-loader ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[1]!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[2]!./node_modules/resolve-url-loader/index.js??ruleSet[1].rules[1].oneOf[8].use[3]!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[4]!./src/components/eventComponents/branding/Branding.module.scss
+<w> Deprecation The legacy JS API is deprecated and will be removed in Dart Sass 2.0.0.
+<w> 
+<w> More info: https://sass-lang.com/d/legacy-js-api
+<w> 
+<w> null
+<w> Deprecation Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+<w> 
+<w> More info and automated migrator: https://sass-lang.com/d/import
+<w> 
+<w> src/components/eventComponents/branding/Branding.module.scss 1:9  root stylesheet
+<w> 
+<w> Deprecation Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+<w> 
+<w> More info and automated migrator: https://sass-lang.com/d/import
+<w> 
+<w> src/components/eventComponents/branding/Branding.module.scss 2:9  root stylesheet
+<w>
+
+LOG from ./node_modules/sass-loader/dist/cjs.js sass-loader ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[1]!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[2]!./node_modules/resolve-url-loader/index.js??ruleSet[1].rules[1].oneOf[8].use[3]!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[4]!./src/components/textEditor/TextEditor.module.scss
+<w> Deprecation The legacy JS API is deprecated and will be removed in Dart Sass 2.0.0.
+<w> 
+<w> More info: https://sass-lang.com/d/legacy-js-api
+<w> 
+<w> null
+<w> Deprecation Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+<w> 
+<w> More info and automated migrator: https://sass-lang.com/d/import
+<w> 
+<w> src/components/textEditor/TextEditor.module.scss 1:9  root stylesheet
+<w> 
+<w> Deprecation Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+<w> 
+<w> More info and automated migrator: https://sass-lang.com/d/import
+<w> 
+<w> src/components/textEditor/TextEditor.module.scss 2:9  root stylesheet
+<w>
+
+LOG from ./node_modules/sass-loader/dist/cjs.js sass-loader ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[1]!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[2]!./node_modules/resolve-url-loader/index.js??ruleSet[1].rules[1].oneOf[8].use[3]!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[4]!./src/components/componentWithDocument/ComponentWithDocument.module.scss
+<w> Deprecation The legacy JS API is deprecated and will be removed in Dart Sass 2.0.0.
+<w> 
+<w> More info: https://sass-lang.com/d/legacy-js-api
+<w> 
+<w> null
+
+LOG from ./node_modules/sass-loader/dist/cjs.js sass-loader ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[1]!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[2]!./node_modules/resolve-url-loader/index.js??ruleSet[1].rules[1].oneOf[8].use[3]!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[4]!./src/components/statusButton/StatusButton.module.scss
+<w> Deprecation The legacy JS API is deprecated and will be removed in Dart Sass 2.0.0.
+<w> 
+<w> More info: https://sass-lang.com/d/legacy-js-api
+<w> 
+<w> null
+
+LOG from ./node_modules/sass-loader/dist/cjs.js sass-loader ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[1]!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[2]!./node_modules/resolve-url-loader/index.js??ruleSet[1].rules[1].oneOf[8].use[3]!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[4]!./src/components/componentWithAction/ComponentWithAction.module.scss
+<w> Deprecation The legacy JS API is deprecated and will be removed in Dart Sass 2.0.0.
+<w> 
+<w> More info: https://sass-lang.com/d/legacy-js-api
+<w> 
+<w> null
+<w> Deprecation Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+<w> 
+<w> More info and automated migrator: https://sass-lang.com/d/import
+<w> 
+<w> src/components/componentWithAction/ComponentWithAction.module.scss 1:9  root stylesheet
+<w> 
+<w> Deprecation Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+<w> 
+<w> More info and automated migrator: https://sass-lang.com/d/import
+<w> 
+<w> src/components/componentWithAction/ComponentWithAction.module.scss 2:9  root stylesheet
+<w>
+
+LOG from ./node_modules/sass-loader/dist/cjs.js sass-loader ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[1]!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[2]!./node_modules/resolve-url-loader/index.js??ruleSet[1].rules[1].oneOf[8].use[3]!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[4]!./src/components/eventTypeBadge/EventTypeBadge.module.scss
+<w> Deprecation The legacy JS API is deprecated and will be removed in Dart Sass 2.0.0.
+<w> 
+<w> More info: https://sass-lang.com/d/legacy-js-api
+<w> 
+<w> null
+<w> Deprecation Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+<w> 
+<w> More info and automated migrator: https://sass-lang.com/d/import
+<w> 
+<w> src/components/eventTypeBadge/EventTypeBadge.module.scss 1:9  root stylesheet
+<w> 
+<w> Deprecation Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+<w> 
+<w> More info and automated migrator: https://sass-lang.com/d/import
+<w> 
+<w> src/components/eventTypeBadge/EventTypeBadge.module.scss 2:9  root stylesheet
+<w>
+
+LOG from ./node_modules/sass-loader/dist/cjs.js sass-loader ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[1]!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[2]!./node_modules/resolve-url-loader/index.js??ruleSet[1].rules[1].oneOf[8].use[3]!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[4]!./src/components/bell/Bell.module.scss
+<w> Deprecation The legacy JS API is deprecated and will be removed in Dart Sass 2.0.0.
+<w> 
+<w> More info: https://sass-lang.com/d/legacy-js-api
+<w> 
+<w> null
+
 webpack compiled successfully
+No issues found.
+Failed to compile.
+
+Module not found: Error: Can't resolve '../../../Invitations' in '/Users/kid/Ptak-expo/ptak-expo-frontend/src/components/eventComponents/invitations/invitationsContent'
+ERROR in ./src/components/eventComponents/invitations/invitationsContent/InvitationsContent.tsx 6:0-47
+Module not found: Error: Can't resolve '../../../Invitations' in '/Users/kid/Ptak-expo/ptak-expo-frontend/src/components/eventComponents/invitations/invitationsContent'
+
+webpack compiled with 1 error
+Compiling...
 Files successfully emitted, waiting for typecheck results...
 Issues checking in progress...
-No issues found.
+Failed to compile.
+
+[eslint] 
+src/components/componentWithAction/ComponentWithAction.tsx
+Syntax error: Merge conflict marker encountered (11:undefined)
+
+src/components/customSelectMui/CustomSelectMui.tsx
+Syntax error: Merge conflict marker encountered (16:undefined)
+
+src/components/eventComponents/branding/brandingContent/brandingFileUpload/BrandingFileUpload.tsx
+Syntax error: Merge conflict marker encountered (20:undefined)
+
+src/components/eventComponents/tradeFairInformation/tradeFairInformationContent/tradeInfo/TradeInfo.tsx
+Syntax error: Merge conflict marker encountered (73:undefined)
+
+src/helpers/mockData.tsx
+Syntax error: Merge conflict marker encountered (251:undefined)
+LOG from ./node_modules/sass-loader/dist/cjs.js sass-loader ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[1]!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[2]!./node_modules/resolve-url-loader/index.js??ruleSet[1].rules[1].oneOf[8].use[3]!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[4]!./src/components/eventComponents/invitations/invitationsContent/invitation/Invitation.module.scss
+<w> Deprecation The legacy JS API is deprecated and will be removed in Dart Sass 2.0.0.
+<w> 
+<w> More info: https://sass-lang.com/d/legacy-js-api
+<w> 
+<w> null
+<w> Deprecation Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+<w> 
+<w> More info and automated migrator: https://sass-lang.com/d/import
+<w> 
+<w> src/components/eventComponents/invitations/invitationsContent/invitation/Invitation.module.scss 2:9  root stylesheet
+<w> 
+<w> Deprecation Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+<w> 
+<w> More info and automated migrator: https://sass-lang.com/d/import
+<w> 
+<w> src/components/eventComponents/invitations/invitationsContent/invitation/Invitation.module.scss 3:9  root stylesheet
+<w>
+
+WARNING in [eslint] 
+src/components/eventComponents/invitations/invitationsContent/invitation/Invitation.tsx
+  Line 12:9:   '_SpecialOffers' is defined but never used               @typescript-eslint/no-unused-vars
+  Line 71:16:  '_setPrice' is assigned a value but never used           @typescript-eslint/no-unused-vars
+  Line 72:22:  '_setBenefitTitle' is assigned a value but never used    @typescript-eslint/no-unused-vars
+  Line 73:24:  '_setBenefitContent' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+ERROR in ./src/components/componentWithAction/ComponentWithAction.tsx
+Module build failed (from ./node_modules/babel-loader/lib/index.js):
+SyntaxError: /Users/kid/Ptak-expo/ptak-expo-frontend/src/components/componentWithAction/ComponentWithAction.tsx: Unexpected token (11:1)
+
+   9 | import { ReactComponent as BlueCircle } from "../../assets/blueCircle.svg";
+  10 | import { ReactComponent as EditIcon } from '../../assets/editIcon.svg';
+> 11 | <<<<<<< HEAD
+     |  ^
+  12 | =======
+  13 | import { ReactComponent as EyeIcon } from '../../assets/eyeIcon.svg';
+  14 | import { ReactComponent as SendIcon } from '../../assets/sendIcon.svg';
+    at constructor (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:367:19)
+    at TypeScriptParserMixin.raise (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:6630:19)
+    at TypeScriptParserMixin.unexpected (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:6650:16)
+    at TypeScriptParserMixin.jsxParseIdentifier (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:4602:12)
+    at TypeScriptParserMixin.jsxParseNamespacedName (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:4609:23)
+    at TypeScriptParserMixin.jsxParseElementName (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:4618:21)
+    at TypeScriptParserMixin.jsxParseOpeningElementAt (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:4694:22)
+    at TypeScriptParserMixin.jsxParseElementAt (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:4719:33)
+    at TypeScriptParserMixin.jsxParseElement (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:4782:17)
+    at TypeScriptParserMixin.parseExprAtom (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:4792:19)
+    at TypeScriptParserMixin.parseExprSubscripts (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:11081:23)
+    at TypeScriptParserMixin.parseUpdate (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:11066:21)
+    at TypeScriptParserMixin.parseMaybeUnary (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:11046:23)
+    at TypeScriptParserMixin.parseMaybeUnary (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:9857:18)
+    at TypeScriptParserMixin.parseMaybeUnaryOrPrivate (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:10899:61)
+    at TypeScriptParserMixin.parseExprOps (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:10904:23)
+    at TypeScriptParserMixin.parseMaybeConditional (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:10881:23)
+    at TypeScriptParserMixin.parseMaybeAssign (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:10831:21)
+    at /Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:9795:39
+    at TypeScriptParserMixin.tryParse (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:6938:20)
+    at TypeScriptParserMixin.parseMaybeAssign (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:9795:18)
+    at TypeScriptParserMixin.parseExpressionBase (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:10784:23)
+    at /Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:10780:39
+    at TypeScriptParserMixin.allowInAnd (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:12427:16)
+    at TypeScriptParserMixin.parseExpression (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:10780:17)
+    at TypeScriptParserMixin.parseStatementContent (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:12900:23)
+    at TypeScriptParserMixin.parseStatementContent (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:9532:18)
+    at TypeScriptParserMixin.parseStatementLike (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:12772:17)
+    at TypeScriptParserMixin.parseModuleItem (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:12749:17)
+    at TypeScriptParserMixin.parseBlockOrModuleBlockBody (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:13321:36)
+    at TypeScriptParserMixin.parseBlockBody (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:13314:10)
+    at TypeScriptParserMixin.parseProgram (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:12630:10)
+    at TypeScriptParserMixin.parseTopLevel (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:12620:25)
+    at TypeScriptParserMixin.parse (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:14497:10)
+    at TypeScriptParserMixin.parse (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:10149:18)
+    at parse (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:14531:38)
+    at parser (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/core/lib/parser/index.js:41:34)
+    at parser.next (<anonymous>)
+    at normalizeFile (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/core/lib/transformation/normalize-file.js:64:37)
+    at normalizeFile.next (<anonymous>)
+    at run (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/core/lib/transformation/index.js:22:50)
+    at run.next (<anonymous>)
+    at transform (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/core/lib/transform.js:22:33)
+    at transform.next (<anonymous>)
+    at step (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/gensync/index.js:261:32)
+    at /Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/gensync/index.js:273:13
+    at async.call.result.err.err (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/gensync/index.js:223:11)
+
+ERROR in ./src/components/customSelectMui/CustomSelectMui.tsx
+Module build failed (from ./node_modules/babel-loader/lib/index.js):
+SyntaxError: /Users/kid/Ptak-expo/ptak-expo-frontend/src/components/customSelectMui/CustomSelectMui.tsx: Unexpected token (16:1)
+
+  14 |   size?: "small" | "medium";
+  15 |   fullWidth?: boolean;
+> 16 | <<<<<<< HEAD
+     |  ^
+  17 |   value: string | number;
+  18 |   onChange: (value: string) => void;
+  19 |   options: OptionType[];
+    at constructor (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:367:19)
+    at TypeScriptParserMixin.raise (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:6630:19)
+    at TypeScriptParserMixin.unexpected (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:6650:16)
+    at TypeScriptParserMixin.parseIdentifierName (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:12209:12)
+    at TypeScriptParserMixin.parseIdentifier (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:12187:23)
+    at TypeScriptParserMixin.tsParseTypeParameterName (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:10139:27)
+    at TypeScriptParserMixin.tsParseTypeParameter (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:8087:22)
+    at TypeScriptParserMixin.tsParseDelimitedListWorker (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:7919:23)
+    at TypeScriptParserMixin.tsParseDelimitedList (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:7909:25)
+    at TypeScriptParserMixin.tsParseBracketedList (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:7949:25)
+    at TypeScriptParserMixin.tsParseTypeParameters (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:8107:24)
+    at TypeScriptParserMixin.tsTryParseTypeParameters (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:8094:19)
+    at TypeScriptParserMixin.tsFillSignature (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:8120:37)
+    at TypeScriptParserMixin.tsParseSignatureMember (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:8149:10)
+    at TypeScriptParserMixin.tsParseTypeMember (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:8231:19)
+    at TypeScriptParserMixin.tsParseList (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:7904:19)
+    at TypeScriptParserMixin.tsParseObjectTypeMembers (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:8268:26)
+    at TypeScriptParserMixin.tsParseTypeLiteral (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:8263:25)
+    at TypeScriptParserMixin.tsParseNonArrayType (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:8482:106)
+    at TypeScriptParserMixin.tsParseArrayTypeOrHigher (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:8512:21)
+    at /Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:8568:158
+    at TypeScriptParserMixin.tsInAllowConditionalTypesContext (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:8859:14)
+    at TypeScriptParserMixin.tsParseTypeOperatorOrHigher (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:8568:114)
+    at TypeScriptParserMixin.tsParseUnionOrIntersectionType (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:8575:18)
+    at TypeScriptParserMixin.tsParseIntersectionTypeOrHigher (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:8584:17)
+    at TypeScriptParserMixin.tsParseUnionOrIntersectionType (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:8575:18)
+    at TypeScriptParserMixin.tsParseUnionTypeOrHigher (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:8587:17)
+    at TypeScriptParserMixin.tsParseNonConditionalType (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:8754:17)
+    at TypeScriptParserMixin.tsParseType (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:8729:23)
+    at /Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:8819:19
+    at TypeScriptParserMixin.tsInType (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:8841:14)
+    at TypeScriptParserMixin.tsParseTypeAliasDeclaration (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:8811:32)
+    at TypeScriptParserMixin.tsParseDeclaration (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:9133:23)
+    at TypeScriptParserMixin.tsParseExpressionStatement (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:9105:21)
+    at TypeScriptParserMixin.parseExpressionStatement (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:9615:52)
+    at TypeScriptParserMixin.parseStatementContent (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:12904:19)
+    at TypeScriptParserMixin.parseStatementContent (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:9532:18)
+    at TypeScriptParserMixin.parseStatementLike (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:12772:17)
+    at TypeScriptParserMixin.parseModuleItem (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:12749:17)
+    at TypeScriptParserMixin.parseBlockOrModuleBlockBody (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:13321:36)
+    at TypeScriptParserMixin.parseBlockBody (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:13314:10)
+    at TypeScriptParserMixin.parseProgram (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:12630:10)
+    at TypeScriptParserMixin.parseTopLevel (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:12620:25)
+    at TypeScriptParserMixin.parse (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:14497:10)
+    at TypeScriptParserMixin.parse (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:10149:18)
+    at parse (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:14531:38)
+    at parser (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/core/lib/parser/index.js:41:34)
+    at parser.next (<anonymous>)
+    at normalizeFile (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/core/lib/transformation/normalize-file.js:64:37)
+    at normalizeFile.next (<anonymous>)
+
+ERROR in ./src/components/eventComponents/branding/brandingContent/brandingFileUpload/BrandingFileUpload.tsx
+Module build failed (from ./node_modules/babel-loader/lib/index.js):
+SyntaxError: /Users/kid/Ptak-expo/ptak-expo-frontend/src/components/eventComponents/branding/brandingContent/brandingFileUpload/BrandingFileUpload.tsx: Unexpected token (20:1)
+
+  18 | import { ReactComponent as BlackUploadIcon } from '../../../../../assets/blackUploadIcon.svg';
+  19 | import CustomField from '../../../../customField/CustomField';
+> 20 | <<<<<<< HEAD
+     |  ^
+  21 | =======
+  22 |
+  23 | >>>>>>> origin/frontend-admin-panel-cd-events-details
+    at constructor (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:367:19)
+    at TypeScriptParserMixin.raise (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:6630:19)
+    at TypeScriptParserMixin.unexpected (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:6650:16)
+    at TypeScriptParserMixin.jsxParseIdentifier (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:4602:12)
+    at TypeScriptParserMixin.jsxParseNamespacedName (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:4609:23)
+    at TypeScriptParserMixin.jsxParseElementName (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:4618:21)
+    at TypeScriptParserMixin.jsxParseOpeningElementAt (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:4694:22)
+    at TypeScriptParserMixin.jsxParseElementAt (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:4719:33)
+    at TypeScriptParserMixin.jsxParseElement (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:4782:17)
+    at TypeScriptParserMixin.parseExprAtom (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:4792:19)
+    at TypeScriptParserMixin.parseExprSubscripts (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:11081:23)
+    at TypeScriptParserMixin.parseUpdate (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:11066:21)
+    at TypeScriptParserMixin.parseMaybeUnary (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:11046:23)
+    at TypeScriptParserMixin.parseMaybeUnary (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:9857:18)
+    at TypeScriptParserMixin.parseMaybeUnaryOrPrivate (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:10899:61)
+    at TypeScriptParserMixin.parseExprOps (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:10904:23)
+    at TypeScriptParserMixin.parseMaybeConditional (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:10881:23)
+    at TypeScriptParserMixin.parseMaybeAssign (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:10831:21)
+    at /Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:9795:39
+    at TypeScriptParserMixin.tryParse (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:6938:20)
+    at TypeScriptParserMixin.parseMaybeAssign (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:9795:18)
+    at TypeScriptParserMixin.parseExpressionBase (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:10784:23)
+    at /Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:10780:39
+    at TypeScriptParserMixin.allowInAnd (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:12427:16)
+    at TypeScriptParserMixin.parseExpression (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:10780:17)
+    at TypeScriptParserMixin.parseStatementContent (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:12900:23)
+    at TypeScriptParserMixin.parseStatementContent (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:9532:18)
+    at TypeScriptParserMixin.parseStatementLike (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:12772:17)
+    at TypeScriptParserMixin.parseModuleItem (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:12749:17)
+    at TypeScriptParserMixin.parseBlockOrModuleBlockBody (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:13321:36)
+    at TypeScriptParserMixin.parseBlockBody (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:13314:10)
+    at TypeScriptParserMixin.parseProgram (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:12630:10)
+    at TypeScriptParserMixin.parseTopLevel (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:12620:25)
+    at TypeScriptParserMixin.parse (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:14497:10)
+    at TypeScriptParserMixin.parse (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:10149:18)
+    at parse (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:14531:38)
+    at parser (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/core/lib/parser/index.js:41:34)
+    at parser.next (<anonymous>)
+    at normalizeFile (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/core/lib/transformation/normalize-file.js:64:37)
+    at normalizeFile.next (<anonymous>)
+    at run (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/core/lib/transformation/index.js:22:50)
+    at run.next (<anonymous>)
+    at transform (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/core/lib/transform.js:22:33)
+    at transform.next (<anonymous>)
+    at step (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/gensync/index.js:261:32)
+    at /Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/gensync/index.js:273:13
+    at async.call.result.err.err (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/gensync/index.js:223:11)
+
+ERROR in ./src/components/eventComponents/tradeFairInformation/tradeFairInformationContent/tradeInfo/TradeInfo.tsx
+Module build failed (from ./node_modules/babel-loader/lib/index.js):
+SyntaxError: /Users/kid/Ptak-expo/ptak-expo-frontend/src/components/eventComponents/tradeFairInformation/tradeFairInformationContent/tradeInfo/TradeInfo.tsx: Unexpected token (73:1)
+
+  71 |     { id: '1', date: '', startTime: '09:00', endTime: '17:00' }
+  72 |   ]);
+> 73 | <<<<<<< HEAD
+     |  ^
+  74 |
+  75 | const [buildType, setBuildType] = useState<string>('Montaż indywidualny');
+  76 | =======
+    at constructor (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:367:19)
+    at TypeScriptParserMixin.raise (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:6630:19)
+    at TypeScriptParserMixin.unexpected (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:6650:16)
+    at TypeScriptParserMixin.jsxParseIdentifier (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:4602:12)
+    at TypeScriptParserMixin.jsxParseNamespacedName (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:4609:23)
+    at TypeScriptParserMixin.jsxParseElementName (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:4618:21)
+    at TypeScriptParserMixin.jsxParseOpeningElementAt (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:4694:22)
+    at TypeScriptParserMixin.jsxParseElementAt (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:4719:33)
+    at TypeScriptParserMixin.jsxParseElement (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:4782:17)
+    at TypeScriptParserMixin.parseExprAtom (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:4792:19)
+    at TypeScriptParserMixin.parseExprSubscripts (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:11081:23)
+    at TypeScriptParserMixin.parseUpdate (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:11066:21)
+    at TypeScriptParserMixin.parseMaybeUnary (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:11046:23)
+    at TypeScriptParserMixin.parseMaybeUnary (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:9857:18)
+    at TypeScriptParserMixin.parseMaybeUnaryOrPrivate (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:10899:61)
+    at TypeScriptParserMixin.parseExprOps (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:10904:23)
+    at TypeScriptParserMixin.parseMaybeConditional (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:10881:23)
+    at TypeScriptParserMixin.parseMaybeAssign (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:10831:21)
+    at /Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:9795:39
+    at TypeScriptParserMixin.tryParse (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:6938:20)
+    at TypeScriptParserMixin.parseMaybeAssign (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:9795:18)
+    at TypeScriptParserMixin.parseExpressionBase (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:10784:23)
+    at /Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:10780:39
+    at TypeScriptParserMixin.allowInAnd (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:12427:16)
+    at TypeScriptParserMixin.parseExpression (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:10780:17)
+    at TypeScriptParserMixin.parseStatementContent (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:12900:23)
+    at TypeScriptParserMixin.parseStatementContent (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:9532:18)
+    at TypeScriptParserMixin.parseStatementLike (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:12772:17)
+    at TypeScriptParserMixin.parseStatementListItem (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:12752:17)
+    at TypeScriptParserMixin.parseBlockOrModuleBlockBody (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:13321:61)
+    at TypeScriptParserMixin.parseBlockBody (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:13314:10)
+    at TypeScriptParserMixin.parseBlock (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:13302:10)
+    at TypeScriptParserMixin.parseFunctionBody (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:12106:24)
+    at TypeScriptParserMixin.parseArrowExpression (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:12081:10)
+    at TypeScriptParserMixin.parseParenAndDistinguishExpression (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:11691:12)
+    at TypeScriptParserMixin.parseExprAtom (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:11331:23)
+    at TypeScriptParserMixin.parseExprAtom (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:4797:20)
+    at TypeScriptParserMixin.parseExprSubscripts (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:11081:23)
+    at TypeScriptParserMixin.parseUpdate (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:11066:21)
+    at TypeScriptParserMixin.parseMaybeUnary (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:11046:23)
+    at TypeScriptParserMixin.parseMaybeUnary (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:9857:18)
+    at TypeScriptParserMixin.parseMaybeUnaryOrPrivate (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:10899:61)
+    at TypeScriptParserMixin.parseExprOps (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:10904:23)
+    at TypeScriptParserMixin.parseMaybeConditional (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:10881:23)
+    at TypeScriptParserMixin.parseMaybeAssign (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:10831:21)
+    at TypeScriptParserMixin.parseMaybeAssign (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:9806:20)
+    at /Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:10800:39
+    at TypeScriptParserMixin.allowInAnd (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:12427:16)
+    at TypeScriptParserMixin.parseMaybeAssignAllowIn (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:10800:17)
+    at TypeScriptParserMixin.parseVar (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:13389:91)
+
+ERROR in ./src/helpers/mockData.tsx
+Module build failed (from ./node_modules/babel-loader/lib/index.js):
+SyntaxError: /Users/kid/Ptak-expo/ptak-expo-frontend/src/helpers/mockData.tsx: Unexpected token (251:1)
+
+  249 |     { value: 'garden', label: 'Ogród' },
+  250 |     { value: 'other', label: 'Inne' },
+> 251 | <<<<<<< HEAD
+      |  ^
+  252 |   ];
+  253 | =======
+  254 | ];
+    at constructor (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:367:19)
+    at TypeScriptParserMixin.raise (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:6630:19)
+    at TypeScriptParserMixin.unexpected (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:6650:16)
+    at TypeScriptParserMixin.jsxParseIdentifier (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:4602:12)
+    at TypeScriptParserMixin.jsxParseNamespacedName (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:4609:23)
+    at TypeScriptParserMixin.jsxParseElementName (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:4618:21)
+    at TypeScriptParserMixin.jsxParseOpeningElementAt (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:4694:22)
+    at TypeScriptParserMixin.jsxParseElementAt (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:4719:33)
+    at TypeScriptParserMixin.jsxParseElement (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:4782:17)
+    at TypeScriptParserMixin.parseExprAtom (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:4792:19)
+    at TypeScriptParserMixin.parseExprSubscripts (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:11081:23)
+    at TypeScriptParserMixin.parseUpdate (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:11066:21)
+    at TypeScriptParserMixin.parseMaybeUnary (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:11046:23)
+    at TypeScriptParserMixin.parseMaybeUnary (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:9857:18)
+    at TypeScriptParserMixin.parseMaybeUnaryOrPrivate (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:10899:61)
+    at TypeScriptParserMixin.parseExprOps (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:10904:23)
+    at TypeScriptParserMixin.parseMaybeConditional (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:10881:23)
+    at TypeScriptParserMixin.parseMaybeAssign (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:10831:21)
+    at /Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:9795:39
+    at TypeScriptParserMixin.tryParse (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:6938:20)
+    at TypeScriptParserMixin.parseMaybeAssign (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:9795:18)
+    at /Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:10800:39
+    at TypeScriptParserMixin.allowInAnd (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:12432:12)
+    at TypeScriptParserMixin.parseMaybeAssignAllowIn (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:10800:17)
+    at TypeScriptParserMixin.parseMaybeAssignAllowInOrVoidPattern (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:12499:17)
+    at TypeScriptParserMixin.parseExprListItem (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:12181:18)
+    at TypeScriptParserMixin.parseExprList (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:12156:22)
+    at TypeScriptParserMixin.parseArrayLike (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:12063:26)
+    at TypeScriptParserMixin.parseArrayLike (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:9273:24)
+    at TypeScriptParserMixin.parseExprAtom (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:11335:23)
+    at TypeScriptParserMixin.parseExprAtom (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:4797:20)
+    at TypeScriptParserMixin.parseExprSubscripts (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:11081:23)
+    at TypeScriptParserMixin.parseUpdate (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:11066:21)
+    at TypeScriptParserMixin.parseMaybeUnary (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:11046:23)
+    at TypeScriptParserMixin.parseMaybeUnary (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:9857:18)
+    at TypeScriptParserMixin.parseMaybeUnaryOrPrivate (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:10899:61)
+    at TypeScriptParserMixin.parseExprOps (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:10904:23)
+    at TypeScriptParserMixin.parseMaybeConditional (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:10881:23)
+    at TypeScriptParserMixin.parseMaybeAssign (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:10831:21)
+    at TypeScriptParserMixin.parseMaybeAssign (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:9806:20)
+    at /Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:10800:39
+    at TypeScriptParserMixin.allowInAnd (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:12427:16)
+    at TypeScriptParserMixin.parseMaybeAssignAllowIn (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:10800:17)
+    at TypeScriptParserMixin.parseVar (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:13389:91)
+    at TypeScriptParserMixin.parseVarStatement (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:13235:10)
+    at TypeScriptParserMixin.parseVarStatement (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:9498:31)
+    at TypeScriptParserMixin.parseStatementContent (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:12856:23)
+    at TypeScriptParserMixin.parseStatementContent (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:9532:18)
+    at TypeScriptParserMixin.parseStatementLike (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:12772:17)
+    at TypeScriptParserMixin.parseStatementListItem (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:12752:17)
+
+ERROR in [eslint] 
+src/components/componentWithAction/ComponentWithAction.tsx
+  Line 11:  Parsing error: Merge conflict marker encountered
+
+src/components/customSelectMui/CustomSelectMui.tsx
+  Line 16:  Parsing error: Merge conflict marker encountered
+
+src/components/eventComponents/branding/brandingContent/brandingFileUpload/BrandingFileUpload.tsx
+  Line 20:  Parsing error: Merge conflict marker encountered
+
+src/components/eventComponents/tradeFairInformation/tradeFairInformationContent/tradeInfo/TradeInfo.tsx
+  Line 73:  Parsing error: Merge conflict marker encountered
+
+src/helpers/mockData.tsx
+  Line 251:  Parsing error: Merge conflict marker encountered
+
+webpack compiled with 6 errors and 1 warning
+Files successfully emitted, waiting for typecheck results...
+Issues checking in progress...
+ERROR in src/components/componentWithAction/ComponentWithAction.tsx:11:1
+TS1185: Merge conflict marker encountered.
+     9 | import { ReactComponent as BlueCircle } from "../../assets/blueCircle.svg";
+    10 | import { ReactComponent as EditIcon } from '../../assets/editIcon.svg';
+  > 11 | <<<<<<< HEAD
+       | ^^^^^^^
+    12 | =======
+    13 | import { ReactComponent as EyeIcon } from '../../assets/eyeIcon.svg';
+    14 | import { ReactComponent as SendIcon } from '../../assets/sendIcon.svg';
+
+ERROR in src/components/componentWithAction/ComponentWithAction.tsx:12:1
+TS1185: Merge conflict marker encountered.
+    10 | import { ReactComponent as EditIcon } from '../../assets/editIcon.svg';
+    11 | <<<<<<< HEAD
+  > 12 | =======
+       | ^^^^^^^
+    13 | import { ReactComponent as EyeIcon } from '../../assets/eyeIcon.svg';
+    14 | import { ReactComponent as SendIcon } from '../../assets/sendIcon.svg';
+    15 | import { ReactComponent as ToolsIcon } from '../../assets/optionIcon.svg';
+
+ERROR in src/components/componentWithAction/ComponentWithAction.tsx:16:1
+TS1185: Merge conflict marker encountered.
+    14 | import { ReactComponent as SendIcon } from '../../assets/sendIcon.svg';
+    15 | import { ReactComponent as ToolsIcon } from '../../assets/optionIcon.svg';
+  > 16 | >>>>>>> origin/frontend-admin-panel-cd-events-details
+       | ^^^^^^^
+    17 | import styles from "./ComponentWithAction.module.scss";
+    18 | import CustomTypography from "../customTypography/CustomTypography";
+    19 |
+
+ERROR in src/components/componentWithAction/ComponentWithAction.tsx:21:1
+TS1185: Merge conflict marker encountered.
+    19 |
+    20 | interface ComponentWithActionProps {
+  > 21 | <<<<<<< HEAD
+       | ^^^^^^^
+    22 |   iconType: "add" | "upload" | "download"|'accept'|'edit'|'delete'|'noIcon'|'other'|'save';
+    23 | =======
+    24 |   iconType: "add" | "upload" | "download" | 'accept' |'preview'| 'edit' | 'delete' | 'noIcon' | 'other' | 'save'|'send'|'tools';
+
+ERROR in src/components/componentWithAction/ComponentWithAction.tsx:23:1
+TS1185: Merge conflict marker encountered.
+    21 | <<<<<<< HEAD
+    22 |   iconType: "add" | "upload" | "download"|'accept'|'edit'|'delete'|'noIcon'|'other'|'save';
+  > 23 | =======
+       | ^^^^^^^
+    24 |   iconType: "add" | "upload" | "download" | 'accept' |'preview'| 'edit' | 'delete' | 'noIcon' | 'other' | 'save'|'send'|'tools';
+    25 | >>>>>>> origin/frontend-admin-panel-cd-events-details
+    26 |   iconSVG?: React.FC<React.SVGProps<SVGSVGElement>>;
+
+ERROR in src/components/componentWithAction/ComponentWithAction.tsx:25:1
+TS1185: Merge conflict marker encountered.
+    23 | =======
+    24 |   iconType: "add" | "upload" | "download" | 'accept' |'preview'| 'edit' | 'delete' | 'noIcon' | 'other' | 'save'|'send'|'tools';
+  > 25 | >>>>>>> origin/frontend-admin-panel-cd-events-details
+       | ^^^^^^^
+    26 |   iconSVG?: React.FC<React.SVGProps<SVGSVGElement>>;
+    27 |   handleAction: () => void;
+    28 |   buttonTitle: string;
+
+ERROR in src/components/componentWithAction/ComponentWithAction.tsx:30:1
+TS1185: Merge conflict marker encountered.
+    28 |   buttonTitle: string;
+    29 |   nameStyle?: React.CSSProperties;
+  > 30 | <<<<<<< HEAD
+       | ^^^^^^^
+    31 |   hideTextOnMobile?: boolean; // NOWY, opcjonalny props
+    32 |   iconFirst?: boolean; // Nowy props, domyślnie true
+    33 | }
+
+ERROR in src/components/componentWithAction/ComponentWithAction.tsx:37:1
+TS1185: Merge conflict marker encountered.
+    35 | const ComponentWithAction: React.FC<ComponentWithActionProps> = ({
+    36 |   iconType='upload',
+  > 37 | =======
+       | ^^^^^^^
+    38 |   hideTextOnMobile?: boolean;
+    39 |   iconFirst?: boolean;
+    40 |   disabled?: boolean; // optional prop
+
+ERROR in src/components/componentWithAction/ComponentWithAction.tsx:45:1
+TS1185: Merge conflict marker encountered.
+    43 | const ComponentWithAction: React.FC<ComponentWithActionProps> = ({
+    44 |   iconType = 'upload',
+  > 45 | >>>>>>> origin/frontend-admin-panel-cd-events-details
+       | ^^^^^^^
+    46 |   iconSVG: IconSVG,
+    47 |   handleAction,
+    48 |   buttonTitle,
+
+ERROR in src/components/componentWithAction/ComponentWithAction.tsx:50:1
+TS1185: Merge conflict marker encountered.
+    48 |   buttonTitle,
+    49 |   nameStyle,
+  > 50 | <<<<<<< HEAD
+       | ^^^^^^^
+    51 |   hideTextOnMobile=false,
+    52 |   iconFirst=true,
+    53 | =======
+
+ERROR in src/components/componentWithAction/ComponentWithAction.tsx:53:1
+TS1185: Merge conflict marker encountered.
+    51 |   hideTextOnMobile=false,
+    52 |   iconFirst=true,
+  > 53 | =======
+       | ^^^^^^^
+    54 |   hideTextOnMobile = false,
+    55 |   iconFirst = true,
+    56 |   disabled = false,
+
+ERROR in src/components/componentWithAction/ComponentWithAction.tsx:57:1
+TS1185: Merge conflict marker encountered.
+    55 |   iconFirst = true,
+    56 |   disabled = false,
+  > 57 | >>>>>>> origin/frontend-admin-panel-cd-events-details
+       | ^^^^^^^
+    58 | }) => {
+    59 |   const ButtonIcon = (() => {
+    60 |     switch (iconType) {
+
+ERROR in src/components/componentWithAction/ComponentWithAction.tsx:68:1
+TS1185: Merge conflict marker encountered.
+    66 |       case "edit": return EditIcon;
+    67 |       case "delete": return Wastebasket;
+  > 68 | <<<<<<< HEAD
+       | ^^^^^^^
+    69 | =======
+    70 |       case 'preview':return EyeIcon;
+    71 |       case 'send':return SendIcon ;
+
+ERROR in src/components/componentWithAction/ComponentWithAction.tsx:69:1
+TS1185: Merge conflict marker encountered.
+    67 |       case "delete": return Wastebasket;
+    68 | <<<<<<< HEAD
+  > 69 | =======
+       | ^^^^^^^
+    70 |       case 'preview':return EyeIcon;
+    71 |       case 'send':return SendIcon ;
+    72 |       case 'tools':return ToolsIcon;
+
+ERROR in src/components/componentWithAction/ComponentWithAction.tsx:73:1
+TS1185: Merge conflict marker encountered.
+    71 |       case 'send':return SendIcon ;
+    72 |       case 'tools':return ToolsIcon;
+  > 73 | >>>>>>> origin/frontend-admin-panel-cd-events-details
+       | ^^^^^^^
+    74 |       case "other": return IconSVG;
+    75 |       default: return null;
+    76 |     }
+
+ERROR in src/components/componentWithAction/ComponentWithAction.tsx:80:1
+TS1185: Merge conflict marker encountered.
+    78 |
+    79 |   return (
+  > 80 | <<<<<<< HEAD
+       | ^^^^^^^
+    81 |   <Box className={styles.container} onClick={handleAction}>
+    82 |     {iconFirst ? (
+    83 |       <>
+
+ERROR in src/components/componentWithAction/ComponentWithAction.tsx:105:1
+TS1185: Merge conflict marker encountered.
+    103 |   </Box>
+    104 | );
+  > 105 | =======
+        | ^^^^^^^
+    106 |     <Box
+    107 |       className={`${styles.container} ${disabled ? styles.disabled : ''}`}
+    108 |       onClick={disabled ? undefined : handleAction}
+
+ERROR in src/components/componentWithAction/ComponentWithAction.tsx:138:1
+TS1185: Merge conflict marker encountered.
+    136 |     </Box>
+    137 |   );
+  > 138 | >>>>>>> origin/frontend-admin-panel-cd-events-details
+        | ^^^^^^^
+    139 | };
+    140 |
+    141 | export default ComponentWithAction;
+
+ERROR in src/components/customSelectMui/CustomSelectMui.tsx:16:1
+TS1185: Merge conflict marker encountered.
+    14 |   size?: "small" | "medium";
+    15 |   fullWidth?: boolean;
+  > 16 | <<<<<<< HEAD
+       | ^^^^^^^
+    17 |   value: string | number;
+    18 |   onChange: (value: string) => void;
+    19 |   options: OptionType[];
+
+ERROR in src/components/customSelectMui/CustomSelectMui.tsx:22:1
+TS1185: Merge conflict marker encountered.
+    20 |   error?: boolean;
+    21 |   helperText?: string;
+  > 22 | =======
+       | ^^^^^^^
+    23 |   value: string | number | Array<string | number>;
+    24 |   onChange: (value: string | number | Array<string | number>) => void;
+    25 |   options: OptionType[];
+
+ERROR in src/components/customSelectMui/CustomSelectMui.tsx:29:1
+TS1185: Merge conflict marker encountered.
+    27 |   helperText?: string;
+    28 |   multiple?: boolean;
+  > 29 | >>>>>>> origin/frontend-admin-panel-cd-events-details
+       | ^^^^^^^
+    30 | };
+    31 |
+    32 | const CustomSelectMui: FC<CustomSelectProps> = ({
+
+ERROR in src/components/customSelectMui/CustomSelectMui.tsx:41:1
+TS1185: Merge conflict marker encountered.
+    39 |   options,
+    40 |   error,
+  > 41 | <<<<<<< HEAD
+       | ^^^^^^^
+    42 |   helperText
+    43 | }) => {
+    44 |   const [open, setOpen] = useState(false);
+
+ERROR in src/components/customSelectMui/CustomSelectMui.tsx:46:1
+TS1185: Merge conflict marker encountered.
+    44 |   const [open, setOpen] = useState(false);
+    45 |
+  > 46 | =======
+       | ^^^^^^^
+    47 |   helperText,
+    48 |   multiple = false,
+    49 | }) => {
+
+ERROR in src/components/customSelectMui/CustomSelectMui.tsx:141:1
+TS1185: Merge conflict marker encountered.
+    139 |   };
+    140 |
+  > 141 | >>>>>>> origin/frontend-admin-panel-cd-events-details
+        | ^^^^^^^
+    142 |   return (
+    143 |     <TextField
+    144 |       select
+
+ERROR in src/components/customSelectMui/CustomSelectMui.tsx:149:1
+TS1185: Merge conflict marker encountered.
+    147 |       size={size}
+    148 |       value={value}
+  > 149 | <<<<<<< HEAD
+        | ^^^^^^^
+    150 |       onChange={(e) => onChange(e.target.value)}
+    151 |       error={!!error}
+    152 |       helperText={error ? helperText : ""}
+
+ERROR in src/components/customSelectMui/CustomSelectMui.tsx:154:1
+TS1185: Merge conflict marker encountered.
+    152 |       helperText={error ? helperText : ""}
+    153 |       SelectProps={{
+  > 154 | =======
+        | ^^^^^^^
+    155 |       onChange={handleChange}
+    156 |       error={!!error}
+    157 |       helperText={error ? helperText : ""}
+
+ERROR in src/components/customSelectMui/CustomSelectMui.tsx:160:1
+TS1185: Merge conflict marker encountered.
+    158 |       SelectProps={{
+    159 |         multiple,
+  > 160 | >>>>>>> origin/frontend-admin-panel-cd-events-details
+        | ^^^^^^^
+    161 |         displayEmpty: !!placeholder,
+    162 |         open: open,
+    163 |         onOpen: () => setOpen(true),
+
+ERROR in src/components/customSelectMui/CustomSelectMui.tsx:165:1
+TS1185: Merge conflict marker encountered.
+    163 |         onOpen: () => setOpen(true),
+    164 |         onClose: () => setOpen(false),
+  > 165 | <<<<<<< HEAD
+        | ^^^^^^^
+    166 |         IconComponent: () => null,  // Ukrywa domyślną ikonę MUI
+    167 |         renderValue: (selected) => {
+    168 |           if ((selected === "" || selected === null || selected === undefined) && placeholder) {
+
+ERROR in src/components/customSelectMui/CustomSelectMui.tsx:174:1
+TS1185: Merge conflict marker encountered.
+    172 |           return found ? found.label : "";
+    173 |         },
+  > 174 | =======
+        | ^^^^^^^
+    175 |         IconComponent: () => null, // Ukrywa domyślną ikonę MUI
+    176 |         renderValue: renderSelectValue,
+    177 | >>>>>>> origin/frontend-admin-panel-cd-events-details
+
+ERROR in src/components/customSelectMui/CustomSelectMui.tsx:177:1
+TS1185: Merge conflict marker encountered.
+    175 |         IconComponent: () => null, // Ukrywa domyślną ikonę MUI
+    176 |         renderValue: renderSelectValue,
+  > 177 | >>>>>>> origin/frontend-admin-panel-cd-events-details
+        | ^^^^^^^
+    178 |       }}
+    179 |       InputProps={{
+    180 |         endAdornment: (
+
+ERROR in src/components/customSelectMui/CustomSelectMui.tsx:214:6
+TS1005: '</' expected.
+    212 |         },
+    213 |       }}
+  > 214 |     >
+        |      ^
+  > 215 | <<<<<<< HEAD
+        | ^^^^^^^^^^^^^
+    216 |       {placeholder && (
+    217 | =======
+    218 |       {placeholder && !multiple && (
+
+ERROR in src/components/customSelectMui/CustomSelectMui.tsx:215:1
+TS1185: Merge conflict marker encountered.
+    213 |       }}
+    214 |     >
+  > 215 | <<<<<<< HEAD
+        | ^^^^^^^
+    216 |       {placeholder && (
+    217 | =======
+    218 |       {placeholder && !multiple && (
+
+ERROR in src/components/customSelectMui/CustomSelectMui.tsx:216:8
+TS2304: Cannot find name 'placeholder'.
+    214 |     >
+    215 | <<<<<<< HEAD
+  > 216 |       {placeholder && (
+        |        ^^^^^^^^^^^
+    217 | =======
+    218 |       {placeholder && !multiple && (
+    219 | >>>>>>> origin/frontend-admin-panel-cd-events-details
+
+ERROR in src/components/customSelectMui/CustomSelectMui.tsx:217:1
+TS1185: Merge conflict marker encountered.
+    215 | <<<<<<< HEAD
+    216 |       {placeholder && (
+  > 217 | =======
+        | ^^^^^^^
+    218 |       {placeholder && !multiple && (
+    219 | >>>>>>> origin/frontend-admin-panel-cd-events-details
+    220 |         <MenuItem value="" disabled>
+
+ERROR in src/components/customSelectMui/CustomSelectMui.tsx:219:1
+TS1185: Merge conflict marker encountered.
+    217 | =======
+    218 |       {placeholder && !multiple && (
+  > 219 | >>>>>>> origin/frontend-admin-panel-cd-events-details
+        | ^^^^^^^
+    220 |         <MenuItem value="" disabled>
+    221 |           {placeholder}
+    222 |         </MenuItem>
+
+ERROR in src/components/customSelectMui/CustomSelectMui.tsx:221:12
+TS2304: Cannot find name 'placeholder'.
+    219 | >>>>>>> origin/frontend-admin-panel-cd-events-details
+    220 |         <MenuItem value="" disabled>
+  > 221 |           {placeholder}
+        |            ^^^^^^^^^^^
+    222 |         </MenuItem>
+    223 |       )}
+    224 |       {options.map((opt) => (
+
+ERROR in src/components/customSelectMui/CustomSelectMui.tsx:224:8
+TS2552: Cannot find name 'options'. Did you mean 'Option'?
+    222 |         </MenuItem>
+    223 |       )}
+  > 224 |       {options.map((opt) => (
+        |        ^^^^^^^
+    225 |         <MenuItem key={opt.value} value={opt.value}>
+    226 |           {opt.label}
+    227 |         </MenuItem>
+
+ERROR in src/components/customSelectMui/CustomSelectMui.tsx:224:21
+TS7006: Parameter 'opt' implicitly has an 'any' type.
+    222 |         </MenuItem>
+    223 |       )}
+  > 224 |       {options.map((opt) => (
+        |                     ^^^
+    225 |         <MenuItem key={opt.value} value={opt.value}>
+    226 |           {opt.label}
+    227 |         </MenuItem>
+
+ERROR in src/components/customSelectMui/CustomSelectMui.tsx:229:5
+TS1128: Declaration or statement expected.
+    227 |         </MenuItem>
+    228 |       ))}
+  > 229 |     </TextField>
+        |     ^^
+    230 |   );
+    231 | };
+    232 |
+
+ERROR in src/components/customSelectMui/CustomSelectMui.tsx:230:3
+TS1109: Expression expected.
+    228 |       ))}
+    229 |     </TextField>
+  > 230 |   );
+        |   ^
+    231 | };
+    232 |
+    233 | export default CustomSelectMui;
+
+ERROR in src/components/customSelectMui/CustomSelectMui.tsx:231:1
+TS1128: Declaration or statement expected.
+    229 |     </TextField>
+    230 |   );
+  > 231 | };
+        | ^
+    232 |
+    233 | export default CustomSelectMui;
+
+ERROR in src/components/eventComponents/branding/brandingContent/brandingFileUpload/BrandingFileUpload.tsx:20:1
+TS1185: Merge conflict marker encountered.
+    18 | import { ReactComponent as BlackUploadIcon } from '../../../../../assets/blackUploadIcon.svg';
+    19 | import CustomField from '../../../../customField/CustomField';
+  > 20 | <<<<<<< HEAD
+       | ^^^^^^^
+    21 | =======
+    22 |
+    23 | >>>>>>> origin/frontend-admin-panel-cd-events-details
+
+ERROR in src/components/eventComponents/branding/brandingContent/brandingFileUpload/BrandingFileUpload.tsx:21:1
+TS1185: Merge conflict marker encountered.
+    19 | import CustomField from '../../../../customField/CustomField';
+    20 | <<<<<<< HEAD
+  > 21 | =======
+       | ^^^^^^^
+    22 |
+    23 | >>>>>>> origin/frontend-admin-panel-cd-events-details
+    24 | interface BrandingFileUploadProps {
+
+ERROR in src/components/eventComponents/branding/brandingContent/brandingFileUpload/BrandingFileUpload.tsx:23:1
+TS1185: Merge conflict marker encountered.
+    21 | =======
+    22 |
+  > 23 | >>>>>>> origin/frontend-admin-panel-cd-events-details
+       | ^^^^^^^
+    24 | interface BrandingFileUploadProps {
+    25 |   fileType: string;
+    26 |   title: string;
+
+ERROR in src/components/eventComponents/invitations/invitationsContent/invitation/Invitation.tsx:11:10
+TS2305: Module '"../../../../../helpers/mockData"' has no exported member 'invitationOptions'.
+     9 | import { ReactComponent as ImgIcon} from '../../../../../assets/imgIcon.svg';
+    10 | import CustomSelectMui from '../../../../customSelectMui/CustomSelectMui';
+  > 11 | import { invitationOptions, specialOffersOptions } from '../../../../../helpers/mockData';
+       |          ^^^^^^^^^^^^^^^^^
+    12 | import {_SpecialOffers} from '../../../../../types/types'
+    13 |
+    14 |
+
+ERROR in src/components/eventComponents/invitations/invitationsContent/invitation/Invitation.tsx:11:29
+TS2305: Module '"../../../../../helpers/mockData"' has no exported member 'specialOffersOptions'.
+     9 | import { ReactComponent as ImgIcon} from '../../../../../assets/imgIcon.svg';
+    10 | import CustomSelectMui from '../../../../customSelectMui/CustomSelectMui';
+  > 11 | import { invitationOptions, specialOffersOptions } from '../../../../../helpers/mockData';
+       |                             ^^^^^^^^^^^^^^^^^^^^
+    12 | import {_SpecialOffers} from '../../../../../types/types'
+    13 |
+    14 |
+
+ERROR in src/components/eventComponents/invitations/invitationsContent/invitation/Invitation.tsx:310:17
+TS2322: Type '{ iconType: "save"; handleAction: () => void; buttonTitle: string; iconFirst: false; disabled: boolean; }' is not assignable to type 'IntrinsicAttributes & ComponentWithActionProps'.
+  Property 'disabled' does not exist on type 'IntrinsicAttributes & ComponentWithActionProps'.
+    308 |                 buttonTitle={'zapisz'}
+    309 |                 iconFirst={false}
+  > 310 |                 disabled={price===''}
+        |                 ^^^^^^^^
+    311 |                 />
+    312 |             </Box>
+    313 |         </Box>
+
+ERROR in src/components/eventComponents/invitations/invitationsContent/invitation/Invitation.tsx:405:25
+TS2322: Type '"preview"' is not assignable to type '"add" | "upload" | "download" | "accept" | "edit" | "delete" | "noIcon" | "other" | "save"'.
+    403 |                     <CustomTypography className={styles.titleUpload}>Treść przykładowa zaproszenia</CustomTypography>
+    404 |                     <ComponentWithAction 
+  > 405 |                         iconType={'preview'} 
+        |                         ^^^^^^^^
+    406 |                         handleAction={() => setPreviewMode(!previewMode)} 
+    407 |                         buttonTitle={!previewMode?'zobacz podgląd':'wyłącz podgląd'}
+    408 |                        //hideTextOnMobile={true}
+
+ERROR in src/components/eventComponents/invitations/invitationsContent/invitation/Invitation.tsx:461:29
+TS2322: Type 'string | ("fastTrack" | "personalizedPackage" | "welcomPack" | "accessToConferencesAndWorkshops" | "FreeparkingAndConciergrService")[]' is not assignable to type 'string | number'.
+  Type '("fastTrack" | "personalizedPackage" | "welcomPack" | "accessToConferencesAndWorkshops" | "FreeparkingAndConciergrService")[]' is not assignable to type 'string | number'.
+    459 |                             <CustomSelectMui
+    460 |                             label="Oferta specjalna / Benefity"
+  > 461 |                             value={invitationData.special_offers?invitationData.special_offers:''}
+        |                             ^^^^^
+    462 |                             onChange={(value) => handleInputChange('special_offers', value as typeof invitationData.special_offers)}
+    463 |                             options={specialOffersOptions}
+    464 |                             size="small"
+
+ERROR in src/components/eventComponents/invitations/invitationsContent/invitation/Invitation.tsx:462:86
+TS2352: Conversion of type 'string' to type '("fastTrack" | "personalizedPackage" | "welcomPack" | "accessToConferencesAndWorkshops" | "FreeparkingAndConciergrService")[]' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+    460 |                             label="Oferta specjalna / Benefity"
+    461 |                             value={invitationData.special_offers?invitationData.special_offers:''}
+  > 462 |                             onChange={(value) => handleInputChange('special_offers', value as typeof invitationData.special_offers)}
+        |                                                                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    463 |                             options={specialOffersOptions}
+    464 |                             size="small"
+    465 |                             fullWidth
+
+ERROR in src/components/eventComponents/invitations/invitationsContent/invitation/Invitation.tsx:587:23
+TS2322: Type '"send"' is not assignable to type '"add" | "upload" | "download" | "accept" | "edit" | "delete" | "noIcon" | "other" | "save"'.
+    585 |                     <Box>
+    586 |                     <ComponentWithAction 
+  > 587 |                       iconType={'send'} 
+        |                       ^^^^^^^^
+    588 |                       handleAction={()=>console.log("Testowe wysyłanie")} 
+    589 |                       buttonTitle={'Testowe wysyłanie'}/>
+    590 |                     </Box>
+
+ERROR in src/components/eventComponents/invitations/invitationsContent/invitation/Invitation.tsx:593:23
+TS2322: Type '"tools"' is not assignable to type '"add" | "upload" | "download" | "accept" | "edit" | "delete" | "noIcon" | "other" | "save"'.
+    591 |                     <Box>
+    592 |                     <ComponentWithAction 
+  > 593 |                       iconType={'tools'} 
+        |                       ^^^^^^^^
+    594 |                       handleAction={()=>console.log("Zarządzanie odpbiorcami")} 
+    595 |                       buttonTitle={'Zarządzanie odpbiorcami'}/>
+    596 |                     </Box>
+
+ERROR in src/components/eventComponents/tradeFairInformation/tradeFairInformationContent/tradeInfo/TradeInfo.tsx:73:1
+TS1185: Merge conflict marker encountered.
+    71 |     { id: '1', date: '', startTime: '09:00', endTime: '17:00' }
+    72 |   ]);
+  > 73 | <<<<<<< HEAD
+       | ^^^^^^^
+    74 |
+    75 | const [buildType, setBuildType] = useState<string>('Montaż indywidualny');
+    76 | =======
+
+ERROR in src/components/eventComponents/tradeFairInformation/tradeFairInformationContent/tradeInfo/TradeInfo.tsx:76:1
+TS1185: Merge conflict marker encountered.
+    74 |
+    75 | const [buildType, setBuildType] = useState<string>('Montaż indywidualny');
+  > 76 | =======
+       | ^^^^^^^
+    77 | //const [buildType, setBuildType] = useState<string | number | Array<string | number>>("Montaż indywidualny");
+    78 | const [buildType, setBuildType] = useState<string>('');
+    79 | >>>>>>> origin/frontend-admin-panel-cd-events-details
+
+ERROR in src/components/eventComponents/tradeFairInformation/tradeFairInformationContent/tradeInfo/TradeInfo.tsx:79:1
+TS1185: Merge conflict marker encountered.
+    77 | //const [buildType, setBuildType] = useState<string | number | Array<string | number>>("Montaż indywidualny");
+    78 | const [buildType, setBuildType] = useState<string>('');
+  > 79 | >>>>>>> origin/frontend-admin-panel-cd-events-details
+       | ^^^^^^^
+    80 |
+    81 |
+    82 |
+
+ERROR in src/components/eventComponents/tradeFairInformation/tradeFairInformationContent/tradeInfo/TradeInfo.tsx:99:1
+TS1185: Merge conflict marker encountered.
+     97 |   // Loading and error states
+     98 |   const [loading, setLoading] = useState<boolean>(true);
+  >  99 | <<<<<<< HEAD
+        | ^^^^^^^
+    100 |   const [, setSaving] = useState<boolean>(false);
+    101 | =======
+    102 |   const [_saving, setSaving] = useState<boolean>(false);
+
+ERROR in src/components/eventComponents/tradeFairInformation/tradeFairInformationContent/tradeInfo/TradeInfo.tsx:101:1
+TS1185: Merge conflict marker encountered.
+     99 | <<<<<<< HEAD
+    100 |   const [, setSaving] = useState<boolean>(false);
+  > 101 | =======
+        | ^^^^^^^
+    102 |   const [_saving, setSaving] = useState<boolean>(false);
+    103 | >>>>>>> origin/frontend-admin-panel-cd-events-details
+    104 |   const [error, setError] = useState<string>('');
+
+ERROR in src/components/eventComponents/tradeFairInformation/tradeFairInformationContent/tradeInfo/TradeInfo.tsx:103:1
+TS1185: Merge conflict marker encountered.
+    101 | =======
+    102 |   const [_saving, setSaving] = useState<boolean>(false);
+  > 103 | >>>>>>> origin/frontend-admin-panel-cd-events-details
+        | ^^^^^^^
+    104 |   const [error, setError] = useState<string>('');
+    105 |   const [successMessage, setSuccessMessage] = useState<string>('');
+    106 |
+
+ERROR in src/components/eventComponents/tradeFairInformation/tradeFairInformationContent/tradeInfo/TradeInfo.tsx:473:1
+TS1185: Merge conflict marker encountered.
+    471 |                     label=""
+    472 |                     placeholder="Wybierz typ"
+  > 473 | <<<<<<< HEAD
+        | ^^^^^^^
+    474 |                     value={buildType}
+    475 |                     onChange={(buildType) => setBuildType(buildType)}
+    476 | =======
+
+ERROR in src/components/eventComponents/tradeFairInformation/tradeFairInformationContent/tradeInfo/TradeInfo.tsx:476:1
+TS1185: Merge conflict marker encountered.
+    474 |                     value={buildType}
+    475 |                     onChange={(buildType) => setBuildType(buildType)}
+  > 476 | =======
+        | ^^^^^^^
+    477 |                     value={buildType} 
+    478 |                     onChange={(value) => setBuildType(String(value))}
+    479 | >>>>>>> origin/frontend-admin-panel-cd-events-details
+
+ERROR in src/components/eventComponents/tradeFairInformation/tradeFairInformationContent/tradeInfo/TradeInfo.tsx:479:1
+TS1185: Merge conflict marker encountered.
+    477 |                     value={buildType} 
+    478 |                     onChange={(value) => setBuildType(String(value))}
+  > 479 | >>>>>>> origin/frontend-admin-panel-cd-events-details
+        | ^^^^^^^
+    480 |                     options={buildDaysOption}
+    481 |                     size="small"
+    482 |                     fullWidth
+
+ERROR in src/helpers/mockData.tsx:251:1
+TS1185: Merge conflict marker encountered.
+    249 |     { value: 'garden', label: 'Ogród' },
+    250 |     { value: 'other', label: 'Inne' },
+  > 251 | <<<<<<< HEAD
+        | ^^^^^^^
+    252 |   ];
+    253 | =======
+    254 | ];
+
+ERROR in src/helpers/mockData.tsx:253:1
+TS1185: Merge conflict marker encountered.
+    251 | <<<<<<< HEAD
+    252 |   ];
+  > 253 | =======
+        | ^^^^^^^
+    254 | ];
+    255 | >>>>>>> origin/frontend-admin-panel-cd-events-details
+    256 |
+
+ERROR in src/helpers/mockData.tsx:255:1
+TS1185: Merge conflict marker encountered.
+    253 | =======
+    254 | ];
+  > 255 | >>>>>>> origin/frontend-admin-panel-cd-events-details
+        | ^^^^^^^
+    256 |
+    257 | export const buildDaysOption: OptionType[] = [
+    258 |   { value: 'indywidualny', label: 'Montaż indywidualny' },
+
+ERROR in src/helpers/mockData.tsx:261:1
+TS1185: Merge conflict marker encountered.
+    259 |   { value: 'systemowy', label: 'Montaż systemowy' },
+    260 | ];
+  > 261 | <<<<<<< HEAD
+        | ^^^^^^^
+    262 | =======
+    263 | export const invitationOptions:OptionType[]=[
+    264 |   { value: 'standard', label: 'Standardowe' },
+
+ERROR in src/helpers/mockData.tsx:262:1
+TS1185: Merge conflict marker encountered.
+    260 | ];
+    261 | <<<<<<< HEAD
+  > 262 | =======
+        | ^^^^^^^
+    263 | export const invitationOptions:OptionType[]=[
+    264 |   { value: 'standard', label: 'Standardowe' },
+    265 |   { value: 'exhibitore', label: 'Dla wystawców' },
+
+ERROR in src/helpers/mockData.tsx:279:1
+TS1185: Merge conflict marker encountered.
+    277 |
+    278 |
+  > 279 | >>>>>>> origin/frontend-admin-panel-cd-events-details
+        | ^^^^^^^
+    280 |
+
 Compiling...
-Compiled successfully!
-webpack compiled successfully
-No issues found.
-Compiling...
-Compiled successfully!
-webpack compiled successfully
-No issues found.
-Compiling...
-Compiled successfully!
-webpack compiled successfully
-No issues found.
+Failed to compile.
+
+[eslint] 
+src/components/customSelectMui/CustomSelectMui.tsx
+Syntax error: Merge conflict marker encountered (16:undefined)
+
+src/components/eventComponents/branding/brandingContent/brandingFileUpload/BrandingFileUpload.tsx
+Syntax error: Merge conflict marker encountered (20:undefined)
+
+src/components/eventComponents/tradeFairInformation/tradeFairInformationContent/tradeInfo/TradeInfo.tsx
+Syntax error: Merge conflict marker encountered (73:undefined)
+
+src/helpers/mockData.tsx
+Syntax error: Merge conflict marker encountered (251:undefined)
+LOG from ./node_modules/sass-loader/dist/cjs.js sass-loader ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[1]!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[2]!./node_modules/resolve-url-loader/index.js??ruleSet[1].rules[1].oneOf[8].use[3]!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[4]!./src/components/componentWithAction/ComponentWithAction.module.scss
+<w> Deprecation The legacy JS API is deprecated and will be removed in Dart Sass 2.0.0.
+<w> 
+<w> More info: https://sass-lang.com/d/legacy-js-api
+<w> 
+<w> null
+<w> Deprecation Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+<w> 
+<w> More info and automated migrator: https://sass-lang.com/d/import
+<w> 
+<w> src/components/componentWithAction/ComponentWithAction.module.scss 1:9  root stylesheet
+<w> 
+<w> Deprecation Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+<w> 
+<w> More info and automated migrator: https://sass-lang.com/d/import
+<w> 
+<w> src/components/componentWithAction/ComponentWithAction.module.scss 2:9  root stylesheet
+<w>
+
+WARNING in [eslint] 
+src/components/eventComponents/invitations/invitationsContent/invitation/Invitation.tsx
+  Line 12:9:   '_SpecialOffers' is defined but never used               @typescript-eslint/no-unused-vars
+  Line 71:16:  '_setPrice' is assigned a value but never used           @typescript-eslint/no-unused-vars
+  Line 72:22:  '_setBenefitTitle' is assigned a value but never used    @typescript-eslint/no-unused-vars
+  Line 73:24:  '_setBenefitContent' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+ERROR in ./src/components/customSelectMui/CustomSelectMui.tsx
+Module build failed (from ./node_modules/babel-loader/lib/index.js):
+SyntaxError: /Users/kid/Ptak-expo/ptak-expo-frontend/src/components/customSelectMui/CustomSelectMui.tsx: Unexpected token (16:1)
+
+  14 |   size?: "small" | "medium";
+  15 |   fullWidth?: boolean;
+> 16 | <<<<<<< HEAD
+     |  ^
+  17 |   value: string | number;
+  18 |   onChange: (value: string) => void;
+  19 |   options: OptionType[];
+    at constructor (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:367:19)
+    at TypeScriptParserMixin.raise (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:6630:19)
+    at TypeScriptParserMixin.unexpected (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:6650:16)
+    at TypeScriptParserMixin.parseIdentifierName (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:12209:12)
+    at TypeScriptParserMixin.parseIdentifier (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:12187:23)
+    at TypeScriptParserMixin.tsParseTypeParameterName (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:10139:27)
+    at TypeScriptParserMixin.tsParseTypeParameter (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:8087:22)
+    at TypeScriptParserMixin.tsParseDelimitedListWorker (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:7919:23)
+    at TypeScriptParserMixin.tsParseDelimitedList (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:7909:25)
+    at TypeScriptParserMixin.tsParseBracketedList (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:7949:25)
+    at TypeScriptParserMixin.tsParseTypeParameters (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:8107:24)
+    at TypeScriptParserMixin.tsTryParseTypeParameters (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:8094:19)
+    at TypeScriptParserMixin.tsFillSignature (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:8120:37)
+    at TypeScriptParserMixin.tsParseSignatureMember (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:8149:10)
+    at TypeScriptParserMixin.tsParseTypeMember (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:8231:19)
+    at TypeScriptParserMixin.tsParseList (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:7904:19)
+    at TypeScriptParserMixin.tsParseObjectTypeMembers (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:8268:26)
+    at TypeScriptParserMixin.tsParseTypeLiteral (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:8263:25)
+    at TypeScriptParserMixin.tsParseNonArrayType (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:8482:106)
+    at TypeScriptParserMixin.tsParseArrayTypeOrHigher (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:8512:21)
+    at /Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:8568:158
+    at TypeScriptParserMixin.tsInAllowConditionalTypesContext (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:8859:14)
+    at TypeScriptParserMixin.tsParseTypeOperatorOrHigher (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:8568:114)
+    at TypeScriptParserMixin.tsParseUnionOrIntersectionType (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:8575:18)
+    at TypeScriptParserMixin.tsParseIntersectionTypeOrHigher (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:8584:17)
+    at TypeScriptParserMixin.tsParseUnionOrIntersectionType (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:8575:18)
+    at TypeScriptParserMixin.tsParseUnionTypeOrHigher (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:8587:17)
+    at TypeScriptParserMixin.tsParseNonConditionalType (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:8754:17)
+    at TypeScriptParserMixin.tsParseType (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:8729:23)
+    at /Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:8819:19
+    at TypeScriptParserMixin.tsInType (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:8841:14)
+    at TypeScriptParserMixin.tsParseTypeAliasDeclaration (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:8811:32)
+    at TypeScriptParserMixin.tsParseDeclaration (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:9133:23)
+    at TypeScriptParserMixin.tsParseExpressionStatement (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:9105:21)
+    at TypeScriptParserMixin.parseExpressionStatement (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:9615:52)
+    at TypeScriptParserMixin.parseStatementContent (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:12904:19)
+    at TypeScriptParserMixin.parseStatementContent (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:9532:18)
+    at TypeScriptParserMixin.parseStatementLike (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:12772:17)
+    at TypeScriptParserMixin.parseModuleItem (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:12749:17)
+    at TypeScriptParserMixin.parseBlockOrModuleBlockBody (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:13321:36)
+    at TypeScriptParserMixin.parseBlockBody (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:13314:10)
+    at TypeScriptParserMixin.parseProgram (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:12630:10)
+    at TypeScriptParserMixin.parseTopLevel (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:12620:25)
+    at TypeScriptParserMixin.parse (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:14497:10)
+    at TypeScriptParserMixin.parse (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:10149:18)
+    at parse (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:14531:38)
+    at parser (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/core/lib/parser/index.js:41:34)
+    at parser.next (<anonymous>)
+    at normalizeFile (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/core/lib/transformation/normalize-file.js:64:37)
+    at normalizeFile.next (<anonymous>)
+
+ERROR in ./src/components/eventComponents/branding/brandingContent/brandingFileUpload/BrandingFileUpload.tsx
+Module build failed (from ./node_modules/babel-loader/lib/index.js):
+SyntaxError: /Users/kid/Ptak-expo/ptak-expo-frontend/src/components/eventComponents/branding/brandingContent/brandingFileUpload/BrandingFileUpload.tsx: Unexpected token (20:1)
+
+  18 | import { ReactComponent as BlackUploadIcon } from '../../../../../assets/blackUploadIcon.svg';
+  19 | import CustomField from '../../../../customField/CustomField';
+> 20 | <<<<<<< HEAD
+     |  ^
+  21 | =======
+  22 |
+  23 | >>>>>>> origin/frontend-admin-panel-cd-events-details
+    at constructor (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:367:19)
+    at TypeScriptParserMixin.raise (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:6630:19)
+    at TypeScriptParserMixin.unexpected (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:6650:16)
+    at TypeScriptParserMixin.jsxParseIdentifier (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:4602:12)
+    at TypeScriptParserMixin.jsxParseNamespacedName (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:4609:23)
+    at TypeScriptParserMixin.jsxParseElementName (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:4618:21)
+    at TypeScriptParserMixin.jsxParseOpeningElementAt (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:4694:22)
+    at TypeScriptParserMixin.jsxParseElementAt (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:4719:33)
+    at TypeScriptParserMixin.jsxParseElement (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:4782:17)
+    at TypeScriptParserMixin.parseExprAtom (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:4792:19)
+    at TypeScriptParserMixin.parseExprSubscripts (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:11081:23)
+    at TypeScriptParserMixin.parseUpdate (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:11066:21)
+    at TypeScriptParserMixin.parseMaybeUnary (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:11046:23)
+    at TypeScriptParserMixin.parseMaybeUnary (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:9857:18)
+    at TypeScriptParserMixin.parseMaybeUnaryOrPrivate (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:10899:61)
+    at TypeScriptParserMixin.parseExprOps (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:10904:23)
+    at TypeScriptParserMixin.parseMaybeConditional (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:10881:23)
+    at TypeScriptParserMixin.parseMaybeAssign (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:10831:21)
+    at /Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:9795:39
+    at TypeScriptParserMixin.tryParse (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:6938:20)
+    at TypeScriptParserMixin.parseMaybeAssign (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:9795:18)
+    at TypeScriptParserMixin.parseExpressionBase (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:10784:23)
+    at /Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:10780:39
+    at TypeScriptParserMixin.allowInAnd (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:12427:16)
+    at TypeScriptParserMixin.parseExpression (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:10780:17)
+    at TypeScriptParserMixin.parseStatementContent (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:12900:23)
+    at TypeScriptParserMixin.parseStatementContent (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:9532:18)
+    at TypeScriptParserMixin.parseStatementLike (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:12772:17)
+    at TypeScriptParserMixin.parseModuleItem (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:12749:17)
+    at TypeScriptParserMixin.parseBlockOrModuleBlockBody (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:13321:36)
+    at TypeScriptParserMixin.parseBlockBody (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:13314:10)
+    at TypeScriptParserMixin.parseProgram (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:12630:10)
+    at TypeScriptParserMixin.parseTopLevel (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:12620:25)
+    at TypeScriptParserMixin.parse (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:14497:10)
+    at TypeScriptParserMixin.parse (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:10149:18)
+    at parse (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:14531:38)
+    at parser (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/core/lib/parser/index.js:41:34)
+    at parser.next (<anonymous>)
+    at normalizeFile (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/core/lib/transformation/normalize-file.js:64:37)
+    at normalizeFile.next (<anonymous>)
+    at run (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/core/lib/transformation/index.js:22:50)
+    at run.next (<anonymous>)
+    at transform (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/core/lib/transform.js:22:33)
+    at transform.next (<anonymous>)
+    at step (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/gensync/index.js:261:32)
+    at /Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/gensync/index.js:273:13
+    at async.call.result.err.err (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/gensync/index.js:223:11)
+
+ERROR in ./src/components/eventComponents/tradeFairInformation/tradeFairInformationContent/tradeInfo/TradeInfo.tsx
+Module build failed (from ./node_modules/babel-loader/lib/index.js):
+SyntaxError: /Users/kid/Ptak-expo/ptak-expo-frontend/src/components/eventComponents/tradeFairInformation/tradeFairInformationContent/tradeInfo/TradeInfo.tsx: Unexpected token (73:1)
+
+  71 |     { id: '1', date: '', startTime: '09:00', endTime: '17:00' }
+  72 |   ]);
+> 73 | <<<<<<< HEAD
+     |  ^
+  74 |
+  75 | const [buildType, setBuildType] = useState<string>('Montaż indywidualny');
+  76 | =======
+    at constructor (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:367:19)
+    at TypeScriptParserMixin.raise (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:6630:19)
+    at TypeScriptParserMixin.unexpected (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:6650:16)
+    at TypeScriptParserMixin.jsxParseIdentifier (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:4602:12)
+    at TypeScriptParserMixin.jsxParseNamespacedName (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:4609:23)
+    at TypeScriptParserMixin.jsxParseElementName (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:4618:21)
+    at TypeScriptParserMixin.jsxParseOpeningElementAt (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:4694:22)
+    at TypeScriptParserMixin.jsxParseElementAt (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:4719:33)
+    at TypeScriptParserMixin.jsxParseElement (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:4782:17)
+    at TypeScriptParserMixin.parseExprAtom (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:4792:19)
+    at TypeScriptParserMixin.parseExprSubscripts (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:11081:23)
+    at TypeScriptParserMixin.parseUpdate (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:11066:21)
+    at TypeScriptParserMixin.parseMaybeUnary (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:11046:23)
+    at TypeScriptParserMixin.parseMaybeUnary (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:9857:18)
+    at TypeScriptParserMixin.parseMaybeUnaryOrPrivate (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:10899:61)
+    at TypeScriptParserMixin.parseExprOps (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:10904:23)
+    at TypeScriptParserMixin.parseMaybeConditional (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:10881:23)
+    at TypeScriptParserMixin.parseMaybeAssign (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:10831:21)
+    at /Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:9795:39
+    at TypeScriptParserMixin.tryParse (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:6938:20)
+    at TypeScriptParserMixin.parseMaybeAssign (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:9795:18)
+    at TypeScriptParserMixin.parseExpressionBase (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:10784:23)
+    at /Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:10780:39
+    at TypeScriptParserMixin.allowInAnd (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:12427:16)
+    at TypeScriptParserMixin.parseExpression (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:10780:17)
+    at TypeScriptParserMixin.parseStatementContent (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:12900:23)
+    at TypeScriptParserMixin.parseStatementContent (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:9532:18)
+    at TypeScriptParserMixin.parseStatementLike (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:12772:17)
+    at TypeScriptParserMixin.parseStatementListItem (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:12752:17)
+    at TypeScriptParserMixin.parseBlockOrModuleBlockBody (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:13321:61)
+    at TypeScriptParserMixin.parseBlockBody (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:13314:10)
+    at TypeScriptParserMixin.parseBlock (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:13302:10)
+    at TypeScriptParserMixin.parseFunctionBody (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:12106:24)
+    at TypeScriptParserMixin.parseArrowExpression (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:12081:10)
+    at TypeScriptParserMixin.parseParenAndDistinguishExpression (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:11691:12)
+    at TypeScriptParserMixin.parseExprAtom (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:11331:23)
+    at TypeScriptParserMixin.parseExprAtom (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:4797:20)
+    at TypeScriptParserMixin.parseExprSubscripts (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:11081:23)
+    at TypeScriptParserMixin.parseUpdate (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:11066:21)
+    at TypeScriptParserMixin.parseMaybeUnary (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:11046:23)
+    at TypeScriptParserMixin.parseMaybeUnary (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:9857:18)
+    at TypeScriptParserMixin.parseMaybeUnaryOrPrivate (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:10899:61)
+    at TypeScriptParserMixin.parseExprOps (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:10904:23)
+    at TypeScriptParserMixin.parseMaybeConditional (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:10881:23)
+    at TypeScriptParserMixin.parseMaybeAssign (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:10831:21)
+    at TypeScriptParserMixin.parseMaybeAssign (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:9806:20)
+    at /Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:10800:39
+    at TypeScriptParserMixin.allowInAnd (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:12427:16)
+    at TypeScriptParserMixin.parseMaybeAssignAllowIn (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:10800:17)
+    at TypeScriptParserMixin.parseVar (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:13389:91)
+
+ERROR in ./src/helpers/mockData.tsx
+Module build failed (from ./node_modules/babel-loader/lib/index.js):
+SyntaxError: /Users/kid/Ptak-expo/ptak-expo-frontend/src/helpers/mockData.tsx: Unexpected token (251:1)
+
+  249 |     { value: 'garden', label: 'Ogród' },
+  250 |     { value: 'other', label: 'Inne' },
+> 251 | <<<<<<< HEAD
+      |  ^
+  252 |   ];
+  253 | =======
+  254 | ];
+    at constructor (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:367:19)
+    at TypeScriptParserMixin.raise (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:6630:19)
+    at TypeScriptParserMixin.unexpected (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:6650:16)
+    at TypeScriptParserMixin.jsxParseIdentifier (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:4602:12)
+    at TypeScriptParserMixin.jsxParseNamespacedName (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:4609:23)
+    at TypeScriptParserMixin.jsxParseElementName (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:4618:21)
+    at TypeScriptParserMixin.jsxParseOpeningElementAt (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:4694:22)
+    at TypeScriptParserMixin.jsxParseElementAt (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:4719:33)
+    at TypeScriptParserMixin.jsxParseElement (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:4782:17)
+    at TypeScriptParserMixin.parseExprAtom (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:4792:19)
+    at TypeScriptParserMixin.parseExprSubscripts (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:11081:23)
+    at TypeScriptParserMixin.parseUpdate (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:11066:21)
+    at TypeScriptParserMixin.parseMaybeUnary (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:11046:23)
+    at TypeScriptParserMixin.parseMaybeUnary (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:9857:18)
+    at TypeScriptParserMixin.parseMaybeUnaryOrPrivate (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:10899:61)
+    at TypeScriptParserMixin.parseExprOps (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:10904:23)
+    at TypeScriptParserMixin.parseMaybeConditional (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:10881:23)
+    at TypeScriptParserMixin.parseMaybeAssign (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:10831:21)
+    at /Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:9795:39
+    at TypeScriptParserMixin.tryParse (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:6938:20)
+    at TypeScriptParserMixin.parseMaybeAssign (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:9795:18)
+    at /Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:10800:39
+    at TypeScriptParserMixin.allowInAnd (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:12432:12)
+    at TypeScriptParserMixin.parseMaybeAssignAllowIn (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:10800:17)
+    at TypeScriptParserMixin.parseMaybeAssignAllowInOrVoidPattern (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:12499:17)
+    at TypeScriptParserMixin.parseExprListItem (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:12181:18)
+    at TypeScriptParserMixin.parseExprList (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:12156:22)
+    at TypeScriptParserMixin.parseArrayLike (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:12063:26)
+    at TypeScriptParserMixin.parseArrayLike (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:9273:24)
+    at TypeScriptParserMixin.parseExprAtom (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:11335:23)
+    at TypeScriptParserMixin.parseExprAtom (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:4797:20)
+    at TypeScriptParserMixin.parseExprSubscripts (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:11081:23)
+    at TypeScriptParserMixin.parseUpdate (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:11066:21)
+    at TypeScriptParserMixin.parseMaybeUnary (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:11046:23)
+    at TypeScriptParserMixin.parseMaybeUnary (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:9857:18)
+    at TypeScriptParserMixin.parseMaybeUnaryOrPrivate (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:10899:61)
+    at TypeScriptParserMixin.parseExprOps (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:10904:23)
+    at TypeScriptParserMixin.parseMaybeConditional (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:10881:23)
+    at TypeScriptParserMixin.parseMaybeAssign (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:10831:21)
+    at TypeScriptParserMixin.parseMaybeAssign (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:9806:20)
+    at /Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:10800:39
+    at TypeScriptParserMixin.allowInAnd (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:12427:16)
+    at TypeScriptParserMixin.parseMaybeAssignAllowIn (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:10800:17)
+    at TypeScriptParserMixin.parseVar (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:13389:91)
+    at TypeScriptParserMixin.parseVarStatement (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:13235:10)
+    at TypeScriptParserMixin.parseVarStatement (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:9498:31)
+    at TypeScriptParserMixin.parseStatementContent (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:12856:23)
+    at TypeScriptParserMixin.parseStatementContent (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:9532:18)
+    at TypeScriptParserMixin.parseStatementLike (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:12772:17)
+    at TypeScriptParserMixin.parseStatementListItem (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:12752:17)
+
+ERROR in [eslint] 
+src/components/customSelectMui/CustomSelectMui.tsx
+  Line 16:  Parsing error: Merge conflict marker encountered
+
+src/components/eventComponents/branding/brandingContent/brandingFileUpload/BrandingFileUpload.tsx
+  Line 20:  Parsing error: Merge conflict marker encountered
+
+src/components/eventComponents/tradeFairInformation/tradeFairInformationContent/tradeInfo/TradeInfo.tsx
+  Line 73:  Parsing error: Merge conflict marker encountered
+
+src/helpers/mockData.tsx
+  Line 251:  Parsing error: Merge conflict marker encountered
+
+webpack compiled with 5 errors and 1 warning
+Files successfully emitted, waiting for typecheck results...
+Issues checking in progress...
+ERROR in src/components/customSelectMui/CustomSelectMui.tsx:16:1
+TS1185: Merge conflict marker encountered.
+    14 |   size?: "small" | "medium";
+    15 |   fullWidth?: boolean;
+  > 16 | <<<<<<< HEAD
+       | ^^^^^^^
+    17 |   value: string | number;
+    18 |   onChange: (value: string) => void;
+    19 |   options: OptionType[];
+
+ERROR in src/components/customSelectMui/CustomSelectMui.tsx:22:1
+TS1185: Merge conflict marker encountered.
+    20 |   error?: boolean;
+    21 |   helperText?: string;
+  > 22 | =======
+       | ^^^^^^^
+    23 |   value: string | number | Array<string | number>;
+    24 |   onChange: (value: string | number | Array<string | number>) => void;
+    25 |   options: OptionType[];
+
+ERROR in src/components/customSelectMui/CustomSelectMui.tsx:29:1
+TS1185: Merge conflict marker encountered.
+    27 |   helperText?: string;
+    28 |   multiple?: boolean;
+  > 29 | >>>>>>> origin/frontend-admin-panel-cd-events-details
+       | ^^^^^^^
+    30 | };
+    31 |
+    32 | const CustomSelectMui: FC<CustomSelectProps> = ({
+
+ERROR in src/components/customSelectMui/CustomSelectMui.tsx:41:1
+TS1185: Merge conflict marker encountered.
+    39 |   options,
+    40 |   error,
+  > 41 | <<<<<<< HEAD
+       | ^^^^^^^
+    42 |   helperText
+    43 | }) => {
+    44 |   const [open, setOpen] = useState(false);
+
+ERROR in src/components/customSelectMui/CustomSelectMui.tsx:46:1
+TS1185: Merge conflict marker encountered.
+    44 |   const [open, setOpen] = useState(false);
+    45 |
+  > 46 | =======
+       | ^^^^^^^
+    47 |   helperText,
+    48 |   multiple = false,
+    49 | }) => {
+
+ERROR in src/components/customSelectMui/CustomSelectMui.tsx:141:1
+TS1185: Merge conflict marker encountered.
+    139 |   };
+    140 |
+  > 141 | >>>>>>> origin/frontend-admin-panel-cd-events-details
+        | ^^^^^^^
+    142 |   return (
+    143 |     <TextField
+    144 |       select
+
+ERROR in src/components/customSelectMui/CustomSelectMui.tsx:149:1
+TS1185: Merge conflict marker encountered.
+    147 |       size={size}
+    148 |       value={value}
+  > 149 | <<<<<<< HEAD
+        | ^^^^^^^
+    150 |       onChange={(e) => onChange(e.target.value)}
+    151 |       error={!!error}
+    152 |       helperText={error ? helperText : ""}
+
+ERROR in src/components/customSelectMui/CustomSelectMui.tsx:154:1
+TS1185: Merge conflict marker encountered.
+    152 |       helperText={error ? helperText : ""}
+    153 |       SelectProps={{
+  > 154 | =======
+        | ^^^^^^^
+    155 |       onChange={handleChange}
+    156 |       error={!!error}
+    157 |       helperText={error ? helperText : ""}
+
+ERROR in src/components/customSelectMui/CustomSelectMui.tsx:160:1
+TS1185: Merge conflict marker encountered.
+    158 |       SelectProps={{
+    159 |         multiple,
+  > 160 | >>>>>>> origin/frontend-admin-panel-cd-events-details
+        | ^^^^^^^
+    161 |         displayEmpty: !!placeholder,
+    162 |         open: open,
+    163 |         onOpen: () => setOpen(true),
+
+ERROR in src/components/customSelectMui/CustomSelectMui.tsx:165:1
+TS1185: Merge conflict marker encountered.
+    163 |         onOpen: () => setOpen(true),
+    164 |         onClose: () => setOpen(false),
+  > 165 | <<<<<<< HEAD
+        | ^^^^^^^
+    166 |         IconComponent: () => null,  // Ukrywa domyślną ikonę MUI
+    167 |         renderValue: (selected) => {
+    168 |           if ((selected === "" || selected === null || selected === undefined) && placeholder) {
+
+ERROR in src/components/customSelectMui/CustomSelectMui.tsx:174:1
+TS1185: Merge conflict marker encountered.
+    172 |           return found ? found.label : "";
+    173 |         },
+  > 174 | =======
+        | ^^^^^^^
+    175 |         IconComponent: () => null, // Ukrywa domyślną ikonę MUI
+    176 |         renderValue: renderSelectValue,
+    177 | >>>>>>> origin/frontend-admin-panel-cd-events-details
+
+ERROR in src/components/customSelectMui/CustomSelectMui.tsx:177:1
+TS1185: Merge conflict marker encountered.
+    175 |         IconComponent: () => null, // Ukrywa domyślną ikonę MUI
+    176 |         renderValue: renderSelectValue,
+  > 177 | >>>>>>> origin/frontend-admin-panel-cd-events-details
+        | ^^^^^^^
+    178 |       }}
+    179 |       InputProps={{
+    180 |         endAdornment: (
+
+ERROR in src/components/customSelectMui/CustomSelectMui.tsx:214:6
+TS1005: '</' expected.
+    212 |         },
+    213 |       }}
+  > 214 |     >
+        |      ^
+  > 215 | <<<<<<< HEAD
+        | ^^^^^^^^^^^^^
+    216 |       {placeholder && (
+    217 | =======
+    218 |       {placeholder && !multiple && (
+
+ERROR in src/components/customSelectMui/CustomSelectMui.tsx:215:1
+TS1185: Merge conflict marker encountered.
+    213 |       }}
+    214 |     >
+  > 215 | <<<<<<< HEAD
+        | ^^^^^^^
+    216 |       {placeholder && (
+    217 | =======
+    218 |       {placeholder && !multiple && (
+
+ERROR in src/components/customSelectMui/CustomSelectMui.tsx:216:8
+TS2304: Cannot find name 'placeholder'.
+    214 |     >
+    215 | <<<<<<< HEAD
+  > 216 |       {placeholder && (
+        |        ^^^^^^^^^^^
+    217 | =======
+    218 |       {placeholder && !multiple && (
+    219 | >>>>>>> origin/frontend-admin-panel-cd-events-details
+
+ERROR in src/components/customSelectMui/CustomSelectMui.tsx:217:1
+TS1185: Merge conflict marker encountered.
+    215 | <<<<<<< HEAD
+    216 |       {placeholder && (
+  > 217 | =======
+        | ^^^^^^^
+    218 |       {placeholder && !multiple && (
+    219 | >>>>>>> origin/frontend-admin-panel-cd-events-details
+    220 |         <MenuItem value="" disabled>
+
+ERROR in src/components/customSelectMui/CustomSelectMui.tsx:219:1
+TS1185: Merge conflict marker encountered.
+    217 | =======
+    218 |       {placeholder && !multiple && (
+  > 219 | >>>>>>> origin/frontend-admin-panel-cd-events-details
+        | ^^^^^^^
+    220 |         <MenuItem value="" disabled>
+    221 |           {placeholder}
+    222 |         </MenuItem>
+
+ERROR in src/components/customSelectMui/CustomSelectMui.tsx:221:12
+TS2304: Cannot find name 'placeholder'.
+    219 | >>>>>>> origin/frontend-admin-panel-cd-events-details
+    220 |         <MenuItem value="" disabled>
+  > 221 |           {placeholder}
+        |            ^^^^^^^^^^^
+    222 |         </MenuItem>
+    223 |       )}
+    224 |       {options.map((opt) => (
+
+ERROR in src/components/customSelectMui/CustomSelectMui.tsx:224:8
+TS2552: Cannot find name 'options'. Did you mean 'Option'?
+    222 |         </MenuItem>
+    223 |       )}
+  > 224 |       {options.map((opt) => (
+        |        ^^^^^^^
+    225 |         <MenuItem key={opt.value} value={opt.value}>
+    226 |           {opt.label}
+    227 |         </MenuItem>
+
+ERROR in src/components/customSelectMui/CustomSelectMui.tsx:224:21
+TS7006: Parameter 'opt' implicitly has an 'any' type.
+    222 |         </MenuItem>
+    223 |       )}
+  > 224 |       {options.map((opt) => (
+        |                     ^^^
+    225 |         <MenuItem key={opt.value} value={opt.value}>
+    226 |           {opt.label}
+    227 |         </MenuItem>
+
+ERROR in src/components/customSelectMui/CustomSelectMui.tsx:229:5
+TS1128: Declaration or statement expected.
+    227 |         </MenuItem>
+    228 |       ))}
+  > 229 |     </TextField>
+        |     ^^
+    230 |   );
+    231 | };
+    232 |
+
+ERROR in src/components/customSelectMui/CustomSelectMui.tsx:230:3
+TS1109: Expression expected.
+    228 |       ))}
+    229 |     </TextField>
+  > 230 |   );
+        |   ^
+    231 | };
+    232 |
+    233 | export default CustomSelectMui;
+
+ERROR in src/components/customSelectMui/CustomSelectMui.tsx:231:1
+TS1128: Declaration or statement expected.
+    229 |     </TextField>
+    230 |   );
+  > 231 | };
+        | ^
+    232 |
+    233 | export default CustomSelectMui;
+
+ERROR in src/components/eventComponents/branding/brandingContent/brandingFileUpload/BrandingFileUpload.tsx:20:1
+TS1185: Merge conflict marker encountered.
+    18 | import { ReactComponent as BlackUploadIcon } from '../../../../../assets/blackUploadIcon.svg';
+    19 | import CustomField from '../../../../customField/CustomField';
+  > 20 | <<<<<<< HEAD
+       | ^^^^^^^
+    21 | =======
+    22 |
+    23 | >>>>>>> origin/frontend-admin-panel-cd-events-details
+
+ERROR in src/components/eventComponents/branding/brandingContent/brandingFileUpload/BrandingFileUpload.tsx:21:1
+TS1185: Merge conflict marker encountered.
+    19 | import CustomField from '../../../../customField/CustomField';
+    20 | <<<<<<< HEAD
+  > 21 | =======
+       | ^^^^^^^
+    22 |
+    23 | >>>>>>> origin/frontend-admin-panel-cd-events-details
+    24 | interface BrandingFileUploadProps {
+
+ERROR in src/components/eventComponents/branding/brandingContent/brandingFileUpload/BrandingFileUpload.tsx:23:1
+TS1185: Merge conflict marker encountered.
+    21 | =======
+    22 |
+  > 23 | >>>>>>> origin/frontend-admin-panel-cd-events-details
+       | ^^^^^^^
+    24 | interface BrandingFileUploadProps {
+    25 |   fileType: string;
+    26 |   title: string;
+
+ERROR in src/components/eventComponents/invitations/invitationsContent/invitation/Invitation.tsx:11:10
+TS2305: Module '"../../../../../helpers/mockData"' has no exported member 'invitationOptions'.
+     9 | import { ReactComponent as ImgIcon} from '../../../../../assets/imgIcon.svg';
+    10 | import CustomSelectMui from '../../../../customSelectMui/CustomSelectMui';
+  > 11 | import { invitationOptions, specialOffersOptions } from '../../../../../helpers/mockData';
+       |          ^^^^^^^^^^^^^^^^^
+    12 | import {_SpecialOffers} from '../../../../../types/types'
+    13 |
+    14 |
+
+ERROR in src/components/eventComponents/invitations/invitationsContent/invitation/Invitation.tsx:11:29
+TS2305: Module '"../../../../../helpers/mockData"' has no exported member 'specialOffersOptions'.
+     9 | import { ReactComponent as ImgIcon} from '../../../../../assets/imgIcon.svg';
+    10 | import CustomSelectMui from '../../../../customSelectMui/CustomSelectMui';
+  > 11 | import { invitationOptions, specialOffersOptions } from '../../../../../helpers/mockData';
+       |                             ^^^^^^^^^^^^^^^^^^^^
+    12 | import {_SpecialOffers} from '../../../../../types/types'
+    13 |
+    14 |
+
+ERROR in src/components/eventComponents/invitations/invitationsContent/invitation/Invitation.tsx:461:29
+TS2322: Type 'string | ("fastTrack" | "personalizedPackage" | "welcomPack" | "accessToConferencesAndWorkshops" | "FreeparkingAndConciergrService")[]' is not assignable to type 'string | number'.
+  Type '("fastTrack" | "personalizedPackage" | "welcomPack" | "accessToConferencesAndWorkshops" | "FreeparkingAndConciergrService")[]' is not assignable to type 'string | number'.
+    459 |                             <CustomSelectMui
+    460 |                             label="Oferta specjalna / Benefity"
+  > 461 |                             value={invitationData.special_offers?invitationData.special_offers:''}
+        |                             ^^^^^
+    462 |                             onChange={(value) => handleInputChange('special_offers', value as typeof invitationData.special_offers)}
+    463 |                             options={specialOffersOptions}
+    464 |                             size="small"
+
+ERROR in src/components/eventComponents/invitations/invitationsContent/invitation/Invitation.tsx:462:86
+TS2352: Conversion of type 'string' to type '("fastTrack" | "personalizedPackage" | "welcomPack" | "accessToConferencesAndWorkshops" | "FreeparkingAndConciergrService")[]' may be a mistake because neither type sufficiently overlaps with the other. If this was intentional, convert the expression to 'unknown' first.
+    460 |                             label="Oferta specjalna / Benefity"
+    461 |                             value={invitationData.special_offers?invitationData.special_offers:''}
+  > 462 |                             onChange={(value) => handleInputChange('special_offers', value as typeof invitationData.special_offers)}
+        |                                                                                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    463 |                             options={specialOffersOptions}
+    464 |                             size="small"
+    465 |                             fullWidth
+
+ERROR in src/components/eventComponents/tradeFairInformation/tradeFairInformationContent/tradeInfo/TradeInfo.tsx:73:1
+TS1185: Merge conflict marker encountered.
+    71 |     { id: '1', date: '', startTime: '09:00', endTime: '17:00' }
+    72 |   ]);
+  > 73 | <<<<<<< HEAD
+       | ^^^^^^^
+    74 |
+    75 | const [buildType, setBuildType] = useState<string>('Montaż indywidualny');
+    76 | =======
+
+ERROR in src/components/eventComponents/tradeFairInformation/tradeFairInformationContent/tradeInfo/TradeInfo.tsx:76:1
+TS1185: Merge conflict marker encountered.
+    74 |
+    75 | const [buildType, setBuildType] = useState<string>('Montaż indywidualny');
+  > 76 | =======
+       | ^^^^^^^
+    77 | //const [buildType, setBuildType] = useState<string | number | Array<string | number>>("Montaż indywidualny");
+    78 | const [buildType, setBuildType] = useState<string>('');
+    79 | >>>>>>> origin/frontend-admin-panel-cd-events-details
+
+ERROR in src/components/eventComponents/tradeFairInformation/tradeFairInformationContent/tradeInfo/TradeInfo.tsx:79:1
+TS1185: Merge conflict marker encountered.
+    77 | //const [buildType, setBuildType] = useState<string | number | Array<string | number>>("Montaż indywidualny");
+    78 | const [buildType, setBuildType] = useState<string>('');
+  > 79 | >>>>>>> origin/frontend-admin-panel-cd-events-details
+       | ^^^^^^^
+    80 |
+    81 |
+    82 |
+
+ERROR in src/components/eventComponents/tradeFairInformation/tradeFairInformationContent/tradeInfo/TradeInfo.tsx:99:1
+TS1185: Merge conflict marker encountered.
+     97 |   // Loading and error states
+     98 |   const [loading, setLoading] = useState<boolean>(true);
+  >  99 | <<<<<<< HEAD
+        | ^^^^^^^
+    100 |   const [, setSaving] = useState<boolean>(false);
+    101 | =======
+    102 |   const [_saving, setSaving] = useState<boolean>(false);
+
+ERROR in src/components/eventComponents/tradeFairInformation/tradeFairInformationContent/tradeInfo/TradeInfo.tsx:101:1
+TS1185: Merge conflict marker encountered.
+     99 | <<<<<<< HEAD
+    100 |   const [, setSaving] = useState<boolean>(false);
+  > 101 | =======
+        | ^^^^^^^
+    102 |   const [_saving, setSaving] = useState<boolean>(false);
+    103 | >>>>>>> origin/frontend-admin-panel-cd-events-details
+    104 |   const [error, setError] = useState<string>('');
+
+ERROR in src/components/eventComponents/tradeFairInformation/tradeFairInformationContent/tradeInfo/TradeInfo.tsx:103:1
+TS1185: Merge conflict marker encountered.
+    101 | =======
+    102 |   const [_saving, setSaving] = useState<boolean>(false);
+  > 103 | >>>>>>> origin/frontend-admin-panel-cd-events-details
+        | ^^^^^^^
+    104 |   const [error, setError] = useState<string>('');
+    105 |   const [successMessage, setSuccessMessage] = useState<string>('');
+    106 |
+
+ERROR in src/components/eventComponents/tradeFairInformation/tradeFairInformationContent/tradeInfo/TradeInfo.tsx:473:1
+TS1185: Merge conflict marker encountered.
+    471 |                     label=""
+    472 |                     placeholder="Wybierz typ"
+  > 473 | <<<<<<< HEAD
+        | ^^^^^^^
+    474 |                     value={buildType}
+    475 |                     onChange={(buildType) => setBuildType(buildType)}
+    476 | =======
+
+ERROR in src/components/eventComponents/tradeFairInformation/tradeFairInformationContent/tradeInfo/TradeInfo.tsx:476:1
+TS1185: Merge conflict marker encountered.
+    474 |                     value={buildType}
+    475 |                     onChange={(buildType) => setBuildType(buildType)}
+  > 476 | =======
+        | ^^^^^^^
+    477 |                     value={buildType} 
+    478 |                     onChange={(value) => setBuildType(String(value))}
+    479 | >>>>>>> origin/frontend-admin-panel-cd-events-details
+
+ERROR in src/components/eventComponents/tradeFairInformation/tradeFairInformationContent/tradeInfo/TradeInfo.tsx:479:1
+TS1185: Merge conflict marker encountered.
+    477 |                     value={buildType} 
+    478 |                     onChange={(value) => setBuildType(String(value))}
+  > 479 | >>>>>>> origin/frontend-admin-panel-cd-events-details
+        | ^^^^^^^
+    480 |                     options={buildDaysOption}
+    481 |                     size="small"
+    482 |                     fullWidth
+
+ERROR in src/helpers/mockData.tsx:251:1
+TS1185: Merge conflict marker encountered.
+    249 |     { value: 'garden', label: 'Ogród' },
+    250 |     { value: 'other', label: 'Inne' },
+  > 251 | <<<<<<< HEAD
+        | ^^^^^^^
+    252 |   ];
+    253 | =======
+    254 | ];
+
+ERROR in src/helpers/mockData.tsx:253:1
+TS1185: Merge conflict marker encountered.
+    251 | <<<<<<< HEAD
+    252 |   ];
+  > 253 | =======
+        | ^^^^^^^
+    254 | ];
+    255 | >>>>>>> origin/frontend-admin-panel-cd-events-details
+    256 |
+
+ERROR in src/helpers/mockData.tsx:255:1
+TS1185: Merge conflict marker encountered.
+    253 | =======
+    254 | ];
+  > 255 | >>>>>>> origin/frontend-admin-panel-cd-events-details
+        | ^^^^^^^
+    256 |
+    257 | export const buildDaysOption: OptionType[] = [
+    258 |   { value: 'indywidualny', label: 'Montaż indywidualny' },
+
+ERROR in src/helpers/mockData.tsx:261:1
+TS1185: Merge conflict marker encountered.
+    259 |   { value: 'systemowy', label: 'Montaż systemowy' },
+    260 | ];
+  > 261 | <<<<<<< HEAD
+        | ^^^^^^^
+    262 | =======
+    263 | export const invitationOptions:OptionType[]=[
+    264 |   { value: 'standard', label: 'Standardowe' },
+
+ERROR in src/helpers/mockData.tsx:262:1
+TS1185: Merge conflict marker encountered.
+    260 | ];
+    261 | <<<<<<< HEAD
+  > 262 | =======
+        | ^^^^^^^
+    263 | export const invitationOptions:OptionType[]=[
+    264 |   { value: 'standard', label: 'Standardowe' },
+    265 |   { value: 'exhibitore', label: 'Dla wystawców' },
+
+ERROR in src/helpers/mockData.tsx:279:1
+TS1185: Merge conflict marker encountered.
+    277 |
+    278 |
+  > 279 | >>>>>>> origin/frontend-admin-panel-cd-events-details
+        | ^^^^^^^
+    280 |
+

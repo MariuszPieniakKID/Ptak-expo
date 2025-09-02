@@ -156,3 +156,23 @@
 .dropdownItem:first-child {
   color: $color-darkgray; // lub inny odcień szarości, jakiego potrzebujesz
 }
+///
+/// 
+.selectedValuesGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 4px;
+  max-height: 60px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.selectedValueItem {
+  background-color: #dde5ff;
+  border-radius: 12px;
+  padding: 2px 8px;
+  font-size: 0.85rem;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+}
