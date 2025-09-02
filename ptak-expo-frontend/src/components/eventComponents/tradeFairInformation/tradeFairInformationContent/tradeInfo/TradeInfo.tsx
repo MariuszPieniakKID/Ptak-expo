@@ -83,7 +83,7 @@ const TradeInfo: React.FC<TradeInfoProps> = ({ exhibitionId }) => {
   const [tradeMessage, setTradeMessage] = useState<string>('');
   
   const [loading, setLoading] = useState<boolean>(true);
-  const [_saving, setSaving] = useState<boolean>(false);
+  const [/* savingFlag */ , setSaving] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
   const [successMessage, setSuccessMessage] = useState<string>('');
   const autosaveTimerRef = useRef<number | null>(null);
@@ -166,6 +166,7 @@ const TradeInfo: React.FC<TradeInfoProps> = ({ exhibitionId }) => {
   }, [exhibitionId, token]);
 
   // Debounced autosave when buildType changes (po załadowaniu danych)
+  /* eslint-disable react-hooks/exhaustive-deps */
   useEffect(() => {
     if (!hasLoadedRef.current) return;
     if (!token) return;
@@ -181,6 +182,7 @@ const TradeInfo: React.FC<TradeInfoProps> = ({ exhibitionId }) => {
       }
     };
   }, [buildType]);
+  /* eslint-enable react-hooks/exhaustive-deps */
 
   const handleSave = async () => {
     if (!token) {

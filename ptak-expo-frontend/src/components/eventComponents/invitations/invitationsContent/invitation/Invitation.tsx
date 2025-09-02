@@ -9,7 +9,6 @@ import ComponentWithAction from '../../../../componentWithAction/ComponentWithAc
 import { ReactComponent as ImgIcon} from '../../../../../assets/imgIcon.svg';
 import CustomSelectMui from '../../../../customSelectMui/CustomSelectMui';
 import { invitationOptions, specialOffersOptions } from '../../../../../helpers/mockData';
-import {_SpecialOffers} from '../../../../../types/types'
 
 
 interface InvitationData {
@@ -68,9 +67,9 @@ const CustomTextField = styled(TextField)(({ multiline }) => ({
 
 const Invitation: React.FC<InvitationProps> = ({ exhibitionId }) => {
 const { token } = useAuth();
- const [price, _setPrice]=useState<string>('');
- const [benefitTitle,_setBenefitTitle]=useState<string>('');
- const [benefitContent,_setBenefitContent]=useState<string>('');
+ const [price] = useState<string>('');
+ const [benefitTitle] = useState<string>('');
+ const [benefitContent] = useState<string>('');
 
 const [invitationData, setInvitationData] = useState<InvitationData>({
   invitation_type: 'vip',
