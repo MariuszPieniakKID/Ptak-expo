@@ -80,6 +80,23 @@ function ExhibitorScheduleOfEventsAtTheStand({
           onDeleted={(deletedId) => {
             setTradeEvents(prev => prev.filter(ev => ev.id !== deletedId));
           }}
+          onEdit={(evt) => {
+            // Bubble selected event into the AddingEvents form via window bridge
+            try {
+              (window as any).prefillAddingEventForm = {
+                name: evt.eventTitle || evt.name,
+                eventDate: evt.eventDate,
+                startTime: evt.startTime,
+                endTime: evt.endTime,
+                description: evt.description || '',
+                type: evt.eventType || 'Montaż stoiska',
+                organizer: '',
+              };
+              // Optionally scroll to form
+              const el = document.querySelector('#adding-events-form');
+              if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            } catch {}
+          }}
           events={tradeEvents.map(ev => ({
             id: ev.id ?? 0,
             exhibition_id: ev.exhibition_id ?? 0,

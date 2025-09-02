@@ -195,6 +195,31 @@ const AddingEvents: React.FC<AddingEventsProps> = ({ exhibitionId, exhibitorId, 
 
   const submitRef = useRef<HTMLButtonElement | null>(null);
 
+  // Allow external prefill (from AddedEvents edit click)
+  useEffect(() => {
+    const applyPrefill = () => {
+      const data = (window as any).prefillAddingEventForm;
+      if (data && typeof data === 'object') {
+        setFormValues(prev => ({
+          ...prev,
+          name: data.name ?? prev.name,
+          eventDate: data.eventDate ?? prev.eventDate,
+          startTime: data.startTime ?? prev.startTime,
+          endTime: data.endTime ?? prev.endTime,
+          description: data.description ?? prev.description,
+          type: data.type ?? prev.type,
+          organizer: data.organizer ?? prev.organizer,
+        }));
+        // Clear after applying
+        delete (window as any).prefillAddingEventForm;
+      }
+    };
+    // Initial apply and also when user navigates within the page
+    applyPrefill();
+    const i = setInterval(applyPrefill, 500);
+    return () => clearInterval(i);
+  }, []);
+
   return (
     <Box className={styles.container}>
       <CustomTypography className={styles.sectionTitle}>Dodawanie wydarzenia:</CustomTypography>

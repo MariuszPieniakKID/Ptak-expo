@@ -19,9 +19,10 @@ interface AddedEventsProps {
   exhibitionId?: number;
   exhibitorId?: number;
   onDeleted?: (eventId: number) => void;
+  onEdit?: (event: _AddedEvent) => void;
 }
 
-const AddedEvents = ({ events, exhibitionId, onDeleted }: AddedEventsProps) => {
+const AddedEvents = ({ events, exhibitionId, onDeleted, onEdit }: AddedEventsProps) => {
   const [editHovered, setEditHovered] = useState<number | null>(null);
   const { token } = useAuth();
 
@@ -35,8 +36,8 @@ function getColorForEvent(eventId: string): string {
     console.log("Dodawanie wydarzenia do oficjalnego katalogu");
   }
 
-  const handleEditEven = () => {
-    console.log("Edycja wydarzenia:");
+  const handleEditEven = (event: _AddedEvent) => {
+    if (onEdit) onEdit(event);
   }
   const handleDeleteEven = useCallback(async (eventId?: number) => {
     if (!eventId || !token || !exhibitionId) return;
@@ -107,7 +108,7 @@ function getColorForEvent(eventId: string): string {
                             <span
                                 onMouseEnter={() => setEditHovered(index)}
                                 onMouseLeave={() => setEditHovered(null)}
-                                onClick={handleEditEven}
+                                onClick={() => handleEditEven(event)}
                                 style={{ cursor: 'pointer', display: 'inline-flex' }}
                             >
                                 {editHovered === index
