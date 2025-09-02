@@ -86,6 +86,8 @@ const TradeInfo: React.FC<TradeInfoProps> = ({ exhibitionId }) => {
   const [_saving, setSaving] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
   const [successMessage, setSuccessMessage] = useState<string>('');
+  const autosaveTimerRef = useRef<number | null>(null);
+  const hasLoadedRef = useRef<boolean>(false);
 
   const handleAddBuildDay = () => {
     const newId = (buildDays.length + 1).toString();
@@ -115,11 +117,28 @@ const TradeInfo: React.FC<TradeInfoProps> = ({ exhibitionId }) => {
         
         if (response.success && response.data) {
           const data = response.data;
-          setTradeHours(data.tradeHours);
+
+          const toUiTime = (v: string | undefined) => {
+            if (!v) return '';
+            // convert HH:mm:ss -> HH:mm for time inputs
+            const m = String(v).match(/^\d{1,2}:\d{2}/);
+            return m ? m[0].padStart(5, '0') : v;
+          };
+
+          setTradeHours({
+            exhibitorStart: toUiTime(data.tradeHours.exhibitorStart),
+            exhibitorEnd: toUiTime(data.tradeHours.exhibitorEnd),
+            visitorStart: toUiTime(data.tradeHours.visitorStart),
+            visitorEnd: toUiTime(data.tradeHours.visitorEnd)
+          });
           setContactInfo(data.contactInfo);
-          setBuildDays(data.buildDays.length > 0 ? data.buildDays : [
+          setBuildDays((data.buildDays.length > 0 ? data.buildDays : [
             { id: '1', date: '', startTime: '09:00', endTime: '17:00' }
-          ]);
+          ]).map(d => ({
+            ...d,
+            startTime: toUiTime(d.startTime),
+            endTime: toUiTime(d.endTime)
+          })));
           setBuildType(data.buildType);
           setTradeSpaces(data.tradeSpaces.length > 0 ? data.tradeSpaces : [
             { id: '1', name: '', hallName: 'HALA A' }
@@ -139,11 +158,29 @@ const TradeInfo: React.FC<TradeInfoProps> = ({ exhibitionId }) => {
         setError(err.message || 'Błąd podczas ładowania informacji targowych');
       } finally {
         setLoading(false);
+        hasLoadedRef.current = true;
       }
     };
 
     loadTradeInfo();
   }, [exhibitionId, token]);
+
+  // Debounced autosave when buildType changes (po załadowaniu danych)
+  useEffect(() => {
+    if (!hasLoadedRef.current) return;
+    if (!token) return;
+    if (autosaveTimerRef.current) {
+      window.clearTimeout(autosaveTimerRef.current);
+    }
+    autosaveTimerRef.current = window.setTimeout(() => {
+      handleSave();
+    }, 800);
+    return () => {
+      if (autosaveTimerRef.current) {
+        window.clearTimeout(autosaveTimerRef.current);
+      }
+    };
+  }, [buildType]);
 
   const handleSave = async () => {
     if (!token) {
@@ -232,6 +269,34 @@ const TradeInfo: React.FC<TradeInfoProps> = ({ exhibitionId }) => {
 
   const handleButtonClick = () => {
     inputRef.current?.click();
+  };
+
+  const handleAddHall = async () => {
+    if (!newHallName.trim()) {
+      setError('Proszę podać nazwę hali');
+      return;
+    }
+    // dodaj lokalnie z plikiem, aby handleSave mógł wykryć i wysłać upload
+    const newEntry: HallEntry = {
+      id: Date.now().toString(),
+      hallName: newHallName.trim(),
+      file: newHallFile,
+      filePath: null,
+      originalFilename: null,
+    };
+    setHallEntries(prev => [...prev, newEntry]);
+
+    try {
+      await handleSave();
+      setSuccessMessage('Hala została dodana i zapisana.');
+    } catch (e: any) {
+      setError(e?.message || 'Błąd podczas zapisu hali');
+    } finally {
+      // reset pól formularza dodawania hali
+      setNewHallName('');
+      setNewHallFile(null);
+      setTimeout(() => setSuccessMessage(''), 3000);
+    }
   };
 
   if (loading) {
@@ -400,7 +465,6 @@ const TradeInfo: React.FC<TradeInfoProps> = ({ exhibitionId }) => {
                           }}
                           size="small"
                         />
-                  
                       </Box>
                       <CustomTypography className={styles.separatorIndustry_}>–</CustomTypography>
                       <Box className={styles.technicalTime_}>
@@ -415,8 +479,14 @@ const TradeInfo: React.FC<TradeInfoProps> = ({ exhibitionId }) => {
                           }}
                           size="small"
                         />
-                      </Box> 
-                    </Box> 
+                      </Box>
+                    </Box>
+                    <Box className={styles.infoHallRow_}>
+                      <CustomTypography className={styles.hallNameLabel_}>Typ wydarzenia:</CustomTypography>
+                      <CustomTypography className={styles.hallName_}>
+                        {buildDaysOption.find(o => String(o.value) === String(buildType))?.label || ''}
+                      </CustomTypography>
+                    </Box>
                     {buildDays.length > 1 && (
                       <Box className={styles.IconTrash}>
                         <Wastebasket
@@ -492,9 +562,7 @@ const TradeInfo: React.FC<TradeInfoProps> = ({ exhibitionId }) => {
             {(newHallFile && newHallName.trim() !== '' )
             &&<Box 
             className={styles.actionBox} 
-            onClick={async () => {
-              await handleSave();
-            }}>
+            onClick={handleAddHall}>
               <AddIconSVG className={styles.actionIcon}/>
               <CustomTypography className={styles.actionLabel}>dodaj przestrzeń</CustomTypography>
             </Box>}

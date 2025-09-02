@@ -119,3 +119,69 @@ exports.remove = async (req, res) => {
 };
 
 
+// Update trade event (admin only)
+exports.update = async (req, res) => {
+  const client = await db.pool.connect();
+  try {
+    const exhibitionId = parseInt(req.params.exhibitionId, 10);
+    const eventId = parseInt(req.params.eventId, 10);
+    if (Number.isNaN(exhibitionId) || Number.isNaN(eventId)) {
+      return res.status(400).json({ success: false, message: 'Invalid parameters' });
+    }
+
+    const { name, eventDate, startTime, endTime, hall, description, type, organizer } = req.body;
+    // We require basic fields for consistency with create
+    if (!name || !eventDate || !startTime || !endTime || !type) {
+      return res.status(400).json({ success: false, message: 'Brak wymaganych pól' });
+    }
+
+    // Ensure event exists and belongs to exhibition
+    const existing = await db.query('SELECT id FROM trade_events WHERE id = $1 AND exhibition_id = $2', [eventId, exhibitionId]);
+    if (existing.rowCount === 0) {
+      return res.status(404).json({ success: false, message: 'Nie znaleziono wydarzenia' });
+    }
+
+    // Ensure eventDate within exhibition range (inclusive)
+    const expo = await db.query('SELECT start_date, end_date FROM exhibitions WHERE id = $1', [exhibitionId]);
+    if (expo.rows.length === 0) {
+      return res.status(404).json({ success: false, message: 'Nie znaleziono wydarzenia głównego' });
+    }
+    const { start_date: startDate, end_date: endDate } = expo.rows[0];
+    const d = new Date(eventDate);
+    const s = new Date(startDate);
+    const e = new Date(endDate);
+    const onlyDate = (dt) => new Date(dt.getFullYear(), dt.getMonth(), dt.getDate()).getTime();
+    if (onlyDate(d) < onlyDate(s) || onlyDate(d) > onlyDate(e)) {
+      return res.status(400).json({ success: false, message: 'Data wydarzenia musi mieścić się w zakresie dat targów' });
+    }
+
+    const normStart = normalizeTime(startTime);
+    const normEnd = normalizeTime(endTime);
+
+    await client.query('BEGIN');
+    const upd = await client.query(
+      `UPDATE trade_events
+       SET name = $1,
+           event_date = $2,
+           start_time = $3,
+           end_time = $4,
+           hall = $5,
+           organizer = $6,
+           description = $7,
+           type = $8,
+           updated_at = NOW()
+       WHERE id = $9 AND exhibition_id = $10
+       RETURNING *`,
+      [name, eventDate, normStart, normEnd, hall || null, organizer || null, description || null, type, eventId, exhibitionId]
+    );
+    await client.query('COMMIT');
+    return res.json({ success: true, data: upd.rows[0] });
+  } catch (error) {
+    await client.query('ROLLBACK');
+    console.error('❌ update trade_event error:', error);
+    return res.status(500).json({ success: false, message: 'Błąd podczas aktualizacji wydarzenia targowego' });
+  } finally {
+    client.release();
+  }
+};
+

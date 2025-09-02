@@ -933,6 +933,27 @@ export const createTradeEvent = async (
   return { success: true, data: mapTradeEventRow(data.data) };
 };
 
+export const updateTradeEvent = async (
+  exhibitionId: number,
+  eventId: number,
+  event: TradeEvent,
+  token: string
+): Promise<{ success: boolean; data: TradeEvent }> => {
+  const response = await apiCall(`${config.API_BASE_URL}/api/v1/trade-events/${exhibitionId}/${eventId}`, {
+    method: 'PUT',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(event),
+  });
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data.message || 'Błąd podczas aktualizacji wydarzenia targowego');
+  }
+  return { success: true, data: mapTradeEventRow(data.data) };
+};
+
 export const deleteTradeEvent = async (
   exhibitionId: number,
   eventId: number,

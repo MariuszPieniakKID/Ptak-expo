@@ -16,6 +16,13 @@
   transition: all 0.2s ease;
 }
 
+.summaryRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
 @import '../../../../styles/variables';
 @import '../../../../styles/mixins';
 
@@ -69,4 +76,34 @@
     text-align: center;
   }
   
+}
+
+// Reuse edit button style from SingleEventCard
+.actionEditButton{
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  justify-content: right;
+}
+
+.boxWithHover{
+  cursor: pointer; 
+  display:flex; 
+  align-items: center; 
+  column-gap: 1em;
+}
+
+.editEventText{
+  font-size: 12px !important;
+  font-weight: 300!important;
+  color:#2e2e38!important;
+  text-decoration: underline;
+  cursor:pointer;
+  transition: all 0.2s ease;
+}
+
+.editEvent {
+  width: 16px;
+  height: 16px;
+  transition: all 0.2s ease;
 }

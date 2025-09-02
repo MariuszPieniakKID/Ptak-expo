@@ -194,7 +194,8 @@ const getTradeInfo = async (req, res) => {
           guestService: tradeInfo.guest_service_phone || '',
           security: tradeInfo.security_phone || ''
         },
-        buildType: tradeInfo.build_type || 'Montaż indywidualny',
+        // Return the value used by the frontend select options ('indywidualny' | 'systemowy')
+        buildType: tradeInfo.build_type || 'indywidualny',
         tradeMessage: tradeInfo.trade_message || '',
         buildDays: buildDaysResult.rows.map((day, index) => ({
           id: (index + 1).toString(),
