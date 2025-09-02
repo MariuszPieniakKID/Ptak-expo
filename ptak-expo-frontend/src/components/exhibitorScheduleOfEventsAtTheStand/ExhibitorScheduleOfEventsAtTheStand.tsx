@@ -68,6 +68,26 @@ function ExhibitorScheduleOfEventsAtTheStand({
             };
             setTradeEvents(prev => [...prev, appended]);
           }}
+          onUpdated={(updated: TradeEvent) => {
+            setTradeEvents(prev => prev.map(ev => {
+              if (typeof ev.id !== 'number' || typeof updated.id !== 'number') return ev;
+              if (ev.id !== updated.id) return ev;
+              const next: TradeEvent = {
+                id: updated.id,
+                name: updated.name,
+                eventDate: updated.eventDate,
+                startTime: updated.startTime,
+                endTime: updated.endTime,
+                type: updated.type,
+              };
+              const exId = typeof updated.exhibition_id === 'number' ? updated.exhibition_id : (typeof ev.exhibition_id === 'number' ? ev.exhibition_id : undefined);
+              if (typeof exId === 'number') next.exhibition_id = exId;
+              if (typeof updated.description === 'string') next.description = updated.description;
+              if (typeof updated.organizer === 'string') next.organizer = updated.organizer;
+              if (typeof updated.exhibitor_id === 'number') next.exhibitor_id = updated.exhibitor_id;
+              return next;
+            }));
+          }}
         />
       )
     },
@@ -84,6 +104,7 @@ function ExhibitorScheduleOfEventsAtTheStand({
             // Bubble selected event into the AddingEvents form via window bridge
             try {
               (window as any).prefillAddingEventForm = {
+                id: evt.id,
                 name: evt.eventTitle || evt.name,
                 eventDate: evt.eventDate,
                 startTime: evt.startTime,

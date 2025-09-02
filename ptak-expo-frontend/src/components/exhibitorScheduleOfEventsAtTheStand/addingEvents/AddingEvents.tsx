@@ -12,7 +12,7 @@ import { ReactComponent as BlueCircleSaveIcon } from '../../../assets/submitIcon
 import dayjs from 'dayjs';  
 import 'dayjs/locale/pl';
 import { useAuth } from '../../../contexts/AuthContext';
-import { createTradeEvent, TradeEvent, fetchExhibition, Exhibition } from '../../../services/api';
+import { createTradeEvent, updateTradeEvent, TradeEvent, fetchExhibition, Exhibition } from '../../../services/api';
 import { useParams } from 'react-router-dom';
 import { DateCalendar } from '@mui/x-date-pickers/DateCalendar';
 dayjs.locale('pl');
@@ -35,8 +35,8 @@ interface AddEvent {
   organizer: string;
 }
 
-type AddingEventsProps = { exhibitionId?: number | undefined; exhibitorId: number; onCreated?: (ev: TradeEvent) => void };
-const AddingEvents: React.FC<AddingEventsProps> = ({ exhibitionId, exhibitorId, onCreated }) => {
+type AddingEventsProps = { exhibitionId?: number | undefined; exhibitorId: number; onCreated?: (ev: TradeEvent) => void; onUpdated?: (ev: TradeEvent) => void };
+const AddingEvents: React.FC<AddingEventsProps> = ({ exhibitionId, exhibitorId, onCreated, onUpdated }) => {
   const { token } = useAuth();
   const params = useParams();
   const resolvedExhibitionId = useMemo(() => {
@@ -99,10 +99,7 @@ const AddingEvents: React.FC<AddingEventsProps> = ({ exhibitionId, exhibitorId, 
       if (value && value.length > 750) return "Max. 750 znaków";
       return '';
     },
-    organizer: (value) => {
-      if (!value.trim()) return "Organizator jest wymagany";
-      return '';
-    },
+    organizer: (_value) => '',
   };
 
   const handleFormValueChange = (field: keyof AddEvent) =>
@@ -144,9 +141,15 @@ const AddingEvents: React.FC<AddingEventsProps> = ({ exhibitionId, exhibitorId, 
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!validateAll()) return;
+    const ok = validateAll();
+    console.log('[AddingEvents] validateAll ->', ok, { formErrors });
+    if (!ok) return;
     try {
-      if (!resolvedExhibitionId || !token) return;
+      if (!resolvedExhibitionId || !token) {
+        console.warn('[AddingEvents] Missing resolvedExhibitionId or token', { resolvedExhibitionId, hasToken: !!token });
+        return;
+      }
+      console.log('[AddingEvents] Submit start', { formValues, resolvedExhibitionId, hasToken: !!token });
       const basePayload: TradeEvent = {
         name: formValues.name,
         eventDate: formValues.eventDate,
@@ -161,12 +164,20 @@ const AddingEvents: React.FC<AddingEventsProps> = ({ exhibitionId, exhibitorId, 
       if (typeof formValues.organizer === 'string' && formValues.organizer.trim() !== '') {
         payload.organizer = formValues.organizer;
       }
-      const res = await createTradeEvent(resolvedExhibitionId, payload, token);
-      console.log('✅ Trade event saved', res.data);
-      if (onCreated) {
-        onCreated(res.data);
+      if (typeof formValues.id === 'number' && formValues.id > 0) {
+        // update existing
+        console.log('[AddingEvents] Calling updateTradeEvent', { exhibitionId: resolvedExhibitionId, eventId: formValues.id, payload });
+        const res = await updateTradeEvent(resolvedExhibitionId, formValues.id, payload, token);
+        console.log('✅ Trade event updated', res.data);
+        if (onUpdated) onUpdated(res.data);
+      } else {
+        // create new
+        console.log('[AddingEvents] Calling createTradeEvent', { exhibitionId: resolvedExhibitionId, payload });
+        const res = await createTradeEvent(resolvedExhibitionId, payload, token);
+        console.log('✅ Trade event saved', res.data);
+        if (onCreated) onCreated(res.data);
       }
-      // Clear form after save
+      // Clear form after save/update
       setFormValues({ name: '', eventDate: '', startTime: '', endTime: '', description: '', type: 'Montaż stoiska', organizer: '' });
     } catch (err: any) {
       console.error('❌ Błąd zapisu wydarzenia', err);
@@ -200,12 +211,28 @@ const AddingEvents: React.FC<AddingEventsProps> = ({ exhibitionId, exhibitorId, 
     const applyPrefill = () => {
       const data = (window as any).prefillAddingEventForm;
       if (data && typeof data === 'object') {
+        console.log('[AddingEvents] Applying prefill', data);
+        const toDateOnly = (s?: string) => {
+          if (!s) return '';
+          // ISO like 2025-08-27T22:00:00.000Z -> 2025-08-27
+          if (s.includes('T')) return s.slice(0, 10);
+          // already YYYY-MM-DD
+          if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s;
+          return s;
+        };
+        const toHm = (s?: string) => {
+          if (!s) return '';
+          // HH:mm:ss -> HH:mm
+          if (/^\d{2}:\d{2}:\d{2}$/.test(s)) return s.slice(0, 5);
+          return s;
+        };
         setFormValues(prev => ({
           ...prev,
+          id: typeof data.id === 'number' ? data.id : prev.id,
           name: data.name ?? prev.name,
-          eventDate: data.eventDate ?? prev.eventDate,
-          startTime: data.startTime ?? prev.startTime,
-          endTime: data.endTime ?? prev.endTime,
+          eventDate: toDateOnly(data.eventDate ?? prev.eventDate),
+          startTime: toHm(data.startTime ?? prev.startTime),
+          endTime: toHm(data.endTime ?? prev.endTime),
           description: data.description ?? prev.description,
           type: data.type ?? prev.type,
           organizer: data.organizer ?? prev.organizer,
@@ -223,7 +250,7 @@ const AddingEvents: React.FC<AddingEventsProps> = ({ exhibitionId, exhibitorId, 
   return (
     <Box className={styles.container}>
       <CustomTypography className={styles.sectionTitle}>Dodawanie wydarzenia:</CustomTypography>
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} id="adding-events-form">
         <Box className={styles.singleRow}>
           <Box className={styles.halfRow}>
             <CustomField

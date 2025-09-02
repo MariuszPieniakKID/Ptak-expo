@@ -37,6 +37,9 @@ function getColorForEvent(eventId: string): string {
   }
 
   const handleEditEven = (event: _AddedEvent) => {
+    try {
+      console.log('[AddedEvents] Edit clicked, event =', event);
+    } catch {}
     if (onEdit) onEdit(event);
   }
   const handleDeleteEven = useCallback(async (eventId?: number) => {

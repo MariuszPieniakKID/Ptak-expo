@@ -125,6 +125,7 @@ exports.update = async (req, res) => {
   try {
     const exhibitionId = parseInt(req.params.exhibitionId, 10);
     const eventId = parseInt(req.params.eventId, 10);
+    console.log('🔧 [trade-events] update request', { exhibitionId, eventId, body: req.body, user: req.user?.email });
     if (Number.isNaN(exhibitionId) || Number.isNaN(eventId)) {
       return res.status(400).json({ success: false, message: 'Invalid parameters' });
     }
@@ -175,6 +176,7 @@ exports.update = async (req, res) => {
       [name, eventDate, normStart, normEnd, hall || null, organizer || null, description || null, type, eventId, exhibitionId]
     );
     await client.query('COMMIT');
+    console.log('✅ [trade-events] updated', upd.rows[0]);
     return res.json({ success: true, data: upd.rows[0] });
   } catch (error) {
     await client.query('ROLLBACK');
