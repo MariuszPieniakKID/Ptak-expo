@@ -17,6 +17,10 @@ import { ReactComponent as ContractIcon } from "../../../../../assets/redPDF.svg
 import { ReactComponent as RedXIcon } from '../../../../../assets/redX.svg';
 import { ReactComponent as BlackUploadIcon } from '../../../../../assets/blackUploadIcon.svg';
 import CustomField from '../../../../customField/CustomField';
+<<<<<<< HEAD
+=======
+
+>>>>>>> origin/frontend-admin-panel-cd-events-details
 interface BrandingFileUploadProps {
   fileType: string;
   title: string;

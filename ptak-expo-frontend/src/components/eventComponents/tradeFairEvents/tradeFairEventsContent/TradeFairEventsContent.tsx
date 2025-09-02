@@ -94,9 +94,7 @@ const TradeFairEventsContent: React.FC<TradeFairEventsContentProps> = ({ event }
 
   return (
     <Box className={styles.tabContent}>
-      <CustomTypography fontSize="1.25rem" fontWeight={600}>
-        Wydarzenia targowe
-      </CustomTypography>
+
       <Box className={styles.tradeEventsSection}>
         {tradeEventsError && (
           <Alert severity="error" sx={{ mb: 2 }}>{tradeEventsError}</Alert>
@@ -213,6 +211,123 @@ const TradeFairEventsContent: React.FC<TradeFairEventsContentProps> = ({ event }
         ))}
       </Box>
     </Box>
+
+
+
+    // <Box className={styles.tabContent}>
+    //   <CustomTypography fontSize="1.25rem" fontWeight={600}>
+    //     Wydarzenia targowe
+    //   </CustomTypography>
+    //   <Box className={styles.tradeEventsSection}>
+    //     {tradeEventsError && (
+    //       <Alert severity="error" sx={{ mb: 2 }}>{tradeEventsError}</Alert>
+    //     )}
+    //     <Box className={styles.eventCard}>
+    //       <CustomTypography fontSize="0.875rem" fontWeight={500}>
+    //         Dodaj wydarzenie
+    //       </CustomTypography>
+    //       <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
+    //         <CustomField
+    //           type="text"
+    //           value={newEvent.name}
+    //           onChange={handleNewEventChange('name')}
+    //           placeholder="Nazwa wydarzenia"
+    //           fullWidth
+    //         />
+    //         <CustomField
+    //           type="date"
+    //           value={newEvent.eventDate}
+    //           onChange={handleNewEventChange('eventDate')}
+    //           placeholder="Data"
+    //           fullWidth
+    //         />
+    //         <CustomField
+    //           type="time"
+    //           value={newEvent.startTime}
+    //           onChange={handleNewEventChange('startTime')}
+    //           placeholder="Godzina początku"
+    //           fullWidth
+    //         />
+    //         <CustomField
+    //           type="time"
+    //           value={newEvent.endTime}
+    //           onChange={handleNewEventChange('endTime')}
+    //           placeholder="Godzina końca"
+    //           fullWidth
+    //         />
+    //         <CustomField
+    //           type="text"
+    //           value={newEvent.hall || ''}
+    //           onChange={handleNewEventChange('hall')}
+    //           placeholder="Hala"
+    //           fullWidth
+    //         />
+    //         <CustomField
+    //           type="text"
+    //           value={newEvent.type}
+    //           onChange={handleNewEventChange('type')}
+    //           placeholder="Rodzaj"
+    //           options={typeOptions}
+    //           forceSelectionFromOptions
+    //           fullWidth
+    //         />
+    //         <CustomField
+    //           type="text"
+    //           value={newEvent.description || ''}
+    //           onChange={handleNewEventChange('description')}
+    //           placeholder="Opis"
+    //           fullWidth
+    //         />
+    //       </Box>
+    //       <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
+    //         <CustomButton
+    //           bgColor="#6F87F6"
+    //           textColor="#fff"
+    //           width="120px"
+    //           height="40px"
+    //           fontSize="0.875rem"
+    //           onClick={handleSaveTradeEvent}
+    //         >
+    //           Zapisz
+    //         </CustomButton>
+    //       </Box>
+    //     </Box>
+
+    //     {tradeEvents.map((ev) => (
+    //       <details key={ev.id} className={styles.eventCard}>
+    //         <summary>
+    //           <CustomTypography fontSize="0.875rem" fontWeight={500}>
+    //             {dateOnly(ev.eventDate)} • {timeHM(ev.startTime)} - {timeHM(ev.endTime)} {ev.hall ? `• Hala: ${ev.hall}` : ''} — {ev.name}
+    //           </CustomTypography>
+    //         </summary>
+    //         <Box sx={{ mt: 1 }}>
+    //           <CustomTypography fontSize="0.75rem" color="#6c757d">
+    //             Nazwa: {ev.name}
+    //           </CustomTypography>
+    //           <CustomTypography fontSize="0.75rem" color="#6c757d">
+    //             Data: {dateOnly(ev.eventDate)}
+    //           </CustomTypography>
+    //           <CustomTypography fontSize="0.75rem" color="#6c757d">
+    //             Godziny: {timeHM(ev.startTime)} - {timeHM(ev.endTime)}
+    //           </CustomTypography>
+    //           {ev.hall && (
+    //             <CustomTypography fontSize="0.75rem" color="#6c757d">
+    //               Hala: {ev.hall}
+    //             </CustomTypography>
+    //           )}
+    //           {ev.description && (
+    //             <CustomTypography fontSize="0.75rem" color="#6c757d">
+    //               Opis: {ev.description}
+    //             </CustomTypography>
+    //           )}
+    //           <CustomTypography fontSize="0.75rem" color="#6c757d">
+    //             Rodzaj: {ev.type}
+    //           </CustomTypography>
+    //         </Box>
+    //       </details>
+    //     ))}
+    //   </Box>
+    // </Box>
   );
 };
 

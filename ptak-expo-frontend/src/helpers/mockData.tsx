@@ -242,15 +242,38 @@ export const samplrTradeAwardsFair:_TradeAwardsFair[]=[
 
 ];
 
-  export const fieldOptions: OptionType[] = [
+export const fieldOptions: OptionType[] = [
     { value: 'all', label: 'Wszystkie' },
     { value: 'house', label: 'Dom' },
     { value: 'reaEstate', label: 'Nieruchomości' },
     { value: 'garden', label: 'Ogród' },
     { value: 'other', label: 'Inne' },
+<<<<<<< HEAD
   ];
+=======
+];
+>>>>>>> origin/frontend-admin-panel-cd-events-details
 
 export const buildDaysOption: OptionType[] = [
   { value: 'indywidualny', label: 'Montaż indywidualny' },
   { value: 'systemowy', label: 'Montaż systemowy' },
 ];
+<<<<<<< HEAD
+=======
+export const invitationOptions:OptionType[]=[
+  { value: 'standard', label: 'Standardowe' },
+  { value: 'exhibitore', label: 'Dla wystawców' },
+  { value: 'guest', label: 'Dla gości' },
+  { value: 'vip', label: 'VIP' },
+]
+export const specialOffersOptions:OptionType[]=[
+  { value: 'fastTrack', label: '🚀 Fast Track – szybkie wejście bez kolejki' },
+  { value: 'personalizedPackage', label: '📦 Imienny pakiet – dostarczony przed wydarzeniem  ' },
+  { value: 'welcomPack', label: '🎁 Welcome Pack z upominkiem' },
+  { value: 'accessToConferencesAndWorkshops', label: '🎤 Dostęp do konferencji i warsztatów' },
+  { value: 'FreeparkingAndConciergrService', label:` 🤝 Darmowy parking i opiekę concierge`},
+]
+
+
+
+>>>>>>> origin/frontend-admin-panel-cd-events-details

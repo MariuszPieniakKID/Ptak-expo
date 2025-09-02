@@ -11,7 +11,7 @@
   // Hover - wszystkie akcje tylko tu
   &:hover {
     .actionIcon {
-      transform: scale(1.125); // powiększenie o 2px (~12-13% na bazie 16px)
+      transform: scale(1.125); // powiększenie ~12-13%
     }
     .actionTitle {
       font-weight: 600 !important;
@@ -32,12 +32,34 @@
   color: $color-darkslategray !important;
   text-decoration: underline;
   transition: none !important; // wyłączone niepotrzebne efekty
+  white-space: nowrap;
   cursor: pointer;
- 
 }
 
 .hideOnMobile {
   @media (max-width: 599px) {
     display: none;
+  }
+}
+
+// New disabled styles
+.disabled {
+  cursor: default !important;
+  pointer-events: none;
+  opacity: 0.5;  // visually grayed out
+
+  // disable hover effects as pointer-events none disables all interaction
+  &:hover {
+    .actionIcon {
+      transform: none !important;
+    }
+    .actionTitle {
+      font-weight: 300 !important;
+    }
+  }
+
+  .actionIcon,
+  .actionTitle {
+    cursor: default !important;
   }
 }

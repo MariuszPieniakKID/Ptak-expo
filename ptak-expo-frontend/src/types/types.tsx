@@ -45,3 +45,9 @@ export type _AddedEvent =
 export type _BrandingImg ={
 
 }
+export type _SpecialOffers={
+  benefitTitle:string;
+  benefitContent:string;
+  benefitImage: string; // ścieżka do pliku obrazu (jpg, png, itp.)
+}
+

@@ -70,8 +70,13 @@ const TradeInfo: React.FC<TradeInfoProps> = ({ exhibitionId }) => {
   const [buildDays, setBuildDays] = useState<BuildDay[]>([
     { id: '1', date: '', startTime: '09:00', endTime: '17:00' }
   ]);
+<<<<<<< HEAD
 
 const [buildType, setBuildType] = useState<string>('Montaż indywidualny');
+=======
+//const [buildType, setBuildType] = useState<string | number | Array<string | number>>("Montaż indywidualny");
+const [buildType, setBuildType] = useState<string>('');
+>>>>>>> origin/frontend-admin-panel-cd-events-details
 
 
 
@@ -91,7 +96,11 @@ const [buildType, setBuildType] = useState<string>('Montaż indywidualny');
   
   // Loading and error states
   const [loading, setLoading] = useState<boolean>(true);
+<<<<<<< HEAD
   const [, setSaving] = useState<boolean>(false);
+=======
+  const [_saving, setSaving] = useState<boolean>(false);
+>>>>>>> origin/frontend-admin-panel-cd-events-details
   const [error, setError] = useState<string>('');
   const [successMessage, setSuccessMessage] = useState<string>('');
 
@@ -461,8 +470,13 @@ const [buildType, setBuildType] = useState<string>('Montaż indywidualny');
                 <CustomSelectMui
                     label=""
                     placeholder="Wybierz typ"
+<<<<<<< HEAD
                     value={buildType}
                     onChange={(buildType) => setBuildType(buildType)}
+=======
+                    value={buildType} 
+                    onChange={(value) => setBuildType(String(value))}
+>>>>>>> origin/frontend-admin-panel-cd-events-details
                     options={buildDaysOption}
                     size="small"
                     fullWidth
