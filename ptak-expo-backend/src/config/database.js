@@ -279,17 +279,41 @@ const initializeDatabase = async () => {
     await pool.query(`
       CREATE INDEX IF NOT EXISTS idx_exhibitor_branding_files_type ON exhibitor_branding_files(file_type)
     `);
-    
-    // Partial unique indexes to handle NULL exhibitor_id properly
+
+    // Drop legacy unique constraint and indexes (for older deployments)
     await pool.query(`
-      CREATE UNIQUE INDEX IF NOT EXISTS idx_exhibitor_branding_files_unique_individual 
-      ON exhibitor_branding_files(exhibitor_id, exhibition_id, file_type)
-      WHERE exhibitor_id IS NOT NULL
+      ALTER TABLE exhibitor_branding_files
+      DROP CONSTRAINT IF EXISTS exhibitor_branding_files_exhibitor_id_exhibition_id_file_type_key
     `);
     await pool.query(`
-      CREATE UNIQUE INDEX IF NOT EXISTS idx_exhibitor_branding_files_unique_global 
+      DROP INDEX IF EXISTS idx_exhibitor_branding_files_unique_individual
+    `);
+    await pool.query(`
+      DROP INDEX IF EXISTS idx_exhibitor_branding_files_unique_global
+    `);
+
+    // Create partial UNIQUE indexes that EXCLUDE 'dokumenty_brandingowe' to allow multi-file
+    await pool.query(`
+      CREATE UNIQUE INDEX IF NOT EXISTS idx_branding_unique_individual_nonpdf 
+      ON exhibitor_branding_files(exhibitor_id, exhibition_id, file_type)
+      WHERE exhibitor_id IS NOT NULL AND file_type <> 'dokumenty_brandingowe'
+    `);
+    await pool.query(`
+      CREATE UNIQUE INDEX IF NOT EXISTS idx_branding_unique_global_nonpdf 
       ON exhibitor_branding_files(exhibition_id, file_type)
-      WHERE exhibitor_id IS NULL
+      WHERE exhibitor_id IS NULL AND file_type <> 'dokumenty_brandingowe'
+    `);
+
+    // Helpful non-unique indexes specifically for 'dokumenty_brandingowe'
+    await pool.query(`
+      CREATE INDEX IF NOT EXISTS idx_branding_docs_individual 
+      ON exhibitor_branding_files(exhibitor_id, exhibition_id)
+      WHERE file_type = 'dokumenty_brandingowe'
+    `);
+    await pool.query(`
+      CREATE INDEX IF NOT EXISTS idx_branding_docs_global 
+      ON exhibitor_branding_files(exhibition_id)
+      WHERE exhibitor_id IS NULL AND file_type = 'dokumenty_brandingowe'
     `);
 
     console.log('🔍 Creating trade_info table...');
