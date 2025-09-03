@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Box, Alert } from '@mui/material';
 import CustomTypography from '../../../../components/customTypography/CustomTypography';
 import CustomButton from '../../../../components/customButton/CustomButton';
@@ -23,6 +23,7 @@ const TradeFairEventsContent: React.FC<TradeFairEventsContentProps> = ({ event }
   const [tradeEvents, setTradeEvents] = useState<TradeEvent[]>([]);
   const [tradeEventsError, setTradeEventsError] = useState<string>('');
   const [editingEventId, setEditingEventId] = useState<number | null>(null);
+  const formTopRef = useRef<HTMLDivElement | null>(null);
   const [newEvent, setNewEvent] = useState<TradeEvent>({
     name: '',
     eventDate: event?.start_date ? event.start_date.slice(0, 10) : '',
@@ -31,6 +32,7 @@ const TradeFairEventsContent: React.FC<TradeFairEventsContentProps> = ({ event }
     hall: '',
     description: '',
     type: 'Ceremonia otwarcia',
+    organizer: '',
   });
 
   const typeOptions = [
@@ -93,7 +95,7 @@ const TradeFairEventsContent: React.FC<TradeFairEventsContentProps> = ({ event }
       const refreshed = await getTradeEvents(event.id, token);
       setTradeEvents(refreshed.data || []);
       setTradeEventsError('');
-      setNewEvent({ name: '', eventDate: '', startTime: '09:00', endTime: '17:00', hall: '', description: '', type: 'Ceremonia otwarcia' });
+      setNewEvent({ name: '', eventDate: '', startTime: '09:00', endTime: '17:00', hall: '', description: '', type: 'Ceremonia otwarcia', organizer: '' });
       setEditingEventId(null);
     } catch (err: any) {
       setTradeEventsError(err.message || 'Błąd podczas zapisywania wydarzenia targowego');
@@ -115,11 +117,17 @@ const TradeFairEventsContent: React.FC<TradeFairEventsContentProps> = ({ event }
       id: ev.id,
     } as TradeEvent);
     setEditingEventId(ev.id!);
+    // Smooth scroll to the form at the top
+    const headerOffset = 80; // adjust if fixed header height differs
+    if (formTopRef.current) {
+      const y = formTopRef.current.getBoundingClientRect().top + window.scrollY - headerOffset;
+      window.scrollTo({ top: y, behavior: 'smooth' });
+    }
   };
 
   const handleCancelEdit = () => {
     setEditingEventId(null);
-    setNewEvent({ name: '', eventDate: '', startTime: '09:00', endTime: '17:00', hall: '', description: '', type: 'Ceremonia otwarcia' });
+    setNewEvent({ name: '', eventDate: '', startTime: '09:00', endTime: '17:00', hall: '', description: '', type: 'Ceremonia otwarcia', organizer: '' });
   };
 
   const handleDeleteExisting = async (eventId?: number) => {
@@ -145,7 +153,7 @@ const TradeFairEventsContent: React.FC<TradeFairEventsContentProps> = ({ event }
         {tradeEventsError && (
           <Alert severity="error" sx={{ mb: 2 }}>{tradeEventsError}</Alert>
         )}
-        <Box className={styles.eventCard}>
+        <Box className={styles.eventCard} ref={formTopRef}>
           <CustomTypography fontSize="0.875rem" fontWeight={500}>
             Dodaj wydarzenie
           </CustomTypography>
@@ -189,6 +197,13 @@ const TradeFairEventsContent: React.FC<TradeFairEventsContentProps> = ({ event }
               value={newEvent.hall || ''}
               onChange={handleNewEventChange('hall')}
               placeholder="Hala"
+              fullWidth
+            />
+            <CustomField
+              type="text"
+              value={newEvent.organizer || ''}
+              onChange={handleNewEventChange('organizer')}
+              placeholder="Nazwa organizatora"
               fullWidth
             />
             <CustomField
@@ -272,6 +287,11 @@ const TradeFairEventsContent: React.FC<TradeFairEventsContentProps> = ({ event }
               {ev.hall && (
                 <CustomTypography fontSize="0.75rem" color="#6c757d">
                   Hala: {ev.hall}
+                </CustomTypography>
+              )}
+              {ev.organizer && (
+                <CustomTypography fontSize="0.75rem" color="#6c757d">
+                  Organizator: {ev.organizer}
                 </CustomTypography>
               )}
               {ev.description && (
