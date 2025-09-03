@@ -252,6 +252,7 @@ export const fieldOptions: OptionType[] = [
 export const buildDaysOption: OptionType[] = [
   { value: 'indywidualny', label: 'Montaż indywidualny' },
   { value: 'systemowy', label: 'Montaż systemowy' },
+  { value: 'ptak_expo', label: 'Zabudowa targowa Ptak Expo' },
 ];
 
 export const invitationOptions:OptionType[]=[
