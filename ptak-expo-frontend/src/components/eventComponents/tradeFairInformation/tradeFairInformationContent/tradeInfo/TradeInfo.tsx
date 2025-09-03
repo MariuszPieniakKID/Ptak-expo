@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Box,  Divider, Alert, CircularProgress } from '@mui/material';
 import styles from './TradeInfo.module.scss';
 import { useAuth } from '../../../../../contexts/AuthContext';
-import { downloadTradePlan, getTradeInfo, saveTradeInfo, TradeInfoData, uploadTradePlan } from '../../../../../services/api';
+import { downloadTradePlan, getTradeInfo, saveTradeInfo, TradeInfoData, uploadTradePlan, getTradeEvents, createTradeEvent, deleteTradeEvent, TradeEvent, fetchExhibition, Exhibition } from '../../../../../services/api';
 import CustomTypography from '../../../../customTypography/CustomTypography';
 import CustomField from '../../../../customField/CustomField';
 import { buildDaysOption} from '../../../../../helpers/mockData';
@@ -53,7 +53,7 @@ interface TradeInfoProps {
 }
 
 const TradeInfo: React.FC<TradeInfoProps> = ({ exhibitionId }) => {
-  const { token } = useAuth();
+  const { token, user } = useAuth();
   
   const [tradeHours, setTradeHours] = useState<TradeHours>({
     exhibitorStart: '09:00',
@@ -73,6 +73,15 @@ const TradeInfo: React.FC<TradeInfoProps> = ({ exhibitionId }) => {
 
   const [buildType, setBuildType] = useState<string>('');
 
+  // New: Construction events (treated as trade events)
+  const [constructionType, setConstructionType] = useState<string>('');
+  const [constructionDate, setConstructionDate] = useState<string>('');
+  const [constructionStartTime, setConstructionStartTime] = useState<string>('09:00');
+  const [constructionEndTime, setConstructionEndTime] = useState<string>('17:00');
+  const [constructionEvents, setConstructionEvents] = useState<TradeEvent[]>([]);
+  const [loadingConstruction, setLoadingConstruction] = useState<boolean>(false);
+  const [exhibitionRange, setExhibitionRange] = useState<{ start: string; end: string } | null>(null);
+
   const [tradeSpaces, setTradeSpaces] = useState<TradeSpace[]>([
     { id: '1', name: '', hallName: 'HALA A' }
   ]);
@@ -89,21 +98,17 @@ const TradeInfo: React.FC<TradeInfoProps> = ({ exhibitionId }) => {
   const autosaveTimerRef = useRef<number | null>(null);
   const hasLoadedRef = useRef<boolean>(false);
 
-  const handleAddBuildDay = () => {
-    const newId = (buildDays.length + 1).toString();
-    setBuildDays([...buildDays, { 
-      id: newId, 
-      date: '', 
-      startTime: '09:00', 
-      endTime: '17:00' 
-    }]);
+  // Helpers to display date/time consistently
+  const toDateOnly = (s?: string) => {
+    if (!s) return '';
+    return s.includes('T') ? s.slice(0, 10) : s;
+  };
+  const toHm = (s?: string) => {
+    if (!s) return '';
+    return /^\d{2}:\d{2}:\d{2}$/.test(s) ? s.slice(0, 5) : s;
   };
 
-  const handleRemoveBuildDay = (id: string) => {
-    if (buildDays.length > 1) {
-      setBuildDays(buildDays.filter(day => day.id !== id));
-    }
-  };
+  
 
   useEffect(() => {
     const loadTradeInfo = async () => {
@@ -163,6 +168,40 @@ const TradeInfo: React.FC<TradeInfoProps> = ({ exhibitionId }) => {
     };
 
     loadTradeInfo();
+  }, [exhibitionId, token]);
+
+  // Load construction events (only events added via this section: filter by our types)
+  useEffect(() => {
+    const loadConstructionEvents = async () => {
+      if (!token) return;
+      try {
+        setLoadingConstruction(true);
+        const res = await getTradeEvents(exhibitionId, token);
+        const allowedTypes = new Set((buildDaysOption || []).map((o: any) => String(o.value)));
+        const filtered = (res.data || []).filter((ev: TradeEvent) => allowedTypes.has(String(ev.type)));
+        setConstructionEvents(filtered);
+      } catch (e) {
+        // handled by generic error banner if needed
+      } finally {
+        setLoadingConstruction(false);
+      }
+    };
+    loadConstructionEvents();
+  }, [exhibitionId, token]);
+
+  // Load exhibition date range to validate constructionDate
+  useEffect(() => {
+    const loadRange = async () => {
+      try {
+        if (!exhibitionId || !token) return;
+        const ex: Exhibition = await fetchExhibition(exhibitionId, token);
+        const toDateOnly = (s?: string) => (s ? s.slice(0, 10) : '');
+        const start = toDateOnly(ex.start_date);
+        const end = toDateOnly(ex.end_date);
+        if (start && end) setExhibitionRange({ start, end });
+      } catch {}
+    };
+    loadRange();
   }, [exhibitionId, token]);
 
   // Debounced autosave when buildType changes (po załadowaniu danych)
@@ -254,6 +293,66 @@ const TradeInfo: React.FC<TradeInfoProps> = ({ exhibitionId }) => {
       setError(err.message || 'Błąd podczas zapisywania informacji targowych');
     } finally {
       setSaving(false);
+    }
+  };
+
+  const handleAddConstructionEvent = async () => {
+    if (!token) {
+      setError('Brak autoryzacji');
+      return;
+    }
+    if (!constructionType || !constructionDate) {
+      setError('Ustaw typ i datę wydarzenia zabudowy');
+      return;
+    }
+    if (!/^\d{2}:\d{2}$/.test(constructionStartTime) || !/^\d{2}:\d{2}$/.test(constructionEndTime)) {
+      setError('Podaj poprawne godziny w formacie HH:mm');
+      return;
+    }
+    if (constructionEndTime <= constructionStartTime) {
+      setError('Godzina zakończenia musi być po godzinie rozpoczęcia');
+      return;
+    }
+    if (exhibitionRange) {
+      if (constructionDate < exhibitionRange.start || constructionDate > exhibitionRange.end) {
+        setError(`Data wydarzenia musi mieścić się w zakresie dat targów (${exhibitionRange.start} – ${exhibitionRange.end})`);
+        return;
+      }
+    }
+    try {
+      setError('');
+      const payload: TradeEvent = {
+        name: `Zabudowa targowa – ${buildDaysOption.find(o => String(o.value) === String(constructionType))?.label || constructionType}`,
+        eventDate: constructionDate,
+        startTime: constructionStartTime,
+        endTime: constructionEndTime,
+        type: constructionType,
+      };
+      const res = await createTradeEvent(exhibitionId, payload, token);
+      setConstructionEvents(prev => [...prev, res.data]);
+      setConstructionType('');
+      setConstructionDate('');
+      setConstructionStartTime('09:00');
+      setConstructionEndTime('17:00');
+      setSuccessMessage('Wydarzenie zabudowy dodane');
+      setTimeout(() => setSuccessMessage(''), 2500);
+    } catch (e: any) {
+      const msg = e?.message || 'Nie udało się dodać wydarzenia zabudowy';
+      if (msg.includes('Data wydarzenia musi mieścić się w zakresie dat targów')) {
+        setError(`Data wydarzenia musi mieścić się w zakresie dat targów${exhibitionRange ? ` (${exhibitionRange.start} – ${exhibitionRange.end})` : ''}`);
+      } else {
+        setError(msg);
+      }
+    }
+  };
+
+  const handleDeleteConstructionEvent = async (eventId?: number) => {
+    if (!eventId || !token) return;
+    try {
+      await deleteTradeEvent(exhibitionId, eventId, token);
+      setConstructionEvents(prev => prev.filter(ev => ev.id !== eventId));
+    } catch (e) {
+      // optional: show error
     }
   };
 
@@ -422,92 +521,96 @@ const TradeInfo: React.FC<TradeInfoProps> = ({ exhibitionId }) => {
       <Box className={styles.section_}>
         <CustomTypography className={styles.subsectionTitle_}>Zabudowa targowa:</CustomTypography>
         <Box className={styles.technicalsWrapper_}>
-           <Box className={styles.selectWrtapper_}>
-              <CustomTypography className={styles.selectLabel_}>Typ wydarzenia</CustomTypography>
-                <CustomSelectMui
-                    label=""
-                    placeholder="Wybierz typ"
-                    value={buildType} 
-                    onChange={(value) => setBuildType(String(value))}
-                    options={buildDaysOption}
-                    size="small"
-                    fullWidth
-                    />
+          <Box className={styles.selectWrtapper_}>
+            <CustomTypography className={styles.selectLabel_}>Typ wydarzenia</CustomTypography>
+            <CustomSelectMui
+              label=""
+              placeholder="Wybierz typ"
+              value={constructionType}
+              onChange={(value) => setConstructionType(String(value))}
+              options={buildDaysOption}
+              size="small"
+              fullWidth
+            />
           </Box>
           <Box className={styles.dataWrapper_}>
-               {buildDays.map((day) => (
-                  <Box key={day.id} className={styles.singleDate_}>
-                    <Box className={styles.dataPart_}>
-                      <Box className={styles.technicalDate_}>
-                        <CustomField
-                          type="date"
-                          label="Data"
-                          value={day.date}
-                          onChange={(e) => {
-                          const updatedDays = buildDays.map(d => 
-                          d.id === day.id ? {...d, date: e.target.value} : d
-                          );
-                          setBuildDays(updatedDays);
-                          }}
-                          size="small"
-                          fullWidth
-                        />
-                      </Box>
-                    </Box>
-                    <Box  className={styles.startEndTime_}>
-                      <Box  className={styles.technicalTime_}>
-                        <CustomField
-                          type="time"
-                          value={day.startTime}
-                          onChange={(e) => {
-                            const updatedDays = buildDays.map(d => 
-                              d.id === day.id ? {...d, startTime: e.target.value} : d
-                            );
-                            setBuildDays(updatedDays);
-                          }}
-                          size="small"
-                        />
-                      </Box>
-                      <CustomTypography className={styles.separatorIndustry_}>–</CustomTypography>
-                      <Box className={styles.technicalTime_}>
-                        <CustomField
-                          type="time"
-                          value={day.endTime}
-                          onChange={(e) => {
-                            const updatedDays = buildDays.map(d => 
-                              d.id === day.id ? {...d, endTime: e.target.value} : d
-                            );
-                            setBuildDays(updatedDays);
-                          }}
-                          size="small"
-                        />
-                      </Box>
-                    </Box>
-                    <Box className={styles.infoHallRow_}>
-                      <CustomTypography className={styles.hallNameLabel_}>Typ wydarzenia:</CustomTypography>
-                      <CustomTypography className={styles.hallName_}>
-                        {buildDaysOption.find(o => String(o.value) === String(buildType))?.label || ''}
-                      </CustomTypography>
-                    </Box>
-                    {buildDays.length > 1 && (
-                      <Box className={styles.IconTrash}>
-                        <Wastebasket
-                        onClick={() => handleRemoveBuildDay(day.id)}
-                        className={styles.removeButton_}
-                        />
-                      </Box>
-                      )}
-                  </Box>
-               ))} 
+            <Box className={styles.singleDate_}>
+              <Box className={styles.dataPart_}>
+                <Box className={styles.technicalDate_}>
+                  <CustomField
+                    type="date"
+                    label="Data"
+                    value={constructionDate}
+                    onChange={(e) => setConstructionDate(e.target.value)}
+                    size="small"
+                    fullWidth
+                  />
+                </Box>
+              </Box>
+              <Box  className={styles.startEndTime_}>
+                <Box  className={styles.technicalTime_}>
+                  <CustomField
+                    type="time"
+                    value={constructionStartTime}
+                    onChange={(e) => setConstructionStartTime(e.target.value)}
+                    size="small"
+                  />
+                </Box>
+                <CustomTypography className={styles.separatorIndustry_}>–</CustomTypography>
+                <Box className={styles.technicalTime_}>
+                  <CustomField
+                    type="time"
+                    value={constructionEndTime}
+                    onChange={(e) => setConstructionEndTime(e.target.value)}
+                    size="small"
+                  />
+                </Box>
+              </Box>
+            </Box>
           </Box>
-
         </Box>
         <Box className={styles.sectionWithAction}>
-          <Box className={styles.actionBox} onClick={handleAddBuildDay}>
+          <Box className={styles.actionBox} onClick={handleAddConstructionEvent}>
             <AddIconSVG className={styles.actionIcon}/>
-            <CustomTypography className={styles.actionLabel}>dodaj dzień</CustomTypography>
+            <CustomTypography className={styles.actionLabel}>dodaj wydarzenie</CustomTypography>
           </Box>
-         </Box>
+        </Box>
+
+        {/* List added construction events */}
+        <Box className={styles.planSection}>
+          {loadingConstruction ? (
+            <Box sx={{ p: 2 }}>
+              <CircularProgress size={20} />
+            </Box>
+          ) : (
+            constructionEvents.length > 0 && (
+              <Box className={styles.wrapperHallList_}>
+                <CustomTypography className={styles.fileListTitle_}>Dodane wydarzenia zabudowy:</CustomTypography>
+                {constructionEvents.map((ev) => (
+                  <Box key={ev.id} className={styles.singleHallFile_}>
+                    <Box className={styles.infoHallRow_}>
+                      <CustomTypography className={styles.hallNameLabel_}>Data:</CustomTypography>
+                      <CustomTypography className={styles.hallName_}>{toDateOnly(ev.eventDate)}</CustomTypography>
+                    </Box>
+                    <Box className={styles.infoHallRow_}>
+                      <CustomTypography className={styles.hallNameLabel_}>Typ:</CustomTypography>
+                      <CustomTypography className={styles.hallName_}>{String(ev.type)}</CustomTypography>
+                    </Box>
+                    <Box className={styles.infoHallRow_}>
+                      <CustomTypography className={styles.hallNameLabel_}>Godziny:</CustomTypography>
+                      <CustomTypography className={styles.hallName_}>{`${toHm(ev.startTime)} – ${toHm(ev.endTime)}`}</CustomTypography>
+                    </Box>
+                    {user?.role === 'admin' && (
+                      <Box className={styles.IconTrash}>
+                        <Wastebasket onClick={() => handleDeleteConstructionEvent(ev.id)} className={styles.removeButton_} />
+                      </Box>
+                    )}
+                  </Box>
+                ))}
+              </Box>
+            )
+          )}
+        </Box>
       </Box>
       <Divider className={styles.divider} />
 

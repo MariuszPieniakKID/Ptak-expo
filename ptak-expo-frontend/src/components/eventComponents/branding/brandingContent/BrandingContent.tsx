@@ -186,11 +186,6 @@ const BrandingContent: React.FC<BrandingContentProps> = ({ event }) => {
           )}
 
           {event && brandingFiles && user && (
-            // Debug: inspect dokumenty_brandingowe shape
-            console.debug('[BrandingContent] dokumenty_brandingowe =', brandingFiles.files['dokumenty_brandingowe'], {
-              isArray: Array.isArray(brandingFiles.files['dokumenty_brandingowe']),
-              length: Array.isArray(brandingFiles.files['dokumenty_brandingowe']) ? (brandingFiles.files['dokumenty_brandingowe'] as any[]).length : 0,
-            }),
             <BrandingFileUpload
               fileType="dokumenty_brandingowe"
               title="Dokumenty brandingowe dla wystawcy"

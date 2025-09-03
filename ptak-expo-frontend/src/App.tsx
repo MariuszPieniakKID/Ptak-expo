@@ -18,7 +18,7 @@ import DatabasePage from './pages/databasePage/DatabasePage';
 function App() {
   return (
     <AuthProvider>
-      <Router>
+      <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
         <div className="App">
           <Routes>
             {/* Default route - redirect to dashboard if authenticated, login if not */}
