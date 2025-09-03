@@ -232,35 +232,37 @@ const uploadBrandingFile = async (req, res) => {
       }
     }
 
-    // Check if file of same type already exists and delete it
-    const existingFileQuery = exhibitorId 
-      ? 'SELECT * FROM exhibitor_branding_files WHERE exhibitor_id = $1 AND exhibition_id = $2 AND file_type = $3'
-      : 'SELECT * FROM exhibitor_branding_files WHERE exhibitor_id IS NULL AND exhibition_id = $1 AND file_type = $2';
-    
-    const existingFileParams = exhibitorId 
-      ? [exhibitorId, exhibitionId, fileType]
-      : [exhibitionId, fileType];
-    
-    const existingFile = await client.query(existingFileQuery, existingFileParams);
-    
-    if (existingFile.rows.length > 0) {
-      // Delete existing file from filesystem
-      const uploadsBase = getUploadsBase();
-      const oldStored = existingFile.rows[0].file_path || '';
-      const normalized = oldStored.startsWith('uploads/') ? oldStored.replace(/^uploads\//, '') : oldStored;
-      const oldFilePath = path.join(uploadsBase, normalized);
-      try {
-        await fs.unlink(oldFilePath);
-      } catch (error) {
-        console.warn('Failed to delete existing file:', error.message);
+    // Check if file of same type already exists and delete it (single-file types only)
+    if (fileType !== 'dokumenty_brandingowe') {
+      const existingFileQuery = exhibitorId 
+        ? 'SELECT * FROM exhibitor_branding_files WHERE exhibitor_id = $1 AND exhibition_id = $2 AND file_type = $3'
+        : 'SELECT * FROM exhibitor_branding_files WHERE exhibitor_id IS NULL AND exhibition_id = $1 AND file_type = $2';
+      
+      const existingFileParams = exhibitorId 
+        ? [exhibitorId, exhibitionId, fileType]
+        : [exhibitionId, fileType];
+      
+      const existingFile = await client.query(existingFileQuery, existingFileParams);
+      
+      if (existingFile.rows.length > 0) {
+        // Delete existing file from filesystem
+        const uploadsBase = getUploadsBase();
+        const oldStored = existingFile.rows[0].file_path || '';
+        const normalized = oldStored.startsWith('uploads/') ? oldStored.replace(/^uploads\//, '') : oldStored;
+        const oldFilePath = path.join(uploadsBase, normalized);
+        try {
+          await fs.unlink(oldFilePath);
+        } catch (error) {
+          console.warn('Failed to delete existing file:', error.message);
+        }
+        
+        // Delete existing record from database
+        const deleteQuery = exhibitorId 
+          ? 'DELETE FROM exhibitor_branding_files WHERE exhibitor_id = $1 AND exhibition_id = $2 AND file_type = $3'
+          : 'DELETE FROM exhibitor_branding_files WHERE exhibitor_id IS NULL AND exhibition_id = $1 AND file_type = $2';
+        
+        await client.query(deleteQuery, existingFileParams);
       }
-      
-      // Delete existing record from database
-      const deleteQuery = exhibitorId 
-        ? 'DELETE FROM exhibitor_branding_files WHERE exhibitor_id = $1 AND exhibition_id = $2 AND file_type = $3'
-        : 'DELETE FROM exhibitor_branding_files WHERE exhibitor_id IS NULL AND exhibition_id = $1 AND file_type = $2';
-      
-      await client.query(deleteQuery, existingFileParams);
     }
 
     // Save file info to database
@@ -341,7 +343,8 @@ const getBrandingFiles = async (req, res) => {
     // Group files by type
     const filesByType = {};
     result.rows.forEach(file => {
-      filesByType[file.file_type] = {
+      const key = file.file_type;
+      const fileObj = {
         id: file.id,
         fileType: file.file_type,
         fileName: file.file_name,
@@ -355,6 +358,13 @@ const getBrandingFiles = async (req, res) => {
         updatedAt: file.updated_at,
         config: FILE_TYPES[file.file_type]
       };
+      if (key === 'dokumenty_brandingowe') {
+        if (!filesByType[key]) filesByType[key] = [];
+        filesByType[key].push(fileObj);
+      } else {
+        // Keep the first (most recent due to ORDER BY created_at DESC)
+        if (!filesByType[key]) filesByType[key] = fileObj;
+      }
     });
 
     res.json({

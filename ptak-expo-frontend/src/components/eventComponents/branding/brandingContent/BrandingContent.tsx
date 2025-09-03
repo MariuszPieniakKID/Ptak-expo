@@ -15,6 +15,7 @@ const BrandingContent: React.FC<BrandingContentProps> = ({ event }) => {
   const [brandingFiles, setBrandingFiles] = useState<BrandingFilesResponse | null>(null);
   const [brandingLoading, setBrandingLoading] = useState<boolean>(false);
   const [brandingError, setBrandingError] = useState<string>('');
+  const [refreshKey, setRefreshKey] = useState<number>(0);
 
   const loadBrandingFiles = useCallback(async (exhibitorId: number | null, exhibitionId: number) => {
     if (!token) {
@@ -38,9 +39,10 @@ const BrandingContent: React.FC<BrandingContentProps> = ({ event }) => {
     }
   }, [token, logout]);
 
-  const handleUploadSuccess = useCallback((exhibitorId: number | null) => {
+  const handleUploadSuccess = useCallback(async (exhibitorId: number | null) => {
     if (event && token) {
-      loadBrandingFiles(exhibitorId, event.id);
+      await loadBrandingFiles(exhibitorId, event.id);
+      setRefreshKey(prev => prev + 1);
     }
   }, [event, token, loadBrandingFiles]);
 
@@ -68,7 +70,7 @@ const BrandingContent: React.FC<BrandingContentProps> = ({ event }) => {
           <CircularProgress />
         </Box>
       ) : (
-        <Box className={styles.brandingSection}>
+        <Box className={styles.brandingSection} key={refreshKey}>
           {event && brandingFiles && user && (
             <BrandingFileUpload
               fileType="kolorowe_tlo_logo_wydarzenia"
@@ -79,7 +81,9 @@ const BrandingContent: React.FC<BrandingContentProps> = ({ event }) => {
               maxSize={5 * 1024 * 1024}
               exhibitorId={null}
               exhibitionId={event.id}
-              existingFile={brandingFiles.files['kolorowe_tlo_logo_wydarzenia'] || null}
+              existingFile={(Array.isArray(brandingFiles.files['kolorowe_tlo_logo_wydarzenia'])
+                ? (brandingFiles.files['kolorowe_tlo_logo_wydarzenia'] as any[])[0]
+                : brandingFiles.files['kolorowe_tlo_logo_wydarzenia']) || null}
               onUploadSuccess={() => handleUploadSuccess(null)}
               onUploadError={handleUploadError}
               onDeleteSuccess={() => handleUploadSuccess(null)}
@@ -96,7 +100,9 @@ const BrandingContent: React.FC<BrandingContentProps> = ({ event }) => {
               maxSize={5 * 1024 * 1024}
               exhibitorId={null}
               exhibitionId={event.id}
-              existingFile={brandingFiles.files['tlo_wydarzenia_logo_zaproszenia'] || null}
+              existingFile={(Array.isArray(brandingFiles.files['tlo_wydarzenia_logo_zaproszenia'])
+                ? (brandingFiles.files['tlo_wydarzenia_logo_zaproszenia'] as any[])[0]
+                : brandingFiles.files['tlo_wydarzenia_logo_zaproszenia']) || null}
               onUploadSuccess={() => handleUploadSuccess(null)}
               onUploadError={handleUploadError}
               onDeleteSuccess={() => handleUploadSuccess(null)}
@@ -113,7 +119,9 @@ const BrandingContent: React.FC<BrandingContentProps> = ({ event }) => {
               maxSize={5 * 1024 * 1024}
               exhibitorId={null}
               exhibitionId={event.id}
-              existingFile={brandingFiles.files['biale_logo_identyfikator'] || null}
+              existingFile={(Array.isArray(brandingFiles.files['biale_logo_identyfikator'])
+                ? (brandingFiles.files['biale_logo_identyfikator'] as any[])[0]
+                : brandingFiles.files['biale_logo_identyfikator']) || null}
               onUploadSuccess={() => handleUploadSuccess(null)}
               onUploadError={handleUploadError}
               onDeleteSuccess={() => handleUploadSuccess(null)}
@@ -130,7 +138,9 @@ const BrandingContent: React.FC<BrandingContentProps> = ({ event }) => {
               maxSize={10 * 1024 * 1024}
               exhibitorId={null}
               exhibitionId={event.id}
-              existingFile={brandingFiles.files['banner_wystawcy_800x800'] || null}
+              existingFile={(Array.isArray(brandingFiles.files['banner_wystawcy_800'])
+                ? (brandingFiles.files['banner_wystawcy_800'] as any[])[0]
+                : brandingFiles.files['banner_wystawcy_800']) || null}
               onUploadSuccess={() => handleUploadSuccess(null)}
               onUploadError={handleUploadError}
               onDeleteSuccess={() => handleUploadSuccess(null)}
@@ -147,7 +157,9 @@ const BrandingContent: React.FC<BrandingContentProps> = ({ event }) => {
               maxSize={15 * 1024 * 1024}
               exhibitorId={null}
               exhibitionId={event.id}
-              existingFile={brandingFiles.files['banner_wystawcy_1200x1200'] || null}
+              existingFile={(Array.isArray(brandingFiles.files['banner_wystawcy_1200'])
+                ? (brandingFiles.files['banner_wystawcy_1200'] as any[])[0]
+                : brandingFiles.files['banner_wystawcy_1200']) || null}
               onUploadSuccess={() => handleUploadSuccess(null)}
               onUploadError={handleUploadError}
               onDeleteSuccess={() => handleUploadSuccess(null)}
@@ -164,7 +176,9 @@ const BrandingContent: React.FC<BrandingContentProps> = ({ event }) => {
               maxSize={5 * 1024 * 1024}
               exhibitorId={null}
               exhibitionId={event.id}
-              existingFile={brandingFiles.files['logo_ptak_expo'] || null}
+              existingFile={(Array.isArray(brandingFiles.files['logo_ptak_expo'])
+                ? (brandingFiles.files['logo_ptak_expo'] as any[])[0]
+                : brandingFiles.files['logo_ptak_expo']) || null}
               onUploadSuccess={() => handleUploadSuccess(null)}
               onUploadError={handleUploadError}
               onDeleteSuccess={() => handleUploadSuccess(null)}
@@ -172,6 +186,11 @@ const BrandingContent: React.FC<BrandingContentProps> = ({ event }) => {
           )}
 
           {event && brandingFiles && user && (
+            // Debug: inspect dokumenty_brandingowe shape
+            console.debug('[BrandingContent] dokumenty_brandingowe =', brandingFiles.files['dokumenty_brandingowe'], {
+              isArray: Array.isArray(brandingFiles.files['dokumenty_brandingowe']),
+              length: Array.isArray(brandingFiles.files['dokumenty_brandingowe']) ? (brandingFiles.files['dokumenty_brandingowe'] as any[]).length : 0,
+            }),
             <BrandingFileUpload
               fileType="dokumenty_brandingowe"
               title="Dokumenty brandingowe dla wystawcy"
@@ -181,7 +200,7 @@ const BrandingContent: React.FC<BrandingContentProps> = ({ event }) => {
               maxSize={20 * 1024 * 1024}
               exhibitorId={null}
               exhibitionId={event.id}
-              existingFile={brandingFiles.files['dokumenty_brandingowe'] || null}
+              existingFile={(brandingFiles.files['dokumenty_brandingowe'] as any) || null}
               onUploadSuccess={() => handleUploadSuccess(null)}
               onUploadError={handleUploadError}
               onDeleteSuccess={() => handleUploadSuccess(null)}

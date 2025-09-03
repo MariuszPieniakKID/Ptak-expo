@@ -1,7 +1,7 @@
 import React, { useCallback, useState, useRef } from 'react';
 import { Box, CircularProgress } from '@mui/material';
 import { useAuth } from '../../../../../contexts/AuthContext';
-import { deleteBrandingFile, getBrandingFileUrl, uploadBrandingFile } from '../../../../../services/api';
+import { BrandingFile, deleteBrandingFile, getBrandingFileUrl, uploadBrandingFile } from '../../../../../services/api';
 import CustomTypography from '../../../../customTypography/CustomTypography';
 //import CustomButton from '../../../../customButton/CustomButton';
 import styles from './BrandingFileUpload.module.scss';
@@ -26,13 +26,7 @@ interface BrandingFileUploadProps {
   maxSize: number;
   exhibitorId?: number | null;
   exhibitionId: number;
-  existingFile?: {
-    id: number;
-    fileName: string;
-    originalName: string;
-    fileSize: number;
-    mimeType: string;
-  } | null;
+  existingFile?: BrandingFile | BrandingFile[] | null;
   onUploadSuccess: () => void;
   onUploadError: (error: string) => void;
   onDeleteSuccess?: () => void;
@@ -139,17 +133,46 @@ const BrandingFileUpload: React.FC<BrandingFileUploadProps> = ({
     }
   }, [token, validateFile, exhibitorId, exhibitionId, fileType, onUploadSuccess, onUploadError, resetFileInput]);
 
+  const handleMultipleFilesUpload = useCallback(async (files: FileList) => {
+    if (!token) {
+      onUploadError('Brak autoryzacji');
+      return;
+    }
+    const list = Array.from(files);
+    for (const f of list) {
+      const validationError = validateFile(f);
+      if (validationError) {
+        onUploadError(validationError);
+        return;
+      }
+    }
+    setIsUploading(true);
+    try {
+      for (const f of list) {
+        await uploadBrandingFile(f, exhibitorId ?? null, exhibitionId, fileType, token);
+      }
+      resetFileInput();
+      onUploadSuccess();
+    } catch (error: any) {
+      resetFileInput();
+      onUploadError(error.message || 'Błąd podczas przesyłania plików');
+    } finally {
+      setIsUploading(false);
+    }
+  }, [token, exhibitorId, exhibitionId, fileType, validateFile, onUploadSuccess, onUploadError, resetFileInput]);
+
   const handleDeleteFile = useCallback(async () => {
     if (!existingFile || !token) {
       console.error('❌ No file to delete or no token');
       return;
     }
 
-    console.log('🗑️ Starting file deletion:', existingFile.fileName);
+    if (Array.isArray(existingFile)) return; // usuwanie per-element dla PDF poniżej
+    console.log('🗑️ Starting file deletion:', (existingFile as BrandingFile).fileName);
     setIsDeleting(true);
 
     try {
-      await deleteBrandingFile(existingFile.id, exhibitorId ?? null, token);
+      await deleteBrandingFile((existingFile as BrandingFile).id, exhibitorId ?? null, token);
       console.log('✅ File deleted successfully');
       if (onDeleteSuccess) {
         onDeleteSuccess();
@@ -168,9 +191,14 @@ const BrandingFileUpload: React.FC<BrandingFileUploadProps> = ({
 
     const files = e.dataTransfer.files;
     if (files.length > 0) {
-      handleFileUpload(files[0]);
+      const isPdfType = allowedFormats.includes('pdf');
+      if (isPdfType && files.length > 1) {
+        void handleMultipleFilesUpload(files);
+      } else {
+        handleFileUpload(files[0]);
+      }
     }
-  }, [handleFileUpload]);
+  }, [handleFileUpload, handleMultipleFilesUpload, allowedFormats]);
 
   const handleDragOver = useCallback((e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -187,12 +215,17 @@ const BrandingFileUpload: React.FC<BrandingFileUploadProps> = ({
     console.log('📁 File select triggered, files:', files?.length || 0);
     
     if (files && files.length > 0) {
-      console.log('📄 Selected file:', files[0].name, files[0].size, files[0].type);
-      handleFileUpload(files[0]);
+      const isPdfType = allowedFormats.includes('pdf');
+      if (isPdfType && files.length > 1) {
+        void handleMultipleFilesUpload(files);
+      } else {
+        console.log('📄 Selected file:', files[0].name, files[0].size, files[0].type);
+        handleFileUpload(files[0]);
+      }
     } else {
       console.log('❌ No files selected');
     }
-  }, [handleFileUpload]);
+  }, [handleFileUpload, handleMultipleFilesUpload, allowedFormats]);
 
   const handleButtonClick = useCallback(() => {
     console.log('🖱️ Button clicked, opening file dialog');
@@ -206,15 +239,20 @@ const BrandingFileUpload: React.FC<BrandingFileUploadProps> = ({
 
   const getPreviewUrl = (): string | null => {
     if (!existingFile || !token) return null;
-    return getBrandingFileUrl(exhibitorId ?? null, existingFile.fileName, token);
+    if (Array.isArray(existingFile)) return null;
+    return getBrandingFileUrl(exhibitorId ?? null, (existingFile as BrandingFile).fileName, token);
   };
 
   const handleChangePdfName = (e: React.ChangeEvent<HTMLInputElement>) => {
     setNewPdfName(e.target.value);
   };
 
-  const isImage = existingFile?.mimeType?.startsWith('image/');
-  const isPdf = existingFile?.mimeType === 'application/pdf';
+  const isPdfType = allowedFormats.includes('pdf');
+  const isImage = !isPdfType && !Array.isArray(existingFile) && (existingFile as BrandingFile | undefined)?.mimeType?.startsWith('image/');
+  const isPdf = isPdfType;
+  const pdfFiles: BrandingFile[] = Array.isArray(existingFile)
+    ? existingFile
+    : (existingFile && isPdfType ? [existingFile as BrandingFile] : []);
 
   return (
    <> 
@@ -306,8 +344,8 @@ const BrandingFileUpload: React.FC<BrandingFileUploadProps> = ({
                   >
                     <Box className={styles.iconCircle}><ImgIcon/></Box>
                     <CustomTypography className={styles.infoInUploadBox}>
-                      {existingFile && (isImage || isPdf)
-                        ? existingFile.originalName + " • " + formatFileSize(existingFile?.fileSize)
+                      {(!Array.isArray(existingFile) && existingFile && (isImage || isPdf))
+                        ? (existingFile as BrandingFile).originalName + " • " + formatFileSize((existingFile as BrandingFile)?.fileSize)
                         : "Przeciągnij i upuść, aby dodać plik"}
                     </CustomTypography>
                 </Box>
@@ -321,11 +359,23 @@ const BrandingFileUpload: React.FC<BrandingFileUploadProps> = ({
               onChange={handleFileSelect}
               accept={allowedFormats.map(format => `.${format}`).join(',')}
               disabled={isUploading}
-              multiple={isPdf?true:false}
+              multiple={isPdfType}
             />
           </Box>
           </Box>
         }
+        {/* Ensure hidden file input exists also for PDF variant */}
+        {description==="Format: PDF" && (
+          <input 
+            type="file"
+            ref={fileInputRef}
+            style={{ display: 'none' }}
+            onChange={handleFileSelect}
+            accept={allowedFormats.map(format => `.${format}`).join(',')}
+            disabled={isUploading}
+            multiple={isPdfType}
+          />
+        )}
       </Box>
       <Box className={styles.showView}>
         <CustomTypography className={styles.viewLabel}>
@@ -333,7 +383,7 @@ const BrandingFileUpload: React.FC<BrandingFileUploadProps> = ({
           </CustomTypography>
         {(isImage || isPdf)
         ? <Box className={styles.previewArea}>
-            {existingFile 
+            {(isImage || pdfFiles.length>0)
             ? (<Box className={styles.filePreview}>
 
               {(isDeleting
@@ -342,7 +392,7 @@ const BrandingFileUpload: React.FC<BrandingFileUploadProps> = ({
                     {isImage && (
                     <img 
                       src={getPreviewUrl() || ''} 
-                      alt={existingFile.originalName}
+                      alt={(existingFile as BrandingFile).originalName}
                       className={styles.imagePreview}
                       onError={(e) => {
                         (e.target as HTMLImageElement).style.display = 'none';
@@ -354,14 +404,27 @@ const BrandingFileUpload: React.FC<BrandingFileUploadProps> = ({
                     <Box className={styles.pdfRow}>
                       <Box className={styles.chosenPlikWrapper}>
                         <Box className={styles.fileList}>
-                            <Box  className={styles.singleFile}>
-                            <ContractIcon/>
-                              <CustomTypography className={styles.viewPdfTitle}>{existingFile.originalName}</CustomTypography>
-                              <RedXIcon 
-                              onClick={handleDeleteFile} 
-                              style={{ cursor: "pointer" }} 
-                              />
-                            </Box>
+                            {pdfFiles.map(file => (
+                              <Box key={file.id} className={styles.singleFile}>
+                                <ContractIcon/>
+                                <CustomTypography className={styles.viewPdfTitle}>{file.originalName}</CustomTypography>
+                                <RedXIcon 
+                                  onClick={async () => {
+                                    if (!token) return;
+                                    setIsDeleting(true);
+                                    try {
+                                      await deleteBrandingFile(file.id, exhibitorId ?? null, token);
+                                      if (onDeleteSuccess) onDeleteSuccess();
+                                    } catch (error: any) {
+                                      onUploadError(error.message || 'Błąd podczas usuwania pliku');
+                                    } finally {
+                                      setIsDeleting(false);
+                                    }
+                                  }} 
+                                  style={{ cursor: "pointer" }} 
+                                />
+                              </Box>
+                            ))}
                         </Box>
                       </Box>
                     </Box>

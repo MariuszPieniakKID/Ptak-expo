@@ -374,7 +374,7 @@ export interface BrandingFilesResponse {
   success: boolean;
   exhibitorId: number;
   exhibitionId: number;
-  files: { [fileType: string]: BrandingFile };
+  files: { [fileType: string]: BrandingFile | BrandingFile[] };
   fileTypes: { [fileType: string]: BrandingFileConfig };
 }
 

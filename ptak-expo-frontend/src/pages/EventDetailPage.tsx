@@ -391,7 +391,11 @@ const EventDetailPage: React.FC = () => {
               <CardContent className={styles.eventContent}>
                 <Box className={styles.eventImage}>
                   <img
-                    src={brandingFiles?.files['event_logo'] && token ? getBrandingFileUrl(null, brandingFiles.files['event_logo'].fileName, token) : '/assets/zrzut-ekranu-2025059-o-135948@2x.png'}
+                    src={(brandingFiles?.files['event_logo'] && token) ? (() => {
+                      const value: any = brandingFiles?.files['event_logo'] as any;
+                      const file = Array.isArray(value) ? value[0] : value;
+                      return file?.fileName ? getBrandingFileUrl(null, file.fileName, token) : '/assets/zrzut-ekranu-2025059-o-135948@2x.png';
+                    })() : '/assets/zrzut-ekranu-2025059-o-135948@2x.png'}
                     alt={exhibition.name}
                     className={styles.eventImg}
                   />

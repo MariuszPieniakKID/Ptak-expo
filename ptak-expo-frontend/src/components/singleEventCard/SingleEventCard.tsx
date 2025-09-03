@@ -113,8 +113,12 @@ const SingleEventCard: React.FC<SingleEventCardProps> = ({
               : Object.keys(files).find(k => k.toLowerCase().includes('logo'))
                 || Object.keys(files)[0];
             if (preferredKey && files[preferredKey]) {
-              setResolvedLogoUrl(getBrandingFileUrl(exhibitorId, files[preferredKey].fileName, token));
-              return;
+              const value: any = files[preferredKey] as any;
+              const file = Array.isArray(value) ? value[0] : value;
+              if (file?.fileName) {
+                setResolvedLogoUrl(getBrandingFileUrl(exhibitorId, file.fileName, token));
+                return;
+              }
             }
           } catch {
             // ignore, try global
@@ -124,8 +128,12 @@ const SingleEventCard: React.FC<SingleEventCardProps> = ({
         try {
           const g = await getBrandingFiles(null, id, token);
           if (g.files && g.files['event_logo']) {
-            setResolvedLogoUrl(getBrandingFileUrl(null, g.files['event_logo'].fileName, token));
-            return;
+            const value: any = g.files['event_logo'] as any;
+            const file = Array.isArray(value) ? value[0] : value;
+            if (file?.fileName) {
+              setResolvedLogoUrl(getBrandingFileUrl(null, file.fileName, token));
+              return;
+            }
           }
         } catch {
           // ignore

@@ -196,9 +196,12 @@ function ExhibitorWithEvent({
               : Object.keys(files).find(k => k.toLowerCase().includes('logo'))
                 || Object.keys(files)[0];
             if (preferredKey && files[preferredKey]) {
-              const file = files[preferredKey];
-              nextLogoFileName = file.originalName || file.fileName;
-              nextLogoUrl = getBrandingFileUrl(exhibitor.id, file.fileName, token);
+              const value: any = files[preferredKey] as any;
+              const file = Array.isArray(value) ? value[0] : value;
+              if (file) {
+                nextLogoFileName = file.originalName || file.fileName;
+                nextLogoUrl = getBrandingFileUrl(exhibitor.id, file.fileName, token);
+              }
             }
           } catch {
             // ignore, will try global fallback below
@@ -210,9 +213,12 @@ function ExhibitorWithEvent({
               const globalFilesResp = await getBrandingFiles(null, exhibitionId, token);
               const gfiles = globalFilesResp.files || {};
               if (gfiles['event_logo']) {
-                const file = gfiles['event_logo'];
-                nextLogoFileName = file.originalName || file.fileName;
-                nextLogoUrl = getBrandingFileUrl(null, file.fileName, token);
+                const value: any = gfiles['event_logo'] as any;
+                const file = Array.isArray(value) ? value[0] : value;
+                if (file) {
+                  nextLogoFileName = file.originalName || file.fileName;
+                  nextLogoUrl = getBrandingFileUrl(null, file.fileName, token);
+                }
               }
             } catch {
               // ignore, will try catalogue fallback below
