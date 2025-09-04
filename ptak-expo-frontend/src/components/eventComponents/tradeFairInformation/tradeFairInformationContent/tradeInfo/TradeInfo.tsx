@@ -207,6 +207,13 @@ const TradeInfo: React.FC<TradeInfoProps> = ({ exhibitionId }) => {
     loadRange();
   }, [exhibitionId, token]);
 
+  // If date is empty, default to exhibition start date to improve UX
+  useEffect(() => {
+    if (exhibitionRange && !constructionDate) {
+      setConstructionDate(exhibitionRange.start);
+    }
+  }, [exhibitionRange, constructionDate]);
+
   // Debounced autosave when buildType changes (po załadowaniu danych)
   /* eslint-disable react-hooks/exhaustive-deps */
   useEffect(() => {
