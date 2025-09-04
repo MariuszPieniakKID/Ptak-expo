@@ -268,7 +268,7 @@ const TradeInfo: React.FC<TradeInfoProps> = ({ exhibitionId }) => {
                     ? { 
                         ...h, 
                         filePath: result.file.path,
-                        originalFilename: result.file.filename || hall.file?.name || 'plan.pdf',
+                        originalFilename: result.file.originalname || hall.file?.name || result.file.filename || 'plan.pdf',
                         file: null 
                       }
                     : h
