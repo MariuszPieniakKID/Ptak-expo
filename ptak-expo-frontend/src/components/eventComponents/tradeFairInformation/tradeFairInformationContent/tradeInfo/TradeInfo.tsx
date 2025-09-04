@@ -218,6 +218,80 @@ const TradeInfo: React.FC<TradeInfoProps> = ({ exhibitionId }) => {
     }
   }, [exhibitionRange, constructionDate]);
 
+  // Save trade info and upload files (memoized) - defined before effects that depend on it
+  const handleSave = useCallback(async (entriesOverride?: HallEntry[]) => {
+    if (!token) {
+      setError('Brak autoryzacji');
+      return;
+    }
+
+    try {
+      setSaving(true);
+      setError('');
+      setSuccessMessage('');
+
+      const entries = entriesOverride ?? hallEntries;
+      const spacesFromHalls: TradeSpace[] = entries.map((hall, index) => ({
+        id: (index + 1).toString(),
+        name: hall.hallName,
+        hallName: hall.hallName,
+        filePath: hall.filePath ?? null,
+        originalFilename: hall.originalFilename ?? null
+      }));
+
+      const tradeInfoData: TradeInfoData = {
+        tradeHours,
+        contactInfo,
+        buildDays,
+        buildType,
+        tradeSpaces: spacesFromHalls.length > 0 ? spacesFromHalls : tradeSpaces,
+        tradeMessage
+      };
+
+      const response = await saveTradeInfo(exhibitionId, tradeInfoData, token);
+      
+      if (response.success) {
+        const hallsWithFiles = entries.filter(hall => hall.file);
+        
+        if (hallsWithFiles.length > 0) {
+          setSuccessMessage('Zapisywanie i przesyłanie plików...');
+          
+          for (let i = 0; i < hallsWithFiles.length; i++) {
+            const hall = hallsWithFiles[i];
+            try {
+              const spaceId = (entries.indexOf(hall) + 1).toString();
+              const result = await uploadTradePlan(hall.file!, exhibitionId, spaceId, token!);
+              
+              setHallEntries(prev => 
+                prev.map(h => 
+                  h.id === hall.id 
+                    ? { 
+                        ...h, 
+                        filePath: result.file.path,
+                        originalFilename: result.file.filename || hall.file?.name || 'plan.pdf',
+                        file: null 
+                      }
+                    : h
+                )
+              );
+            } catch (uploadError: any) {
+              console.error(`Error uploading file for ${hall.hallName}:`, uploadError);
+              setError(`Błąd podczas przesyłania pliku dla ${hall.hallName}: ${uploadError.message}`);
+            }
+          }
+        }
+        
+        setSuccessMessage('Informacje targowe i pliki zostały zapisane pomyślnie!');
+        setTimeout(() => setSuccessMessage(''), 4000);
+      }
+    } catch (err: any) {
+      console.error('Error saving trade info:', err);
+      setError(err.message || 'Błąd podczas zapisywania informacji targowych');
+    } finally {
+      setSaving(false);
+    }
+  }, [token, hallEntries, tradeHours, contactInfo, buildDays, buildType, tradeSpaces, tradeMessage, exhibitionId]);
+
   // Debounced autosave when buildType changes (po załadowaniu danych)
   useEffect(() => {
     if (!hasLoadedRef.current) return;
@@ -347,7 +421,7 @@ const TradeInfo: React.FC<TradeInfoProps> = ({ exhibitionId }) => {
     } finally {
       setSaving(false);
     }
-  }, [token, tradeHours, contactInfo, buildDays, buildType, tradeSpaces, tradeMessage, exhibitionId, hallEntries]);
+  }, [token, hallEntries, tradeHours, contactInfo, buildDays, buildType, tradeSpaces, tradeMessage, exhibitionId]);
 
   const handleAddConstructionEvent = async () => {
     console.log('[TradeInfo] Add click', {
