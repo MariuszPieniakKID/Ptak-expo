@@ -71,7 +71,9 @@ function TradeFairInformation({
         const iconBg = idx % 2 === 0 ? "#fff" : "#f5f5f5";
 
         return (
+
           <Accordion
+
             key={item.title}
             expanded={isExpanded}
             onChange={handleChange}
@@ -92,6 +94,7 @@ function TradeFairInformation({
                 display: 'none',
               },
               zIndex: 'auto',
+  
             }}
           >
             <AccordionSummary

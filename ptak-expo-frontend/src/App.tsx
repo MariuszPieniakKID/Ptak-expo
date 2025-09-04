@@ -8,8 +8,6 @@ import DashboardPage from './pages/dashboardPage/DashboardPage';
 import UsersPage from './pages/usersPage/UsersPage';
 import ExhibitorsPage from './pages/exshibitorsPage/ExhibitorsPage'
 import ExhibitorCardPage from './pages/exhibitorCardPage/ExhibitorCardPageShort';
-import EventDetailsPage from './pages/EventDetailsPage';
-import EventDetailPage from './pages/EventDetailPage';
 import ApiDocsPage from './pages/ApiDocsPage';
 import './App.scss';
 import EventsPageAlt from './pages/eventsPage/EventsPage_';
@@ -53,13 +51,7 @@ function App() {
                 <ExhibitorCardPage />
               </ProtectedRoute>
             } />
-            
-            {/* Protected Event Details page - Admin only */}
-            <Route path="/wystawcy/:exhibitorId/wydarzenie/:eventId" element={
-              <ProtectedRoute requiredRole="admin">
-                <EventDetailsPage />
-              </ProtectedRoute>
-            } />
+      
             {/* Protected Events page - Admin only */}
             <Route path="/wydarzenia" element={
               <ProtectedRoute requiredRole="admin">
@@ -70,13 +62,6 @@ function App() {
             <Route path="/api-docs" element={
               <ProtectedRoute requiredRole="admin">
                 <ApiDocsPage />
-              </ProtectedRoute>
-            } />
-            
-            {/* Protected Event Detail page - Admin only */}
-            <Route path="/wydarzenia/:id" element={
-              <ProtectedRoute requiredRole="admin">
-                <EventDetailPage />
               </ProtectedRoute>
             } />
             

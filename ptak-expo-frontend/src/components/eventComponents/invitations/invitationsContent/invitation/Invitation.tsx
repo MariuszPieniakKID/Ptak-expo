@@ -269,7 +269,9 @@ Zespół Warsaw Industry Week`;
   }
 
   return (
-    <Box sx={{marginTop:'-2rem'}}>
+    <Box 
+    sx={{marginTop:'1rem'}}
+    >
 
       {error && (
         <Alert severity="error" sx={{ mb: 2 }}>

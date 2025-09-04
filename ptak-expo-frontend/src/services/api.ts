@@ -854,6 +854,7 @@ export interface TradeEvent {
   description?: string;
   type: string; // e.g. 'Ceremonia otwarcia'
   organizer?: string;
+  link?:string; 
 }
 
 const mapTradeEventRow = (row: any): TradeEvent => ({
@@ -868,6 +869,7 @@ const mapTradeEventRow = (row: any): TradeEvent => ({
   description: row.description ?? undefined,
   type: row.type,
   organizer: row.organizer ?? undefined,
+  link:row.link?? undefined,
 });
 
 export const getTradeEvents = async (

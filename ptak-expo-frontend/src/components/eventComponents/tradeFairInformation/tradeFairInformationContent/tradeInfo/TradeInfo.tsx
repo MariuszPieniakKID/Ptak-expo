@@ -529,7 +529,6 @@ const [buildType, setBuildType] = useState<string>('');
                   </Box>
                ))} 
           </Box>
-
         </Box>
         <Box className={styles.sectionWithAction}>
           <Box className={styles.actionBox} onClick={handleAddBuildDay}>

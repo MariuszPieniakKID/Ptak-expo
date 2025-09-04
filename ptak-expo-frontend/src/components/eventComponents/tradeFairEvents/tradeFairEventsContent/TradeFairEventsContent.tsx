@@ -1,319 +1,185 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { Box, Alert } from '@mui/material';
+import React from 'react';
+import { Box, Alert, FormControl, FormLabel, RadioGroup, FormControlLabel, Radio, Divider } from '@mui/material';
 import CustomTypography from '../../../../components/customTypography/CustomTypography';
-import CustomButton from '../../../../components/customButton/CustomButton';
 import CustomField from '../../../../components/customField/CustomField';
-import { useAuth } from '../../../../contexts/AuthContext';
-import { Exhibition, TradeEvent, createTradeEvent, getTradeEvents } from '../../../../services/api';
+import { Exhibition, TradeEvent} from '../../../../services/api';
 import styles from './TradeFairEventsContent.module.scss';
+import ComponentWithAction from '../../../componentWithAction/ComponentWithAction';
 
 interface TradeFairEventsContentProps {
   event: Exhibition;
+  newEvent: TradeEvent; 
+  tradeEventsError: string;
+  handleNewEventChange: (field: keyof TradeEvent) => (e: React.ChangeEvent<HTMLInputElement>) => void;
+  handleSaveTradeEvent: () => void;
 }
 
-const TradeFairEventsContent: React.FC<TradeFairEventsContentProps> = ({ event }) => {
-  const { token } = useAuth();
-  const [tradeEvents, setTradeEvents] = useState<TradeEvent[]>([]);
-  const [tradeEventsError, setTradeEventsError] = useState<string>('');
-  const [newEvent, setNewEvent] = useState<TradeEvent>({
-    name: '',
-    eventDate: '',
-    startTime: '',
-    endTime: '',
-    hall: '',
-    description: '',
-    type: 'Ceremonia otwarcia',
-  });
+
+const TradeFairEventsContent: React.FC<TradeFairEventsContentProps> = ({ 
+  event,
+  newEvent,
+  tradeEventsError,
+  handleNewEventChange,
+  handleSaveTradeEvent,
+ }) => {
+
+ const formatDate = (dateStr?: string) => {
+  if (!dateStr) return '';
+  // Załóżmy, że data jest w formacie ISO: "2025-09-04T12:00:00Z", więc tniemy do "YYYY-MM-DD"
+  const tIndex = dateStr.indexOf('T');
+  return tIndex > 0 ? dateStr.slice(0, tIndex) : dateStr;
+};
+  
+
 
   const typeOptions = [
-    { value: 'Ceremonia otwarcia', label: 'Ceremonia otwarcia' },
-    { value: 'Główna konferencja', label: 'Główna konferencja' },
-    { value: 'Spotkania organizatorów', label: 'Spotkania organizatorów' },
-  ];
+  {value:' ceremonia_otwarcia_targow',label:'Ceremonia otwarcia targów'},
+  {value:' gala_wreczenia_medali_nagród_targowych', label:'Gala wręczenia medali/ nagród targowych'},
+  {value:' glowna_konferencja_targowa', label:'Główna konferencja targowa'},
+  {value:' wystapienia_honorowych_gosci_patronow', label:'Wystąpienia honorowych gości/ patronów'},
+  {value:' spotkania_zorganizowanie_przez_organizatora_targów', label:'Spotkania zorganizowane przez organizatora targów'}
+];
 
-  const dateOnly = (value?: string) => {
-    if (!value) return '';
-    const tIdx = value.indexOf('T');
-    return tIdx > 0 ? value.slice(0, tIdx) : value;
-  };
-  const timeHM = (value?: string) => {
-    if (!value) return '';
-    const parts = value.split(':');
-    if (parts.length >= 2) return `${parts[0].padStart(2, '0')}:${parts[1].padStart(2, '0')}`;
-    return value;
-  };
-
-  const loadTradeEvents = useCallback(async () => {
-    if (!token) return;
-    try {
-      const res = await getTradeEvents(event.id, token);
-      setTradeEvents(res.data || []);
-      setTradeEventsError('');
-    } catch (e: any) {
-      setTradeEventsError(e.message || 'Błąd podczas ładowania wydarzeń targowych');
-    }
-  }, [event.id, token]);
-
-  useEffect(() => {
-    loadTradeEvents();
-  }, [loadTradeEvents]);
-
-  const handleNewEventChange = (field: keyof TradeEvent) => (e: React.ChangeEvent<HTMLInputElement>) => {
-    setNewEvent(prev => ({ ...prev, [field]: e.target.value }));
-  };
-
-  const handleSaveTradeEvent = async () => {
-    if (!token) return;
-    if (!newEvent.name || !newEvent.eventDate || !newEvent.startTime || !newEvent.endTime || !newEvent.type) return;
-    const d = new Date(newEvent.eventDate);
-    const s = new Date(event.start_date);
-    const e = new Date(event.end_date);
-    const onlyDate = (dt: Date) => new Date(dt.getFullYear(), dt.getMonth(), dt.getDate()).getTime();
-    if (onlyDate(d) < onlyDate(s) || onlyDate(d) > onlyDate(e)) {
-      alert('Data wydarzenia musi mieścić się w zakresie dat targów');
-      return;
-    }
-    try {
-      await createTradeEvent(event.id, newEvent, token);
-      const refreshed = await getTradeEvents(event.id, token);
-      setTradeEvents(refreshed.data || []);
-      setTradeEventsError('');
-      setNewEvent({ name: '', eventDate: '', startTime: '', endTime: '', hall: '', description: '', type: 'Ceremonia otwarcia' });
-    } catch (err: any) {
-      setTradeEventsError(err.message || 'Błąd podczas zapisywania wydarzenia targowego');
-    }
-  };
+  // const dateOnly = (value?: string) => {
+  //   if (!value) return '';
+  //   const tIdx = value.indexOf('T');
+  //   return tIdx > 0 ? value.slice(0, tIdx) : value;
+  // };
+  // const timeHM = (value?: string) => {
+  //   if (!value) return '';
+  //   const parts = value.split(':');
+  //   if (parts.length >= 2) return `${parts[0].padStart(2, '0')}:${parts[1].padStart(2, '0')}`;
+  //   return value;
+  // };
 
   return (
-    <Box className={styles.tabContent}>
-
-      <Box className={styles.tradeEventsSection}>
-        {tradeEventsError && (
-          <Alert severity="error" sx={{ mb: 2 }}>{tradeEventsError}</Alert>
-        )}
-        <Box className={styles.eventCard}>
-          <CustomTypography fontSize="0.875rem" fontWeight={500}>
-            Dodaj wydarzenie
-          </CustomTypography>
-          <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
-            <CustomField
-              type="text"
-              value={newEvent.name}
-              onChange={handleNewEventChange('name')}
-              placeholder="Nazwa wydarzenia"
-              fullWidth
-            />
-            <CustomField
-              type="date"
-              value={newEvent.eventDate}
-              onChange={handleNewEventChange('eventDate')}
-              placeholder="Data"
-              fullWidth
-            />
-            <CustomField
-              type="time"
-              value={newEvent.startTime}
-              onChange={handleNewEventChange('startTime')}
-              placeholder="Godzina początku"
-              fullWidth
-            />
-            <CustomField
-              type="time"
-              value={newEvent.endTime}
-              onChange={handleNewEventChange('endTime')}
-              placeholder="Godzina końca"
-              fullWidth
-            />
-            <CustomField
-              type="text"
-              value={newEvent.hall || ''}
-              onChange={handleNewEventChange('hall')}
-              placeholder="Hala"
-              fullWidth
-            />
-            <CustomField
-              type="text"
-              value={newEvent.type}
-              onChange={handleNewEventChange('type')}
-              placeholder="Rodzaj"
-              options={typeOptions}
-              forceSelectionFromOptions
-              fullWidth
-            />
-            <CustomField
-              type="text"
-              value={newEvent.description || ''}
-              onChange={handleNewEventChange('description')}
-              placeholder="Opis"
-              fullWidth
-            />
-          </Box>
-          <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
-            <CustomButton
-              bgColor="#6F87F6"
-              textColor="#fff"
-              width="120px"
-              height="40px"
-              fontSize="0.875rem"
-              onClick={handleSaveTradeEvent}
-            >
-              Zapisz
-            </CustomButton>
-          </Box>
+    <>
+    {tradeEventsError && (<Alert severity="error" sx={{ mb: 2 }}>{tradeEventsError}</Alert>)}
+    <Box className={styles.container}>
+      <Divider className={styles.divider_} />
+      <CustomTypography className={styles.sectionTitle}>Dodawanie wydarzenia</CustomTypography>
+      <Box className={styles.halfRowInD}>
+        <Box className={styles.name}>
+          <CustomField 
+            type={'text'} 
+            value={newEvent.name} 
+            onChange={handleNewEventChange('name')}
+            label="Nazwa wydarzenia"
+            placeholder='Nazwa'
+            fullWidth
+          />          
         </Box>
-
-        {tradeEvents.map((ev) => (
-          <details key={ev.id} className={styles.eventCard}>
-            <summary>
-              <CustomTypography fontSize="0.875rem" fontWeight={500}>
-                {dateOnly(ev.eventDate)} • {timeHM(ev.startTime)} - {timeHM(ev.endTime)} {ev.hall ? `• Hala: ${ev.hall}` : ''} — {ev.name}
-              </CustomTypography>
-            </summary>
-            <Box sx={{ mt: 1 }}>
-              <CustomTypography fontSize="0.75rem" color="#6c757d">
-                Nazwa: {ev.name}
-              </CustomTypography>
-              <CustomTypography fontSize="0.75rem" color="#6c757d">
-                Data: {dateOnly(ev.eventDate)}
-              </CustomTypography>
-              <CustomTypography fontSize="0.75rem" color="#6c757d">
-                Godziny: {timeHM(ev.startTime)} - {timeHM(ev.endTime)}
-              </CustomTypography>
-              {ev.hall && (
-                <CustomTypography fontSize="0.75rem" color="#6c757d">
-                  Hala: {ev.hall}
-                </CustomTypography>
-              )}
-              {ev.description && (
-                <CustomTypography fontSize="0.75rem" color="#6c757d">
-                  Opis: {ev.description}
-                </CustomTypography>
-              )}
-              <CustomTypography fontSize="0.75rem" color="#6c757d">
-                Rodzaj: {ev.type}
-              </CustomTypography>
-            </Box>
-          </details>
-        ))}
+      </Box>
+      <Box className={styles.locationInfo}>
+        <Box className={styles.timeInfo}>
+          <Box className={styles.date}>
+            <CustomField 
+              type={'date'} 
+              value={newEvent.eventDate} 
+              onChange={handleNewEventChange('eventDate')}
+              label="Data"
+              fullWidth
+              inputProps={{
+                 min: formatDate(event.start_date),
+                 max: formatDate(event.end_date),
+              }}
+            />          
+          </Box>
+          <Box className={styles.startTime}>
+            <CustomField 
+              type={'time'} 
+              value={newEvent.startTime} 
+              onChange={handleNewEventChange('startTime')}
+              label="Godzina początku"
+              fullWidth
+            />  
+          </Box>
+          <Box className={styles.endTime}>
+            <CustomField 
+              type={'time'} 
+              value={newEvent.endTime} 
+              onChange={handleNewEventChange('endTime')}
+              label="Godzina końca"
+              fullWidth
+            />  
+          </Box>  
+        </Box>
+        <Box className={styles.place}>
+          <CustomField 
+            type={'text'} 
+            value={newEvent?.hall?newEvent?.hall:''} 
+            onChange={handleNewEventChange('hall')}
+            label="Oznaczenie Hali"
+            placeholder='Hala'
+            fullWidth
+          /> 
+        </Box>
+      </Box>
+      <Box className={styles.description}>
+        <CustomField 
+          type={'text'} 
+          value={newEvent.description || ''} 
+          onChange={handleNewEventChange('description')}
+          label="Opis wydarzenia"
+          placeholder='Opis wydarzenia w tym szczegółowe miejsce wydarzenia (max. 750 znaków)'
+          fullWidth
+          multiline
+          rows={4}
+        />  
+      </Box>
+      <Box className={styles.eventType}>
+      {/* Wybór typu eventu*/}
+        <FormControl className={styles.formControl}>
+          <FormLabel className={styles.formLabel}>Wybierz rodzaj dokumentu</FormLabel>
+          <RadioGroup
+            value={newEvent.type}
+            onChange={handleNewEventChange('type')}
+            className={styles.radioGroup}
+          >
+            {typeOptions.map(option => (
+            <FormControlLabel
+              key={option.value}
+              value={option.value}
+              control={<Radio />}
+              label={option.label}
+           
+              sx={{
+                color: '#2E2E38',
+                height:'36px',
+                '& .MuiFormControlLabel-label': {
+                  fontSize: '13px',
+                  color:'#666A73 ',
+                  fontWeight:'300',
+                },
+              }}
+            />
+          ))}
+          </RadioGroup>
+        </FormControl>
+      </Box>
+      <Box className={styles.actionBox}>
+        <Box className={styles.link}>
+            <CustomField 
+            type={'text'} 
+            value={newEvent.link||''} 
+            onChange={handleNewEventChange('link')}
+            label="Link do wydarzenie na stronie targów"
+            placeholder='https://'
+            fullWidth
+          />  
+        </Box>
+        <Box className={styles.saveButton}>
+          <ComponentWithAction 
+          iconType={'save'} 
+          handleAction={handleSaveTradeEvent} 
+          buttonTitle={'zapisz'}
+          iconFirst={false}/>
+        
+        </Box>
       </Box>
     </Box>
+   </>
 
-
-
-    // <Box className={styles.tabContent}>
-    //   <CustomTypography fontSize="1.25rem" fontWeight={600}>
-    //     Wydarzenia targowe
-    //   </CustomTypography>
-    //   <Box className={styles.tradeEventsSection}>
-    //     {tradeEventsError && (
-    //       <Alert severity="error" sx={{ mb: 2 }}>{tradeEventsError}</Alert>
-    //     )}
-    //     <Box className={styles.eventCard}>
-    //       <CustomTypography fontSize="0.875rem" fontWeight={500}>
-    //         Dodaj wydarzenie
-    //       </CustomTypography>
-    //       <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
-    //         <CustomField
-    //           type="text"
-    //           value={newEvent.name}
-    //           onChange={handleNewEventChange('name')}
-    //           placeholder="Nazwa wydarzenia"
-    //           fullWidth
-    //         />
-    //         <CustomField
-    //           type="date"
-    //           value={newEvent.eventDate}
-    //           onChange={handleNewEventChange('eventDate')}
-    //           placeholder="Data"
-    //           fullWidth
-    //         />
-    //         <CustomField
-    //           type="time"
-    //           value={newEvent.startTime}
-    //           onChange={handleNewEventChange('startTime')}
-    //           placeholder="Godzina początku"
-    //           fullWidth
-    //         />
-    //         <CustomField
-    //           type="time"
-    //           value={newEvent.endTime}
-    //           onChange={handleNewEventChange('endTime')}
-    //           placeholder="Godzina końca"
-    //           fullWidth
-    //         />
-    //         <CustomField
-    //           type="text"
-    //           value={newEvent.hall || ''}
-    //           onChange={handleNewEventChange('hall')}
-    //           placeholder="Hala"
-    //           fullWidth
-    //         />
-    //         <CustomField
-    //           type="text"
-    //           value={newEvent.type}
-    //           onChange={handleNewEventChange('type')}
-    //           placeholder="Rodzaj"
-    //           options={typeOptions}
-    //           forceSelectionFromOptions
-    //           fullWidth
-    //         />
-    //         <CustomField
-    //           type="text"
-    //           value={newEvent.description || ''}
-    //           onChange={handleNewEventChange('description')}
-    //           placeholder="Opis"
-    //           fullWidth
-    //         />
-    //       </Box>
-    //       <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
-    //         <CustomButton
-    //           bgColor="#6F87F6"
-    //           textColor="#fff"
-    //           width="120px"
-    //           height="40px"
-    //           fontSize="0.875rem"
-    //           onClick={handleSaveTradeEvent}
-    //         >
-    //           Zapisz
-    //         </CustomButton>
-    //       </Box>
-    //     </Box>
-
-    //     {tradeEvents.map((ev) => (
-    //       <details key={ev.id} className={styles.eventCard}>
-    //         <summary>
-    //           <CustomTypography fontSize="0.875rem" fontWeight={500}>
-    //             {dateOnly(ev.eventDate)} • {timeHM(ev.startTime)} - {timeHM(ev.endTime)} {ev.hall ? `• Hala: ${ev.hall}` : ''} — {ev.name}
-    //           </CustomTypography>
-    //         </summary>
-    //         <Box sx={{ mt: 1 }}>
-    //           <CustomTypography fontSize="0.75rem" color="#6c757d">
-    //             Nazwa: {ev.name}
-    //           </CustomTypography>
-    //           <CustomTypography fontSize="0.75rem" color="#6c757d">
-    //             Data: {dateOnly(ev.eventDate)}
-    //           </CustomTypography>
-    //           <CustomTypography fontSize="0.75rem" color="#6c757d">
-    //             Godziny: {timeHM(ev.startTime)} - {timeHM(ev.endTime)}
-    //           </CustomTypography>
-    //           {ev.hall && (
-    //             <CustomTypography fontSize="0.75rem" color="#6c757d">
-    //               Hala: {ev.hall}
-    //             </CustomTypography>
-    //           )}
-    //           {ev.description && (
-    //             <CustomTypography fontSize="0.75rem" color="#6c757d">
-    //               Opis: {ev.description}
-    //             </CustomTypography>
-    //           )}
-    //           <CustomTypography fontSize="0.75rem" color="#6c757d">
-    //             Rodzaj: {ev.type}
-    //           </CustomTypography>
-    //         </Box>
-    //       </details>
-    //     ))}
-    //   </Box>
-    // </Box>
   );
 };
 

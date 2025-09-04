@@ -11,6 +11,7 @@ import { _AddedEvent } from '../../../types/types';
 import { useAuth } from '../../../contexts/AuthContext';
 import { deleteTradeEvent } from '../../../services/api';
 import EventTypeBadge from '../../eventTypeBadge/EventTypeBadge';
+import { textColorPicker } from '../../../helpers/function';
 
 
 
@@ -53,19 +54,7 @@ function getColorForEvent(eventId: string): string {
 
 
 
-  // Funkcja mapująca circleColor na circleTextColor
-  const textColorPicker = (circleColor: string): string => {
-    switch (circleColor.toLowerCase()) {
-      case '#6f87f6':
-        return '#FFFFFF'; // biały tekst na #6F87F6
-      case '#89f4c9':
-        return '#2E2E38'; // ciemny tekst na #89F4C9
-      case '#fc8a06':
-        return '#FFFFFF'; // biały tekst na #FC8A06
-      default:
-        return '#000000'; // domyślny kolor tekstu (czarny)
-    }
-  };
+  
 
 
   return (
