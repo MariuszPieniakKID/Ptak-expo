@@ -238,19 +238,41 @@ const TradeInfo: React.FC<TradeInfoProps> = ({ exhibitionId }) => {
   /* eslint-enable react-hooks/exhaustive-deps */
 
   // Auto-save when both hall name and file are provided
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (!hasLoadedRef.current) return;
     if (!token) return;
-    if (newHallName.trim() && newHallFile) {
-      // Small delay to prevent multiple rapid calls
-      const timer = setTimeout(() => {
-        handleAddHall();
-      }, 300);
-      return () => clearTimeout(timer);
-    }
-    return undefined; // Ensure all code paths return a value
-  }, [newHallName, newHallFile, token]);
+    const trimmed = newHallName.trim();
+    if (!trimmed || !newHallFile) return;
+
+    const tempId = Date.now().toString();
+    const tempEntry: HallEntry = {
+      id: tempId,
+      hallName: trimmed,
+      file: newHallFile,
+      filePath: null,
+      originalFilename: null,
+    };
+
+    const nextEntries = [...hallEntries, tempEntry];
+    const timer = window.setTimeout(async () => {
+      setHallEntries(nextEntries);
+      try {
+        await handleSave(nextEntries);
+        setSuccessMessage('Hala została dodana i zapisana.');
+      } catch (e: any) {
+        setError(e?.message || 'Błąd podczas zapisu hali');
+        setHallEntries(prev => prev.filter(h => h.id !== tempId));
+      } finally {
+        setNewHallName('');
+        setNewHallFile(null);
+        window.setTimeout(() => setSuccessMessage(''), 3000);
+      }
+    }, 300);
+
+    return () => {
+      window.clearTimeout(timer);
+    };
+  }, [newHallName, newHallFile, token, hallEntries]);
 
   const handleSave = async (entriesOverride?: HallEntry[]) => {
     if (!token) {
@@ -742,7 +764,10 @@ const TradeInfo: React.FC<TradeInfoProps> = ({ exhibitionId }) => {
                   ?<Box className={styles.actionRow_}> 
                       <Box onClick={async () => {
                         try {
-                          const blob = await downloadTradePlan(exhibitionId, hall.id, token!);
+                          // position-based spaceId (1-based)
+                          const index = hallEntries.findIndex(h => h.id === hall.id);
+                          const spaceId = (index + 1).toString();
+                          const blob = await downloadTradePlan(exhibitionId, spaceId, token!);
                           const url = window.URL.createObjectURL(blob);
                           const a = document.createElement('a');
                           a.href = url;
