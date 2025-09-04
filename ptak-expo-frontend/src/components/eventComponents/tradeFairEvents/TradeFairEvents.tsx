@@ -12,7 +12,6 @@ import { Exhibition, getTradeEvents, TradeEvent } from '../../../services/api';
 import TradeFairEventsContent from './tradeFairEventsContent/TradeFairEventsContent';
 import AccompanyingEvents from './accompanyingEvents/AccompanyingEvents';
 import { useAuth } from '../../../contexts/AuthContext';
-import { tradeEventsMock } from '../../../helpers/mockData';
 
 
 // removed local default newEvent; form handled in child content
@@ -30,7 +29,7 @@ function TradeFairEvents({
 }: TradeFairEventsProps) {
 
   const { token } = useAuth();
-  const [expandedAccordions, setExpandedAccordions] = useState<boolean[]>([false, false]);
+  const [expandedAccordions, setExpandedAccordions] = useState<boolean[]>([true, true]);
   const [expandedOne, setExpandedOne] = useState<number | false>(false);
   const [tradeEvents, setTradeEvents] = useState<TradeEvent[]>([]);
   // child manages its own form state for official events
@@ -38,15 +37,18 @@ function TradeFairEvents({
   const loadTradeEvents = useCallback(async () => {
     if (!token) return;
     try {
-      await getTradeEvents(event.id, token);
-      // setTradeEvents(res.data || []);
-      setTradeEvents(tradeEventsMock); //TYLKO DO TESTÓW 
+      console.log('[TradeFairEvents] fetching events for exhibition', event.id);
+      const res = await getTradeEvents(event.id, token);
+      console.log('[TradeFairEvents] fetched events count', res.data.length, res.data);
+      setTradeEvents(res.data || []);
     } catch (_e: any) {
+      console.error('[TradeFairEvents] fetch error', _e);
       // ignore for now; child content handles errors in its own flow
     }
   }, [event.id, token]);
 
   useEffect(() => {
+    console.log('[TradeFairEvents] useEffect loadTradeEvents');
     loadTradeEvents();
   }, [loadTradeEvents]);
 
@@ -79,6 +81,7 @@ function TradeFairEvents({
       container: (
         <TradeFairEventsContent
           event={event}
+          onEventsChanged={loadTradeEvents}
         />
       ),
     },

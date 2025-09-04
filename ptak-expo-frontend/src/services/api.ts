@@ -883,19 +883,32 @@ export interface TradeEvent {
   link?:string; 
 }
 
+// normalize helpers to keep consistent date/time formats
+const toDateOnly = (value?: string): string => {
+  if (!value) return '';
+  // expect formats like YYYY-MM-DD or YYYY-MM-DDTHH:mm:ssZ
+  return value.length >= 10 ? value.slice(0, 10) : value;
+};
+
+const toTimeHM = (value?: string): string => {
+  if (!value) return '';
+  // accept HH:mm or HH:mm:ss
+  return value.length >= 5 ? value.slice(0, 5) : value;
+};
+
 const mapTradeEventRow = (row: any): TradeEvent => ({
   id: row.id,
   exhibition_id: row.exhibition_id,
   exhibitor_id: row.exhibitor_id,
   name: row.name,
-  eventDate: row.event_date ?? row.eventDate,
-  startTime: row.start_time ?? row.startTime,
-  endTime: row.end_time ?? row.endTime,
+  eventDate: toDateOnly(row.event_date ?? row.eventDate),
+  startTime: toTimeHM(row.start_time ?? row.startTime),
+  endTime: toTimeHM(row.end_time ?? row.endTime),
   hall: row.hall ?? undefined,
   description: row.description ?? undefined,
   type: row.type,
   organizer: row.organizer ?? undefined,
-  link:row.link?? undefined,
+  link: row.link ?? undefined,
 });
 
 export const getTradeEvents = async (
@@ -905,15 +918,19 @@ export const getTradeEvents = async (
 ): Promise<{ success: boolean; data: TradeEvent[] }> => {
   const query = exhibitorId ? `?exhibitorId=${encodeURIComponent(String(exhibitorId))}` : '';
   const url = `${config.API_BASE_URL}/api/v1/trade-events/${exhibitionId}${query}`;
+  if (config.DEBUG) console.log('[api] GET trade-events url:', url);
   const response = await apiCall(url, {
     method: 'GET',
     headers: { 'Authorization': `Bearer ${token}` },
   });
   const data = await response.json();
+  if (config.DEBUG) console.log('[api] GET trade-events raw:', data);
   if (!response.ok) {
     throw new Error(data.message || 'Błąd podczas pobierania wydarzeń targowych');
   }
-  return { success: true, data: Array.isArray(data.data) ? data.data.map(mapTradeEventRow) : [] };
+  const list = Array.isArray(data.data) ? data.data.map(mapTradeEventRow) : [];
+  if (config.DEBUG) console.log('[api] GET trade-events mapped:', list);
+  return { success: true, data: list };
 };
 
 export const createTradeEvent = async (
@@ -922,6 +939,7 @@ export const createTradeEvent = async (
   token: string
 ): Promise<{ success: boolean; data: TradeEvent }> => {
   const url = `${config.API_BASE_URL}/api/v1/trade-events/${exhibitionId}`;
+  if (config.DEBUG) console.log('[api] POST trade-event payload:', event);
   const response = await apiCall(url, {
     method: 'POST',
     headers: {
@@ -931,6 +949,7 @@ export const createTradeEvent = async (
     body: JSON.stringify(event),
   });
   const data = await response.json();
+  if (config.DEBUG) console.log('[api] POST trade-event response:', data);
   if (!response.ok) {
     throw new Error(data.message || 'Błąd podczas zapisywania wydarzenia targowego');
   }
@@ -944,6 +963,7 @@ export const updateTradeEvent = async (
   token: string
 ): Promise<{ success: boolean; data: TradeEvent }> => {
   const url = `${config.API_BASE_URL}/api/v1/trade-events/${exhibitionId}/${eventId}`;
+  if (config.DEBUG) console.log('[api] PUT trade-event payload:', { eventId, event });
   const response = await apiCall(url, {
     method: 'PUT',
     headers: {
@@ -953,6 +973,7 @@ export const updateTradeEvent = async (
     body: JSON.stringify(event),
   });
   const data = await response.json();
+  if (config.DEBUG) console.log('[api] PUT trade-event response:', data);
   if (!response.ok) {
     throw new Error(data.message || 'Błąd podczas aktualizacji wydarzenia targowego');
   }
@@ -964,13 +985,16 @@ export const deleteTradeEvent = async (
   eventId: number,
   token: string
 ): Promise<{ success: boolean; message: string }> => {
-  const response = await apiCall(`${config.API_BASE_URL}/api/v1/trade-events/${exhibitionId}/${eventId}` , {
+  const url = `${config.API_BASE_URL}/api/v1/trade-events/${exhibitionId}/${eventId}`;
+  if (config.DEBUG) console.log('[api] DELETE trade-event url:', url);
+  const response = await apiCall(url , {
     method: 'DELETE',
     headers: {
       'Authorization': `Bearer ${token}`,
     },
   });
   const data = await response.json();
+  if (config.DEBUG) console.log('[api] DELETE trade-event response:', data);
   if (!response.ok) {
     throw new Error(data.message || 'Błąd podczas usuwania wydarzenia targowego');
   }

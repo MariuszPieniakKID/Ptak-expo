@@ -1,3 +1,5 @@
+@import '../../../../styles/variables';
+
 .container {
   width: 100%;
 }
@@ -35,7 +37,7 @@
 }
 .time {
   font-weight: 300 !important;
-  color: #a7a7a7 !important;
+  color: $color-orange !important;
   min-width: 80px;
   margin: auto 0 !important;
   display: flex;
@@ -47,7 +49,7 @@
 }
 .hall {
   font-weight: 300 !important;
-  color: #a7a7a7 !important;
+  color: $color-orange !important;
   min-width: 80px;
   margin: auto auto !important;
   border-left: 1px solid #a7a7a7;
@@ -73,7 +75,7 @@
 }
 .title {
   font-weight: 600 !important;
-  color: white !important;
+  color: $color-orange !important;
   margin: auto 0 !important;
   padding-left: 1rem;
   @media (max-width: 599px) {
@@ -113,7 +115,7 @@
 }
 .description {
   font-weight: 300 !important;
-  color: white !important;
+  color: $color-orange !important;
   width: calc(100% - 70px);
  padding-bottom: 0.5rem;
   @media (max-width: 599px) {
@@ -151,7 +153,7 @@
 
 .more {
   font-weight: 300 !important;
-  color: white !important;
+  color: $color-orange !important;
   text-decoration: underline;
 }
 

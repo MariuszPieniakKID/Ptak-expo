@@ -1,7 +1,7 @@
 
 import { Box } from '@mui/material';
 import { Exhibition } from '../../../../services/api';
-import { getShortListColorForEvent, textColorPicker } from '../../../../helpers/function';
+import { getShortListColorForEvent } from '../../../../helpers/function';
 
 
 import styles from './CircleDate.module.scss';
@@ -35,9 +35,10 @@ return (
             <Box
             className={styles.coloredCircle}
             style={{
-                '--circle-border-color':ccolor_,
-                '--circle-color':isActive? ccolor_:'transpatrent',
-                '--circle-text-color': textColorPicker(ccolor_?ccolor_:getShortListColorForEvent(dayId)),
+                '--circle-border-color': ccolor_,
+                '--circle-color': isActive ? ccolor_ : 'transparent',
+                // enforce light text for all dates on dark background
+                '--circle-text-color': '#FFFFFF',
             } as React.CSSProperties}
             >
             {eventDateObj.getDate()}<br />

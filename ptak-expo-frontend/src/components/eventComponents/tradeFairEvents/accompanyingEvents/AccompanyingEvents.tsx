@@ -19,6 +19,7 @@ const AccompanyingEvents: React.FC<AccompanyingEventsProps> = ({
   const [value, setValue] = React.useState(0);
     
   const handleChange = (_event: React.SyntheticEvent, newValue: number) => {
+    console.log('[AccompanyingEvents] tab change', { from: value, to: newValue });
     setValue(newValue);
   };
 

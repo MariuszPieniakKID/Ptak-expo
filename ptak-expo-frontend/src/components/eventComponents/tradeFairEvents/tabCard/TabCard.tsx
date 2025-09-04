@@ -41,19 +41,32 @@ function TabCard({
     );
   }
     const days = getDaysBetweenDates(event.start_date, event.end_date);
+    console.log('[TabCard] days', days);
   
  return (
   <Box className={styles.container}>
-  {days.map((date, index) => (
-    <CustomTabPanel 
-    key={index}
-    value={value} 
-    index={index}
-    >
-      <Box className={styles.tabPaperContainer}>
-        {tradeEvents
-        .filter(ev => ev.eventDate === date)
-        .map(ev => (
+  {days.map((date, index) => {
+    const filteredEvents = tradeEvents.filter(ev => {
+      const match = ev.eventDate === date;
+      if (!match && index === 0) {
+        console.debug('[TabCard] filter mismatch', { evDate: ev.eventDate, tabDate: date, ev });
+      }
+      return match;
+    });
+    const sortedEvents = [...filteredEvents].sort((a, b) =>
+      (a.startTime || '').localeCompare(b.startTime || '') ||
+      (a.endTime || '').localeCompare(b.endTime || '') ||
+      (a.name || '').localeCompare(b.name || '')
+    );
+    console.log('[TabCard] rendering day', date, 'events total', tradeEvents.length, 'filtered', filteredEvents.length, 'sorted', sortedEvents.length);
+    return (
+      <CustomTabPanel 
+        key={index}
+        value={value} 
+        index={index}
+      >
+        <Box className={styles.tabPaperContainer}>
+          {sortedEvents.map(ev => (
             <SingleLine
               key={ev.id}
               time={`${ev.startTime} - ${ev.endTime}`}
@@ -62,11 +75,11 @@ function TabCard({
               shortDescription={ev.description || ''}
               link={ev.link || ''}
             />
-          ))
-        }
-      </Box>            
-    </CustomTabPanel>
-  ))}
+          ))}
+        </Box>
+      </CustomTabPanel>
+    );
+  })}
 
   </Box>
  );
