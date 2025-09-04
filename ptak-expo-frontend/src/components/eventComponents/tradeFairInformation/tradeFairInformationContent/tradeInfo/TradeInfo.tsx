@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Box,  Divider, Alert, CircularProgress } from '@mui/material';
 import styles from './TradeInfo.module.scss';
 import { useAuth } from '../../../../../contexts/AuthContext';
@@ -273,9 +273,9 @@ const TradeInfo: React.FC<TradeInfoProps> = ({ exhibitionId }) => {
     return () => {
       window.clearTimeout(timer);
     };
-  }, [newHallName, newHallFile, token, hallEntries]);
+  }, [newHallName, newHallFile, token, hallEntries, handleSave]);
 
-  const handleSave = async (entriesOverride?: HallEntry[]) => {
+  const handleSave = useCallback(async (entriesOverride?: HallEntry[]) => {
     if (!token) {
       setError('Brak autoryzacji');
       return;
@@ -350,7 +350,7 @@ const TradeInfo: React.FC<TradeInfoProps> = ({ exhibitionId }) => {
     } finally {
       setSaving(false);
     }
-  };
+  }, [token, tradeHours, contactInfo, buildDays, buildType, tradeSpaces, tradeMessage, exhibitionId, hallEntries]);
 
   const handleAddConstructionEvent = async () => {
     console.log('[TradeInfo] Add click', {
