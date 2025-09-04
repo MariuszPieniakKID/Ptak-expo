@@ -300,24 +300,38 @@ const TradeInfo: React.FC<TradeInfoProps> = ({ exhibitionId }) => {
   };
 
   const handleAddConstructionEvent = async () => {
+    console.log('[TradeInfo] Add click', {
+      exhibitionId,
+      constructionType,
+      constructionDate,
+      constructionStartTime,
+      constructionEndTime,
+      hasToken: !!token,
+      exhibitionRange,
+    });
     if (!token) {
+      console.warn('[TradeInfo] Blocked: no token');
       setError('Brak autoryzacji');
       return;
     }
     if (!constructionType || !constructionDate) {
+      console.warn('[TradeInfo] Blocked: missing type or date', { constructionType, constructionDate });
       setError('Ustaw typ i datę wydarzenia zabudowy');
       return;
     }
     if (!/^\d{2}:\d{2}$/.test(constructionStartTime) || !/^\d{2}:\d{2}$/.test(constructionEndTime)) {
+      console.warn('[TradeInfo] Blocked: invalid time format', { constructionStartTime, constructionEndTime });
       setError('Podaj poprawne godziny w formacie HH:mm');
       return;
     }
     if (constructionEndTime <= constructionStartTime) {
+      console.warn('[TradeInfo] Blocked: end <= start', { constructionStartTime, constructionEndTime });
       setError('Godzina zakończenia musi być po godzinie rozpoczęcia');
       return;
     }
     if (exhibitionRange) {
       if (constructionDate < exhibitionRange.start || constructionDate > exhibitionRange.end) {
+        console.warn('[TradeInfo] Blocked: date out of exhibitionRange', { constructionDate, range: exhibitionRange });
         setError(`Data wydarzenia musi mieścić się w zakresie dat targów (${exhibitionRange.start} – ${exhibitionRange.end})`);
         return;
       }
