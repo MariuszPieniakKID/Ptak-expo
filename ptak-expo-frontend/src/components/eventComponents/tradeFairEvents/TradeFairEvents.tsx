@@ -39,8 +39,7 @@ function TradeFairEvents({
     if (!token) return;
     try {
       const res = await getTradeEvents(event.id, token);
-     // setTradeEvents(res.data || []);
-     {console.log(`Res: ${res.data}`)}
+      // setTradeEvents(res.data || []);
       setTradeEvents(tradeEventsMock); //TYLKO DO TESTÓW 
     } catch (_e: any) {
       // ignore for now; child content handles errors in its own flow
