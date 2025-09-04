@@ -1,0 +1,79 @@
+import { Box } from '@mui/material';
+import styles from './SingleLine.module.scss';
+import CustomTypography from '../../../customTypography/CustomTypography';
+import { useState } from 'react';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import ArrowOutwardIcon from '@mui/icons-material/ArrowOutward';
+//import { TradeEvent } from '../../../../services/api';
+
+type SingleLineProps = {
+  time?: string;
+  hall?: string;
+  title?: string;
+  shortDescription?: string;
+  link?: string;
+  //tradeEvents:TradeEvent[];
+};
+
+function SingleLine({
+  time = '9:00-17:00',
+  hall = 'Hala A',
+  title = 'Arch day',
+  shortDescription = "Wymagany dodatkowy sprzęt",
+  link = " ",
+}: SingleLineProps) {
+  const [isOpen, setIsOpen] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleClick = () => setIsOpen((prev) => !prev);
+
+  const handleGoToLink = () => {
+    if (link && link.trim() !== '') {
+      // Otwieranie linku -- odkomentuj jeśli chcesz aktywować
+      // const url = link.startsWith('http') ? link : `https://${link}`;
+      // window.open(url, '_blank', 'noopener,noreferrer');
+    } else {
+      setError('Problem z linkiem');
+    }
+  };
+
+  return (
+    <Box className={styles.container}>
+      <Box className={`${styles.singleLine} ${isOpen ? styles.open : ''}`}>
+        <Box className={styles.inline}>
+          <CustomTypography className={styles.time}>{time}</CustomTypography>
+          <CustomTypography className={styles.hall}>{hall}</CustomTypography>
+        </Box>
+        <Box className={styles.titleWithButton}>
+          <CustomTypography className={styles.title}>{title}</CustomTypography>
+          <Box 
+            className={styles.boxIcon} 
+            onClick={handleClick}>
+            {isOpen 
+              ? (<ExpandMoreIcon className={styles.expandIcon} />) 
+              : (<ExpandMoreIcon className={`${styles.expandIcon} ${styles.rotateIcon}`} />)}
+          </Box>
+        </Box>
+      </Box>
+      {isOpen && (
+        <>
+          <Box className={`${styles.shortInfo} ${error !== '' ? styles.noBorder : ''}`}>
+            <CustomTypography className={styles.description}>{shortDescription}</CustomTypography>
+            {(link !== '' && error === '') &&
+              <Box 
+                className={styles.boxWithAction}
+                onClick={handleGoToLink}
+              >
+                <CustomTypography className={styles.more}>więcej</CustomTypography>
+                <ArrowOutwardIcon className={styles.arrowIcon} sx={{ color: 'white' }}/>
+              </Box>
+            }
+          </Box>
+          {error !== '' && <Box className={styles.shortInfoError}>Ups... {error}</Box>}
+        </>
+      )}
+    </Box>
+  );
+}
+
+export default SingleLine;

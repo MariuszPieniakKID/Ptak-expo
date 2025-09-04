@@ -81,18 +81,15 @@ const TradeFairEventsContent: React.FC<TradeFairEventsContentProps> = ({ event }
 
   const handleSaveTradeEvent = async () => {
     if (!token) return;
-    // Require name and date; ensure times are set (backend requires them)
     if (!newEvent.name || !newEvent.eventDate) {
       setTradeEventsError('Podaj co najmniej nazwę i datę wydarzenia');
       return;
     }
-    // Fill default times if missing
     const payload: TradeEvent = {
       ...newEvent,
       startTime: newEvent.startTime || '09:00',
       endTime: newEvent.endTime || '17:00',
     };
-    // Rely on backend to validate date range to avoid false negatives on the client
     try {
       if (editingEventId) {
         await updateTradeEvent(event.id, editingEventId, payload, token);
@@ -124,8 +121,7 @@ const TradeFairEventsContent: React.FC<TradeFairEventsContentProps> = ({ event }
       id: ev.id,
     } as TradeEvent);
     setEditingEventId(ev.id!);
-    // Smooth scroll to the form at the top
-    const headerOffset = 80; // adjust if fixed header height differs
+    const headerOffset = 80;
     if (formTopRef.current) {
       const y = formTopRef.current.getBoundingClientRect().top + window.scrollY - headerOffset;
       window.scrollTo({ top: y, behavior: 'smooth' });
@@ -144,7 +140,6 @@ const TradeFairEventsContent: React.FC<TradeFairEventsContentProps> = ({ event }
       const refreshed = await getTradeEvents(event.id, token);
       setTradeEvents(refreshed.data || []);
       setTradeEventsError('');
-      // If we were editing the deleted event, reset form
       if (editingEventId === eventId) {
         handleCancelEdit();
       }
@@ -314,123 +309,6 @@ const TradeFairEventsContent: React.FC<TradeFairEventsContentProps> = ({ event }
         ))}
       </Box>
     </Box>
-
-
-
-    // <Box className={styles.tabContent}>
-    //   <CustomTypography fontSize="1.25rem" fontWeight={600}>
-    //     Wydarzenia targowe
-    //   </CustomTypography>
-    //   <Box className={styles.tradeEventsSection}>
-    //     {tradeEventsError && (
-    //       <Alert severity="error" sx={{ mb: 2 }}>{tradeEventsError}</Alert>
-    //     )}
-    //     <Box className={styles.eventCard}>
-    //       <CustomTypography fontSize="0.875rem" fontWeight={500}>
-    //         Dodaj wydarzenie
-    //       </CustomTypography>
-    //       <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 2 }}>
-    //         <CustomField
-    //           type="text"
-    //           value={newEvent.name}
-    //           onChange={handleNewEventChange('name')}
-    //           placeholder="Nazwa wydarzenia"
-    //           fullWidth
-    //         />
-    //         <CustomField
-    //           type="date"
-    //           value={newEvent.eventDate}
-    //           onChange={handleNewEventChange('eventDate')}
-    //           placeholder="Data"
-    //           fullWidth
-    //         />
-    //         <CustomField
-    //           type="time"
-    //           value={newEvent.startTime}
-    //           onChange={handleNewEventChange('startTime')}
-    //           placeholder="Godzina początku"
-    //           fullWidth
-    //         />
-    //         <CustomField
-    //           type="time"
-    //           value={newEvent.endTime}
-    //           onChange={handleNewEventChange('endTime')}
-    //           placeholder="Godzina końca"
-    //           fullWidth
-    //         />
-    //         <CustomField
-    //           type="text"
-    //           value={newEvent.hall || ''}
-    //           onChange={handleNewEventChange('hall')}
-    //           placeholder="Hala"
-    //           fullWidth
-    //         />
-    //         <CustomField
-    //           type="text"
-    //           value={newEvent.type}
-    //           onChange={handleNewEventChange('type')}
-    //           placeholder="Rodzaj"
-    //           options={typeOptions}
-    //           forceSelectionFromOptions
-    //           fullWidth
-    //         />
-    //         <CustomField
-    //           type="text"
-    //           value={newEvent.description || ''}
-    //           onChange={handleNewEventChange('description')}
-    //           placeholder="Opis"
-    //           fullWidth
-    //         />
-    //       </Box>
-    //       <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
-    //         <CustomButton
-    //           bgColor="#6F87F6"
-    //           textColor="#fff"
-    //           width="120px"
-    //           height="40px"
-    //           fontSize="0.875rem"
-    //           onClick={handleSaveTradeEvent}
-    //         >
-    //           Zapisz
-    //         </CustomButton>
-    //       </Box>
-    //     </Box>
-
-    //     {tradeEvents.map((ev) => (
-    //       <details key={ev.id} className={styles.eventCard}>
-    //         <summary>
-    //           <CustomTypography fontSize="0.875rem" fontWeight={500}>
-    //             {dateOnly(ev.eventDate)} • {timeHM(ev.startTime)} - {timeHM(ev.endTime)} {ev.hall ? `• Hala: ${ev.hall}` : ''} — {ev.name}
-    //           </CustomTypography>
-    //         </summary>
-    //         <Box sx={{ mt: 1 }}>
-    //           <CustomTypography fontSize="0.75rem" color="#6c757d">
-    //             Nazwa: {ev.name}
-    //           </CustomTypography>
-    //           <CustomTypography fontSize="0.75rem" color="#6c757d">
-    //             Data: {dateOnly(ev.eventDate)}
-    //           </CustomTypography>
-    //           <CustomTypography fontSize="0.75rem" color="#6c757d">
-    //             Godziny: {timeHM(ev.startTime)} - {timeHM(ev.endTime)}
-    //           </CustomTypography>
-    //           {ev.hall && (
-    //             <CustomTypography fontSize="0.75rem" color="#6c757d">
-    //               Hala: {ev.hall}
-    //             </CustomTypography>
-    //           )}
-    //           {ev.description && (
-    //             <CustomTypography fontSize="0.75rem" color="#6c757d">
-    //               Opis: {ev.description}
-    //             </CustomTypography>
-    //           )}
-    //           <CustomTypography fontSize="0.75rem" color="#6c757d">
-    //             Rodzaj: {ev.type}
-    //           </CustomTypography>
-    //         </Box>
-    //       </details>
-    //     ))}
-    //   </Box>
-    // </Box>
   );
 };
 

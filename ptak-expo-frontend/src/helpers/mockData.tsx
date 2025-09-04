@@ -1,5 +1,6 @@
 import { OptionType } from "../components/customField/CustomField";
 import { InvitationStatus } from "../components/exhibitorInvitations/statusOfSentInvitations/StatusOfSentInvitations";
+import { TradeEvent } from "../services/api";
 import { _AddedEvent, _TradeAwardsFair } from "../types/types";
 
 export const mockInvitations: {
@@ -252,7 +253,7 @@ export const fieldOptions: OptionType[] = [
 export const buildDaysOption: OptionType[] = [
   { value: 'indywidualny', label: 'Montaż indywidualny' },
   { value: 'systemowy', label: 'Montaż systemowy' },
-  { value: 'ptak_expo', label: 'Zabudowa targowa Ptak Expo' },
+  { value: 'ptak_warsaw_expo', label: 'Zabudowa Targowa Ptak Warsaw Expo' },
 ];
 
 export const invitationOptions:OptionType[]=[
@@ -268,4 +269,92 @@ export const specialOffersOptions:OptionType[]=[
   { value: 'welcomPack', label: '🎁 Welcome Pack z upominkiem' },
   { value: 'accessToConferencesAndWorkshops', label: '🎤 Dostęp do konferencji i warsztatów' },
   { value: 'FreeparkingAndConciergrService', label: ` 🤝 Darmowy parking i opiekę concierge`},
+];
+
+
+export const tradeEventsMock: TradeEvent[] = [
+  {
+    id: 1,
+    exhibition_id: 101,
+    exhibitor_id: 201,
+    name: 'Ceremonia Otwarcia',
+    eventDate: '2025-06-02',
+    startTime: '09:00',
+    endTime: '10:30',
+    hall: 'Hala A',
+    description: 'Uroczyste otwarcie targów',
+    type: 'Ceremonia otwarcia',
+    organizer: 'Organizator 1',
+    link: 'https://example.com/event1',
+  },
+  {
+    id: 2,
+    exhibition_id: 101,
+    exhibitor_id: 202,
+    name: 'Główna Konferencja',
+    eventDate: '2025-06-03',
+    startTime: '11:00',
+    endTime: '13:00',
+    hall: 'Hala B',
+    description: 'Prezentacje i wykłady branżowe',
+    type: 'Konferencja',
+    organizer: 'Organizator 2',
+    link: 'https://example.com/event2',
+  },
+  {
+    id: 3,
+    exhibition_id: 101,
+    exhibitor_id: 203,
+    name: 'Panel Dyskusyjny',
+    eventDate: '2025-06-04',
+    startTime: '14:00',
+    endTime: '15:30',
+    hall: 'Hala C',
+    description: 'Dyskusje panelowe z ekspertami',
+    type: 'Panel dyskusyjny',
+    organizer: 'Organizator 3',
+    link: 'https://example.com/event3',
+  },
+    {
+    id: 4,
+    exhibition_id: 101,
+    exhibitor_id: 203,
+    name: 'Panel Dyskusyjny',
+    eventDate: '2025-06-04',
+    startTime: '14:00',
+    endTime: '15:30',
+    hall: 'Hala C',
+    description: 'Dyskusje panelowe z ekspertami',
+    type: 'Panel dyskusyjny',
+    organizer: 'Organizator 3',
+    link: 'https://example.com/event3',
+  },
+    {
+    id: 5,
+    exhibition_id: 101,
+    exhibitor_id: 203,
+    name: 'Panel Dyskusyjny',
+    eventDate: '2025-06-04',
+    startTime: '14:00',
+    endTime: '15:30',
+    hall: 'Hala C',
+    description: 'Dyskusje panelowe z ekspertami',
+    type: 'Panel dyskusyjny',
+    organizer: 'Organizator 3',
+    link: 'https://example.com/event3',
+  },
+    {
+    id: 6,
+    exhibition_id: 101,
+    exhibitor_id: 203,
+    name: 'Panel Dyskusyjny',
+    eventDate: '2025-06-04',
+    startTime: '14:00',
+    endTime: '15:30',
+    hall: 'Hala C',
+    description: 'Dyskusje panelowe z ekspertami',
+    type: 'Panel dyskusyjny',
+    organizer: 'Organizator 3',
+    link: '',
+  },
 ];

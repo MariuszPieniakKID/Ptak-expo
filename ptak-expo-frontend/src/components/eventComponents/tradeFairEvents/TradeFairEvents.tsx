@@ -5,14 +5,26 @@ import Typography from '@mui/material/Typography';
 import {ReactComponent as DocumentIcon} from'../../../assets/documentIconBlue.svg';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { Box } from '@mui/material';
-import { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import styles from './TradeFairEvents.module.scss';
 
-import { Exhibition } from '../../../services/api';
+import { createTradeEvent, Exhibition, getTradeEvents, TradeEvent } from '../../../services/api';
 import TradeFairEventsContent from './tradeFairEventsContent/TradeFairEventsContent';
+import AccompanyingEvents from './accompanyingEvents/AccompanyingEvents';
+import { useAuth } from '../../../contexts/AuthContext';
+import { tradeEventsMock } from '../../../helpers/mockData';
 
 
-
+const defaultNewEvent: TradeEvent = {
+  name: '',
+  eventDate: '',
+  startTime: '',
+  endTime: '',
+  hall: '',
+  description: '',
+  type: 'Ceremonia otwarcia',
+  link: 'www.google.pl',
+};
 
 type TradeFairEventsProps = {
   allowMultiple?: boolean; 
@@ -25,16 +37,57 @@ function TradeFairEvents({
   alwaysExpanded = false,
   event,
 }: TradeFairEventsProps) {
-    
- const items =[
-    {
-      icon: <DocumentIcon fontSize="small" />,
-      title: 'Oficjalne wydarzenia targowe',
-      container: <TradeFairEventsContent event={event}/>,
-    }]
 
-  const [expandedAccordions, setExpandedAccordions] = useState<boolean[]>(Array(items.length).fill(false));
+  const { token } = useAuth();
+  const [expandedAccordions, setExpandedAccordions] = useState<boolean[]>([false, false]);
   const [expandedOne, setExpandedOne] = useState<number | false>(false);
+  const [tradeEvents, setTradeEvents] = useState<TradeEvent[]>([]);
+  const [tradeEventsError, setTradeEventsError] = useState<string>('');
+  const [newEvent, setNewEvent] = useState<TradeEvent>(defaultNewEvent);
+
+  const loadTradeEvents = useCallback(async () => {
+    if (!token) return;
+    try {
+      const res = await getTradeEvents(event.id, token);
+     // setTradeEvents(res.data || []);
+     {console.log(`Res: ${res.data}`)}
+      setTradeEvents(tradeEventsMock); //TYLKO DO TESTÓW 
+      setTradeEventsError('');
+    } catch (e: any) {
+      setTradeEventsError(e.message || 'Błąd podczas ładowania wydarzeń targowych');
+    }
+  }, [event.id, token]);
+
+  useEffect(() => {
+    loadTradeEvents();
+  }, [loadTradeEvents]);
+
+  const handleNewEventChange = (field: keyof TradeEvent) => (e: React.ChangeEvent<HTMLInputElement>) => {
+    setNewEvent(prev => ({ ...prev, [field]: e.target.value }));
+  };
+
+  const handleSaveTradeEvent = async () => {
+    if (!token) return;
+    if (!newEvent.name || !newEvent.eventDate || !newEvent.startTime || !newEvent.endTime || !newEvent.type) return;
+    const d = new Date(newEvent.eventDate);
+    const s = new Date(event.start_date);
+    const e = new Date(event.end_date);
+    const onlyDate = (dt: Date) => new Date(dt.getFullYear(), dt.getMonth(), dt.getDate()).getTime();
+    if (onlyDate(d) < onlyDate(s) || onlyDate(d) > onlyDate(e)) {
+      alert('Data wydarzenia musi mieścić się w zakresie dat targów');
+      return;
+    }
+    try {
+      await createTradeEvent(event.id, newEvent, token);
+      await loadTradeEvents();
+      setNewEvent(defaultNewEvent);
+      setTradeEventsError('');
+    } catch (err: any) {
+      setTradeEventsError(err.message || 'Błąd podczas zapisywania wydarzenia targowego');
+    }
+  };
+  
+
 
   const handleChangeMultiple = (index: number) => (
     _event: React.SyntheticEvent,
@@ -51,10 +104,46 @@ function TradeFairEvents({
   ) => {
     setExpandedOne(isExpanded ? index : false);
   };
+  const items =[
+    {
+      id: 1,
+      icon: <DocumentIcon fontSize="small" />,
+      title: 'Oficjalne wydarzenia targowe',
+      container: (
+        <TradeFairEventsContent
+          event={event}
+          newEvent={newEvent}
+          //tradeEvents={tradeEvents}
+          tradeEventsError={tradeEventsError}
+          handleNewEventChange={handleNewEventChange}
+          handleSaveTradeEvent={handleSaveTradeEvent}
+        />
+      ),
+    },
+    {
+      id: 2,
+      icon: null,
+      title: <>Wszystkie wydarzenia towarzyszące ({tradeEvents.length})</>,
+      container: (
+        <AccompanyingEvents 
+        event={event} 
+        tradeEvents={tradeEvents} 
+        />
+      ),
+      style: {
+        backgroundColor: '#2b2b2d',
+        boxShadow: '0px -34px 24px #2E2E380D',
+        border: '1px solid #4D4C4F',
+        titleColor: '#EEEFF1',
+      },
+      showBadge: false
+    }
+  ];
 
   return (
     <Box className={styles.container}>
       {items.map((item, idx) => {
+        
         // logika czy ten accordion ma być rozwinięty
         const isExpanded = alwaysExpanded
           ? true
@@ -71,24 +160,33 @@ function TradeFairEvents({
 
         const accordionBg = idx % 2 === 0 ? "#f5f5f5" : "#fff";
         const iconBg = idx % 2 === 0 ? "#fff" : "#f5f5f5";
+        const {
+          backgroundColor = accordionBg,
+          boxShadow = 'none',
+          border = 'none',
+          titleColor=''
+          
+          } = item.style || {}; 
 
         return (
+          
           <Accordion
-            key={item.title}
+            key={item.id}
             expanded={isExpanded}
             onChange={handleChange}
             disableGutters
             elevation={0}
             square
-            sx={{
+           sx={{
+              mb: idx !== items.length - 1 ? '2rem' : 0,
               padding: '0px 24px !important',
               '@media (max-width:440px)': {
                 padding: '0px 8px !important',
               },
               borderRadius: "20px",
-              backgroundColor: accordionBg,
-              boxShadow: "none",
-              border: "none",
+              backgroundColor,
+              boxShadow,
+              border,
               position: "relative",
               '&:before': {
                 display: 'none',
@@ -128,7 +226,7 @@ function TradeFairEvents({
               }}
             >
               <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                <Box
+                 {item.icon && <Box
                   sx={{
                     width: 40,
                     height: 40,
@@ -141,12 +239,13 @@ function TradeFairEvents({
                   }}
                 >
                   {item.icon}
-                </Box>
+                </Box>}
                 <Typography
                   sx={{
                     margin: "24px 0",
                     fontWeight: 600,
                     fontSize: '1rem',
+                    color:titleColor,
                     '@media (max-width:440px)': {
                       fontSize: '13px',
                     },
@@ -163,7 +262,9 @@ function TradeFairEvents({
                 borderRadius: "0 0 20px 20px",
                 pb: 2,
                 pt: 1.5,
+                marginBottom:'1.5rem',
               }}
+            
             >
               <Typography
                 sx={{

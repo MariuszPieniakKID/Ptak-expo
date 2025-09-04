@@ -107,3 +107,149 @@
   height: 16px;
   transition: all 0.2s ease;
 }
+
+// admin-panel styles
+.sectionTitle{
+  font-size: 14px !important;
+  color: #2E2E38;
+  font-weight: 600 !important;
+}
+.halfRowInD{
+  display:flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  width:48%;
+  @media (max-width:599px){
+    width:100%;
+  }
+  @media (max-width: 750px) {
+  width:100%;
+  }
+}
+.name{
+width:366px;
+
+  @media (max-width: 750px) {
+  width:100%;
+  }
+}
+.locationInfo{
+  display:flex;
+  flex-direction: row;
+  justify-content: space-between;
+  column-gap: 1rem;
+  row-gap: 1rem;
+  width:100%;
+  @media (min-width: 1099px) and (max-width: 1199px) {
+    flex-direction: column;
+  }
+
+  @media (max-width: 750px) {
+    flex-direction: column;
+  }
+}
+.timeInfo{
+  display:flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  flex-wrap: nowrap;
+  width:calc(100% - 100px);
+  width:366px;
+  column-gap: 8px;
+  @media (max-width:599px){
+    width:100%;
+    flex-wrap: wrap;
+  }
+
+}
+.date{
+ width:140px;
+   @media (max-width:599px){
+    width:100%;
+  }
+}
+.startTime{
+width:105px;
+  @media (max-width:599px){
+  min-width: 105px;
+  }
+}
+.endTime{
+width:105px;
+  @media (max-width:599px){
+  min-width: 105px;
+  }
+}
+.place{
+width:calc(100% - 366px);
+min-width:100px;
+
+  @media (min-width: 1099px) and (max-width: 1199px) {
+  width:366px;
+  }
+  @media (max-width: 750px) {
+  width:100%;
+  }
+}
+
+//Radio
+.eventType{
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  width: 100%;
+}
+.formControl{
+    position: relative;
+    //top:-20px;
+    //left: 3em;
+    display:flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    //width:calc(100% - 3em);
+    width:100%;
+}
+.formLabel{
+    padding-bottom: 1em;
+    color: #666A73 !important;
+    font-size: 13px !important;
+    font-weight: 300 !important;
+    margin-bottom: 1rem;
+}
+.radioGroup{
+    display:flex!important;
+    flex-direction: column !important;
+    justify-content: flex-start;
+    padding-left: 2rem;
+    @media (max-width: 599px) {
+    padding-left: 0.25rem;
+     }
+}
+.divider_ {
+  margin: 0.5rem 0;
+  border-color: #e0e0e0;
+  margin-top:-1.5rem;
+}
+.actionBox{
+  padding-top:1rem;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  gap:1rem;
+  @media (max-width: 599px) {
+   flex-direction: column;
+  }
+}
+.saveButton{
+  display:flex;
+  flex-direction: row-reverse;
+  flex-direction: flex-end;
+}
+.link{
+  width:calc(100% - 100px);
+  min-width: 200px;
+  @media (max-width: 599px) {
+   width: 100%;
+    min-width: none;
+  }
+}

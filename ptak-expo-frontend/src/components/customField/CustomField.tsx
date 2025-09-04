@@ -16,6 +16,7 @@ export type OptionType = {
 };
 
 type CustomFieldProps = {
+  inputProps?: React.InputHTMLAttributes<HTMLInputElement>; // Dodana opcja inputProps
   placeholder?: string;
   label?: string;
   size?: "small" | "medium";
@@ -66,6 +67,8 @@ const CustomField: FC<CustomFieldProps> = ({
   multiline = false,
   rows = 1,
   slots,
+  inputProps, // Odbieramy inputProps
+
 }) => {
   const [focused, setFocused] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -257,10 +260,13 @@ const CustomField: FC<CustomFieldProps> = ({
         onKeyDown={handleKeyDown}
         multiline={multiline}
         {...(multiline ? { rows } : {})}
+        inputProps={{
+          ...inputProps,  // tu przekazujemy inputProps z zewnątrz (min, max itd.)
+          autoComplete: 'off', // np. autoComplete ustawiamy lub nadpisujemy z inputProps
+          readOnly: forceSelectionFromOptions && hasOptions,
+        }}
         InputProps={{
           endAdornment: getEndAdornment(),
-          autoComplete: 'off',
-          readOnly: forceSelectionFromOptions && hasOptions,
           style: {
             color: isPlaceholderActive ? '#A7A7A7' : 'inherit',
           },

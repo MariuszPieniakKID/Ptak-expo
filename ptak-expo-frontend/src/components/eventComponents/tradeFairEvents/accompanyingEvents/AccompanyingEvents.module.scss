@@ -1,0 +1,127 @@
+
+@import '../../../../styles/variables';
+@import '../../../../styles/mixins';
+
+.container{
+display:flex;
+flex-direction: column;
+justify-content: space-between;
+border-top: 1px solid #4D4C4F;
+margin-top: -1em;
+}
+.title{
+    font-size: 13px!important;
+    color:#D7D9DD!important;
+    padding-top:1em!important;
+    font-weight: 500!important;
+    margin:auto 0!important;
+    min-width: 130px!important;
+    @media (max-width: 599px) {
+    width:100%;
+    min-width: none;
+    }
+}
+.selectBox{
+    width:calc(100% - 130px);
+     @media (max-width: 599px) {
+    width:100%;
+    min-width: none;
+    }
+}
+.inLine{
+    display:flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    column-gap: 0.25em;
+    width: 100%!important;
+    align-items: center;
+    column-gap: 1em;
+    padding: 0.5em 0px;
+
+}
+.infoLabel{
+    color:#A7A7A7!important;
+    font-size:11px!important;
+}
+.iconBell{
+width:11px!important;
+height: auto!important;
+display: block;
+}
+
+.iconBellWrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.iconGreenCircle {
+  position: absolute;
+  top: 0px; 
+  right: -8px; 
+  width: 18px; 
+  height: 18px;
+}
+.singleLineInList{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    column-gap: 0.25em;
+    border-bottom: 1px solid #4D4C4F;
+    padding:0.5em 0em;
+    width: 100%;
+
+    &:last-child {
+    border-bottom: none;
+  }
+}
+.inLineNrAndFullNamer{
+    display:flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    column-gap: 1em;
+    flex-wrap: nowrap;
+    width:200px;
+}
+  
+.listNumber{
+    color:#A7A7A7!important;
+    font-size: 13px!important;
+    font-weight: 300 !important;
+    //min-width: 20px !important;
+}
+.fullName{
+    color:#FFFFFF!important;
+    font-size: 13px!important;
+    width:200px !important;
+    font-weight: 500!important;
+}
+.email{
+    display:none;
+
+    @include for-big-desktop-up {
+    color:#FFFFFF!important;
+    font-size: 13px!important;
+    min-width: 200px !important;
+    font-weight: 500!important;
+    display: block;
+    width:30%;
+  }
+
+}
+.status{
+    display:flex;
+    flex-direction: row;
+    justify-content: space-between;
+    flex-wrap: nowrap;
+    column-gap: 1em;
+    width:150px;
+}
+.selectDate{
+    display:flex;
+    flex-direction: row;
+    justify-content: flex-start;
+
+    @media (max-width: 599px) {
+    flex-direction: column;
+    }
+}

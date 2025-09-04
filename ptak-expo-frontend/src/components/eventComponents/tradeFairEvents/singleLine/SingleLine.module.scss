@@ -1,0 +1,175 @@
+.container {
+  width: 100%;
+}
+
+.singleLine {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  border-top: 1px solid #a7a7a7;
+  border-bottom: 1px solid #a7a7a7;
+  @media (max-width: 599px) {
+    flex-wrap: wrap;
+    flex-direction: column;
+  }
+}
+.singleLine.open {
+  border-bottom: none;
+}
+
+.inline {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  @media (max-width: 599px) {
+    padding-top: 1rem;
+    justify-content: space-between;
+  }
+}
+.time,
+.hall,
+.title,
+.description,
+.more {
+  font-size: 13px !important;
+}
+.time {
+  font-weight: 300 !important;
+  color: #a7a7a7 !important;
+  min-width: 80px;
+  margin: auto 0 !important;
+  display: flex;
+  flex-direction: row;
+  @media (max-width: 599px) {
+    justify-content: flex-start;
+    width: 50%;
+  }
+}
+.hall {
+  font-weight: 300 !important;
+  color: #a7a7a7 !important;
+  min-width: 80px;
+  margin: auto auto !important;
+  border-left: 1px solid #a7a7a7;
+  border-right: 1px solid #a7a7a7;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  @media (max-width: 599px) {
+    justify-content: flex-end;
+    width: 50%;
+    border-right: none;
+  }
+}
+.titleWithButton {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  width: calc(100% - 160px);
+  margin: auto 0 !important;
+  @media (max-width: 599px) {
+    width: 100%;
+  }
+}
+.title {
+  font-weight: 600 !important;
+  color: white !important;
+  margin: auto 0 !important;
+  padding-left: 1rem;
+  @media (max-width: 599px) {
+    padding-left: 0rem;
+  }
+}
+
+.boxIcon {
+  width: 35px;
+}
+
+.expandIcon {
+  color: #a8f1cc;
+  width: 30px !important;
+  height: 30px !important;
+  transition: transform 0.3s;
+  margin-top: 5px !important;
+}
+.rotateIcon {
+  transform: rotate(180deg);
+}
+
+.shortInfo {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  width: 100%;
+  border-bottom: 1px solid #a7a7a7;
+  @media (max-width: 599px) {
+    flex-direction: column;
+    padding-top: 1rem;
+    row-gap: 1rem;
+  }
+}
+.shortInfo.noBorder {
+  border-bottom: none !important;
+}
+.description {
+  font-weight: 300 !important;
+  color: white !important;
+  width: calc(100% - 70px);
+ padding-bottom: 0.5rem;
+  @media (max-width: 599px) {
+    width: 100%;
+    justify-content: flex-end;
+  }
+}
+
+/* ZMODYFIKOWANA CZĘŚĆ HOVER */
+.boxWithAction {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  width: 70px;
+  cursor: pointer;
+  align-items: center;
+  padding-bottom: 0.5rem;
+  @media (max-width: 599px) {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  &:hover {
+    .more {
+      color: #a8f1cc !important; // fioletowy
+      font-weight: 600 !important;
+    }
+    .arrowIcon {
+      width: 18px !important;
+      height: 18px !important;
+      transition: width 0.2s, height 0.2s;
+    }
+  }
+}
+
+.more {
+  font-weight: 300 !important;
+  color: white !important;
+  text-decoration: underline;
+}
+
+/* Ikona po hover – nowa klasa arrowIcon */
+.arrowIcon {
+  width: 18px !important;
+  height: 18px !important;
+  transition: width 0.2s, height 0.2s;
+}
+
+.shortInfoError {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  width: 100%;
+  font-size: 13px !important;
+  font-weight: 300 !important;
+  color: red;
+  border-bottom: 1px solid #a7a7a7;
+  padding-bottom: 0.5rem;
+}
