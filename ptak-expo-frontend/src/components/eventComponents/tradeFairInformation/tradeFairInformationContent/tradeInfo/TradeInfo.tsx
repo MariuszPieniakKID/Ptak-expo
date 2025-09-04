@@ -238,6 +238,7 @@ const TradeInfo: React.FC<TradeInfoProps> = ({ exhibitionId }) => {
   /* eslint-enable react-hooks/exhaustive-deps */
 
   // Auto-save when both hall name and file are provided
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (!hasLoadedRef.current) return;
     if (!token) return;
@@ -444,48 +445,7 @@ const TradeInfo: React.FC<TradeInfoProps> = ({ exhibitionId }) => {
     inputRef.current?.click();
   };
 
-  const handleAddHall = async () => {
-    if (!newHallName.trim()) {
-      setError('Proszę podać nazwę hali');
-      return;
-    }
-    
-    if (!newHallFile) {
-      setError('Proszę wybrać plik');
-      return;
-    }
-    
-    // Adding new hall with file
-    
-    // Dodaj halę tymczasowo do stanu
-    const tempEntry: HallEntry = {
-      id: Date.now().toString(),
-      hallName: newHallName.trim(),
-      file: newHallFile,
-      filePath: null,
-      originalFilename: null,
-    };
-    
-    const nextEntries = [...hallEntries, tempEntry];
-    setHallEntries(nextEntries);
-    
-    try {
-      // Najpierw zapisz trade info (doda przestrzeń w DB), a upload wykona się w handleSave
-      await handleSave(nextEntries);
-      setSuccessMessage('Hala została dodana i zapisana.');
-      
-    } catch (e: any) {
-      console.error('❌ Error during hall addition:', e);
-      setError(e?.message || 'Błąd podczas zapisu hali');
-      // Usuń niepowodzenie entry
-      setHallEntries(prev => prev.filter(h => h.id !== tempEntry.id));
-    } finally {
-      // reset pól formularza
-      setNewHallName('');
-      setNewHallFile(null);
-      setTimeout(() => setSuccessMessage(''), 3000);
-    }
-  };
+  // Note: manual handleAddHall removed (autosave handles it)
 
   if (loading) {
     return (
