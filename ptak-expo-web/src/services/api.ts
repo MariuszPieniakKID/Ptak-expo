@@ -125,4 +125,75 @@ export const healthAPI = {
     api.get('/api/v1/health'),
 };
 
+// ============= EXHIBITOR SELF API (ptak-expo-web) =============
+
+export interface ExhibitorProfile {
+  id: number;
+  nip?: string;
+  companyName: string;
+  address?: string;
+  postalCode?: string;
+  city?: string;
+  contactPerson?: string;
+  contactRole?: string;
+  phone?: string;
+  email: string;
+  status?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export const exhibitorsSelfAPI = {
+  getMe: (): Promise<AxiosResponse<{ success: boolean; data: ExhibitorProfile }>> =>
+    api.get('/api/v1/exhibitors/me'),
+};
+
+// ============= EXHIBITOR DOCUMENTS API (ptak-expo-web) =============
+
+export type ExhibitorDocumentCategory = 'faktury' | 'umowy' | 'inne_dokumenty';
+
+export interface ExhibitorDocument {
+  id: number;
+  title: string;
+  description?: string | null;
+  fileName: string;
+  originalName: string;
+  fileSize: number;
+  mimeType: string;
+  category: ExhibitorDocumentCategory;
+  createdAt: string;
+}
+
+export const exhibitorDocumentsAPI = {
+  list: async (
+    exhibitorId: number,
+    exhibitionId: number
+  ): Promise<ExhibitorDocument[]> => {
+    const res = await api.get(`/api/v1/exhibitor-documents/${exhibitorId}/${exhibitionId}`);
+    const data = res.data as { success?: boolean; documents?: any[] };
+    const rows = Array.isArray(data?.documents) ? data.documents : [];
+    return rows.map((row: any) => ({
+      id: row.id,
+      title: row.title,
+      description: row.description ?? null,
+      fileName: row.file_name,
+      originalName: row.original_name,
+      fileSize: row.file_size,
+      mimeType: row.mime_type,
+      category: row.category,
+      createdAt: row.created_at,
+    }));
+  },
+  download: async (
+    exhibitorId: number,
+    exhibitionId: number,
+    documentId: number
+  ): Promise<AxiosResponse<Blob>> => {
+    return api.get(
+      `/api/v1/exhibitor-documents/${exhibitorId}/${exhibitionId}/download/${documentId}`,
+      { responseType: 'blob' }
+    );
+  },
+};
+
 export default api;

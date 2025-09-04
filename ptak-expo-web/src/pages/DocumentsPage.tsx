@@ -1,22 +1,123 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 import styles from './DocumentsPage.module.scss';
 import CustomTypography from '../components/customTypography/CustomTypography';
+import { useAuth } from '../contexts/AuthContext';
+import { exhibitorsSelfAPI, exhibitorDocumentsAPI, ExhibitorDocument } from '../services/api';
 
 const DocumentsPage: React.FC = () => {
-  const invoices = [
-    'Faktura 53739/234/T',
-    'Faktura 53739/234/T',
-    'Faktura 5373u/234/T',
-    'Faktura 53739/234/T',
-    'Faktura 53739/234/T',
-  ];
+  const { eventId } = useParams<{ eventId: string }>();
+  const { token, isAuthenticated } = useAuth();
+  const [documents, setDocuments] = useState<ExhibitorDocument[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const downloads = [
-    'Regulamin targów',
-    'Regulamin obiektu',
-    'Warunki techniczne',
-    'Regulamin zabudowy',
-  ];
+  // Filter documents by category
+  const invoices = documents.filter(doc => doc.category === 'faktury');
+  const downloads = documents.filter(doc => doc.category === 'umowy' || doc.category === 'inne_dokumenty');
+
+  // Fetch documents on component mount
+  useEffect(() => {
+    const fetchDocuments = async () => {
+      if (!isAuthenticated || !token || !eventId) {
+        setLoading(false);
+        return;
+      }
+
+      try {
+        setLoading(true);
+        setError(null);
+
+        // First get exhibitor profile to get exhibitorId
+        const profileResponse = await exhibitorsSelfAPI.getMe();
+        const exhibitorId = profileResponse.data.data.id;
+
+        // Then fetch documents for this exhibitor and event
+        const documentsData = await exhibitorDocumentsAPI.list(exhibitorId, parseInt(eventId));
+        console.log('🔍 Fetched documents:', {
+          exhibitorId,
+          eventId: parseInt(eventId),
+          documents: documentsData
+        });
+        setDocuments(documentsData);
+      } catch (err: any) {
+        console.error('Error fetching documents:', err);
+        setError(err.response?.data?.message || err.message || 'Błąd podczas pobierania dokumentów');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDocuments();
+  }, [isAuthenticated, token, eventId]);
+
+  // Handle document download
+  const handleDownload = async (doc: ExhibitorDocument) => {
+    if (!token || !eventId) return;
+
+    try {
+      // Get exhibitor profile to get exhibitorId
+      const profileResponse = await exhibitorsSelfAPI.getMe();
+      const exhibitorId = profileResponse.data.data.id;
+
+      console.log('🔍 Downloading document:', {
+        exhibitorId,
+        eventId: parseInt(eventId),
+        documentId: doc.id,
+        url: `/api/v1/exhibitor-documents/${exhibitorId}/${parseInt(eventId)}/download/${doc.id}`
+      });
+
+      // Download document
+      const response = await exhibitorDocumentsAPI.download(exhibitorId, parseInt(eventId), doc.id);
+      
+      // Create blob and download
+      const blob = new Blob([response.data], { type: doc.mimeType });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = doc.originalName;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (err: any) {
+      console.error('Error downloading document:', err);
+      console.error('Full error response:', err.response);
+      alert('Błąd podczas pobierania dokumentu: ' + (err.response?.data?.message || err.message));
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className={styles.layout}>
+        <main className={styles.main}>
+          <div className={styles.mainHeader}>
+            <div className={styles.headerInner}>
+              <div className={styles.headerAvatarSmall} />
+              <div className={styles.headerTitle}>Portal dokumentów</div>
+            </div>
+          </div>
+          <div style={{ padding: '20px', textAlign: 'center' }}>Ładowanie dokumentów...</div>
+        </main>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className={styles.layout}>
+        <main className={styles.main}>
+          <div className={styles.mainHeader}>
+            <div className={styles.headerInner}>
+              <div className={styles.headerAvatarSmall} />
+              <div className={styles.headerTitle}>Portal dokumentów</div>
+            </div>
+          </div>
+          <div style={{ padding: '20px', color: 'red' }}>Błąd: {error}</div>
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className={styles.layout}>
@@ -34,21 +135,31 @@ const DocumentsPage: React.FC = () => {
             <CustomTypography fontSize="1rem" fontWeight={600}>Faktury</CustomTypography>
           </div>
           <div className={styles.list}>
-            {invoices.map((text, idx) => (
-              <div key={text + idx}>
-                <div className={styles.listRow}>
-                  <div className={styles.rowLeft}>
-                    <span className={styles.invoiceIcon} />
-                    {idx < 2 && <span className={styles.redDot} />}
-                    <span className={styles.rowText}>{text}</span>
-                  </div>
-                  <div className={styles.actions}>
-                    <button className={styles.downloadBtn} aria-label="pobierz" />
-                  </div>
-                </div>
-                <div className={styles.rowDivider} />
+            {invoices.length === 0 ? (
+              <div style={{ padding: '12px', color: '#666', fontStyle: 'italic' }}>
+                Brak faktur do wyświetlenia
               </div>
-            ))}
+            ) : (
+              invoices.map((document, idx) => (
+                <div key={document.id}>
+                  <div className={styles.listRow}>
+                    <div className={styles.rowLeft}>
+                      <span className={styles.invoiceIcon} />
+                      {idx < 2 && <span className={styles.redDot} />}
+                      <span className={styles.rowText}>{document.title}</span>
+                    </div>
+                    <div className={styles.actions}>
+                      <button 
+                        className={styles.downloadBtn} 
+                        aria-label="pobierz"
+                        onClick={() => handleDownload(document)}
+                      />
+                    </div>
+                  </div>
+                  <div className={styles.rowDivider} />
+                </div>
+              ))
+            )}
           </div>
         </section>
 
@@ -57,20 +168,30 @@ const DocumentsPage: React.FC = () => {
             <CustomTypography fontSize="1rem" fontWeight={600}>Dokumenty do pobrania</CustomTypography>
           </div>
           <div className={styles.list}>
-            {downloads.map((text) => (
-              <div key={text}>
-                <div className={styles.listRow}>
-                  <div className={styles.rowLeft}>
-                    <span className={styles.pdfIcon} />
-                    <span className={styles.rowText}>{text}</span>
-                  </div>
-                  <div className={styles.actions}>
-                    <button className={styles.downloadBtn} aria-label="pobierz" />
-                  </div>
-                </div>
-                <div className={styles.rowDivider} />
+            {downloads.length === 0 ? (
+              <div style={{ padding: '12px', color: '#666', fontStyle: 'italic' }}>
+                Brak dokumentów do wyświetlenia
               </div>
-            ))}
+            ) : (
+              downloads.map((document) => (
+                <div key={document.id}>
+                  <div className={styles.listRow}>
+                    <div className={styles.rowLeft}>
+                      <span className={styles.pdfIcon} />
+                      <span className={styles.rowText}>{document.title}</span>
+                    </div>
+                    <div className={styles.actions}>
+                      <button 
+                        className={styles.downloadBtn} 
+                        aria-label="pobierz"
+                        onClick={() => handleDownload(document)}
+                      />
+                    </div>
+                  </div>
+                  <div className={styles.rowDivider} />
+                </div>
+              ))
+            )}
           </div>
         </section>
 

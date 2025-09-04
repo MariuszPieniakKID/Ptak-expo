@@ -50,7 +50,54 @@
 .invoiceIcon::after { content: ""; position: absolute; right: -3px; top: 2px; width: 6px; height: 6px; border-right: 1px solid #2e2e38; border-top: 1px solid #2e2e38; transform: rotate(45deg); background: transparent; }
 .pdfIcon { width: 14px; height: 14px; border-radius: 3px; border: 1px solid #2e2e38; background: linear-gradient(180deg, rgba(111,135,246,0) 0%, rgba(111,135,246,0.12) 100%); position: relative; }
 .pdfIcon::after { content: "PDF"; position: absolute; left: 2px; top: 50%; transform: translateY(-50%); font-size: 8px; color: #2e2e38; }
-.downloadBtn { width: 29px; height: 29px; border-radius: 50%; border: 1px solid #2e2e38; background: transparent; cursor: pointer; }
+.downloadBtn { 
+  width: 29px; 
+  height: 29px; 
+  border-radius: 50%; 
+  border: 1px solid #2e2e38; 
+  background: transparent; 
+  cursor: pointer; 
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.downloadBtn::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 2px;
+  height: 10px;
+  background: #2e2e38;
+}
+
+.downloadBtn::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) translateY(3px);
+  width: 0;
+  height: 0;
+  border-left: 3px solid transparent;
+  border-right: 3px solid transparent;
+  border-top: 4px solid #2e2e38;
+}
+
+.downloadBtn:hover {
+  background: rgba(46, 46, 56, 0.1);
+}
+
+.downloadBtn:hover::after {
+  background: #145d5b;
+}
+
+.downloadBtn:hover::before {
+  border-top-color: #145d5b;
+}
 .rowDivider { height: 1px; border-top: 1px dashed #d7d9dd; margin-left: 26px; }
 .redDot { width: 8px; height: 8px; background: #fc0b06; border-radius: 50%; display: inline-block; }
 
