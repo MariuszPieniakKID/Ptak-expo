@@ -31,18 +31,23 @@
 }
 
 export const getDaysBetweenDates = (startDate: string, endDate: string): string[] => {
-  
-  const dates = [];
-  let currentDate = new Date(startDate);
+  const dates: string[] = [];
+  const currentDate = new Date(startDate);
   const lastDate = new Date(endDate);
-  
-  // reset time to midnight for consistency (optional)
-  currentDate.setHours(0,0,0,0);
-  lastDate.setHours(0,0,0,0);
+
+  // Normalize to local midnight to avoid timezone shift
+  currentDate.setHours(0, 0, 0, 0);
+  lastDate.setHours(0, 0, 0, 0);
+
+  const toYmdLocal = (d: Date): string => {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${day}`;
+  };
 
   while (currentDate <= lastDate) {
-    // push ISO string or formatted date as needed
-    dates.push(currentDate.toISOString().split("T")[0]); 
+    dates.push(toYmdLocal(currentDate));
     currentDate.setDate(currentDate.getDate() + 1);
   }
   return dates;
