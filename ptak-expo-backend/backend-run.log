@@ -1442,3 +1442,109 @@ Fetching exhibitions from database...
 Fetching exhibitions from database...
 Found 11 exhibitions
 Found 11 exhibitions
+Fetching exhibitions from database...
+Found 11 exhibitions
+💾 Connected to PostgreSQL database
+💾 Connected to PostgreSQL database
+💾 Connected to PostgreSQL database
+💾 Connected to PostgreSQL database
+🔍 Getting trade info for exhibition: 718
+🔍 [trade-events] listByExhibition {
+  exhibitionId: 718,
+  exhibitorId: null,
+  user: 'test.admin@ptak-expo.com'
+}
+🔍 Getting trade info for exhibition: 718
+🔍 [trade-events] listByExhibition {
+  exhibitionId: 718,
+  exhibitorId: null,
+  user: 'test.admin@ptak-expo.com'
+}
+🔍 Saving trade info {
+  exhibitionId: 718,
+  tradeHours: {
+    exhibitorStart: '09:00',
+    exhibitorEnd: '15:00',
+    visitorStart: '09:00',
+    visitorEnd: '20:00'
+  },
+  contactInfo: { guestService: '123123123', security: '' },
+  buildDaysCount: 1,
+  tradeSpacesCount: 2,
+  buildType: 'systemowy',
+  hasTradeMessage: false
+}
+🗑️  [trade-events] delete request { exhibitionId: 718, eventId: 12, user: 'test.admin@ptak-expo.com' }
+✅ [trade-events] deleted {
+  id: 12,
+  exhibition_id: 718,
+  name: 'Zabudowa targowa – Montaż indywidualny',
+  event_date: 2025-09-22T22:00:00.000Z,
+  start_time: '09:00:00',
+  end_time: '17:00:00',
+  hall: null,
+  description: null,
+  type: 'indywidualny',
+  created_at: 2025-09-03T18:58:11.454Z,
+  updated_at: 2025-09-03T18:58:11.454Z,
+  exhibitor_id: null,
+  organizer: null
+}
+🗑️  [trade-events] delete request { exhibitionId: 718, eventId: 15, user: 'test.admin@ptak-expo.com' }
+✅ [trade-events] deleted {
+  id: 15,
+  exhibition_id: 718,
+  name: 'Zabudowa targowa – Montaż indywidualny',
+  event_date: 2025-09-22T22:00:00.000Z,
+  start_time: '09:00:00',
+  end_time: '13:00:00',
+  hall: null,
+  description: null,
+  type: 'indywidualny',
+  created_at: 2025-09-03T19:02:49.712Z,
+  updated_at: 2025-09-03T19:02:49.712Z,
+  exhibitor_id: null,
+  organizer: null
+}
+🗑️  [trade-events] delete request { exhibitionId: 718, eventId: 16, user: 'test.admin@ptak-expo.com' }
+✅ [trade-events] deleted {
+  id: 16,
+  exhibition_id: 718,
+  name: 'Zabudowa targowa – Zabudowa targowa Ptak Expo',
+  event_date: 2025-09-22T22:00:00.000Z,
+  start_time: '09:00:00',
+  end_time: '17:00:00',
+  hall: null,
+  description: null,
+  type: 'ptak_expo',
+  created_at: 2025-09-03T19:12:20.476Z,
+  updated_at: 2025-09-03T19:12:20.476Z,
+  exhibitor_id: null,
+  organizer: null
+}
+🔍 [trade-events] create request {
+  exhibitionId: 718,
+  body: {
+    name: 'Zabudowa targowa – Zabudowa targowa Ptak Expo',
+    eventDate: '2025-09-23',
+    startTime: '09:00',
+    endTime: '17:00',
+    type: 'ptak_expo'
+  },
+  user: 'test.admin@ptak-expo.com'
+}
+✅ [trade-events] created {
+  id: 18,
+  exhibition_id: 718,
+  name: 'Zabudowa targowa – Zabudowa targowa Ptak Expo',
+  event_date: 2025-09-22T22:00:00.000Z,
+  start_time: '09:00:00',
+  end_time: '17:00:00',
+  hall: null,
+  description: null,
+  type: 'ptak_expo',
+  created_at: 2025-09-04T15:28:39.984Z,
+  updated_at: 2025-09-04T15:28:39.984Z,
+  exhibitor_id: null,
+  organizer: null
+}
