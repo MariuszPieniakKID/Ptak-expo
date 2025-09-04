@@ -67,10 +67,17 @@ exports.create = async (req, res) => {
     // Timezone-safe comparison using date-only strings (YYYY-MM-DD)
     const toDateOnly = (v) => {
       if (!v) return '';
+      if (v instanceof Date) {
+        const y = v.getFullYear();
+        const m = String(v.getMonth() + 1).padStart(2, '0');
+        const d = String(v.getDate()).padStart(2, '0');
+        return `${y}-${m}-${d}`;
+      }
       const s = String(v);
-      if (s.length >= 10) return s.slice(0, 10);
-      const d = new Date(v);
-      return Number.isNaN(d.getTime()) ? '' : d.toISOString().slice(0, 10);
+      const match = s.match(/\d{4}-\d{2}-\d{2}/);
+      if (match) return match[0];
+      const parsed = new Date(s);
+      return Number.isNaN(parsed.getTime()) ? '' : parsed.toISOString().slice(0, 10);
     };
     const eventDateStr = toDateOnly(eventDate);
     const startStr = toDateOnly(startDate);
@@ -160,10 +167,17 @@ exports.update = async (req, res) => {
     const { start_date: startDate, end_date: endDate } = expo.rows[0];
     const toDateOnly = (v) => {
       if (!v) return '';
+      if (v instanceof Date) {
+        const y = v.getFullYear();
+        const m = String(v.getMonth() + 1).padStart(2, '0');
+        const d = String(v.getDate()).padStart(2, '0');
+        return `${y}-${m}-${d}`;
+      }
       const s = String(v);
-      if (s.length >= 10) return s.slice(0, 10);
-      const d = new Date(v);
-      return Number.isNaN(d.getTime()) ? '' : d.toISOString().slice(0, 10);
+      const match = s.match(/\d{4}-\d{2}-\d{2}/);
+      if (match) return match[0];
+      const parsed = new Date(s);
+      return Number.isNaN(parsed.getTime()) ? '' : parsed.toISOString().slice(0, 10);
     };
     const eventDateStr = toDateOnly(eventDate);
     const startStr = toDateOnly(startDate);
