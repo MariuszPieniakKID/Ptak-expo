@@ -37,8 +37,15 @@ const TradeFairEventsContent: React.FC<TradeFairEventsContentProps> = ({ event }
 
   const typeOptions = [
     { value: 'Ceremonia otwarcia', label: 'Ceremonia otwarcia' },
-    { value: 'Główna konferencja', label: 'Główna konferencja' },
-    { value: 'Spotkania organizatorów', label: 'Spotkania organizatorów' },
+    { value: 'Konferencja', label: 'Konferencja' },
+    { value: 'Kongres', label: 'Kongres' },
+    { value: 'Warsztaty', label: 'Warsztaty' },
+    { value: 'Szkolenia', label: 'Szkolenia' },
+    { value: 'Wykłady', label: 'Wykłady' },
+    { value: 'Wystąpienia', label: 'Wystąpienia' },
+    { value: 'Wręczenie nagród', label: 'Wręczenie nagród' },
+    { value: 'Panel trendów', label: 'Panel trendów' },
+    { value: 'Ceremonia medalowa', label: 'Ceremonia medalowa' },
   ];
 
   const dateOnly = (value?: string) => {
