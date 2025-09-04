@@ -8,23 +8,14 @@ import { Box } from '@mui/material';
 import { useCallback, useEffect, useState } from 'react';
 import styles from './TradeFairEvents.module.scss';
 
-import { createTradeEvent, Exhibition, getTradeEvents, TradeEvent } from '../../../services/api';
+import { Exhibition, getTradeEvents, TradeEvent } from '../../../services/api';
 import TradeFairEventsContent from './tradeFairEventsContent/TradeFairEventsContent';
 import AccompanyingEvents from './accompanyingEvents/AccompanyingEvents';
 import { useAuth } from '../../../contexts/AuthContext';
 import { tradeEventsMock } from '../../../helpers/mockData';
 
 
-const defaultNewEvent: TradeEvent = {
-  name: '',
-  eventDate: '',
-  startTime: '',
-  endTime: '',
-  hall: '',
-  description: '',
-  type: 'Ceremonia otwarcia',
-  link: 'www.google.pl',
-};
+// removed local default newEvent; form handled in child content
 
 type TradeFairEventsProps = {
   allowMultiple?: boolean; 
@@ -42,8 +33,7 @@ function TradeFairEvents({
   const [expandedAccordions, setExpandedAccordions] = useState<boolean[]>([false, false]);
   const [expandedOne, setExpandedOne] = useState<number | false>(false);
   const [tradeEvents, setTradeEvents] = useState<TradeEvent[]>([]);
-  const [tradeEventsError, setTradeEventsError] = useState<string>('');
-  const [newEvent, setNewEvent] = useState<TradeEvent>(defaultNewEvent);
+  // child manages its own form state for official events
 
   const loadTradeEvents = useCallback(async () => {
     if (!token) return;
@@ -52,9 +42,8 @@ function TradeFairEvents({
      // setTradeEvents(res.data || []);
      {console.log(`Res: ${res.data}`)}
       setTradeEvents(tradeEventsMock); //TYLKO DO TESTÓW 
-      setTradeEventsError('');
-    } catch (e: any) {
-      setTradeEventsError(e.message || 'Błąd podczas ładowania wydarzeń targowych');
+    } catch (_e: any) {
+      // ignore for now; child content handles errors in its own flow
     }
   }, [event.id, token]);
 
@@ -62,30 +51,9 @@ function TradeFairEvents({
     loadTradeEvents();
   }, [loadTradeEvents]);
 
-  const handleNewEventChange = (field: keyof TradeEvent) => (e: React.ChangeEvent<HTMLInputElement>) => {
-    setNewEvent(prev => ({ ...prev, [field]: e.target.value }));
-  };
+  // removed unused handler (child manages its own form)
 
-  const handleSaveTradeEvent = async () => {
-    if (!token) return;
-    if (!newEvent.name || !newEvent.eventDate || !newEvent.startTime || !newEvent.endTime || !newEvent.type) return;
-    const d = new Date(newEvent.eventDate);
-    const s = new Date(event.start_date);
-    const e = new Date(event.end_date);
-    const onlyDate = (dt: Date) => new Date(dt.getFullYear(), dt.getMonth(), dt.getDate()).getTime();
-    if (onlyDate(d) < onlyDate(s) || onlyDate(d) > onlyDate(e)) {
-      alert('Data wydarzenia musi mieścić się w zakresie dat targów');
-      return;
-    }
-    try {
-      await createTradeEvent(event.id, newEvent, token);
-      await loadTradeEvents();
-      setNewEvent(defaultNewEvent);
-      setTradeEventsError('');
-    } catch (err: any) {
-      setTradeEventsError(err.message || 'Błąd podczas zapisywania wydarzenia targowego');
-    }
-  };
+  // save handled in child in current UI
   
 
 
@@ -112,11 +80,6 @@ function TradeFairEvents({
       container: (
         <TradeFairEventsContent
           event={event}
-          newEvent={newEvent}
-          //tradeEvents={tradeEvents}
-          tradeEventsError={tradeEventsError}
-          handleNewEventChange={handleNewEventChange}
-          handleSaveTradeEvent={handleSaveTradeEvent}
         />
       ),
     },

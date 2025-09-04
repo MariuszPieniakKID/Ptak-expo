@@ -1758,3 +1758,95 @@ Found 11 exhibitions
   exhibitorId: null,
   user: 'test.admin@ptak-expo.com'
 }
+💾 Connected to PostgreSQL database
+🔍 Getting trade info for exhibition: 718
+🔍 [trade-events] listByExhibition {
+  exhibitionId: 718,
+  exhibitorId: null,
+  user: 'test.admin@ptak-expo.com'
+}
+Fetching exhibitions from database...
+💾 Connected to PostgreSQL database
+💾 Connected to PostgreSQL database
+💾 Connected to PostgreSQL database
+💾 Connected to PostgreSQL database
+💾 Connected to PostgreSQL database
+🔍 Getting trade info for exhibition: 718
+Found 11 exhibitions
+🔍 [trade-events] listByExhibition {
+  exhibitionId: 718,
+  exhibitorId: null,
+  user: 'test.admin@ptak-expo.com'
+}
+Fetching exhibitions from database...
+Found 11 exhibitions
+Fetching exhibitions from database...
+Fetching exhibitions from database...
+Found 11 exhibitions
+Found 11 exhibitions
+Fetching exhibitions from database...
+Fetching exhibitions from database...
+💾 Connected to PostgreSQL database
+💾 Connected to PostgreSQL database
+Found 11 exhibitions
+Found 11 exhibitions
+Fetching exhibitions from database...
+Fetching exhibitions from database...
+Found 11 exhibitions
+Found 11 exhibitions
+Fetching exhibitions from database...
+Fetching exhibitions from database...
+Found 11 exhibitions
+Found 11 exhibitions
+💾 Connected to PostgreSQL database
+💾 Connected to PostgreSQL database
+💾 Connected to PostgreSQL database
+🔍 Getting trade info for exhibition: 718
+🔍 Getting trade info for exhibition: 718
+🔍 [trade-events] listByExhibition {
+  exhibitionId: 718,
+  exhibitorId: null,
+  user: 'test.admin@ptak-expo.com'
+}
+🔍 [trade-events] listByExhibition {
+  exhibitionId: 718,
+  exhibitorId: null,
+  user: 'test.admin@ptak-expo.com'
+}
+💾 Connected to PostgreSQL database
+🔍 Saving trade info {
+  exhibitionId: 718,
+  tradeHours: {
+    exhibitorStart: '09:00',
+    exhibitorEnd: '15:00',
+    visitorStart: '09:00',
+    visitorEnd: '20:00'
+  },
+  contactInfo: { guestService: '123123123', security: '' },
+  buildDaysCount: 1,
+  tradeSpacesCount: 2,
+  buildType: 'systemowy',
+  hasTradeMessage: false
+}
+Fetching invitations for exhibition 718...
+Fetching invitations for exhibition 718...
+🔍 [trade-events] listByExhibition {
+  exhibitionId: 718,
+  exhibitorId: null,
+  user: 'test.admin@ptak-expo.com'
+}
+🔍 [trade-events] listByExhibition {
+  exhibitionId: 718,
+  exhibitorId: null,
+  user: 'test.admin@ptak-expo.com'
+}
+🔍 [trade-events] listByExhibition {
+  exhibitionId: 718,
+  exhibitorId: null,
+  user: 'test.admin@ptak-expo.com'
+}
+🔍 [trade-events] listByExhibition {
+  exhibitionId: 718,
+  exhibitorId: null,
+  user: 'test.admin@ptak-expo.com'
+}
