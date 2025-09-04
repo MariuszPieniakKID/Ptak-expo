@@ -219,7 +219,6 @@ const TradeInfo: React.FC<TradeInfoProps> = ({ exhibitionId }) => {
   }, [exhibitionRange, constructionDate]);
 
   // Debounced autosave when buildType changes (po załadowaniu danych)
-  /* eslint-disable react-hooks/exhaustive-deps */
   useEffect(() => {
     if (!hasLoadedRef.current) return;
     if (!token) return;
@@ -234,11 +233,9 @@ const TradeInfo: React.FC<TradeInfoProps> = ({ exhibitionId }) => {
         window.clearTimeout(autosaveTimerRef.current);
       }
     };
-  }, [buildType]);
-  /* eslint-enable react-hooks/exhaustive-deps */
+  }, [buildType, handleSave, token]);
 
   // Auto-save when both hall name and file are provided
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (!hasLoadedRef.current) return;
     if (!token) return;
