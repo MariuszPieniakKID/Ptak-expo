@@ -459,8 +459,8 @@ Zespół Warsaw Industry Week`;
                         <Box>
                             <CustomSelectMui
                             label="Oferta specjalna / Benefity"
-                            value={invitationData.special_offers?invitationData.special_offers:''}
-                            onChange={(value) => handleInputChange('special_offers', value as typeof invitationData.special_offers)}
+                            value={invitationData.special_offers ?? []}
+                            onChange={(value) => handleInputChange('special_offers', Array.isArray(value) ? (value as any) : [])}
                             options={specialOffersOptions}
                             size="small"
                             fullWidth

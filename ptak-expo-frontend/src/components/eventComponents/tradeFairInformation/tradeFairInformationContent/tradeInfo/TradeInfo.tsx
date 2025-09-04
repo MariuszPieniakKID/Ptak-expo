@@ -110,6 +110,8 @@ const TradeInfo: React.FC<TradeInfoProps> = ({ exhibitionId }) => {
 
   
 
+  // Removed localStorage logic - using only server data
+
   useEffect(() => {
     const loadTradeInfo = async () => {
       if (!token) return;
@@ -122,6 +124,7 @@ const TradeInfo: React.FC<TradeInfoProps> = ({ exhibitionId }) => {
         
         if (response.success && response.data) {
           const data = response.data;
+          // Data loaded from server successfully
 
           const toUiTime = (v: string | undefined) => {
             if (!v) return '';
@@ -151,10 +154,11 @@ const TradeInfo: React.FC<TradeInfoProps> = ({ exhibitionId }) => {
 
           const existingHalls: HallEntry[] = data.tradeSpaces.map(space => ({
             id: space.id,
-            hallName: space.hallName,
+            hallName: space.hallName || space.name,
             filePath: space.filePath || null,
             originalFilename: space.originalFilename || null
           }));
+          // Use only server data - no localStorage merge
           setHallEntries(existingHalls);
           setTradeMessage(data.tradeMessage);
         }
@@ -233,7 +237,22 @@ const TradeInfo: React.FC<TradeInfoProps> = ({ exhibitionId }) => {
   }, [buildType]);
   /* eslint-enable react-hooks/exhaustive-deps */
 
-  const handleSave = async () => {
+  // Auto-save when both hall name and file are provided
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    if (!hasLoadedRef.current) return;
+    if (!token) return;
+    if (newHallName.trim() && newHallFile) {
+      // Small delay to prevent multiple rapid calls
+      const timer = setTimeout(() => {
+        handleAddHall();
+      }, 300);
+      return () => clearTimeout(timer);
+    }
+    return undefined; // Ensure all code paths return a value
+  }, [newHallName, newHallFile, token]);
+
+  const handleSave = async (entriesOverride?: HallEntry[]) => {
     if (!token) {
       setError('Brak autoryzacji');
       return;
@@ -244,12 +263,13 @@ const TradeInfo: React.FC<TradeInfoProps> = ({ exhibitionId }) => {
       setError('');
       setSuccessMessage('');
 
-      const spacesFromHalls: TradeSpace[] = hallEntries.map((hall, index) => ({
+      const entries = entriesOverride ?? hallEntries;
+      const spacesFromHalls: TradeSpace[] = entries.map((hall, index) => ({
         id: (index + 1).toString(),
         name: hall.hallName,
         hallName: hall.hallName,
-        filePath: null,
-        originalFilename: null
+        filePath: hall.filePath ?? null,
+        originalFilename: hall.originalFilename ?? null
       }));
 
       const tradeInfoData: TradeInfoData = {
@@ -264,7 +284,7 @@ const TradeInfo: React.FC<TradeInfoProps> = ({ exhibitionId }) => {
       const response = await saveTradeInfo(exhibitionId, tradeInfoData, token);
       
       if (response.success) {
-        const hallsWithFiles = hallEntries.filter(hall => hall.file);
+        const hallsWithFiles = entries.filter(hall => hall.file);
         
         if (hallsWithFiles.length > 0) {
           setSuccessMessage('Zapisywanie i przesyłanie plików...');
@@ -272,8 +292,10 @@ const TradeInfo: React.FC<TradeInfoProps> = ({ exhibitionId }) => {
           for (let i = 0; i < hallsWithFiles.length; i++) {
             const hall = hallsWithFiles[i];
             try {
-              const spaceId = (hallEntries.indexOf(hall) + 1).toString();
+              const spaceId = (entries.indexOf(hall) + 1).toString();
               const result = await uploadTradePlan(hall.file!, exhibitionId, spaceId, token!);
+              
+              // Upload successful
               
               setHallEntries(prev => 
                 prev.map(h => 
@@ -281,12 +303,13 @@ const TradeInfo: React.FC<TradeInfoProps> = ({ exhibitionId }) => {
                     ? { 
                         ...h, 
                         filePath: result.file.path,
-                        originalFilename: result.file.originalname,
+                        originalFilename: result.file.filename || hall.file?.name || 'plan.pdf',
                         file: null 
                       }
                     : h
                 )
               );
+              // File uploaded successfully
               
             } catch (uploadError: any) {
               console.error(`Error uploading file for ${hall.hallName}:`, uploadError);
@@ -404,23 +427,38 @@ const TradeInfo: React.FC<TradeInfoProps> = ({ exhibitionId }) => {
       setError('Proszę podać nazwę hali');
       return;
     }
-    // dodaj lokalnie z plikiem, aby handleSave mógł wykryć i wysłać upload
-    const newEntry: HallEntry = {
+    
+    if (!newHallFile) {
+      setError('Proszę wybrać plik');
+      return;
+    }
+    
+    // Adding new hall with file
+    
+    // Dodaj halę tymczasowo do stanu
+    const tempEntry: HallEntry = {
       id: Date.now().toString(),
       hallName: newHallName.trim(),
       file: newHallFile,
       filePath: null,
       originalFilename: null,
     };
-    setHallEntries(prev => [...prev, newEntry]);
-
+    
+    const nextEntries = [...hallEntries, tempEntry];
+    setHallEntries(nextEntries);
+    
     try {
-      await handleSave();
+      // Najpierw zapisz trade info (doda przestrzeń w DB), a upload wykona się w handleSave
+      await handleSave(nextEntries);
       setSuccessMessage('Hala została dodana i zapisana.');
+      
     } catch (e: any) {
+      console.error('❌ Error during hall addition:', e);
       setError(e?.message || 'Błąd podczas zapisu hali');
+      // Usuń niepowodzenie entry
+      setHallEntries(prev => prev.filter(h => h.id !== tempEntry.id));
     } finally {
-      // reset pól formularza dodawania hali
+      // reset pól formularza
       setNewHallName('');
       setNewHallFile(null);
       setTimeout(() => setSuccessMessage(''), 3000);
@@ -689,17 +727,7 @@ const TradeInfo: React.FC<TradeInfoProps> = ({ exhibitionId }) => {
 
           </Box>
         </Box>
-        <Box className={styles.actionRow}>
-          <Box className={styles.fairPlnIn}>
-            {(newHallFile && newHallName.trim() !== '' )
-            &&<Box 
-            className={styles.actionBox} 
-            onClick={handleAddHall}>
-              <AddIconSVG className={styles.actionIcon}/>
-              <CustomTypography className={styles.actionLabel}>dodaj przestrzeń</CustomTypography>
-            </Box>}
-          </Box>
-        </Box>
+        {/* Przycisk "dodaj przestrzeń" ukryty - automatyczne zapisywanie */}
         <Box className={styles.planSection}>
           {hallEntries.length > 0 && (
             <Box className={styles.wrapperHallList_}>
@@ -712,30 +740,36 @@ const TradeInfo: React.FC<TradeInfoProps> = ({ exhibitionId }) => {
                   </Box>
                   {hall.originalFilename 
                   ?<Box className={styles.actionRow_}> 
-                      <ComponentWithDocument 
-                        documentType={'pdf'} 
-                        handleDelete={() => setHallEntries(prev => prev.filter(h => h.id !== hall.id))}
-                        documentName={hall.originalFilename} 
-                        deleteIcon={'cross'}
-                        />
-                      <ComponentWithAction 
-                        iconType={'download'} 
-                        handleAction={async () => {
-                          try {
-                            await downloadTradePlan(exhibitionId, hall.id, token!);
-                          } catch (e) {
-                            console.error(e);
-                          }
-                        }}
-                        buttonTitle={''}
-                        />
+                      <Box onClick={async () => {
+                        try {
+                          const blob = await downloadTradePlan(exhibitionId, hall.id, token!);
+                          const url = window.URL.createObjectURL(blob);
+                          const a = document.createElement('a');
+                          a.href = url;
+                          a.download = hall.originalFilename || 'plan.pdf';
+                          document.body.appendChild(a);
+                          a.click();
+                          window.URL.revokeObjectURL(url);
+                          document.body.removeChild(a);
+                        } catch (e) {
+                          console.error('Błąd podczas pobierania pliku:', e);
+                          setError('Błąd podczas pobierania pliku');
+                        }
+                      }} style={{ cursor: 'pointer' }}>
+                        <ComponentWithDocument 
+                          documentType={'pdf'} 
+                          handleDelete={() => setHallEntries(prev => prev.filter(h => h.id !== hall.id))}
+                          documentName={hall.originalFilename || 'plan.pdf'} 
+                          deleteIcon={'cross'}
+                          />
+                      </Box>
                     </Box>
                   :hall.file 
                     ? <Box className={styles.actionRow_}>
                         <ComponentWithDocument 
                         documentType={'pdf'} 
                         handleDelete={() => setHallEntries(prev => prev.filter(h => h.id !== hall.id))}
-                        documentName={`${hall.file.name} (nie zapisany)`} 
+                        documentName={`${hall.file.name} (zapisywanie...)`} 
                         deleteIcon={'cross'}
                         />
                       </Box>
@@ -756,18 +790,7 @@ const TradeInfo: React.FC<TradeInfoProps> = ({ exhibitionId }) => {
         </Box>   
       </Box>
 
-      <Divider className={styles.divider} />
-
-      <Box className={styles.section_}>
-        <Box className={styles.saveButtonRow}>
-            <ComponentWithAction
-              iconType={"save"}
-              handleAction={handleSave}
-              buttonTitle={"zapisz"}
-              iconFirst={false}
-            />
-          </Box>
-        </Box>
+      {/* Przycisk "zapisz" ukryty - automatyczne zapisywanie */}
       <Divider className={styles.divider} />
 
       <Box className={styles.section_}>
