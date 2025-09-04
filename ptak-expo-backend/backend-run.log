@@ -1230,3 +1230,215 @@ Fetching exhibitions from database...
 Found 11 exhibitions
 Fetching exhibitions from database...
 Found 11 exhibitions
+Fetching exhibitions from database...
+Found 11 exhibitions
+Fetching exhibitions from database...
+Fetching exhibitions from database...
+Found 11 exhibitions
+💾 Connected to PostgreSQL database
+Found 11 exhibitions
+Fetching exhibitions from database...
+Fetching exhibitions from database...
+Found 11 exhibitions
+Found 11 exhibitions
+💾 Connected to PostgreSQL database
+💾 Connected to PostgreSQL database
+💾 Connected to PostgreSQL database
+💾 Connected to PostgreSQL database
+🔍 Getting trade info for exhibition: 718
+🔍 [trade-events] listByExhibition {
+  exhibitionId: 718,
+  exhibitorId: null,
+  user: 'test.admin@ptak-expo.com'
+}
+🔍 Getting trade info for exhibition: 718
+🔍 [trade-events] listByExhibition {
+  exhibitionId: 718,
+  exhibitorId: null,
+  user: 'test.admin@ptak-expo.com'
+}
+🔍 Saving trade info {
+  exhibitionId: 718,
+  tradeHours: {
+    exhibitorStart: '09:00',
+    exhibitorEnd: '15:00',
+    visitorStart: '09:00',
+    visitorEnd: '20:00'
+  },
+  contactInfo: { guestService: '123123123', security: '' },
+  buildDaysCount: 1,
+  tradeSpacesCount: 2,
+  buildType: 'systemowy',
+  hasTradeMessage: false
+}
+🔍 [trade-events] create request {
+  exhibitionId: 718,
+  body: {
+    name: 'Zabudowa targowa – Zabudowa targowa Ptak Expo',
+    eventDate: '2025-09-23',
+    startTime: '09:00',
+    endTime: '17:00',
+    type: 'ptak_expo'
+  },
+  user: 'test.admin@ptak-expo.com'
+}
+✅ [trade-events] created {
+  id: 16,
+  exhibition_id: 718,
+  name: 'Zabudowa targowa – Zabudowa targowa Ptak Expo',
+  event_date: 2025-09-22T22:00:00.000Z,
+  start_time: '09:00:00',
+  end_time: '17:00:00',
+  hall: null,
+  description: null,
+  type: 'ptak_expo',
+  created_at: 2025-09-03T19:12:20.476Z,
+  updated_at: 2025-09-03T19:12:20.476Z,
+  exhibitor_id: null,
+  organizer: null
+}
+Fetching exhibitions from database...
+Fetching exhibitions from database...
+Found 11 exhibitions
+Found 11 exhibitions
+💾 Connected to PostgreSQL database
+💾 Connected to PostgreSQL database
+💾 Connected to PostgreSQL database
+💾 Connected to PostgreSQL database
+🔍 [trade-events] listByExhibition {
+  exhibitionId: 718,
+  exhibitorId: null,
+  user: 'test.admin@ptak-expo.com'
+}
+🔍 [trade-events] listByExhibition {
+  exhibitionId: 718,
+  exhibitorId: null,
+  user: 'test.admin@ptak-expo.com'
+}
+🔍 [trade-events] listByExhibition {
+  exhibitionId: 718,
+  exhibitorId: null,
+  user: 'test.admin@ptak-expo.com'
+}
+🔍 [trade-events] listByExhibition {
+  exhibitionId: 718,
+  exhibitorId: null,
+  user: 'test.admin@ptak-expo.com'
+}
+💾 Connected to PostgreSQL database
+💾 Connected to PostgreSQL database
+🔍 [trade-events] listByExhibition {
+  exhibitionId: 718,
+  exhibitorId: null,
+  user: 'test.admin@ptak-expo.com'
+}
+Fetching exhibitions from database...
+Fetching exhibitions from database...
+Found 11 exhibitions
+Found 11 exhibitions
+💾 Connected to PostgreSQL database
+💾 Connected to PostgreSQL database
+💾 Connected to PostgreSQL database
+💾 Connected to PostgreSQL database
+🔍 [trade-events] listByExhibition {
+  exhibitionId: 718,
+  exhibitorId: null,
+  user: 'test.admin@ptak-expo.com'
+}
+🔍 [trade-events] listByExhibition {
+  exhibitionId: 718,
+  exhibitorId: null,
+  user: 'test.admin@ptak-expo.com'
+}
+🔍 [trade-events] create request {
+  exhibitionId: 718,
+  body: {
+    name: 'AAAA',
+    eventDate: '2025-09-23',
+    startTime: '09:00',
+    endTime: '17:00',
+    hall: 'HALA a',
+    description: 'Opis',
+    type: 'Ceremonia otwarcia',
+    organizer: 'ORG'
+  },
+  user: 'test.admin@ptak-expo.com'
+}
+✅ [trade-events] created {
+  id: 17,
+  exhibition_id: 718,
+  name: 'AAAA',
+  event_date: 2025-09-22T22:00:00.000Z,
+  start_time: '09:00:00',
+  end_time: '17:00:00',
+  hall: 'HALA a',
+  description: 'Opis',
+  type: 'Ceremonia otwarcia',
+  created_at: 2025-09-03T19:16:41.832Z,
+  updated_at: 2025-09-03T19:16:41.832Z,
+  exhibitor_id: null,
+  organizer: 'ORG'
+}
+🔍 [trade-events] listByExhibition {
+  exhibitionId: 718,
+  exhibitorId: null,
+  user: 'test.admin@ptak-expo.com'
+}
+💾 Connected to PostgreSQL database
+🔧 [trade-events] update request {
+  exhibitionId: 718,
+  eventId: 17,
+  body: {
+    name: 'ABBBB',
+    eventDate: '2025-09-22T22:00:00.000Z',
+    startTime: '09:00',
+    endTime: '17:00',
+    hall: 'HALA a',
+    description: 'Opis',
+    type: 'Ceremonia otwarcia',
+    organizer: 'ORG',
+    exhibition_id: 718,
+    exhibitor_id: null,
+    id: 17
+  },
+  user: 'test.admin@ptak-expo.com'
+}
+💾 Connected to PostgreSQL database
+✅ [trade-events] updated {
+  id: 17,
+  exhibition_id: 718,
+  name: 'ABBBB',
+  event_date: 2025-09-21T22:00:00.000Z,
+  start_time: '09:00:00',
+  end_time: '17:00:00',
+  hall: 'HALA a',
+  description: 'Opis',
+  type: 'Ceremonia otwarcia',
+  created_at: 2025-09-03T19:16:41.832Z,
+  updated_at: 2025-09-03T19:17:12.379Z,
+  exhibitor_id: null,
+  organizer: 'ORG'
+}
+🔍 [trade-events] listByExhibition {
+  exhibitionId: 718,
+  exhibitorId: null,
+  user: 'test.admin@ptak-expo.com'
+}
+🔍 [trade-events] listByExhibition {
+  exhibitionId: 718,
+  exhibitorId: null,
+  user: 'test.admin@ptak-expo.com'
+}
+🔍 [trade-events] listByExhibition {
+  exhibitionId: 718,
+  exhibitorId: null,
+  user: 'test.admin@ptak-expo.com'
+}
+Fetching exhibitions from database...
+Found 11 exhibitions
+Fetching exhibitions from database...
+Found 11 exhibitions
+Fetching exhibitions from database...
+Fetching exhibitions from database...
+Found 11 exhibitions
+Found 11 exhibitions

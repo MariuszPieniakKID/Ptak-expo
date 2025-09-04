@@ -176,11 +176,14 @@ const TradeInfo: React.FC<TradeInfoProps> = ({ exhibitionId }) => {
       if (!token) return;
       try {
         setLoadingConstruction(true);
+        console.log('[TradeInfo] Loading construction events', { exhibitionId });
         const res = await getTradeEvents(exhibitionId, token);
         const allowedTypes = new Set((buildDaysOption || []).map((o: any) => String(o.value)));
         const filtered = (res.data || []).filter((ev: TradeEvent) => allowedTypes.has(String(ev.type)));
+        console.log('[TradeInfo] Loaded trade events', { total: res.data?.length || 0, constructionCount: filtered.length, allowedTypes: Array.from(allowedTypes.values()) });
         setConstructionEvents(filtered);
       } catch (e) {
+        console.error('[TradeInfo] Error loading construction events', e);
         // handled by generic error banner if needed
       } finally {
         setLoadingConstruction(false);
@@ -328,7 +331,9 @@ const TradeInfo: React.FC<TradeInfoProps> = ({ exhibitionId }) => {
         endTime: constructionEndTime,
         type: constructionType,
       };
+      console.log('[TradeInfo] Creating construction event', { exhibitionId, payload });
       const res = await createTradeEvent(exhibitionId, payload, token);
+      console.log('[TradeInfo] Created construction event OK', { response: res });
       setConstructionEvents(prev => [...prev, res.data]);
       setConstructionType('');
       setConstructionDate('');
@@ -337,6 +342,7 @@ const TradeInfo: React.FC<TradeInfoProps> = ({ exhibitionId }) => {
       setSuccessMessage('Wydarzenie zabudowy dodane');
       setTimeout(() => setSuccessMessage(''), 2500);
     } catch (e: any) {
+      console.error('[TradeInfo] Failed to create construction event', { error: e, exhibitionId, constructionType, constructionDate, constructionStartTime, constructionEndTime });
       const msg = e?.message || 'Nie udało się dodać wydarzenia zabudowy';
       if (msg.includes('Data wydarzenia musi mieścić się w zakresie dat targów')) {
         setError(`Data wydarzenia musi mieścić się w zakresie dat targów${exhibitionRange ? ` (${exhibitionRange.start} – ${exhibitionRange.end})` : ''}`);

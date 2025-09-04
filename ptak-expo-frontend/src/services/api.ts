@@ -902,14 +902,18 @@ export const getTradeEvents = async (
   exhibitorId?: number
 ): Promise<{ success: boolean; data: TradeEvent[] }> => {
   const query = exhibitorId ? `?exhibitorId=${encodeURIComponent(String(exhibitorId))}` : '';
-  const response = await apiCall(`${config.API_BASE_URL}/api/v1/trade-events/${exhibitionId}${query}`, {
+  const url = `${config.API_BASE_URL}/api/v1/trade-events/${exhibitionId}${query}`;
+  console.log('[api] GET trade-events', { url, exhibitionId, exhibitorId });
+  const response = await apiCall(url, {
     method: 'GET',
     headers: { 'Authorization': `Bearer ${token}` },
   });
   const data = await response.json();
   if (!response.ok) {
+    console.error('[api] GET trade-events error', { status: response.status, statusText: response.statusText, data });
     throw new Error(data.message || 'Błąd podczas pobierania wydarzeń targowych');
   }
+  console.log('[api] GET trade-events ok', { count: Array.isArray(data.data) ? data.data.length : 0 });
   return { success: true, data: Array.isArray(data.data) ? data.data.map(mapTradeEventRow) : [] };
 };
 
@@ -918,7 +922,9 @@ export const createTradeEvent = async (
   event: TradeEvent,
   token: string
 ): Promise<{ success: boolean; data: TradeEvent }> => {
-  const response = await apiCall(`${config.API_BASE_URL}/api/v1/trade-events/${exhibitionId}`, {
+  const url = `${config.API_BASE_URL}/api/v1/trade-events/${exhibitionId}`;
+  console.log('[api] POST trade-events', { url, exhibitionId, payload: event });
+  const response = await apiCall(url, {
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${token}`,
@@ -928,8 +934,10 @@ export const createTradeEvent = async (
   });
   const data = await response.json();
   if (!response.ok) {
+    console.error('[api] POST trade-events error', { status: response.status, statusText: response.statusText, data });
     throw new Error(data.message || 'Błąd podczas zapisywania wydarzenia targowego');
   }
+  console.log('[api] POST trade-events ok', { id: data?.data?.id, data: data?.data });
   return { success: true, data: mapTradeEventRow(data.data) };
 };
 
@@ -939,7 +947,9 @@ export const updateTradeEvent = async (
   event: TradeEvent,
   token: string
 ): Promise<{ success: boolean; data: TradeEvent }> => {
-  const response = await apiCall(`${config.API_BASE_URL}/api/v1/trade-events/${exhibitionId}/${eventId}`, {
+  const url = `${config.API_BASE_URL}/api/v1/trade-events/${exhibitionId}/${eventId}`;
+  console.log('[api] PUT trade-events', { url, exhibitionId, eventId, payload: event });
+  const response = await apiCall(url, {
     method: 'PUT',
     headers: {
       'Authorization': `Bearer ${token}`,
@@ -949,8 +959,10 @@ export const updateTradeEvent = async (
   });
   const data = await response.json();
   if (!response.ok) {
+    console.error('[api] PUT trade-events error', { status: response.status, statusText: response.statusText, data });
     throw new Error(data.message || 'Błąd podczas aktualizacji wydarzenia targowego');
   }
+  console.log('[api] PUT trade-events ok', { id: data?.data?.id });
   return { success: true, data: mapTradeEventRow(data.data) };
 };
 
