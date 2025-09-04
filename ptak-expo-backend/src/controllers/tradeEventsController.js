@@ -64,13 +64,23 @@ exports.create = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Nie znaleziono wydarzenia głównego' });
     }
     const { start_date: startDate, end_date: endDate } = expo.rows[0];
-    const d = new Date(eventDate);
-    const s = new Date(startDate);
-    const e = new Date(endDate);
-    // Compare on date only (ignore time)
-    const onlyDate = (dt) => new Date(dt.getFullYear(), dt.getMonth(), dt.getDate()).getTime();
-    if (onlyDate(d) < onlyDate(s) || onlyDate(d) > onlyDate(e)) {
-      console.log('⚠️  [trade-events] date out of range', { eventDate, startDate, endDate });
+    // Timezone-safe comparison using date-only strings (YYYY-MM-DD)
+    const toDateOnly = (v) => {
+      if (!v) return '';
+      const s = String(v);
+      if (s.length >= 10) return s.slice(0, 10);
+      const d = new Date(v);
+      return Number.isNaN(d.getTime()) ? '' : d.toISOString().slice(0, 10);
+    };
+    const eventDateStr = toDateOnly(eventDate);
+    const startStr = toDateOnly(startDate);
+    const endStr = toDateOnly(endDate);
+    if (!eventDateStr || !startStr || !endStr) {
+      console.log('⚠️  [trade-events] invalid date inputs', { eventDate, startDate, endDate, eventDateStr, startStr, endStr });
+      return res.status(400).json({ success: false, message: 'Nieprawidłowe daty wydarzenia' });
+    }
+    if (eventDateStr < startStr || eventDateStr > endStr) {
+      console.log('⚠️  [trade-events] date out of range', { eventDateStr, startStr, endStr });
       return res.status(400).json({ success: false, message: 'Data wydarzenia musi mieścić się w zakresie dat targów' });
     }
 
@@ -81,7 +91,7 @@ exports.create = async (req, res) => {
     const insert = await client.query(
       `INSERT INTO trade_events (exhibition_id, exhibitor_id, name, event_date, start_time, end_time, hall, organizer, description, type)
        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING *`,
-      [exhibitionId, exhibitorId || null, name, eventDate, normStart, normEnd, hall || null, organizer || null, description || null, type]
+      [exhibitionId, exhibitorId || null, name, eventDateStr, normStart, normEnd, hall || null, organizer || null, description || null, type]
     );
     await client.query('COMMIT');
     console.log('✅ [trade-events] created', insert.rows[0]);
@@ -148,11 +158,20 @@ exports.update = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Nie znaleziono wydarzenia głównego' });
     }
     const { start_date: startDate, end_date: endDate } = expo.rows[0];
-    const d = new Date(eventDate);
-    const s = new Date(startDate);
-    const e = new Date(endDate);
-    const onlyDate = (dt) => new Date(dt.getFullYear(), dt.getMonth(), dt.getDate()).getTime();
-    if (onlyDate(d) < onlyDate(s) || onlyDate(d) > onlyDate(e)) {
+    const toDateOnly = (v) => {
+      if (!v) return '';
+      const s = String(v);
+      if (s.length >= 10) return s.slice(0, 10);
+      const d = new Date(v);
+      return Number.isNaN(d.getTime()) ? '' : d.toISOString().slice(0, 10);
+    };
+    const eventDateStr = toDateOnly(eventDate);
+    const startStr = toDateOnly(startDate);
+    const endStr = toDateOnly(endDate);
+    if (!eventDateStr || !startStr || !endStr) {
+      return res.status(400).json({ success: false, message: 'Nieprawidłowe daty wydarzenia' });
+    }
+    if (eventDateStr < startStr || eventDateStr > endStr) {
       return res.status(400).json({ success: false, message: 'Data wydarzenia musi mieścić się w zakresie dat targów' });
     }
 
@@ -173,7 +192,7 @@ exports.update = async (req, res) => {
            updated_at = NOW()
        WHERE id = $9 AND exhibition_id = $10
        RETURNING *`,
-      [name, eventDate, normStart, normEnd, hall || null, organizer || null, description || null, type, eventId, exhibitionId]
+      [name, eventDateStr, normStart, normEnd, hall || null, organizer || null, description || null, type, eventId, exhibitionId]
     );
     await client.query('COMMIT');
     console.log('✅ [trade-events] updated', upd.rows[0]);
