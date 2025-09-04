@@ -38,7 +38,7 @@ function TradeFairEvents({
   const loadTradeEvents = useCallback(async () => {
     if (!token) return;
     try {
-      const res = await getTradeEvents(event.id, token);
+      await getTradeEvents(event.id, token);
       // setTradeEvents(res.data || []);
       setTradeEvents(tradeEventsMock); //TYLKO DO TESTÓW 
     } catch (_e: any) {
