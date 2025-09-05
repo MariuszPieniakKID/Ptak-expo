@@ -4,7 +4,8 @@ import { ReactComponent as  CatalogEntryIcon} from '../../assets/catalog_entryIc
 import { ReactComponent as  DocumentsIcon} from '../../assets/documentsIcon.svg';
 import { ReactComponent as  InvitationsIcon} from '../../assets/invitationsIcon.svg';
 import { ReactComponent as  EventScheduleIcon} from '../../assets/event_scheduleIcon.svg';
-import { ReactComponent as  BadgesIcon} from '../../assets/BadgesIcon.svg';
+import { ReactComponent as  PushNotificationIcon} from '../../assets/pushNotificationsIcon.svg';
+
 import {Box, Tab} from '@mui/material';
 import styles from './EventCardPage.module.scss';
 import { useState } from 'react';
@@ -207,6 +208,9 @@ function EventCardPage({ event }: EventCardPagetProps) {
                                 iconPosition="start"
                                 label={<span className="tab-label-text">Branding wystawy</span>}
                                 {...a11yProps(0)}
+                                 sx={{
+                                  marginBottom: '-1rem'
+                                }}
                             />
                             <Tab
                                 disableRipple
@@ -214,6 +218,9 @@ function EventCardPage({ event }: EventCardPagetProps) {
                                 iconPosition="start"
                                 label={<span className="tab-label-text">Informacje targowe</span>}
                                 {...a11yProps(1)}
+                                 sx={{
+                                  marginBottom: '-1rem'
+                                }}
                             />
                             <Tab
                                 disableRipple
@@ -221,6 +228,9 @@ function EventCardPage({ event }: EventCardPagetProps) {
                                 iconPosition="start"
                                 label={<span className="tab-label-text">Zaproszenia</span>}
                                 {...a11yProps(2)}
+                                 sx={{
+                                  marginBottom: '-1rem'
+                                }}
                             />
                             <Tab
                                 disableRipple
@@ -228,13 +238,19 @@ function EventCardPage({ event }: EventCardPagetProps) {
                                 iconPosition="start"
                                 label={<span className="tab-label-text">Wydarzenia targowe</span>}
                                 {...a11yProps(3)}
+                                 sx={{
+                                  marginBottom: '-1rem'
+                                }}
                             />
                             <Tab
                                 disableRipple
-                                icon={<BadgesIcon />}
+                                icon={<PushNotificationIcon />}
                                 iconPosition="start"
                                 label={<span className="tab-label-text">Powiadomienia Push</span>}
                                 {...a11yProps(4)}
+                                sx={{
+                                  marginBottom: '-1rem'
+                                }}
                             />
                     </Tabs>
                     </Box>

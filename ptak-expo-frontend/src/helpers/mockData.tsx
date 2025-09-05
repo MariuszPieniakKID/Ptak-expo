@@ -1,7 +1,7 @@
 import { OptionType } from "../components/customField/CustomField";
 import { InvitationStatus } from "../components/exhibitorInvitations/statusOfSentInvitations/StatusOfSentInvitations";
 import { TradeEvent } from "../services/api";
-import { _AddedEvent, _TradeAwardsFair } from "../types/types";
+import { _AddedEvent, _NotyficationEveny, _TradeAwardsFair } from "../types/types";
 
 export const mockInvitations: {
   id: number;
@@ -261,6 +261,14 @@ export const invitationOptions:OptionType[]=[
   { value: 'guest', label: 'Dla gości' },
   { value: 'vip', label: 'VIP' },
 ]
+export const groupReceivingNotification:OptionType[]=[
+  { value: 'standard', label: 'Standardowe' },
+  { value: 'exhibitore', label: 'Dla wystawców' },
+  { value: 'guest', label: 'Dla gości' },
+  { value: 'vip', label: 'VIP' },
+  { value: 'all', label: 'Wszyscy' },
+  { value: 'biznes_priority', label: 'Biznes Priority' },
+]
 export const specialOffersOptions:OptionType[]=[
   { value: 'fastTrack', label: '🚀 Fast Track – szybkie wejście bez kolejki' },
   { value: 'personalizedPackage', label: '📦 Imienny pakiet – dostarczony przed wydarzeniem  ' },
@@ -354,5 +362,88 @@ export const tradeEventsMock: TradeEvent[] = [
     type: 'Panel dyskusyjny',
     organizer: 'Organizator 3',
     link: '',
+  },
+];
+
+export const notificationsMock: _NotyficationEveny[] = [
+  {
+    id: 1,
+    eventId: 'E1001',
+    date: '2025-09-10',
+    startTime: '09:00',
+    description: 'Otwarcie targów',
+    receivers: 'all',
+  },
+  {
+    id: 2,
+    eventId: 'E1002',
+    date: '2025-09-10',
+    startTime: '11:00',
+    description: 'Panel dyskusyjny VIP',
+    receivers: 'vip',
+  },
+  {
+    id: 3,
+    eventId: 'E1003',
+    date: '2025-09-11',
+    startTime: '14:00',
+    description: 'Prezentacja nowych produktów',
+    receivers: 'exhibitore',
+  },
+  {
+    id: 4,
+    eventId: 'E1004',
+    date: '2025-09-12',
+    startTime: '13:00',
+    description: 'Przerwa kawowa',
+    receivers: 'all',
+  },
+  {
+    id: 5,
+    eventId: 'E1005',
+    date: '2025-09-12',
+    startTime: '15:00',
+    description: 'Spotkanie z inwestorami',
+    receivers: 'biznes_priority',
+  },
+  {
+    id: 6,
+    eventId: 'E1006',
+    date: '2025-09-13',
+    startTime: '10:00',
+    description: 'Warsztaty dla wystawców',
+    receivers: 'exhibitore',
+  },
+  {
+    id: 7,
+    eventId: 'E1007',
+    date: '2025-09-13',
+    startTime: '16:00',
+    description: 'Sesja networkingowa',
+    receivers: 'guest',
+  },
+  {
+    id: 8,
+    eventId: 'E1008',
+    date: '2025-09-14',
+    startTime: '09:30',
+    description: 'Otwarcie stoiska biznesowego',
+    receivers: 'biznes_priority',
+  },
+  {
+    id: 9,
+    eventId: 'E1009',
+    date: '2025-09-14',
+    startTime: '12:00',
+    description: 'Panel dyskusyjny standard',
+    receivers: 'standard',
+  },
+  {
+    id: 10,
+    eventId: 'E1010',
+    date: '2025-09-15',
+    startTime: '11:30',
+    description: 'Zamknięcie wydarzenia',
+    receivers: 'all',
   },
 ];

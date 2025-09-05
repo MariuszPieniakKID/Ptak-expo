@@ -60,6 +60,7 @@ function TradeFairEvents({
 
   useEffect(() => {
     loadTradeEvents();
+    console.log(`Data: ${event.start_date}`)
   }, [loadTradeEvents]);
 
   const handleNewEventChange = (field: keyof TradeEvent) => (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -142,6 +143,7 @@ function TradeFairEvents({
 
   return (
     <Box className={styles.container}>
+
       {items.map((item, idx) => {
         
         // logika czy ten accordion ma być rozwinięty

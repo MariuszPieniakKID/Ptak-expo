@@ -2,7 +2,7 @@ import Accordion from '@mui/material/Accordion';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import AccordionDetails from '@mui/material/AccordionDetails';
 import Typography from '@mui/material/Typography';
-import {ReactComponent as DocumentIcon} from'../../../assets/documentIconBlue.svg';
+import {ReactComponent as PushNotificationIcon} from'../../../assets/pushNotificationsIcon.svg';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { Box } from '@mui/material';
 import { useState } from 'react';
@@ -27,7 +27,7 @@ function PushNotification({
     
  const items =[
     {
-      icon: <DocumentIcon fontSize="small" />,
+      icon: <PushNotificationIcon fontSize="small" />,
       title: 'Powiadomienia Push',
       container: <PushNotificationContent event={event}/>,
     }]

@@ -30,6 +30,7 @@ function Invitations({
       icon: <DocumentIcon fontSize="small" />,
       title: 'Zaproszenia',
       container: <InvitationsContent event={event}/>,
+      
     }]
 
   const [expandedAccordions, setExpandedAccordions] = useState<boolean[]>(Array(items.length).fill(false));

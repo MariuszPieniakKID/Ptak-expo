@@ -47,3 +47,25 @@ export const getDaysBetweenDates = (startDate: string, endDate: string): string[
   }
   return dates;
 };
+
+export const formatPolishDateShort = (dateStr?: string): string => {
+  if (!dateStr) return '';
+
+  const date = new Date(dateStr);
+  if (isNaN(date.getTime())) return '';
+
+  const day = date.getDate();
+
+  const months = ['sty', 'lut', 'mar', 'kwi', 'maj', 'cze', 'lip', 'sie', 'wrz', 'paź', 'lis', 'gru'];
+  const monthName = months[date.getMonth()];
+
+  return `${day} ${monthName}`;
+};
+
+export function formatDateToDDMMYYYY(dateString: string): string {
+  const date = new Date(dateString);
+  const day = String(date.getDate()).padStart(2, '0');
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const year = date.getFullYear();
+  return `${day}.${month}.${year}`;
+}
