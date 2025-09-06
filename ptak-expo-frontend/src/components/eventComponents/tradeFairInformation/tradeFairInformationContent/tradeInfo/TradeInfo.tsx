@@ -344,7 +344,9 @@ const TradeInfo: React.FC<TradeInfoProps> = ({ exhibitionId }) => {
     return () => {
       window.clearTimeout(timer);
     };
-  }, [newHallName, newHallFile, token, hallEntries, handleSave]);
+  // Do not depend on hallEntries/handleSave here to avoid duplicate autosaves on state changes
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [newHallName, newHallFile, token]);
 
   // handleSave defined above
 
