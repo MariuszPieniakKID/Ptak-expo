@@ -83,11 +83,11 @@
   }
 }
 .dropdownList {
-  //osition: absolute;
+  position: absolute;
   left: 0;
   right: 0;
   background-color: white;
-  //box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
   border-radius: 8px;
   margin: 0;
   padding: 4px 0;
@@ -95,9 +95,6 @@
   max-height: 200px; // lub zmienną
   overflow-y: auto;
   z-index: 1000;
-  
-    margin-top: -28px;
-    position: relative;
 }
 
 .dropdownListUpward {
