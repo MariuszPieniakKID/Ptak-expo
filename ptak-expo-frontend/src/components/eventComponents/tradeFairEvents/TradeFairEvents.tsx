@@ -50,7 +50,6 @@ function TradeFairEvents({
   useEffect(() => {
     console.log('[TradeFairEvents] useEffect loadTradeEvents');
     loadTradeEvents();
-    console.log(`Data: ${event.start_date}`)
   }, [loadTradeEvents]);
 
   // removed unused handler (child manages its own form)
