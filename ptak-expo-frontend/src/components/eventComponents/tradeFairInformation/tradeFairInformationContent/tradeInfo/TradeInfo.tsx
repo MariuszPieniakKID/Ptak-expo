@@ -8,6 +8,7 @@ import CustomField from '../../../../customField/CustomField';
 import { buildDaysOption} from '../../../../../helpers/mockData';
 import CustomSelectMui from '../../../../customSelectMui/CustomSelectMui';
 import { ReactComponent as Wastebasket} from "../../../../../assets/wastebasket.svg";
+import { ReactComponent as RedCross } from "../../../../../assets/redCross.svg";
 import { ReactComponent as AddIconSVG} from "../../../../../assets/blackAddIcon.svg";
 import ComponentWithDocument from '../../../../componentWithDocument/ComponentWithDocument';
 import ComponentWithAction from '../../../../componentWithAction/ComponentWithAction';
@@ -427,6 +428,22 @@ const TradeInfo: React.FC<TradeInfoProps> = ({ exhibitionId }) => {
     }
   };
 
+  // Remove hall entry and persist to server immediately
+  const removeHallEntry = useCallback(async (hallId: string) => {
+    console.log('[TradeInfo] removeHallEntry called', { hallId, beforeCount: hallEntries.length, before: hallEntries });
+    const nextEntries = hallEntries.filter(h => h.id !== hallId);
+    setHallEntries(nextEntries);
+    try {
+      console.log('[TradeInfo] saving after removal', { hallId, nextCount: nextEntries.length, next: nextEntries });
+      await handleSave(nextEntries);
+      console.log('[TradeInfo] save after removal OK');
+    } catch (e) {
+      console.error('[TradeInfo] save after removal FAILED', e);
+      // rollback on error
+      setHallEntries(hallEntries);
+    }
+  }, [hallEntries, handleSave]);
+
   const handleNewHallFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file && file.type === 'application/pdf') {
@@ -712,8 +729,10 @@ const TradeInfo: React.FC<TradeInfoProps> = ({ exhibitionId }) => {
           {hallEntries.length > 0 && (
             <Box className={styles.wrapperHallList_}>
               <CustomTypography className={styles.fileListTitle_}>Przestrzeń:</CustomTypography>
-              {hallEntries.map((hall) => (
-                <Box key={hall.id} className={styles.singleHallFile_} >
+              {hallEntries.map((hall) => {
+                console.log('[TradeInfo] render hall entry', { id: hall.id, hallName: hall.hallName, hasOriginal: !!hall.originalFilename, hasFile: !!hall.file });
+                return (
+                <Box key={`hall-${hall.id}`} className={styles.singleHallFile_} >
                   <Box className={styles.infoHallRow_}>
                     <CustomTypography className={styles.hallNameLabel_}>Nazwa hali: </CustomTypography>
                     <CustomTypography className={styles.hallName_}>{hall.hallName}</CustomTypography>                    
@@ -725,6 +744,7 @@ const TradeInfo: React.FC<TradeInfoProps> = ({ exhibitionId }) => {
                           // position-based spaceId (1-based)
                           const index = hallEntries.findIndex(h => h.id === hall.id);
                           const spaceId = (index + 1).toString();
+                          console.log('[TradeInfo] download click', { id: hall.id, index, spaceId, originalFilename: hall.originalFilename });
                           const blob = await downloadTradePlan(exhibitionId, spaceId, token!);
                           const url = window.URL.createObjectURL(blob);
                           const a = document.createElement('a');
@@ -741,7 +761,7 @@ const TradeInfo: React.FC<TradeInfoProps> = ({ exhibitionId }) => {
                       }} style={{ cursor: 'pointer' }}>
                         <ComponentWithDocument 
                           documentType={'pdf'} 
-                          handleDelete={() => setHallEntries(prev => prev.filter(h => h.id !== hall.id))}
+                          handleDelete={() => { console.log('[TradeInfo] delete click (with file)', { id: hall.id, name: hall.hallName }); removeHallEntry(hall.id); }}
                           documentName={hall.originalFilename || 'plan.pdf'} 
                           deleteIcon={'cross'}
                           />
@@ -751,23 +771,28 @@ const TradeInfo: React.FC<TradeInfoProps> = ({ exhibitionId }) => {
                     ? <Box className={styles.actionRow_}>
                         <ComponentWithDocument 
                         documentType={'pdf'} 
-                        handleDelete={() => setHallEntries(prev => prev.filter(h => h.id !== hall.id))}
+                        handleDelete={() => { console.log('[TradeInfo] delete click (uploading file)', { id: hall.id, name: hall.hallName }); removeHallEntry(hall.id); }}
                         documentName={`${hall.file.name} (zapisywanie...)`} 
                         deleteIcon={'cross'}
                         />
                       </Box>
                     : <Box className={styles.actionRow_}>
                         <CustomTypography className={styles.noFile_}>Brak pliku</CustomTypography>
-                        <ComponentWithDocument 
-                        documentType={'noFile'} 
-                        handleDelete={() => setHallEntries(prev => prev.filter(h => h.id !== hall.id))}
-                        documentName={``} 
-                        deleteIcon={'cross'}
-                        />
+                        <Box style={{ display: 'flex', alignItems: 'center' }}>
+                          <RedCross
+                            className={styles.deleteBtnInline_}
+                            onClick={(e) => { e.stopPropagation(); e.preventDefault(); console.log('[TradeInfo] delete click (no file, inline icon)', { id: hall.id, name: hall.hallName }); removeHallEntry(hall.id); }}
+                          />
+                          <CustomTypography
+                            className={styles.deleteTextInline_}
+                            onClick={(e: any) => { e.stopPropagation(); e.preventDefault(); console.log('[TradeInfo] delete click (no file, text)', { id: hall.id, name: hall.hallName }); removeHallEntry(hall.id); }}
+                          >usuń</CustomTypography>
+                        </Box>
                       </Box>
                   }
                 </Box>
-              ))}
+                );
+              })}
             </Box>)
           }
         </Box>   

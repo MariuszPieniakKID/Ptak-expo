@@ -56,6 +56,15 @@ const ComponentWithDocument: React.FC<ComponentWithDocumentProps> = ({
     }
   })();
 
+  // Debug info for rendering
+  console.log('[ComponentWithDocument] render', {
+    documentType,
+    hasDocumentIcon: !!DocumentIcon,
+    deleteIcon,
+    hasDeleteIcon: !!DeleteIcon,
+    documentName,
+  });
+
   return (
     <Box className={styles.documentContainer}>
       {DocumentIcon && <DocumentIcon className={styles.documentIcon} />}
@@ -65,7 +74,9 @@ const ComponentWithDocument: React.FC<ComponentWithDocumentProps> = ({
       {DeleteIcon && (
         <DeleteIcon
           className={styles.deleteIcon}
-          onClick={handleDelete}
+          onClick={(e) => { e.stopPropagation(); e.preventDefault(); console.log('[ComponentWithDocument] delete click'); handleDelete(); }}
+          aria-label="Usuń"
+          title="Usuń"
         />
       )}
     </Box>
