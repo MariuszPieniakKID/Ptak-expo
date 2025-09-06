@@ -50,6 +50,7 @@ function TradeFairEvents({
   useEffect(() => {
     console.log('[TradeFairEvents] useEffect loadTradeEvents');
     loadTradeEvents();
+    console.log(`Data: ${event.start_date}`)
   }, [loadTradeEvents]);
 
   // removed unused handler (child manages its own form)
@@ -107,6 +108,7 @@ function TradeFairEvents({
 
   return (
     <Box className={styles.container}>
+
       {items.map((item, idx) => {
         
         // logika czy ten accordion ma być rozwinięty

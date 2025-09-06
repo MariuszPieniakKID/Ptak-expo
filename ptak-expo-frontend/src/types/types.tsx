@@ -51,3 +51,20 @@ export type _SpecialOffers={
   benefitImage: string; // ścieżka do pliku obrazu (jpg, png, itp.)
 }
 
+
+export type _NotyficationEveny={
+  eventId?:string;
+  id?:number;
+  date:string;
+  startTime:string;
+  description:string;
+  receivers:_GroupReceivingNotifications;
+}
+export type _GroupReceivingNotifications =
+  | 'standard'
+  | 'exhibitore'
+  | 'guest'
+  | 'vip'
+  | 'all'
+  | 'biznes_priority'  
+;

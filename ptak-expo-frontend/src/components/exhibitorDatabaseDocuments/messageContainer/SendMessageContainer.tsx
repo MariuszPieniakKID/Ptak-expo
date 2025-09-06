@@ -9,6 +9,7 @@ interface SendMessageContainerProps {
   paperBackground?: string;
   legendBackground?: string;
   textAreaBackground?: string;
+  isSendVisible?:boolean;
 }
 
 const SendMessageContainer: React.FC<SendMessageContainerProps> = ({ 
@@ -16,6 +17,7 @@ const SendMessageContainer: React.FC<SendMessageContainerProps> = ({
   paperBackground='white',
   legendBackground='white',
   textAreaBackground='white',
+  isSendVisible=true,
  }) => {
   const [message, setMessage] = useState("");
 
@@ -42,14 +44,14 @@ const SendMessageContainer: React.FC<SendMessageContainerProps> = ({
         legendBackground={legendBackground}
         textAreaBackground={textAreaBackground}
       />
-      <Box className={styles.actionSendFile}>
+      {isSendVisible && <Box className={styles.actionSendFile}>
         <ComponentWithAction
           iconType={'save'}
           handleAction={handleSendClick}
           buttonTitle={'wyślij'}
           iconFirst={false}
         />
-      </Box>
+      </Box>}
     </Paper>
   );
 };
