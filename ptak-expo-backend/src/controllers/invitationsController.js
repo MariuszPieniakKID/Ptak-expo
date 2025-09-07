@@ -215,7 +215,7 @@ const getInvitationById = async (req, res) => {
         SELECT 
           i.*,
           u.first_name || ' ' || u.last_name as created_by_name,
-          e.title as exhibition_title
+          e.name as exhibition_title
         FROM invitation_templates i
         LEFT JOIN users u ON i.created_by = u.id
         LEFT JOIN exhibitions e ON i.exhibition_id = e.id

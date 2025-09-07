@@ -2,13 +2,14 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Box, TextField, Alert, CircularProgress, Divider, styled } from '@mui/material';
 import styles from './Invitation.module.scss';
 import { useAuth } from '../../../../../contexts/AuthContext';
-import { getInvitations, saveInvitation } from '../../../../../services/api';
+import config from '../../../../../config/config';
+import { getInvitations, saveInvitation, getBenefits, createBenefit, updateBenefit, deleteBenefit, getInvitationById, deleteInvitation } from '../../../../../services/api';
 import CustomField from '../../../../customField/CustomField';
 import CustomTypography from '../../../../customTypography/CustomTypography';
 import ComponentWithAction from '../../../../componentWithAction/ComponentWithAction';
 import { ReactComponent as ImgIcon} from '../../../../../assets/imgIcon.svg';
 import CustomSelectMui from '../../../../customSelectMui/CustomSelectMui';
-import { invitationOptions, specialOffersOptions } from '../../../../../helpers/mockData';
+import { invitationOptions } from '../../../../../helpers/mockData';
 
 
 interface InvitationData {
@@ -25,7 +26,7 @@ interface InvitationData {
   contact_email: string;
   contact_phone: string;
   booth_info: string;
-  special_offers?: Array<'fastTrack' | 'personalizedPackage' | 'welcomPack' | 'accessToConferencesAndWorkshops' | 'FreeparkingAndConciergrService'>|undefined;
+  special_offers?: number[] | undefined;
 }
 
 
@@ -68,23 +69,29 @@ const CustomTextField = styled(TextField)(({ multiline }) => ({
 const Invitation: React.FC<InvitationProps> = ({ exhibitionId }) => {
 const { token } = useAuth();
  const [price] = useState<string>('');
- const [benefitTitle] = useState<string>('');
- const [benefitContent] = useState<string>('');
+ const [benefitTitle, setBenefitTitle] = useState<string>('');
+ const [benefitContent, setBenefitContent] = useState<string>('');
+ const [benefitFile, setBenefitFile] = useState<File | null>(null);
+ const [benefitPreviewUrl, setBenefitPreviewUrl] = useState<string>('');
+ const [isUploadingBenefit, setIsUploadingBenefit] = useState(false);
+ const [benefits, setBenefits] = useState<Array<{ id: number; title: string; description: string; file_url?: string | null }>>([]);
+ const [editingBenefitId, setEditingBenefitId] = useState<number | null>(null);
+ const [savedInvitations, setSavedInvitations] = useState<Array<{ id: number; title: string; type: string }>>([]);
 
 const [invitationData, setInvitationData] = useState<InvitationData>({
   invitation_type: 'vip',
   //price:0,
-  title: 'Zaproszenie VIP na Warsaw Industry Week! + plan wydarzeń na naszym stoisku',
+  title: '',
   content: '',
-  greeting: 'Szanowna Pani / Szanowny Panie,',
+  greeting: '',
  // benefitsArray:[],
   //activateLink:'',
   company_info: '',
-  contact_person: 'Zespół organizacyjny',
-  contact_email: 'kontakt@warsawexpo.eu',
-  contact_phone: '+48 22 761 49 99',
+  contact_person: '',
+  contact_email: '',
+  contact_phone: '',
   booth_info: '',
-  special_offers: ['fastTrack', 'welcomPack'], 
+  special_offers: [], 
 }); 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -115,8 +122,20 @@ const [invitationData, setInvitationData] = useState<InvitationData>({
           contact_email: invitation.contact_email || prev.contact_email,
           contact_phone: invitation.contact_phone || prev.contact_phone,
           booth_info: invitation.booth_info || '',
-          special_offers: Array.isArray(invitation.special_offers) ? invitation.special_offers : prev.special_offers
+          special_offers: typeof (invitation as any).special_offers === 'string'
+            ? (invitation as any).special_offers
+                .split(',')
+                .map((v: string) => v.trim())
+                .filter((v: string) => v.length > 0)
+                .map((v: string) => Number(v))
+                .filter((n: number) => !Number.isNaN(n))
+            : (Array.isArray((invitation as any).special_offers) ? (invitation as any).special_offers : prev.special_offers)
         }));
+        // lista zapisanych zaproszeń posortowana po tytule
+        const list = [...response.data.invitations]
+          .map((i: any) => ({ id: i.id as number, title: String(i.title || ''), type: String(i.invitation_type || '') }))
+          .sort((a, b) => a.title.localeCompare(b.title));
+        setSavedInvitations(list);
       }
     } catch (error: any) {
       console.error('Error loading invitation data:', error);
@@ -126,10 +145,21 @@ const [invitationData, setInvitationData] = useState<InvitationData>({
     }
   }, [exhibitionId, token]);
 
+  const loadBenefits = useCallback(async () => {
+    if (!token) return;
+    try {
+      const list = await getBenefits(exhibitionId, token);
+      setBenefits(list.map(it => ({ id: it.id, title: it.title, description: it.description, file_url: it.file_url })));
+    } catch (e) {
+      console.error('Error loading benefits:', e);
+    }
+  }, [exhibitionId, token]);
+
   // Load existing invitation data
   useEffect(() => {
     loadInvitationData();
-  }, [loadInvitationData]);
+    loadBenefits();
+  }, [loadInvitationData, loadBenefits]);
 
 const handleInputChange = (
   field: keyof InvitationData,
@@ -157,7 +187,138 @@ const saveData = {
   :'', // konwersja tablicy na string jeśli API tego wymaga
 };
 
+  const benefitFileInputRef = React.useRef<HTMLInputElement | null>(null);
+  const handleBenefitFileClick = () => benefitFileInputRef.current?.click();
+  const handleBenefitFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files && e.target.files[0];
+    if (file) {
+      setBenefitFile(file);
+      const url = URL.createObjectURL(file);
+      setBenefitPreviewUrl(url);
+    }
+  };
 
+  const handleCreateBenefit = async () => {
+    if (!token) {
+      setError('Brak autoryzacji - zaloguj się ponownie');
+      return;
+    }
+    if (!benefitTitle.trim() || !benefitContent.trim()) {
+      setError('Podaj tytuł i treść benefitu');
+      return;
+    }
+    try {
+      setIsUploadingBenefit(true);
+      setError('');
+      const result = await createBenefit(exhibitionId, { file: benefitFile as any, title: benefitTitle.trim(), description: benefitContent.trim() }, token);
+      if (result.success) {
+        setSuccessMessage('Benefit został dodany');
+        setBenefitFile(null);
+        setBenefitPreviewUrl('');
+        setBenefitTitle('');
+        setBenefitContent('');
+        await loadBenefits();
+      } else {
+        setError(result.message || 'Nie udało się dodać benefitu');
+      }
+    } catch (e: any) {
+      setError(e.message || 'Błąd podczas dodawania benefitu');
+    } finally {
+      setIsUploadingBenefit(false);
+    }
+  };
+
+  const handleToggleBenefit = (id: number) => {
+    setInvitationData(prev => {
+      const selected = new Set(prev.special_offers || []);
+      if (selected.has(id)) selected.delete(id); else selected.add(id);
+      return { ...prev, special_offers: Array.from(selected) };
+    });
+  };
+
+  const handleStartEditBenefit = (id: number) => {
+    const b = benefits.find(x => x.id === id);
+    if (!b) return;
+    setEditingBenefitId(id);
+    setBenefitTitle(b.title);
+    setBenefitContent(b.description || '');
+    setBenefitFile(null);
+    setBenefitPreviewUrl('');
+  };
+
+  const handleSaveBenefitEdit = async () => {
+    if (!token || editingBenefitId === null) return;
+    try {
+      setIsUploadingBenefit(true);
+      const payload: { file?: File; title?: string; description?: string } = {
+        title: benefitTitle.trim(),
+        description: benefitContent.trim(),
+      };
+      if (benefitFile) payload.file = benefitFile;
+      await updateBenefit(editingBenefitId, payload, token);
+      setEditingBenefitId(null);
+      setBenefitTitle('');
+      setBenefitContent('');
+      setBenefitFile(null);
+      setBenefitPreviewUrl('');
+      await loadBenefits();
+    } catch (e: any) {
+      setError(e.message || 'Błąd podczas zapisywania benefitu');
+    } finally {
+      setIsUploadingBenefit(false);
+    }
+  };
+
+  const handleDeleteBenefit = async (id: number) => {
+    if (!token) return;
+    try {
+      await deleteBenefit(id, token);
+      setInvitationData(prev => ({
+        ...prev,
+        special_offers: (prev.special_offers || []).filter(x => x !== id)
+      }));
+      await loadBenefits();
+    } catch (e: any) {
+      setError(e.message || 'Błąd podczas usuwania benefitu');
+    }
+  };
+
+  const handleEditInvitationClick = async (id: number) => {
+    if (!token) return;
+    try {
+      const res = await getInvitationById(id, token);
+      const inv = res.data;
+      setInvitationData(prev => ({
+        ...prev,
+        ...(inv.id ? { id: inv.id as number } : {}),
+        invitation_type: (inv as any).invitation_type || prev.invitation_type,
+        title: inv.title || '',
+        content: inv.content || '',
+        greeting: (inv as any).greeting || '',
+        company_info: (inv as any).company_info || '',
+        contact_person: (inv as any).contact_person || '',
+        contact_email: (inv as any).contact_email || '',
+        contact_phone: (inv as any).contact_phone || '',
+        booth_info: (inv as any).booth_info || '',
+        special_offers: typeof (inv as any).special_offers === 'string'
+          ? (inv as any).special_offers.split(',').map((v: string)=>Number(v)).filter((n:number)=>!Number.isNaN(n))
+          : Array.isArray((inv as any).special_offers) ? (inv as any).special_offers : []
+      }));
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } catch (e: any) {
+      setError(e.message || 'Nie udało się wczytać zaproszenia do edycji');
+    }
+  };
+
+  const handleDeleteInvitationClick = async (id: number) => {
+    if (!token) return;
+    try {
+      await deleteInvitation(id, token);
+      await loadInvitationData();
+    } catch (e: any) {
+      setError(e.message || 'Nie udało się usunąć zaproszenia');
+    }
+  };
 
   const handleSave = async () => {
     if (!token) {
@@ -186,6 +347,8 @@ const saveData = {
              return newData;
            });
          }
+        // Refresh list after save so the new/updated invitation appears immediately
+        await loadInvitationData();
       } else {
         setError(response.message || 'Błąd podczas zapisywania zaproszenia');
       }
@@ -201,42 +364,22 @@ const saveData = {
   const generateInvitationContent = useCallback(() => {
 
 
-    const offerDescriptions = {
-    fastTrack: '🚀 Fast Track – szybkie wejście bez kolejki',
-    personalizedPackage: '📦 Imienny pakiet – dostarczony przed wydarzeniem',
-    welcomPack: '🎁 Welcome Pack z upominkiem',
-    accessToConferencesAndWorkshops: '🎤 Dostęp do konferencji i warsztatów',
-    FreeparkingAndConciergrService: '🤝 Darmowy parking i opiekę concierge'
-  };
+    const selectedBenefits = (invitationData.special_offers || [])
+      .map(id => benefits.find(o => o.id === id))
+      .filter(Boolean) as Array<{ id: number; title: string; description: string; file_url?: string | null }>;
 
-  const specialOffersText = invitationData.special_offers
-  ?invitationData.special_offers
-    .map(key => offerDescriptions[key])
-    .join('\n')
-  :null
-    return `${invitationData.greeting}
+    const benefitsBlock = selectedBenefits.length
+      ? selectedBenefits.map(b => `• ${b.title}${b.description ? ' – ' + b.description : ''}`).join('\n')
+      : '';
 
-z radością zapraszamy do udziału w Warsaw Industry Week, które odbędą się w dniach 23.05.2025r. w Ptak Warsaw Expo.
+    // Domyślna treść tylko kiedy puste
+    return `${invitationData.greeting || ''}
 
-Jako nasz gość specjalny otrzymuje Pan/Pani Biznes Priority Pass – bilet VIP o wartości 249 PLN, który obejmuje m.in.:
-${specialOffersText} ??
+${benefitsBlock}
 
-${invitationData.special_offers}
+${invitationData.booth_info ? `Nasze stoisko: ${invitationData.booth_info}` : ''}
 
-${invitationData.booth_info ? `\nNasze stoisko: ${invitationData.booth_info}` : ''}
-
-Aktywuj swoje zaproszenie klikając w poniższy link:
-[LINK AKTYWACYJNY]
-
-W razie pytań prosimy o kontakt:
-${invitationData.contact_person}
-${invitationData.contact_email}
-${invitationData.contact_phone}
-
-${invitationData.company_info}
-
-Serdecznie zapraszamy!
-Zespół Warsaw Industry Week`;
+${invitationData.company_info || ''}`;
   }, [
     invitationData.greeting,
     invitationData.special_offers,
@@ -244,16 +387,17 @@ Zespół Warsaw Industry Week`;
     invitationData.contact_person,
     invitationData.contact_email,
     invitationData.contact_phone,
-    invitationData.company_info
+    invitationData.company_info,
+    benefits
   ]);
 
-  // Auto-generate content when fields change
+  // Auto-generate content once when empty; do not overwrite user input
   useEffect(() => {
-    const content = generateInvitationContent();
-    setInvitationData(prev => ({
-      ...prev,
-      content
-    }));
+    setInvitationData(prev => {
+      if (prev.content && prev.content.trim().length > 0) return prev;
+      const content = generateInvitationContent();
+      return { ...prev, content };
+    });
   }, [generateInvitationContent]);
 
   if (loading && !invitationData.title) {
@@ -316,7 +460,7 @@ Zespół Warsaw Industry Week`;
        {/* Opis Priority Bussiness Pass */}
          <Box className={styles.section} sx={{marginTop:'1rem', marginBottom:'1rem'}}>
             <Box className={styles.column}> 
-                <CustomTypography className={styles.titleUpload}>Nazwa Pliku</CustomTypography>
+                <CustomTypography className={styles.titleUpload}>Benefit</CustomTypography>
                 <Box className={styles.technicalInfoView}>
                     <Box className={styles.technicalInfoViewText}> opis</Box>
                     {<Box className={styles.technicalInfoViewText}> wymiar px</Box>}
@@ -326,10 +470,10 @@ Zespół Warsaw Industry Week`;
                 <Box className={styles.uploadFile}>
                     <Box className={styles.uploadBox}>
                         <Box className={`${styles.uploadBoxIn} `}>
-                           <Box className={styles.insideUploadBox}>
+                           <Box className={styles.insideUploadBox} onClick={handleBenefitFileClick}>
                             <Box className={styles.iconCircle}><ImgIcon/></Box>
                             <CustomTypography className={styles.infoInUploadBox}>
-                             Przeciągnij i upuść, aby dodać plik
+                             {benefitFile ? benefitFile.name : 'Przeciągnij i upuść, aby dodać plik'}
                             </CustomTypography>
                            </Box>
                         </Box>
@@ -338,7 +482,10 @@ Zespół Warsaw Industry Week`;
                 </Box>
                 <Box className={styles.column}> 
                     <Box className={styles.viewLabel}>Podgląd:</Box>
-                    <Box className={styles.view}></Box>
+                    <Box className={styles.view}>{benefitPreviewUrl && (
+                        <img src={benefitPreviewUrl} alt="benefit" style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} />
+                      )}</Box>
+                    <input type="file" ref={benefitFileInputRef} style={{ display: 'none' }} onChange={handleBenefitFileChange} />
                 </Box>
             </Box>
              <Box className={styles.infoBenefit}>
@@ -347,7 +494,7 @@ Zespół Warsaw Industry Week`;
                         <CustomTextField
                         label="Tytuł benefitu"
                         value={benefitTitle}
-                        onChange={() => console.log("Tytuł benefitu")}
+                        onChange={(e) => setBenefitTitle(e.target.value)}
                         multiline
                         rows={1}
                         fullWidth
@@ -359,7 +506,7 @@ Zespół Warsaw Industry Week`;
                     <CustomTextField
                         label="Treść benefitu"
                         value={benefitContent}
-                        onChange={() => console.log("Treść benefitu")}
+                        onChange={(e) => setBenefitContent(e.target.value)}
                         multiline
                         rows={4}
                         fullWidth
@@ -377,15 +524,17 @@ Zespół Warsaw Industry Week`;
              <Box className={styles.addBenefit}>
                 <ComponentWithAction 
                 iconType={'add'} 
-                handleAction={()=>console.log("Add another Benefit")} 
-                buttonTitle={'dodaj benefit'}/>
+                handleAction={handleCreateBenefit} 
+                buttonTitle={'dodaj benefit'}
+                disabled={isUploadingBenefit || (!benefitTitle.trim() || !benefitContent.trim())}/>
             </Box>
              <Box className={styles.saveBenefit}>
                <ComponentWithAction 
                 iconType={'save'} 
-                handleAction={()=>console.log("Zapisz zmiany w benefit")} 
-                buttonTitle={'zapisz zmiany'}
-                iconFirst={false}/>
+                handleAction={editingBenefitId ? handleSaveBenefitEdit : handleCreateBenefit} 
+                buttonTitle={editingBenefitId ? 'zapisz zmiany' : 'zapisz zmiany'}
+                iconFirst={false}
+                disabled={isUploadingBenefit}/>
              </Box>
            </Box>
            </Box>
@@ -427,7 +576,7 @@ Zespół Warsaw Industry Week`;
                     {/* Title */}
                         <Box>
                             <CustomTextField
-                                label="Tytuł zaproszeniau"
+                                label="Tytuł zaproszenia"
                                 value={invitationData.title}
                                 onChange={(e) => handleInputChange('title', e.target.value)}
                                 multiline
@@ -435,9 +584,24 @@ Zespół Warsaw Industry Week`;
                                 fullWidth
                                 size="small"
                                 className={styles.textField}
-                                placeholder=""
+                                placeholder="Zaproszenie VIP na Warsaw Industry Week! + plan wydarzeń na naszym stoisku"
                                 inputProps={{ maxLength: 840}}
                                 />              
+                        </Box>
+                    {/* Content (Treść zaproszenia) - shown after type selection */}
+                        <Box>
+                            <CustomTextField
+                                label="Treść zaproszenia"
+                                value={invitationData.content}
+                                onChange={(e) => handleInputChange('content', e.target.value)}
+                                multiline
+                                rows={6}
+                                fullWidth
+                                size="small"
+                                className={styles.textField}
+                                placeholder="Treść zaproszenia"
+                                inputProps={{ maxLength: 4000}}
+                            />
                         </Box>
                     {/*Zwrot grzecznościowy */}
                         <Box>
@@ -449,21 +613,30 @@ Zespół Warsaw Industry Week`;
                                 fullWidth
                                 size="small"
                                 className={styles.textField}
-                                placeholder=""
+                                placeholder="Szanowna Pani / Szanowny Panie,"
                                 inputProps={{ }}
                                 />              
                         </Box>
-                    {/* Special Offers */} 
+                    {/* Special Offers - checkbox list with edit/delete */}
                         <Box>
-                            <CustomSelectMui
-                            label="Oferta specjalna / Benefity"
-                            value={invitationData.special_offers ?? []}
-                            onChange={(value) => handleInputChange('special_offers', Array.isArray(value) ? (value as any) : [])}
-                            options={specialOffersOptions}
-                            size="small"
-                            fullWidth
-                            multiple
-                            />
+                          <CustomTypography className={styles.label}>Oferta specjalna / Benefity</CustomTypography>
+                          <Box className={styles.column}>
+                            {benefits.map(b => (
+                              <Box key={b.id} className={styles.row} style={{ alignItems: 'center', gap: '8px', padding: '4px 0' }}>
+                                <input
+                                  type="checkbox"
+                                  checked={(invitationData.special_offers || []).includes(b.id)}
+                                  onChange={() => handleToggleBenefit(b.id)}
+                                  style={{ width: 16, height: 16 }}
+                                />
+                                <CustomTypography className={styles.benefitListItemText}>{b.title}</CustomTypography>
+                                <Box style={{ marginLeft: 'auto', display: 'flex', gap: '6px' }}>
+                                  <ComponentWithAction iconType={'tools'} handleAction={() => handleStartEditBenefit(b.id)} buttonTitle={'edytuj'} />
+                                  <ComponentWithAction iconType={'delete'} handleAction={() => handleDeleteBenefit(b.id)} buttonTitle={'usuń'} />
+                                </Box>
+                              </Box>
+                            ))}
+                          </Box>
                         </Box>
 
                     <Divider className={styles.divider_} />  
@@ -481,8 +654,8 @@ Zespół Warsaw Industry Week`;
                             /> 
                             <CustomTextField
                                 label="Informacje o stoisku"
-                                value={'Numer stoiska?'}
-                                onChange={()=>console.log("Jeżlei ptrzebne pole na nr stoiska")}
+                                value={''}
+                                onChange={()=>console.log("Jeżeli potrzebne pole na nr stoiska")}
                                 fullWidth
                                 size="small"
                                 className={styles.textField}
@@ -490,8 +663,8 @@ Zespół Warsaw Industry Week`;
                             /> 
                             <CustomTextField
                                 label="Informacje o stoisku"
-                                value={'Nazwa wystawcy?'}
-                                onChange={()=>console.log("Jeżlei ptrzebne nazwa wystawcy")}
+                                value={''}
+                                onChange={()=>console.log("Jeżeli potrzebna nazwa wystawcy")}
                                 fullWidth
                                 size="small"
                                 className={styles.textField}
@@ -505,11 +678,11 @@ Zespół Warsaw Industry Week`;
                                 <CustomTextField
                                     label="Osoba kontaktowa"
                                     value={invitationData.contact_person}
-                                    onChange={(e) => handleInputChange('title', e.target.value)}
+                                    onChange={(e) => handleInputChange('contact_person', e.target.value)}
                                     fullWidth
                                     size="small"
                                     className={styles.textField}
-                                    placeholder=""
+                                    placeholder="Zespół organizacyjny"
                                 />
                                 <Box className={styles.row} sx={{paddingBottom:'1rem'}}>
                                     <Box className={styles.contactRow}>
@@ -520,7 +693,7 @@ Zespół Warsaw Industry Week`;
                                         fullWidth
                                         size="small"
                                         className={styles.textField}
-                                        placeholder=""
+                                        placeholder="kontakt@warsawexpo.eu"
                                         /> 
                                     </Box>  
                                     <Box className={styles.contactRow}>
@@ -531,7 +704,7 @@ Zespół Warsaw Industry Week`;
                                         fullWidth
                                         size="small"
                                         className={styles.textField}
-                                        placeholder=""
+                                        placeholder="+48 22 761 49 99"
                                     />
                                     </Box>
 
@@ -557,17 +730,39 @@ Zespół Warsaw Industry Week`;
                 : 
                 <>
                 <Box className={styles.previewSection}>
-                <Box className={styles.invitationPreview}>
+                  <Box className={styles.invitationPreview}>
                     <CustomTypography fontSize="1.125rem" fontWeight={600} className={styles.previewTitle}>
-                    {invitationData.title}
+                      {invitationData.title || 'Podgląd zaproszenia'}
                     </CustomTypography>
-                    
                     <Box className={styles.previewContent}>
-                    <pre className={styles.previewText}>
-                        {invitationData.content}
-                    </pre>
+                      <div className={styles.previewText}
+                        dangerouslySetInnerHTML={{ __html: `
+                          <p>${(invitationData.greeting || '').replace(/\n/g,'<br/>')}</p>
+                          <p>${(invitationData.content || '').replace(/\n/g,'<br/>')}</p>
+                          ${((invitationData.special_offers||[]).length ? '<h4>Benefity:</h4><ul>' + (invitationData.special_offers||[]).map(id => {
+                            const b = benefits.find(x=>x.id===id);
+                            return b ? `<li><strong>${b.title}</strong>${b.description ? ' – ' + b.description : ''}</li>` : '';
+                          }).join('') + '</ul>' : '')}
+                          ${(invitationData.booth_info ? `<p><strong>Informacje o stoisku:</strong> ${invitationData.booth_info}</p>` : '')}
+                          ${(invitationData.contact_person ? `<p><strong>Osoba kontaktowa:</strong> ${invitationData.contact_person}</p>` : '')}
+                          ${(invitationData.contact_email ? `<p><strong>Email:</strong> ${invitationData.contact_email}</p>` : '')}
+                          ${(invitationData.contact_phone ? `<p><strong>Telefon:</strong> ${invitationData.contact_phone}</p>` : '')}
+                          ${(invitationData.company_info ? `<p><strong>Informacje o firmie/organizatorze:</strong><br/>${invitationData.company_info.replace(/\n/g,'<br/>')}</p>` : '')}
+                          ${(() => {
+                            const files = (invitationData.special_offers||[])
+                              .map(id => benefits.find(x=>x.id===id)?.file_url)
+                              .filter((u): u is string => !!u);
+                            if (!files.length) return '';
+                            const list = files.map(u => {
+                              const name = u.split('/').pop() || 'plik';
+                              const href = `${config.API_BASE_URL}${u}`;
+                              return `<li><a href="${href}" target="_blank" rel="noopener noreferrer">${name}</a></li>`;
+                            }).join('');
+                            return `<p><strong>Załączniki:</strong></p><ul>${list}</ul>`;
+                          })()}
+                        `}} />
                     </Box>
-                </Box>
+                  </Box>
                 </Box>
                 </>
                 
@@ -597,6 +792,29 @@ Zespół Warsaw Industry Week`;
                 </Box>
             </Box>
 
+        </Box>
+
+        {/* Lista zapisanych zaproszeń */}
+        <Box className={styles.savedListSection}>
+          <CustomTypography className={styles.savedListTitle}>Zapisane zaproszenia</CustomTypography>
+          <Box className={styles.savedList}>
+            {savedInvitations.length === 0 ? (
+              <CustomTypography>Brak zapisanych zaproszeń</CustomTypography>
+            ) : (
+              savedInvitations.map((it) => (
+                <Box key={it.id} className={styles.savedListItem}>
+                  <Box className={styles.savedListItemType}>
+                    <CustomTypography fontSize="0.85rem" fontWeight={600}>{it.type}</CustomTypography>
+                  </Box>
+                  <CustomTypography className={styles.savedListItemTitle} fontSize="0.95rem" fontWeight={600}>{it.title}</CustomTypography>
+                  <Box className={styles.savedListItemActions}>
+                    <ComponentWithAction iconType={'tools'} handleAction={() => handleEditInvitationClick(it.id)} buttonTitle={'edytuj'} />
+                    <ComponentWithAction iconType={'delete'} handleAction={() => handleDeleteInvitationClick(it.id)} buttonTitle={'usuń'} />
+                  </Box>
+                </Box>
+              ))
+            )}
+          </Box>
         </Box>
 
 

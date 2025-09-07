@@ -580,3 +580,56 @@ display:flex;
   width: 100%;
   row-gap: 1.5em; 
 }
+
+// Saved invitations list styles
+.savedListSection {
+  margin-top: 16px;
+}
+
+.savedListTitle {
+  font-size: 14px !important;
+  color: #2E2E38 !important;
+  font-weight: 600 !important;
+  margin-bottom: 8px !important;
+}
+
+.savedList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.savedListItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: #fff;
+  border: 1px solid #EDEEF2;
+  border-radius: 12px;
+}
+
+.savedListItemType {
+  color: #6f87f6;
+  font-size: 12px !important;
+  font-weight: 400 !important;
+}
+
+.savedListItemTitle {
+  color: #2E2E38;
+  font-size: 13px !important;
+  font-weight: 400 !important;
+}
+
+/* Benefits list item text inside "Oferta specjalna / Benefity" */
+.benefitListItemText {
+  font-size: 12px !important;
+  font-weight: 400 !important;
+  color: #2E2E38;
+}
+
+.savedListItemActions {
+  margin-left: auto;
+  display: flex;
+  gap: 8px;
+}

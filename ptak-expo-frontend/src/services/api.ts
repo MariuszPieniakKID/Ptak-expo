@@ -647,6 +647,100 @@ export interface InvitationsResponse {
   };
 }
 
+// ============= BENEFITS (MARKETING MATERIALS) API =============
+
+export interface BenefitItem {
+  id: number;
+  title: string;
+  description: string;
+  file_url: string;
+  file_type: string;
+  created_at: string;
+}
+
+export const getBenefits = async (
+  exhibitionId: number,
+  token: string
+): Promise<BenefitItem[]> => {
+  const response = await apiCall(`${config.API_BASE_URL}/api/v1/marketing-materials/${exhibitionId}`, {
+    method: 'GET',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+    },
+  });
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data.message || 'Błąd podczas pobierania benefitów');
+  }
+  return Array.isArray(data.data) ? data.data : [];
+};
+
+export const createBenefit = async (
+  exhibitionId: number,
+  payload: { file: File; title: string; description: string },
+  token: string
+): Promise<{ success: boolean; message: string; data: BenefitItem }> => {
+  const form = new FormData();
+  form.append('file', payload.file);
+  form.append('title', payload.title);
+  form.append('description', payload.description);
+
+  const response = await fetch(`${config.API_BASE_URL}/api/v1/marketing-materials/${exhibitionId}`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+    },
+    credentials: 'include',
+    body: form,
+  });
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data.message || 'Błąd podczas tworzenia benefitu');
+  }
+  return data;
+};
+
+export const updateBenefit = async (
+  id: number,
+  payload: { file?: File; title?: string; description?: string },
+  token: string
+): Promise<{ success: boolean; message: string; data: BenefitItem }> => {
+  const form = new FormData();
+  if (payload.file) form.append('file', payload.file);
+  if (payload.title !== undefined) form.append('title', payload.title);
+  if (payload.description !== undefined) form.append('description', payload.description);
+  const response = await fetch(`${config.API_BASE_URL}/api/v1/marketing-materials/item/${id}`, {
+    method: 'PUT',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+    },
+    credentials: 'include',
+    body: form,
+  });
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data.message || 'Błąd podczas aktualizacji benefitu');
+  }
+  return data;
+};
+
+export const deleteBenefit = async (
+  id: number,
+  token: string
+): Promise<{ success: boolean; message: string }> => {
+  const response = await apiCall(`${config.API_BASE_URL}/api/v1/marketing-materials/item/${id}`, {
+    method: 'DELETE',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+    },
+  });
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data.message || 'Błąd podczas usuwania benefitu');
+  }
+  return data;
+};
+
 export const saveInvitation = async (
   exhibitionId: number,
   invitationData: InvitationData,
