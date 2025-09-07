@@ -25,7 +25,8 @@ const defaultConfig: AppConfig = {
 // Production/Railway configuration
 const productionConfig: AppConfig = {
   ...defaultConfig,
-  API_BASE_URL: process.env.REACT_APP_API_URL || 'https://ptak-expo-production.up.railway.app',
+  // In production, always prefer REACT_APP_API_URL; default to Backend public domain
+  API_BASE_URL: process.env.REACT_APP_API_URL || 'https://backend-production-df8c.up.railway.app',
   DEBUG: false,
   ENABLE_LOGGING: false
 };
