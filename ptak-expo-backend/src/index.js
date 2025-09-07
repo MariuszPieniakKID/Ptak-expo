@@ -49,6 +49,21 @@ const PORT = process.env.PORT || 3001;
 console.log('🔍 Will listen on port:', PORT);
 
 // Middleware
+// Force CORS headers echoing Origin (helps with Railway subdomains)
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  if (origin) {
+    res.header('Access-Control-Allow-Origin', origin);
+    res.header('Vary', 'Origin');
+  }
+  res.header('Access-Control-Allow-Credentials', 'true');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(200);
+  }
+  next();
+});
 // Configure Helmet to allow cross-origin resource embedding (for images/PDFs served from backend)
 app.use(helmet({
   crossOriginResourcePolicy: { policy: 'cross-origin' },
