@@ -23,6 +23,7 @@ const exhibitorBrandingRoutes = require('./routes/exhibitorBrandingNew');
 const tradeInfoRoutes = require('./routes/tradeInfo');
 const invitationsRoutes = require('./routes/invitations');
 const tradeEventsRoutes = require('./routes/tradeEvents');
+const marketingMaterialsRoutes = require('./routes/marketingMaterials');
 const exhibitorDocumentsRoutes = require('./routes/exhibitorDocuments');
 const catalogRoutes = require('./routes/catalog');
 
@@ -61,7 +62,9 @@ const allowedOrigins = [
   'http://localhost:3003',
   process.env.CORS_ORIGIN,
   'https://frontend-production-fb96.up.railway.app',
-  'https://ptak-expo-production.up.railway.app'
+  'https://ptak-expo-production.up.railway.app',
+  // Admin front domain
+  'https://admin-front-production-7c59.up.railway.app'
 ].filter(Boolean);
 
 console.log('🔍 CORS allowed origins:', allowedOrigins);
@@ -117,6 +120,7 @@ app.use('/api/v1/invitations', invitationsRoutes);
 app.use('/api/v1/trade-events', tradeEventsRoutes);
 app.use('/api/v1/exhibitor-documents', exhibitorDocumentsRoutes);
 app.use('/api/v1/catalog', catalogRoutes);
+app.use('/api/v1/marketing-materials', marketingMaterialsRoutes);
 
 // Serve Swagger UI if spec is available
 if (swaggerDocument) {
