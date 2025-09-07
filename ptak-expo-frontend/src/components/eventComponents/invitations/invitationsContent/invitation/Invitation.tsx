@@ -384,9 +384,6 @@ ${invitationData.company_info || ''}`;
     invitationData.greeting,
     invitationData.special_offers,
     invitationData.booth_info,
-    invitationData.contact_person,
-    invitationData.contact_email,
-    invitationData.contact_phone,
     invitationData.company_info,
     benefits
   ]);
