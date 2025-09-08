@@ -626,6 +626,7 @@ const initializeDatabase = async () => {
         )
       `);
       await pool.query(`ALTER TABLE exhibitor_catalog_entries ADD COLUMN IF NOT EXISTS products JSONB`);
+      await pool.query(`ALTER TABLE exhibitor_catalog_entries ADD COLUMN IF NOT EXISTS catalog_tags TEXT`);
       // Optional: index for faster global lookups
       await pool.query(`CREATE INDEX IF NOT EXISTS idx_catalog_entries_exhibitor ON exhibitor_catalog_entries(exhibitor_id)`);
       await pool.query(`CREATE INDEX IF NOT EXISTS idx_catalog_entries_updated_at ON exhibitor_catalog_entries(updated_at DESC)`);

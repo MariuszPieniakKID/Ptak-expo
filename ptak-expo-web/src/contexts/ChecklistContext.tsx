@@ -55,8 +55,17 @@ export const ChecklistProvider = ({ children, eventId }: {children: ReactNode, e
 	}, [checklist, companyInfoFilledCount]);
 	const value = {
 		checklist,
-		saveCompanyInfo: (ci: CompanyInfo) => { updateCompanyInfo(ci).then(() => getChecklist(eventId)).then(setChecklist);},
-		addProduct: (ci: ProductInfo) => { addProduct(ci).then(() => getChecklist(eventId)).then(setChecklist);},
+		saveCompanyInfo: (ci: CompanyInfo) => {
+			// Optimistic update: reflect changes immediately in UI
+			setChecklist(prev => ({ ...prev, companyInfo: { ...(prev.companyInfo as any), ...(ci as any) } }));
+			updateCompanyInfo(ci).then(() => getChecklist(eventId)).then(setChecklist);
+		},
+		addProduct: (ci: ProductInfo) => {
+			// Optimistic update: append product so tags show immediately
+			const normalized: ProductInfo = { ...ci, tags: Array.isArray(ci.tags) ? ci.tags : [] };
+			setChecklist(prev => ({ ...prev, products: [...prev.products, normalized] }));
+			addProduct(ci).then(() => getChecklist(eventId)).then(setChecklist);
+		},
 		addEvent: (ci: EventInfo) => { addEvent(ci).then(() => getChecklist(eventId)).then(setChecklist);},
 		addMaterial: (ci: DownloadMaterial) => { addMaterial(ci).then(() => getChecklist(eventId)).then(setChecklist);},
 		uploadMaterialFile: (file: File) => { addMaterialFile(file, eventId).then(() => getChecklist(eventId)).then(setChecklist);},

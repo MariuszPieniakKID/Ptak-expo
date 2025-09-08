@@ -67,7 +67,7 @@ router.get('/:exhibitionId', verifyToken, requireExhibitorOrAdmin, async (req, r
     // Fetch catalog entry
     // 1) Try event-specific entry
     let result = await db.query(
-      `SELECT id, exhibitor_id, exhibition_id, name, logo, description, contact_info, website, socials, contact_email, products,
+      `SELECT id, exhibitor_id, exhibition_id, name, logo, description, contact_info, website, socials, contact_email, products, catalog_tags,
               created_at, updated_at
        FROM exhibitor_catalog_entries
        WHERE exhibitor_id = $1 AND exhibition_id = $2`,
@@ -78,7 +78,7 @@ router.get('/:exhibitionId', verifyToken, requireExhibitorOrAdmin, async (req, r
     // 2) Fallback to GLOBAL entry
     if (!data) {
       const globalRes = await db.query(
-        `SELECT id, exhibitor_id, exhibition_id, name, logo, description, contact_info, website, socials, contact_email, products,
+        `SELECT id, exhibitor_id, exhibition_id, name, logo, description, contact_info, website, socials, contact_email, products, catalog_tags,
                 created_at, updated_at
          FROM exhibitor_catalog_entries
          WHERE exhibitor_id = $1 AND exhibition_id IS NULL
@@ -155,10 +155,11 @@ router.post('/:exhibitionId', verifyToken, requireExhibitorOrAdmin, async (req, 
            website = $6,
            socials = $7,
            contact_email = $8,
+           catalog_tags = $9,
            updated_at = NOW()
        WHERE exhibitor_id = $1 AND exhibition_id IS NULL
-       RETURNING id, exhibitor_id, exhibition_id, name, logo, description, contact_info, website, socials, contact_email, created_at, updated_at`,
-      [exhibitorId, name, logo, description, contactInfo, website, socials, contactEmail]
+       RETURNING id, exhibitor_id, exhibition_id, name, logo, description, contact_info, website, socials, contact_email, catalog_tags, created_at, updated_at`,
+      [exhibitorId, name, logo, description, contactInfo, website, socials, contactEmail, catalogTags]
     );
 
     let result;
@@ -167,10 +168,10 @@ router.post('/:exhibitionId', verifyToken, requireExhibitorOrAdmin, async (req, 
     } else {
       const insertRes = await db.query(
         `INSERT INTO exhibitor_catalog_entries 
-          (exhibitor_id, exhibition_id, name, logo, description, contact_info, website, socials, contact_email)
-         VALUES ($1, NULL, $2, $3, $4, $5, $6, $7, $8)
-         RETURNING id, exhibitor_id, exhibition_id, name, logo, description, contact_info, website, socials, contact_email, created_at, updated_at`,
-        [exhibitorId, name, logo, description, contactInfo, website, socials, contactEmail]
+          (exhibitor_id, exhibition_id, name, logo, description, contact_info, website, socials, contact_email, catalog_tags)
+        VALUES ($1, NULL, $2, $3, $4, $5, $6, $7, $8, $9)
+        RETURNING id, exhibitor_id, exhibition_id, name, logo, description, contact_info, website, socials, contact_email, catalog_tags, created_at, updated_at`,
+        [exhibitorId, name, logo, description, contactInfo, website, socials, contactEmail, catalogTags]
       );
       result = insertRes;
     }
@@ -305,76 +306,9 @@ router.post('/:exhibitionId/products', verifyToken, requireExhibitorOrAdmin, asy
     }
     return res.json({ success: true, message: 'Product added', data: ins.rows[0].products });
   } catch (error) {
-    console.error('Error adding catalog product:', error);
-    return res.status(500).json({ success: false, message: 'Failed to add product' });
-  }
-});
-
-// Admin: fetch GLOBAL entry by exhibitor, fallback to latest event entry, then exhibitors table
-router.get('/admin/:exhibitorId', verifyToken, requireAdmin, async (req, res) => {
-  try {
-    const exhibitorId = parseInt(req.params.exhibitorId, 10);
-    // Admin: fetch catalog entry
-    // Global first
-    let result = await db.query(
-      `SELECT id, exhibitor_id, exhibition_id, name, logo, description, contact_info, website, socials, contact_email, products,
-              created_at, updated_at
-       FROM exhibitor_catalog_entries
-       WHERE exhibitor_id = $1 AND exhibition_id IS NULL
-       ORDER BY updated_at DESC
-       LIMIT 1`,
-      [exhibitorId]
-    );
-    let data = result.rows[0] || null;
-
-    // Latest any entry
-    if (!data) {
-      const anyRes = await db.query(
-        `SELECT id, exhibitor_id, exhibition_id, name, logo, description, contact_info, website, socials, contact_email, products,
-                created_at, updated_at
-         FROM exhibitor_catalog_entries
-         WHERE exhibitor_id = $1
-         ORDER BY updated_at DESC
-         LIMIT 1`,
-        [exhibitorId]
-      );
-      data = anyRes.rows[0] || null;
-    }
-
-    // Fallback to exhibitors table
-    if (!data) {
-      const exhibitorRes = await db.query(
-        `SELECT company_name, email, address, postal_code, city, contact_person
-         FROM exhibitors WHERE id = $1`,
-        [exhibitorId]
-      );
-      if (exhibitorRes.rows.length > 0) {
-        const e = exhibitorRes.rows[0];
-        data = {
-          id: null,
-          exhibitor_id: exhibitorId,
-          exhibition_id: null,
-          name: e.company_name,
-          logo: null,
-          description: null,
-          contact_info: e.contact_person || null,
-          website: null,
-          socials: null,
-          contact_email: e.email || null,
-          products: [],
-          created_at: null,
-          updated_at: null
-        };
-      }
-    }
-
-    return res.json({ success: true, data });
-  } catch (error) {
-    console.error('Error fetching catalog entry (admin):', error);
-    return res.status(500).json({ success: false, message: 'Failed to fetch catalog entry' });
+    console.error('Error adding product to catalog:', error);
+    return res.status(500).json({ success: false, message: 'Failed to add product to catalog' });
   }
 });
 
 module.exports = router;
-
-

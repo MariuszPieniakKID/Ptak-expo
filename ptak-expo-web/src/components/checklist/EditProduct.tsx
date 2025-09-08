@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { ProductInfo } from "../../services/checkListApi"
 import { Autocomplete, Box, Button, Chip, TextField } from "@mui/material";
+import config from "../../config/config";
 import { useChecklist } from "../../contexts/ChecklistContext";
 
 const emptyProduct: ProductInfo = {
@@ -37,7 +38,11 @@ export default function EditProduct({productNum, onClose} :{productNum?: number,
 			t = setTimeout(async () => {
 				try {
 					const token = localStorage.getItem('authToken') || '';
-					const res = await fetch(`${(window as any).API_BASE_URL || ''}/api/v1/catalog/tags?query=${encodeURIComponent(q)}`, {
+					const base = config.API_BASE_URL || (window as any).API_BASE_URL || '';
+					const url = q
+						? `${base}/api/v1/catalog/tags?query=${encodeURIComponent(q)}`
+						: `${base}/api/v1/catalog/tags`;
+					const res = await fetch(url, {
 						headers: { Authorization: `Bearer ${token}` }
 					});
 					if (res.ok) {
@@ -48,6 +53,12 @@ export default function EditProduct({productNum, onClose} :{productNum?: number,
 				} catch {}
 			}, 250);
 		};
+	}, []);
+
+	useEffect(() => {
+		// Prefetch most popular tags when opening the editor
+		debouncedFetch("");
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, []);
 
 	return <Box display="flex" flexDirection="column" gap="10px">
@@ -65,6 +76,7 @@ export default function EditProduct({productNum, onClose} :{productNum?: number,
 			onChange={e => setEditedProduct({...editedProduct, description: e.target.value})}
 		/>
 	<Autocomplete
+		fullWidth
 		multiple
 		freeSolo
 		options={tagOptions}

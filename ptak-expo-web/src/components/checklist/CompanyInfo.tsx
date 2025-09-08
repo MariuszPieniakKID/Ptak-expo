@@ -1,8 +1,9 @@
-import { Box, Button, IconButton, SvgIcon, TextField, Typography } from "@mui/material";
+import { Autocomplete, Box, Button, Chip, IconButton, SvgIcon, TextField, Typography } from "@mui/material";
 import ChecklistCard from "./checklistCard";
-import { ReactNode, useCallback, useEffect, useState } from "react";
+import { ReactNode, useCallback, useEffect, useMemo, useState } from "react";
 import { useChecklist } from "../../contexts/ChecklistContext";
 import GreenCheck from "./GreenCheck";
+import config from "../../config/config";
 
 function DisplayEdit({text, onEdit, checked}: {text: ReactNode, onEdit: () => void, checked?: boolean}) {
 		return <Box display="flex" alignItems="center">
@@ -94,6 +95,34 @@ function ImageEdit({name, onChange,  value}: {name: string, value: string | null
 
 export default function CompanyInfo() {
 	var {checklist, saveCompanyInfo, companyInfoFilledCount} = useChecklist();
+	const [catalogTagOptions, setCatalogTagOptions] = useState<string[]>([]);
+	const [editingCatalogTags, setEditingCatalogTags] = useState(false);
+	const currentCatalogTagsArray = useMemo(() => {
+		const raw = (checklist.companyInfo as any).catalogTags || '';
+		return String(raw || '').split(',').map(s => s.trim()).filter(Boolean);
+	}, [checklist.companyInfo]);
+	const [selectedCatalogTags, setSelectedCatalogTags] = useState<string[]>(currentCatalogTagsArray);
+	useEffect(() => setSelectedCatalogTags(currentCatalogTagsArray), [currentCatalogTagsArray]);
+	const debouncedFetch = useMemo(() => {
+		let t: any;
+		return (q: string) => {
+			clearTimeout(t);
+			t = setTimeout(async () => {
+				try {
+					const token = localStorage.getItem('authToken') || '';
+					const base = config.API_BASE_URL || (window as any).API_BASE_URL || '';
+					const url = q ? `${base}/api/v1/catalog/tags?query=${encodeURIComponent(q)}` : `${base}/api/v1/catalog/tags`;
+					const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
+					if (res.ok) {
+						const j = await res.json();
+						const list = Array.isArray(j.data) ? j.data.map((r: any) => String(r.tag)) : [];
+						setCatalogTagOptions(list);
+					}
+				} catch {}
+			}, 250);
+		};
+	}, []);
+	useEffect(() => { debouncedFetch(""); }, [debouncedFetch]);
 	return (
 	<ChecklistCard
 			icon={<img src={`/assets/checklist-step-1.svg`} alt=""></img>}
@@ -112,8 +141,43 @@ export default function CompanyInfo() {
 			saveCompanyInfo({ ...checklist.companyInfo, website: v})}/>
 		<StringEdit name="Adres e-mail" value={(checklist.companyInfo as any).contactEmail || null} onChange={(v) => 
 			saveCompanyInfo({ ...checklist.companyInfo, contactEmail: v as any})}/>
-		<StringEdit name="Tagi dla katalogu (po przecinku)" value={(checklist.companyInfo as any).catalogTags || null} onChange={(v) => 
-			saveCompanyInfo({ ...(checklist.companyInfo as any), catalogTags: v as any})}/>
+		{!editingCatalogTags && (
+			<Box display="flex" alignItems="center">
+				<Box width="30px" alignItems="center" justifyContent="center">
+					{currentCatalogTagsArray.length > 0 && <GreenCheck/>}
+				</Box>
+				<Box flex={1}>
+					<Typography variant="body2">Tagi dla katalogu: {currentCatalogTagsArray.join(', ')}</Typography>
+				</Box>
+				<Button onClick={() => setEditingCatalogTags(true)}>Edytuj</Button>
+			</Box>
+		)}
+		{editingCatalogTags && (
+			<Box display="flex" alignItems="center" gap={1} width="100%">
+				<Box width="30px" alignItems="center" justifyContent="center">
+					{selectedCatalogTags.length > 0 && <GreenCheck/>}
+				</Box>
+				<Autocomplete
+					fullWidth
+					sx={{ flex: 1, minWidth: 0 }}
+					multiple
+					freeSolo
+					options={catalogTagOptions}
+					value={selectedCatalogTags}
+					onInputChange={(_, q) => debouncedFetch(q)}
+					onChange={(_, value) => setSelectedCatalogTags((value as string[]).map(v => String(v).trim()).filter(Boolean))}
+					renderTags={(value: readonly string[], getTagProps) =>
+						value.map((option: string, index: number) => (
+							<Chip variant="outlined" label={option} {...getTagProps({ index })} />
+						))
+					}
+					renderInput={(params) => (
+						<TextField {...(params as any)} fullWidth variant="standard" label="Tagi dla katalogu" placeholder="zacznij pisać, aby dodać" />
+					)}
+				/>
+				<Button onClick={() => { setEditingCatalogTags(false); saveCompanyInfo({ ...(checklist.companyInfo as any), catalogTags: selectedCatalogTags.join(',') as any }); }}>Zapisz</Button>
+			</Box>
+		)}
 		<StringEdit name="Social Media" value={checklist.companyInfo.socials} onChange={(v) => 
 			saveCompanyInfo({ ...checklist.companyInfo, socials: v})} multiline/>
 

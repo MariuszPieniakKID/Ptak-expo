@@ -219,7 +219,9 @@ export const updateCompanyInfo = async (companyInfo: CompanyInfo) => {
 				website: companyInfo.website ?? null,
 				socials: companyInfo.socials ?? null,
 				contactEmail: emailToUpdate ?? null,
-				catalogTags: (companyInfo as any).catalogTags ?? null
+				catalogTags: Array.isArray((companyInfo as any).catalogTags)
+					? ((companyInfo as any).catalogTags as string[]).map(s => String(s).trim()).filter(Boolean).join(',')
+					: (((companyInfo as any).catalogTags ?? null) as any)
 			})
 		});
 	} catch {}
