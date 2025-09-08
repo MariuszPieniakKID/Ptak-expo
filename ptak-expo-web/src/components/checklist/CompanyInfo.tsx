@@ -97,6 +97,7 @@ export default function CompanyInfo() {
 	var {checklist, saveCompanyInfo, companyInfoFilledCount} = useChecklist();
 	const [catalogTagOptions, setCatalogTagOptions] = useState<string[]>([]);
 	const [editingCatalogTags, setEditingCatalogTags] = useState(false);
+	const [catalogInputValue, setCatalogInputValue] = useState<string>("");
 	const currentCatalogTagsArray = useMemo(() => {
 		const raw = (checklist.companyInfo as any).catalogTags || '';
 		return String(raw || '').split(',').map(s => s.trim()).filter(Boolean);
@@ -164,7 +165,8 @@ export default function CompanyInfo() {
 					freeSolo
 					options={catalogTagOptions}
 					value={selectedCatalogTags}
-					onInputChange={(_, q) => debouncedFetch(q)}
+					inputValue={catalogInputValue}
+					onInputChange={(_, q) => { setCatalogInputValue(q); debouncedFetch(q); }}
 					onChange={(_, value) => setSelectedCatalogTags((value as string[]).map(v => String(v).trim()).filter(Boolean))}
 					renderTags={(value: readonly string[], getTagProps) =>
 						value.map((option: string, index: number) => (
@@ -175,7 +177,18 @@ export default function CompanyInfo() {
 						<TextField {...(params as any)} fullWidth variant="standard" label="Tagi dla katalogu" placeholder="zacznij pisać, aby dodać" />
 					)}
 				/>
-				<Button onClick={() => { setEditingCatalogTags(false); saveCompanyInfo({ ...(checklist.companyInfo as any), catalogTags: selectedCatalogTags.join(',') as any }); }}>Zapisz</Button>
+				<Button onClick={() => {
+					// Dołącz także ręcznie wpisane po przecinku (jeszcze nie dodane jako chipy)
+					const manual = String(catalogInputValue || '')
+						.split(',')
+						.map(s => s.trim())
+						.filter(Boolean);
+					const final = Array.from(new Set([...(selectedCatalogTags || []), ...manual]));
+					setSelectedCatalogTags(final);
+					setCatalogInputValue('');
+					setEditingCatalogTags(false);
+					saveCompanyInfo({ ...(checklist.companyInfo as any), catalogTags: final.join(',') as any });
+				}}>Zapisz</Button>
 			</Box>
 		)}
 		<StringEdit name="Social Media" value={checklist.companyInfo.socials} onChange={(v) => 

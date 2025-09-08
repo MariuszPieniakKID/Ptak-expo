@@ -11,8 +11,8 @@ const emptyProduct: ProductInfo = {
 	tags: []
 }
 export default function EditProduct({productNum, onClose} :{productNum?: number, onClose: () => void}) {
-	const {checklist, addProduct} = useChecklist()
-	const product = checklist.products[productNum || -1];
+	const {checklist, addProduct, updateProduct} = useChecklist()
+	const product = checklist.products[typeof productNum === 'number' ? productNum : -1];
 	const [editedProduct, setEditedProduct] = useState<ProductInfo>(emptyProduct)
 	const [tagOptions, setTagOptions] = useState<string[]>([]);
 	const canSave = editedProduct.description && editedProduct.img && editedProduct.name;
@@ -97,7 +97,11 @@ export default function EditProduct({productNum, onClose} :{productNum?: number,
 			/>
 		)}
 	/>
-		{editedProduct.img && <img src={editedProduct.img} alt="Zdjęcie produktu"/>}
+		{editedProduct.img && (
+			<Box sx={{ maxWidth: 240 }}>
+				<Box component="img" src={editedProduct.img} alt="Zdjęcie produktu" sx={{ display: 'block', width: '100%', height: 'auto', maxHeight: 180, objectFit: 'contain', borderRadius: 1, border: '1px solid #eee' }} />
+			</Box>
+		)}
 		<Button
 			component="label"
 			fullWidth
@@ -111,7 +115,11 @@ export default function EditProduct({productNum, onClose} :{productNum?: number,
 			/>
 		</Button>
 		<Button onClick={()=> { 
-			addProduct({...editedProduct}); 
+			if (typeof productNum === 'number' && productNum >= 0) {
+				updateProduct(productNum, { ...editedProduct });
+			} else {
+				addProduct({...editedProduct}); 
+			}
 			onClose();
 		}} disabled={!canSave} fullWidth>Zapisz</Button> 
 	</Box>

@@ -1,5 +1,5 @@
 import { createContext, ReactNode, useContext, useEffect, useMemo, useState } from "react";
-import { addElectronicId, addEvent, addMaterial, addMaterialFile, addProduct, Checklist, CompanyInfo, DownloadMaterial, ElectrionicId, EventInfo, getChecklist, ProductInfo, updateCompanyInfo } from "../services/checkListApi";
+import { addElectronicId, addEvent, addMaterial, addMaterialFile, addProduct, Checklist, CompanyInfo, DownloadMaterial, ElectrionicId, EventInfo, getChecklist, ProductInfo, updateCompanyInfo, updateProduct as apiUpdateProduct } from "../services/checkListApi";
 
 interface ChecklistContextType {
   checklist: Checklist;
@@ -11,6 +11,7 @@ interface ChecklistContextType {
 	addElectronicId: (ei: ElectrionicId) => void;
 	filled: boolean[];
 	companyInfoFilledCount: number;
+	updateProduct: (index: number, pi: ProductInfo) => void;
 }
 const ChecklistContext = createContext<ChecklistContextType | null>(null);
 
@@ -44,7 +45,7 @@ export const ChecklistProvider = ({ children, eventId }: {children: ReactNode, e
 			(checklist.companyInfo.website != null ? 1 : 0) +
 			((checklist.companyInfo as any).contactEmail != null ? 1 : 0);
 	const filled = useMemo(() => {
-		const ret = [];
+		const ret = [] as boolean[];
 		ret.push(companyInfoFilledCount === 7);
 		ret.push(checklist.products.length > 0);
 		ret.push(checklist.downloadMaterials.length > 0);
@@ -53,7 +54,7 @@ export const ChecklistProvider = ({ children, eventId }: {children: ReactNode, e
 		ret.push(checklist.electrionicIds.length > 0);
 		return ret;
 	}, [checklist, companyInfoFilledCount]);
-	const value = {
+	const value: ChecklistContextType = {
 		checklist,
 		saveCompanyInfo: (ci: CompanyInfo) => {
 			// Optimistic update: reflect changes immediately in UI
@@ -65,6 +66,15 @@ export const ChecklistProvider = ({ children, eventId }: {children: ReactNode, e
 			const normalized: ProductInfo = { ...ci, tags: Array.isArray(ci.tags) ? ci.tags : [] };
 			setChecklist(prev => ({ ...prev, products: [...prev.products, normalized] }));
 			addProduct(ci).then(() => getChecklist(eventId)).then(setChecklist);
+		},
+		updateProduct: (index: number, pi: ProductInfo) => {
+			const normalized: ProductInfo = { ...pi, tags: Array.isArray(pi.tags) ? pi.tags : [] };
+			setChecklist(prev => {
+				const next = [...prev.products];
+				if (index >= 0 && index < next.length) next[index] = normalized;
+				return { ...prev, products: next };
+			});
+			apiUpdateProduct(index, pi).then(() => getChecklist(eventId)).then(setChecklist);
 		},
 		addEvent: (ci: EventInfo) => { addEvent(ci).then(() => getChecklist(eventId)).then(setChecklist);},
 		addMaterial: (ci: DownloadMaterial) => { addMaterial(ci).then(() => getChecklist(eventId)).then(setChecklist);},

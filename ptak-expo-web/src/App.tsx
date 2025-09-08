@@ -10,6 +10,8 @@ import TradeInfoRoutePage from './pages/TradeInfoRoutePage';
 import DocumentsRoutePage from './pages/DocumentsRoutePage';
 import ChecklistRoutePage from './pages/ChecklistRoutePage';
 import './global.scss';
+import RssEventsPage from './pages/RssEventsPage';
+import RssEventExhibitorsPage from './pages/RssEventExhibitorsPage';
 
 function App() {
   return (
@@ -72,6 +74,9 @@ function App() {
             
             {/* Catch all - redirect to login */}
             <Route path="*" element={<Navigate to="/login" replace />} />
+            {/* Public RSS routes (no auth) */}
+            <Route path="/rss" element={<RssEventsPage />} />
+            <Route path="/rss/event/:exhibitionId" element={<RssEventExhibitorsPage />} />
           </Routes>
         </div>
       </Router>

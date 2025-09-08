@@ -12,6 +12,8 @@ import ApiDocsPage from './pages/ApiDocsPage';
 import './App.scss';
 import EventsPageAlt from './pages/eventsPage/EventsPage_';
 import DatabasePage from './pages/databasePage/DatabasePage';
+import RssEventsPage from './pages/rss/RssEventsPage';
+import RssEventExhibitorsPage from './pages/rss/RssEventExhibitorsPage';
 
 function App() {
   return (
@@ -71,6 +73,10 @@ function App() {
                 <ApiDocsPage />
               </ProtectedRoute>
             } />
+
+            {/* Public RSS pages (no auth) */}
+            <Route path="/rss" element={<RssEventsPage />} />
+            <Route path="/rss/event/:id" element={<RssEventExhibitorsPage />} />
             
             {/* Fallback route */}
             <Route path="*" element={<Navigate to="/dashboard" replace />} />

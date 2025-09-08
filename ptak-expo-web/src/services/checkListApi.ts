@@ -243,6 +243,21 @@ export const addProduct = async (productInfo: ProductInfo) => {
 	const next = [...existing, { ...productInfo, tags: Array.isArray(productInfo.tags) ? productInfo.tags : [] }].sort((a, b) => a.name.localeCompare(b.name));
 	ExampleChecklist = { ...ExampleChecklist, products: next };
 }
+
+export const updateProduct = async (index: number, productInfo: ProductInfo) => {
+	const exhibitionId = Number((window as any).currentSelectedExhibitionId) || 0;
+	const token = localStorage.getItem('authToken') || '';
+	await fetch(`${config.API_BASE_URL}/api/v1/catalog/${exhibitionId}/products/${encodeURIComponent(String(index))}`, {
+		method: 'PUT',
+		headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+		body: JSON.stringify({
+			name: productInfo.name,
+			img: productInfo.img,
+			description: productInfo.description,
+			tags: Array.isArray(productInfo.tags) ? productInfo.tags : [],
+		})
+	});
+};
 export const addEvent = async (event: EventInfo) => {
 	const exhibitionId = Number((window as any).currentSelectedExhibitionId) || 0;
 	const token = localStorage.getItem('authToken') || '';

@@ -287,6 +287,25 @@ export const fetchExhibition = async (id: number, token?: string): Promise<Exhib
   return response.json();
 };
 
+// ============= PUBLIC API (no auth) =============
+export const publicAPI = {
+  listExhibitions: async (): Promise<{ success: boolean; data: Exhibition[] }> => {
+    const res = await apiCall(`${config.API_BASE_URL}/public/exhibitions`, { method: 'GET' });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data?.message || 'Błąd podczas pobierania wydarzeń');
+    return data;
+  },
+  listExhibitorsByExhibition: async (
+    exhibitionId: number
+  ): Promise<{ success: boolean; exhibitionId: number; exhibitors: any[] }> => {
+    const res = await apiCall(`${config.API_BASE_URL}/public/exhibitions/${exhibitionId}/exhibitors`, { method: 'GET' });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data?.message || 'Błąd podczas pobierania wystawców');
+    return data;
+  },
+  rssUrl: (): string => `${config.API_BASE_URL}/public/rss`,
+};
+
 export interface AddExhibitionPayload {
   name: string;
   description?: string;

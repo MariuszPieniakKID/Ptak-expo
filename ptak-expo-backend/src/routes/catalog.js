@@ -311,4 +311,59 @@ router.post('/:exhibitionId/products', verifyToken, requireExhibitorOrAdmin, asy
   }
 });
 
+// Exhibitor: update product at index in GLOBAL products list
+router.put('/:exhibitionId/products/:index', verifyToken, requireExhibitorOrAdmin, async (req, res) => {
+  try {
+    const exhibitorId = await getLinkedExhibitorIdByEmail(req.user.email);
+    if (!exhibitorId) return res.status(400).json({ success: false, message: 'Exhibitor not linked to user' });
+    const idx = parseInt(req.params.index, 10);
+    if (!Number.isInteger(idx) || idx < 0) return res.status(400).json({ success: false, message: 'Invalid product index' });
+
+    const { name, img, description, tabList, tags } = req.body || {};
+    if (!name) return res.status(400).json({ success: false, message: 'Missing product name' });
+
+    // Read current products (GLOBAL row)
+    const cur = await db.query(
+      `SELECT products FROM exhibitor_catalog_entries WHERE exhibitor_id = $1 AND exhibition_id IS NULL ORDER BY updated_at DESC LIMIT 1`,
+      [exhibitorId]
+    );
+    const list = Array.isArray(cur.rows?.[0]?.products) ? cur.rows[0].products : [];
+    if (idx >= list.length) return res.status(404).json({ success: false, message: 'Product index out of range' });
+
+    const next = [...list];
+    next[idx] = {
+      name,
+      img: img || null,
+      description: description || '',
+      tabList: Array.isArray(tabList) ? tabList : null,
+      tags: Array.isArray(tags) ? tags : []
+    };
+
+    const upd = await db.query(
+      `UPDATE exhibitor_catalog_entries
+         SET products = $2::jsonb,
+             updated_at = NOW()
+       WHERE exhibitor_id = $1 AND exhibition_id IS NULL
+       RETURNING products`,
+      [exhibitorId, JSON.stringify(next)]
+    );
+
+    // Upsert tags dictionary
+    if (Array.isArray(tags)) {
+      for (const tag of Array.from(new Set(tags.map(t => String(t || '').trim()).filter(Boolean)))) {
+        await db.query(
+          `INSERT INTO catalog_tags(tag, usage_count) VALUES($1, 1)
+           ON CONFLICT (tag) DO UPDATE SET usage_count = catalog_tags.usage_count + 1, updated_at = NOW()`,
+          [tag]
+        );
+      }
+    }
+
+    return res.json({ success: true, message: 'Product updated', data: upd.rows[0].products });
+  } catch (error) {
+    console.error('Error updating product in catalog:', error);
+    return res.status(500).json({ success: false, message: 'Failed to update product' });
+  }
+});
+
 module.exports = router;

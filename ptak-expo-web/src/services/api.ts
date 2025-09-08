@@ -125,6 +125,20 @@ export const healthAPI = {
     api.get('/api/v1/health'),
 };
 
+// ============= PUBLIC API (no auth required) =============
+export const publicAPI = {
+  // List all exhibitions ordered by start_date
+  listExhibitions: (): Promise<AxiosResponse<{ success: boolean; data: any[] }>> =>
+    api.get('/public/exhibitions'),
+  // List exhibitors for a given exhibition including catalog details and products
+  listExhibitorsByExhibition: (
+    exhibitionId: number
+  ): Promise<AxiosResponse<{ success: boolean; exhibitionId: number; exhibitors: any[] }>> =>
+    api.get(`/public/exhibitions/${exhibitionId}/exhibitors`),
+  // Absolute RSS feed URL
+  rssUrl: (): string => `${config.API_BASE_URL}/public/rss`,
+};
+
 // ============= EXHIBITOR SELF API (ptak-expo-web) =============
 
 export interface ExhibitorProfile {
