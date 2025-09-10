@@ -1,4 +1,4 @@
-import { ChangeEvent, useCallback, useEffect, useState } from 'react';
+import { ChangeEvent, useCallback, useEffect, useMemo, useState } from 'react';
 import CustomField, { OptionType } from '../customField/CustomField';
 import CustomTypography from '../customTypography/CustomTypography';
 import { addExhibitor, AddExhibitorPayload, Exhibition, fetchExhibitions, fetchUsers, User } from '../../services/api';
@@ -116,24 +116,29 @@ const AddExhibitorModal: React.FC<AddExhibitorModalProps> = ({
   const isFormEmpty = Object.values(formValues).every(value => String(value).trim() === '') 
   && Object.values(formEventValues).every(value => String(value).trim() === '');
 
-  const eventOptions: OptionType[] = [
-    { value: '', label: '' },
-    ...exhibitions.map(exh => ({
-      value: exh.id,
-      label: exh.name,
-      description: `${new Date(exh.start_date).toLocaleDateString('pl-PL')} - ${new Date(
-        exh.end_date
-      ).toLocaleDateString('pl-PL')}`,
-    })),
-  ];
-  const exhibitionSupervisorOptions: OptionType[] = [
-     { value: '', label: '' },
-     ...exhibitionSupervisors.map(exh => ({
-       value: exh.id,
-       label: exh.fullName,
-       description: `${exh.phone}`,
-     })),
-  ];
+  const eventOptions: OptionType[] = useMemo(() => (
+    [
+      { value: '', label: '' },
+      ...exhibitions.map(exh => ({
+        value: exh.id,
+        label: exh.name,
+        description: `${new Date(exh.start_date).toLocaleDateString('pl-PL')} - ${new Date(
+          exh.end_date
+        ).toLocaleDateString('pl-PL')}`,
+      })),
+    ]
+  ), [exhibitions]);
+
+  const exhibitionSupervisorOptions: OptionType[] = useMemo(() => (
+    [
+      { value: '', label: '' },
+      ...exhibitionSupervisors.map(exh => ({
+        value: exh.id,
+        label: exh.fullName,
+        description: `${exh.phone}`,
+      })),
+    ]
+  ), [exhibitionSupervisors]);
 
   const resetForm = useCallback(() => {
     setFormValues({
@@ -217,30 +222,30 @@ const AddExhibitorModal: React.FC<AddExhibitorModalProps> = ({
   type FormEventValuesKeys = keyof EventProps;
   type FormAddExhibitorModalFields = FormValuesKeys | FormEventValuesKeys;
 
-  const validators: Record<FormAddExhibitorModalFields, (value: string) => string> = {
-      nip: validateNip,
-      companyName: validateCompanyName,
-      address: validateAddress,
-      postalCode: validatePostalCode,
-      city: validateCity,
-      contactPerson: validateContactPerson,
-      contactRole: validateContactRole,
-      phone: validatePhone,
-      email: (value: string) => {
-        if (!String(value).trim()) return 'Adres e-mail jest wymagany';
-        return validateEmail(value);
-      },
-      password: (value: string) => {
-        if (!value.trim()) return 'Hasło jest wymagane';
-        if (value.length < 6) return 'Hasło musi mieć co najmniej 6 znaków';
-        return '';
-      },
-      selectedExhibitionId: value => validateSelection(value, eventOptions),
-      standNumber: validateStandNumber,
-      hallName: validateHallName,
-      exhibitionSupervisor: value => validateExhibitionSupervisor(value, exhibitionSupervisorOptions),
-      exhibitionId: value => validateSelection(value, eventOptions),
-  };
+  const validators: Record<FormAddExhibitorModalFields, (value: string) => string> = useMemo(() => ({
+    nip: validateNip,
+    companyName: validateCompanyName,
+    address: validateAddress,
+    postalCode: validatePostalCode,
+    city: validateCity,
+    contactPerson: validateContactPerson,
+    contactRole: validateContactRole,
+    phone: validatePhone,
+    email: (value: string) => {
+      if (!String(value).trim()) return 'Adres e-mail jest wymagany';
+      return validateEmail(value);
+    },
+    password: (value: string) => {
+      if (!value.trim()) return 'Hasło jest wymagane';
+      if (value.length < 6) return 'Hasło musi mieć co najmniej 6 znaków';
+      return '';
+    },
+    selectedExhibitionId: value => validateSelection(value, eventOptions),
+    standNumber: validateStandNumber,
+    hallName: validateHallName,
+    exhibitionSupervisor: value => validateExhibitionSupervisor(value, exhibitionSupervisorOptions),
+    exhibitionId: value => validateSelection(value, eventOptions),
+  }), [eventOptions, exhibitionSupervisorOptions]);
 
   const handleFormValueChange =(field: FormValuesKeys) =>(e: ChangeEvent<HTMLInputElement>) => {
       const newValue = e.target.value;
@@ -327,7 +332,17 @@ const AddExhibitorModal: React.FC<AddExhibitorModalProps> = ({
         setLoading(false);
       }
     },
-    [formValues, formEventValues, token, onExhibitorAdded, resetForm]
+    [
+      formValues,
+      formEventValues,
+      token,
+      onExhibitorAdded,
+      resetForm,
+      eventOptions,
+      exhibitionSupervisorOptions,
+      formErrors,
+      validators,
+    ]
   );
 
   const handleClose = useCallback(() => {

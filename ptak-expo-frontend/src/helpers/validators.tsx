@@ -91,7 +91,7 @@ export const validateEmail = (email: string): string => {
 export  const validateStandNumber = (standNumber: string): string => {
   if (!standNumber.trim()) return 'Numer stoiska jest wymagany';
   // Allow letters, digits, spaces and common separators like dot, comma, hyphen and slash (max. 8 chars)
-  const re = /^[A-Za-zĄĆĘŁŃÓŚŹŻąćęłńóśźż0-9\s.,\-\/]{1,8}$/;
+  const re = /^[A-Za-zĄĆĘŁŃÓŚŹŻąćęłńóśźż0-9\s.,\-/]{1,8}$/;
   if (!re.test(standNumber))
     return 'Numer stoiska może zawierać litery, cyfry, spacje oraz znaki: . , - / (max. 8 znaków)';
   return '';
