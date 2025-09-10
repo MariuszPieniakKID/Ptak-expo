@@ -412,4 +412,37 @@ router.put('/:exhibitionId/products/:index', verifyToken, requireExhibitorOrAdmi
   }
 });
 
+// Exhibitor: delete product at index in GLOBAL products list
+router.delete('/:exhibitionId/products/:index', verifyToken, requireExhibitorOrAdmin, async (req, res) => {
+  try {
+    const exhibitorId = await getLinkedExhibitorIdByEmail(req.user.email);
+    if (!exhibitorId) return res.status(400).json({ success: false, message: 'Exhibitor not linked to user' });
+    const idx = parseInt(req.params.index, 10);
+    if (!Number.isInteger(idx) || idx < 0) return res.status(400).json({ success: false, message: 'Invalid product index' });
+
+    const cur = await db.query(
+      `SELECT products FROM exhibitor_catalog_entries WHERE exhibitor_id = $1 AND exhibition_id IS NULL ORDER BY updated_at DESC LIMIT 1`,
+      [exhibitorId]
+    );
+    const list = Array.isArray(cur.rows?.[0]?.products) ? cur.rows[0].products : [];
+    if (idx >= list.length) return res.status(404).json({ success: false, message: 'Product index out of range' });
+
+    const next = list.filter((_, i) => i !== idx);
+
+    const upd = await db.query(
+      `UPDATE exhibitor_catalog_entries
+         SET products = $2::jsonb,
+             updated_at = NOW()
+       WHERE exhibitor_id = $1 AND exhibition_id IS NULL
+       RETURNING products`,
+      [exhibitorId, JSON.stringify(next)]
+    );
+
+    return res.json({ success: true, message: 'Product deleted', data: upd.rows[0].products });
+  } catch (error) {
+    console.error('Error deleting product from catalog:', error);
+    return res.status(500).json({ success: false, message: 'Failed to delete product' });
+  }
+});
+
 module.exports = router;

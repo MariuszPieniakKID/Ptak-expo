@@ -1,10 +1,12 @@
 import { createContext, ReactNode, useContext, useEffect, useMemo, useState } from "react";
 import { addElectronicId, addEvent, addMaterial, addMaterialFile, addProduct, Checklist, CompanyInfo, DownloadMaterial, ElectrionicId, EventInfo, getChecklist, ProductInfo, updateCompanyInfo, updateProduct as apiUpdateProduct } from "../services/checkListApi";
+import { deleteProduct as apiDeleteProduct } from "../services/checkListApi";
 
 interface ChecklistContextType {
   checklist: Checklist;
 	saveCompanyInfo: (ci: CompanyInfo) => void;
 	addProduct: (pi: ProductInfo) => void;
+	removeProduct: (index: number) => void;
 	addEvent: (ei: EventInfo) => void;
 	addMaterial: (dm: DownloadMaterial) => void;
 	uploadMaterialFile: (file: File) => void;
@@ -66,6 +68,14 @@ export const ChecklistProvider = ({ children, eventId }: {children: ReactNode, e
 			const normalized: ProductInfo = { ...ci, tags: Array.isArray(ci.tags) ? ci.tags : [] };
 			setChecklist(prev => ({ ...prev, products: [...prev.products, normalized] }));
 			addProduct(ci).then(() => getChecklist(eventId)).then(setChecklist);
+		},
+		removeProduct: (index: number) => {
+			setChecklist(prev => {
+				const next = [...prev.products];
+				if (index >= 0 && index < next.length) next.splice(index, 1);
+				return { ...prev, products: next };
+			});
+			apiDeleteProduct(index).then(() => getChecklist(eventId)).then(setChecklist);
 		},
 		updateProduct: (index: number, pi: ProductInfo) => {
 			const normalized: ProductInfo = { ...pi, tags: Array.isArray(pi.tags) ? pi.tags : [] };

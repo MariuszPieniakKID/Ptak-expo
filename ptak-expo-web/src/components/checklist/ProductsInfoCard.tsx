@@ -1,12 +1,12 @@
 import { Box, IconButton, Typography } from "@mui/material";
 import ChecklistCard from "./checklistCard";
 import { useChecklist } from "../../contexts/ChecklistContext";
-import { Add } from "@mui/icons-material";
+import { Add, Delete } from "@mui/icons-material";
 import { useState } from "react";
 import EditProduct from "./EditProduct";
 
 export default function ProductsInfo() {
-	var {checklist} = useChecklist();
+	var {checklist, removeProduct} = useChecklist();
 	var [showAdd, setShowAdd] = useState(false);
 	const [editIndex, setEditIndex] = useState<number | null>(null);
 	return (
@@ -20,15 +20,18 @@ export default function ProductsInfo() {
 			const raw = (cp as any).tags;
 			const tagsArr = Array.isArray(raw) ? raw : (typeof raw === 'string' ? raw.split(',').map(s => s.trim()).filter(Boolean) : []);
 			return (
-				<Box display={"flex"} alignItems="center" gap="10px" marginY="16px" width="100%" key={`${cp.name}-${i}`} onClick={() => setEditIndex(i)} sx={{ cursor: 'pointer' }}>
+				<Box display={"flex"} alignItems="center" gap="10px" marginY="16px" width="100%" key={`${cp.name}-${i}`}>
 					<Box component="img"  sx={{ width: 40, height: 40, objectFit: "cover", objectPosition: "center", borderRadius: "20px" }}src={cp.img} alt=""/>
 					<Box flex="1 1 auto" minWidth={0}>
-						<Typography fontSize={16} fontWeight={"bold"}>{cp.name}</Typography>
-						<Typography fontSize={13} color="rgba(111, 111, 111, 1)" whiteSpace="nowrap" textOverflow="ellipsis" overflow="hidden" >{cp.description}</Typography>
+						<Typography fontSize={16} fontWeight={"bold"} onClick={() => setEditIndex(i)} sx={{ cursor: 'pointer' }}>{cp.name}</Typography>
+						<Typography fontSize={13} color="rgba(111, 111, 111, 1)" whiteSpace="nowrap" textOverflow="ellipsis" overflow="hidden" onClick={() => setEditIndex(i)} sx={{ cursor: 'pointer' }} >{cp.description}</Typography>
 						{tagsArr.length > 0 && (
 							<Typography fontSize={12} color="var(--color-darkslategray)">Tagi: {tagsArr.join(', ')}</Typography>
 						)}
 					</Box>
+					<IconButton aria-label="Usuń" onClick={() => { if (window.confirm('Czy na pewno chcesz usunąć ten produkt?')) removeProduct(i); }}>
+						<Delete />
+					</IconButton>
 				</Box>
 			)
 		})}

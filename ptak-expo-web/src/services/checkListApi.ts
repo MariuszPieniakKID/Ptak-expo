@@ -267,6 +267,15 @@ export const updateProduct = async (index: number, productInfo: ProductInfo) => 
 		})
 	});
 };
+
+export const deleteProduct = async (index: number) => {
+  const exhibitionId = Number((window as any).currentSelectedExhibitionId) || 0;
+  const token = localStorage.getItem('authToken') || '';
+  await fetch(`${config.API_BASE_URL}/api/v1/catalog/${exhibitionId}/products/${encodeURIComponent(String(index))}`, {
+    method: 'DELETE',
+    headers: { Authorization: `Bearer ${token}` },
+  });
+};
 export const addEvent = async (event: EventInfo) => {
 	const exhibitionId = Number((window as any).currentSelectedExhibitionId) || 0;
 	const token = localStorage.getItem('authToken') || '';
