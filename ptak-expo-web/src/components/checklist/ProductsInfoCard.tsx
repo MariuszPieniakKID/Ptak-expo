@@ -1,7 +1,7 @@
 import { Box, IconButton, Typography } from "@mui/material";
 import ChecklistCard from "./checklistCard";
 import { useChecklist } from "../../contexts/ChecklistContext";
-import { Add, Delete } from "@mui/icons-material";
+import { Add } from "@mui/icons-material";
 import { useState } from "react";
 import EditProduct from "./EditProduct";
 
@@ -30,7 +30,7 @@ export default function ProductsInfo() {
 						)}
 					</Box>
 					<IconButton aria-label="Usuń" onClick={() => { if (window.confirm('Czy na pewno chcesz usunąć ten produkt?')) removeProduct(i); }}>
-						<Delete />
+						<img src="/assets/delete_confirm.svg" alt="Usuń" width={20} height={20} />
 					</IconButton>
 				</Box>
 			)
