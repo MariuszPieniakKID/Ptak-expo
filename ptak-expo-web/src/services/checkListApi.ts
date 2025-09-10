@@ -118,12 +118,12 @@ export const getChecklist = async (exhibitionId: number) => {
 						companyInfo: {
 							...ExampleChecklist.companyInfo,
 							name: d.name ?? ExampleChecklist.companyInfo.name,
-							displayName: (d.display_name ?? (ExampleChecklist.companyInfo as any).displayName ?? d.name ?? null) as any,
-							description: d.description ?? ExampleChecklist.companyInfo.description,
-							whyVisit: (d.why_visit ?? (ExampleChecklist.companyInfo as any).whyVisit ?? null) as any,
-							website: d.website ?? ExampleChecklist.companyInfo.website,
-							logo: d.logo ?? ExampleChecklist.companyInfo.logo,
-							socials: (d.socials ?? ExampleChecklist.companyInfo.socials) as any
+							displayName: (d.display_name ?? d.name ?? null) as any,
+							description: d.description ?? null,
+							whyVisit: (d.why_visit ?? null) as any,
+							website: d.website ?? null,
+							logo: d.logo ?? null,
+							socials: (d.socials ?? null) as any
 						},
 						products: Array.isArray(d.products) ? d.products
 							.map((p: any) => {
@@ -136,8 +136,8 @@ export const getChecklist = async (exhibitionId: number) => {
 							.sort((a: ProductInfo, b: ProductInfo) => a.name.localeCompare(b.name))
 							: []
 					};
-					(ExampleChecklist.companyInfo as any).catalogTags = d.catalog_tags ?? (ExampleChecklist.companyInfo as any).catalogTags ?? null;
-					(ExampleChecklist.companyInfo as any).brands = d.brands ?? (ExampleChecklist.companyInfo as any).brands ?? null;
+					(ExampleChecklist.companyInfo as any).catalogTags = d.catalog_tags ?? null;
+					(ExampleChecklist.companyInfo as any).brands = d.brands ?? null;
 				}
 			}
 		} catch {}
