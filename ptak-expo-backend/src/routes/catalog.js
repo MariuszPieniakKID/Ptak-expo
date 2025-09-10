@@ -109,7 +109,7 @@ router.get('/:exhibitionId', verifyToken, requireExhibitorOrAdmin, async (req, r
     // Fetch catalog entry
     // 1) Try event-specific entry
     let result = await db.query(
-      `SELECT id, exhibitor_id, exhibition_id, name, display_name, logo, description, contact_info, website, socials, contact_email, products, catalog_tags, brands,
+      `SELECT id, exhibitor_id, exhibition_id, name, display_name, logo, description, why_visit, contact_info, website, socials, contact_email, products, catalog_tags, brands,
               created_at, updated_at
        FROM exhibitor_catalog_entries
        WHERE exhibitor_id = $1 AND exhibition_id = $2`,
@@ -117,18 +117,42 @@ router.get('/:exhibitionId', verifyToken, requireExhibitorOrAdmin, async (req, r
     );
     let data = result.rows[0] || null;
 
-    // 2) Fallback to GLOBAL entry
+    // 2) Read GLOBAL entry (for fallback/merge)
+    const globalRes = await db.query(
+    `SELECT id, exhibitor_id, exhibition_id, name, display_name, logo, description, why_visit, contact_info, website, socials, contact_email, products, catalog_tags, brands,
+            created_at, updated_at
+       FROM exhibitor_catalog_entries
+       WHERE exhibitor_id = $1 AND exhibition_id IS NULL
+       ORDER BY updated_at DESC
+       LIMIT 1`,
+      [exhibitorId]
+    );
+    const globalData = globalRes.rows[0] || null;
+
+    // If there is an event-specific row, merge it with GLOBAL so missing fields fall back to GLOBAL
+    if (data && globalData) {
+      const prefer = (a, b) => (a !== null && a !== undefined && a !== '') ? a : b;
+      data = {
+        ...globalData,
+        ...data,
+        name: prefer(data.name, globalData.name),
+        display_name: prefer(data.display_name, globalData.display_name),
+        logo: prefer(data.logo, globalData.logo),
+        description: prefer(data.description, globalData.description),
+        why_visit: prefer(data.why_visit, globalData.why_visit),
+        contact_info: prefer(data.contact_info, globalData.contact_info),
+        website: prefer(data.website, globalData.website),
+        socials: prefer(data.socials, globalData.socials),
+        contact_email: prefer(data.contact_email, globalData.contact_email),
+        catalog_tags: prefer(data.catalog_tags, globalData.catalog_tags),
+        brands: prefer(data.brands, globalData.brands),
+        products: Array.isArray(data.products) ? data.products : (Array.isArray(globalData.products) ? globalData.products : [])
+      };
+    }
+
+    // If there is no event-specific row, fall back to GLOBAL as entire dataset
     if (!data) {
-      const globalRes = await db.query(
-      `SELECT id, exhibitor_id, exhibition_id, name, display_name, logo, description, contact_info, website, socials, contact_email, products, catalog_tags, brands,
-              created_at, updated_at
-         FROM exhibitor_catalog_entries
-         WHERE exhibitor_id = $1 AND exhibition_id IS NULL
-         ORDER BY updated_at DESC
-         LIMIT 1`,
-        [exhibitorId]
-      );
-      data = globalRes.rows[0] || null;
+      data = globalData;
     }
 
     // 3) Fallback to exhibitors table (defaults)
@@ -149,6 +173,7 @@ router.get('/:exhibitionId', verifyToken, requireExhibitorOrAdmin, async (req, r
           logo: null,
           description: null,
           contact_info: e.contact_person || null,
+          why_visit: null,
           website: null,
           socials: null,
           contact_email: e.email || null,
@@ -180,6 +205,7 @@ router.post('/:exhibitionId', verifyToken, requireExhibitorOrAdmin, async (req, 
       displayName = null,
       logo = null,
       description = null,
+      whyVisit = null,
       contactInfo = null,
       website = null,
       socials = null,
@@ -196,16 +222,17 @@ router.post('/:exhibitionId', verifyToken, requireExhibitorOrAdmin, async (req, 
            display_name = $3,
            logo = $4,
            description = $5,
-           contact_info = $6,
-           website = $7,
-           socials = $8,
-           contact_email = $9,
-           catalog_tags = $10,
-           brands = $11,
+           why_visit = $6,
+           contact_info = $7,
+           website = $8,
+           socials = $9,
+           contact_email = $10,
+           catalog_tags = $11,
+           brands = $12,
            updated_at = NOW()
        WHERE exhibitor_id = $1 AND exhibition_id IS NULL
-       RETURNING id, exhibitor_id, exhibition_id, name, display_name, logo, description, contact_info, website, socials, contact_email, catalog_tags, brands, created_at, updated_at`,
-      [exhibitorId, name, displayName, logo, description, contactInfo, website, socials, contactEmail, catalogTags, brands]
+       RETURNING id, exhibitor_id, exhibition_id, name, display_name, logo, description, why_visit, contact_info, website, socials, contact_email, catalog_tags, brands, created_at, updated_at`,
+      [exhibitorId, name, displayName, logo, description, whyVisit, contactInfo, website, socials, contactEmail, catalogTags, brands]
     );
 
     let result;
@@ -214,10 +241,10 @@ router.post('/:exhibitionId', verifyToken, requireExhibitorOrAdmin, async (req, 
     } else {
       const insertRes = await db.query(
         `INSERT INTO exhibitor_catalog_entries 
-          (exhibitor_id, exhibition_id, name, display_name, logo, description, contact_info, website, socials, contact_email, catalog_tags, brands)
-        VALUES ($1, NULL, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
-        RETURNING id, exhibitor_id, exhibition_id, name, display_name, logo, description, contact_info, website, socials, contact_email, catalog_tags, brands, created_at, updated_at`,
-        [exhibitorId, name, displayName, logo, description, contactInfo, website, socials, contactEmail, catalogTags, brands]
+          (exhibitor_id, exhibition_id, name, display_name, logo, description, why_visit, contact_info, website, socials, contact_email, catalog_tags, brands)
+        VALUES ($1, NULL, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+        RETURNING id, exhibitor_id, exhibition_id, name, display_name, logo, description, why_visit, contact_info, website, socials, contact_email, catalog_tags, brands, created_at, updated_at`,
+        [exhibitorId, name, displayName, logo, description, whyVisit, contactInfo, website, socials, contactEmail, catalogTags, brands]
       );
       result = insertRes;
     }

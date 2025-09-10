@@ -40,7 +40,15 @@ function StringEdit({name, value, onChange, multiline}: {name: string, value: st
 				<Box width="30px" alignItems="center" justifyContent="center">
 					{value != null && <GreenCheck/>}
 				</Box>
-			<TextField variant="standard" value={editText} onChange={(e) => { setEditText(e.target.value);  }} fullWidth multiline={multiline || false}></TextField>
+			<TextField 
+				variant="standard" 
+				label={name}
+				InputLabelProps={{ shrink: true }}
+				value={editText} 
+				onChange={(e) => { setEditText(e.target.value);  }} 
+				fullWidth 
+				multiline={multiline || false}
+			/>
 			<Button onClick={() => {onChange(editText !== "" ? editText : null); setIsEdit(false);}}>Zapisz</Button>
 		</Box>);
 }
@@ -182,6 +190,8 @@ export default function CompanyInfo() {
 			saveCompanyInfo({ ...checklist.companyInfo, logo: v})}/>
 		<StringEdit name="Opis" value={checklist.companyInfo.description} onChange={(v) => 
 			saveCompanyInfo({ ...checklist.companyInfo, description: v})} multiline/>
+		<StringEdit name="Dlaczego warto odwiedzić nasze stoisko?" value={(checklist.companyInfo as any).whyVisit ?? null} onChange={(v) => 
+			saveCompanyInfo({ ...(checklist.companyInfo as any), whyVisit: v as any})} multiline/>
 		<StringEdit name="Dane kontaktowe" value={checklist.companyInfo.contactInfo} onChange={(v) => 
 			saveCompanyInfo({ ...checklist.companyInfo, contactInfo: v})} multiline/>
 		<StringEdit name="Strona www" value={checklist.companyInfo.website} onChange={(v) => 

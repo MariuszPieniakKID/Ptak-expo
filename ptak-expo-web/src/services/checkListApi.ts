@@ -4,6 +4,7 @@ export interface CompanyInfo {
 	name: string | null,
 	logo: string | null, //Upload and download support
 	description: string | null,
+	whyVisit?: string | null,
 	contactInfo: string | null,
 	website: string | null,
 	socials: string | null,
@@ -119,6 +120,7 @@ export const getChecklist = async (exhibitionId: number) => {
 							name: d.name ?? ExampleChecklist.companyInfo.name,
 							displayName: (d.display_name ?? (ExampleChecklist.companyInfo as any).displayName ?? d.name ?? null) as any,
 							description: d.description ?? ExampleChecklist.companyInfo.description,
+							whyVisit: (d.why_visit ?? (ExampleChecklist.companyInfo as any).whyVisit ?? null) as any,
 							website: d.website ?? ExampleChecklist.companyInfo.website,
 							logo: d.logo ?? ExampleChecklist.companyInfo.logo,
 							socials: (d.socials ?? ExampleChecklist.companyInfo.socials) as any
@@ -221,6 +223,7 @@ export const updateCompanyInfo = async (companyInfo: CompanyInfo) => {
 				displayName: (companyInfo as any).displayName ?? null,
 				logo: companyInfo.logo ?? null,
 				description: companyInfo.description ?? null,
+				whyVisit: (companyInfo as any).whyVisit ?? null,
 				contactInfo: companyInfo.contactInfo ?? null,
 				website: companyInfo.website ?? null,
 				socials: companyInfo.socials ?? null,
