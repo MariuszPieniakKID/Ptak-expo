@@ -7,7 +7,9 @@ export interface CompanyInfo {
 	contactInfo: string | null,
 	website: string | null,
 	socials: string | null,
-	contactEmail?: string | null
+	contactEmail?: string | null,
+	brands?: string | null,
+	displayName?: string | null
 }
 export interface ProductInfo {
 	name: string,
@@ -115,9 +117,11 @@ export const getChecklist = async (exhibitionId: number) => {
 						companyInfo: {
 							...ExampleChecklist.companyInfo,
 							name: d.name ?? ExampleChecklist.companyInfo.name,
+							displayName: (d.display_name ?? (ExampleChecklist.companyInfo as any).displayName ?? d.name ?? null) as any,
 							description: d.description ?? ExampleChecklist.companyInfo.description,
 							website: d.website ?? ExampleChecklist.companyInfo.website,
-							logo: d.logo ?? ExampleChecklist.companyInfo.logo
+							logo: d.logo ?? ExampleChecklist.companyInfo.logo,
+							socials: (d.socials ?? ExampleChecklist.companyInfo.socials) as any
 						},
 						products: Array.isArray(d.products) ? d.products
 							.map((p: any) => {
@@ -131,6 +135,7 @@ export const getChecklist = async (exhibitionId: number) => {
 							: []
 					};
 					(ExampleChecklist.companyInfo as any).catalogTags = d.catalog_tags ?? (ExampleChecklist.companyInfo as any).catalogTags ?? null;
+					(ExampleChecklist.companyInfo as any).brands = d.brands ?? (ExampleChecklist.companyInfo as any).brands ?? null;
 				}
 			}
 		} catch {}
@@ -213,6 +218,7 @@ export const updateCompanyInfo = async (companyInfo: CompanyInfo) => {
 		await fetch(`${config.API_BASE_URL}/api/v1/catalog/${exhibitionId}`, {
 			method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify({
 				name: companyInfo.name ?? null,
+				displayName: (companyInfo as any).displayName ?? null,
 				logo: companyInfo.logo ?? null,
 				description: companyInfo.description ?? null,
 				contactInfo: companyInfo.contactInfo ?? null,
@@ -221,7 +227,10 @@ export const updateCompanyInfo = async (companyInfo: CompanyInfo) => {
 				contactEmail: emailToUpdate ?? null,
 				catalogTags: Array.isArray((companyInfo as any).catalogTags)
 					? ((companyInfo as any).catalogTags as string[]).map(s => String(s).trim()).filter(Boolean).join(',')
-					: (((companyInfo as any).catalogTags ?? null) as any)
+					: (((companyInfo as any).catalogTags ?? null) as any),
+				brands: Array.isArray((companyInfo as any).brands)
+					? ((companyInfo as any).brands as string[]).map(s => String(s).trim()).filter(Boolean).join(',')
+					: (((companyInfo as any).brands ?? null) as any)
 			})
 		});
 	} catch {}

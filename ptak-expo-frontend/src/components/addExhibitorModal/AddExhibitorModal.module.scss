@@ -543,3 +543,14 @@
 .formRowFooterWithAction{
   padding-bottom: 2em!important;
 }
+/* Sticky footer for mobile */
+@media (max-width: 600px) {
+  .formRowFooterWithAction {
+    position: sticky;
+    bottom: 0;
+    background: $color-gray;
+    padding-top: 0.5em;
+    padding-bottom: 0.75em;
+    z-index: 2;
+  }
+}

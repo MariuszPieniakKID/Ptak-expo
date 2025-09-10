@@ -7,6 +7,7 @@ import { ReactComponent as GrayCircleIcon} from '../../../assets/grayDashedCircl
  import {ReactComponent as InstagramIcon} from "../../../assets/instagramIcon.svg";
 import {ReactComponent as LinkekInIcon} from "../../../assets/inIcon.svg";
 import {ReactComponent as YouTobeIcon} from "../../../assets/youTubeIcon.svg";
+import {ReactComponent as XIcon} from "../../../assets/xIcon.svg";
 
 import {ReactComponent as EyeIcon} from "../../../assets/eyeIcon.svg";
 import styles from './EntryIntoTheTradeFairCatalogue.module.scss';
@@ -26,6 +27,8 @@ type ExhibitorsDetails = {
     youTube: string;
     linkedIn: string;
     instagram: string;
+    tiktok?: string;
+    x?: string;
   };
 };
 
@@ -43,6 +46,13 @@ function EntryIntoTheTradeFairCatalogue({
     logoUrl
 
 }: EntryIntoTheTradeFairCatalogueProps) {
+  const hasAnySocial = Boolean(
+    (exhibitorsDetails.media.facebook || '').trim() ||
+    (exhibitorsDetails.media.instagram || '').trim() ||
+    (exhibitorsDetails.media.linkedIn || '').trim() ||
+    (exhibitorsDetails.media.youTube || '').trim() ||
+    (exhibitorsDetails.media.tiktok || '').trim()
+  );
   return (
    <>
     <Box className={styles.singleLine}>
@@ -83,7 +93,7 @@ function EntryIntoTheTradeFairCatalogue({
             && exhibitorsDetails.daneKontaktowe.phone!==''
             && exhibitorsDetails.daneKontaktowe.email!=='')
             ?<GreenCiorcleIcon className={styles.icon}/>
-            :<GrayCircleIcon className={styles.iconGray}/>}
+            :<GrayCircleIcon className={styles.iconGray}/>} 
         </Box>
         <Box className={styles.rowWrapper}>
             <Box className={styles.row}>
@@ -114,56 +124,53 @@ function EntryIntoTheTradeFairCatalogue({
 
 
     <Box className={styles.singleLineLabel} >
-      {(
-      exhibitorsDetails.media.facebook!=='' 
-      || exhibitorsDetails.media.instagram!=='' 
-      || exhibitorsDetails.media.linkedIn!=='' 
-      || exhibitorsDetails.media.youTube!=='' 
-       )
+      {hasAnySocial
         ?<GreenCiorcleIcon className={styles.icon}/>
         :<GrayCircleIcon className={styles.iconGray}/>} 
       <CustomTypography className={styles.label}>Social Media </CustomTypography>
     </Box>
+    {hasAnySocial && (
     <Box className={styles.singleLine_}>
         <Box className={styles.rowWrapperIcon}>
-            <Box className={styles.mediaRow}>
-                <FaceBookIcon 
-                className={styles.mediaIcon}
-                style={{ width: '24px', height: '24px' }}
-                />
-                {exhibitorsDetails.media.facebook!=='' 
-                ?<CustomTypography className={styles.value}>{exhibitorsDetails.media.facebook}</CustomTypography>
-                :<CustomTypography className={styles.label}>Facebook</CustomTypography> }                
-            </Box>
-            <Box className={styles.mediaRow}>
-                <InstagramIcon 
-                style={{ width: '24px', height: '24px' }}
-                className={styles.mediaIcon}
-                />
-                {exhibitorsDetails.media.instagram!==''
-                ?<CustomTypography className={styles.value}>{exhibitorsDetails.media.instagram}</CustomTypography>
-                :<CustomTypography className={styles.label}>Instagram</CustomTypography> }
-            </Box>
-            <Box className={styles.mediaRow}>
-                <LinkekInIcon 
-                style={{ width: '22px', height: '22px' }}
-                className={styles.mediaIcon}
-                />
-                {exhibitorsDetails.media.linkedIn!=='' 
-                ?<CustomTypography className={styles.value}>{exhibitorsDetails.media.linkedIn}</CustomTypography>
-                :<CustomTypography className={styles.label}>LinkedIn</CustomTypography> }
-            </Box>
-            <Box className={styles.mediaRow}>
-                <YouTobeIcon 
-                style={{ width: '23px', height: 'auto' }}
-                className={styles.mediaIcon}
-                />
-                 {exhibitorsDetails.media.youTube!==''
-                ?<CustomTypography className={styles.value}>{exhibitorsDetails.media.youTube}</CustomTypography>
-                :<CustomTypography className={styles.label}>YouTube</CustomTypography> }
-            </Box>
+            {exhibitorsDetails.media.facebook?.trim() !== '' && (
+              <Box className={styles.mediaRow}>
+                <FaceBookIcon className={styles.mediaIcon} style={{ width: '24px', height: '24px' }} />
+                <CustomTypography className={styles.value}>{exhibitorsDetails.media.facebook}</CustomTypography>
+              </Box>
+            )}
+            {exhibitorsDetails.media.instagram?.trim() !== '' && (
+              <Box className={styles.mediaRow}>
+                <InstagramIcon style={{ width: '24px', height: '24px' }} className={styles.mediaIcon} />
+                <CustomTypography className={styles.value}>{exhibitorsDetails.media.instagram}</CustomTypography>
+              </Box>
+            )}
+            {exhibitorsDetails.media.linkedIn?.trim() !== '' && (
+              <Box className={styles.mediaRow}>
+                <LinkekInIcon style={{ width: '22px', height: '22px' }} className={styles.mediaIcon} />
+                <CustomTypography className={styles.value}>{exhibitorsDetails.media.linkedIn}</CustomTypography>
+              </Box>
+            )}
+            {exhibitorsDetails.media.youTube?.trim() !== '' && (
+              <Box className={styles.mediaRow}>
+                <YouTobeIcon style={{ width: '23px', height: 'auto' }} className={styles.mediaIcon} />
+                <CustomTypography className={styles.value}>{exhibitorsDetails.media.youTube}</CustomTypography>
+              </Box>
+            )}
+            {exhibitorsDetails.media.tiktok?.trim() !== '' && (
+              <Box className={styles.mediaRow}>
+                {/* Brak dedykowanej ikonki w assets – można dodać później */}
+                <CustomTypography className={styles.value}>{exhibitorsDetails.media.tiktok}</CustomTypography>
+              </Box>
+            )}
+            {exhibitorsDetails.media.x?.trim() !== '' && (
+              <Box className={styles.mediaRow}>
+                <XIcon className={styles.mediaIcon} style={{ width: '20px', height: '20px' }} />
+                <CustomTypography className={styles.value}>{exhibitorsDetails.media.x}</CustomTypography>
+              </Box>
+            )}
      </Box>
     </Box>
+    )}
 
      <Box 
      sx={{paddingTop:'2em'}}

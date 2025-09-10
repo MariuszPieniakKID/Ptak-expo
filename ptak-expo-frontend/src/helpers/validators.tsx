@@ -90,16 +90,16 @@ export const validateEmail = (email: string): string => {
 };
 export  const validateStandNumber = (standNumber: string): string => {
   if (!standNumber.trim()) return 'Numer stoiska jest wymagany';
-  const re = /^[A-Za-z0-9-]{1,8}$/;
+  // Allow letters, digits, spaces and common separators like dot, comma, hyphen and slash (max. 8 chars)
+  const re = /^[A-Za-zĄĆĘŁŃÓŚŹŻąćęłńóśźż0-9\s.,\-\/]{1,8}$/;
   if (!re.test(standNumber))
-    return 'Numer stoiska może zawierać tylko litery, cyfry i myślniki (max. 8 znaków)';
+    return 'Numer stoiska może zawierać litery, cyfry, spacje oraz znaki: . , - / (max. 8 znaków)';
   return '';
 };
 
 export  const validateHallName = (hallName: string): string => {
   const trimmed = hallName.trim();
   if (!trimmed) return 'Nazwa hali jest wymagana';
-  if (trimmed.length < 2) return 'Nazwa hali musi zawierać co najmniej 2 znaki';
   if (trimmed.length > 50) return 'Nazwa hali może zawierać maksymalnie 50 znaków';
   const re = /^[A-Za-zĄĆĘŁŃÓŚŹŻąćęłńóśźż0-9\s.-/]+$/;
   if (!re.test(trimmed))

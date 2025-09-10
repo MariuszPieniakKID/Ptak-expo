@@ -4,6 +4,11 @@ import { ReactNode, useCallback, useEffect, useMemo, useState } from "react";
 import { useChecklist } from "../../contexts/ChecklistContext";
 import GreenCheck from "./GreenCheck";
 import config from "../../config/config";
+import FacebookIcon from "@mui/icons-material/Facebook";
+import InstagramIcon from "@mui/icons-material/Instagram";
+import TwitterIcon from "@mui/icons-material/Twitter";
+import LinkedInIcon from "@mui/icons-material/LinkedIn";
+import MusicNoteIcon from "@mui/icons-material/MusicNote";
 
 function DisplayEdit({text, onEdit, checked}: {text: ReactNode, onEdit: () => void, checked?: boolean}) {
 		return <Box display="flex" alignItems="center">
@@ -124,6 +129,45 @@ export default function CompanyInfo() {
 		};
 	}, []);
 	useEffect(() => { debouncedFetch(""); }, [debouncedFetch]);
+
+	// Brands state and suggestions
+	const [brandOptions, setBrandOptions] = useState<string[]>([]);
+	const [editingBrands, setEditingBrands] = useState(false);
+	const brandsRaw = (checklist.companyInfo as any).brands || '';
+	const currentBrandsArray = useMemo(() => String(brandsRaw || '').split(',').map(s => s.trim()).filter(Boolean), [brandsRaw]);
+	const [selectedBrands, setSelectedBrands] = useState<string[]>(currentBrandsArray);
+	useEffect(() => setSelectedBrands(currentBrandsArray), [currentBrandsArray]);
+	const [brandsInputValue, setBrandsInputValue] = useState<string>("");
+	const debouncedBrandsFetch = useMemo(() => {
+		let t: any;
+		return (q: string) => {
+			clearTimeout(t);
+			t = setTimeout(async () => {
+				try {
+					const token = localStorage.getItem('authToken') || '';
+					const base = config.API_BASE_URL || (window as any).API_BASE_URL || '';
+					const url = q ? `${base}/api/v1/catalog/brands?query=${encodeURIComponent(q)}` : `${base}/api/v1/catalog/brands`;
+					const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
+					if (res.ok) {
+						const j = await res.json();
+						const list = Array.isArray(j.data) ? j.data.map((r: any) => String(r.brand)) : [];
+						setBrandOptions(list);
+					}
+				} catch {}
+			}, 250);
+		};
+	}, []);
+	useEffect(() => { debouncedBrandsFetch(""); }, [debouncedBrandsFetch]);
+
+	// Socials draft state synced from backend value; save happens on explicit button click
+	const [socialsDraft, setSocialsDraft] = useState<any>({});
+	useEffect(() => {
+		let parsed: any = {};
+		try { parsed = JSON.parse(checklist.companyInfo.socials || '{}') || {}; } catch {}
+		setSocialsDraft(parsed);
+	}, [checklist.companyInfo.socials]);
+	const [editingSocials, setEditingSocials] = useState<boolean>(false);
+
 	return (
 	<ChecklistCard
 			icon={<img src={`/assets/checklist-step-1.svg`} alt=""></img>}
@@ -132,6 +176,8 @@ export default function CompanyInfo() {
 		>
 		<StringEdit name="Nazwa firmy" value={checklist.companyInfo.name} onChange={(v) => 
 			saveCompanyInfo({ ...checklist.companyInfo, name: v})}/>
+		<StringEdit name="Nazwa firmy do wyświetlania" value={(checklist.companyInfo as any).displayName || checklist.companyInfo.name} onChange={(v) => 
+			saveCompanyInfo({ ...(checklist.companyInfo as any), displayName: v})}/>
 		<ImageEdit name="Logotyp" value={checklist.companyInfo.logo} onChange={(v) => 
 			saveCompanyInfo({ ...checklist.companyInfo, logo: v})}/>
 		<StringEdit name="Opis" value={checklist.companyInfo.description} onChange={(v) => 
@@ -148,7 +194,7 @@ export default function CompanyInfo() {
 					{currentCatalogTagsArray.length > 0 && <GreenCheck/>}
 				</Box>
 				<Box flex={1}>
-					<Typography variant="body2">Tagi dla katalogu: {currentCatalogTagsArray.join(', ')}</Typography>
+					<Typography variant="body2">Sektory technologiczne (Wybierz lub stwórz tagi): {currentCatalogTagsArray.join(', ')}</Typography>
 				</Box>
 				<Button onClick={() => setEditingCatalogTags(true)}>Edytuj</Button>
 			</Box>
@@ -174,7 +220,7 @@ export default function CompanyInfo() {
 						))
 					}
 					renderInput={(params) => (
-						<TextField {...(params as any)} fullWidth variant="standard" label="Tagi dla katalogu" placeholder="zacznij pisać, aby dodać" />
+						<TextField {...(params as any)} fullWidth variant="standard" label="Sektory technologiczne (Wybierz lub stwórz tagi)" placeholder="zacznij pisać, aby dodać" />
 					)}
 				/>
 				<Button onClick={() => {
@@ -191,8 +237,115 @@ export default function CompanyInfo() {
 				}}>Zapisz</Button>
 			</Box>
 		)}
-		<StringEdit name="Social Media" value={checklist.companyInfo.socials} onChange={(v) => 
-			saveCompanyInfo({ ...checklist.companyInfo, socials: v})} multiline/>
+		{/* Brands (Brandy) */}
+		{!editingBrands && (
+			<Box display="flex" alignItems="center">
+				<Box width="30px" alignItems="center" justifyContent="center">
+					{currentBrandsArray.length > 0 && <GreenCheck/>}
+				</Box>
+				<Box flex={1}>
+					<Typography variant="body2">Brandy: {currentBrandsArray.join(', ')}</Typography>
+				</Box>
+				<Button onClick={() => setEditingBrands(true)}>Edytuj</Button>
+			</Box>
+		)}
+		{editingBrands && (
+			<Box display="flex" alignItems="center" gap={1} width="100%">
+				<Box width="30px" alignItems="center" justifyContent="center">
+					{selectedBrands.length > 0 && <GreenCheck/>}
+				</Box>
+				<Autocomplete
+					fullWidth
+					sx={{ flex: 1, minWidth: 0 }}
+					multiple
+					freeSolo
+					options={brandOptions}
+					value={selectedBrands}
+					inputValue={brandsInputValue}
+					onInputChange={(_, q) => { setBrandsInputValue(q); debouncedBrandsFetch(q); }}
+					onChange={(_, value) => setSelectedBrands((value as string[]).map(v => String(v).trim()).filter(Boolean))}
+					renderTags={(value: readonly string[], getTagProps) =>
+						value.map((option: string, index: number) => (
+							<Chip variant="outlined" label={option} {...getTagProps({ index })} />
+						))
+					}
+					renderInput={(params) => (
+						<TextField {...(params as any)} fullWidth variant="standard" label="Brandy" placeholder="zacznij pisać, aby dodać" />
+					)}
+				/>
+				<Button onClick={() => {
+					const manual = String(brandsInputValue || '')
+						.split(',')
+						.map(s => s.trim())
+						.filter(Boolean);
+					const final = Array.from(new Set([...(selectedBrands || []), ...manual]));
+					setSelectedBrands(final);
+					setBrandsInputValue('');
+					setEditingBrands(false);
+					saveCompanyInfo({ ...(checklist.companyInfo as any), brands: final.join(',') as any });
+				}}>Zapisz</Button>
+			</Box>
+		)}
+
+		{/* Social media structured links */}
+		{(() => {
+			const persistKey = (key: string) => {
+				const raw = String(socialsDraft[key] || '').trim();
+				const next = { ...(socialsDraft || {}) } as any;
+				if (raw) next[key] = raw; else delete next[key];
+				saveCompanyInfo({ ...checklist.companyInfo, socials: JSON.stringify(next) });
+				setSocialsDraft(next);
+			};
+			const hasAny = Object.values(socialsDraft || {}).some((v) => String(v || '').trim() !== '');
+			const linkIcon = (key: 'facebook'|'instagram'|'x'|'tiktok'|'linkedin', href?: string) => {
+				if (!href) return null;
+				const Icon = key === 'facebook' ? FacebookIcon : key === 'instagram' ? InstagramIcon : key === 'x' ? TwitterIcon : key === 'tiktok' ? MusicNoteIcon : LinkedInIcon;
+				return (
+					<Box key={key} display="flex" alignItems="center" justifyContent="center">
+						<a href={href} target="_blank" rel="noopener noreferrer" aria-label={key} style={{ color: 'inherit' }}>
+							<Icon fontSize="small" />
+						</a>
+					</Box>
+				);
+			};
+			return (
+				<Box>
+					<DisplayEdit text={<Typography variant="body2">Social media</Typography>} onEdit={() => setEditingSocials(v => !v)} checked={hasAny} />
+					{!editingSocials && hasAny && (
+						<Box mt={1} display="grid" gridTemplateColumns="repeat(5, 28px)" gap={1}>
+							{linkIcon('facebook', socialsDraft.facebook)}
+							{linkIcon('instagram', socialsDraft.instagram)}
+							{linkIcon('x', socialsDraft.x)}
+							{linkIcon('tiktok', socialsDraft.tiktok)}
+							{linkIcon('linkedin', socialsDraft.linkedin)}
+						</Box>
+					)}
+					{editingSocials && (
+						<Box mt={1} display="grid" gridTemplateColumns="28px 1fr auto" gap={1}>
+							<Box display="flex" alignItems="center" justifyContent="center"><FacebookIcon fontSize="small"/></Box>
+							<TextField variant="standard" value={socialsDraft.facebook || ''} onChange={(e) => setSocialsDraft({ ...socialsDraft, facebook: e.target.value })} placeholder="https://facebook.com/..."/>
+							<Button size="small" onClick={() => persistKey('facebook')}>Zapisz</Button>
+
+							<Box display="flex" alignItems="center" justifyContent="center"><InstagramIcon fontSize="small"/></Box>
+							<TextField variant="standard" value={socialsDraft.instagram || ''} onChange={(e) => setSocialsDraft({ ...socialsDraft, instagram: e.target.value })} placeholder="https://instagram.com/..."/>
+							<Button size="small" onClick={() => persistKey('instagram')}>Zapisz</Button>
+
+							<Box display="flex" alignItems="center" justifyContent="center"><TwitterIcon fontSize="small"/></Box>
+							<TextField variant="standard" value={socialsDraft.x || ''} onChange={(e) => setSocialsDraft({ ...socialsDraft, x: e.target.value })} placeholder="https://x.com/..."/>
+							<Button size="small" onClick={() => persistKey('x')}>Zapisz</Button>
+
+							<Box display="flex" alignItems="center" justifyContent="center"><MusicNoteIcon fontSize="small"/></Box>
+							<TextField variant="standard" value={socialsDraft.tiktok || ''} onChange={(e) => setSocialsDraft({ ...socialsDraft, tiktok: e.target.value })} placeholder="https://tiktok.com/@..."/>
+							<Button size="small" onClick={() => persistKey('tiktok')}>Zapisz</Button>
+
+							<Box display="flex" alignItems="center" justifyContent="center"><LinkedInIcon fontSize="small"/></Box>
+							<TextField variant="standard" value={socialsDraft.linkedin || ''} onChange={(e) => setSocialsDraft({ ...socialsDraft, linkedin: e.target.value })} placeholder="https://linkedin.com/company/..."/>
+							<Button size="small" onClick={() => persistKey('linkedin')}>Zapisz</Button>
+						</Box>
+					)}
+				</Box>
+			);
+			})()}
 
 		{/*<div className={styles.sectionList}>
 			{['Nazwa Firmy','Logotyp','Opis','Dane kontaktowe','Strona www.','Social Media'].map((it) => (

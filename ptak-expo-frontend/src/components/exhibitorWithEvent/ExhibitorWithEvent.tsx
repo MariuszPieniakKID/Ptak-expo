@@ -68,16 +68,14 @@ const handleSubmitDocument=(documentId:number)=>{
 
 //ZESTAWIENIE DANYCH W ACCORDION PAGE 1
 
-
-
-
 const buildItems = (
   exhibitor: Exhibitor | undefined,
   description: string,
   website: string,
   logoFileName: string | null,
   logoUrl: string | null,
-  products: PresentedProductItem[]
+  products: PresentedProductItem[],
+  socials: { facebook: string; instagram: string; linkedIn: string; youTube: string; tiktok: string; x: string }
 ) => {
   const exhibitorsDetails = {
     companyName: exhibitor?.companyName || '',
@@ -90,10 +88,12 @@ const buildItems = (
     },
     website: website || '',
     media: {
-      facebook: '',
-      youTube: '',
-      linkedIn: '',
-      instagram: '',
+      facebook: socials.facebook || '',
+      youTube: socials.youTube || '',
+      linkedIn: socials.linkedIn || '',
+      instagram: socials.instagram || '',
+      tiktok: socials.tiktok || '',
+      x: socials.x || ''
     },
   };
 
@@ -124,13 +124,9 @@ const buildItems = (
   ];
 };
 
-
 const handleRemindTheExhibitorToCompleteTheCatalog=(exhibitorId:number)=>{
   console.log(`Wyślij przypomnienie do uzupełnienia katalogu exhibitorId: ${exhibitorId}`)
 }
-
-
-
 
 type ExhibitorWithEventProps = {
   allowMultiple?: boolean; // domyślnie false
@@ -151,6 +147,7 @@ function ExhibitorWithEvent({
   const [logoFileName, setLogoFileName] = useState<string | null>(null);
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [products, setProducts] = useState<PresentedProductItem[]>([]);
+  const [catalogSocials, setCatalogSocials] = useState<{ facebook: string; instagram: string; linkedIn: string; youTube: string; tiktok: string; x: string }>({ facebook: '', instagram: '', linkedIn: '', youTube: '', tiktok: '', x: '' });
 
   useEffect(() => {
     const loadData = async () => {
@@ -161,34 +158,53 @@ function ExhibitorWithEvent({
         let nextLogoFileName: string | null = null;
         let nextLogoUrl: string | null = null;
 
-        // 1) Fetch catalog entry (admin view)
+        // Determine effective exhibitionId for requests
+        const effectiveExhibitionId = preferredExhibitionId ?? (Array.isArray(exhibitor.events) && exhibitor.events.length > 0
+          ? (exhibitor.events[0] as any).id
+          : undefined);
+
+        // 1) Fetch catalog entry (exhibitor view)
         try {
-          const res = await fetch(`${config.API_BASE_URL}/api/v1/catalog/admin/${exhibitor.id}`, {
-            headers: { 'Authorization': `Bearer ${token}` },
-            credentials: 'include'
-          });
-          if (res.ok) {
-            const json = await res.json();
-            const data = json?.data || null;
-            if (data) {
-              setCatalogDescription(data.description || '');
-              setCatalogWebsite(data.website || '');
-              fallbackCatalogLogoDataUrl = data.logo || null;
-            } else {
-              setCatalogDescription('');
-              setCatalogWebsite('');
-              fallbackCatalogLogoDataUrl = null;
+          if (effectiveExhibitionId) {
+            const res = await fetch(`${config.API_BASE_URL}/api/v1/catalog/${effectiveExhibitionId}?exhibitorId=${encodeURIComponent(String(exhibitor.id))}`, {
+              headers: { 'Authorization': `Bearer ${token}` },
+              credentials: 'include'
+            });
+            if (res.ok) {
+              const json = await res.json();
+              const data = json?.data || null;
+              if (data) {
+                setCatalogDescription(data.description || '');
+                setCatalogWebsite(data.website || '');
+                fallbackCatalogLogoDataUrl = data.logo || null;
+                // Socials mapping (JSON string in data.socials)
+                try {
+                  const s = JSON.parse(data.socials || '{}') || {};
+                  setCatalogSocials({
+                    facebook: String(s.facebook || ''),
+                    instagram: String(s.instagram || ''),
+                    linkedIn: String(s.linkedin || s.linkedIn || ''),
+                    youTube: String(s.youtube || s.youTube || ''),
+                    tiktok: String(s.tiktok || s.tikTok || ''),
+                    x: String(s.x || s.twitter || '')
+                  });
+                } catch {
+                  setCatalogSocials({ facebook: '', instagram: '', linkedIn: '', youTube: '', tiktok: '', x: '' });
+                }
+              } else {
+                setCatalogDescription('');
+                setCatalogWebsite('');
+                fallbackCatalogLogoDataUrl = null;
+                setCatalogSocials({ facebook: '', instagram: '', linkedIn: '', youTube: '', tiktok: '', x: '' });
+              }
             }
           }
         } catch {}
 
         // 2) Fetch branding files to determine logo filename and URL
-        const exhibitionId = preferredExhibitionId ?? (Array.isArray(exhibitor.events) && exhibitor.events.length > 0
-          ? (exhibitor.events[0] as any).id
-          : undefined);
-        if (exhibitionId) {
+        if (effectiveExhibitionId) {
           try {
-            const filesResp = await getBrandingFiles(exhibitor.id, exhibitionId, token);
+            const filesResp = await getBrandingFiles(exhibitor.id, effectiveExhibitionId, token);
             const files = filesResp.files || {};
             // Prefer exhibitor-scoped event_logo, else first key containing 'logo', else any
             const preferredKey = files['event_logo']
@@ -210,7 +226,7 @@ function ExhibitorWithEvent({
           // If exhibitor-scoped logo not found, fall back to global event logo
           if (!nextLogoUrl) {
             try {
-              const globalFilesResp = await getBrandingFiles(null, exhibitionId, token);
+              const globalFilesResp = await getBrandingFiles(null, effectiveExhibitionId, token);
               const gfiles = globalFilesResp.files || {};
               if (gfiles['event_logo']) {
                 const value: any = gfiles['event_logo'] as any;
@@ -249,7 +265,8 @@ function ExhibitorWithEvent({
             credentials: 'include'
           });
           if (prodRes.ok) {
-            const prodJson = await prodRes.json();
+            const res = prodRes; // alias to avoid stale references
+            const prodJson = await res.json();
             const raw = Array.isArray(prodJson?.data) ? prodJson.data : [];
             const mapped: PresentedProductItem[] = raw.map((p: any) => ({
               imageSrc: p.img || productImg,
@@ -269,7 +286,7 @@ function ExhibitorWithEvent({
     loadData();
   }, [exhibitor?.id, exhibitor?.events, preferredExhibitionId]);
 
-  const items = buildItems(exhibitor, catalogDescription, catalogWebsite, logoFileName, logoUrl, products);
+  const items = buildItems(exhibitor, catalogDescription, catalogWebsite, logoFileName, logoUrl, products, catalogSocials);
   const [expandedAccordions, setExpandedAccordions] = useState<boolean[]>(Array(items.length).fill(false));
   const [expandedOne, setExpandedOne] = useState<number | false>(false);
 
@@ -288,9 +305,6 @@ function ExhibitorWithEvent({
   ) => {
     setExpandedOne(isExpanded ? index : false);
   };
-
-  
-  
 
   return (
     <Box className={styles.container}>
@@ -381,7 +395,6 @@ function ExhibitorWithEvent({
                   '@media (max-width:440px)': {
                     fontSize:'13px',
                   },
-
 
                    }} component="span">
                   {item.title}

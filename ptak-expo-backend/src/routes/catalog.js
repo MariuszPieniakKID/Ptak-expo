@@ -51,6 +51,48 @@ router.post('/tags', verifyToken, requireExhibitorOrAdmin, async (req, res) => {
   }
 });
 
+// Suggest brands (optionally filtered by prefix)
+router.get('/brands', verifyToken, requireExhibitorOrAdmin, async (req, res) => {
+  try {
+    const q = String(req.query.query || '').trim().toLowerCase();
+    let result;
+    if (q) {
+      result = await db.query(
+        `SELECT brand, usage_count FROM catalog_brands WHERE LOWER(brand) LIKE $1 ORDER BY usage_count DESC, brand ASC LIMIT 50`,
+        [q + '%']
+      );
+    } else {
+      result = await db.query(
+        `SELECT brand, usage_count FROM catalog_brands ORDER BY usage_count DESC, brand ASC LIMIT 50`
+      );
+    }
+    return res.json({ success: true, data: result.rows });
+  } catch (e) {
+    console.error('Error fetching catalog brands:', e);
+    return res.status(500).json({ success: false, message: 'Failed to fetch brands' });
+  }
+});
+
+// Upsert brands
+router.post('/brands', verifyToken, requireExhibitorOrAdmin, async (req, res) => {
+  try {
+    const { brands } = req.body || {};
+    if (!Array.isArray(brands)) return res.status(400).json({ success: false, message: 'brands must be an array' });
+    const cleaned = Array.from(new Set(brands.map(t => String(t || '').trim()).filter(Boolean)));
+    for (const brand of cleaned) {
+      await db.query(
+        `INSERT INTO catalog_brands(brand, usage_count) VALUES($1, 1)
+         ON CONFLICT (brand) DO UPDATE SET usage_count = catalog_brands.usage_count + 1, updated_at = NOW()`,
+        [brand]
+      );
+    }
+    return res.json({ success: true });
+  } catch (e) {
+    console.error('Error upserting catalog brands:', e);
+    return res.status(500).json({ success: false, message: 'Failed to upsert brands' });
+  }
+});
+
 // GET current exhibitor entry (exhibitor/admin) - event-specific with fallbacks
 router.get('/:exhibitionId', verifyToken, requireExhibitorOrAdmin, async (req, res) => {
   try {
@@ -67,7 +109,7 @@ router.get('/:exhibitionId', verifyToken, requireExhibitorOrAdmin, async (req, r
     // Fetch catalog entry
     // 1) Try event-specific entry
     let result = await db.query(
-      `SELECT id, exhibitor_id, exhibition_id, name, logo, description, contact_info, website, socials, contact_email, products, catalog_tags,
+      `SELECT id, exhibitor_id, exhibition_id, name, display_name, logo, description, contact_info, website, socials, contact_email, products, catalog_tags, brands,
               created_at, updated_at
        FROM exhibitor_catalog_entries
        WHERE exhibitor_id = $1 AND exhibition_id = $2`,
@@ -78,8 +120,8 @@ router.get('/:exhibitionId', verifyToken, requireExhibitorOrAdmin, async (req, r
     // 2) Fallback to GLOBAL entry
     if (!data) {
       const globalRes = await db.query(
-        `SELECT id, exhibitor_id, exhibition_id, name, logo, description, contact_info, website, socials, contact_email, products, catalog_tags,
-                created_at, updated_at
+      `SELECT id, exhibitor_id, exhibition_id, name, display_name, logo, description, contact_info, website, socials, contact_email, products, catalog_tags, brands,
+              created_at, updated_at
          FROM exhibitor_catalog_entries
          WHERE exhibitor_id = $1 AND exhibition_id IS NULL
          ORDER BY updated_at DESC
@@ -103,6 +145,7 @@ router.get('/:exhibitionId', verifyToken, requireExhibitorOrAdmin, async (req, r
           exhibitor_id: exhibitorId,
           exhibition_id: null,
           name: e.company_name,
+          display_name: e.company_name,
           logo: null,
           description: null,
           contact_info: e.contact_person || null,
@@ -110,6 +153,8 @@ router.get('/:exhibitionId', verifyToken, requireExhibitorOrAdmin, async (req, r
           socials: null,
           contact_email: e.email || null,
           products: [],
+          catalog_tags: null,
+          brands: null,
           created_at: null,
           updated_at: null
         };
@@ -123,43 +168,44 @@ router.get('/:exhibitionId', verifyToken, requireExhibitorOrAdmin, async (req, r
   }
 });
 
-// UPSERT current exhibitor entry
+// UPSERT current exhibitor entry (GLOBAL)
 router.post('/:exhibitionId', verifyToken, requireExhibitorOrAdmin, async (req, res) => {
   try {
     // Store as GLOBAL entry regardless of the route param to keep one source of truth
-    const exhibitionId = null;
     const exhibitorId = await getLinkedExhibitorIdByEmail(req.user.email);
     if (!exhibitorId) return res.status(400).json({ success: false, message: 'Exhibitor not linked to user' });
 
     const {
       name = null,
+      displayName = null,
       logo = null,
       description = null,
       contactInfo = null,
       website = null,
       socials = null,
       contactEmail = null,
-      catalogTags = null
+      catalogTags = null,
+      brands = null
     } = req.body || {};
-
-    // Upsert catalog entry
 
     // Safe upsert without relying on a specific constraint name
     const updateRes = await db.query(
       `UPDATE exhibitor_catalog_entries
          SET 
            name = $2,
-           logo = $3,
-           description = $4,
-           contact_info = $5,
-           website = $6,
-           socials = $7,
-           contact_email = $8,
-           catalog_tags = $9,
+           display_name = $3,
+           logo = $4,
+           description = $5,
+           contact_info = $6,
+           website = $7,
+           socials = $8,
+           contact_email = $9,
+           catalog_tags = $10,
+           brands = $11,
            updated_at = NOW()
        WHERE exhibitor_id = $1 AND exhibition_id IS NULL
-       RETURNING id, exhibitor_id, exhibition_id, name, logo, description, contact_info, website, socials, contact_email, catalog_tags, created_at, updated_at`,
-      [exhibitorId, name, logo, description, contactInfo, website, socials, contactEmail, catalogTags]
+       RETURNING id, exhibitor_id, exhibition_id, name, display_name, logo, description, contact_info, website, socials, contact_email, catalog_tags, brands, created_at, updated_at`,
+      [exhibitorId, name, displayName, logo, description, contactInfo, website, socials, contactEmail, catalogTags, brands]
     );
 
     let result;
@@ -168,15 +214,15 @@ router.post('/:exhibitionId', verifyToken, requireExhibitorOrAdmin, async (req, 
     } else {
       const insertRes = await db.query(
         `INSERT INTO exhibitor_catalog_entries 
-          (exhibitor_id, exhibition_id, name, logo, description, contact_info, website, socials, contact_email, catalog_tags)
-        VALUES ($1, NULL, $2, $3, $4, $5, $6, $7, $8, $9)
-        RETURNING id, exhibitor_id, exhibition_id, name, logo, description, contact_info, website, socials, contact_email, catalog_tags, created_at, updated_at`,
-        [exhibitorId, name, logo, description, contactInfo, website, socials, contactEmail, catalogTags]
+          (exhibitor_id, exhibition_id, name, display_name, logo, description, contact_info, website, socials, contact_email, catalog_tags, brands)
+        VALUES ($1, NULL, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+        RETURNING id, exhibitor_id, exhibition_id, name, display_name, logo, description, contact_info, website, socials, contact_email, catalog_tags, brands, created_at, updated_at`,
+        [exhibitorId, name, displayName, logo, description, contactInfo, website, socials, contactEmail, catalogTags, brands]
       );
       result = insertRes;
     }
 
-    // synchronise catalogTags by upserting to catalog_tags dictionary (no direct column yet)
+    // synchronise catalogTags by upserting to catalog_tags dictionary
     if (catalogTags) {
       const list = String(catalogTags).split(',').map(s => s.trim()).filter(Boolean);
       for (const tag of list) {
@@ -184,6 +230,17 @@ router.post('/:exhibitionId', verifyToken, requireExhibitorOrAdmin, async (req, 
           `INSERT INTO catalog_tags(tag, usage_count) VALUES($1, 1)
            ON CONFLICT (tag) DO UPDATE SET usage_count = catalog_tags.usage_count + 1, updated_at = NOW()`,
           [tag]
+        );
+      }
+    }
+    // synchronise brands to catalog_brands dictionary
+    if (brands) {
+      const list = String(brands).split(',').map(s => s.trim()).filter(Boolean);
+      for (const brand of list) {
+        await db.query(
+          `INSERT INTO catalog_brands(brand, usage_count) VALUES($1, 1)
+           ON CONFLICT (brand) DO UPDATE SET usage_count = catalog_brands.usage_count + 1, updated_at = NOW()`,
+          [brand]
         );
       }
     }
@@ -202,7 +259,6 @@ router.post('/:exhibitionId', verifyToken, requireExhibitorOrAdmin, async (req, 
       );
     } catch (syncErr) {
       console.error('⚠️ Error syncing catalog fields to exhibitors:', syncErr);
-      // Do not fail the request if sync fails; catalog entry was saved
     }
 
     return res.json({ success: true, message: 'Catalog entry saved', data: result.rows[0] });
@@ -216,8 +272,6 @@ router.post('/:exhibitionId', verifyToken, requireExhibitorOrAdmin, async (req, 
 router.get('/admin/:exhibitorId/products', verifyToken, requireAdmin, async (req, res) => {
   try {
     const exhibitorId = parseInt(req.params.exhibitorId, 10);
-    
-    // Global first
     let result = await db.query(
       `SELECT products FROM exhibitor_catalog_entries WHERE exhibitor_id = $1 AND exhibition_id IS NULL ORDER BY updated_at DESC LIMIT 1`,
       [exhibitorId]
@@ -228,7 +282,7 @@ router.get('/admin/:exhibitorId/products', verifyToken, requireAdmin, async (req
         `SELECT products FROM exhibitor_catalog_entries WHERE exhibitor_id = $1 ORDER BY updated_at DESC LIMIT 1`,
         [exhibitorId]
       );
-      products = (anyRes.rows[0]?.products) || [];
+        products = (anyRes.rows[0]?.products) || [];
     }
     return res.json({ success: true, data: Array.isArray(products) ? products : [] });
   } catch (error) {
@@ -245,9 +299,6 @@ router.post('/:exhibitionId/products', verifyToken, requireExhibitorOrAdmin, asy
     const { name, img, description, tabList, tags } = req.body || {};
     if (!name) return res.status(400).json({ success: false, message: 'Missing product name' });
 
-    
-
-    // Try update existing global row by appending to products
     const upd = await db.query(
       `UPDATE exhibitor_catalog_entries
          SET products = COALESCE(products, '[]'::jsonb) || jsonb_build_array(
@@ -266,7 +317,6 @@ router.post('/:exhibitionId/products', verifyToken, requireExhibitorOrAdmin, asy
     );
 
     if (upd.rows.length > 0) {
-      // Upsert tags dictionary
       if (Array.isArray(tags)) {
         for (const tag of Array.from(new Set(tags.map(t => String(t || '').trim()).filter(Boolean)))) {
           await db.query(
@@ -279,7 +329,6 @@ router.post('/:exhibitionId/products', verifyToken, requireExhibitorOrAdmin, asy
       return res.json({ success: true, message: 'Product added', data: upd.rows[0].products });
     }
 
-    // Insert new global row with products array
     const ins = await db.query(
       `INSERT INTO exhibitor_catalog_entries (exhibitor_id, exhibition_id, products)
        VALUES ($1, NULL, jsonb_build_array(
@@ -294,7 +343,6 @@ router.post('/:exhibitionId/products', verifyToken, requireExhibitorOrAdmin, asy
        RETURNING products`,
       [exhibitorId, name, img || null, description || '', Array.isArray(tabList) ? JSON.stringify(tabList) : null, Array.isArray(tags) ? JSON.stringify(tags) : JSON.stringify([])]
     );
-    // Upsert tags dictionary
     if (Array.isArray(tags)) {
       for (const tag of Array.from(new Set(tags.map(t => String(t || '').trim()).filter(Boolean)))) {
         await db.query(
@@ -322,7 +370,6 @@ router.put('/:exhibitionId/products/:index', verifyToken, requireExhibitorOrAdmi
     const { name, img, description, tabList, tags } = req.body || {};
     if (!name) return res.status(400).json({ success: false, message: 'Missing product name' });
 
-    // Read current products (GLOBAL row)
     const cur = await db.query(
       `SELECT products FROM exhibitor_catalog_entries WHERE exhibitor_id = $1 AND exhibition_id IS NULL ORDER BY updated_at DESC LIMIT 1`,
       [exhibitorId]
@@ -348,7 +395,6 @@ router.put('/:exhibitionId/products/:index', verifyToken, requireExhibitorOrAdmi
       [exhibitorId, JSON.stringify(next)]
     );
 
-    // Upsert tags dictionary
     if (Array.isArray(tags)) {
       for (const tag of Array.from(new Set(tags.map(t => String(t || '').trim()).filter(Boolean)))) {
         await db.query(

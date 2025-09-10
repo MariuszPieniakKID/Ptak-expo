@@ -226,7 +226,10 @@ const AddExhibitorModal: React.FC<AddExhibitorModalProps> = ({
       contactPerson: validateContactPerson,
       contactRole: validateContactRole,
       phone: validatePhone,
-      email: validateEmail,
+      email: (value: string) => {
+        if (!String(value).trim()) return 'Adres e-mail jest wymagany';
+        return validateEmail(value);
+      },
       password: (value: string) => {
         if (!value.trim()) return 'Hasło jest wymagane';
         if (value.length < 6) return 'Hasło musi mieć co najmniej 6 znaków';
@@ -268,6 +271,42 @@ const AddExhibitorModal: React.FC<AddExhibitorModalProps> = ({
     setError('');
     
     try {
+        // Validate all required fields
+        const newErrors: Record<string, string> = { ...formErrors };
+
+        (Object.keys(formValues) as FormValuesKeys[]).forEach((key) => {
+          const value = String(formValues[key] ?? '');
+          if (validators[key]) {
+            newErrors[key as string] = validators[key](value);
+          }
+        });
+
+        if (formEventValues.selectedExhibitionId.trim()) {
+          newErrors.selectedExhibitionId = validateSelection(
+            formEventValues.selectedExhibitionId,
+            eventOptions,
+          );
+          newErrors.hallName = validateHallName(formEventValues.hallName);
+          newErrors.standNumber = validateStandNumber(formEventValues.standNumber);
+          newErrors.exhibitionSupervisor =
+            validateExhibitionSupervisor(
+              formEventValues.exhibitionSupervisor,
+              exhibitionSupervisorOptions,
+            ) || (!formEventValues.exhibitionSupervisor.trim() ? 'Opiekun wystawy jest wymagany' : '');
+        } else {
+          newErrors.selectedExhibitionId = '';
+          newErrors.hallName = '';
+          newErrors.standNumber = '';
+          newErrors.exhibitionSupervisor = '';
+        }
+
+        setFormErrors(newErrors);
+        const hasErrors = Object.values(newErrors).some((msg) => msg && msg.length > 0);
+        if (hasErrors) {
+          setLoading(false);
+          return;
+        }
+
         const exhibitorData={
         ...formValues,
         exhibitionId: formEventValues.selectedExhibitionId===''?null:Number(formEventValues.selectedExhibitionId),
@@ -598,7 +637,7 @@ const AddExhibitorModal: React.FC<AddExhibitorModalProps> = ({
                    className={styles.boxToKlik}  
                    onClick={handleSubmit}
                    >
-                    <CustomTypography className={styles.addText}>dodaj</CustomTypography>
+                    <CustomTypography className={styles.addText}>zapisz</CustomTypography>
                     <AddCircleButton className={styles.addCircleButton} />
                   </Box>)
                   :<></>
