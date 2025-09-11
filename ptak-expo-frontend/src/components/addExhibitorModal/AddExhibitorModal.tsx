@@ -286,7 +286,7 @@ const AddExhibitorModal: React.FC<AddExhibitorModalProps> = ({
           }
         });
 
-        if (formEventValues.selectedExhibitionId.trim()) {
+        if (String(formEventValues.selectedExhibitionId).trim()) {
           newErrors.selectedExhibitionId = validateSelection(
             formEventValues.selectedExhibitionId,
             eventOptions,
@@ -297,7 +297,7 @@ const AddExhibitorModal: React.FC<AddExhibitorModalProps> = ({
             validateExhibitionSupervisor(
               formEventValues.exhibitionSupervisor,
               exhibitionSupervisorOptions,
-            ) || (!formEventValues.exhibitionSupervisor.trim() ? 'Opiekun wystawy jest wymagany' : '');
+            ) || (!String(formEventValues.exhibitionSupervisor).trim() ? 'Opiekun wystawy jest wymagany' : '');
         } else {
           newErrors.selectedExhibitionId = '';
           newErrors.hallName = '';
@@ -308,6 +308,7 @@ const AddExhibitorModal: React.FC<AddExhibitorModalProps> = ({
         setFormErrors(newErrors);
         const hasErrors = Object.values(newErrors).some((msg) => msg && msg.length > 0);
         if (hasErrors) {
+          setError('Sprawdź i uzupełnij niepoprawne pola formularza.');
           setLoading(false);
           return;
         }
@@ -383,6 +384,15 @@ const AddExhibitorModal: React.FC<AddExhibitorModalProps> = ({
       onClose();
     }
    }, [loading, onClose]);
+
+  const canSubmit = useMemo(() => (
+    !loading &&
+    !error &&
+    !loadingExhibitions &&
+    !loadingExhibitionSupervisors &&
+    !Object.values(formErrors).some(e => e !== '') &&
+    !isFormEmpty
+  ), [loading, error, loadingExhibitions, loadingExhibitionSupervisors, formErrors, isFormEmpty]);
 
   return (
     <Dialog open={isOpen} onClose={onClose} maxWidth="sm" PaperProps={{ className: styles.customDialogPaper }}>
@@ -668,28 +678,23 @@ const AddExhibitorModal: React.FC<AddExhibitorModalProps> = ({
             )}
              
 
+              {/* Global error message */}
+              {error ? (
+                <Typography color="error" sx={{ mt: 1 }}>{error}</Typography>
+              ) : null}
+
               <Box className={styles.formRowFooterWithAction}>
                 <CustomTypography className={styles.additionalInfo}>
                   * Na podany e-mail użytkownik otrzyma hasło i dane dostępowe do aplikacji
                 </CustomTypography>
-                
-                {(
-                    !loading && 
-                    !error && 
-                    !loadingExhibitions && 
-                    !loadingExhibitionSupervisors && 
-                    !Object.values(formErrors).some(e => e !== '') &&
-                    !isFormEmpty) 
-                    ? (
-                  <Box 
-                   className={styles.boxToKlik}  
-                   onClick={handleSubmit}
-                   >
-                    <CustomTypography className={styles.addText}>zapisz</CustomTypography>
-                    <AddCircleButton className={styles.addCircleButton} />
-                  </Box>)
-                  :<></>
-                }
+                <Box 
+                  className={styles.boxToKlik}
+                  onClick={(e) => handleSubmit(e as any)}
+                  style={!canSubmit ? { opacity: 0.5 } : undefined}
+                >
+                  <CustomTypography className={styles.addText}>zapisz</CustomTypography>
+                  <AddCircleButton className={styles.addCircleButton} />
+                </Box>
               </Box>
             </Box>
           </form>
