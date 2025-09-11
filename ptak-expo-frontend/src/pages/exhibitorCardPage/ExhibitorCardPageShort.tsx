@@ -40,6 +40,7 @@ import styles from './ExhibitorCardPageShort.module.scss';
 import ExhibitorsPageIcon from '../../assets/mask-group-6@2x.png';
 import { ReactComponent as BackIcon } from '../../assets/back.svg';
 import { ReactComponent as WastebasketIcon } from '../../assets/wastebasket.svg';
+import { ReactComponent as EditIcon } from '../../assets/editIcon.svg';
 import { ReactComponent as KeyIcon } from '../../assets/keyIcon.svg';
 import { ReactComponent as AddIcon } from '../../assets/addIcon.svg';
 import UserAvatar from '../../assets/7bb764a0137abc7a8142b6438e529133@2x.png';
@@ -52,6 +53,7 @@ import ExhibitorInvitations from '../../components/exhibitorInvitations/Exhibito
 import ExhibitorScheduleOfEventsAtTheStand from '../../components/exhibitorScheduleOfEventsAtTheStand/ExhibitorScheduleOfEventsAtTheStand';
 import ExhibitorTradeFairAwards from '../../components/exhibitorTradeFairAwards/ExhibitorTradeFairAwards';
 import AddEventToExhibitorModal from '../../components/addEventToExhibitorModal/AddEventToExhibitorModal';
+import EditExhibitorModal from '../../components/editExhibitorModal/EditExhibitorModal';
 import ConfirmationDialog from '../../components/confirmationDialog/ConfirmationDialog';
 
 
@@ -68,6 +70,7 @@ const ExhibitorCardPage: React.FC = () => {
   const [selectedEvent,setSelectedEvent]=useState<number | null>(null)
   const [hasLogo, setHasLogo] = useState<boolean>(false);
   const [isEventAddToExhibitor, setIsEventAddToExhibitorn] = useState<boolean>(false);
+  const [isEditOpen, setIsEditOpen] = useState(false);
   
   const [openConfirm, setOpenConfirm] = useState(false); //To confirm delete Exhibitor
   
@@ -365,6 +368,13 @@ const ExhibitorCardPage: React.FC = () => {
                                 />
                                 <CustomTypography className={styles.wastebasketText}> usuń </CustomTypography>
                             </Box>
+                            <Box 
+                              className={styles.actionButton}
+                              onClick={() => setIsEditOpen(true)}
+                            >
+                              <EditIcon className={styles.wastebasketIcon} />
+                              <CustomTypography className={styles.wastebasketText}> edycja </CustomTypography>
+                            </Box>
                         </Box> 
                    </Box>
                 </Box>
@@ -640,6 +650,16 @@ const ExhibitorCardPage: React.FC = () => {
         companyName={exhibitor?.companyName}
         exhibitorEvents={exhibitor.events ?? []}
         />}
+
+      {exhibitor && (
+        <EditExhibitorModal
+          isOpen={isEditOpen}
+          onClose={() => setIsEditOpen(false)}
+          onExhibitorUpdated={loadExhibitor}
+          token={token || ''}
+          exhibitor={exhibitor}
+        />
+      )}
 
       <Box className={styles.footer}>
         <CustomTypography className={styles.cc}>

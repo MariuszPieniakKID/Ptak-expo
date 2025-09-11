@@ -21,6 +21,7 @@ const exhibitorsRoutes = require('./routes/exhibitors');
 const exhibitionsRoutes = require('./routes/exhibitions');
 const exhibitorBrandingRoutes = require('./routes/exhibitorBrandingNew');
 const tradeInfoRoutes = require('./routes/tradeInfo');
+const gusRoutes = require('./routes/gus');
 const invitationsRoutes = require('./routes/invitations');
 const tradeEventsRoutes = require('./routes/tradeEvents');
 const marketingMaterialsRoutes = require('./routes/marketingMaterials');
@@ -137,6 +138,7 @@ app.use('/api/v1/trade-events', tradeEventsRoutes);
 app.use('/api/v1/exhibitor-documents', exhibitorDocumentsRoutes);
 app.use('/api/v1/catalog', catalogRoutes);
 app.use('/api/v1/marketing-materials', marketingMaterialsRoutes);
+app.use('/api/v1/gus', gusRoutes);
 app.use('/public', publicRoutes);
 
 // Serve Swagger UI if spec is available
@@ -226,7 +228,7 @@ app.use((error, req, res, next) => {
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 PTAK EXPO Backend API running on port ${PORT}`);
   console.log(`📊 Environment: ${process.env.NODE_ENV}`);
-  console.log(`🔗 Health check: http://localhost:${PORT}/`);
+  console.log(`🔗 Health check: whepohttp://localhost:${PORT}/`);
   console.log(`🔍 DATABASE_URL: ${process.env.DATABASE_URL ? 'Set' : 'Not set'}`);
   console.log(`🔍 JWT_SECRET: ${process.env.JWT_SECRET ? 'Set' : 'Not set'}`);
   

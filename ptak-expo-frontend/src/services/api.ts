@@ -270,6 +270,63 @@ export const fetchExhibitions = async (token?: string): Promise<Exhibition[]> =>
   return response.json();
 };
 
+// GUS lookup by NIP (admin only)
+export const fetchCompanyByNip = async (
+  nip: string,
+  token: string
+): Promise<{ companyName: string; address: string; postalCode: string; city: string }> => {
+  const norm = String(nip || '').trim();
+  const response = await apiCall(`${config.API_BASE_URL}/api/v1/gus/company/${encodeURIComponent(norm)}`, {
+    method: 'GET',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+    },
+  });
+  const data = await response.json();
+  if (!response.ok || !data?.success) {
+    throw new Error(data?.message || 'Nie udało się pobrać danych z GUS');
+  }
+  const d = data.data || {};
+  return {
+    companyName: d.companyName || '',
+    address: d.address || '',
+    postalCode: d.postalCode || '',
+    city: d.city || '',
+  };
+};
+
+export interface UpdateExhibitorPayload {
+  companyName?: string;
+  address?: string;
+  postalCode?: string;
+  city?: string;
+  contactPerson?: string;
+  contactRole?: string;
+  phone?: string;
+  email?: string;
+}
+
+export const updateExhibitor = async (
+  exhibitorId: number,
+  updates: UpdateExhibitorPayload,
+  token: string
+): Promise<Exhibitor> => {
+  const response = await apiCall(`${config.API_BASE_URL}/api/v1/exhibitors/${exhibitorId}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+    },
+    body: JSON.stringify(updates),
+  });
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data.message || data.error || 'Błąd podczas aktualizacji wystawcy');
+  }
+  // backend returns { success, message, data }
+  return (data.data ?? data) as Exhibitor;
+};
+
 export const fetchExhibition = async (id: number, token?: string): Promise<Exhibition> => {
   const headers: HeadersInit = {};
   if (token) {

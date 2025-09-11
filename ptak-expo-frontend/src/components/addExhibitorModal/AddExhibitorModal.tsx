@@ -1,7 +1,7 @@
 import { ChangeEvent, useCallback, useEffect, useMemo, useState } from 'react';
 import CustomField, { OptionType } from '../customField/CustomField';
 import CustomTypography from '../customTypography/CustomTypography';
-import { addExhibitor, AddExhibitorPayload, Exhibition, fetchExhibitions, fetchUsers, User } from '../../services/api';
+import { addExhibitor, AddExhibitorPayload, Exhibition, fetchExhibitions, fetchUsers, User, fetchCompanyByNip } from '../../services/api';
 import {
   validateAddress,
   validateCity,
@@ -345,6 +345,39 @@ const AddExhibitorModal: React.FC<AddExhibitorModalProps> = ({
     ]
   );
 
+  const handleGusImport = useCallback(async () => {
+    try {
+      const nipRaw = formValues.nip;
+      const nipTrimmed = String(nipRaw || '').trim();
+      const nipDigits = nipTrimmed.replace(/^PL/i, '').replace(/[\s-]/g, '');
+      const nipError = validateNip(nipDigits);
+      if (nipError) {
+        setFormErrors(prev => ({ ...prev, nip: nipError }));
+        return;
+      }
+      setLoading(true);
+      const data = await fetchCompanyByNip(nipDigits, token);
+      setFormValues(prev => ({
+        ...prev,
+        companyName: data.companyName || prev.companyName,
+        address: data.address || prev.address,
+        postalCode: data.postalCode || prev.postalCode,
+        city: data.city || prev.city,
+      }));
+      setFormErrors(prev => ({
+        ...prev,
+        companyName: validators.companyName(data.companyName || ''),
+        address: validators.address(data.address || ''),
+        postalCode: validators.postalCode(data.postalCode || ''),
+        city: validators.city(data.city || ''),
+      }));
+    } catch (e: any) {
+      setError(e?.message || 'Nie udało się pobrać danych z GUS');
+    } finally {
+      setLoading(false);
+    }
+  }, [formValues.nip, token, validators]);
+
   const handleClose = useCallback(() => {
     if (!loading) {
       onClose();
@@ -403,7 +436,7 @@ const AddExhibitorModal: React.FC<AddExhibitorModalProps> = ({
                 <Box className={styles.halfFormRow}>
                 <Box 
                 className={styles.iconAndTextButton}
-                onClick={()=>console.log("Add GUS api")}>
+                onClick={handleGusImport}>
                   <CheckIcon className={styles.iconCheck} />
                   <CustomTypography className={styles.importFromGusDataText}>pobierz dane z GUS</CustomTypography>
                 </Box>
