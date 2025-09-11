@@ -16,7 +16,7 @@ import productImg from '../../assets/product.png';
 import DownloadMaterials from './downloadMaterials/DownloadMaterials';
 import NotificationsNoneIcon from '@mui/icons-material/NotificationsNone';
 import CustomTypography from '../customTypography/CustomTypography';
-import { Exhibitor, getBrandingFiles, getBrandingFileUrl } from '../../services/api';
+import { Exhibitor, getBrandingFiles, getBrandingFileUrl, getExhibitorDocuments, downloadExhibitorDocument } from '../../services/api';
 import config from '../../config/config';
 
 //1 TAB - DATA – wypełniane danymi wystawcy przekazanymi w props
@@ -34,37 +34,7 @@ type PresentedProductItem = {
 };
 
 //3 TAB-DATA
-
-const  documentsList = [
-  {
-    documentId:1,
-    documentName:"nazwa dokumentu 1"
-  },
-  {
-    documentId:2,
-    documentName:"nazwa dokumentu 2"
-  },      
-  {
-    documentId:3,
-    documentName:"nazwa dokumentu 3"
-  },
-  {
-    documentId:4,
-    documentName:"nazwa dokumentu 4"
-  },
-  {
-    documentId:5,
-    documentName:"nazwa dokumentu 5"
-  },
-  {
-    documentId:100,
-    documentName:"nazwa dokumentu 6"
-  },    
-];
-
-const handleSubmitDocument=(documentId:number)=>{
-  console.log(`Kliknięto w document o id: ${documentId}`)
-}
+type MaterialItem = { documentId: number; documentName: string };
 
 //ZESTAWIENIE DANYCH W ACCORDION PAGE 1
 
@@ -75,7 +45,9 @@ const buildItems = (
   logoFileName: string | null,
   logoUrl: string | null,
   products: PresentedProductItem[],
-  socials: { facebook: string; instagram: string; linkedIn: string; youTube: string; tiktok: string; x: string }
+  socials: { facebook: string; instagram: string; linkedIn: string; youTube: string; tiktok: string; x: string },
+  materials: MaterialItem[],
+  onDownload: (id: number) => void
 ) => {
   const exhibitorsDetails = {
     companyName: exhibitor?.companyName || '',
@@ -117,8 +89,8 @@ const buildItems = (
   },
   {
     icon: <DownloadIcon fontSize="small" />,
-    title: `Materiały do pobrania (${documentsList.length})`,
-    container:<DownloadMaterials  documentsList={documentsList} handleSubmitDocument={handleSubmitDocument}/>
+    title: `Materiały do pobrania (${materials.length})`,
+    container:<DownloadMaterials  documentsList={materials} handleSubmitDocument={onDownload}/>
    
   }
   ];
@@ -148,6 +120,8 @@ function ExhibitorWithEvent({
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [products, setProducts] = useState<PresentedProductItem[]>([]);
   const [catalogSocials, setCatalogSocials] = useState<{ facebook: string; instagram: string; linkedIn: string; youTube: string; tiktok: string; x: string }>({ facebook: '', instagram: '', linkedIn: '', youTube: '', tiktok: '', x: '' });
+  const [materials, setMaterials] = useState<MaterialItem[]>([]);
+  const [effectiveExhibitionId, setEffectiveExhibitionId] = useState<number | undefined>(undefined);
 
   useEffect(() => {
     const loadData = async () => {
@@ -159,14 +133,15 @@ function ExhibitorWithEvent({
         let nextLogoUrl: string | null = null;
 
         // Determine effective exhibitionId for requests
-        const effectiveExhibitionId = preferredExhibitionId ?? (Array.isArray(exhibitor.events) && exhibitor.events.length > 0
+        const effectiveExId = preferredExhibitionId ?? (Array.isArray(exhibitor.events) && exhibitor.events.length > 0
           ? (exhibitor.events[0] as any).id
           : undefined);
+        setEffectiveExhibitionId(effectiveExId);
 
         // 1) Fetch catalog entry (exhibitor view)
         try {
-          if (effectiveExhibitionId) {
-            const res = await fetch(`${config.API_BASE_URL}/api/v1/catalog/${effectiveExhibitionId}?exhibitorId=${encodeURIComponent(String(exhibitor.id))}`, {
+          if (effectiveExId) {
+            const res = await fetch(`${config.API_BASE_URL}/api/v1/catalog/${effectiveExId}?exhibitorId=${encodeURIComponent(String(exhibitor.id))}`, {
               headers: { 'Authorization': `Bearer ${token}` },
               credentials: 'include'
             });
@@ -202,9 +177,9 @@ function ExhibitorWithEvent({
         } catch {}
 
         // 2) Fetch branding files to determine logo filename and URL
-        if (effectiveExhibitionId) {
+        if (effectiveExId) {
           try {
-            const filesResp = await getBrandingFiles(exhibitor.id, effectiveExhibitionId, token);
+            const filesResp = await getBrandingFiles(exhibitor.id, effectiveExId, token);
             const files = filesResp.files || {};
             // Prefer exhibitor-scoped event_logo, else first key containing 'logo', else any
             const preferredKey = files['event_logo']
@@ -226,7 +201,7 @@ function ExhibitorWithEvent({
           // If exhibitor-scoped logo not found, fall back to global event logo
           if (!nextLogoUrl) {
             try {
-              const globalFilesResp = await getBrandingFiles(null, effectiveExhibitionId, token);
+              const globalFilesResp = await getBrandingFiles(null, effectiveExId, token);
               const gfiles = globalFilesResp.files || {};
               if (gfiles['event_logo']) {
                 const value: any = gfiles['event_logo'] as any;
@@ -281,12 +256,36 @@ function ExhibitorWithEvent({
         } catch {
           setProducts([]);
         }
+
+        // 5) Fetch exhibitor documents (materials) for this exhibition
+        try {
+          if (effectiveExId) {
+            const docs = await getExhibitorDocuments(exhibitor.id, effectiveExId, token);
+            const list: MaterialItem[] = docs.map(d => ({ documentId: d.id, documentName: d.originalName || d.title || d.fileName }));
+            setMaterials(list);
+          } else {
+            setMaterials([]);
+          }
+        } catch {
+          setMaterials([]);
+        }
       } catch {}
     };
     loadData();
   }, [exhibitor?.id, exhibitor?.events, preferredExhibitionId]);
 
-  const items = buildItems(exhibitor, catalogDescription, catalogWebsite, logoFileName, logoUrl, products, catalogSocials);
+  const handleDownloadMaterial = async (documentId: number) => {
+    try {
+      if (!exhibitor?.id || !effectiveExhibitionId) return;
+      const item = materials.find(m => m.documentId === documentId);
+      const filename = item?.documentName || 'document';
+      await downloadExhibitorDocument(exhibitor.id, effectiveExhibitionId, documentId, filename, localStorage.getItem('authToken') || '');
+    } catch (e) {
+      // Silent fail to avoid breaking UI
+    }
+  };
+
+  const items = buildItems(exhibitor, catalogDescription, catalogWebsite, logoFileName, logoUrl, products, catalogSocials, materials, handleDownloadMaterial);
   const [expandedAccordions, setExpandedAccordions] = useState<boolean[]>(Array(items.length).fill(false));
   const [expandedOne, setExpandedOne] = useState<number | false>(false);
 

@@ -9,9 +9,9 @@ export default function InvitesCard() {
 		<ThemeProvider theme={blackTheme}>
 		<ChecklistCard 
 				title={<Typography fontSize={16}>Wysłane zaproszenia ({checklist.sentInvitesCount}/{checklist.availableInvitesCount})</Typography>} 
-				icon={<span />}
+				icon={<img src={`/assets/checklist-step-1.svg`} alt=""/>}
 				checked={filled[2]}
-		>
+			>
 		</ChecklistCard>
 
 		</ThemeProvider>
