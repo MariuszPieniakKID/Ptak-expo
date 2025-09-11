@@ -377,6 +377,101 @@ router.post('/me/people', verifyToken, requireExhibitorOrAdmin, async (req, res)
   }
 });
 
+// PUT /api/v1/exhibitors/:id - zaktualizuj dane wystawcy (tylko admin)
+router.put('/:id', verifyToken, requireAdmin, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const {
+      companyName,
+      address,
+      postalCode,
+      city,
+      contactPerson,
+      contactRole,
+      phone,
+      email: newEmail
+    } = req.body || {};
+
+    // Check exhibitor existence
+    const exists = await db.query('SELECT id FROM exhibitors WHERE id = $1 LIMIT 1', [id]);
+    if (exists.rows.length === 0) {
+      return res.status(404).json({ error: 'Exhibitor not found', message: 'Exhibitor does not exist' });
+    }
+
+    // Build dynamic update
+    const fields = [];
+    const values = [];
+    let idx = 1;
+    const pushField = (col, val) => { fields.push(`${col} = $${idx++}`); values.push(val); };
+    if (companyName !== undefined) pushField('company_name', companyName);
+    if (address !== undefined) pushField('address', address);
+    if (postalCode !== undefined) pushField('postal_code', postalCode);
+    if (city !== undefined) pushField('city', city);
+    if (contactPerson !== undefined) pushField('contact_person', contactPerson);
+    if (contactRole !== undefined) pushField('contact_role', contactRole);
+    if (phone !== undefined) pushField('phone', phone);
+    if (newEmail !== undefined) pushField('email', newEmail);
+    pushField('updated_at', new Date());
+
+    if (fields.length === 1) { // only updated_at
+      // No changes
+      const current = await db.query(
+        `SELECT id, nip, company_name, address, postal_code, city, contact_person, contact_role, phone, email, status, created_at, updated_at FROM exhibitors WHERE id = $1`,
+        [id]
+      );
+      const e = current.rows[0];
+      return res.json({
+        success: true,
+        message: 'Brak zmian',
+        data: {
+          id: e.id,
+          nip: e.nip,
+          companyName: e.company_name,
+          address: e.address,
+          postalCode: e.postal_code,
+          city: e.city,
+          contactPerson: e.contact_person,
+          contactRole: e.contact_role,
+          phone: e.phone,
+          email: e.email,
+          status: e.status,
+          createdAt: e.created_at,
+          updatedAt: e.updated_at
+        }
+      });
+    }
+
+    const query = `UPDATE exhibitors SET ${fields.join(', ')} WHERE id = $${idx} RETURNING 
+      id, nip, company_name, address, postal_code, city, contact_person, contact_role, phone, email, status, created_at, updated_at`;
+    values.push(id);
+
+    const updRes = await db.query(query, values);
+    const e = updRes.rows[0];
+    return res.json({
+      success: true,
+      message: 'Dane wystawcy zaktualizowane',
+      data: {
+        id: e.id,
+        nip: e.nip,
+        companyName: e.company_name,
+        address: e.address,
+        postalCode: e.postal_code,
+        city: e.city,
+        contactPerson: e.contact_person,
+        contactRole: e.contact_role,
+        phone: e.phone,
+        email: e.email,
+        status: e.status,
+        createdAt: e.created_at,
+        updatedAt: e.updated_at
+      }
+    });
+  } catch (error) {
+    console.error('Error updating exhibitor:', error);
+    return res.status(500).json({ error: 'Database error', message: 'Unable to update exhibitor' });
+  }
+});
+
 // DELETE /api/v1/exhibitors/:id - usuń wystawcę (tylko admin)
 router.delete('/:id', verifyToken, requireAdmin, async (req, res) => {
   try {
