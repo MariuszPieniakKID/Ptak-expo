@@ -58,13 +58,7 @@ exports.create = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Brak wymaganych pól' });
     }
 
-    // Ensure eventDate within exhibition range (inclusive)
-    const expo = await db.query('SELECT start_date, end_date FROM exhibitions WHERE id = $1', [exhibitionId]);
-    if (expo.rows.length === 0) {
-      return res.status(404).json({ success: false, message: 'Nie znaleziono wydarzenia głównego' });
-    }
-    const { start_date: startDate, end_date: endDate } = expo.rows[0];
-    // Timezone-safe comparison using date-only strings (YYYY-MM-DD)
+    // Accept any eventDate without limiting to exhibition range
     const toDateOnly = (v) => {
       if (!v) return '';
       if (v instanceof Date) {
@@ -80,15 +74,8 @@ exports.create = async (req, res) => {
       return Number.isNaN(parsed.getTime()) ? '' : parsed.toISOString().slice(0, 10);
     };
     const eventDateStr = toDateOnly(eventDate);
-    const startStr = toDateOnly(startDate);
-    const endStr = toDateOnly(endDate);
-    if (!eventDateStr || !startStr || !endStr) {
-      console.error('⚠️  [trade-events] invalid date inputs');
-      return res.status(400).json({ success: false, message: 'Nieprawidłowe daty wydarzenia' });
-    }
-    if (eventDateStr < startStr || eventDateStr > endStr) {
-      // Keep message only
-      return res.status(400).json({ success: false, message: 'Data wydarzenia musi mieścić się w zakresie dat targów' });
+    if (!eventDateStr) {
+      return res.status(400).json({ success: false, message: 'Nieprawidłowa data wydarzenia' });
     }
 
     const normStart = normalizeTime(startTime);
@@ -159,12 +146,7 @@ exports.update = async (req, res) => {
       return res.status(404).json({ success: false, message: 'Nie znaleziono wydarzenia' });
     }
 
-    // Ensure eventDate within exhibition range (inclusive)
-    const expo = await db.query('SELECT start_date, end_date FROM exhibitions WHERE id = $1', [exhibitionId]);
-    if (expo.rows.length === 0) {
-      return res.status(404).json({ success: false, message: 'Nie znaleziono wydarzenia głównego' });
-    }
-    const { start_date: startDate, end_date: endDate } = expo.rows[0];
+    // Accept any eventDate without limiting to exhibition range
     const toDateOnly = (v) => {
       if (!v) return '';
       if (v instanceof Date) {
@@ -180,13 +162,8 @@ exports.update = async (req, res) => {
       return Number.isNaN(parsed.getTime()) ? '' : parsed.toISOString().slice(0, 10);
     };
     const eventDateStr = toDateOnly(eventDate);
-    const startStr = toDateOnly(startDate);
-    const endStr = toDateOnly(endDate);
-    if (!eventDateStr || !startStr || !endStr) {
-      return res.status(400).json({ success: false, message: 'Nieprawidłowe daty wydarzenia' });
-    }
-    if (eventDateStr < startStr || eventDateStr > endStr) {
-      return res.status(400).json({ success: false, message: 'Data wydarzenia musi mieścić się w zakresie dat targów' });
+    if (!eventDateStr) {
+      return res.status(400).json({ success: false, message: 'Nieprawidłowa data wydarzenia' });
     }
 
     const normStart = normalizeTime(startTime);

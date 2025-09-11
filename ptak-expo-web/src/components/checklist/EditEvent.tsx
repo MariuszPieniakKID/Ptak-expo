@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { EventInfo, EventKind, EventType } from "../../services/checkListApi"
 import { Button, FormControl, Grid, InputLabel, MenuItem, Select, TextField } from "@mui/material";
+import { Alert } from "@mui/material";
 import { useChecklist } from "../../contexts/ChecklistContext";
 import { eventKinds, eventTypes, getEventKindString, getEventTypeString } from "../../shared/EventUtils";
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -32,6 +33,8 @@ export default function EditEvent({eventNum, onClose} :{eventNum?: number, onClo
 	const {checklist, addEvent} = useChecklist();
 	const event = checklist.events[eventNum || -1];
 	const [editedEvent, setEditedEvent] = useState<EventInfo>(emptyEvent);
+	const [saveError, setSaveError] = useState("");
+	const [saving, setSaving] = useState(false);
 	const canSave = 
 		editedEvent.description && 
 		editedEvent.date && 
@@ -130,7 +133,19 @@ export default function EditEvent({eventNum, onClose} :{eventNum?: number, onClo
         </Select>
       </FormControl>
 		</Grid>
+    {saveError ? <Grid size={12}><Alert severity="error">{saveError}</Alert></Grid> : null}
 		{/* TODO support update */}
-		<Button onClick={()=> { addEvent(editedEvent); onClose();}} disabled={!canSave}>Zapisz</Button> 
+		<Button onClick={async ()=> { 
+        setSaveError("");
+        setSaving(true);
+        try { 
+          await addEvent(editedEvent); 
+          onClose();
+        } catch (e: any) {
+          setSaveError(e?.message || "Nie udało się dodać wydarzenia");
+        } finally {
+          setSaving(false);
+        }
+      }} disabled={!canSave || saving}>Zapisz</Button> 
 	</Grid>
 }
