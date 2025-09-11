@@ -9,6 +9,7 @@ import InstagramIcon from "@mui/icons-material/Instagram";
 import TwitterIcon from "@mui/icons-material/Twitter";
 import LinkedInIcon from "@mui/icons-material/LinkedIn";
 import MusicNoteIcon from "@mui/icons-material/MusicNote";
+import YouTubeIcon from "@mui/icons-material/YouTube";
 
 function DisplayEdit({text, onEdit, checked}: {text: ReactNode, onEdit: () => void, checked?: boolean}) {
 		return <Box display="flex" alignItems="center">
@@ -307,9 +308,9 @@ export default function CompanyInfo() {
 				setSocialsDraft(next);
 			};
 			const hasAny = Object.values(socialsDraft || {}).some((v) => String(v || '').trim() !== '');
-			const linkIcon = (key: 'facebook'|'instagram'|'x'|'tiktok'|'linkedin', href?: string) => {
+			const linkIcon = (key: 'facebook'|'instagram'|'x'|'tiktok'|'linkedin'|'youtube', href?: string) => {
 				if (!href) return null;
-				const Icon = key === 'facebook' ? FacebookIcon : key === 'instagram' ? InstagramIcon : key === 'x' ? TwitterIcon : key === 'tiktok' ? MusicNoteIcon : LinkedInIcon;
+				const Icon = key === 'facebook' ? FacebookIcon : key === 'instagram' ? InstagramIcon : key === 'x' ? TwitterIcon : key === 'tiktok' ? MusicNoteIcon : key === 'linkedin' ? LinkedInIcon : YouTubeIcon;
 				return (
 					<Box key={key} display="flex" alignItems="center" justifyContent="center">
 						<a href={href} target="_blank" rel="noopener noreferrer" aria-label={key} style={{ color: 'inherit' }}>
@@ -322,9 +323,10 @@ export default function CompanyInfo() {
 				<Box>
 					<DisplayEdit text={<Typography variant="body2">Social media</Typography>} onEdit={() => setEditingSocials(v => !v)} checked={hasAny} />
 					{!editingSocials && hasAny && (
-						<Box mt={1} display="grid" gridTemplateColumns="repeat(5, 28px)" gap={1}>
+						<Box mt={1} display="grid" gridTemplateColumns="repeat(6, 28px)" gap={1}>
 							{linkIcon('facebook', socialsDraft.facebook)}
 							{linkIcon('instagram', socialsDraft.instagram)}
+							{linkIcon('youtube', socialsDraft.youtube)}
 							{linkIcon('x', socialsDraft.x)}
 							{linkIcon('tiktok', socialsDraft.tiktok)}
 							{linkIcon('linkedin', socialsDraft.linkedin)}
@@ -339,6 +341,10 @@ export default function CompanyInfo() {
 							<Box display="flex" alignItems="center" justifyContent="center"><InstagramIcon fontSize="small"/></Box>
 							<TextField variant="standard" value={socialsDraft.instagram || ''} onChange={(e) => setSocialsDraft({ ...socialsDraft, instagram: e.target.value })} placeholder="https://instagram.com/..."/>
 							<Button size="small" onClick={() => persistKey('instagram')}>Zapisz</Button>
+
+							<Box display="flex" alignItems="center" justifyContent="center"><YouTubeIcon fontSize="small"/></Box>
+							<TextField variant="standard" value={socialsDraft.youtube || ''} onChange={(e) => setSocialsDraft({ ...socialsDraft, youtube: e.target.value })} placeholder="https://youtube.com/@..."/>
+							<Button size="small" onClick={() => persistKey('youtube')}>Zapisz</Button>
 
 							<Box display="flex" alignItems="center" justifyContent="center"><TwitterIcon fontSize="small"/></Box>
 							<TextField variant="standard" value={socialsDraft.x || ''} onChange={(e) => setSocialsDraft({ ...socialsDraft, x: e.target.value })} placeholder="https://x.com/..."/>
