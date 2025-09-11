@@ -295,8 +295,16 @@ export const addEvent = async (event: EventInfo) => {
 			type: 'Prezentacja'
 		};
 		if (typeof exhibitorId === 'number') payload.exhibitor_id = exhibitorId;
-		await fetch(`${config.API_BASE_URL}/api/v1/trade-events/${exhibitionId}`, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify(payload) });
-	} catch {}
+		const resp = await fetch(`${config.API_BASE_URL}/api/v1/trade-events/${exhibitionId}`, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify(payload) });
+		if (!resp.ok) {
+			let msg = 'Nie udało się dodać wydarzenia';
+			try { const j = await resp.json(); msg = j?.message || msg; } catch {}
+			throw new Error(msg);
+		}
+	} catch (e) {
+		// Surface error to UI consumer
+		throw e;
+	}
 }
 
 export const addMaterial = async (material: DownloadMaterial) => {
