@@ -38,6 +38,14 @@ if (process.env.REACT_APP_API_URL) {
   config.API_BASE_URL = process.env.REACT_APP_API_URL;
 }
 
+// Runtime override (useful on Railway): allow setting window.API_BASE_URL without rebuild
+try {
+  const w = (typeof window !== 'undefined') ? (window as any) : undefined;
+  if (w && typeof w.API_BASE_URL === 'string' && w.API_BASE_URL.trim()) {
+    config.API_BASE_URL = w.API_BASE_URL.trim();
+  }
+} catch {}
+
 // Debug logging
 if (config.DEBUG && false) {
   console.log('🔧 Config loaded:', {
