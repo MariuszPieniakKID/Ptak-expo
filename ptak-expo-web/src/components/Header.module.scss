@@ -33,6 +33,13 @@
   align-items: flex-start;
 }
 
+.customIconMenuImage {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 24px;
+}
+
 .navItem {
   display: flex;
   flex-direction: column;
@@ -42,6 +49,7 @@
   cursor: pointer;
   color: #555;
   position: relative;
+  gap: 6px;
   transition: color 0.3s;
 
   &:hover {
@@ -53,7 +61,7 @@
   color: #5a6ec8;
 
   &::before {
-    content: '';
+    content: "";
     position: absolute;
     top: 0;
     left: 0;
@@ -68,4 +76,3 @@
   display: flex;
   flex-direction: row;
 }
-
