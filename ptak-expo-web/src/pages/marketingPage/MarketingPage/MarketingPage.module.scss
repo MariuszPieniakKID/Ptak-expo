@@ -1,0 +1,134 @@
+.layout {
+  display: grid;
+  grid-template-columns: 556px 1fr;
+  min-height: calc(100vh - 0px);
+}
+
+.main {
+  padding: 24px 32px;
+}
+
+.mainHeader {
+  border-radius: 20px;
+  padding-left: 20px;
+  padding-right: 20px;
+  padding-top: 40px;
+  padding-bottom: 30px;
+}
+
+.headerInner {
+  display: inline-grid;
+  grid-template-columns: 55px auto;
+  gap: 35px;
+  align-items: center;
+}
+
+.headerTitle {
+  color: #145d5b;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.content {
+  background: #fff;
+  border-radius: 20px;
+  border: 1px solid #eff3f6;
+  box-shadow: 0px 26px 12px rgba(111, 135, 246, 0.08);
+  padding: 28px 30px;
+  margin-bottom: 20px;
+}
+
+.contentText {
+  padding-bottom: 20px;
+}
+
+.contentOtherFiles {
+  padding-top: 34px;
+  padding-bottom: 20px;
+}
+
+.contentLogos {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  align-items: center;
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+
+.actions {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.downloadBtn {
+  width: 29px;
+  height: 29px;
+  border-radius: 50%;
+  border: 1px solid #2e2e38;
+  background: transparent;
+  cursor: pointer;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.loadingIcon {
+  position: absolute;
+  display: flex;
+  justify-content: flex-end;
+  top: 0;
+  right: 0;
+  left: 0;
+  bottom: 0;
+  animation: spin 2s linear infinite;
+  background-color: rgba(255, 255, 255, 0.8);
+}
+
+.row {
+  display: flex;
+  height: 34px;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.rowImage {
+  width: 150px;
+}
+
+.rowText {
+  color: #2e2e38;
+  font-size: 13px;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.listRow {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  background: transparent;
+  padding: 6px 4px;
+  border-radius: 8px;
+}
+.rowLeft {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.noContent {
+  padding-left: 12px;
+  color: #666;
+  font-style: italic;
+}

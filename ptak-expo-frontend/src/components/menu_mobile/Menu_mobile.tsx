@@ -17,11 +17,11 @@ export type MenuType = {
 };
 
 const navItems = [
-    { text: 'Home', path: '/dashboard', icon: <HomeIcon /> },
-    { text: 'Baza Wydarzeń', path: '/wydarzenia', icon: <EventsIcon /> },
-    { text: 'Baza wystawców', path: '/wystawcy', icon: <ExhibitorsIcon /> },
-    { text: 'Użytkownicy', path: '/uzytkownicy', icon: <UsersIcon /> },
-    { text: 'Baza danych', path: '/baza-danych', icon: <DatabaseIcon /> },
+  { text: 'Home', path: '/dashboard', icon: <HomeIcon /> },
+  { text: 'Baza Wydarzeń', path: '/wydarzenia', icon: <EventsIcon /> },
+  { text: 'Baza wystawców', path: '/wystawcy', icon: <ExhibitorsIcon /> },
+  { text: 'Użytkownicy', path: '/uzytkownicy', icon: <UsersIcon /> },
+  { text: 'Baza danych', path: '/baza-danych', icon: <DatabaseIcon /> },
 ];
 
 const CustomNavLinkMobilke: FunctionComponent<{ 

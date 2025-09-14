@@ -30,14 +30,14 @@
   gap: 2rem;
   flex-grow: 1;
   justify-content: center;
-  align-items: flex-start;
+  align-items: center;
 }
 
 .navItem {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: space-around;
+  justify-content: center;
   padding: 8px 12px;
   cursor: pointer;
   color: #555;
@@ -46,6 +46,18 @@
 
   &:hover {
     color: #5a6ec8;
+  }
+}
+
+// Ensure custom image icons align vertically with MUI icons
+.customIconMenuImage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 26px; // approximate height of MUI icons for alignment
+
+  img {
+    display: block; // avoid baseline alignment shifts
   }
 }
 
