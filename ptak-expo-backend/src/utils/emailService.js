@@ -1,4 +1,7 @@
 const nodemailer = require('nodemailer');
+const qs = require('querystring');
+const GRAPH_TOKEN_URL = (tenantId) => `https://login.microsoftonline.com/${tenantId}/oauth2/v2.0/token`;
+const GRAPH_SEND_URL = (userPrincipalName) => `https://graph.microsoft.com/v1.0/users/${encodeURIComponent(userPrincipalName)}/sendMail`;
 
 // Konfiguracja transportera emaila
 const createTransporter = () => {
@@ -39,10 +42,116 @@ const createTransporter = () => {
   });
 };
 
+// Send email via Microsoft Graph API (no SMTP ports) if Azure App credentials are provided
+const canUseGraph = () => (
+  !!process.env.AZURE_TENANT_ID && !!process.env.AZURE_CLIENT_ID && !!process.env.AZURE_CLIENT_SECRET && !!(process.env.SMTP_USER || process.env.GRAPH_SENDER)
+);
+
+const sendViaGraph = async ({ to, subject, text, html, from }) => {
+  const tenantId = process.env.AZURE_TENANT_ID;
+  const clientId = process.env.AZURE_CLIENT_ID;
+  const clientSecret = process.env.AZURE_CLIENT_SECRET;
+  const sender = process.env.GRAPH_SENDER || process.env.SMTP_USER || from;
+
+  // 1) Get access token
+  const tokenRes = await fetch(GRAPH_TOKEN_URL(tenantId), {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: qs.stringify({
+      client_id: clientId,
+      client_secret: clientSecret,
+      grant_type: 'client_credentials',
+      scope: 'https://graph.microsoft.com/.default',
+    }),
+  });
+  if (!tokenRes.ok) {
+    const errText = await tokenRes.text();
+    throw new Error(`Graph token error: ${tokenRes.status} ${errText}`);
+  }
+  const tokenJson = await tokenRes.json();
+  const accessToken = tokenJson.access_token;
+
+  // 2) Send email via Graph
+  const mailRes = await fetch(GRAPH_SEND_URL(sender), {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${accessToken}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      message: {
+        subject: subject || '(no subject)',
+        body: {
+          contentType: html ? 'HTML' : 'Text',
+          content: html || text || '',
+        },
+        toRecipients: [ { emailAddress: { address: to } } ],
+        from: sender ? { emailAddress: { address: sender } } : undefined,
+      },
+      saveToSentItems: true,
+    }),
+  });
+
+  // Graph returns 202 Accepted on success
+  if (mailRes.status !== 202) {
+    const errBody = await mailRes.text();
+    throw new Error(`Graph sendMail error: ${mailRes.status} ${errBody}`);
+  }
+  return { success: true };
+};
+
 // Funkcja wysyłania emaila z danymi logowania
 // isTemporaryPassword: jeśli true – etykieta "Hasło tymczasowe", jeśli false – "Hasło"
 const sendWelcomeEmail = async (userEmail, firstName, lastName, password, isTemporaryPassword = true) => {
   try {
+    // Prefer Graph if configured (works over HTTPS on Railway)
+    if (canUseGraph()) {
+      const subject = 'Powitanie w systemie PTAK EXPO - Dane logowania';
+      const html = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <meta charset="UTF-8">
+            <style>
+                body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+                .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+                .header { background-color: #c7353c; color: white; padding: 20px; text-align: center; }
+                .content { padding: 20px; background-color: #f9f9f9; }
+                .credentials { background-color: #fff; padding: 15px; border-left: 4px solid #c7353c; margin: 20px 0; }
+                .footer { text-align: center; padding: 20px; font-size: 12px; color: #666; }
+                .button { display: inline-block; padding: 12px 24px; background-color: #c7353c; color: white; text-decoration: none; border-radius: 5px; margin: 10px 0; }
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <div class="header">
+                    <h1>Witamy w systemie PTAK EXPO</h1>
+                </div>
+                <div class="content">
+                    <h2>Dzień dobry ${firstName} ${lastName},</h2>
+                    <p>Zostało utworzone dla Państwa konto w systemie PTAK EXPO. Poniżej znajdują się dane dostępowe:</p>
+                    <div class="credentials">
+                        <h3>Dane logowania:</h3>
+                        <p><strong>Email:</strong> ${userEmail}</p>
+                        <p><strong>${isTemporaryPassword ? 'Hasło tymczasowe' : 'Hasło'}:</strong> <code>${password}</code></p>
+                    </div>
+                    <p><strong>Ważne:</strong> Ze względów bezpieczeństwa zalecamy zmianę hasła po pierwszym logowaniu.</p>
+                    <p>Aby zalogować się do systemu, kliknij poniższy przycisk:</p>
+                    <a href="${process.env.FRONTEND_URL || 'http://localhost:3000'}/login" class="button">Zaloguj się do systemu</a>
+                    <p>W razie pytań prosimy o kontakt z administratorem systemu.</p>
+                </div>
+                <div class="footer">
+                    <p>© 2024 PTAK EXPO. Wszystkie prawa zastrzeżone.</p>
+                    <p>Ta wiadomość została wygenerowana automatycznie. Prosimy nie odpowiadać na tę wiadomość.</p>
+                </div>
+            </div>
+        </body>
+        </html>`;
+      const text = `Witamy w systemie PTAK EXPO\n\nEmail: ${userEmail}\n${isTemporaryPassword ? 'Hasło tymczasowe' : 'Hasło'}: ${password}\n`;
+      await sendViaGraph({ to: userEmail, subject, text, html, from: process.env.FROM_EMAIL });
+      return { success: true };
+    }
+
     const transporter = createTransporter();
     
     const mailOptions = {
@@ -147,6 +256,16 @@ W razie pytań prosimy o kontakt z administratorem systemu.
 // Funkcja wysyłania emaila z resetem hasła
 const sendPasswordResetEmail = async (userEmail, firstName, lastName, newPassword) => {
   try {
+    if (canUseGraph()) {
+      const subject = 'PTAK EXPO - Reset hasła';
+      const html = `<!DOCTYPE html><html><head><meta charset=\"UTF-8\">`+
+      `<style>body{font-family:Arial,sans-serif;line-height:1.6;color:#333}.container{max-width:600px;margin:0 auto;padding:20px}.header{background-color:#c7353c;color:#fff;padding:20px;text-align:center}.content{padding:20px;background-color:#f9f9f9}.credentials{background-color:#fff;padding:15px;border-left:4px solid #c7353c;margin:20px 0}.footer{text-align:center;padding:20px;font-size:12px;color:#666}.button{display:inline-block;padding:12px 24px;background-color:#c7353c;color:#fff;text-decoration:none;border-radius:5px;margin:10px 0}</style>`+
+      `</head><body><div class=\"container\"><div class=\"header\"><h1>Reset hasła - PTAK EXPO</h1></div><div class=\"content\"><h2>Dzień dobry ${firstName} ${lastName},</h2><p>Zostało wygenerowane nowe hasło:</p><div class=\"credentials\"><h3>Nowe dane logowania:</h3><p><strong>Email:</strong> ${userEmail}</p><p><strong>Nowe hasło:</strong> <code>${newPassword}</code></p></div><a href=\"${process.env.FRONTEND_URL || 'http://localhost:3000'}/login\" class=\"button\">Zaloguj się do systemu</a></div><div class=\"footer\"><p>© 2024 PTAK EXPO. Wszystkie prawa zastrzeżone.</p></div></div></body></html>`;
+      const text = `Reset hasła - PTAK EXPO\n\nEmail: ${userEmail}\nNowe hasło: ${newPassword}`;
+      await sendViaGraph({ to: userEmail, subject, text, html, from: process.env.FROM_EMAIL });
+      return { success: true };
+    }
+
     const transporter = createTransporter();
     
     const mailOptions = {
