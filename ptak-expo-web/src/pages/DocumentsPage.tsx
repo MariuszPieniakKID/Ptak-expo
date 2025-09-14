@@ -49,23 +49,8 @@ const DocumentsPage: React.FC = () => {
           exhibitorId,
           parseInt(eventId)
         );
-        console.log("🔍 Fetched documents:", {
-          exhibitorId,
-          eventId: parseInt(eventId),
-          documents: documentsData,
-        });
         setDocuments(documentsData);
       } catch (err: any) {
-        console.error("Error fetching documents:", err);
-        // Try to print server error body if a Blob was returned
-        try {
-          if (err?.response?.data instanceof Blob) {
-            const text = await err.response.data.text();
-            console.log("[fetchDocuments] server error body:", text);
-          }
-        } catch (blobErr) {
-          console.log("[fetchDocuments] failed to read error blob:", blobErr);
-        }
         setError(
           err.response?.data?.message ||
             err.message ||
@@ -90,15 +75,6 @@ const DocumentsPage: React.FC = () => {
       const profileResponse = await exhibitorsSelfAPI.getMe();
       const exhibitorId = profileResponse.data.data.id;
 
-      console.log("🔍 Downloading document:", {
-        exhibitorId,
-        eventId: parseInt(eventId),
-        documentId: doc.id,
-        url: `/api/v1/exhibitor-documents/${exhibitorId}/${parseInt(
-          eventId
-        )}/download/${doc.id}`,
-      });
-
       // Download document
       const response = await exhibitorDocumentsAPI.download(
         exhibitorId,
@@ -117,26 +93,6 @@ const DocumentsPage: React.FC = () => {
       a.remove();
       window.URL.revokeObjectURL(url);
     } catch (err: any) {
-      console.error("Error downloading document:", err);
-      console.error("Full error response:", err.response);
-      try {
-        // Log axios config url and method if available
-        console.log("[download] axios config:", {
-          url: err?.config?.url,
-          method: err?.config?.method,
-          baseURL: err?.config?.baseURL,
-          headers: err?.config?.headers,
-        });
-      } catch {}
-      // Try to print server error body if a Blob was returned
-      try {
-        if (err?.response?.data instanceof Blob) {
-          const text = await err.response.data.text();
-          console.log("[download] server error body:", text);
-        }
-      } catch (blobErr) {
-        console.log("[download] failed to read error blob:", blobErr);
-      }
       alert(
         "Błąd podczas pobierania dokumentu: " +
           (err.response?.data?.message || err.message)

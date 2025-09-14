@@ -160,6 +160,7 @@ router.post('/:exhibitorId/:exhibitionId/upload', verifyToken, upload.single('do
 router.get('/:exhibitorId/:exhibitionId', verifyToken, async (req, res) => {
   try {
     const { exhibitorId, exhibitionId } = req.params;
+    // cleaned logs
     if (req.user.role !== 'admin') {
       let selfExhibitorId = null;
       const meByEmail = await db.query('SELECT id FROM exhibitors WHERE email = $1 LIMIT 1', [req.user.email]);
@@ -197,6 +198,7 @@ router.get('/:exhibitorId/:exhibitionId', verifyToken, async (req, res) => {
 router.get('/:exhibitorId/:exhibitionId/download/:documentId', verifyToken, async (req, res) => {
   try {
     const { exhibitorId, exhibitionId, documentId } = req.params;
+    // cleaned logs
     if (req.user.role !== 'admin') {
       let selfExhibitorId = null;
       const meByEmail = await db.query('SELECT id FROM exhibitors WHERE email = $1 LIMIT 1', [req.user.email]);
@@ -222,15 +224,27 @@ router.get('/:exhibitorId/:exhibitionId/download/:documentId', verifyToken, asyn
     }
 
     const document = result.rows[0];
-    
-    try {
-      await fs.access(document.file_path);
-      res.setHeader('Content-Disposition', `attachment; filename="${document.original_name}"`);
-      res.setHeader('Content-Type', document.mime_type);
-      res.sendFile(path.resolve(document.file_path));
-    } catch (fileError) {
-      res.status(404).json({ success: false, error: 'Plik nie został znaleziony na serwerze' });
+
+    // Try original path; for local dev, also try mapping Railway path to local uploads
+    const candidatePaths = [document.file_path];
+    if (typeof document.file_path === 'string' && document.file_path.startsWith('/data/uploads/')) {
+      const relativeFromRailway = path.relative('/data/uploads', document.file_path);
+      const localFallback = path.join(__dirname, '../../uploads', relativeFromRailway);
+      candidatePaths.push(localFallback);
     }
+
+    for (const p of candidatePaths) {
+      try {
+        await fs.access(p);
+        res.setHeader('Content-Disposition', `attachment; filename="${document.original_name}"`);
+        res.setHeader('Content-Type', document.mime_type);
+        return res.sendFile(path.resolve(p));
+      } catch (_e) {
+        // try next candidate
+      }
+    }
+
+    res.status(404).json({ success: false, error: 'Plik nie został znaleziony na serwerze' });
 
   } catch (error) {
     console.error('Error downloading document:', error);
