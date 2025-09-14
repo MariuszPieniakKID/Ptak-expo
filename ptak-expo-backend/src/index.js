@@ -74,15 +74,21 @@ app.use(helmet({
 }));
 
 // CORS Configuration using Railway environment variables
+// Support comma-separated list in CORS_ORIGIN
+const extraOrigins = (process.env.CORS_ORIGIN || '')
+  .split(',')
+  .map((s) => s.trim())
+  .filter(Boolean);
+
 const allowedOrigins = [
-  'http://localhost:3000', 
+  'http://localhost:3000',
   'http://localhost:3002',
   'http://localhost:3003',
-  process.env.CORS_ORIGIN,
+  ...extraOrigins,
   'https://frontend-production-fb96.up.railway.app',
   'https://ptak-expo-production.up.railway.app',
   // Admin front domain
-  'https://admin-front-production-7c59.up.railway.app'
+  'https://admin-front-production-7c59.up.railway.app',
 ].filter(Boolean);
 
 console.log('🔍 CORS allowed origins:', allowedOrigins);
