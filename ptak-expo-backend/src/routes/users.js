@@ -135,25 +135,31 @@ router.post('/', verifyToken, requireAdmin, async (req, res) => {
       hasCustomPassword: !isTemporaryPassword
     });
     
-    // Always send welcome email (with proper label if temporary vs custom password)
+    // Always send welcome email, but DO NOT block HTTP response
     try {
-      const emailResult = await sendWelcomeEmail(
-        newUser.email,
-        newUser.first_name,
-        newUser.last_name,
-        userPassword,
-        isTemporaryPassword
-      );
-      if (emailResult.success) {
-        console.log('✅ Welcome email sent successfully to:', newUser.email);
-      } else {
-        console.log('⚠️ Failed to send welcome email:', emailResult.error);
-      }
+      console.log('[users] Scheduling welcome email to', newUser.email, 'temporary?', isTemporaryPassword);
+      // Fire-and-forget to avoid blocking the request on SMTP latency
+      Promise.resolve().then(async () => {
+        const emailResult = await sendWelcomeEmail(
+          newUser.email,
+          newUser.first_name,
+          newUser.last_name,
+          userPassword,
+          isTemporaryPassword
+        );
+        if (emailResult.success) {
+          console.log('✅ Welcome email sent successfully to:', newUser.email);
+        } else {
+          console.warn('⚠️ Failed to send welcome email:', emailResult.error);
+        }
+      }).catch((emailError) => {
+        console.error('❌ Error scheduling/sending welcome email:', emailError);
+      });
     } catch (emailError) {
-      console.error('❌ Error sending welcome email:', emailError);
+      console.error('❌ Error enqueueing welcome email:', emailError);
     }
     
-    const responseMessage = 'Nowy użytkownik został utworzony i wysłano email z danymi logowania';
+    const responseMessage = 'Nowy użytkownik został utworzony. Email z danymi logowania zostanie wysłany.';
     
     res.status(201).json({
       success: true,
