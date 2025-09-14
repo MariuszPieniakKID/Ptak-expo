@@ -128,21 +128,33 @@ export interface AddUserPayload {
 }
 
 export const addUser = async (userData: AddUserPayload, token: string): Promise<any> => {
-    const response = await apiCall(`${config.API_BASE_URL}/api/v1/users`, {
+    const url = `${config.API_BASE_URL}/api/v1/users`;
+    try {
+      console.log('[api] addUser →', { url, userData: { ...userData, password: userData.password ? '***' : undefined }, tokenPresent: !!token });
+      const response = await apiCall(url, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify(userData),
-    });
+      });
+      console.log('[api] addUser status:', response.status);
 
-    if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Błąd podczas dodawania użytkownika');
+      if (!response.ok) {
+        let errorData: any = null;
+        try { errorData = await response.json(); } catch {}
+        console.error('[api] addUser error payload:', errorData);
+        throw new Error(errorData?.message || errorData?.error || 'Błąd podczas dodawania użytkownika');
+      }
+
+      const result = await response.json();
+      console.log('[api] addUser result:', result);
+      return result;
+    } catch (e) {
+      console.error('[api] addUser exception:', e);
+      throw e;
     }
-
-    return response.json();
 };
 
 //
@@ -155,21 +167,33 @@ export interface AddUserPayloadByAdmin {
 
 
 export const addUserByAdmin = async (userData: AddUserPayloadByAdmin, token: string): Promise<any> => {
-    const response = await apiCall(`${config.API_BASE_URL}/api/v1/users`, {
+    const url = `${config.API_BASE_URL}/api/v1/users`;
+    try {
+      console.log('[api] addUserByAdmin →', { url, userData, tokenPresent: !!token });
+      const response = await apiCall(url, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify(userData),
-    });
+      });
+      console.log('[api] addUserByAdmin status:', response.status);
 
-    if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Błąd podczas dodawania użytkownika');
+      if (!response.ok) {
+        let errorData: any = null;
+        try { errorData = await response.json(); } catch {}
+        console.error('[api] addUserByAdmin error payload:', errorData);
+        throw new Error(errorData?.message || errorData?.error || 'Błąd podczas dodawania użytkownika');
+      }
+
+      const result = await response.json();
+      console.log('[api] addUserByAdmin result:', result);
+      return result;
+    } catch (e) {
+      console.error('[api] addUserByAdmin exception:', e);
+      throw e;
     }
-
-    return response.json();
 };
 
 // Exhibitors API

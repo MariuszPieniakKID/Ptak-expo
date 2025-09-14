@@ -138,11 +138,14 @@ const [apiError, setApiError] = useState('');
           }
 
         try {
-          await addUserByAdmin(payload, token);
+          console.log('[AddUserModalShort] submit payload:', payload);
+          const res = await addUserByAdmin(payload, token);
+          console.log('[AddUserModalShort] API response:', res);
           onUserAdded();
           onClose();
           
         } catch (err:any) {
+          console.error('[AddUserModalShort] API error:', err);
           setApiError(err.message || 'Wystąpił nieznany błąd.');
           setError(err.message || 'Wystąpił nieznany błąd.');
           

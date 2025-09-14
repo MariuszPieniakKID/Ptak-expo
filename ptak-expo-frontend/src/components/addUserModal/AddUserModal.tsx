@@ -134,10 +134,13 @@ const AddUserModal: React.FC<AddUserModalProps> = ({
     };
 
     try {
-      await addUser(payload, token);
+      console.log('[AddUserModal] submit payload:', { ...payload, password: payload.password ? '***' : undefined });
+      const res = await addUser(payload, token);
+      console.log('[AddUserModal] API response:', res);
       onUserAdded();
       onClose();
     } catch (err: any) {
+      console.error('[AddUserModal] API error:', err);
       setApiError(err.message || 'Wystąpił nieznany błąd.');
     } finally {
       setLoading(false);
