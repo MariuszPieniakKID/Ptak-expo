@@ -103,6 +103,17 @@ app.use(cors({
     if (allowedOrigins.includes(origin)) {
       return callback(null, true);
     }
+    // Allow new custom domains under exhibitorlist.eu regardless of exact subdomain
+    try {
+      const hostname = new URL(origin).hostname;
+      if (hostname.endsWith('exhibitorlist.eu')) {
+        return callback(null, true);
+      }
+    } catch (e) {
+      if (origin.includes('exhibitorlist.eu')) {
+        return callback(null, true);
+      }
+    }
     
     // Allow any Railway domains for flexibility
     if (origin.includes('railway.app') || origin.includes('up.railway.app')) {
