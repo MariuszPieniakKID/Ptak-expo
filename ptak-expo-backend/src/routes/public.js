@@ -1,6 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const db = require('../config/database');
+const { verifyToken, requireAdmin } = require('../middleware/auth');
+const { sendEmail } = require('../utils/emailService');
 
 // Public: list all exhibitions ordered by start_date (JSON)
 router.get('/exhibitions', async (req, res) => {

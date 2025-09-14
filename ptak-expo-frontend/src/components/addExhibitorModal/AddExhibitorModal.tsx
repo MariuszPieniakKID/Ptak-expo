@@ -17,7 +17,6 @@ import {
 } from '../../helpers/validators';
 
 import { Box, CircularProgress, Dialog, DialogTitle, IconButton, Typography } from '@mui/material';
-import { ReactComponent as AddCircleButton } from '../../assets/addCircleButton.svg';
 import { ReactComponent as CheckIcon } from '../../assets/checkIcon.svg';
 import { ReactComponent as CloseIcon } from '../../assets/closeIcon.svg';
 import ExhibitorsPageIcon from '../../assets/mask-group-6@2x.png';
@@ -693,7 +692,6 @@ const AddExhibitorModal: React.FC<AddExhibitorModalProps> = ({
                   style={!canSubmit ? { opacity: 0.5 } : undefined}
                 >
                   <CustomTypography className={styles.addText}>zapisz</CustomTypography>
-                  <AddCircleButton className={styles.addCircleButton} />
                 </Box>
               </Box>
             </Box>

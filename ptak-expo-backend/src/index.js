@@ -28,6 +28,7 @@ const marketingMaterialsRoutes = require('./routes/marketingMaterials');
 const exhibitorDocumentsRoutes = require('./routes/exhibitorDocuments');
 const catalogRoutes = require('./routes/catalog');
 const publicRoutes = require('./routes/public');
+const adminRoutes = require('./routes/admin');
 
 // Swagger UI
 const swaggerUi = require('swagger-ui-express');
@@ -140,6 +141,7 @@ app.use('/api/v1/catalog', catalogRoutes);
 app.use('/api/v1/marketing-materials', marketingMaterialsRoutes);
 app.use('/api/v1/gus', gusRoutes);
 app.use('/public', publicRoutes);
+app.use('/api/v1/admin', adminRoutes);
 
 // Serve Swagger UI if spec is available
 if (swaggerDocument) {

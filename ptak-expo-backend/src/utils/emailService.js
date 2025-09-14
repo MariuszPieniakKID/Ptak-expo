@@ -6,11 +6,16 @@ const createTransporter = () => {
   if (process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS) {
     return nodemailer.createTransport({
       host: process.env.SMTP_HOST,
-      port: process.env.SMTP_PORT || 587,
-      secure: false, // true dla 465, false dla innych portów
+      port: Number(process.env.SMTP_PORT || 587),
+      secure: false, // STARTTLS on port 587
+      requireTLS: true,
       auth: {
         user: process.env.SMTP_USER,
         pass: process.env.SMTP_PASS,
+      },
+      tls: {
+        // Enforce modern TLS; Office365 requires TLS 1.2+
+        minVersion: 'TLSv1.2',
       },
     });
   }
@@ -35,7 +40,8 @@ const createTransporter = () => {
 };
 
 // Funkcja wysyłania emaila z danymi logowania
-const sendWelcomeEmail = async (userEmail, firstName, lastName, temporaryPassword) => {
+// isTemporaryPassword: jeśli true – etykieta "Hasło tymczasowe", jeśli false – "Hasło"
+const sendWelcomeEmail = async (userEmail, firstName, lastName, password, isTemporaryPassword = true) => {
   try {
     const transporter = createTransporter();
     
@@ -70,7 +76,7 @@ const sendWelcomeEmail = async (userEmail, firstName, lastName, temporaryPasswor
                     <div class="credentials">
                         <h3>Dane logowania:</h3>
                         <p><strong>Email:</strong> ${userEmail}</p>
-                        <p><strong>Hasło tymczasowe:</strong> <code>${temporaryPassword}</code></p>
+                        <p><strong>${isTemporaryPassword ? 'Hasło tymczasowe' : 'Hasło'}:</strong> <code>${password}</code></p>
                     </div>
                     
                     <p><strong>Ważne:</strong> Ze względów bezpieczeństwa zalecamy zmianę hasła po pierwszym logowaniu.</p>
@@ -97,7 +103,7 @@ Zostało utworzone dla Państwa konto w systemie PTAK EXPO.
 
 Dane logowania:
 Email: ${userEmail}
-Hasło tymczasowe: ${temporaryPassword}
+${isTemporaryPassword ? 'Hasło tymczasowe' : 'Hasło'}: ${password}
 
 Ze względów bezpieczeństwa zalecamy zmianę hasła po pierwszym logowaniu.
 
@@ -116,7 +122,7 @@ W razie pytań prosimy o kontakt z administratorem systemu.
       console.log('📧 Email would be sent:');
       console.log('To:', userEmail);
       console.log('Subject:', mailOptions.subject);
-      console.log('Password:', temporaryPassword);
+      console.log('Password:', password);
       console.log('Preview:', info.message.toString());
     } else {
       console.log('📧 Welcome email sent successfully to:', userEmail);
@@ -242,3 +248,24 @@ module.exports = {
   sendWelcomeEmail,
   sendPasswordResetEmail
 }; 
+
+// Generic email sender for custom messages
+const sendEmail = async ({ to, subject, text, html, from }) => {
+  try {
+    const transporter = createTransporter();
+    const mailOptions = {
+      from: from || process.env.FROM_EMAIL || process.env.SMTP_USER,
+      to,
+      subject,
+      text,
+      html,
+    };
+    const info = await transporter.sendMail(mailOptions);
+    return { success: true, messageId: info.messageId };
+  } catch (error) {
+    console.error('❌ Error sending email:', error);
+    return { success: false, error: error.message };
+  }
+};
+
+module.exports.sendEmail = sendEmail;
