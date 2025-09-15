@@ -510,30 +510,23 @@ router.post('/me/people', verifyToken, requireExhibitorOrAdmin, async (req, res)
     );
     const saved = ins.rows[0];
 
-    // Try to generate identifier PDF and send email if email provided and exhibitionId present
+    // Generate identifier PDF and send single email with attachment (if email + exhibitionId provided)
     try {
       if (personEmail && exId) {
         const client = await db.pool.connect();
         try {
-          const pdfBuffer = await buildIdentifierPdf(client, exId, { personName: fullName, personEmail: personEmail });
+          const pdfBuffer = await buildIdentifierPdf(client, exId, { personName: fullName, personEmail });
           const evInfo = await client.query('SELECT name, start_date, end_date FROM exhibitions WHERE id = $1', [exId]);
           const ev = evInfo.rows[0] || {};
           const subject = `E-identyfikator – ${ev.name || 'Wydarzenie PTAK EXPO'}`;
-          const dates = [ev.start_date, ev.end_date].filter(Boolean).map((d) => new Date(d)).map((d) => `${String(d.getDate()).padStart(2,'0')}.${String(d.getMonth()+1).padStart(2,'0')}.${d.getFullYear()}`).join(' – ');
+          const dates = [ev.start_date, ev.end_date]
+            .filter(Boolean)
+            .map((d) => new Date(d))
+            .map((d) => `${String(d.getDate()).padStart(2,'0')}.${String(d.getMonth()+1).padStart(2,'0')}.${d.getFullYear()}`)
+            .join(' – ');
           const html = `<p>Dzień dobry ${fullName},</p><p>Otrzymujesz e‑identyfikator na wydarzenie: <strong>${ev.name || ''}</strong> (${dates}).</p><p>E‑identyfikator znajdziesz w załączniku (PDF). Prosimy o zabranie go na wydarzenie.</p><p>Pozdrawiamy,<br/>Zespół PTAK EXPO</p>`;
-          // Send with attachment via nodemailer transporter path (emailService uses transporter when Graph not set). We extend sendEmail to accept no attachments, so here fallback: if pdfBuffer is present, embed as base64 in HTML download link as minimal fallback.
-          let result = await sendEmail({ to: personEmail, subject, text: undefined, html });
-          // If transporter supports attachments through our helper? It does not. As a fallback, if PDF exists, send second email with inline link.
-          if (pdfBuffer && !result.success) {
-            const b64 = pdfBuffer.toString('base64');
-            const html2 = `${html}<p>Jeśli załącznik nie dotarł, pobierz e‑identyfikator: <a href="data:application/pdf;base64,${b64}" download="e-identyfikator.pdf">pobierz PDF</a></p>`;
-            await sendEmail({ to: personEmail, subject, text: undefined, html: html2 });
-          } else if (pdfBuffer && result.success) {
-            // Try sending again with data URL link to ensure access to PDF
-            const b64 = pdfBuffer.toString('base64');
-            const html2 = `${html}<p>Załączamy również kopię e‑identyfikatora: <a href="data:application/pdf;base64,${b64}" download="e-identyfikator.pdf">pobierz PDF</a></p>`;
-            await sendEmail({ to: personEmail, subject, text: undefined, html: html2 });
-          }
+          const attachments = pdfBuffer ? [{ filename: 'e-identyfikator.pdf', content: pdfBuffer, contentType: 'application/pdf' }] : undefined;
+          await sendEmail({ to: personEmail, subject, text: undefined, html, attachments });
         } finally {
           client.release();
         }
