@@ -381,13 +381,7 @@ const TradeInfo: React.FC<TradeInfoProps> = ({ exhibitionId }) => {
       setError('Godzina zakończenia musi być po godzinie rozpoczęcia');
       return;
     }
-    if (exhibitionRange) {
-      if (constructionDate < exhibitionRange.start || constructionDate > exhibitionRange.end) {
-        console.warn('[TradeInfo] Blocked: date out of exhibitionRange', { constructionDate, range: exhibitionRange });
-        setError(`Data wydarzenia musi mieścić się w zakresie dat targów (${exhibitionRange.start} – ${exhibitionRange.end})`);
-        return;
-      }
-    }
+    // Allow construction events on any date (no exhibition date range restriction)
     try {
       setError('');
       const payload: TradeEvent = {
@@ -410,11 +404,7 @@ const TradeInfo: React.FC<TradeInfoProps> = ({ exhibitionId }) => {
     } catch (e: any) {
       console.error('[TradeInfo] Failed to create construction event', { error: e, exhibitionId, constructionType, constructionDate, constructionStartTime, constructionEndTime });
       const msg = e?.message || 'Nie udało się dodać wydarzenia zabudowy';
-      if (msg.includes('Data wydarzenia musi mieścić się w zakresie dat targów')) {
-        setError(`Data wydarzenia musi mieścić się w zakresie dat targów${exhibitionRange ? ` (${exhibitionRange.start} – ${exhibitionRange.end})` : ''}`);
-      } else {
-        setError(msg);
-      }
+      setError(msg);
     }
   };
 
