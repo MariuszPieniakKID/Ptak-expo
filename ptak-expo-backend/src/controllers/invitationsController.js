@@ -308,3 +308,125 @@ module.exports = {
   getInvitationById,
   deleteInvitation
 }; 
+
+// ========== NEW: Send invitation to recipient using a template ==========
+const { sendEmail } = require('../utils/emailService');
+
+// POST /api/v1/invitations/:exhibitionId/send
+const sendInvitation = async (req, res) => {
+  try {
+    const { exhibitionId } = req.params;
+    const { templateId, recipientName, recipientEmail } = req.body || {};
+
+    if (!exhibitionId || !templateId || !recipientEmail) {
+      return res.status(400).json({ success: false, message: 'Wymagane: exhibitionId, templateId, recipientEmail' });
+    }
+
+    const client = await pool.connect();
+    try {
+      // Validate template belongs to exhibition and is active
+      const tplRes = await client.query(
+        `SELECT t.*, e.name AS exhibition_name
+         FROM invitation_templates t
+         JOIN exhibitions e ON e.id = t.exhibition_id
+         WHERE t.id = $1 AND t.exhibition_id = $2 AND t.is_active = true`,
+        [templateId, exhibitionId]
+      );
+      if (tplRes.rows.length === 0) {
+        return res.status(404).json({ success: false, message: 'Szablon zaproszenia nie został znaleziony' });
+      }
+      const tpl = tplRes.rows[0];
+
+      // Compose email
+      const subject = `Zaproszenie – ${tpl.exhibition_name || 'PTAK EXPO'}`;
+      const greeting = (tpl.greeting || '').trim();
+      const namePart = (recipientName || '').trim();
+      const greetingLine = greeting ? `${greeting}${namePart ? ' ' + namePart : ''},` : (namePart ? `${namePart},` : '');
+      const contentHtml = (tpl.content || '').trim();
+      const companyInfo = (tpl.company_info || '').trim();
+      const contactBlock = [tpl.contact_person, tpl.contact_email, tpl.contact_phone].filter(Boolean).join(' • ');
+
+      const html = `<!doctype html><html><head><meta charset="utf-8"/></head><body style="font-family:Arial,sans-serif;color:#333;line-height:1.5;">
+        ${greetingLine ? `<p>${greetingLine}</p>` : ''}
+        ${contentHtml ? `<div>${contentHtml.replace(/\n/g, '<br/>')}</div>` : ''}
+        ${tpl.booth_info ? `<p style="margin-top:12px;"><strong>Stoisko:</strong> ${tpl.booth_info}</p>` : ''}
+        ${tpl.special_offers ? `<p style="margin-top:12px;"><strong>Oferta specjalna:</strong> ${tpl.special_offers}</p>` : ''}
+        ${companyInfo ? `<p style="margin-top:16px;">${companyInfo.replace(/\n/g, '<br/>')}</p>` : ''}
+        ${contactBlock ? `<p style="margin-top:8px;color:#555;">${contactBlock}</p>` : ''}
+      </body></html>`;
+
+      // Insert recipient row first (to keep record even if email fails)
+      const insRes = await client.query(
+        `INSERT INTO invitation_recipients (
+           invitation_template_id, recipient_email, recipient_name, recipient_company, sent_at, response_status
+         ) VALUES ($1, $2, $3, $4, NOW(), 'pending')
+         RETURNING id, created_at`,
+        [templateId, recipientEmail, recipientName || null, null]
+      );
+      const recipientRow = insRes.rows[0];
+
+      // Send email via SMTP
+      const mailResult = await sendEmail({ to: recipientEmail, subject, html });
+      if (!mailResult.success) {
+        // Keep DB row; report error
+        return res.status(500).json({ success: false, message: 'Nie udało się wysłać zaproszenia', error: mailResult.error });
+      }
+
+      return res.json({
+        success: true,
+        message: 'Zaproszenie wysłane',
+        data: {
+          id: recipientRow.id,
+          recipientEmail,
+          recipientName: recipientName || null,
+          invitationType: tpl.invitation_type || 'standard',
+          status: 'wysłane',
+          sentAt: recipientRow.created_at
+        }
+      });
+    } finally {
+      client.release();
+    }
+  } catch (error) {
+    console.error('Error sending invitation:', error);
+    return res.status(500).json({ success: false, message: 'Błąd podczas wysyłania zaproszenia', error: error.message });
+  }
+};
+
+// GET /api/v1/invitations/:exhibitionId/recipients
+const listRecipientsByExhibition = async (req, res) => {
+  try {
+    const { exhibitionId } = req.params;
+    if (!exhibitionId) {
+      return res.status(400).json({ success: false, message: 'Exhibition ID jest wymagane' });
+    }
+
+    const rows = await pool.query(
+      `SELECT r.id, r.recipient_email, r.recipient_name, r.sent_at, r.response_status,
+              t.invitation_type, t.title
+       FROM invitation_recipients r
+       JOIN invitation_templates t ON t.id = r.invitation_template_id
+       WHERE t.exhibition_id = $1
+       ORDER BY r.created_at DESC`,
+      [exhibitionId]
+    );
+
+    const data = rows.rows.map((r) => ({
+      id: r.id,
+      recipientEmail: r.recipient_email,
+      recipientName: r.recipient_name,
+      invitationType: r.invitation_type || 'standard',
+      templateTitle: r.title,
+      status: r.sent_at ? 'wysłane' : (r.response_status || 'pending'),
+      sentAt: r.sent_at
+    }));
+
+    return res.json({ success: true, data });
+  } catch (error) {
+    console.error('Error listing invitation recipients:', error);
+    return res.status(500).json({ success: false, message: 'Błąd podczas pobierania listy zaproszeń' });
+  }
+};
+
+module.exports.sendInvitation = sendInvitation;
+module.exports.listRecipientsByExhibition = listRecipientsByExhibition;

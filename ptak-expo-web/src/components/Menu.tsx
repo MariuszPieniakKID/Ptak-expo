@@ -21,9 +21,10 @@ import HomeIcon from "@mui/icons-material/Home";
 import ArticleIcon from "@mui/icons-material/Article";
 import ListAltIcon from "@mui/icons-material/ListAlt";
 import FingerprintIcon from "@mui/icons-material/Fingerprint";
-import InfoIcon from "@mui/icons-material/Info";
+// import InfoIcon from "@mui/icons-material/Info";
 import IconMarketing from "../assets/group-842.png";
 import IconDocuments from "../assets/documents.png";
+import MailOutlineIcon from "@mui/icons-material/MailOutline";
 
 export type MenuType = {
   className?: string;
@@ -90,11 +91,12 @@ const navItems: NavItem[] = [
     getUrl: (id) => `/event/${id}/marketing`,
   },
   {
-    label: "Informacje targowe",
-    icon: <InfoIcon />,
-    key: "info",
-    getUrl: (id) => `/event/${id}/trade-info`,
+    label: "Zaproszenia",
+    icon: <MailOutlineIcon />,
+    key: "invitations",
+    getUrl: (id) => `/event/${id}/invitations`,
   },
+  // { label: "Informacje targowe", icon: <InfoIcon />, key: "info", getUrl: (id) => `/event/${id}/trade-info` }, // hidden per request
 ];
 
 const Menu: FunctionComponent<MenuType> = ({className = "", onLogout}) => {

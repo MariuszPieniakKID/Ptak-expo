@@ -57,7 +57,10 @@ async function syncDatabase() {
     
     // Set environment variables for Railway database
     process.env.DATABASE_URL = railwayDbUrl;
-    process.env.NODE_ENV = 'development'; // Use development mode to avoid SSL issues
+    // Ensure SSL is enabled for public Railway URL
+    process.env.NODE_ENV = process.env.NODE_ENV || 'production';
+    process.env.RAILWAY_ENVIRONMENT = process.env.RAILWAY_ENVIRONMENT || '1';
+    process.env.PGSSLMODE = process.env.PGSSLMODE || 'require';
     
     // Import and run database initialization
     const { initializeDatabase } = require('./src/config/database');

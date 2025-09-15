@@ -139,6 +139,46 @@ export const publicAPI = {
   rssUrl: (): string => `${config.API_BASE_URL}/public/rss`,
 };
 
+// Invitations templates (marketing materials analog) - backend exposes /api/v1/invitations/:exhibitionId
+export interface InvitationTemplate {
+  id: number;
+  title: string;
+  invitation_type: string;
+}
+
+export const invitationsAPI = {
+  list: async (exhibitionId: number): Promise<InvitationTemplate[]> => {
+    const res = await api.get(`/api/v1/invitations/${exhibitionId}`);
+    const data = res.data as { success?: boolean; data?: { invitations: any[] } };
+    const arr = Array.isArray(data?.data?.invitations) ? data!.data!.invitations : [];
+    return arr.map((row: any) => ({
+      id: row.id,
+      title: row.title || row.name || 'Zaproszenie',
+      invitation_type: row.invitation_type || 'standard',
+    }));
+  },
+  send: async (
+    exhibitionId: number,
+    templateId: number,
+    recipientName: string,
+    recipientEmail: string
+  ): Promise<{ success: boolean; data?: any; message?: string }> => {
+    const res = await api.post(`/api/v1/invitations/${exhibitionId}/send`, {
+      templateId,
+      recipientName,
+      recipientEmail,
+    });
+    return res.data;
+  },
+  recipients: async (
+    exhibitionId: number
+  ): Promise<Array<{ id: number; recipientName: string; recipientEmail: string; invitationType: string; status: string; sentAt?: string }>> => {
+    const res = await api.get(`/api/v1/invitations/${exhibitionId}/recipients`);
+    const data = res.data as { success?: boolean; data?: any[] };
+    return Array.isArray(data?.data) ? data!.data! : [];
+  }
+};
+
 // ============= EXHIBITOR SELF API (ptak-expo-web) =============
 
 export interface ExhibitorProfile {

@@ -11,6 +11,7 @@ import DashboardPage from "./pages/DashboardPage";
 import EventHomePage from "./pages/EventHomePage";
 import EventNewsPage from "./pages/EventNewsPage";
 import EventIdentifierPage from "./pages/EventIdentifierPage";
+import EventInvitationsPage from "./pages/EventInvitationsPage";
 import TradeInfoRoutePage from "./pages/TradeInfoRoutePage";
 import DocumentsRoutePage from "./pages/DocumentsRoutePage";
 import MarketingRoutePage from "./pages/marketingPage/MarketingRoutePage";
@@ -71,6 +72,14 @@ function App() {
               element={
                 <ProtectedRoute>
                   <EventIdentifierPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/event/:eventId/invitations"
+              element={
+                <ProtectedRoute>
+                  <EventInvitationsPage />
                 </ProtectedRoute>
               }
             />

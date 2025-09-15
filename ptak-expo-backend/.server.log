@@ -1,0 +1,324 @@
+
+> ptak-expo-backend@1.0.0 start
+> node src/index.js
+
+🔍 Starting PTAK EXPO Backend...
+🔍 Node.js version: v20.19.1
+🔍 Environment: development
+🔍 Port from env: 3001
+🔍 DATABASE_URL: SET (length: 93)
+🔍 JWT_SECRET: SET (length: 16)
+🔍 CORS_ORIGIN: http://localhost:3000,http://localhost:3002
+🔍 Railway Environment Variables:
+  - RAILWAY_ENVIRONMENT: not set
+  - RAILWAY_SERVICE_NAME: not set
+  - RAILWAY_DEPLOYMENT_ID: not set
+🔍 Local development environment, using local database
+🔍 Database config - Selected URL: SET (starts with: postgresql://kid@loc...)
+🔍 Database config - NODE_ENV: development
+🔍 Database config - RAILWAY_ENVIRONMENT: not set
+🔍 Database config - SSL mode: disabled
+🔍 Database SSL option: disabled
+🔍 Database pool created
+🔍 Database module loaded - initialization will be handled by server startup
+🔍 Swagger spec loaded from /Users/kid/Ptak-expo/ptak-expo-backend/swagger.yaml
+🔍 Loading database config...
+🔍 Will listen on port: 3001
+🔍 CORS allowed origins: [
+  'http://localhost:3000',
+  'http://localhost:3002',
+  'http://localhost:3003',
+  'http://localhost:3000',
+  'http://localhost:3002',
+  'https://frontend-production-fb96.up.railway.app',
+  'https://ptak-expo-production.up.railway.app',
+  'https://admin-front-production-7c59.up.railway.app'
+]
+📘 Swagger UI available at /api-docs
+🚀 PTAK EXPO Backend API running on port 3001
+📊 Environment: development
+🔗 Health check: whepohttp://localhost:3001/
+🔍 DATABASE_URL: Set
+🔍 JWT_SECRET: Set
+🔍 Server started successfully, initializing database in background...
+🔍 Starting database initialization...
+🔍 Testing database connection...
+💾 Connected to PostgreSQL database
+✅ Database connection test successful
+🔍 Creating users table...
+🔍 Checking status column...
+✅ Status column already exists
+🔍 Current users table structure:
+  - id: integer NOT NULL DEFAULT nextval('users_id_seq'::regclass)
+  - email: character varying NOT NULL 
+  - password_hash: character varying NOT NULL 
+  - role: character varying NOT NULL DEFAULT 'guest'::character varying
+  - first_name: character varying NULL 
+  - last_name: character varying NULL 
+  - company_name: character varying NULL 
+  - phone: character varying NULL 
+  - status: character varying NULL DEFAULT 'active'::character varying
+  - created_at: timestamp with time zone NULL DEFAULT now()
+  - updated_at: timestamp with time zone NULL DEFAULT now()
+🔍 Creating exhibitions table...
+🔍 Creating documents table...
+🔍 Creating marketing_materials table...
+🔍 Creating communications table...
+🔍 Creating invitations table...
+🔍 Creating exhibitors table...
+🔍 Creating exhibitor_events table...
+🔍 Creating exhibitor_branding_files table...
+🔍 Creating indexes for exhibitor_branding_files table...
+🔍 Creating trade_info table...
+🔍 Creating trade_build_days table...
+🔍 Creating trade_spaces table...
+🔍 Creating invitation_templates table...
+🔍 Creating invitation_recipients table...
+🔍 Creating exhibitor_documents table...
+🔍 Creating indexes for trade_info and invitations tables...
+🔍 Creating trade_events table...
+🔍 Creating exhibitor_people table...
+🔍 Creating exhibitor_awards table...
+🔍 Inserting admin user...
+🔍 Inserting test users...
+🔍 Inserting test exhibitors...
+🔍 Skipping test exhibitions insertion (disabled to prevent auto-creation)
+✅ Database tables initialized successfully
+✅ Database initialization completed
+💾 Connected to PostgreSQL database
+💾 Connected to PostgreSQL database
+Fetching events for user 572 (ja@ja.com)
+No linked exhibitor found for user ja@ja.com, returning all events
+Found 3 events (fallback - all events)
+Fetching events for user 572 (ja@ja.com)
+No linked exhibitor found for user ja@ja.com, returning all events
+Found 3 events (fallback - all events)
+💾 Connected to PostgreSQL database
+🔍 [trade-events] listByExhibition { exhibitionId: 679, exhibitorId: null, user: 'ja@ja.com' }
+🔍 [trade-events] listByExhibition { exhibitionId: 679, exhibitorId: null, user: 'ja@ja.com' }
+💾 Connected to PostgreSQL database
+💾 Connected to PostgreSQL database
+💾 Connected to PostgreSQL database
+Fetching exhibitions from database...
+Found 11 exhibitions
+Fetching exhibitions from database...
+Found 11 exhibitions
+Failed to delete file from filesystem: ENOENT: no such file or directory, unlink '/Users/kid/Ptak-expo/ptak-expo-backend/uploads/exhibitions/679/branding/4492cd64-49bc-4732-9e96-9d91f857f63d_1754432274043.png'
+💾 Connected to PostgreSQL database
+💾 Connected to PostgreSQL database
+💾 Connected to PostgreSQL database
+Fetching exhibitors from database...
+💾 Connected to PostgreSQL database
+Found 10 exhibitors
+Fetching exhibitors from database...
+Found 10 exhibitors
+Fetching exhibitor with ID: 667
+Fetching exhibitor with ID: 667
+💾 Connected to PostgreSQL database
+💾 Connected to PostgreSQL database
+💾 Connected to PostgreSQL database
+🔍 Getting trade info for exhibition: 679
+💾 Connected to PostgreSQL database
+🔍 Getting trade info for exhibition: 679
+🔍 [trade-events] listByExhibition { exhibitionId: 679, exhibitorId: null, user: 'ja@ja.com' }
+🔍 [trade-events] listByExhibition { exhibitionId: 679, exhibitorId: null, user: 'ja@ja.com' }
+💾 Connected to PostgreSQL database
+💾 Connected to PostgreSQL database
+🔍 [trade-events] listByExhibition { exhibitionId: 679, exhibitorId: null, user: 'ja@ja.com' }
+🔍 [trade-events] listByExhibition { exhibitionId: 679, exhibitorId: null, user: 'ja@ja.com' }
+💾 Connected to PostgreSQL database
+💾 Connected to PostgreSQL database
+💾 Connected to PostgreSQL database
+🔍 Getting trade info for exhibition: 679
+💾 Connected to PostgreSQL database
+💾 Connected to PostgreSQL database
+💾 Connected to PostgreSQL database
+🔍 Getting trade info for exhibition: 679
+💾 Connected to PostgreSQL database
+💾 Connected to PostgreSQL database
+🔍 [trade-events] listByExhibition { exhibitionId: 679, exhibitorId: null, user: 'ja@ja.com' }
+💾 Connected to PostgreSQL database
+🔍 [trade-events] listByExhibition { exhibitionId: 679, exhibitorId: null, user: 'ja@ja.com' }
+🔍 Getting trade info for exhibition: 679
+🔍 Getting trade info for exhibition: 679
+Fetching exhibitions from database...
+Found 11 exhibitions
+Fetching exhibitions from database...
+Found 11 exhibitions
+💾 Connected to PostgreSQL database
+🔍 [trade-events] listByExhibition { exhibitionId: 679, exhibitorId: null, user: 'ja@ja.com' }
+🔍 [trade-events] listByExhibition { exhibitionId: 679, exhibitorId: null, user: 'ja@ja.com' }
+🔍 Getting trade info for exhibition: 679
+💾 Connected to PostgreSQL database
+💾 Connected to PostgreSQL database
+💾 Connected to PostgreSQL database
+🔍 Getting trade info for exhibition: 679
+🔍 [trade-events] listByExhibition { exhibitionId: 679, exhibitorId: null, user: 'ja@ja.com' }
+🔍 [trade-events] listByExhibition { exhibitionId: 679, exhibitorId: null, user: 'ja@ja.com' }
+🔍 Getting trade info for exhibition: 679
+🔍 Getting trade info for exhibition: 679
+💾 Connected to PostgreSQL database
+💾 Connected to PostgreSQL database
+💾 Connected to PostgreSQL database
+🔍 Getting trade info for exhibition: 679
+🔍 Getting trade info for exhibition: 679
+Fetching events for user 572 (ja@ja.com)
+No linked exhibitor found for user ja@ja.com, returning all events
+Found 3 events (fallback - all events)
+Fetching events for user 572 (ja@ja.com)
+No linked exhibitor found for user ja@ja.com, returning all events
+Found 3 events (fallback - all events)
+💾 Connected to PostgreSQL database
+💾 Connected to PostgreSQL database
+Fetching events for user 572 (ja@ja.com)
+No linked exhibitor found for user ja@ja.com, returning all events
+Found 3 events (fallback - all events)
+Fetching events for user 572 (ja@ja.com)
+No linked exhibitor found for user ja@ja.com, returning all events
+Found 3 events (fallback - all events)
+💾 Connected to PostgreSQL database
+🔍 Getting trade info for exhibition: 671
+💾 Connected to PostgreSQL database
+🔍 Getting trade info for exhibition: 671
+🔍 [trade-events] listByExhibition { exhibitionId: 671, exhibitorId: null, user: 'ja@ja.com' }
+🔍 [trade-events] listByExhibition { exhibitionId: 671, exhibitorId: null, user: 'ja@ja.com' }
+Fetching events for user 572 (ja@ja.com)
+💾 Connected to PostgreSQL database
+No linked exhibitor found for user ja@ja.com, returning all events
+Found 3 events (fallback - all events)
+Fetching events for user 572 (ja@ja.com)
+No linked exhibitor found for user ja@ja.com, returning all events
+Found 3 events (fallback - all events)
+Fetching events for user 572 (ja@ja.com)
+💾 Connected to PostgreSQL database
+No linked exhibitor found for user ja@ja.com, returning all events
+Found 3 events (fallback - all events)
+Fetching events for user 572 (ja@ja.com)
+No linked exhibitor found for user ja@ja.com, returning all events
+Found 3 events (fallback - all events)
+🔍 Getting trade info for exhibition: 679
+💾 Connected to PostgreSQL database
+💾 Connected to PostgreSQL database
+🔍 Getting trade info for exhibition: 679
+🔍 Getting trade info for exhibition: 679
+💾 Connected to PostgreSQL database
+💾 Connected to PostgreSQL database
+💾 Connected to PostgreSQL database
+🔍 Getting trade info for exhibition: 679
+Fetching exhibitions from database...
+Found 11 exhibitions
+Fetching exhibitions from database...
+Found 11 exhibitions
+🔍 Getting trade info for exhibition: 679
+💾 Connected to PostgreSQL database
+💾 Connected to PostgreSQL database
+💾 Connected to PostgreSQL database
+🔍 Getting trade info for exhibition: 679
+🔍 Getting trade info for exhibition: 679
+💾 Connected to PostgreSQL database
+💾 Connected to PostgreSQL database
+💾 Connected to PostgreSQL database
+🔍 Getting trade info for exhibition: 679
+🔍 Getting trade info for exhibition: 679
+💾 Connected to PostgreSQL database
+💾 Connected to PostgreSQL database
+💾 Connected to PostgreSQL database
+🔍 Getting trade info for exhibition: 679
+Fetching invitations for exhibition 679...
+💾 Connected to PostgreSQL database
+💾 Connected to PostgreSQL database
+💾 Connected to PostgreSQL database
+Fetching invitations for exhibition 679...
+🔍 Getting trade info for exhibition: 679
+💾 Connected to PostgreSQL database
+💾 Connected to PostgreSQL database
+💾 Connected to PostgreSQL database
+🔍 Getting trade info for exhibition: 679
+💾 Connected to PostgreSQL database
+Creating/updating invitation for exhibition 679...
+💾 Connected to PostgreSQL database
+Fetching invitations for exhibition 679...
+🔍 Getting trade info for exhibition: 679
+💾 Connected to PostgreSQL database
+💾 Connected to PostgreSQL database
+🔍 Getting trade info for exhibition: 679
+Fetching exhibitions from database...
+Found 11 exhibitions
+Fetching exhibitions from database...
+Found 11 exhibitions
+Fetching exhibitions from database...
+Found 11 exhibitions
+Fetching exhibitions from database...
+Found 11 exhibitions
+Fetching invitations for exhibition 673...
+Fetching invitations for exhibition 673...
+Creating/updating invitation for exhibition 673...
+💾 Connected to PostgreSQL database
+Fetching invitations for exhibition 673...
+Fetching exhibitions from database...
+Found 11 exhibitions
+Fetching exhibitions from database...
+Found 11 exhibitions
+💾 Connected to PostgreSQL database
+Fetching exhibitions from database...
+Found 11 exhibitions
+Fetching exhibitions from database...
+Found 11 exhibitions
+Fetching exhibitions from database...
+Found 11 exhibitions
+Fetching exhibitions from database...
+Found 11 exhibitions
+Fetching invitations for exhibition 673...
+Fetching invitations for exhibition 673...
+💾 Connected to PostgreSQL database
+💾 Connected to PostgreSQL database
+Fetching events for user 572 (ja@ja.com)
+💾 Connected to PostgreSQL database
+No linked exhibitor found for user ja@ja.com, returning all events
+Found 3 events (fallback - all events)
+Fetching events for user 572 (ja@ja.com)
+No linked exhibitor found for user ja@ja.com, returning all events
+Found 3 events (fallback - all events)
+🔍 Getting trade info for exhibition: 679
+🔍 Getting trade info for exhibition: 679
+💾 Connected to PostgreSQL database
+💾 Connected to PostgreSQL database
+Fetching invitations for exhibition 673...
+Fetching invitations for exhibition 673...
+Fetching invitations for exhibition 673...
+Fetching invitations for exhibition 673...
+Fetching exhibitions from database...
+Found 11 exhibitions
+Fetching exhibitions from database...
+Found 11 exhibitions
+💾 Connected to PostgreSQL database
+Fetching invitations for exhibition 679...
+Fetching invitations for exhibition 679...
+🔍 Getting trade info for exhibition: 679
+🔍 Getting trade info for exhibition: 679
+🔍 Getting trade info for exhibition: 679
+💾 Connected to PostgreSQL database
+💾 Connected to PostgreSQL database
+💾 Connected to PostgreSQL database
+🔍 Getting trade info for exhibition: 679
+🔍 Getting trade info for exhibition: 679
+🔍 Getting trade info for exhibition: 679
+🔍 Getting trade info for exhibition: 679
+💾 Connected to PostgreSQL database
+💾 Connected to PostgreSQL database
+💾 Connected to PostgreSQL database
+🔍 Getting trade info for exhibition: 679
+🔍 Getting trade info for exhibition: 679
+🔍 Getting trade info for exhibition: 679
+🔍 Getting trade info for exhibition: 679
+🔍 Getting trade info for exhibition: 679
+🔍 Getting trade info for exhibition: 679
+🔍 Getting trade info for exhibition: 679
+Fetching events for user 572 (ja@ja.com)
+No linked exhibitor found for user ja@ja.com, returning all events
+Found 3 events (fallback - all events)
+💾 Connected to PostgreSQL database
+🔍 Getting trade info for exhibition: 679
+🔍 Getting trade info for exhibition: 679
+🔍 Getting trade info for exhibition: 679
+💾 Connected to PostgreSQL database
