@@ -121,3 +121,14 @@ export const validateEventName = (eventName: string): string => {
 
   return '';
 };
+
+export const validateBoothArea = (area: string): string => {
+  const trimmed = area.trim();
+  if (!trimmed) return 'Metraż stoiska jest wymagany';
+  // allow decimals with dot or comma, convert later
+  const re = /^\d{1,5}([.,]\d{1,2})?$/; // up to 99999.99 m2
+  if (!re.test(trimmed)) return 'Podaj poprawną wartość (np. 12,5) maks. 2 miejsca po przecinku';
+  const normalized = parseFloat(trimmed.replace(',', '.'));
+  if (Number.isNaN(normalized) || normalized <= 0) return 'Metraż musi być większy od 0';
+  return '';
+};

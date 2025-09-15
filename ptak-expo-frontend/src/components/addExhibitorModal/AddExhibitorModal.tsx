@@ -14,6 +14,7 @@ import {
   validatePhone,
   validatePostalCode,
   validateStandNumber,
+  validateBoothArea,
 } from '../../helpers/validators';
 
 import { Box, CircularProgress, Dialog, DialogTitle, IconButton, Typography } from '@mui/material';
@@ -35,6 +36,7 @@ interface EventProps {
   standNumber: string;
   hallName: string;
   exhibitionSupervisor: string;
+  boothArea: string;
 }
 
 const validateSelection = (
@@ -88,6 +90,7 @@ const AddExhibitorModal: React.FC<AddExhibitorModalProps> = ({
     standNumber: '',
     hallName: '',
     exhibitionSupervisor: '',
+    boothArea: '',
   });
   const isNoExhibitionSelected = formEventValues.selectedExhibitionId === '';
   const [loading,setLoading] = useState(false);
@@ -106,6 +109,7 @@ const AddExhibitorModal: React.FC<AddExhibitorModalProps> = ({
     standNumber: '',
     hallName: '',
     exhibitionSupervisor: '',
+    boothArea: '',
   });
   const [exhibitions, setExhibitions] = useState<Exhibition[]>([]);
   const [loadingExhibitions, setLoadingExhibitions] = useState(false);
@@ -157,6 +161,7 @@ const AddExhibitorModal: React.FC<AddExhibitorModalProps> = ({
       standNumber: '',
       hallName: '',
       exhibitionSupervisor: '',
+      boothArea: '',
     });
     setFormErrors({
       nip: '',
@@ -172,6 +177,7 @@ const AddExhibitorModal: React.FC<AddExhibitorModalProps> = ({
       standNumber: '',
       hallName: '',
       exhibitionSupervisor: '',
+      boothArea: '',
     });
     setError('');
   }, []);
@@ -244,6 +250,7 @@ const AddExhibitorModal: React.FC<AddExhibitorModalProps> = ({
     hallName: validateHallName,
     exhibitionSupervisor: value => validateExhibitionSupervisor(value, exhibitionSupervisorOptions),
     exhibitionId: value => validateSelection(value, eventOptions),
+    boothArea: validateBoothArea,
   }), [eventOptions, exhibitionSupervisorOptions]);
 
   const handleFormValueChange =(field: FormValuesKeys) =>(e: ChangeEvent<HTMLInputElement>) => {
@@ -292,6 +299,7 @@ const AddExhibitorModal: React.FC<AddExhibitorModalProps> = ({
           );
           newErrors.hallName = validateHallName(formEventValues.hallName);
           newErrors.standNumber = validateStandNumber(formEventValues.standNumber);
+          newErrors.boothArea = validateBoothArea(formEventValues.boothArea);
           newErrors.exhibitionSupervisor =
             validateExhibitionSupervisor(
               formEventValues.exhibitionSupervisor,
@@ -301,6 +309,7 @@ const AddExhibitorModal: React.FC<AddExhibitorModalProps> = ({
           newErrors.selectedExhibitionId = '';
           newErrors.hallName = '';
           newErrors.standNumber = '';
+          newErrors.boothArea = '';
           newErrors.exhibitionSupervisor = '';
         }
 
@@ -315,9 +324,10 @@ const AddExhibitorModal: React.FC<AddExhibitorModalProps> = ({
         const exhibitorData={
         ...formValues,
         exhibitionId: formEventValues.selectedExhibitionId===''?null:Number(formEventValues.selectedExhibitionId),
-        //standNumber: formEventValues.selectedExhibitionId===''? null: formEventValues.standNumber,
-        //hallName: formEventValues.selectedExhibitionId===''? null: formEventValues.hallName,
-        //exhibitionSupervisor: formEventValues.selectedExhibitionId===''? null: formEventValues.exhibitionSupervisor,
+        standNumber: formEventValues.selectedExhibitionId===''? null: formEventValues.standNumber,
+        hallName: formEventValues.selectedExhibitionId===''? null: formEventValues.hallName,
+        exhibitionSupervisor: formEventValues.selectedExhibitionId===''? null: Number(formEventValues.exhibitionSupervisor) || null,
+        boothArea: formEventValues.selectedExhibitionId===''? null: parseFloat(formEventValues.boothArea.replace(',', '.')),
         };
 
         await addExhibitor(exhibitorData, token);
@@ -653,6 +663,24 @@ const AddExhibitorModal: React.FC<AddExhibitorModalProps> = ({
                     fullWidth
                     margin="none"
                     placeholder="Numer stoiska"
+                    className={styles.input}
+                    errorMessageClassName={styles.inputErrorMessage}
+                    />
+                </Box>
+              </Box>
+
+              <Box className={styles.formRow}>
+                <Box className={styles.halfFormRow}>
+                    <CustomField
+                    type="boothArea"
+                    label="Metraż stoiska (m²)"
+                    value={formEventValues.boothArea}
+                    onChange={handleFormEventValueChange('boothArea')}
+                    error={!!formErrors.boothArea}
+                    errorMessage={formErrors.boothArea}
+                    fullWidth
+                    margin="none"
+                    placeholder="np. 12,5"
                     className={styles.input}
                     errorMessageClassName={styles.inputErrorMessage}
                     />

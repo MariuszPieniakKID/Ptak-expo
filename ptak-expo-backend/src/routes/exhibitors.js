@@ -203,7 +203,11 @@ router.post('/', verifyToken, requireAdmin, async (req, res) => {
       phone, 
       email,
       password,
-      exhibitionId 
+      exhibitionId,
+      hallName,
+      standNumber,
+      boothArea,
+      exhibitionSupervisor
     } = req.body;
 
     console.log('Creating new exhibitor:', { nip, companyName, email, exhibitionId });
@@ -294,8 +298,14 @@ router.post('/', verifyToken, requireAdmin, async (req, res) => {
       try {
         console.log('Attempting to assign exhibitor', newExhibitor.id, 'to exhibition', exhibitionId);
         const assignResult = await db.query(
-          'INSERT INTO exhibitor_events (exhibitor_id, exhibition_id) VALUES ($1, $2) ON CONFLICT (exhibitor_id, exhibition_id) DO NOTHING',
-          [newExhibitor.id, exhibitionId]
+          `INSERT INTO exhibitor_events (exhibitor_id, exhibition_id, supervisor_user_id, hall_name, stand_number, booth_area)
+           VALUES ($1, $2, $3, $4, $5, $6)
+           ON CONFLICT (exhibitor_id, exhibition_id)
+           DO UPDATE SET supervisor_user_id = EXCLUDED.supervisor_user_id,
+                         hall_name = EXCLUDED.hall_name,
+                         stand_number = EXCLUDED.stand_number,
+                         booth_area = EXCLUDED.booth_area`,
+          [newExhibitor.id, exhibitionId, exhibitionSupervisor || null, hallName || null, standNumber || null, boothArea ? Number(boothArea) : null]
         );
         console.log('Assignment result:', assignResult.rowCount, 'rows affected');
         console.log('Exhibitor assigned to exhibition:', exhibitionId);
@@ -547,7 +557,7 @@ router.delete('/:id', verifyToken, requireAdmin, async (req, res) => {
 router.post('/:id/assign-event', verifyToken, requireAdmin, async (req, res) => {
   try {
     const { id } = req.params;
-    const { exhibitionId, supervisorUserId } = req.body;
+    const { exhibitionId, supervisorUserId, hallName, standNumber, boothArea } = req.body;
     
     if (!exhibitionId) {
       return res.status(400).json({
@@ -602,12 +612,15 @@ router.post('/:id/assign-event', verifyToken, requireAdmin, async (req, res) => 
 
     // Przypisz wystawcę do wydarzenia i zapisz opiekuna (ON CONFLICT aktualizuje opiekuna)
     const assignResult = await db.query(
-      `INSERT INTO exhibitor_events (exhibitor_id, exhibition_id, supervisor_user_id)
-       VALUES ($1, $2, $3)
+      `INSERT INTO exhibitor_events (exhibitor_id, exhibition_id, supervisor_user_id, hall_name, stand_number, booth_area)
+       VALUES ($1, $2, $3, $4, $5, $6)
        ON CONFLICT (exhibitor_id, exhibition_id)
-       DO UPDATE SET supervisor_user_id = EXCLUDED.supervisor_user_id
+       DO UPDATE SET supervisor_user_id = EXCLUDED.supervisor_user_id,
+                     hall_name = EXCLUDED.hall_name,
+                     stand_number = EXCLUDED.stand_number,
+                     booth_area = EXCLUDED.booth_area
        RETURNING *`,
-      [id, exhibitionId, supervisorUserId || null]
+      [id, exhibitionId, supervisorUserId || null, hallName || null, standNumber || null, boothArea ? Number(boothArea) : null]
     );
     
     const exhibitor = exhibitorCheck.rows[0];
@@ -624,6 +637,9 @@ router.post('/:id/assign-event', verifyToken, requireAdmin, async (req, res) => 
           exhibitionId: parseInt(exhibitionId),
           exhibitionName: exhibition.name,
           supervisorUserId: assignResult.rows[0].supervisor_user_id || null,
+          hallName: assignResult.rows[0].hall_name || null,
+          standNumber: assignResult.rows[0].stand_number || null,
+          boothArea: assignResult.rows[0].booth_area || null,
           supervisor: supervisorRecord ? {
             id: supervisorRecord.id,
             firstName: supervisorRecord.first_name,
