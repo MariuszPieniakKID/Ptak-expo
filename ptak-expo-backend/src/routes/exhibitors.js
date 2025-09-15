@@ -296,6 +296,25 @@ router.post('/', verifyToken, requireAdmin, async (req, res) => {
       console.log('No exhibitionId provided, skipping assignment');
     }
 
+    // Send welcome email to exhibitor with link to exhibitor panel
+    try {
+      const { sendWelcomeEmail } = require('../utils/emailService');
+      const exhibitorPanelBase = process.env.EXHIBITOR_PANEL_URL || 'https://wystawca.exhibitorlist.eu';
+      // For exhibitor we always treat password as provided (not tymczasowe)
+      sendWelcomeEmail(
+        email,
+        contactPerson.split(' ')[0] || contactPerson,
+        contactPerson.split(' ').slice(1).join(' ') || '',
+        password,
+        false,
+        exhibitorPanelBase
+      )
+        .then((r) => console.log('✅ Exhibitor welcome email queued/sent:', email, r?.success))
+        .catch((e) => console.warn('⚠️ Exhibitor welcome email error:', e?.message || e));
+    } catch (mailErr) {
+      console.warn('⚠️ Could not schedule exhibitor welcome email:', mailErr?.message || mailErr);
+    }
+
     // Format response
     const exhibitor = {
       id: newExhibitor.id,

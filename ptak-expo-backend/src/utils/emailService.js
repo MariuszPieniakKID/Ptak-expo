@@ -102,7 +102,8 @@ const sendViaGraph = async ({ to, subject, text, html, from }) => {
 
 // Funkcja wysyłania emaila z danymi logowania
 // isTemporaryPassword: jeśli true – etykieta "Hasło tymczasowe", jeśli false – "Hasło"
-const sendWelcomeEmail = async (userEmail, firstName, lastName, password, isTemporaryPassword = true) => {
+// loginUrl: opcjonalny pełny URL do strony logowania danego panelu (jeśli nie podasz, użyje FRONTEND_URL)
+const sendWelcomeEmail = async (userEmail, firstName, lastName, password, isTemporaryPassword = true, loginUrl) => {
   try {
     // Prefer Graph if configured (works over HTTPS on Railway)
     if (canUseGraph()) {
@@ -135,9 +136,8 @@ const sendWelcomeEmail = async (userEmail, firstName, lastName, password, isTemp
                         <p><strong>Email:</strong> ${userEmail}</p>
                         <p><strong>${isTemporaryPassword ? 'Hasło tymczasowe' : 'Hasło'}:</strong> <code>${password}</code></p>
                     </div>
-                    <p><strong>Ważne:</strong> Ze względów bezpieczeństwa zalecamy zmianę hasła po pierwszym logowaniu.</p>
                     <p>Aby zalogować się do systemu, kliknij poniższy przycisk:</p>
-                    <a href="${process.env.FRONTEND_URL || 'http://localhost:3000'}/login" class="button">Zaloguj się do systemu</a>
+                    <a href="${(loginUrl ? loginUrl.replace(/\/$/, '') : (process.env.FRONTEND_URL || 'http://localhost:3000')) + '/login'}" class="button">Zaloguj się do systemu</a>
                     <p>W razie pytań prosimy o kontakt z administratorem systemu.</p>
                 </div>
                 <div class="footer">
@@ -147,7 +147,7 @@ const sendWelcomeEmail = async (userEmail, firstName, lastName, password, isTemp
             </div>
         </body>
         </html>`;
-      const text = `Witamy w systemie PTAK EXPO\n\nEmail: ${userEmail}\n${isTemporaryPassword ? 'Hasło tymczasowe' : 'Hasło'}: ${password}\n`;
+      const text = `Witamy w systemie PTAK EXPO\n\nEmail: ${userEmail}\n${isTemporaryPassword ? 'Hasło tymczasowe' : 'Hasło'}: ${password}\nLink do logowania: ${(loginUrl ? loginUrl.replace(/\/$/, '') : (process.env.FRONTEND_URL || 'http://localhost:3000')) + '/login'}\n`;
       await sendViaGraph({ to: userEmail, subject, text, html, from: process.env.FROM_EMAIL });
       return { success: true };
     }
@@ -188,10 +188,8 @@ const sendWelcomeEmail = async (userEmail, firstName, lastName, password, isTemp
                         <p><strong>${isTemporaryPassword ? 'Hasło tymczasowe' : 'Hasło'}:</strong> <code>${password}</code></p>
                     </div>
                     
-                    <p><strong>Ważne:</strong> Ze względów bezpieczeństwa zalecamy zmianę hasła po pierwszym logowaniu.</p>
-                    
                     <p>Aby zalogować się do systemu, kliknij poniższy przycisk:</p>
-                    <a href="${process.env.FRONTEND_URL || 'http://localhost:3000'}/login" class="button">Zaloguj się do systemu</a>
+                    <a href="${(loginUrl ? loginUrl.replace(/\/$/, '') : (process.env.FRONTEND_URL || 'http://localhost:3000')) + '/login'}" class="button">Zaloguj się do systemu</a>
                     
                     <p>W razie pytań prosimy o kontakt z administratorem systemu.</p>
                 </div>
@@ -214,9 +212,7 @@ Dane logowania:
 Email: ${userEmail}
 ${isTemporaryPassword ? 'Hasło tymczasowe' : 'Hasło'}: ${password}
 
-Ze względów bezpieczeństwa zalecamy zmianę hasła po pierwszym logowaniu.
-
-Link do logowania: ${process.env.FRONTEND_URL || 'http://localhost:3000'}/login
+Link do logowania: ${(loginUrl ? loginUrl.replace(/\/$/, '') : (process.env.FRONTEND_URL || 'http://localhost:3000')) + '/login'}
 
 W razie pytań prosimy o kontakt z administratorem systemu.
 
