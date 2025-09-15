@@ -51,13 +51,29 @@ if (!databaseUrl || String(databaseUrl).trim().length === 0) {
 }
 
 // Database connection configuration
+// Decide SSL based on host: internal Railway postgres usually doesn't need SSL
+let sslOption = false;
+try {
+  const urlObj = new URL(databaseUrl);
+  const host = urlObj.hostname || '';
+  const isRailwayEnv = Boolean(process.env.RAILWAY_ENVIRONMENT);
+  const isInternalHost = host.endsWith('railway.internal');
+  if (!isInternalHost && (process.env.NODE_ENV === 'production' || isRailwayEnv)) {
+    sslOption = { rejectUnauthorized: false };
+  }
+  console.log('🔍 Database SSL option:', isInternalHost ? 'disabled (internal host)' : (sslOption ? 'enabled' : 'disabled'));
+} catch {
+  // fallback to previous behavior
+  sslOption = (process.env.NODE_ENV === 'production' || process.env.RAILWAY_ENVIRONMENT) ? { rejectUnauthorized: false } : false;
+}
+
 const pool = new Pool({
   connectionString: databaseUrl,
-  ssl: (process.env.NODE_ENV === 'production' || process.env.RAILWAY_ENVIRONMENT) ? { rejectUnauthorized: false } : false,
+  ssl: sslOption,
   connectionTimeoutMillis: 30000, // 30 seconds timeout
   idleTimeoutMillis: 30000,
   max: 20, // Maximum number of connections
-  min: 2,  // Minimum number of connections
+  min: 0,  // Avoid eager connections on startup
 });
 
 console.log('🔍 Database pool created');
