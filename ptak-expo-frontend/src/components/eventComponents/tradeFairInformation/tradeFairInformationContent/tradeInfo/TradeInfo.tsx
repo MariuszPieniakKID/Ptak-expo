@@ -795,9 +795,36 @@ const TradeInfo: React.FC<TradeInfoProps> = ({ exhibitionId }) => {
         <CustomTypography className={styles.subsectionTitle_}>Wiadomości dotyczące targów:</CustomTypography>
         <Box className={styles.messageWrapper_}>
           <SendMessageContainer
-             onSend={() => {
-               console.log('Sending trade message...', tradeMessage);
-               setTradeMessage('');
+             onSend={async (message: string) => {
+               try {
+                 if (!token) {
+                   setError('Brak autoryzacji');
+                   return;
+                 }
+                 // Save only the message without altering other fields
+                 const spacesFromHalls: TradeSpace[] = hallEntries.map((hall, index) => ({
+                   id: (index + 1).toString(),
+                   name: hall.hallName,
+                   hallName: hall.hallName,
+                   filePath: hall.filePath ?? null,
+                   originalFilename: hall.originalFilename ?? null
+                 }));
+
+                 await saveTradeInfo(exhibitionId, {
+                   tradeHours,
+                   contactInfo,
+                   buildDays,
+                   buildType,
+                   tradeSpaces: spacesFromHalls.length > 0 ? spacesFromHalls : tradeSpaces,
+                   tradeMessage: message
+                 }, token);
+
+                 setTradeMessage(message);
+                 setSuccessMessage('Wiadomość zapisana');
+                 setTimeout(() => setSuccessMessage(''), 2500);
+               } catch (e: any) {
+                 setError(e?.message || 'Błąd podczas zapisywania wiadomości');
+               }
              }}
              paperBackground={'#f5f5f5'}
              legendBackground={'#f5f5f5'}
