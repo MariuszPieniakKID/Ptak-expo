@@ -19,63 +19,97 @@ const getUploadsBaseForRead = () => {
   return path.join(__dirname, '../../uploads');
 };
 
-// Build Identifier PDF buffer
+// Build Identifier PDF buffer mirroring web IdentifierCard layout
 const buildIdentifierPdf = async (client, exhibitionId, payload) => {
   // payload: { personName, personEmail }
   const evRes = await client.query('SELECT id, name, start_date, end_date, location FROM exhibitions WHERE id = $1', [exhibitionId]);
   if (evRes.rows.length === 0) return null;
   const ev = evRes.rows[0];
 
-  // Try fetch header branding image (global)
-  let headerImagePath = null;
-  let headerImageBuffer = null;
+  // Time range from trade_info
+  let timeRange = '';
   try {
-    const b = await client.query(
-      `SELECT file_path, file_blob FROM exhibitor_branding_files
-       WHERE exhibitor_id IS NULL AND exhibition_id = $1 AND file_type IN ('kolorowe_tlo_logo_wydarzenia','tlo_wydarzenia_logo_zaproszenia')
-       ORDER BY created_at DESC LIMIT 1`,
-      [exhibitionId]
-    );
-    if (b.rows.length > 0) {
-      const row = b.rows[0];
-      if (row.file_blob) {
-        headerImageBuffer = row.file_blob;
-      } else if (row.file_path) {
-        const uploadsBase = getUploadsBaseForRead();
-        const normalized = String(row.file_path).startsWith('uploads/') ? String(row.file_path).replace(/^uploads\//, '') : String(row.file_path);
-        const p = path.join(uploadsBase, normalized);
-        if (fs.existsSync(p)) headerImagePath = p;
+    const t = await client.query('SELECT exhibitor_start_time, exhibitor_end_time, visitor_start_time, visitor_end_time FROM trade_info WHERE exhibition_id = $1', [exhibitionId]);
+    if (t.rows.length > 0) {
+      const row = t.rows[0];
+      const toHm = (v) => (v ? String(v).slice(0,5) : '');
+      if (row.exhibitor_start_time && row.exhibitor_end_time) {
+        timeRange = `${toHm(row.exhibitor_start_time)}–${toHm(row.exhibitor_end_time)}`;
+      } else if (row.visitor_start_time && row.visitor_end_time) {
+        timeRange = `${toHm(row.visitor_start_time)}–${toHm(row.visitor_end_time)}`;
       }
     }
   } catch {}
 
-  // Fetch QR image via public API
+  // Branding header and footer logo
+  let headerImagePath = null, headerImageBuffer = null;
+  let footerLogoPath = null, footerLogoBuffer = null;
+  try {
+    const b = await client.query(
+      `SELECT file_type, file_path, file_blob FROM exhibitor_branding_files
+       WHERE exhibitor_id IS NULL AND exhibition_id = $1 AND file_type IN ('kolorowe_tlo_logo_wydarzenia','tlo_wydarzenia_logo_zaproszenia','logo_ptak_expo')
+       ORDER BY created_at DESC`,
+      [exhibitionId]
+    );
+    const uploadsBase = getUploadsBaseForRead();
+    for (const row of b.rows) {
+      const normalized = row.file_path ? (String(row.file_path).startsWith('uploads/') ? String(row.file_path).replace(/^uploads\//, '') : String(row.file_path)) : null;
+      const resolved = normalized ? path.join(uploadsBase, normalized) : null;
+      if ((row.file_type === 'kolorowe_tlo_logo_wydarzenia' || row.file_type === 'tlo_wydarzenia_logo_zaproszenia') && !headerImageBuffer && !headerImagePath) {
+        if (row.file_blob) headerImageBuffer = row.file_blob; else if (resolved && fs.existsSync(resolved)) headerImagePath = resolved;
+      }
+      if (row.file_type === 'logo_ptak_expo' && !footerLogoBuffer && !footerLogoPath) {
+        if (row.file_blob) footerLogoBuffer = row.file_blob; else if (resolved && fs.existsSync(resolved)) footerLogoPath = resolved;
+      }
+    }
+  } catch {}
+
+  // QR image
   let qrBuffer = null;
   try {
-    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(String(ev.id))}`;
+    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=${encodeURIComponent(String(ev.id))}`;
     const resp = await fetch(qrUrl);
     if (resp.ok) qrBuffer = Buffer.from(await resp.arrayBuffer());
   } catch {}
 
-  // Compose PDF
-  const doc = new PDFDocument({ size: 'A6', margin: 16 }); // compact badge
+  // Card-like PDF on small page (A6)
+  const doc = new PDFDocument({ size: 'A6', margin: 12 });
   const chunks = [];
   return await new Promise((resolve) => {
     doc.on('data', (d) => chunks.push(d));
     doc.on('end', () => resolve(Buffer.concat(chunks)));
 
-    // Header image
+    const pageW = doc.page.width;
+    const pageH = doc.page.height;
+    const cardX = 10;
+    const cardY = 10;
+    const cardW = pageW - 20;
+    const cardH = pageH - 20;
+
+    // Rounded white card background
+    doc.save();
+    doc.roundedRect(cardX, cardY, cardW, cardH, 12).fill('#FFFFFF');
+    doc.restore();
+
+    // Clip to card for header image
+    doc.save();
+    doc.roundedRect(cardX, cardY, cardW, cardH, 12).clip();
     try {
+      const headerH = 80;
       if (headerImageBuffer) {
-        doc.image(headerImageBuffer, { fit: [doc.page.width - 32, 100], align: 'center' });
-        doc.moveDown(0.5);
+        doc.image(headerImageBuffer, cardX, cardY, { width: cardW, height: headerH, fit: [cardW, headerH] });
       } else if (headerImagePath) {
-        doc.image(headerImagePath, { fit: [doc.page.width - 32, 100], align: 'center' });
-        doc.moveDown(0.5);
+        doc.image(headerImagePath, cardX, cardY, { width: cardW, height: headerH, fit: [cardW, headerH] });
+      } else {
+        // fallback colored header
+        doc.rect(cardX, cardY, cardW, 60).fill('#5a6ec8');
       }
     } catch {}
+    doc.restore();
 
-    doc.fontSize(14).fillColor('#000').text(ev.name || 'Wydarzenie', { align: 'center' });
+    // Content padding
+    let y = cardY + 90;
+
     const formatDate = (d) => {
       if (!d) return '';
       const dt = new Date(d);
@@ -84,18 +118,67 @@ const buildIdentifierPdf = async (client, exhibitionId, payload) => {
       const yyyy = dt.getFullYear();
       return `${dd}.${mm}.${yyyy}`;
     };
-    doc.fontSize(10).fillColor('#333').text(`${formatDate(ev.start_date)} – ${formatDate(ev.end_date)}`, { align: 'center' });
-    if (ev.location) doc.text(String(ev.location), { align: 'center' });
 
-    doc.moveDown(0.6);
-    doc.fontSize(12).fillColor('#2E2E38').text(payload.personName || '', { align: 'center' });
-    doc.fontSize(9).fillColor('#666').text(payload.personEmail || '', { align: 'center' });
+    // Event title
+    doc.font('Helvetica-Bold').fontSize(14).fillColor('#2E2E38');
+    doc.text(ev.name || 'Wydarzenie', cardX + 12, y, { width: cardW - 24, align: 'left' });
+    y = doc.y + 6;
 
-    doc.moveDown(0.6);
+    // Date and Time two columns
+    doc.font('Helvetica').fontSize(10).fillColor('#333');
+    const leftX = cardX + 12;
+    const colW = (cardW - 24) / 2;
+    doc.text('Data', leftX, y);
+    doc.text('Godzina', leftX + colW, y);
+    y = doc.y + 2;
+    doc.font('Helvetica').fontSize(10).fillColor('#000');
+    doc.text(`${formatDate(ev.start_date)} – ${formatDate(ev.end_date)}`, leftX, y, { width: colW });
+    doc.text(timeRange || '-', leftX + colW, y, { width: colW });
+    y = doc.y + 8;
+
+    // ID and Location
+    doc.font('Helvetica').fontSize(10).fillColor('#333');
+    doc.text('ID', leftX, y);
+    y = doc.y + 2;
+    doc.font('Helvetica').fontSize(10).fillColor('#000');
+    doc.text(String(ev.id), leftX, y, { width: cardW - 24 });
+    y = doc.y + 6;
+    doc.font('Helvetica').fontSize(10).fillColor('#333');
+    doc.text('Miejsce', leftX, y);
+    y = doc.y + 2;
+    doc.font('Helvetica').fontSize(10).fillColor('#000');
+    doc.text(String(ev.location || ''), leftX, y, { width: cardW - 24 });
+    y = doc.y + 10;
+
+    // Dashed separator
+    doc.save();
+    doc.dash(3, { space: 3 });
+    doc.moveTo(cardX + 12, y).lineTo(cardX + cardW - 12, y).stroke('#CCCCCC');
+    doc.undash();
+    doc.restore();
+    y += 8;
+
+    // Footer: logo left, QR right
+    const footerY = y;
+    const qrSize = 90;
+    const qrX = cardX + cardW - 12 - qrSize;
     try {
       if (qrBuffer) {
-        const x = (doc.page.width - 120) / 2;
-        doc.image(qrBuffer, x, doc.y, { width: 120, height: 120 });
+        doc.image(qrBuffer, qrX, footerY, { width: qrSize, height: qrSize });
+        doc.font('Helvetica').fontSize(8).fillColor('#555').text('Kod QR', qrX, footerY + qrSize + 2, { width: qrSize, align: 'center' });
+      }
+    } catch {}
+
+    try {
+      const logoBoxW = qrX - (cardX + 12) - 8;
+      const logoMaxH = 50;
+      if (footerLogoBuffer) {
+        doc.image(footerLogoBuffer, cardX + 12, footerY, { fit: [logoBoxW, logoMaxH], align: 'left' });
+      } else if (footerLogoPath) {
+        doc.image(footerLogoPath, cardX + 12, footerY, { fit: [logoBoxW, logoMaxH], align: 'left' });
+      } else {
+        // fallback text
+        doc.font('Helvetica-Bold').fontSize(12).fillColor('#2E2E38').text('PTAK EXPO', cardX + 12, footerY);
       }
     } catch {}
 
