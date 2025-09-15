@@ -550,6 +550,27 @@ const initializeDatabase = async () => {
       CREATE INDEX IF NOT EXISTS idx_exhibitor_people_exhibition_id ON exhibitor_people(exhibition_id)
     `);
 
+    // Awards per exhibitor per exhibition
+    console.log('🔍 Creating exhibitor_awards table...');
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS exhibitor_awards (
+        id SERIAL PRIMARY KEY,
+        exhibitor_id INTEGER REFERENCES exhibitors(id) ON DELETE CASCADE,
+        exhibition_id INTEGER REFERENCES exhibitions(id) ON DELETE CASCADE,
+        application_text TEXT,
+        status VARCHAR(20) DEFAULT 'draft' CHECK (status IN ('draft','submitted','accepted','rejected')),
+        created_at TIMESTAMPTZ DEFAULT NOW(),
+        updated_at TIMESTAMPTZ DEFAULT NOW(),
+        UNIQUE(exhibitor_id, exhibition_id)
+      )
+    `);
+    await pool.query(`
+      CREATE INDEX IF NOT EXISTS idx_exhibitor_awards_exhibitor_id ON exhibitor_awards(exhibitor_id)
+    `);
+    await pool.query(`
+      CREATE INDEX IF NOT EXISTS idx_exhibitor_awards_exhibition_id ON exhibitor_awards(exhibition_id)
+    `);
+
     console.log('🔍 Inserting admin user...');
     await pool.query(`
       INSERT INTO users (email, password_hash, role, first_name, last_name) 

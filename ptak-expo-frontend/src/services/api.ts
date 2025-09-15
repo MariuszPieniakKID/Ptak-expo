@@ -48,6 +48,17 @@ export interface ExhibitorEvent {
   status: string;
 }
 
+// Exhibitor Awards
+export interface ExhibitorAward {
+  id?: number;
+  exhibitorId: number;
+  exhibitionId: number;
+  applicationText: string;
+  status: 'draft' | 'submitted' | 'accepted' | 'rejected';
+  createdAt?: string;
+  updatedAt?: string;
+}
+
 export interface Exhibition {
   id: number;
   name: string;
@@ -116,6 +127,45 @@ export const deleteUser = async (userId: number, token: string): Promise<any> =>
     throw new Error(errorData.error || 'Failed to delete user');
   }
   return response.json();
+};
+
+export const getExhibitorAward = async (
+  exhibitorId: number,
+  exhibitionId: number,
+  token: string
+): Promise<{ success: boolean; data: ExhibitorAward | null }> => {
+  const response = await apiCall(`${config.API_BASE_URL}/api/v1/exhibitor-awards/${exhibitorId}/${exhibitionId}`, {
+    method: 'GET',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+    },
+  });
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data.message || 'Błąd podczas pobierania zgłoszenia do nagrody');
+  }
+  return data;
+};
+
+export const saveExhibitorAward = async (
+  exhibitorId: number,
+  exhibitionId: number,
+  payload: { applicationText?: string; status?: ExhibitorAward['status'] },
+  token: string
+): Promise<{ success: boolean; message: string; data: ExhibitorAward }> => {
+  const response = await apiCall(`${config.API_BASE_URL}/api/v1/exhibitor-awards/${exhibitorId}/${exhibitionId}`, {
+    method: 'PUT',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(payload),
+  });
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data.message || 'Błąd podczas zapisywania zgłoszenia do nagrody');
+  }
+  return data;
 };
 
 export interface AddUserPayload {
