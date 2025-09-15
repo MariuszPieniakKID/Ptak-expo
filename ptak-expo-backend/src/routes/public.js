@@ -117,6 +117,58 @@ router.get('/rss', async (req, res) => {
   }
 });
 
+// Public: JSON feed mirroring RSS structure
+router.get('/rss.json', async (req, res) => {
+  try {
+    const siteTitle = 'PTAK EXPO – Wydarzenia';
+    const siteLink = req.protocol + '://' + req.get('host');
+    const siteDescription = 'Aktualny wykaz wydarzeń PTAK EXPO';
+
+    const eventsRes = await db.query(
+      `SELECT id, name, description, start_date, end_date, location, status
+       FROM exhibitions
+       ORDER BY start_date ASC`
+    );
+
+    const items = eventsRes.rows.map((ev) => {
+      const itemLink = `${siteLink}/event/${ev.id}`;
+      const pubDate = new Date(ev.start_date).toUTCString();
+      return {
+        title: ev.name || '',
+        link: itemLink,
+        guid: `exhibition-${ev.id}`,
+        description: ev.description || '',
+        category: ev.status || 'planned',
+        pubDate,
+        author: `info@ptak-expo.eu (${siteTitle})`,
+        source: { url: `${siteLink}/public/rss`, title: 'PTAK EXPO' },
+        id: ev.id,
+        start_date: ev.start_date,
+        end_date: ev.end_date,
+        location: ev.location || null,
+        status: ev.status || 'planned'
+      };
+    });
+
+    const payload = {
+      channel: {
+        title: siteTitle,
+        link: siteLink,
+        description: siteDescription,
+        language: 'pl-PL',
+        lastBuildDate: new Date().toUTCString()
+      },
+      items
+    };
+
+    res.set('Content-Type', 'application/json; charset=utf-8');
+    res.json(payload);
+  } catch (error) {
+    console.error('[public] rss.json error', error);
+    res.status(500).json({ success: false, message: 'Error generating JSON feed' });
+  }
+});
+
 module.exports = router;
 
 
