@@ -25,27 +25,21 @@ console.log('🔍 Database config - Selected URL:', databaseUrl ? 'SET (starts w
 console.log('🔍 Database config - NODE_ENV:', process.env.NODE_ENV);
 console.log('🔍 Database config - RAILWAY_ENVIRONMENT:', process.env.RAILWAY_ENVIRONMENT || 'not set');
 console.log('🔍 Database config - SSL mode:', process.env.NODE_ENV === 'production' || process.env.RAILWAY_ENVIRONMENT ? 'enabled' : 'disabled');
-// NO-DB safe mode (service will start and respond to healthchecks even without DB)
-const noDbMode = !databaseUrl || String(databaseUrl).trim().length === 0;
-if (noDbMode) {
-  console.warn('⚠️ DATABASE_URL is not set. Starting in NO-DB mode. Some endpoints will not function.');
+// Enforce configured database in production; abort if missing
+if (!databaseUrl || String(databaseUrl).trim().length === 0) {
+  console.error('❌ DATABASE_URL is not set. The backend requires a working database. Aborting startup.');
+  throw new Error('DATABASE_URL is required');
 }
 
 // Database connection configuration
-const pool = noDbMode
-  ? {
-      // Minimal interface to avoid crashes when DB is not configured
-      query: async () => { throw new Error('Database not configured (NO-DB mode)'); },
-      on: () => {},
-    }
-  : new Pool({
-      connectionString: databaseUrl,
-      ssl: (process.env.NODE_ENV === 'production' || process.env.RAILWAY_ENVIRONMENT) ? { rejectUnauthorized: false } : false,
-      connectionTimeoutMillis: 30000, // 30 seconds timeout
-      idleTimeoutMillis: 30000,
-      max: 20, // Maximum number of connections
-      min: 2,  // Minimum number of connections
-    });
+const pool = new Pool({
+  connectionString: databaseUrl,
+  ssl: (process.env.NODE_ENV === 'production' || process.env.RAILWAY_ENVIRONMENT) ? { rejectUnauthorized: false } : false,
+  connectionTimeoutMillis: 30000, // 30 seconds timeout
+  idleTimeoutMillis: 30000,
+  max: 20, // Maximum number of connections
+  min: 2,  // Minimum number of connections
+});
 
 console.log('🔍 Database pool created');
 
@@ -60,10 +54,6 @@ pool.on('error', (err) => {
 
 // Initialize database tables
 const initializeDatabase = async () => {
-  if (noDbMode) {
-    console.warn('⚠️ Skipping database initialization (NO-DB mode)');
-    return;
-  }
   try {
     console.log('🔍 Starting database initialization...');
     
