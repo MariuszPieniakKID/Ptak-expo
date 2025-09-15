@@ -381,12 +381,7 @@ const sendEmail = async ({ to, subject, text, html, from, attachments }) => {
   try {
     const fallbackFrom = from || process.env.FROM_EMAIL || process.env.SMTP_USER || 'noreply@ptak-expo.com';
 
-    // Prefer Graph on Railway if configured
-    if (canUseGraph()) {
-      await sendViaGraph({ to, subject, text, html, from: fallbackFrom, attachments });
-      return { success: true };
-    }
-
+    // SMTP path (preferred). We do NOT use Graph here to keep config SMTP-only.
     const transporter = createTransporter();
     const mailOptions = {
       from: fallbackFrom,
