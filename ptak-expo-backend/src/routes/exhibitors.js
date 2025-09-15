@@ -45,21 +45,36 @@ const buildIdentifierPdf = async (client, exhibitionId, payload) => {
   let headerImagePath = null, headerImageBuffer = null;
   let footerLogoPath = null, footerLogoBuffer = null;
   try {
-    const b = await client.query(
-      `SELECT file_type, file_path, file_blob FROM exhibitor_branding_files
-       WHERE exhibitor_id IS NULL AND exhibition_id = $1 AND file_type IN ('kolorowe_tlo_logo_wydarzenia','tlo_wydarzenia_logo_zaproszenia','logo_ptak_expo')
-       ORDER BY created_at DESC`,
+    const uploadsBase = getUploadsBaseForRead();
+    // Strictly prefer 'kolorowe_tlo_logo_wydarzenia' for header (as per web field)
+    const h = await client.query(
+      `SELECT file_path, file_blob FROM exhibitor_branding_files
+       WHERE exhibitor_id IS NULL AND exhibition_id = $1 AND file_type = 'kolorowe_tlo_logo_wydarzenia'
+       ORDER BY created_at DESC LIMIT 1`,
       [exhibitionId]
     );
-    const uploadsBase = getUploadsBaseForRead();
-    for (const row of b.rows) {
-      const normalized = row.file_path ? (String(row.file_path).startsWith('uploads/') ? String(row.file_path).replace(/^uploads\//, '') : String(row.file_path)) : null;
-      const resolved = normalized ? path.join(uploadsBase, normalized) : null;
-      if ((row.file_type === 'kolorowe_tlo_logo_wydarzenia' || row.file_type === 'tlo_wydarzenia_logo_zaproszenia') && !headerImageBuffer && !headerImagePath) {
-        if (row.file_blob) headerImageBuffer = row.file_blob; else if (resolved && fs.existsSync(resolved)) headerImagePath = resolved;
+    if (h.rows.length > 0) {
+      const row = h.rows[0];
+      if (row.file_blob) headerImageBuffer = row.file_blob; else if (row.file_path) {
+        const normalized = String(row.file_path).startsWith('uploads/') ? String(row.file_path).replace(/^uploads\//, '') : String(row.file_path);
+        const resolved = path.join(uploadsBase, normalized);
+        if (fs.existsSync(resolved)) headerImagePath = resolved;
       }
-      if (row.file_type === 'logo_ptak_expo' && !footerLogoBuffer && !footerLogoPath) {
-        if (row.file_blob) footerLogoBuffer = row.file_blob; else if (resolved && fs.existsSync(resolved)) footerLogoPath = resolved;
+    }
+
+    // Footer logo from 'logo_ptak_expo' (optional)
+    const f = await client.query(
+      `SELECT file_path, file_blob FROM exhibitor_branding_files
+       WHERE exhibitor_id IS NULL AND exhibition_id = $1 AND file_type = 'logo_ptak_expo'
+       ORDER BY created_at DESC LIMIT 1`,
+      [exhibitionId]
+    );
+    if (f.rows.length > 0) {
+      const row = f.rows[0];
+      if (row.file_blob) footerLogoBuffer = row.file_blob; else if (row.file_path) {
+        const normalized = String(row.file_path).startsWith('uploads/') ? String(row.file_path).replace(/^uploads\//, '') : String(row.file_path);
+        const resolved = path.join(uploadsBase, normalized);
+        if (fs.existsSync(resolved)) footerLogoPath = resolved;
       }
     }
   } catch {}
