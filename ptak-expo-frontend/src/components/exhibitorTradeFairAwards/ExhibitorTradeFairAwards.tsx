@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Box, Accordion, AccordionSummary, AccordionDetails, Typography } from "@mui/material";
 import styles from "./ExhibitorTradeFairAwards.module.scss";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import { Exhibitor, ExhibitorAward, getExhibitorAward, saveExhibitorAward } from "../../services/api";
+import { ExhibitorAward, getExhibitorAward, saveExhibitorAward } from "../../services/api";
 import { ReactComponent as  TradeAwardcIcon} from '../../assets/trade_fair_awardsIcon.svg';
 import ContentOfTheExhibitorsApplication from "./contentOfTheExhibitorsApplication/ContentOfTheExhibitorsApplication";
 import { useAuth } from "../../contexts/AuthContext";
@@ -13,14 +13,12 @@ import CustomButton from "../customButton/CustomButton";
  type ExhibitorTradeFairAwardsProps = {
    allowMultiple?: boolean;
    exhibitorId: number;
-   exhibitor?: Exhibitor;
    exhibitionId?: number; // selected event
  };
 
  function ExhibitorTradeFairAwards({
    allowMultiple = true,
    exhibitorId,
-   exhibitor,
    exhibitionId,
  }: ExhibitorTradeFairAwardsProps) {
    const { token } = useAuth();
