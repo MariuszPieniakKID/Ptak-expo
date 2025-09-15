@@ -3,7 +3,7 @@ import EventLayout from '../components/eventLayout/EventLayout';
 import LeftColumn from '../components/event-left/LeftColumn';
 import { useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import { exhibitionsAPI, tradeInfoAPI, brandingAPI, invitationsAPI } from '../services/api';
+import { exhibitionsAPI, brandingAPI, invitationsAPI } from '../services/api';
 import styles from './EventHomePage.module.scss';
 
 // no date fields in invitations card
@@ -23,9 +23,8 @@ const EventInvitationsPage = () => {
       if (!eventId) return;
       try {
         const idNum = Number(eventId);
-        const [evRes, _tradeRes, brandingRes] = await Promise.all([
+        const [evRes, brandingRes] = await Promise.all([
           exhibitionsAPI.getById(idNum),
-          tradeInfoAPI.get(idNum).catch(() => null),
           brandingAPI.getGlobal(idNum).catch(() => null),
         ]);
 
