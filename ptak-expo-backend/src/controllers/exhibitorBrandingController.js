@@ -4,23 +4,28 @@ const fsSync = require('fs');
 const { v4: uuidv4 } = require('uuid');
 const { pool } = require('../config/database');
 
-// Base directory for uploads; on Railway point this to a mounted volume (e.g., /data/uploads)
+// Base directory for uploads; prefer mounted volume, fallback to local path
 const getUploadsBase = () => {
-  if (process.env.UPLOADS_DIR && process.env.UPLOADS_DIR.trim().length > 0) {
-    return path.resolve(process.env.UPLOADS_DIR);
-  }
-  // Prefer Railway volume if present
-  const railwayVolume = '/data/uploads';
-  if (fsSync.existsSync('/data')) {
+  const preferEnv = process.env.UPLOADS_DIR && process.env.UPLOADS_DIR.trim().length > 0
+    ? path.resolve(process.env.UPLOADS_DIR)
+    : null;
+  const candidates = [
+    preferEnv,
+    fsSync.existsSync('/data') ? '/data/uploads' : null,
+    path.join(__dirname, '../../uploads')
+  ].filter(Boolean);
+  for (const base of candidates) {
     try {
-      if (!fsSync.existsSync(railwayVolume)) {
-        fsSync.mkdirSync(railwayVolume, { recursive: true });
+      if (!fsSync.existsSync(base)) {
+        fsSync.mkdirSync(base, { recursive: true });
       }
-      return railwayVolume;
-    } catch (_e) {
-      // fall through to local uploads
+      return base;
+    } catch (e) {
+      // try next candidate
+      continue;
     }
   }
+  // Fallback to local uploads (no mkdir crash)
   return path.join(__dirname, '../../uploads');
 };
 
