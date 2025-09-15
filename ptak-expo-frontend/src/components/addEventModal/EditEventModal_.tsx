@@ -97,6 +97,14 @@ const EditEventModal_: React.FC<EditEventModalProps> = ({ isOpen, onClose, event
       try { URL.revokeObjectURL(logoPreview); } catch (_) {}
     }
     if (file) {
+      const allowed = ['png','jpg','jpeg','svg','webp'];
+      const ext = file.name.split('.').pop()?.toLowerCase();
+      if (!ext || !allowed.includes(ext)) {
+        try { alert(`Nieprawidłowy format pliku. Dozwolone formaty: ${allowed.join(', ')}`); } catch(_) {}
+        setEventLogoFile(null);
+        setLogoPreview(null);
+        return;
+      }
       setEventLogoFile(file);
       setLogoPreview(URL.createObjectURL(file));
     } else {

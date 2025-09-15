@@ -29,43 +29,43 @@ const FILE_TYPES = {
   'kolorowe_tlo_logo_wydarzenia': {
     name: 'Kolorowe tło z logiem wydarzenia (E-Identyfikator wystawcy)',
     dimensions: '305x106',
-    allowedFormats: ['png', 'jpg', 'jpeg'],
+    allowedFormats: ['png', 'jpg', 'jpeg', 'webp'],
     maxSize: 5 * 1024 * 1024 // 5MB
   },
   'tlo_wydarzenia_logo_zaproszenia': {
     name: 'Tło wydarzenia z logiem (E-zaproszenia)',
     dimensions: '152x106',
-    allowedFormats: ['png', 'svg'],
+    allowedFormats: ['png', 'svg', 'webp'],
     maxSize: 5 * 1024 * 1024 // 5MB
   },
   'biale_logo_identyfikator': {
     name: 'Białe Logo (E-Identyfikator)',
     dimensions: '104x34',
-    allowedFormats: ['png', 'svg'],
+    allowedFormats: ['png', 'svg', 'webp'],
     maxSize: 2 * 1024 * 1024 // 2MB
   },
   'event_logo': {
     name: 'Logo wydarzenia (lista i szczegóły wydarzenia)',
     dimensions: null,
-    allowedFormats: ['png', 'jpg', 'jpeg', 'svg'],
+    allowedFormats: ['png', 'jpg', 'jpeg', 'svg', 'webp'],
     maxSize: 5 * 1024 * 1024 // 5MB
   },
   'banner_wystawcy_800': {
     name: 'Banner dla wystawcy z miejscem na logo',
     dimensions: '800x800',
-    allowedFormats: ['png', 'jpg', 'jpeg'],
+    allowedFormats: ['png', 'jpg', 'jpeg', 'webp'],
     maxSize: 10 * 1024 * 1024 // 10MB
   },
   'banner_wystawcy_1200': {
     name: 'Banner dla wystawcy z miejscem na logo (duży)',
     dimensions: '1200x1200',
-    allowedFormats: ['png', 'jpg', 'jpeg'],
+    allowedFormats: ['png', 'jpg', 'jpeg', 'webp'],
     maxSize: 15 * 1024 * 1024 // 15MB
   },
   'logo_ptak_expo': {
     name: 'Logo PTAK EXPO',
     dimensions: '200x200',
-    allowedFormats: ['png', 'jpg', 'jpeg'],
+    allowedFormats: ['png', 'jpg', 'jpeg', 'webp'],
     maxSize: 5 * 1024 * 1024 // 5MB
   },
   'dokumenty_brandingowe': {

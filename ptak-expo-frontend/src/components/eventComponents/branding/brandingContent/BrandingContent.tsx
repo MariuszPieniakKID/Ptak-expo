@@ -75,9 +75,9 @@ const BrandingContent: React.FC<BrandingContentProps> = ({ event }) => {
             <BrandingFileUpload
               fileType="kolorowe_tlo_logo_wydarzenia"
               title="Kolorowe tło z logiem wydarzenia (E-Identyfikator wystawcy)"
-              description="Format: png, jpg"
+              description="Format: png, jpg, webp"
               dimensions="305x106"
-              allowedFormats={['png', 'jpg', 'jpeg']}
+              allowedFormats={['png', 'jpg', 'jpeg', 'webp']}
               maxSize={5 * 1024 * 1024}
               exhibitorId={null}
               exhibitionId={event.id}
@@ -94,9 +94,9 @@ const BrandingContent: React.FC<BrandingContentProps> = ({ event }) => {
             <BrandingFileUpload
               fileType="tlo_wydarzenia_logo_zaproszenia"
               title="Tło wydarzenia z logiem (E-zaproszenia)"
-              description="Format: png, svg"
+              description="Format: png, svg, webp"
               dimensions="152x106"
-              allowedFormats={['png', 'svg']}
+              allowedFormats={['png', 'svg', 'webp']}
               maxSize={5 * 1024 * 1024}
               exhibitorId={null}
               exhibitionId={event.id}
@@ -113,9 +113,9 @@ const BrandingContent: React.FC<BrandingContentProps> = ({ event }) => {
             <BrandingFileUpload
               fileType="biale_logo_identyfikator"
               title="Białe Logo (E-Identyfikator)"
-              description="Format: png, svg"
+              description="Format: png, svg, webp"
               dimensions="104x34"
-              allowedFormats={['png', 'svg']}
+              allowedFormats={['png', 'svg', 'webp']}
               maxSize={5 * 1024 * 1024}
               exhibitorId={null}
               exhibitionId={event.id}
@@ -132,9 +132,9 @@ const BrandingContent: React.FC<BrandingContentProps> = ({ event }) => {
             <BrandingFileUpload
               fileType="banner_wystawcy_800"
               title="Banner dla wystawcy z miejscem na logo"
-              description="Format: png, jpg"
+              description="Format: png, jpg, webp"
               dimensions="800x800"
-              allowedFormats={['png', 'jpg', 'jpeg']}
+              allowedFormats={['png', 'jpg', 'jpeg', 'webp']}
               maxSize={10 * 1024 * 1024}
               exhibitorId={null}
               exhibitionId={event.id}
@@ -151,9 +151,9 @@ const BrandingContent: React.FC<BrandingContentProps> = ({ event }) => {
             <BrandingFileUpload
               fileType="banner_wystawcy_1200"
               title="Banner dla wystawcy z miejscem na logo (duży)"
-              description="Format: png, jpg"
+              description="Format: png, jpg, webp"
               dimensions="1200x1200"
-              allowedFormats={['png', 'jpg', 'jpeg']}
+              allowedFormats={['png', 'jpg', 'jpeg', 'webp']}
               maxSize={15 * 1024 * 1024}
               exhibitorId={null}
               exhibitionId={event.id}
@@ -170,9 +170,9 @@ const BrandingContent: React.FC<BrandingContentProps> = ({ event }) => {
             <BrandingFileUpload
               fileType="logo_ptak_expo"
               title="Logo PTAK EXPO"
-              description="Format: png, jpg"
+              description="Format: png, jpg, webp"
               dimensions="200x200"
-              allowedFormats={['png', 'jpg', 'jpeg']}
+              allowedFormats={['png', 'jpg', 'jpeg', 'webp']}
               maxSize={5 * 1024 * 1024}
               exhibitorId={null}
               exhibitionId={event.id}
