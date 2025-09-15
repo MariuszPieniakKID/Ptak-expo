@@ -5,6 +5,103 @@ const { verifyToken, requireAdmin } = require('../middleware/auth');
 const { requireExhibitorOrAdmin } = require('../middleware/auth');
 const bcrypt = require('bcryptjs');
 const { sendEmail } = require('../utils/emailService');
+const PDFDocument = require('pdfkit');
+const path = require('path');
+const fs = require('fs');
+
+// Helper: resolve uploads base similar to branding controller
+const getUploadsBaseForRead = () => {
+  const preferred = process.env.UPLOADS_DIR && process.env.UPLOADS_DIR.trim().length > 0
+    ? path.resolve(process.env.UPLOADS_DIR)
+    : null;
+  if (preferred) return preferred;
+  if (fs.existsSync('/data/uploads')) return '/data/uploads';
+  return path.join(__dirname, '../../uploads');
+};
+
+// Build Identifier PDF buffer
+const buildIdentifierPdf = async (client, exhibitionId, payload) => {
+  // payload: { personName, personEmail }
+  const evRes = await client.query('SELECT id, name, start_date, end_date, location FROM exhibitions WHERE id = $1', [exhibitionId]);
+  if (evRes.rows.length === 0) return null;
+  const ev = evRes.rows[0];
+
+  // Try fetch header branding image (global)
+  let headerImagePath = null;
+  let headerImageBuffer = null;
+  try {
+    const b = await client.query(
+      `SELECT file_path, file_blob FROM exhibitor_branding_files
+       WHERE exhibitor_id IS NULL AND exhibition_id = $1 AND file_type IN ('kolorowe_tlo_logo_wydarzenia','tlo_wydarzenia_logo_zaproszenia')
+       ORDER BY created_at DESC LIMIT 1`,
+      [exhibitionId]
+    );
+    if (b.rows.length > 0) {
+      const row = b.rows[0];
+      if (row.file_blob) {
+        headerImageBuffer = row.file_blob;
+      } else if (row.file_path) {
+        const uploadsBase = getUploadsBaseForRead();
+        const normalized = String(row.file_path).startsWith('uploads/') ? String(row.file_path).replace(/^uploads\//, '') : String(row.file_path);
+        const p = path.join(uploadsBase, normalized);
+        if (fs.existsSync(p)) headerImagePath = p;
+      }
+    }
+  } catch {}
+
+  // Fetch QR image via public API
+  let qrBuffer = null;
+  try {
+    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(String(ev.id))}`;
+    const resp = await fetch(qrUrl);
+    if (resp.ok) qrBuffer = Buffer.from(await resp.arrayBuffer());
+  } catch {}
+
+  // Compose PDF
+  const doc = new PDFDocument({ size: 'A6', margin: 16 }); // compact badge
+  const chunks = [];
+  return await new Promise((resolve) => {
+    doc.on('data', (d) => chunks.push(d));
+    doc.on('end', () => resolve(Buffer.concat(chunks)));
+
+    // Header image
+    try {
+      if (headerImageBuffer) {
+        doc.image(headerImageBuffer, { fit: [doc.page.width - 32, 100], align: 'center' });
+        doc.moveDown(0.5);
+      } else if (headerImagePath) {
+        doc.image(headerImagePath, { fit: [doc.page.width - 32, 100], align: 'center' });
+        doc.moveDown(0.5);
+      }
+    } catch {}
+
+    doc.fontSize(14).fillColor('#000').text(ev.name || 'Wydarzenie', { align: 'center' });
+    const formatDate = (d) => {
+      if (!d) return '';
+      const dt = new Date(d);
+      const dd = String(dt.getDate()).padStart(2, '0');
+      const mm = String(dt.getMonth() + 1).padStart(2, '0');
+      const yyyy = dt.getFullYear();
+      return `${dd}.${mm}.${yyyy}`;
+    };
+    doc.fontSize(10).fillColor('#333').text(`${formatDate(ev.start_date)} – ${formatDate(ev.end_date)}`, { align: 'center' });
+    if (ev.location) doc.text(String(ev.location), { align: 'center' });
+
+    doc.moveDown(0.6);
+    doc.fontSize(12).fillColor('#2E2E38').text(payload.personName || '', { align: 'center' });
+    doc.fontSize(9).fillColor('#666').text(payload.personEmail || '', { align: 'center' });
+
+    doc.moveDown(0.6);
+    try {
+      if (qrBuffer) {
+        const x = (doc.page.width - 120) / 2;
+        doc.image(qrBuffer, x, doc.y, { width: 120, height: 120 });
+      }
+    } catch {}
+
+    doc.end();
+  });
+};
 
 // --- SELF-SERVICE (EXHIBITOR) ENDPOINTS ---
 // IMPORTANT: Keep these above dynamic `/:id` routes so `/me` doesn't match `:id`
@@ -411,7 +508,41 @@ router.post('/me/people', verifyToken, requireExhibitorOrAdmin, async (req, res)
       'INSERT INTO exhibitor_people (exhibitor_id, exhibition_id, full_name, position, email) VALUES ($1, $2, $3, $4, $5) RETURNING id, full_name, position, email, created_at',
       [exhibitorId, exId, fullName, position || null, personEmail || null]
     );
-    return res.status(201).json({ success: true, data: ins.rows[0] });
+    const saved = ins.rows[0];
+
+    // Try to generate identifier PDF and send email if email provided and exhibitionId present
+    try {
+      if (personEmail && exId) {
+        const client = await db.pool.connect();
+        try {
+          const pdfBuffer = await buildIdentifierPdf(client, exId, { personName: fullName, personEmail: personEmail });
+          const evInfo = await client.query('SELECT name, start_date, end_date FROM exhibitions WHERE id = $1', [exId]);
+          const ev = evInfo.rows[0] || {};
+          const subject = `E-identyfikator – ${ev.name || 'Wydarzenie PTAK EXPO'}`;
+          const dates = [ev.start_date, ev.end_date].filter(Boolean).map((d) => new Date(d)).map((d) => `${String(d.getDate()).padStart(2,'0')}.${String(d.getMonth()+1).padStart(2,'0')}.${d.getFullYear()}`).join(' – ');
+          const html = `<p>Dzień dobry ${fullName},</p><p>Otrzymujesz e‑identyfikator na wydarzenie: <strong>${ev.name || ''}</strong> (${dates}).</p><p>E‑identyfikator znajdziesz w załączniku (PDF). Prosimy o zabranie go na wydarzenie.</p><p>Pozdrawiamy,<br/>Zespół PTAK EXPO</p>`;
+          // Send with attachment via nodemailer transporter path (emailService uses transporter when Graph not set). We extend sendEmail to accept no attachments, so here fallback: if pdfBuffer is present, embed as base64 in HTML download link as minimal fallback.
+          let result = await sendEmail({ to: personEmail, subject, text: undefined, html });
+          // If transporter supports attachments through our helper? It does not. As a fallback, if PDF exists, send second email with inline link.
+          if (pdfBuffer && !result.success) {
+            const b64 = pdfBuffer.toString('base64');
+            const html2 = `${html}<p>Jeśli załącznik nie dotarł, pobierz e‑identyfikator: <a href="data:application/pdf;base64,${b64}" download="e-identyfikator.pdf">pobierz PDF</a></p>`;
+            await sendEmail({ to: personEmail, subject, text: undefined, html: html2 });
+          } else if (pdfBuffer && result.success) {
+            // Try sending again with data URL link to ensure access to PDF
+            const b64 = pdfBuffer.toString('base64');
+            const html2 = `${html}<p>Załączamy również kopię e‑identyfikatora: <a href="data:application/pdf;base64,${b64}" download="e-identyfikator.pdf">pobierz PDF</a></p>`;
+            await sendEmail({ to: personEmail, subject, text: undefined, html: html2 });
+          }
+        } finally {
+          client.release();
+        }
+      }
+    } catch (mailErr) {
+      console.warn('[me/people] email sending failed:', mailErr?.message || mailErr);
+    }
+
+    return res.status(201).json({ success: true, data: saved });
   } catch (e) {
     console.error('Error creating exhibitor person:', e);
     return res.status(500).json({ success: false, message: 'Błąd podczas zapisu osoby', details: e?.message });
@@ -907,52 +1038,5 @@ router.post('/:id/remind-catalog', verifyToken, requireAdmin, async (req, res) =
   } catch (e) {
     console.error('[remind-catalog] error', e);
     return res.status(500).json({ success: false, message: 'Błąd podczas wysyłania przypomnienia' });
-  }
-});
-
-// People endpoints for current exhibitor
-router.get('/me/people', verifyToken, requireExhibitorOrAdmin, async (req, res) => {
-  try {
-    const email = req.user.email;
-    const exRes = await db.query('SELECT id FROM exhibitors WHERE email = $1 LIMIT 1', [email]);
-    if (exRes.rows.length === 0) return res.status(404).json({ success: false, message: 'Wystawca nie został znaleziony' });
-    const exhibitorId = exRes.rows[0].id;
-    const exhibitionId = req.query.exhibitionId ? parseInt(req.query.exhibitionId, 10) : null;
-    let people;
-    if (Number.isInteger(exhibitionId)) {
-      people = await db.query('SELECT id, full_name, position, email, created_at FROM exhibitor_people WHERE exhibitor_id = $1 AND exhibition_id = $2 ORDER BY created_at DESC', [exhibitorId, exhibitionId]);
-    } else {
-      people = await db.query('SELECT id, full_name, position, email, created_at FROM exhibitor_people WHERE exhibitor_id = $1 ORDER BY created_at DESC', [exhibitorId]);
-    }
-    return res.json({ success: true, data: people.rows });
-  } catch (e) {
-    console.error('Error fetching exhibitor people:', e);
-    return res.status(500).json({ success: false, message: 'Błąd podczas pobierania osób' });
-  }
-});
-
-router.post('/me/people', verifyToken, requireExhibitorOrAdmin, async (req, res) => {
-  try {
-    const email = req.user.email;
-    const exRes = await db.query('SELECT id FROM exhibitors WHERE email = $1 LIMIT 1', [email]);
-    if (exRes.rows.length === 0) return res.status(404).json({ success: false, message: 'Wystawca nie został znaleziony' });
-    const exhibitorId = exRes.rows[0].id;
-    const { fullName, position, email: personEmail, exhibitionId } = req.body || {};
-    if (!fullName) return res.status(400).json({ success: false, message: 'Imię i nazwisko są wymagane' });
-    let exId = null;
-    try {
-      const parsed = parseInt(exhibitionId, 10);
-      if (Number.isInteger(parsed) && parsed > 0) {
-        exId = parsed;
-      }
-    } catch {}
-    const ins = await db.query(
-      'INSERT INTO exhibitor_people (exhibitor_id, exhibition_id, full_name, position, email) VALUES ($1, $2, $3, $4, $5) RETURNING id, full_name, position, email, created_at',
-      [exhibitorId, exId, fullName, position || null, personEmail || null]
-    );
-    return res.status(201).json({ success: true, data: ins.rows[0] });
-  } catch (e) {
-    console.error('Error creating exhibitor person:', e);
-    return res.status(500).json({ success: false, message: 'Błąd podczas zapisu osoby', details: e?.message });
   }
 });

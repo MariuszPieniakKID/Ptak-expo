@@ -29,6 +29,7 @@
     "node-postgres": "^0.6.2",
     "nodemailer": "^7.0.5",
     "pg": "^8.11.3",
+    "pdfkit": "^0.15.0",
     "swagger-ui-express": "^5.0.1",
     "uuid": "^11.1.0",
     "yamljs": "^0.3.0"

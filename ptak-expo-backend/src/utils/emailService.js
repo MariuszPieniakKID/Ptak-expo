@@ -47,7 +47,7 @@ const canUseGraph = () => (
   !!process.env.AZURE_TENANT_ID && !!process.env.AZURE_CLIENT_ID && !!process.env.AZURE_CLIENT_SECRET && !!(process.env.SMTP_USER || process.env.GRAPH_SENDER)
 );
 
-const sendViaGraph = async ({ to, subject, text, html, from }) => {
+const sendViaGraph = async ({ to, subject, text, html, from, attachments }) => {
   const tenantId = process.env.AZURE_TENANT_ID;
   const clientId = process.env.AZURE_CLIENT_ID;
   const clientSecret = process.env.AZURE_CLIENT_SECRET;
@@ -72,6 +72,17 @@ const sendViaGraph = async ({ to, subject, text, html, from }) => {
   const accessToken = tokenJson.access_token;
 
   // 2) Send email via Graph
+  const graphAttachments = Array.isArray(attachments) && attachments.length > 0
+    ? attachments.map((att) => ({
+        '@odata.type': '#microsoft.graph.fileAttachment',
+        name: att.filename || att.name || 'attachment',
+        contentType: att.contentType || 'application/octet-stream',
+        contentBytes: Buffer.isBuffer(att.content)
+          ? att.content.toString('base64')
+          : (typeof att.content === 'string' ? att.content : ''),
+      }))
+    : undefined;
+
   const mailRes = await fetch(GRAPH_SEND_URL(sender), {
     method: 'POST',
     headers: {
@@ -87,6 +98,7 @@ const sendViaGraph = async ({ to, subject, text, html, from }) => {
         },
         toRecipients: [ { emailAddress: { address: to } } ],
         from: sender ? { emailAddress: { address: sender } } : undefined,
+        ...(graphAttachments ? { attachments: graphAttachments } : {})
       },
       saveToSentItems: true,
     }),
@@ -365,13 +377,13 @@ module.exports = {
 }; 
 
 // Generic email sender for custom messages
-const sendEmail = async ({ to, subject, text, html, from }) => {
+const sendEmail = async ({ to, subject, text, html, from, attachments }) => {
   try {
     const fallbackFrom = from || process.env.FROM_EMAIL || process.env.SMTP_USER || 'noreply@ptak-expo.com';
 
     // Prefer Graph on Railway if configured
     if (canUseGraph()) {
-      await sendViaGraph({ to, subject, text, html, from: fallbackFrom });
+      await sendViaGraph({ to, subject, text, html, from: fallbackFrom, attachments });
       return { success: true };
     }
 
@@ -382,6 +394,7 @@ const sendEmail = async ({ to, subject, text, html, from }) => {
       subject,
       text,
       html,
+      attachments: Array.isArray(attachments) ? attachments : undefined,
     };
     const info = await transporter.sendMail(mailOptions);
     return { success: true, messageId: info.messageId };
