@@ -2,7 +2,7 @@ import { ChangeEvent, useCallback, useEffect, useState } from 'react';
 import CustomField, { OptionType } from '../customField/CustomField';
 import CustomTypography from '../customTypography/CustomTypography';
 import {Exhibition, ExhibitorEvent, fetchExhibitions, fetchUsers, User, assignExhibitorToEvent } from '../../services/api';
-import {validateHallName,validateStandNumber} from '../../helpers/validators';
+import {validateHallName,validateStandNumber, validateBoothArea} from '../../helpers/validators';
 
 import { Box, CircularProgress, Dialog, DialogTitle, IconButton, Typography } from '@mui/material';
 import { ReactComponent as AddCircleButton } from '../../assets/addCircleButton.svg';
@@ -26,6 +26,7 @@ interface EventProps {
   standNumber: string;
   hallName: string;
   exhibitionSupervisor: string;
+  boothArea: string;
 }
 
 const validateSelection = (
@@ -70,6 +71,7 @@ const AddEventToExhibitorModal: React.FC<AddEventToExhibitorModalProps> = ({
     standNumber: '',
     hallName: '',
     exhibitionSupervisor: '',
+    boothArea: '',
   });
   const [loading,setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -78,6 +80,7 @@ const AddEventToExhibitorModal: React.FC<AddEventToExhibitorModalProps> = ({
     standNumber: '',
     hallName: '',
     exhibitionSupervisor: '',
+    boothArea: '',
   });
   const [exhibitions, setExhibitions] = useState<Exhibition[]>([]);
   const [loadingExhibitions, setLoadingExhibitions] = useState(false);
@@ -113,12 +116,14 @@ const AddEventToExhibitorModal: React.FC<AddEventToExhibitorModalProps> = ({
       standNumber: '',
       hallName: '',
       exhibitionSupervisor: '',
+      boothArea: '',
     });
     setFormErrors({
       selectedExhibitionId: '',
       standNumber: '',
       hallName: '',
       exhibitionSupervisor: '',
+      boothArea: '',
     });
     setError('');
   }, []);
@@ -185,6 +190,7 @@ const AddEventToExhibitorModal: React.FC<AddEventToExhibitorModalProps> = ({
       standNumber: validateStandNumber,
       hallName: validateHallName,
       exhibitionSupervisor: value => validateExhibitionSupervisor(value, exhibitionSupervisorOptions),
+      boothArea: validateBoothArea,
   };
 
   const handleFormEventValueChange = (field: FormEventValuesKeys) =>(e: ChangeEvent<HTMLInputElement>) => {
@@ -213,6 +219,7 @@ const AddEventToExhibitorModal: React.FC<AddEventToExhibitorModalProps> = ({
          standNumber: formEventValues.selectedExhibitionId===''? null: formEventValues.standNumber,
          hallName: formEventValues.selectedExhibitionId===''? null: formEventValues.hallName,
          exhibitionSupervisor: formEventValues.selectedExhibitionId===''? null: formEventValues.exhibitionSupervisor,
+         boothArea: formEventValues.selectedExhibitionId===''? null: parseFloat(formEventValues.boothArea.replace(',', '.')),
          };
 
            console.log(`Dodanie do Wystawcy o id: ${exhibitorId} 
@@ -228,6 +235,9 @@ const AddEventToExhibitorModal: React.FC<AddEventToExhibitorModalProps> = ({
           eventAddedToExhibitor.exhibitionId,
           token,
           eventAddedToExhibitor.exhibitionSupervisor ? Number(eventAddedToExhibitor.exhibitionSupervisor) : null,
+          eventAddedToExhibitor.hallName ?? null,
+          eventAddedToExhibitor.standNumber ?? null,
+          eventAddedToExhibitor.boothArea ?? null,
         );
 
         resetForm();
@@ -340,6 +350,24 @@ const AddEventToExhibitorModal: React.FC<AddEventToExhibitorModalProps> = ({
                     fullWidth
                     margin="none"
                     placeholder="Numer stoiska"
+                    className={styles.input}
+                    errorMessageClassName={styles.inputErrorMessage}
+                    />
+                </Box>
+              </Box>
+
+              <Box className={styles.formRow}>
+                <Box className={styles.halfFormRow}>
+                    <CustomField
+                    type="boothArea"
+                    label="Metraż stoiska (m²)"
+                    value={formEventValues.boothArea}
+                    onChange={handleFormEventValueChange('boothArea')}
+                    error={!!formErrors.boothArea}
+                    errorMessage={formErrors.boothArea}
+                    fullWidth
+                    margin="none"
+                    placeholder="np. 12,5"
                     className={styles.input}
                     errorMessageClassName={styles.inputErrorMessage}
                     />

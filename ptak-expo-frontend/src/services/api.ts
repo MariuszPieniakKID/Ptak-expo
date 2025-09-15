@@ -985,6 +985,9 @@ export const assignExhibitorToEvent = async (
   exhibitionId: number,
   token: string,
   supervisorUserId?: number | null,
+  hallName?: string | null,
+  standNumber?: string | null,
+  boothArea?: number | null,
 ): Promise<{ success: boolean; message: string; assignment: any }> => {
   const response = await apiCall(`${config.API_BASE_URL}/api/v1/exhibitors/${exhibitorId}/assign-event`, {
     method: 'POST',
@@ -992,7 +995,13 @@ export const assignExhibitorToEvent = async (
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${token}`,
     },
-    body: JSON.stringify({ exhibitionId, supervisorUserId: supervisorUserId ?? null }),
+    body: JSON.stringify({
+      exhibitionId,
+      supervisorUserId: supervisorUserId ?? null,
+      hallName: hallName ?? null,
+      standNumber: standNumber ?? null,
+      boothArea: typeof boothArea === 'number' ? boothArea : boothArea ?? null,
+    }),
   });
 
   const data = await response.json();
