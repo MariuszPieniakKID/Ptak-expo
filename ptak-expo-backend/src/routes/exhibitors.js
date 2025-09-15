@@ -95,20 +95,20 @@ const buildIdentifierPdf = async (client, exhibitionId, payload) => {
     doc.save();
     doc.roundedRect(cardX, cardY, cardW, cardH, 12).clip();
     try {
-      const headerH = 80;
+      const headerH = 120;
       if (headerImageBuffer) {
         doc.image(headerImageBuffer, cardX, cardY, { width: cardW, height: headerH, fit: [cardW, headerH] });
       } else if (headerImagePath) {
         doc.image(headerImagePath, cardX, cardY, { width: cardW, height: headerH, fit: [cardW, headerH] });
       } else {
         // fallback colored header
-        doc.rect(cardX, cardY, cardW, 60).fill('#5a6ec8');
+        doc.rect(cardX, cardY, cardW, headerH).fill('#5a6ec8');
       }
     } catch {}
     doc.restore();
 
     // Content padding
-    let y = cardY + 90;
+    let y = cardY + 120 + 14; // below header + spacing
 
     const formatDate = (d) => {
       if (!d) return '';
@@ -120,35 +120,35 @@ const buildIdentifierPdf = async (client, exhibitionId, payload) => {
     };
 
     // Event title
-    doc.font('Helvetica-Bold').fontSize(14).fillColor('#2E2E38');
+    doc.font('Helvetica-Bold').fontSize(12).fillColor('#2E2E38');
     doc.text(ev.name || 'Wydarzenie', cardX + 12, y, { width: cardW - 24, align: 'left' });
-    y = doc.y + 6;
+    y = doc.y + 10;
 
     // Date and Time two columns
-    doc.font('Helvetica').fontSize(10).fillColor('#333');
+    doc.font('Helvetica').fontSize(9).fillColor('#333');
     const leftX = cardX + 12;
     const colW = (cardW - 24) / 2;
     doc.text('Data', leftX, y);
     doc.text('Godzina', leftX + colW, y);
-    y = doc.y + 2;
-    doc.font('Helvetica').fontSize(10).fillColor('#000');
+    y = doc.y + 4;
+    doc.font('Helvetica').fontSize(9).fillColor('#000');
     doc.text(`${formatDate(ev.start_date)} – ${formatDate(ev.end_date)}`, leftX, y, { width: colW });
     doc.text(timeRange || '-', leftX + colW, y, { width: colW });
-    y = doc.y + 8;
+    y = Math.max(doc.y, y) + 12;
 
     // ID and Location
-    doc.font('Helvetica').fontSize(10).fillColor('#333');
+    doc.font('Helvetica').fontSize(9).fillColor('#333');
     doc.text('ID', leftX, y);
-    y = doc.y + 2;
-    doc.font('Helvetica').fontSize(10).fillColor('#000');
+    y = doc.y + 4;
+    doc.font('Helvetica').fontSize(9).fillColor('#000');
     doc.text(String(ev.id), leftX, y, { width: cardW - 24 });
-    y = doc.y + 6;
-    doc.font('Helvetica').fontSize(10).fillColor('#333');
-    doc.text('Miejsce', leftX, y);
-    y = doc.y + 2;
-    doc.font('Helvetica').fontSize(10).fillColor('#000');
-    doc.text(String(ev.location || ''), leftX, y, { width: cardW - 24 });
     y = doc.y + 10;
+    doc.font('Helvetica').fontSize(9).fillColor('#333');
+    doc.text('Miejsce', leftX, y);
+    y = doc.y + 4;
+    doc.font('Helvetica').fontSize(9).fillColor('#000');
+    doc.text(String(ev.location || ''), leftX, y, { width: cardW - 24 });
+    y = doc.y + 14;
 
     // Dashed separator
     doc.save();
@@ -156,11 +156,11 @@ const buildIdentifierPdf = async (client, exhibitionId, payload) => {
     doc.moveTo(cardX + 12, y).lineTo(cardX + cardW - 12, y).stroke('#CCCCCC');
     doc.undash();
     doc.restore();
-    y += 8;
+    y += 10;
 
     // Footer: logo left, QR right
     const footerY = y;
-    const qrSize = 90;
+    const qrSize = 70;
     const qrX = cardX + cardW - 12 - qrSize;
     try {
       if (qrBuffer) {
@@ -171,14 +171,14 @@ const buildIdentifierPdf = async (client, exhibitionId, payload) => {
 
     try {
       const logoBoxW = qrX - (cardX + 12) - 8;
-      const logoMaxH = 50;
+      const logoMaxH = 40;
       if (footerLogoBuffer) {
         doc.image(footerLogoBuffer, cardX + 12, footerY, { fit: [logoBoxW, logoMaxH], align: 'left' });
       } else if (footerLogoPath) {
         doc.image(footerLogoPath, cardX + 12, footerY, { fit: [logoBoxW, logoMaxH], align: 'left' });
       } else {
         // fallback text
-        doc.font('Helvetica-Bold').fontSize(12).fillColor('#2E2E38').text('PTAK EXPO', cardX + 12, footerY);
+        doc.font('Helvetica-Bold').fontSize(11).fillColor('#2E2E38').text('PTAK EXPO', cardX + 12, footerY);
       }
     } catch {}
 
