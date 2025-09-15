@@ -238,7 +238,8 @@ router.post('/', verifyToken, requireAdmin, async (req, res) => {
       });
     }
 
-    // Hash password
+    // Normalize and hash password
+    const normalizedEmail = (email || '').trim().toLowerCase();
     const saltRounds = 10;
     const passwordHash = await bcrypt.hash(password, saltRounds);
 
@@ -259,17 +260,27 @@ router.post('/', verifyToken, requireAdmin, async (req, res) => {
       contactPerson,
       contactRole,
       phone,
-      email,
+      normalizedEmail,
       passwordHash
     ]);
 
     // Also create user record for login authentication
     try {
       await db.query(
-        'INSERT INTO users (email, password_hash, role, first_name, last_name, company_name, phone, status) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) ON CONFLICT (email) DO NOTHING',
-        [email, passwordHash, 'exhibitor', contactPerson.split(' ')[0] || contactPerson, contactPerson.split(' ').slice(1).join(' ') || '', companyName, phone, 'active']
+        `INSERT INTO users (email, password_hash, role, first_name, last_name, company_name, phone, status)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+         ON CONFLICT (email)
+         DO UPDATE SET 
+           password_hash = EXCLUDED.password_hash,
+           role = 'exhibitor',
+           first_name = EXCLUDED.first_name,
+           last_name = EXCLUDED.last_name,
+           company_name = EXCLUDED.company_name,
+           phone = EXCLUDED.phone,
+           status = 'active'`,
+        [normalizedEmail, passwordHash, 'exhibitor', contactPerson.split(' ')[0] || contactPerson, contactPerson.split(' ').slice(1).join(' ') || '', companyName, phone, 'active']
       );
-      console.log('✅ User record created for exhibitor login');
+      console.log('✅ User record upserted for exhibitor login');
     } catch (userError) {
       console.error('⚠️ Error creating user record (exhibitor can still be created):', userError);
     }
@@ -302,7 +313,7 @@ router.post('/', verifyToken, requireAdmin, async (req, res) => {
       const exhibitorPanelBase = process.env.EXHIBITOR_PANEL_URL || 'https://wystawca.exhibitorlist.eu';
       // For exhibitor we always treat password as provided (not tymczasowe)
       sendWelcomeEmail(
-        email,
+        normalizedEmail,
         contactPerson.split(' ')[0] || contactPerson,
         contactPerson.split(' ').slice(1).join(' ') || '',
         password,

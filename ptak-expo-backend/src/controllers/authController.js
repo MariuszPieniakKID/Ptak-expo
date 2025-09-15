@@ -33,25 +33,19 @@ const exhibitorLogin = async (req, res) => {
     // Check database for user
     if (process.env.DATABASE_URL && process.env.DATABASE_URL !== 'postgresql://username:password@host/dbname?sslmode=require') {
       try {
-        // Query database for exhibitor
-        
+        // Query database for exhibitor with case-insensitive email
+        const normalizedEmail = (email || '').trim().toLowerCase();
         let result;
-        
-        // Try with status column first
         try {
-          // Try query WITH status field
           result = await db.query(
-            'SELECT * FROM users WHERE email = $1 AND status = $2',
-            [email.toLowerCase(), 'active']
+            'SELECT * FROM users WHERE LOWER(email) = $1 AND status = $2',
+            [normalizedEmail, 'active']
           );
-          // Query with status succeeded
         } catch (statusError) {
-          // Fallback without status column
           result = await db.query(
-            'SELECT * FROM users WHERE email = $1',
-            [email.toLowerCase()]
+            'SELECT * FROM users WHERE LOWER(email) = $1',
+            [normalizedEmail]
           );
-          // Simple query succeeded
         }
 
         // Query result
