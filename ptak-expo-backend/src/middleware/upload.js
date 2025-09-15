@@ -4,16 +4,37 @@ const fs = require('fs');
 
 // Resolve uploads base from env (Railway volume) or fallback to local folder
 const getUploadsBase = () => {
-  const base = process.env.UPLOADS_DIR && process.env.UPLOADS_DIR.trim().length > 0
+  const preferred = process.env.UPLOADS_DIR && process.env.UPLOADS_DIR.trim().length > 0
     ? path.resolve(process.env.UPLOADS_DIR)
     : path.join(__dirname, '../../uploads');
-  return base;
+  try {
+    if (!fs.existsSync(preferred)) {
+      fs.mkdirSync(preferred, { recursive: true });
+    }
+    return preferred;
+  } catch (e) {
+    const fallback = path.join(__dirname, '../../uploads');
+    try {
+      if (!fs.existsSync(fallback)) {
+        fs.mkdirSync(fallback, { recursive: true });
+      }
+      console.warn('⚠️ UPLOADS_DIR not usable for trade plans, using local uploads:', e?.message || e);
+      return fallback;
+    } catch (e2) {
+      console.error('❌ Could not ensure trade uploads directory:', e2?.message || e2);
+      return fallback;
+    }
+  }
 };
 
 // Ensure uploads directory exists (place trade-plans on the same filesystem as final uploads)
 const uploadsDir = path.join(getUploadsBase(), 'trade-plans');
-if (!fs.existsSync(uploadsDir)) {
-  fs.mkdirSync(uploadsDir, { recursive: true });
+try {
+  if (!fs.existsSync(uploadsDir)) {
+    fs.mkdirSync(uploadsDir, { recursive: true });
+  }
+} catch (e) {
+  console.warn('⚠️ Could not ensure trade-plans dir:', e?.message || e);
 }
 
 // Configure multer for file uploads
