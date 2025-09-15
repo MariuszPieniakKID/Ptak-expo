@@ -16,7 +16,8 @@ import productImg from '../../assets/product.png';
 import DownloadMaterials from './downloadMaterials/DownloadMaterials';
 import NotificationsNoneIcon from '@mui/icons-material/NotificationsNone';
 import CustomTypography from '../customTypography/CustomTypography';
-import { Exhibitor, getBrandingFiles, getBrandingFileUrl, getExhibitorDocuments, downloadExhibitorDocument } from '../../services/api';
+import { Exhibitor, getBrandingFiles, getBrandingFileUrl, getExhibitorDocuments, downloadExhibitorDocument, remindExhibitorToFillCatalog } from '../../services/api';
+import { useAuth } from '../../contexts/AuthContext';
 import config from '../../config/config';
 
 //1 TAB - DATA – wypełniane danymi wystawcy przekazanymi w props
@@ -96,9 +97,7 @@ const buildItems = (
   ];
 };
 
-const handleRemindTheExhibitorToCompleteTheCatalog=(exhibitorId:number)=>{
-  console.log(`Wyślij przypomnienie do uzupełnienia katalogu exhibitorId: ${exhibitorId}`)
-}
+// handled inside component to access auth token/state
 
 type ExhibitorWithEventProps = {
   allowMultiple?: boolean; // domyślnie false
@@ -114,6 +113,7 @@ function ExhibitorWithEvent({
   exhibitor,
   exhibitionId: preferredExhibitionId
 }: ExhibitorWithEventProps) {
+  const { token } = useAuth();
   const [catalogDescription, setCatalogDescription] = useState<string>('');
   const [catalogWebsite, setCatalogWebsite] = useState<string>('');
   const [logoFileName, setLogoFileName] = useState<string | null>(null);
@@ -122,6 +122,7 @@ function ExhibitorWithEvent({
   const [catalogSocials, setCatalogSocials] = useState<{ facebook: string; instagram: string; linkedIn: string; youTube: string; tiktok: string; x: string }>({ facebook: '', instagram: '', linkedIn: '', youTube: '', tiktok: '', x: '' });
   const [materials, setMaterials] = useState<MaterialItem[]>([]);
   const [effectiveExhibitionId, setEffectiveExhibitionId] = useState<number | undefined>(undefined);
+  const [reminderSent, setReminderSent] = useState<boolean>(false);
 
   useEffect(() => {
     const loadData = async () => {
@@ -422,10 +423,19 @@ function ExhibitorWithEvent({
         );
       })}
       <Box 
-      className={styles.action}
-       onClick={() => handleRemindTheExhibitorToCompleteTheCatalog(exhibitorId)}
+        className={styles.action}
+        onClick={async () => {
+          if (reminderSent) return;
+          try {
+            await remindExhibitorToFillCatalog(exhibitorId, token || localStorage.getItem('authToken') || '');
+            setReminderSent(true);
+          } catch (e) {
+            // optional: show toast via global mechanism
+          }
+        }}
+        sx={{ opacity: reminderSent ? 0.6 : 1, pointerEvents: reminderSent ? 'none' : 'auto' }}
       >
-        <CustomTypography className={styles.actionText}>Przypomnij wystawcy o uzupełnieniu katalogu</CustomTypography>
+        <CustomTypography className={styles.actionText}>{reminderSent ? 'Wiadomość wysłana' : 'Przypomnij wystawcy o uzupełnieniu katalogu'}</CustomTypography>
         <NotificationsNoneIcon style={{ color: '#fff' }}/>
       </Box>
     </Box>

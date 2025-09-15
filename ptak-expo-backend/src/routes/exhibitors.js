@@ -4,6 +4,7 @@ const db = require('../config/database');
 const { verifyToken, requireAdmin } = require('../middleware/auth');
 const { requireExhibitorOrAdmin } = require('../middleware/auth');
 const bcrypt = require('bcryptjs');
+const { sendEmail } = require('../utils/emailService');
 
 // --- SELF-SERVICE (EXHIBITOR) ENDPOINTS ---
 // IMPORTANT: Keep these above dynamic `/:id` routes so `/me` doesn't match `:id`
@@ -882,6 +883,33 @@ router.get('/:id', verifyToken, requireAdmin, async (req, res) => {
 
 module.exports = router; 
  
+// POST /api/v1/exhibitors/:id/remind-catalog - wyślij przypomnienie o uzupełnieniu katalogu (admin)
+router.post('/:id/remind-catalog', verifyToken, requireAdmin, async (req, res) => {
+  try {
+    const exhibitorId = parseInt(req.params.id, 10);
+    const exhibitorRes = await db.query('SELECT id, company_name, contact_person, email FROM exhibitors WHERE id = $1', [exhibitorId]);
+    if (exhibitorRes.rows.length === 0) {
+      return res.status(404).json({ success: false, message: 'Wystawca nie został znaleziony' });
+    }
+    const exhibitor = exhibitorRes.rows[0];
+
+    const panelUrl = process.env.EXHIBITOR_PANEL_URL || 'https://wystawca.exhibitorlist.eu';
+    const subject = 'PTAK EXPO – Przypomnienie o uzupełnieniu katalogu';
+    const plain = `Dzień dobry ${exhibitor.contact_person || ''},\n\nPrzypominamy o uzupełnieniu wpisu do katalogu wystawcy.\n\nProsimy zalogować się do panelu wystawcy: ${panelUrl}\n\nPozdrawiamy,\nZespół PTAK EXPO`;
+    const html = `<!doctype html><html><head><meta charset="utf-8"/><style>body{font-family:Arial,sans-serif;color:#333} .btn{display:inline-block;background:#c7353c;color:#fff;padding:10px 18px;border-radius:6px;text-decoration:none}</style></head><body><p>Dzień dobry ${exhibitor.contact_person || ''},</p><p>Przypominamy o uzupełnieniu wpisu do katalogu wystawcy.</p><p><a class="btn" href="${panelUrl}" target="_blank" rel="noopener">Przejdź do panelu wystawcy</a></p><p>Jeśli link nie działa, skopiuj URL: ${panelUrl}</p><p>Pozdrawiamy,<br/>Zespół PTAK EXPO</p></body></html>`;
+
+    const result = await sendEmail({ to: exhibitor.email, subject, text: plain, html });
+    if (!result.success) {
+      return res.status(500).json({ success: false, message: 'Nie udało się wysłać wiadomości', error: result.error });
+    }
+
+    return res.json({ success: true, message: 'Wiadomość przypominająca wysłana' });
+  } catch (e) {
+    console.error('[remind-catalog] error', e);
+    return res.status(500).json({ success: false, message: 'Błąd podczas wysyłania przypomnienia' });
+  }
+});
+
 // People endpoints for current exhibitor
 router.get('/me/people', verifyToken, requireExhibitorOrAdmin, async (req, res) => {
   try {

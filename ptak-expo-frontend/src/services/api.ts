@@ -280,6 +280,26 @@ export const deleteExhibitor = async (exhibitorId: number, token: string): Promi
   return response.json();
 };
 
+// Remind exhibitor to fill catalog entry
+export const remindExhibitorToFillCatalog = async (
+  exhibitorId: number,
+  token: string
+): Promise<{ success: boolean; message: string }> => {
+  const response = await apiCall(`${config.API_BASE_URL}/api/v1/exhibitors/${exhibitorId}/remind-catalog`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({})
+  });
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data.message || data.error || 'Nie udało się wysłać przypomnienia');
+  }
+  return data;
+};
+
 // People (E-identyfikatory) API
 export const fetchExhibitorPeople = async (token: string, exhibitionId?: number): Promise<ExhibitorPerson[]> => {
   const query = typeof exhibitionId === 'number' ? `?exhibitionId=${encodeURIComponent(String(exhibitionId))}` : '';
