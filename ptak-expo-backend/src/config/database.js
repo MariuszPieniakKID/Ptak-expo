@@ -26,6 +26,26 @@ console.log('🔍 Database config - NODE_ENV:', process.env.NODE_ENV);
 console.log('🔍 Database config - RAILWAY_ENVIRONMENT:', process.env.RAILWAY_ENVIRONMENT || 'not set');
 console.log('🔍 Database config - SSL mode:', process.env.NODE_ENV === 'production' || process.env.RAILWAY_ENVIRONMENT ? 'enabled' : 'disabled');
 
+// If no DATABASE_URL is provided, export a safe no-DB stub so the server can still start
+if (!databaseUrl || String(databaseUrl).trim().length === 0) {
+  console.warn('⚠️ DATABASE_URL is not set. Starting in NO-DB mode. Some endpoints will not function.');
+  const noDbPool = {
+    query: async () => {
+      throw new Error('Database not configured (NO-DB mode)');
+    }
+  };
+  const initializeDatabase = async () => {
+    console.warn('⚠️ Skipping database initialization (NO-DB mode)');
+  };
+  module.exports = {
+    query: (...args) => noDbPool.query(...args),
+    pool: noDbPool,
+    initializeDatabase
+  };
+  // Early return to avoid creating a real pg Pool below
+  return;
+}
+
 // Database connection configuration
 const pool = new Pool({
   connectionString: databaseUrl,
@@ -231,6 +251,9 @@ const initializeDatabase = async () => {
         exhibitor_id INTEGER REFERENCES exhibitors(id) ON DELETE CASCADE,
         exhibition_id INTEGER REFERENCES exhibitions(id) ON DELETE CASCADE,
         supervisor_user_id INTEGER REFERENCES users(id),
+        hall_name VARCHAR(255),
+        stand_number VARCHAR(50),
+        booth_area NUMERIC(10,2),
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         UNIQUE(exhibitor_id, exhibition_id)
       )
@@ -240,6 +263,28 @@ const initializeDatabase = async () => {
     await pool.query(`
       ALTER TABLE exhibitor_events
       ADD COLUMN IF NOT EXISTS supervisor_user_id INTEGER REFERENCES users(id)
+    `);
+    await pool.query(`
+      DO $$ BEGIN
+        IF NOT EXISTS (
+          SELECT 1 FROM information_schema.columns
+          WHERE table_name = 'exhibitor_events' AND column_name = 'hall_name'
+        ) THEN
+          ALTER TABLE exhibitor_events ADD COLUMN hall_name VARCHAR(255);
+        END IF;
+        IF NOT EXISTS (
+          SELECT 1 FROM information_schema.columns
+          WHERE table_name = 'exhibitor_events' AND column_name = 'stand_number'
+        ) THEN
+          ALTER TABLE exhibitor_events ADD COLUMN stand_number VARCHAR(50);
+        END IF;
+        IF NOT EXISTS (
+          SELECT 1 FROM information_schema.columns
+          WHERE table_name = 'exhibitor_events' AND column_name = 'booth_area'
+        ) THEN
+          ALTER TABLE exhibitor_events ADD COLUMN booth_area NUMERIC(10,2);
+        END IF;
+      END $$;
     `);
 
     console.log('🔍 Creating exhibitor_branding_files table...');
