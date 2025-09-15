@@ -168,6 +168,35 @@ export default function CompanyInfo() {
 	}, []);
 	useEffect(() => { debouncedBrandsFetch(""); }, [debouncedBrandsFetch]);
 
+	// Industries (event-scoped) state and suggestions
+	const [industryOptions, setIndustryOptions] = useState<string[]>([]);
+	const [editingIndustries, setEditingIndustries] = useState(false);
+	const industriesRaw = (checklist.companyInfo as any).industries || '';
+	const currentIndustriesArray = useMemo(() => String(industriesRaw || '').split(',').map(s => s.trim()).filter(Boolean), [industriesRaw]);
+	const [selectedIndustries, setSelectedIndustries] = useState<string[]>(currentIndustriesArray);
+	useEffect(() => setSelectedIndustries(currentIndustriesArray), [currentIndustriesArray]);
+	const [industriesInputValue, setIndustriesInputValue] = useState<string>("");
+	const debouncedIndustriesFetch = useMemo(() => {
+		let t: any;
+		return (q: string) => {
+			clearTimeout(t);
+			t = setTimeout(async () => {
+				try {
+					const token = localStorage.getItem('authToken') || '';
+					const base = config.API_BASE_URL || (window as any).API_BASE_URL || '';
+					const url = q ? `${base}/api/v1/catalog/industries?query=${encodeURIComponent(q)}` : `${base}/api/v1/catalog/industries`;
+					const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
+					if (res.ok) {
+						const j = await res.json();
+						const list = Array.isArray(j.data) ? j.data.map((r: any) => String(r.industry)) : [];
+						setIndustryOptions(list);
+					}
+				} catch {}
+			}, 250);
+		};
+	}, []);
+	useEffect(() => { debouncedIndustriesFetch(""); }, [debouncedIndustriesFetch]);
+
 	// Socials draft state synced from backend value; save happens on explicit button click
 	const [socialsDraft, setSocialsDraft] = useState<any>({});
 	useEffect(() => {
@@ -364,105 +393,72 @@ export default function CompanyInfo() {
 			})()}
 
 		{/* Industries (Branże) */}
-		{(() => {
-		  const [industryOptions, setIndustryOptions] = useState<string[]>([]);
-		  const [editingIndustries, setEditingIndustries] = useState(false);
-		  const industriesRaw = (checklist.companyInfo as any).industries || '';
-		  const currentIndustriesArray = useMemo(() => String(industriesRaw || '').split(',').map(s => s.trim()).filter(Boolean), [industriesRaw]);
-		  const [selectedIndustries, setSelectedIndustries] = useState<string[]>(currentIndustriesArray);
-		  useEffect(() => setSelectedIndustries(currentIndustriesArray), [currentIndustriesArray]);
-		  const [industriesInputValue, setIndustriesInputValue] = useState<string>("");
-		  const debouncedIndustriesFetch = useMemo(() => {
-		    let t: any;
-		    return (q: string) => {
-		      clearTimeout(t);
-		      t = setTimeout(async () => {
-		        try {
-		          const token = localStorage.getItem('authToken') || '';
-		          const base = config.API_BASE_URL || (window as any).API_BASE_URL || '';
-		          const url = q ? `${base}/api/v1/catalog/industries?query=${encodeURIComponent(q)}` : `${base}/api/v1/catalog/industries`;
-		          const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
-		          if (res.ok) {
-		            const j = await res.json();
-		            const list = Array.isArray(j.data) ? j.data.map((r: any) => String(r.industry)) : [];
-		            setIndustryOptions(list);
-		          }
-		        } catch {}
-		      }, 250);
-		    };
-		  }, []);
-		  useEffect(() => { debouncedIndustriesFetch(""); }, [debouncedIndustriesFetch]);
-		  return (
-		    <>
-		    {!editingIndustries && (
-		      <Box display="flex" alignItems="center">
-		        <Box width="30px" alignItems="center" justifyContent="center">
-		          {currentIndustriesArray.length > 0 && <GreenCheck/>}
-		        </Box>
-		        <Box flex={1}>
-		          <Typography variant="body2">Branże (eventowe): {currentIndustriesArray.join(', ')}</Typography>
-		        </Box>
-		        <Button onClick={() => setEditingIndustries(true)}>Edytuj</Button>
-		      </Box>
-		    )}
-		    {editingIndustries && (
-		      <Box display="flex" alignItems="center" gap={1} width="100%">
-		        <Box width="30px" alignItems="center" justifyContent="center">
-		          {selectedIndustries.length > 0 && <GreenCheck/>}
-		        </Box>
-		        <Autocomplete
-		          fullWidth
-		          sx={{ flex: 1, minWidth: 0 }}
-		          multiple
-		          freeSolo
-		          options={industryOptions}
-		          value={selectedIndustries}
-		          inputValue={industriesInputValue}
-		          onInputChange={(_, q) => { setIndustriesInputValue(q); debouncedIndustriesFetch(q); }}
-		          onChange={(_, value) => setSelectedIndustries((value as string[]).map(v => String(v).trim()).filter(Boolean))}
-		          renderTags={(value: readonly string[], getTagProps) =>
-		            value.map((option: string, index: number) => (
-		              <Chip variant="outlined" label={option} {...getTagProps({ index })} />
-		            ))
-		          }
-		          renderInput={(params) => (
-		            <TextField {...(params as any)} fullWidth variant="standard" label="Branże (eventowe)" placeholder="zacznij pisać, aby dodać" />
-		          )}
-		        />
-		        <Button onClick={async () => {
-		          const manual = String(industriesInputValue || '')
-		            .split(',')
-		            .map(s => s.trim())
-		            .filter(Boolean);
-		          const final = Array.from(new Set([...(selectedIndustries || []), ...manual]));
-		          setSelectedIndustries(final);
-		          setIndustriesInputValue('');
-		          setEditingIndustries(false);
-		          // Persist event-scoped industries in exhibitor_catalog_entries for current exhibition
-		          try {
-		            const token = localStorage.getItem('authToken') || '';
-		            const exhibitionId = Number((window as any).currentSelectedExhibitionId) || 0;
-		            await fetch(`${config.API_BASE_URL}/api/v1/catalog/${exhibitionId}`, {
-		              method: 'POST',
-		              headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-		              body: JSON.stringify({ industries: final.join(',') })
-		            });
-		          } catch {}
-		          // Upsert to global industries dictionary for suggestions
-		          try {
-		            const token = localStorage.getItem('authToken') || '';
-		            await fetch(`${config.API_BASE_URL}/api/v1/catalog/industries`, {
-		              method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify({ industries: final })
-		            });
-		          } catch {}
-		          // Local optimistic update
-		          saveCompanyInfo({ ...(checklist.companyInfo as any), industries: final.join(',') as any });
-		        }}>Zapisz</Button>
-		      </Box>
-		    )}
-		    </>
-		  );
-		})()}
+		{!editingIndustries && (
+			<Box display="flex" alignItems="center">
+				<Box width="30px" alignItems="center" justifyContent="center">
+					{currentIndustriesArray.length > 0 && <GreenCheck/>}
+				</Box>
+				<Box flex={1}>
+					<Typography variant="body2">Branże (eventowe): {currentIndustriesArray.join(', ')}</Typography>
+				</Box>
+				<Button onClick={() => setEditingIndustries(true)}>Edytuj</Button>
+			</Box>
+		)}
+		{editingIndustries && (
+			<Box display="flex" alignItems="center" gap={1} width="100%">
+				<Box width="30px" alignItems="center" justifyContent="center">
+					{selectedIndustries.length > 0 && <GreenCheck/>}
+				</Box>
+				<Autocomplete
+					fullWidth
+					sx={{ flex: 1, minWidth: 0 }}
+					multiple
+					freeSolo
+					options={industryOptions}
+					value={selectedIndustries}
+					inputValue={industriesInputValue}
+					onInputChange={(_, q) => { setIndustriesInputValue(q); debouncedIndustriesFetch(q); }}
+					onChange={(_, value) => setSelectedIndustries((value as string[]).map(v => String(v).trim()).filter(Boolean))}
+					renderTags={(value: readonly string[], getTagProps) =>
+						value.map((option: string, index: number) => (
+							<Chip variant="outlined" label={option} {...getTagProps({ index })} />
+						))
+					}
+					renderInput={(params) => (
+						<TextField {...(params as any)} fullWidth variant="standard" label="Branże (eventowe)" placeholder="zacznij pisać, aby dodać" />
+					)}
+				/>
+				<Button onClick={async () => {
+					const manual = String(industriesInputValue || '')
+						.split(',')
+						.map(s => s.trim())
+						.filter(Boolean);
+					const final = Array.from(new Set([...(selectedIndustries || []), ...manual]));
+					setSelectedIndustries(final);
+					setIndustriesInputValue('');
+					setEditingIndustries(false);
+					// Persist event-scoped industries in exhibitor_catalog_entries for current exhibition
+					try {
+						const token = localStorage.getItem('authToken') || '';
+						const exhibitionId = Number((window as any).currentSelectedExhibitionId) || 0;
+						await fetch(`${config.API_BASE_URL}/api/v1/catalog/${exhibitionId}`, {
+							method: 'POST',
+							headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+							body: JSON.stringify({ industries: final.join(',') })
+						});
+					} catch {}
+					// Upsert to global industries dictionary for suggestions
+					try {
+						const token = localStorage.getItem('authToken') || '';
+						await fetch(`${config.API_BASE_URL}/api/v1/catalog/industries`, {
+							method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify({ industries: final })
+						});
+					} catch {}
+					// Local optimistic update
+					saveCompanyInfo({ ...(checklist.companyInfo as any), industries: final.join(',') as any });
+				}}>Zapisz</Button>
+			</Box>
+		)}
 
 		{/*<div className={styles.sectionList}>
 			{['Nazwa Firmy','Logotyp','Opis','Dane kontaktowe','Strona www.','Social Media'].map((it) => (
