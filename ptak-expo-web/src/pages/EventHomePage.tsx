@@ -7,7 +7,7 @@ import PlannedEventCard from '../components/planned-event-card/PlannedEventCard'
 import ChecklistProgressCard from '../components/checklist-progress-card/ChecklistProgressCard';
 import EventHomeMenu from '../components/event-home-menu/EventHomeMenu';
 import { useEffect, useState } from 'react';
-import { exhibitionsAPI } from '../services/api';
+import { exhibitionsAPI, brandingAPI } from '../services/api';
 
 const EventHomePage = () => {
   const { eventId } = useParams();
@@ -42,13 +42,28 @@ const EventHomePage = () => {
       try {
         const res = await exhibitionsAPI.getById(Number(eventId));
         const e = res.data;
+        // Resolve logo the same way as other pages (prefer global branding 'event_logo')
+        let logoUrl = '/assets/logo192.png';
+        try {
+          const branding = await brandingAPI.getGlobal(Number(eventId));
+          const files: any = branding.data?.files || {};
+          if (files['event_logo']?.fileName) {
+            logoUrl = brandingAPI.serveGlobalUrl(files['event_logo'].fileName);
+          } else if (e.event_logo_file_name) {
+            logoUrl = brandingAPI.serveGlobalUrl(e.event_logo_file_name);
+          }
+        } catch {
+          if (e.event_logo_file_name) {
+            logoUrl = brandingAPI.serveGlobalUrl(e.event_logo_file_name);
+          }
+        }
         setEvent({
           id: String(e.id),
           title: e.name,
           dateFrom: formatDate(e.start_date || e.startDate),
           dateTo: formatDate(e.end_date || e.endDate),
           readiness: 0,
-          logoUrl: e.event_logo_file_name ? `/api/v1/exhibitor-branding/serve/global/${encodeURIComponent(e.event_logo_file_name)}` : '/assets/logo192.png',
+          logoUrl,
           daysLeft: calcDaysLeft(e.start_date || e.startDate),
         });
       } catch (_err) {
