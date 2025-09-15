@@ -741,6 +741,30 @@ const initializeDatabase = async () => {
         )
       `);
       await pool.query(`CREATE INDEX IF NOT EXISTS idx_catalog_brands_usage ON catalog_brands(usage_count DESC)`);
+
+      // Industries dictionary for suggestions
+      await pool.query(`
+        CREATE TABLE IF NOT EXISTS catalog_industries (
+          id SERIAL PRIMARY KEY,
+          industry VARCHAR(255) UNIQUE NOT NULL,
+          usage_count INTEGER NOT NULL DEFAULT 0,
+          created_at TIMESTAMPTZ DEFAULT NOW(),
+          updated_at TIMESTAMPTZ DEFAULT NOW()
+        )
+      `);
+      await pool.query(`CREATE INDEX IF NOT EXISTS idx_catalog_industries_usage ON catalog_industries(usage_count DESC)`);
+
+      // Ensure exhibitor_catalog_entries has event-specific industries column (comma-separated list)
+      await pool.query(`
+        DO $$ BEGIN
+          IF NOT EXISTS (
+            SELECT 1 FROM information_schema.columns 
+            WHERE table_name = 'exhibitor_catalog_entries' AND column_name = 'industries'
+          ) THEN
+            ALTER TABLE exhibitor_catalog_entries ADD COLUMN industries TEXT;
+          END IF;
+        END $$;
+      `);
     } catch (e) {
       console.error('❌ Error ensuring exhibitor_catalog_entries/products:', e);
     }

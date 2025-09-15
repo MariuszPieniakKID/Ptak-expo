@@ -10,6 +10,7 @@ export interface CompanyInfo {
 	socials: string | null,
 	contactEmail?: string | null,
 	brands?: string | null,
+	industries?: string | null,
 	displayName?: string | null
 }
 export interface ProductInfo {
@@ -134,6 +135,7 @@ export const getChecklist = async (exhibitionId: number) => {
 					};
 					(ExampleChecklist.companyInfo as any).catalogTags = d.catalog_tags ?? null;
 					(ExampleChecklist.companyInfo as any).brands = d.brands ?? null;
+					(ExampleChecklist.companyInfo as any).industries = d.industries ?? null;
 				}
 			}
 		} catch {}

@@ -93,6 +93,48 @@ router.post('/brands', verifyToken, requireExhibitorOrAdmin, async (req, res) =>
   }
 });
 
+// Suggest industries (optionally filtered by prefix)
+router.get('/industries', verifyToken, requireExhibitorOrAdmin, async (req, res) => {
+  try {
+    const q = String(req.query.query || '').trim().toLowerCase();
+    let result;
+    if (q) {
+      result = await db.query(
+        `SELECT industry, usage_count FROM catalog_industries WHERE LOWER(industry) LIKE $1 ORDER BY usage_count DESC, industry ASC LIMIT 50`,
+        [q + '%']
+      );
+    } else {
+      result = await db.query(
+        `SELECT industry, usage_count FROM catalog_industries ORDER BY usage_count DESC, industry ASC LIMIT 50`
+      );
+    }
+    return res.json({ success: true, data: result.rows });
+  } catch (e) {
+    console.error('Error fetching catalog industries:', e);
+    return res.status(500).json({ success: false, message: 'Failed to fetch industries' });
+  }
+});
+
+// Upsert industries
+router.post('/industries', verifyToken, requireExhibitorOrAdmin, async (req, res) => {
+  try {
+    const { industries } = req.body || {};
+    if (!Array.isArray(industries)) return res.status(400).json({ success: false, message: 'industries must be an array' });
+    const cleaned = Array.from(new Set(industries.map(t => String(t || '').trim()).filter(Boolean)));
+    for (const industry of cleaned) {
+      await db.query(
+        `INSERT INTO catalog_industries(industry, usage_count) VALUES($1, 1)
+         ON CONFLICT (industry) DO UPDATE SET usage_count = catalog_industries.usage_count + 1, updated_at = NOW()`,
+        [industry]
+      );
+    }
+    return res.json({ success: true });
+  } catch (e) {
+    console.error('Error upserting catalog industries:', e);
+    return res.status(500).json({ success: false, message: 'Failed to upsert industries' });
+  }
+});
+
 // GET current exhibitor entry (exhibitor/admin) - event-specific with fallbacks
 router.get('/:exhibitionId', verifyToken, requireExhibitorOrAdmin, async (req, res) => {
   try {
@@ -109,7 +151,7 @@ router.get('/:exhibitionId', verifyToken, requireExhibitorOrAdmin, async (req, r
     // Fetch catalog entry
     // 1) Try event-specific entry
     let result = await db.query(
-      `SELECT id, exhibitor_id, exhibition_id, name, display_name, logo, description, why_visit, contact_info, website, socials, contact_email, products, catalog_tags, brands,
+      `SELECT id, exhibitor_id, exhibition_id, name, display_name, logo, description, why_visit, contact_info, website, socials, contact_email, products, catalog_tags, brands, industries,
               created_at, updated_at
        FROM exhibitor_catalog_entries
        WHERE exhibitor_id = $1 AND exhibition_id = $2`,
@@ -119,7 +161,7 @@ router.get('/:exhibitionId', verifyToken, requireExhibitorOrAdmin, async (req, r
 
     // 2) Read GLOBAL entry (for fallback/merge)
     const globalRes = await db.query(
-    `SELECT id, exhibitor_id, exhibition_id, name, display_name, logo, description, why_visit, contact_info, website, socials, contact_email, products, catalog_tags, brands,
+    `SELECT id, exhibitor_id, exhibition_id, name, display_name, logo, description, why_visit, contact_info, website, socials, contact_email, products, catalog_tags, brands, industries,
             created_at, updated_at
        FROM exhibitor_catalog_entries
        WHERE exhibitor_id = $1 AND exhibition_id IS NULL
@@ -146,7 +188,8 @@ router.get('/:exhibitionId', verifyToken, requireExhibitorOrAdmin, async (req, r
         contact_email: prefer(data.contact_email, globalData.contact_email),
         catalog_tags: prefer(data.catalog_tags, globalData.catalog_tags),
         brands: prefer(data.brands, globalData.brands),
-        products: Array.isArray(data.products) ? data.products : (Array.isArray(globalData.products) ? globalData.products : [])
+        products: Array.isArray(data.products) ? data.products : (Array.isArray(globalData.products) ? globalData.products : []),
+        industries: prefer(data.industries, globalData.industries)
       };
     }
 
@@ -180,6 +223,7 @@ router.get('/:exhibitionId', verifyToken, requireExhibitorOrAdmin, async (req, r
           products: [],
           catalog_tags: null,
           brands: null,
+          industries: null,
           created_at: null,
           updated_at: null
         };
@@ -211,7 +255,8 @@ router.post('/:exhibitionId', verifyToken, requireExhibitorOrAdmin, async (req, 
       socials = null,
       contactEmail = null,
       catalogTags = null,
-      brands = null
+      brands = null,
+      industries = null
     } = req.body || {};
 
     // Safe upsert without relying on a specific constraint name
@@ -286,6 +331,42 @@ router.post('/:exhibitionId', verifyToken, requireExhibitorOrAdmin, async (req, 
       );
     } catch (syncErr) {
       console.error('⚠️ Error syncing catalog fields to exhibitors:', syncErr);
+    }
+
+    // Event-specific industries: upsert into exhibitor_catalog_entries for given exhibitionId
+    try {
+      const exhibitionId = parseInt(req.params.exhibitionId, 10);
+      if (Number.isInteger(exhibitionId) && (industries !== undefined)) {
+        const cleanIndustries = industries === null ? null : String(industries);
+        const upd = await db.query(
+          `UPDATE exhibitor_catalog_entries
+             SET industries = $3,
+                 updated_at = NOW()
+           WHERE exhibitor_id = $1 AND exhibition_id = $2
+           RETURNING id`,
+          [exhibitorId, exhibitionId, cleanIndustries]
+        );
+        if (upd.rows.length === 0) {
+          await db.query(
+            `INSERT INTO exhibitor_catalog_entries (exhibitor_id, exhibition_id, industries)
+             VALUES ($1, $2, $3)`,
+            [exhibitorId, exhibitionId, cleanIndustries]
+          );
+        }
+        // Upsert industries dictionary as well for suggestions
+        if (cleanIndustries) {
+          const list = cleanIndustries.split(',').map(s => s.trim()).filter(Boolean);
+          for (const industry of list) {
+            await db.query(
+              `INSERT INTO catalog_industries(industry, usage_count) VALUES($1, 1)
+               ON CONFLICT (industry) DO UPDATE SET usage_count = catalog_industries.usage_count + 1, updated_at = NOW()`,
+              [industry]
+            );
+          }
+        }
+      }
+    } catch (e) {
+      console.error('⚠️ Error upserting event industries:', e);
     }
 
     return res.json({ success: true, message: 'Catalog entry saved', data: result.rows[0] });
