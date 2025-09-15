@@ -367,9 +367,17 @@ module.exports = {
 // Generic email sender for custom messages
 const sendEmail = async ({ to, subject, text, html, from }) => {
   try {
+    const fallbackFrom = from || process.env.FROM_EMAIL || process.env.SMTP_USER || 'noreply@ptak-expo.com';
+
+    // Prefer Graph on Railway if configured
+    if (canUseGraph()) {
+      await sendViaGraph({ to, subject, text, html, from: fallbackFrom });
+      return { success: true };
+    }
+
     const transporter = createTransporter();
     const mailOptions = {
-      from: from || process.env.FROM_EMAIL || process.env.SMTP_USER,
+      from: fallbackFrom,
       to,
       subject,
       text,
