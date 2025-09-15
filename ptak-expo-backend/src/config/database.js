@@ -4,8 +4,27 @@ const { Pool } = require('pg');
 const getDatabaseUrl = () => {
   // If we're in Railway production environment, use Railway's DATABASE_URL
   if (process.env.RAILWAY_ENVIRONMENT) {
-    console.log('🔍 Railway environment detected, using Railway database');
-    return process.env.DATABASE_URL;
+    console.log('🔍 Railway environment detected, resolving database URL');
+    // Prefer DATABASE_URL; fallback to DATABASE_PUBLIC_URL (some templates expose this)
+    if (process.env.DATABASE_URL && process.env.DATABASE_URL.trim()) {
+      return process.env.DATABASE_URL;
+    }
+    if (process.env.DATABASE_PUBLIC_URL && process.env.DATABASE_PUBLIC_URL.trim()) {
+      console.log('🔍 Using DATABASE_PUBLIC_URL fallback');
+      return process.env.DATABASE_PUBLIC_URL;
+    }
+    // Fallback: construct from discrete PG env vars if available
+    const { PGHOST, PGPORT, PGUSER, PGPASSWORD, PGDATABASE, PGSSLMODE } = process.env;
+    if (PGHOST && PGUSER && (PGPASSWORD || process.env.PG_PASSWORD) && PGDATABASE) {
+      const port = PGPORT || '5432';
+      const password = PGPASSWORD || process.env.PG_PASSWORD || '';
+      const sslmode = PGSSLMODE || 'require';
+      const url = `postgresql://${encodeURIComponent(PGUSER)}:${encodeURIComponent(password)}@${PGHOST}:${port}/${PGDATABASE}?sslmode=${sslmode}`;
+      console.log('🔍 Built DATABASE_URL from discrete PG env vars');
+      return url;
+    }
+    // As last resort, return undefined (handled by caller)
+    return undefined;
   }
   
   // If LOCAL_DATABASE_URL is set, use it for local development
