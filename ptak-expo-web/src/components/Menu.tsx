@@ -21,9 +21,9 @@ import HomeIcon from "@mui/icons-material/Home";
 import ArticleIcon from "@mui/icons-material/Article";
 import ListAltIcon from "@mui/icons-material/ListAlt";
 import FingerprintIcon from "@mui/icons-material/Fingerprint";
-import InfoIcon from "@mui/icons-material/Info";
 import IconMarketing from "../assets/group-842.png";
 import IconDocuments from "../assets/documents.png";
+import IconBell from "../assets/bell.png";
 
 export type MenuType = {
   className?: string;
@@ -91,7 +91,16 @@ const navItems: NavItem[] = [
   },
   {
     label: "Informacje targowe",
-    icon: <InfoIcon />,
+    customIcon: (
+      <div className={styles.customIconMenuImage}>
+        <img
+          src={IconBell}
+          alt="ikona informacje targowe"
+          width="auto"
+          height={22}
+        />
+      </div>
+    ),
     key: "info",
     getUrl: (id) => `/event/${id}/trade-info`,
   },
@@ -198,7 +207,10 @@ const Menu: FunctionComponent<MenuType> = ({className = "", onLogout}) => {
                         }
                         disabled={disabled}
                       >
-                        <ListItemIcon>{item.icon}</ListItemIcon>
+                        {item.icon && <ListItemIcon>{item.icon}</ListItemIcon>}
+                        {item.customIcon && (
+                          <ListItemIcon>{item.customIcon}</ListItemIcon>
+                        )}
                         <ListItemText primary={item.label} />
                       </ListItemButton>
                     </ListItem>

@@ -11,7 +11,7 @@ import DashboardPage from "./pages/DashboardPage";
 import EventHomePage from "./pages/EventHomePage";
 import EventNewsPage from "./pages/EventNewsPage";
 import EventIdentifierPage from "./pages/EventIdentifierPage";
-import TradeInfoRoutePage from "./pages/TradeInfoRoutePage";
+import TradeInfoRoutePage from "./pages/tradeInfoPage/TradeInfoRoutePage";
 import DocumentsRoutePage from "./pages/DocumentsRoutePage";
 import MarketingRoutePage from "./pages/marketingPage/MarketingRoutePage";
 import ChecklistRoutePage from "./pages/ChecklistRoutePage";
