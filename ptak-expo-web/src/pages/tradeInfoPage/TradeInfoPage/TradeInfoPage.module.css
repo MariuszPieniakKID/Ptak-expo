@@ -1,0 +1,369 @@
+.layout {
+  display: grid;
+  grid-template-columns: 556px 1fr;
+  min-height: calc(100vh - 0px);
+}
+
+.main {
+  padding: 24px 32px;
+}
+
+.mainHeader {
+  border-radius: 20px;
+  padding-left: 20px;
+  padding-right: 20px;
+  padding-top: 40px;
+  padding-bottom: 30px;
+}
+
+.headerInner {
+  display: inline-grid;
+  grid-template-columns: 55px auto;
+  gap: 35px;
+  align-items: center;
+}
+
+.headerTitle {
+  color: #145d5b;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.content {
+  display: grid;
+  grid-template-columns: 60% 40%;
+  border-radius: 20px;
+  border: 1px solid #eff3f6;
+  box-shadow: 0px 26px 12px rgba(111, 135, 246, 0.08);
+  margin-bottom: 20px;
+  overflow: hidden;
+}
+
+.contentDark {
+  padding: 28px 12px;
+  background: #2b2b2d;
+  border-radius: 20px;
+  border: 1px solid #4d4c4f;
+  box-shadow: 0px 26px 12px rgba(111, 135, 246, 0.08);
+  margin-bottom: 20px;
+  overflow: hidden;
+}
+
+.contentWhite {
+  padding: 28px 12px;
+  background: #fff;
+  height: 100%;
+  padding-bottom: 8px;
+}
+
+.contentGray {
+  padding: 28px 12px;
+  background-color: #f5f6f7;
+}
+
+.contentPosition {
+  min-height: 104px;
+  border-bottom: 1px solid #d7d9dd;
+}
+
+.positionInfo {
+  padding-top: 12px;
+}
+
+.marketBuildings {
+  padding-top: 18px;
+}
+
+.marketBuildingsContent {
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-start;
+  flex-direction: column;
+  gap: 14px;
+  padding-top: 20px;
+}
+
+.marketBuildingsItemHeader {
+  padding-bottom: 8px;
+}
+
+.marketBuildingsItemHours {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+}
+
+.marketBuildingsItemHoursFirstHour {
+  width: 80px;
+}
+
+.marketingBuildingsShowMore {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 20px;
+  padding-top: 20px;
+}
+
+.marketingBuildingsShowMoreButton {
+  height: 29px;
+  width: 29px;
+  background-color: #6f87f6;
+  border-radius: 50%;
+  border: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.eventInformations {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+  min-height: 104px;
+  border-bottom: 1px solid #eff3f6;
+  padding-bottom: 8px;
+}
+
+.eventInformationsLogo {
+  width: 55px;
+}
+
+.eventInformationsName {
+  padding-top: 8px;
+}
+
+.eventInformationsHours {
+  padding-top: 18px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid #eff3f6;
+}
+
+.eventInformationsHoursItems {
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-start;
+  width: 100%;
+}
+
+.eventInformationsHoursItem {
+  padding-top: 8px;
+  width: 50%;
+}
+
+.eventInformationsHoursItemDate {
+  padding-top: 2px;
+}
+
+.contactBox {
+  display: flex;
+  flex-direction: column;
+  background: transparent;
+  padding-top: 18px;
+  gap: 12px;
+}
+.contactTitle {
+  color: #2e2e38;
+  font-size: 14px;
+}
+.contactRow {
+  display: inline-grid;
+  grid-template-columns: 35px 1fr;
+  gap: 12px;
+  align-items: center;
+}
+.contactAvatar {
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  background: #ddd;
+  border: 1px solid #fff;
+}
+.contactMeta {
+  display: grid;
+  gap: 2px;
+}
+.contactName {
+  color: #2e2e38;
+  font-size: 12px;
+  letter-spacing: 0.3px;
+}
+.contactPhone {
+  color: #2e2e38;
+  font-size: 12px;
+  letter-spacing: 0.3px;
+}
+.contactMail {
+  color: #6f6f6f;
+  font-size: 11px;
+}
+
+.plansContent {
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-start;
+  gap: 24px;
+  flex-wrap: wrap;
+  width: 100%;
+  padding-top: 40px;
+  padding-bottom: 58px;
+}
+
+.planCard {
+  position: relative;
+  width: 128px;
+  height: 120px;
+  border-radius: 20px;
+  background-color: #2b2b2d;
+  padding: 24px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  border: 1px solid #4d4c4f;
+}
+
+.planCardPosition {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  transform: translateY(calc(16px));
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.planCardPosition p {
+  font-size: 11px;
+  color: white;
+  background-color: #6f87f6;
+  padding: 2px 4px;
+  border-radius: 4px;
+}
+
+.plansDays {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 20px;
+  padding-top: 34px;
+  padding-bottom: 15px;
+}
+
+.plansDay {
+  background-color: transparent;
+  font-size: 11px;
+  color: white;
+  padding: 4px 7px;
+  border-radius: 50%;
+  text-align: center;
+  font-weight: 700;
+  border: 2px solid #6f87f6;
+  cursor: pointer;
+  transition: transform 0.1s ease;
+}
+
+.plansDay:hover {
+  transform: scale(1.05);
+}
+
+.dayPlanWrapper {
+  border-top: 1px solid #707070;
+  border-bottom: 1px solid #707070;
+}
+
+.dayPlan {
+  width: 100%;
+  padding: 7px 0px;
+  cursor: pointer;
+}
+
+.dayPlanItems {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 14px;
+}
+
+.dayPlanDate {
+  font-size: 13px;
+  color: #a7a7a7;
+  border-right: 1px solid #707070;
+  width: 80px;
+  padding: 6px 0px;
+}
+
+.dayPlanHall {
+  font-size: 13px;
+  color: #a7a7a7;
+  border-right: 1px solid #707070;
+  width: 60px;
+  padding: 6px 0px;
+}
+
+.dayPlanTitle {
+  font-size: 13px;
+  color: white;
+  font-weight: 700;
+  width: calc(100% - 80px - 60px - 20px - 42px);
+  padding: 6px 0px;
+}
+
+.dayPlanDescriptionWrapper {
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-end;
+  width: 100%;
+}
+
+.dayPlanDescription {
+  font-size: 13px;
+  color: white;
+  font-weight: 400;
+  width: calc(100% - 60px);
+  padding: 6px 0px;
+}
+
+.dayPlanShowMore {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  color: #89f4c9;
+  font-weight: 700;
+  width: 60px;
+  padding: 6px 0px;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.dayPlanArrow {
+  width: 20px;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: transparent;
+  border: none;
+  transition: transform 0.3s ease;
+}
+
+.dayPlanEvent {
+  padding-top: 24px;
+  padding-bottom: 24px;
+}
+
+.dayPlanEventButton {
+  background-color: #6f87f6;
+  margin-bottom: 24px;
+  padding: 12px 24px;
+  font-size: 14px;
+  color: white;
+  font-weight: 700;
+  width: 100%;
+  border: none;
+  border-radius: 10px;
+}

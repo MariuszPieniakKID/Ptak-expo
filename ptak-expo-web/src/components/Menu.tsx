@@ -24,6 +24,7 @@ import FingerprintIcon from "@mui/icons-material/Fingerprint";
 // import InfoIcon from "@mui/icons-material/Info";
 import IconMarketing from "../assets/group-842.png";
 import IconDocuments from "../assets/documents.png";
+import IconBell from "../assets/bell.png";
 import MailOutlineIcon from "@mui/icons-material/MailOutline";
 
 export type MenuType = {
@@ -96,7 +97,16 @@ const navItems: NavItem[] = [
     key: "invitations",
     getUrl: (id) => `/event/${id}/invitations`,
   },
-  // { label: "Informacje targowe", icon: <InfoIcon />, key: "info", getUrl: (id) => `/event/${id}/trade-info` }, // hidden per request
+  {
+    label: "Informacje targowe",
+    customIcon: (
+      <div className={styles.customIconMenuImage}>
+        <img src={IconBell} alt="ikona informacje targowe" width="auto" height={22} />
+      </div>
+    ),
+    key: "info",
+    getUrl: (id) => `/event/${id}/trade-info`,
+  },
 ];
 
 const Menu: FunctionComponent<MenuType> = ({className = "", onLogout}) => {
