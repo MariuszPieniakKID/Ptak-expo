@@ -2,7 +2,8 @@ import {Box, CardContent, Grid} from "@mui/material";
 import styles from "./IdentifierCard.module.scss";
 import IconMain from "../../assets/group-21.png";
 import IconEmail from "../../assets/email.png";
-import {Gauge, gaugeClasses} from "@mui/x-charts/Gauge";
+import {Ticket} from "../ticket";
+import {Chart} from "../chart";
 
 export interface Identifier {
   id: string;
@@ -31,60 +32,57 @@ const IdentifierCard: React.FC<IdentifierCardProps> = ({data}) => {
             <div className={styles.headerTitle}>E-Indentyfikator</div>
           </div>
         </div>
-        <div className={styles.cardWrapper}>
-          <div className={styles.card}>
-            <div className={styles.leftBackground}></div>
-            <div className={styles.rightBackground}></div>
-            <div className={styles.cardContent}>
-              <div className={styles.cardContentUp}>
-                <Box className={styles.headerImage}>
-                  <img src={data.headerImageUrl} alt={data.eventName} />
-                </Box>
-                <CardContent className={styles.content}>
-                  <p className={styles.title}>{data.eventName}</p>
-                  <Grid container spacing={1} className={styles.details}>
-                    <Grid size={{xs: 8}}>
-                      <p className={styles.label}>Data</p>
-                      <p className={styles.value}>
-                        {data.dateFrom} – {data.dateTo}
-                      </p>
-                    </Grid>
-                    <Grid size={{xs: 4}}>
-                      <p className={styles.label}>Godzina</p>
-                      <p className={styles.value}>{data.time}</p>
-                    </Grid>
-                    <Grid size={{xs: 8}}>
-                      <p className={styles.label}>Typ wejściówki</p>
-                      <p className={styles.value}>{data.type}</p>
-                    </Grid>
-                    <Grid size={{xs: 4}}>
-                      <p className={styles.label}>ID</p>
-                      <p className={styles.value}>{data.id}</p>
-                    </Grid>
-                    <Grid size={{xs: 12}}>
-                      <p className={styles.label}>Miejsce</p>
-                      <p className={styles.value}>{data.location}</p>
-                    </Grid>
+        <Ticket
+          contentUp={
+            <>
+              <Box className={styles.headerImage}>
+                <img src={data.headerImageUrl} alt={data.eventName} />
+              </Box>
+              <CardContent className={styles.content}>
+                <p className={styles.title}>{data.eventName}</p>
+                <Grid container spacing={1} className={styles.details}>
+                  <Grid size={{xs: 8}}>
+                    <p className={styles.label}>Data</p>
+                    <p className={styles.value}>
+                      {data.dateFrom} – {data.dateTo}
+                    </p>
                   </Grid>
-                </CardContent>
-              </div>
-              <div className={styles.dash}></div>
-              <div className={styles.cardContentDown}>
-                <Grid container alignItems="center" className={styles.footer}>
-                  <Grid size={{xs: 6}}></Grid>
-                  <Grid size={{xs: 6}}>
-                    <p className={styles.qrParagraph}>Twój kod wstępu</p>
+                  <Grid size={{xs: 4}}>
+                    <p className={styles.label}>Godzina</p>
+                    <p className={styles.value}>{data.time}</p>
                   </Grid>
-                  <Grid size={{xs: 6}} className={styles.logo}>
-                    <img src={data.logoUrl} alt="Logo" />
+                  <Grid size={{xs: 8}}>
+                    <p className={styles.label}>Typ wejściówki</p>
+                    <p className={styles.value}>{data.type}</p>
                   </Grid>
-                  <Grid size={{xs: 6}} className={styles.qr}>
-                    <img src={data.qrCodeUrl} alt="QR Code" />
+                  <Grid size={{xs: 4}}>
+                    <p className={styles.label}>ID</p>
+                    <p className={styles.value}>{data.id}</p>
+                  </Grid>
+                  <Grid size={{xs: 12}}>
+                    <p className={styles.label}>Miejsce</p>
+                    <p className={styles.value}>{data.location}</p>
                   </Grid>
                 </Grid>
-              </div>
-            </div>
-            <div className={styles.cardDark}>
+              </CardContent>
+            </>
+          }
+          contentDown={
+            <Grid container alignItems="center" className={styles.footer}>
+              <Grid size={{xs: 6}}></Grid>
+              <Grid size={{xs: 6}}>
+                <p className={styles.qrParagraph}>Twój kod wstępu</p>
+              </Grid>
+              <Grid size={{xs: 6}} className={styles.logo}>
+                <img src={data.logoUrl} alt="Logo" />
+              </Grid>
+              <Grid size={{xs: 6}} className={styles.qr}>
+                <img src={data.qrCodeUrl} alt="QR Code" />
+              </Grid>
+            </Grid>
+          }
+          contentDark={
+            <>
               <div className={styles.cardDarkHeader}>
                 <div className={styles.cardDarkHeaderIcon}>
                   <img
@@ -101,38 +99,7 @@ const IdentifierCard: React.FC<IdentifierCardProps> = ({data}) => {
                   }}
                 ></div>
               </div>
-              <div className={styles.cardDarkChart}>
-                <div className={styles.cardDarkChartValueContent}>
-                  <div
-                    className={styles.cardDarkChartValue}
-                    dangerouslySetInnerHTML={{
-                      __html: `15<span> / 50</span>`,
-                    }}
-                  ></div>
-                  <div className={styles.cardDarkChartDescription}>
-                    Zaproszeń
-                  </div>
-                </div>
-                <Gauge
-                  width={120}
-                  height={120}
-                  value={15}
-                  valueMax={50}
-                  cornerRadius="50%"
-                  sx={(theme) => ({
-                    [`& .${gaugeClasses.valueText}`]: {
-                      fontSize: 16,
-                      display: "none",
-                    },
-                    [`& .${gaugeClasses.valueArc}`]: {
-                      fill: "#6F87F6",
-                    },
-                    [`& .${gaugeClasses.referenceArc}`]: {
-                      fill: theme.palette.text.disabled,
-                    },
-                  })}
-                />
-              </div>
+              <Chart value={15} valueMax={50} />
               <div className={styles.cardDarkOtherContentTitle}>
                 Biznes Priority Pass
               </div>
@@ -147,14 +114,12 @@ const IdentifierCard: React.FC<IdentifierCardProps> = ({data}) => {
               <button className={styles.cardDarkOtherContentButton}>
                 Przejdź do generatora zaproszeń
               </button>
-            </div>
-          </div>
-        </div>
+            </>
+          }
+        />
       </main>
     </div>
   );
 };
 
 export default IdentifierCard;
-
-

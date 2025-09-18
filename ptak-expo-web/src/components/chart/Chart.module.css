@@ -1,0 +1,32 @@
+.cardDarkChart {
+  position: relative;
+  width: 120px;
+}
+
+.cardDarkChartValueContent {
+  position: absolute;
+  top: 46%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
+}
+
+.cardDarkChartValue {
+  font-size: 24px;
+  color: white;
+  font-weight: 700;
+  text-align: center;
+}
+
+.cardDarkChartValue span {
+  font-size: 12px;
+  color: #6f6f6f;
+  font-weight: 700;
+}
+
+.cardDarkChartDescription {
+  font-size: 11px;
+  color: white;
+  text-align: center;
+  font-weight: 700;
+}
