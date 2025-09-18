@@ -1,15 +1,320 @@
-.card { border-radius: 16px; overflow: hidden; max-width: 400px; margin: 16px auto; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
-.headerImage { margin-top: 12px; }
-.headerImage img { width: 100%; height: 120px; object-fit: cover; }
-.content { padding: 16px; }
-.title { margin-bottom: 12px; font-weight: 600; }
-.details { margin-top: 8px; }
-.label { font-size: 18px !important; color: #5a6ec8; }
-.value { font-weight: 600 !important; color: #333; }
-.separator { display: flex; align-items: center; margin: 8px 0; }
-.dash { flex-grow: 1; border-top: 1px dashed #5a6ec8; }
-.footer { padding: 12px 16px; padding-top: 0; display: flex; justify-content: space-between; }
-.logo img { height: 150px; width: 150px; }
-.qr { text-align: center; }
-.qr img { width: 140px; height: 140px; }
+.layout {
+  display: grid;
+  grid-template-columns: 556px 1fr;
+  min-height: calc(100vh - 0px);
+}
 
+.main {
+  padding: 24px 32px;
+}
+
+.mainHeader {
+  border-radius: 20px;
+  padding-left: 20px;
+  padding-right: 20px;
+  padding-top: 72px;
+  padding-bottom: 30px;
+}
+
+.headerInner {
+  display: inline-grid;
+  grid-template-columns: 55px auto;
+  gap: 35px;
+  align-items: center;
+}
+
+.headerTitle {
+  color: #2e2e38;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.cardWrapper {
+  position: relative;
+  left: -20px;
+  width: 600px;
+  overflow-y: auto;
+  border-radius: 16px;
+}
+
+@media (max-width: 480px) {
+  .cardWrapper {
+    left: 20px;
+    width: 400px;
+  }
+}
+
+.card {
+  position: relative;
+  border-radius: 16px;
+  width: 345px;
+  padding: 20px;
+}
+
+.cardDark {
+  position: absolute;
+  z-index: 0;
+  top: 0;
+  left: 270px;
+  width: 320px;
+  background-color: #2b2b2d;
+  border-radius: 16px;
+  padding-left: 95px;
+  padding-top: 40px;
+  padding-bottom: 50px;
+  padding-right: 16px;
+}
+
+.cardContent {
+  position: relative;
+  z-index: 2;
+}
+
+.cardContentUp {
+  height: 400px;
+  overflow-y: auto;
+}
+
+.cardContentDown {
+  height: 170px;
+  overflow-y: auto;
+}
+
+.leftBackground {
+  position: absolute;
+  z-index: 2;
+  top: 0;
+  left: 0;
+  width: 50%;
+  bottom: 0;
+  background-color: white;
+  border-top-left-radius: 16px;
+  border-bottom-left-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-composite: subtract;
+  mask-composite: subtract;
+  mask-image: radial-gradient(
+    circle 20px at 0px 400px,
+    transparent 99%,
+    black 100%
+  );
+  -webkit-mask-image: radial-gradient(
+    circle 20px at 0px 400px,
+    transparent 99%,
+    black 100%
+  );
+  mask-repeat: no-repeat;
+}
+
+.rightBackground {
+  position: absolute;
+  z-index: 2;
+  top: 0;
+  left: 50%;
+  width: 50%;
+  bottom: 0;
+  background-color: white;
+  border-top-right-radius: 16px;
+  border-bottom-right-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-composite: subtract;
+  mask-composite: subtract;
+  mask-image: radial-gradient(
+    circle 20px at 170px 400px,
+    transparent 99%,
+    black 100%
+  );
+  -webkit-mask-image: radial-gradient(
+    circle 20px at 170px 400px,
+    transparent 99%,
+    black 100%
+  );
+  mask-repeat: no-repeat;
+}
+
+.headerImage img {
+  width: 100%;
+  max-height: 120px;
+  object-fit: cover;
+  border-radius: 6px;
+}
+
+.content {
+  padding: 16px;
+}
+
+.title {
+  margin-top: 0px;
+  margin-bottom: 26px;
+  font-weight: 700;
+}
+
+.details {
+  margin-top: 8px;
+}
+
+.label {
+  margin-top: 0px;
+  font-size: 16px;
+  font-weight: 700;
+  color: #6f87f6;
+  margin-bottom: 2px;
+}
+
+.value {
+  color: #666a73;
+  font-size: 13px;
+  margin-top: 0px;
+  margin-bottom: 16px;
+}
+
+.separator {
+  display: flex;
+  align-items: center;
+  margin: 8px 0;
+}
+
+.dash {
+  position: absolute;
+  left: 4px;
+  right: 0;
+  top: 380px;
+  width: 100%;
+  border: 1px solid;
+  border-image: repeating-linear-gradient(
+      90deg,
+      #6f87f6 0 10px,
+      transparent 5px 18px
+    )
+    1;
+}
+
+.footer {
+  padding: 12px 16px;
+  padding-top: 0;
+  display: flex;
+  justify-content: space-between;
+}
+
+.logo img {
+  height: 130px;
+  width: auto;
+  padding-right: 2px;
+  max-width: 100%;
+}
+.qr {
+  text-align: center;
+}
+.qr img {
+  width: auto;
+  height: 130px;
+  padding-left: 2px;
+  max-width: 100%;
+}
+
+.qrParagraph {
+  color: #6f6f6f;
+  font-size: 13px;
+  margin-top: 0;
+  margin-bottom: 5px;
+  text-align: center;
+}
+
+.cardDarkHeader {
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-end;
+  gap: 10px;
+  padding-bottom: 20px;
+}
+
+.cardDarkHeaderIcon {
+  height: 40px;
+  width: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 50%;
+  background-color: #464646;
+  margin-bottom: 7px;
+}
+
+.cardDarkHeaderTitle {
+  font-size: 16px;
+  color: #eeeff1;
+  width: calc(100% - 40px - 10px);
+  font-weight: 700;
+}
+
+.cardDarkHeaderTitle span {
+  font-size: 13px;
+  color: #eeeff1;
+  width: calc(100% - 40px - 10px);
+  color: #6f6f6f;
+}
+
+.cardDarkChart {
+  position: relative;
+  width: 120px;
+  margin-bottom: 40px;
+}
+
+.cardDarkChartValueContent {
+  position: absolute;
+  top: 46%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
+}
+
+.cardDarkChartValue {
+  font-size: 24px;
+  color: white;
+  font-weight: 700;
+  text-align: center;
+}
+
+.cardDarkChartValue span {
+  font-size: 9px;
+  color: #6f6f6f;
+  font-weight: 700;
+}
+
+.cardDarkChartDescription {
+  font-size: 11px;
+  color: white;
+  text-align: center;
+  font-weight: 700;
+}
+
+.cardDarkOtherContentTitle {
+  font-size: 18px;
+  color: white;
+  padding-bottom: 4px;
+  font-weight: 700;
+}
+
+.cardDarkOtherContentPrice {
+  font-size: 13px;
+  color: #6f87f6;
+  padding-bottom: 16px;
+}
+
+.cardDarkOtherContentDescription {
+  font-size: 13px;
+  color: #a7a7a7;
+  padding-bottom: 24px;
+}
+
+.cardDarkOtherContentButton {
+  border: none;
+  background-color: #6f87f6;
+  width: 100%;
+  padding: 12px 24px;
+  color: white;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: bold;
+}
