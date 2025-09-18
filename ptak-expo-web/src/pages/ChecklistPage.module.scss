@@ -98,6 +98,12 @@
 .sectionGoodDot { width: 20px; height: 20px; border-radius: 50%; background: #43a047; }
 .sectionLink { margin-top: 12px; color: #2e2e38; text-decoration: underline; font-size: 14px; cursor: pointer; }
 .optionalLabel { color: #2e2e38; font-size: 14px; margin: 8px 0; }
+
+/* Ensure checklist section cards have breathing room */
+.sectionsColumn { display: flex; flex-direction: column; gap: 16px; }
+.sectionCardWhite + .sectionCardWhite,
+.sectionCardGray + .sectionCardGray,
+.sectionCardDark + .sectionCardDark { margin-top: 16px; }
 /* Mirroring the layout proportions from TradeInfoPage Figma CSS */
 :root {
   --color-darkslategray: #2e2e38;

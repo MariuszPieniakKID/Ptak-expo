@@ -42,12 +42,14 @@ const ChecklistPage: React.FC = () => {
           </div>
 
           {/* Detailed sections */}
-          <CompanyInfo />
-          <ProductsInfo />
-          <MaterialsCard />
-          <InvitesCard />
-          <EventSchedule />
-          <ElectronicIdsCard />
+          <div className={styles.sectionsColumn}>
+            <CompanyInfo />
+            <ProductsInfo />
+            <MaterialsCard />
+            <InvitesCard />
+            <EventSchedule />
+            <ElectronicIdsCard />
+          </div>
 
           <div className={styles.optionalLabel}>Opcjonalnie:</div>
 
