@@ -9,62 +9,9 @@ import {
   formatDateRangeDays,
 } from "./utilities";
 import {TradeInfoPlan} from "./TradeInfoPlan";
+import { tradeInfoAPI, exhibitionsAPI } from "../../../services/api";
 
-const mockMainBuildInfo = {
-  stand: "Hala F / 3.47",
-  informations: [
-    {
-      title: "Montaż idywidualny",
-      hours: [
-        {
-          dateStart: "2025-10-20T08:00:00",
-          dateEnd: "2025-10-20T18:00:00",
-        },
-        {
-          dateStart: "2025-10-21T08:00:00",
-          dateEnd: "2025-10-21T18:00:00",
-        },
-      ],
-    },
-    {
-      title: "Montaż PTAK EXPO",
-      hours: [
-        {
-          dateStart: "2025-10-21T08:00:00",
-          dateEnd: "2025-10-21T18:00:00",
-        },
-      ],
-    },
-    {
-      title: "Demontaż",
-      hours: [
-        {
-          dateStart: "2025-10-26T08:00:00",
-          dateEnd: "2025-10-26T18:00:00",
-        },
-      ],
-    },
-  ],
-};
-
-const mockEventInformations = {
-  startDate: "2025-10-26T08:00:00",
-  endDate: "2025-10-29T08:00:00",
-  name: "Warsaw Industry Weej Targi Innowacyjnych Rozwiązań dla Przemysłu",
-  openingHours: {
-    forExhibitors: "08:00 - 17:00",
-    forClients: "10:00 - 16:00",
-  },
-  phones: {
-    forClients: "+48 518 739 124",
-    security: "+48 514 363 603",
-  },
-  guardian: {
-    name: "Magda Masny",
-    phone: "+48 518 739 124",
-    email: "m.masny@warsawexpo.eu",
-  },
-};
+// removed mock placeholders – values now come from backend
 
 const mockFairPlan = {
   halls: [
@@ -172,6 +119,8 @@ type T_TradeInfoPage = {
 
 export const TradeInfoPage: React.FC<T_TradeInfoPage> = ({eventId}) => {
   const [selectedDayId, setSelectedDayId] = useState<number | null>(null);
+  const [tradeData, setTradeData] = useState<any | null>(null);
+  const [eventMeta, setEventMeta] = useState<any | null>(null);
   // const exhibStart = tradeInfo?.tradeHours.exhibitorStart || "-";
   // const exhibEnd = tradeInfo?.tradeHours.exhibitorEnd || "-";
   // const visitStart = tradeInfo?.tradeHours.visitorStart || "-";
@@ -181,12 +130,26 @@ export const TradeInfoPage: React.FC<T_TradeInfoPage> = ({eventId}) => {
   // const buildType = tradeInfo?.buildType || '-';
 
   useEffect(() => {
-    if (mockFairPlan.days.length === 0) {
-      return;
-    }
-
-    setSelectedDayId(mockFairPlan.days.at(0)?.id || null);
-  }, []);
+    (async () => {
+      try {
+        const exId = Number(eventId);
+        const [tiRes, exRes] = await Promise.all([
+          tradeInfoAPI.get(exId),
+          exhibitionsAPI.getById(exId)
+        ]);
+        const ti = (tiRes.data && tiRes.data.data) ? tiRes.data.data : null;
+        setTradeData(ti);
+        setEventMeta(exRes.data || null);
+        // default day select from buildDays or from event start date
+        const firstDay = (ti?.buildDays && ti.buildDays[0]) ? 1 : (mockFairPlan.days.at(0)?.id || null);
+        setSelectedDayId(firstDay as any);
+      } catch (e: any) {
+        console.warn('TradeInfo load error', e?.message || e);
+      } finally {
+        // no-op
+      }
+    })();
+  }, [eventId]);
 
   const handleClickDay = useCallback((newDayId: number) => {
     setSelectedDayId(newDayId);
@@ -196,16 +159,16 @@ export const TradeInfoPage: React.FC<T_TradeInfoPage> = ({eventId}) => {
     return mockFairPlan.days.find((item) => item.id === selectedDayId);
   }, [selectedDayId]);
 
-  const mapBuildInformations = mockMainBuildInfo.informations.map(
-    (item, index) => {
-      const mapHours = item.hours.map((itemHour, indexHour) => {
+  const mapBuildInformations = (tradeData?.buildDays && tradeData.buildDays.length > 0 ? tradeData.buildDays : []).map(
+    (item: any, index: number) => {
+      const mapHours = (() => {
         const generatedDate = formatDateRange({
-          endDate: itemHour.dateStart,
-          startDate: itemHour.dateEnd,
+          endDate: item.endTime,
+          startDate: item.startTime,
         });
         return (
           <div
-            key={`hour_${index}_${indexHour}`}
+            key={`hour_${index}_0`}
             className={styles.marketBuildingsItemHours}
           >
             <div className={styles.marketBuildingsItemHoursFirstHour}>
@@ -218,7 +181,7 @@ export const TradeInfoPage: React.FC<T_TradeInfoPage> = ({eventId}) => {
             </CustomTypography>
           </div>
         );
-      });
+      })();
 
       return (
         <div key={`information_${index}`}>
@@ -228,7 +191,7 @@ export const TradeInfoPage: React.FC<T_TradeInfoPage> = ({eventId}) => {
             color="#666A73"
             className={styles.marketBuildingsItemHeader}
           >
-            {item.title}
+            Dzień budowy
           </CustomTypography>
           {mapHours}
         </div>
@@ -236,32 +199,43 @@ export const TradeInfoPage: React.FC<T_TradeInfoPage> = ({eventId}) => {
     }
   );
 
-  const mapHall = mockFairPlan.halls.map((item, index) => {
-    return (
-      <div
-        key={`hall_${index}`}
-        className={styles.planCard}
-        style={{
-          borderColor: item.isYourHall ? "#6F87F6" : "#4d4c4f",
-        }}
-      >
-        <CustomTypography fontSize="10px" fontWeight={700} color="white">
-          {item.name}
-        </CustomTypography>
-        {item.isYourHall && item.positionNumber && (
-          <div className={styles.planCardPosition}>
-            <p
-              dangerouslySetInnerHTML={{
-                __html: `Twoje stoisko - <b>${item.positionNumber}</b>`,
-              }}
-            />
-          </div>
-        )}
-      </div>
-    );
-  });
+  const mapHall = (() => {
+    const halls = tradeData?.tradeSpaces && tradeData.tradeSpaces.length > 0
+      ? tradeData.tradeSpaces.map((s: any) => ({ name: s.hallName || s.name || '-', isYourHall: false }))
+      : mockFairPlan.halls;
+    const my = tradeData?.exhibitorAssignment;
+    return halls.map((item: any, index: number) => {
+      const isMine = my && my.hallName && String(item.name).toLowerCase() === String(my.hallName).toLowerCase();
+      return (
+        <div
+          key={`hall_${index}`}
+          className={styles.planCard}
+          style={{
+            borderColor: isMine ? "#6F87F6" : "#4d4c4f",
+          }}
+        >
+          <CustomTypography fontSize="10px" fontWeight={700} color="white">
+            {item.name}
+          </CustomTypography>
+          {isMine && my.standNumber && (
+            <div className={styles.planCardPosition}>
+              <p
+                dangerouslySetInnerHTML={{
+                  __html: `Twoje stoisko - <b>${my.standNumber}</b>`,
+                }}
+              />
+            </div>
+          )}
+        </div>
+      );
+    });
+  })();
+  
 
-  const mapDays = mockFairPlan.days.map((item, index) => {
+  const buildDays = tradeData?.buildDays && tradeData.buildDays.length > 0
+    ? tradeData.buildDays.map((d: any, idx: number) => ({ id: idx + 1, date: d.date }))
+    : mockFairPlan.days;
+  const mapDays = buildDays.map((item: any, index: number) => {
     const {day, month} = formatDateForDisplay({
       date: item.date,
     });
@@ -284,7 +258,7 @@ export const TradeInfoPage: React.FC<T_TradeInfoPage> = ({eventId}) => {
     );
   });
 
-  const mapDayPlans = foundDay?.plans?.map((item, index) => {
+  const mapDayPlans = foundDay?.plans?.map((item: any, index: number) => {
     return (
       <TradeInfoPlan
         {...item}
@@ -315,17 +289,14 @@ export const TradeInfoPage: React.FC<T_TradeInfoPage> = ({eventId}) => {
                   fontWeight={600}
                   color="#6F87F6"
                 >
-                  {formatDateRangeDays({
-                    endDate: mockEventInformations.endDate,
-                    startDate: mockEventInformations.startDate,
-                  })}
+                  {eventMeta ? formatDateRangeDays({ startDate: eventMeta.start_date, endDate: eventMeta.end_date }) : ''}
                 </CustomTypography>
                 <CustomTypography
                   fontSize="14px"
                   fontWeight={700}
                   className={styles.eventInformationsName}
                 >
-                  {mockEventInformations.name}
+                  {eventMeta?.name || ''}
                 </CustomTypography>
               </div>
             </div>
@@ -348,7 +319,7 @@ export const TradeInfoPage: React.FC<T_TradeInfoPage> = ({eventId}) => {
                       fontWeight={700}
                       color="#6F87F6"
                     >
-                      {mockEventInformations.openingHours.forExhibitors}
+                      {tradeData?.tradeHours ? `${String(tradeData.tradeHours.exhibitorStart || '').slice(0,5)} - ${String(tradeData.tradeHours.exhibitorEnd || '').slice(0,5)}` : '-'}
                     </CustomTypography>
                   </div>
                 </div>
@@ -366,7 +337,7 @@ export const TradeInfoPage: React.FC<T_TradeInfoPage> = ({eventId}) => {
                       fontWeight={700}
                       color="#6F87F6"
                     >
-                      {mockEventInformations.openingHours.forClients}
+                      {tradeData?.tradeHours ? `${String(tradeData.tradeHours.visitorStart || '').slice(0,5)} - ${String(tradeData.tradeHours.visitorEnd || '').slice(0,5)}` : '-'}
                     </CustomTypography>
                   </div>
                 </div>
@@ -387,7 +358,7 @@ export const TradeInfoPage: React.FC<T_TradeInfoPage> = ({eventId}) => {
                   </CustomTypography>
                   <div className={styles.eventInformationsHoursItemDate}>
                     <CustomTypography fontSize="12px" fontWeight={700}>
-                      {mockEventInformations.phones.forClients}
+                      {tradeData?.contactInfo?.guestService || '-'}
                     </CustomTypography>
                   </div>
                 </div>
@@ -401,7 +372,7 @@ export const TradeInfoPage: React.FC<T_TradeInfoPage> = ({eventId}) => {
                   </CustomTypography>
                   <div className={styles.eventInformationsHoursItemDate}>
                     <CustomTypography fontSize="12px" fontWeight={700}>
-                      {mockEventInformations.phones.security}
+                      {tradeData?.contactInfo?.security || '-'}
                     </CustomTypography>
                   </div>
                 </div>
@@ -415,13 +386,13 @@ export const TradeInfoPage: React.FC<T_TradeInfoPage> = ({eventId}) => {
                 <div className={styles.contactAvatar} />
                 <div className={styles.contactMeta}>
                   <div className={styles.contactName}>
-                    {mockEventInformations.guardian.name}
+                    {tradeData?.exhibitorAssignment?.supervisor ? `${tradeData.exhibitorAssignment.supervisor.firstName} ${tradeData.exhibitorAssignment.supervisor.lastName}` : '-'}
                   </div>
                   <div className={styles.contactPhone}>
-                    {mockEventInformations.guardian.phone}
+                    {tradeData?.exhibitorAssignment?.supervisor?.phone || '-'}
                   </div>
                   <div className={styles.contactMail}>
-                    {mockEventInformations.guardian.email}
+                    {tradeData?.exhibitorAssignment?.supervisor?.email || '-'}
                   </div>
                 </div>
               </div>
@@ -441,7 +412,7 @@ export const TradeInfoPage: React.FC<T_TradeInfoPage> = ({eventId}) => {
                 fontWeight={600}
                 className={styles.positionInfo}
               >
-                {mockMainBuildInfo.stand}
+                {tradeData?.exhibitorAssignment ? `${tradeData.exhibitorAssignment.hallName || ''} / ${tradeData.exhibitorAssignment.standNumber || ''}`.trim() : '-'}
               </CustomTypography>
             </div>
             <div className={styles.marketBuildings}>
@@ -475,7 +446,7 @@ export const TradeInfoPage: React.FC<T_TradeInfoPage> = ({eventId}) => {
           </CustomTypography>
           <div className={styles.plansContent}>{mapHall}</div>
           <CustomTypography fontSize="1rem" fontWeight={700} color="white">
-            {`Wydarzenia towarzyszące  (${mockFairPlan.countEvents})`}
+            {`Wydarzenia towarzyszące`}
           </CustomTypography>
           <div className={styles.plansDays}>
             <CustomTypography fontSize="13px" fontWeight={500} color="#A7A7A7">

@@ -183,6 +183,44 @@ const getTradeInfo = async (req, res) => {
         SELECT * FROM trade_spaces WHERE trade_info_id = $1
       `, [tradeInfo.id]);
 
+      // Resolve exhibitor assignment for current user (if exhibitor or admin viewing as exhibitor)
+      let exhibitorAssignment = null;
+      try {
+        // Map current user to exhibitor_id
+        let exhibitorId = null;
+        if (req.user && req.user.email) {
+          const me = await client.query('SELECT id FROM exhibitors WHERE email = $1 LIMIT 1', [req.user.email]);
+          exhibitorId = me.rows?.[0]?.id || null;
+        }
+        if (exhibitorId) {
+          const assign = await client.query(
+            `SELECT ee.hall_name, ee.stand_number, ee.booth_area, ee.supervisor_user_id,
+                    u.first_name, u.last_name, u.email AS supervisor_email, u.phone AS supervisor_phone
+             FROM exhibitor_events ee
+             LEFT JOIN users u ON u.id = ee.supervisor_user_id
+             WHERE ee.exhibitor_id = $1 AND ee.exhibition_id = $2
+             LIMIT 1`,
+            [exhibitorId, exhibitionId]
+          );
+          if (assign.rows.length > 0) {
+            const a = assign.rows[0];
+            exhibitorAssignment = {
+              hallName: a.hall_name || null,
+              standNumber: a.stand_number || null,
+              boothArea: a.booth_area || null,
+              supervisor: a.supervisor_user_id ? {
+                firstName: a.first_name || '',
+                lastName: a.last_name || '',
+                email: a.supervisor_email || '',
+                phone: a.supervisor_phone || ''
+              } : null
+            };
+          }
+        }
+      } catch (assignErr) {
+        console.warn('⚠️ Could not resolve exhibitor assignment:', assignErr?.message || assignErr);
+      }
+
       const responseData = {
         tradeHours: {
           exhibitorStart: tradeInfo.exhibitor_start_time,
@@ -209,7 +247,8 @@ const getTradeInfo = async (req, res) => {
           hallName: space.hall_name || 'HALA A',
           filePath: space.file_path || null,
           originalFilename: space.original_filename || null
-        }))
+        })),
+        exhibitorAssignment
       };
 
       res.json({
