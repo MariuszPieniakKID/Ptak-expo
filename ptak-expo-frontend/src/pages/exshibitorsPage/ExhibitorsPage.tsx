@@ -77,7 +77,10 @@ const ExhibitorsPage: React.FC = () => {
     }
     try {
       setLoading(true);
-      const fetchedExhibitors = await fetchExhibitors(token);
+      const fetchedExhibitors = await fetchExhibitors(token, {
+        query: searchQuery,
+        exhibitionId: exhibitionFilter,
+      });
       setExhibitors(fetchedExhibitors);
       setError('');
     } catch (err: any) {
@@ -89,7 +92,7 @@ const ExhibitorsPage: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }, [token, logout, navigate]);
+  }, [token, logout, navigate, searchQuery, exhibitionFilter]);
 
   useEffect(() => {
     loadExhibitors();

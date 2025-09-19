@@ -257,6 +257,22 @@ const initializeDatabase = async () => {
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `);
+    // Ensure unique constraint on exhibitors.email to prevent duplicates
+    try {
+      await pool.query(`
+        DO $$ BEGIN
+          IF NOT EXISTS (
+            SELECT 1 FROM information_schema.table_constraints tc
+            WHERE tc.table_name = 'exhibitors' AND tc.constraint_type = 'UNIQUE' AND tc.constraint_name = 'exhibitors_email_key'
+          ) THEN
+            ALTER TABLE exhibitors ADD CONSTRAINT exhibitors_email_key UNIQUE(email);
+          END IF;
+        END $$;
+      `);
+      console.log('✅ UNIQUE(exhibitors.email) ensured');
+    } catch (e) {
+      console.warn('⚠️ Could not ensure UNIQUE on exhibitors.email:', e?.message || e);
+    }
     
     // Add password_hash column if it doesn't exist (for existing databases)
     await pool.query(`

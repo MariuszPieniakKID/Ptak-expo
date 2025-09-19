@@ -320,9 +320,36 @@ router.put('/me', verifyToken, requireExhibitorOrAdmin, async (req, res) => {
 // GET /api/v1/exhibitors - pobierz wszystkich wystawców (tylko admin)
 router.get('/', verifyToken, requireAdmin, async (req, res) => {
   try {
-    console.log('Fetching exhibitors from database...');
-    
-    const query = `
+    console.log('Fetching exhibitors from database with filters...', req.query);
+
+    const { query: q, exhibitionId } = req.query || {};
+    const params = [];
+    const where = ["e.status = 'active'"];
+
+    // Filter by exhibition assignment if provided
+    if (exhibitionId !== undefined && exhibitionId !== null && String(exhibitionId).trim() !== '' && !Number.isNaN(Number(exhibitionId))) {
+      params.push(Number(exhibitionId));
+      where.push(`EXISTS (SELECT 1 FROM exhibitor_events ee WHERE ee.exhibitor_id = e.id AND ee.exhibition_id = $${params.length})`);
+    }
+
+    // Text search across nip, company_name, email and assigned exhibition names
+    if (q !== undefined && String(q).trim() !== '') {
+      const term = `%${String(q).trim().toLowerCase()}%`;
+      params.push(term);
+      const p = params.length;
+      where.push(`(
+        lower(e.nip) LIKE $${p} OR
+        lower(e.company_name) LIKE $${p} OR
+        lower(e.email) LIKE $${p} OR
+        EXISTS (
+          SELECT 1 FROM exhibitor_events ee2
+          JOIN exhibitions ex2 ON ex2.id = ee2.exhibition_id
+          WHERE ee2.exhibitor_id = e.id AND lower(ex2.name) LIKE $${p}
+        )
+      )`);
+    }
+
+    const sql = `
       SELECT DISTINCT
         e.id,
         e.nip,
@@ -348,11 +375,11 @@ router.get('/', verifyToken, requireAdmin, async (req, res) => {
         ORDER BY ex.start_date ASC 
         LIMIT 1
       ) first_event ON true
-      WHERE e.status = 'active'
+      ${where.length ? 'WHERE ' + where.join(' AND ') : ''}
       ORDER BY e.company_name
     `;
-    
-    const result = await db.query(query);
+
+    const result = await db.query(sql, params);
     
     console.log(`Found ${result.rows.length} exhibitors`);
     

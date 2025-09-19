@@ -247,8 +247,17 @@ export const addUserByAdmin = async (userData: AddUserPayloadByAdmin, token: str
 };
 
 // Exhibitors API
-export const fetchExhibitors = async (token: string): Promise<Exhibitor[]> => {
-  const response = await apiCall(`${config.API_BASE_URL}/api/v1/exhibitors`, {
+export const fetchExhibitors = async (
+  token: string,
+  opts?: { query?: string; exhibitionId?: number | 'all' }
+): Promise<Exhibitor[]> => {
+  const params: string[] = [];
+  if (opts?.query && opts.query.trim()) params.push(`query=${encodeURIComponent(opts.query.trim())}`);
+  if (opts && typeof opts.exhibitionId !== 'undefined' && opts.exhibitionId !== 'all') {
+    params.push(`exhibitionId=${encodeURIComponent(String(opts.exhibitionId))}`);
+  }
+  const qs = params.length ? `?${params.join('&')}` : '';
+  const response = await apiCall(`${config.API_BASE_URL}/api/v1/exhibitors${qs}`, {
     headers: { 'Authorization': `Bearer ${token}` },
   });
   if (!response.ok) {
