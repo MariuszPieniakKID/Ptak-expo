@@ -10,6 +10,7 @@ import {
   //deleteExhibitor,
   Exhibitor,
 } from '../../services/api';
+import { fetchExhibitions } from '../../services/api';
 import {
   Avatar,
   Box,
@@ -50,6 +51,9 @@ const ExhibitorsPage: React.FC = () => {
   const { token, user, logout } = useAuth();
   const isLargeScreen = useMediaQuery('(min-width:600px)');
   const [sortConfig, setSortConfig] = useState<{ key: keyof Exhibitor | null; direction: 'asc' | 'desc' | null }>({ key: null, direction: null });
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [exhibitionFilter, setExhibitionFilter] = useState<number | 'all'>("all");
+  const [exhibitionsList, setExhibitionsList] = useState<{ id: number; name: string }[]>([]);
 
   const handleLogout = useCallback(() => {
     logout();
@@ -90,6 +94,17 @@ const ExhibitorsPage: React.FC = () => {
   useEffect(() => {
     loadExhibitors();
   }, [loadExhibitors]);
+
+  // load exhibitions for filter
+  useEffect(() => {
+    (async () => {
+      try {
+        const arr = await fetchExhibitions(token || undefined);
+        const mapped = (arr || []).map((e: any) => ({ id: e.id, name: e.name })).sort((a: any, b: any) => a.name.localeCompare(b.name));
+        setExhibitionsList(mapped);
+      } catch {}
+    })();
+  }, [token]);
 
   // const handleDeleteExhibitor = useCallback(async (exhibitorId: number, companyName: string): Promise<void> => {
   //   if (!token) return;
@@ -145,13 +160,23 @@ const ExhibitorsPage: React.FC = () => {
 
   
 
-  const sortedExhibitors = React.useMemo(() => {
-    if (!sortConfig.key || !sortConfig.direction) return exhibitors;
+  const filteredAndSortedExhibitors = React.useMemo(() => {
+    // Text filter by NIP, companyName, email, eventNames
+    const q = searchQuery.trim().toLowerCase();
+    let base = exhibitors.filter((ex) => {
+      const hay = [ex.nip, ex.companyName, ex.email, ex.eventNames]
+        .map((v) => String(v || '').toLowerCase())
+        .join(' ');
+      const matchesText = q ? hay.includes(q) : true;
+      const matchesExhibition = exhibitionFilter === 'all' ? true : String(ex.eventNames || '').toLowerCase().includes(String(exhibitionsList.find(x => x.id === exhibitionFilter)?.name || '').toLowerCase());
+      return matchesText && matchesExhibition;
+    });
+    if (!sortConfig.key || !sortConfig.direction) return base;
 
 
     const key = sortConfig.key as keyof Exhibitor;
 
-    return [...exhibitors].sort((a, b) => {
+    return [...base].sort((a, b) => {
       const aVal = a[key];
       const bVal = b[key];
 
@@ -170,9 +195,9 @@ const ExhibitorsPage: React.FC = () => {
 
       return 0;
     });
-  }, [exhibitors, sortConfig]);
+  }, [exhibitors, sortConfig, searchQuery, exhibitionFilter, exhibitionsList]);
 
- const paginatedExhibitors = sortedExhibitors.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
+  const paginatedExhibitors = filteredAndSortedExhibitors.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
   
  
  return (
@@ -250,13 +275,34 @@ const ExhibitorsPage: React.FC = () => {
                 </Breadcrumbs>
               </Box>
             </Box>
-            <Box
-              className={styles._addExhibitorsContainer}
-              onClick={() => setIsAddExhibitorModalOpen(true)}
-            >
-              <UsersIcon className={styles._addExhibitorIcon} />
-              <CustomTypography className={styles._addExhibitorText}> + dodaj wystawcę </CustomTypography>    
-            </Box> 
+            <Box display="flex" alignItems="center" gap={2} flexWrap="wrap">
+              <Box display="flex" alignItems="center" gap={2}>
+                <CustomTypography className={styles._pageTitle}>Filtry</CustomTypography>
+                <input
+                  value={searchQuery}
+                  onChange={(e) => { setSearchQuery(e.target.value); setPage(0); }}
+                  placeholder="Szukaj (NIP, nazwa, e-mail, nazwa wydarzenia)"
+                  style={{ padding: '8px 10px', borderRadius: 8, border: '1px solid #ddd', minWidth: 280 }}
+                />
+                <select
+                  value={exhibitionFilter as any}
+                  onChange={(e) => { const val = e.target.value === 'all' ? 'all' : Number(e.target.value); setExhibitionFilter(val as any); setPage(0); }}
+                  style={{ padding: '8px 10px', borderRadius: 8, border: '1px solid #ddd' }}
+                >
+                  <option value="all">Wystawa: wszystkie</option>
+                  {exhibitionsList.map((ex) => (
+                    <option key={ex.id} value={ex.id}>{ex.name}</option>
+                  ))}
+                </select>
+              </Box>
+              <Box
+                className={styles._addExhibitorsContainer}
+                onClick={() => setIsAddExhibitorModalOpen(true)}
+              >
+                <UsersIcon className={styles._addExhibitorIcon} />
+                <CustomTypography className={styles._addExhibitorText}> + dodaj wystawcę </CustomTypography>    
+              </Box>
+            </Box>
           </Box>   
 
         {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
@@ -444,7 +490,7 @@ const ExhibitorsPage: React.FC = () => {
              className={styles._paginationStyle}
               rowsPerPageOptions={[5, 10, 25]}
               component="div"
-              count={exhibitors.length}
+              count={filteredAndSortedExhibitors.length}
               rowsPerPage={rowsPerPage}
               page={page}
               onPageChange={handleChangePage}
