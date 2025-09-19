@@ -1,0 +1,93 @@
+.cardWrapper {
+  position: relative;
+  width: 600px;
+  overflow-y: auto;
+  border-radius: 16px;
+}
+
+@media (max-width: 480px) {
+  .cardWrapper {
+    left: 20px;
+    width: 400px;
+  }
+}
+
+.card {
+  position: relative;
+  border-radius: 16px;
+  width: 345px;
+  padding: 20px;
+}
+
+.cardDark {
+  position: absolute;
+  z-index: 0;
+  top: 0;
+  background-color: #2b2b2d;
+  border-radius: 16px;
+  padding-left: 95px;
+  padding-top: 40px;
+  padding-bottom: 50px;
+  padding-right: 16px;
+}
+
+.cardContent {
+  position: relative;
+  z-index: 2;
+}
+
+.cardContentUp {
+  overflow-y: auto;
+}
+
+.cardContentDown {
+  overflow-y: auto;
+}
+
+.leftBackground {
+  position: absolute;
+  z-index: 2;
+  top: 0;
+  left: 0;
+  width: 50%;
+  bottom: 0;
+  background-color: white;
+  border-top-left-radius: 16px;
+  border-bottom-left-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-composite: subtract;
+  mask-composite: subtract;
+  mask-repeat: no-repeat;
+}
+
+.rightBackground {
+  position: absolute;
+  z-index: 2;
+  top: 0;
+  left: 50%;
+  width: 50%;
+  bottom: 0;
+  background-color: white;
+  border-top-right-radius: 16px;
+  border-bottom-right-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-composite: subtract;
+  mask-composite: subtract;
+  mask-repeat: no-repeat;
+}
+
+.dash {
+  position: absolute;
+  left: 4px;
+  right: 0;
+  width: 100%;
+  border: 1px solid;
+  border-image: repeating-linear-gradient(
+      90deg,
+      #6f87f6 0 10px,
+      transparent 5px 18px
+    )
+    1;
+}

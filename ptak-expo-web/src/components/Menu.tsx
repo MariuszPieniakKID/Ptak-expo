@@ -23,9 +23,9 @@ import ListAltIcon from "@mui/icons-material/ListAlt";
 import FingerprintIcon from "@mui/icons-material/Fingerprint";
 // import InfoIcon from "@mui/icons-material/Info";
 import IconMarketing from "../assets/group-842.png";
+import IconEmails from "../assets/emails-border.png";
 import IconDocuments from "../assets/documents.png";
 import IconBell from "../assets/bell.png";
-import MailOutlineIcon from "@mui/icons-material/MailOutline";
 
 export type MenuType = {
   className?: string;
@@ -93,7 +93,11 @@ const navItems: NavItem[] = [
   },
   {
     label: "Zaproszenia",
-    icon: <MailOutlineIcon />,
+    customIcon: (
+      <div className={styles.customIconMenuImage}>
+        <img src={IconEmails} alt="ikona zaproszenia" width={26} height={19} />
+      </div>
+    ),
     key: "invitations",
     getUrl: (id) => `/event/${id}/invitations`,
   },
@@ -101,7 +105,12 @@ const navItems: NavItem[] = [
     label: "Informacje targowe",
     customIcon: (
       <div className={styles.customIconMenuImage}>
-        <img src={IconBell} alt="ikona informacje targowe" width="auto" height={22} />
+        <img
+          src={IconBell}
+          alt="ikona informacje targowe"
+          width="auto"
+          height={22}
+        />
       </div>
     ),
     key: "info",
