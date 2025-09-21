@@ -4,19 +4,22 @@ import { useAuth } from '../../contexts/AuthContext';
 import Menu from '../../components/menu/Menu';
 import CustomTypography from '../../components/customTypography/CustomTypography';
 import CustomButton from '../../components/customButton/CustomButton';
-import { Box, Container, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Avatar, CircularProgress, Alert, Breadcrumbs, Link, TablePagination } from '@mui/material';
+import { Box, Container, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Avatar, CircularProgress, Alert, Breadcrumbs, Link, TablePagination, Dialog, DialogTitle, DialogContent, DialogActions, TextField, IconButton } from '@mui/material';
 import { useMediaQuery } from '@mui/material';
 
 import { ReactComponent as LogoutIcon } from '../../assets/log-out.svg';
 import { ReactComponent as BackIcon } from '../../assets/back.svg';
 import { ReactComponent as ArrowUp } from '../../assets/arrowUpIcon.svg';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
+import AddIcon from '@mui/icons-material/Add';
 
 import DatabaseIconPng from '../../assets/databaseIcon.png';
 import UserAvatar from '../../assets/7bb764a0137abc7a8142b6438e529133@2x.png';
 import Applause from '../../assets/applause.png';
 
 import styles from '../usersPage/UsersPage.module.scss';
-import { ExhibitorPerson, fetchExhibitorPeople } from '../../services/api';
+import { ExhibitorPerson, fetchExhibitorPeople, catalogAPI, CatalogTag, CatalogIndustry, CatalogBrand } from '../../services/api';
 
 const DatabasePage: React.FC = () => {
   const [people, setPeople] = useState<ExhibitorPerson[]>([]);
@@ -28,6 +31,21 @@ const DatabasePage: React.FC = () => {
   const navigate = useNavigate();
   const { token, user, logout } = useAuth();
   const isLargeScreen = useMediaQuery('(min-width:600px)');
+
+  // dictionaries state
+  const [openTags, setOpenTags] = useState(false);
+  const [openIndustries, setOpenIndustries] = useState(false);
+  const [openBrands, setOpenBrands] = useState(false);
+  const [tags, setTags] = useState<CatalogTag[]>([]);
+  const [industries, setIndustries] = useState<CatalogIndustry[]>([]);
+  const [brands, setBrands] = useState<CatalogBrand[]>([]);
+  const [newTag, setNewTag] = useState('');
+  const [newIndustry, setNewIndustry] = useState('');
+  const [newBrand, setNewBrand] = useState('');
+  const [editingTag, setEditingTag] = useState<{ old: string; next: string } | null>(null);
+  const [editingIndustry, setEditingIndustry] = useState<{ old: string; next: string } | null>(null);
+  const [editingBrand, setEditingBrand] = useState<{ old: string; next: string } | null>(null);
+  const isAdmin = (user as any)?.role === 'admin';
 
   const loadPeople = useCallback(async (): Promise<void> => {
     if (!token) {
@@ -87,6 +105,127 @@ const DatabasePage: React.FC = () => {
     setPage(0);
   }, []);
 
+  // load dictionaries when opening
+  const openTagsModal = useCallback(async () => {
+    if (!token) return;
+    try {
+      const list = await catalogAPI.listTags(token);
+      setTags(list);
+      setNewTag('');
+      setEditingTag(null);
+      setOpenTags(true);
+    } catch (e) {
+      console.error(e);
+    }
+  }, [token]);
+
+  const openIndustriesModal = useCallback(async () => {
+    if (!token) return;
+    try {
+      const list = await catalogAPI.listIndustries(token);
+      setIndustries(list);
+      setNewIndustry('');
+      setEditingIndustry(null);
+      setOpenIndustries(true);
+    } catch (e) {
+      console.error(e);
+    }
+  }, [token]);
+
+  const openBrandsModal = useCallback(async () => {
+    if (!token) return;
+    try {
+      const list = await catalogAPI.listBrands(token);
+      setBrands(list);
+      setNewBrand('');
+      setEditingBrand(null);
+      setOpenBrands(true);
+    } catch (e) {
+      console.error(e);
+    }
+  }, [token]);
+
+  const addTag = async () => {
+    if (!token) return;
+    const v = newTag.trim();
+    if (!v) return;
+    await catalogAPI.addTag(token, v);
+    setTags(prev => {
+      const exists = prev.some(t => t.tag.toLowerCase() === v.toLowerCase());
+      return exists ? prev : [...prev, { tag: v, usage_count: 1 }].sort((a, b) => a.tag.localeCompare(b.tag));
+    });
+    setNewTag('');
+  };
+
+  const saveTagRename = async () => {
+    if (!token || !editingTag) return;
+    const next = editingTag.next.trim();
+    if (!next || next === editingTag.old) { setEditingTag(null); return; }
+    await catalogAPI.renameTag(token, editingTag.old, next);
+    setTags(prev => prev.map(t => t.tag === editingTag.old ? { ...t, tag: next } : t).sort((a, b) => a.tag.localeCompare(b.tag)));
+    setEditingTag(null);
+  };
+
+  const deleteTag = async (tag: string) => {
+    if (!token) return;
+    await catalogAPI.deleteTag(token, tag);
+    setTags(prev => prev.filter(t => t.tag !== tag));
+  };
+
+  const addIndustry = async () => {
+    if (!token) return;
+    const v = newIndustry.trim();
+    if (!v) return;
+    await catalogAPI.addIndustry(token, v);
+    setIndustries(prev => {
+      const exists = prev.some(t => t.industry.toLowerCase() === v.toLowerCase());
+      return exists ? prev : [...prev, { industry: v, usage_count: 1 }].sort((a, b) => a.industry.localeCompare(b.industry));
+    });
+    setNewIndustry('');
+  };
+
+  const saveIndustryRename = async () => {
+    if (!token || !editingIndustry) return;
+    const next = editingIndustry.next.trim();
+    if (!next || next === editingIndustry.old) { setEditingIndustry(null); return; }
+    await catalogAPI.renameIndustry(token, editingIndustry.old, next);
+    setIndustries(prev => prev.map(t => t.industry === editingIndustry.old ? { ...t, industry: next } : t).sort((a, b) => a.industry.localeCompare(b.industry)));
+    setEditingIndustry(null);
+  };
+
+  const deleteIndustry = async (industry: string) => {
+    if (!token) return;
+    await catalogAPI.deleteIndustry(token, industry);
+    setIndustries(prev => prev.filter(t => t.industry !== industry));
+  };
+
+  const addBrand = async () => {
+    if (!token) return;
+    const v = newBrand.trim();
+    if (!v) return;
+    await catalogAPI.addBrand(token, v);
+    setBrands(prev => {
+      const exists = prev.some(t => t.brand.toLowerCase() === v.toLowerCase());
+      return exists ? prev : [...prev, { brand: v, usage_count: 1 }].sort((a, b) => a.brand.localeCompare(b.brand));
+    });
+    setNewBrand('');
+  };
+
+  const saveBrandRename = async () => {
+    if (!token || !editingBrand) return;
+    const next = editingBrand.next.trim();
+    if (!next || next === editingBrand.old) { setEditingBrand(null); return; }
+    await catalogAPI.renameBrand(token, editingBrand.old, next);
+    setBrands(prev => prev.map(t => t.brand === editingBrand.old ? { ...t, brand: next } : t).sort((a, b) => a.brand.localeCompare(b.brand)));
+    setEditingBrand(null);
+  };
+
+  const deleteBrand = async (brand: string) => {
+    if (!token) return;
+    await catalogAPI.deleteBrand(token, brand);
+    setBrands(prev => prev.filter(t => t.brand !== brand));
+  };
+
   return (
     <>
       <Box className={styles.usersPage}>
@@ -140,6 +279,40 @@ const DatabasePage: React.FC = () => {
                     <CustomTypography className={styles.linkEnd}>Baza danych</CustomTypography>
                   </Breadcrumbs>
                 </Box>
+                {isAdmin && (
+                  <Box sx={{ marginLeft: 'auto', display: 'flex', gap: 1, alignItems: 'center' }}>
+                    <CustomButton
+                      bgColor="#6F87F6"
+                      textColor="#fff"
+                      height="28px"
+                      width="auto"
+                      fontSize="0.75rem"
+                      onClick={openTagsModal}
+                    >
+                      Tagi
+                    </CustomButton>
+                    <CustomButton
+                      bgColor="#6F87F6"
+                      textColor="#fff"
+                      height="28px"
+                      width="auto"
+                      fontSize="0.75rem"
+                      onClick={openIndustriesModal}
+                    >
+                      Branże
+                    </CustomButton>
+                    <CustomButton
+                      bgColor="#6F87F6"
+                      textColor="#fff"
+                      height="28px"
+                      width="auto"
+                      fontSize="0.75rem"
+                      onClick={openBrandsModal}
+                    >
+                      Marki
+                    </CustomButton>
+                  </Box>
+                )}
               </Box>
             </Box>
 
@@ -268,10 +441,329 @@ const DatabasePage: React.FC = () => {
         </Box>
       </Box>
 
+      {/* Gradient background */}
       <Box className={styles.filtr}>
         <Box className={styles.filtrGray} />
         <Box className={styles.filtrBlue} />
       </Box>
+
+      {/* Tags modal */}
+      <Dialog open={openTags} onClose={() => setOpenTags(false)} maxWidth="sm" fullWidth>
+        <DialogTitle>Zarządzaj tagami</DialogTitle>
+        <DialogContent>
+          <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', mb: 2, mt: 1 }}>
+            <TextField
+              label="Nowy tag"
+              value={newTag}
+              onChange={e => setNewTag(e.target.value)}
+              size="small"
+            />
+            <CustomButton
+              bgColor="#6F87F6"
+              textColor="#fff"
+              height="32px"
+              width="auto"
+              fontSize="0.8rem"
+              onClick={addTag}
+              icon={<AddIcon sx={{ color: '#fff', fontSize: 18 }} />}
+              iconPosition="left"
+            >
+              Dodaj
+            </CustomButton>
+          </Box>
+          <Table size="small">
+            <TableHead>
+              <TableRow>
+                <TableCell>Nazwa</TableCell>
+                <TableCell align="right">Użycia</TableCell>
+                <TableCell align="right">Akcje</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {tags.sort((a, b) => a.tag.localeCompare(b.tag)).map(row => (
+                <TableRow key={row.tag}>
+                  <TableCell>
+                    {editingTag && editingTag.old === row.tag ? (
+                      <TextField
+                        value={editingTag.next}
+                        onChange={e => setEditingTag({ old: editingTag.old, next: e.target.value })}
+                        size="small"
+                      />
+                    ) : (
+                      row.tag
+                    )}
+                  </TableCell>
+                  <TableCell align="right">{row.usage_count}</TableCell>
+                  <TableCell align="right">
+                    {editingTag && editingTag.old === row.tag ? (
+                      <>
+                        <CustomButton
+                          bgColor="#6F87F6"
+                          textColor="#fff"
+                          height="28px"
+                          width="auto"
+                          fontSize="0.75rem"
+                          onClick={saveTagRename}
+                        >
+                          Zapisz
+                        </CustomButton>
+                        <CustomButton
+                          bgColor="#e9ecef"
+                          textColor="#2e2e38"
+                          height="28px"
+                          width="auto"
+                          fontSize="0.75rem"
+                          onClick={() => setEditingTag(null)}
+                        >
+                          Anuluj
+                        </CustomButton>
+                      </>
+                    ) : (
+                      <>
+                        <IconButton size="small" onClick={() => setEditingTag({ old: row.tag, next: row.tag })}>
+                          <EditIcon fontSize="small" />
+                        </IconButton>
+                        <IconButton size="small" onClick={() => deleteTag(row.tag)}>
+                          <DeleteIcon fontSize="small" />
+                        </IconButton>
+                      </>
+                    )}
+                  </TableCell>
+                </TableRow>
+              ))}
+              {tags.length === 0 && (
+                <TableRow>
+                  <TableCell colSpan={3}>Brak tagów</TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </DialogContent>
+        <DialogActions>
+          <CustomButton
+            bgColor="#e9ecef"
+            textColor="#2e2e38"
+            height="32px"
+            width="auto"
+            fontSize="0.8rem"
+            onClick={() => setOpenTags(false)}
+          >
+            Zamknij
+          </CustomButton>
+        </DialogActions>
+      </Dialog>
+
+      {/* Industries modal */}
+      <Dialog open={openIndustries} onClose={() => setOpenIndustries(false)} maxWidth="sm" fullWidth>
+        <DialogTitle>Zarządzaj branżami</DialogTitle>
+        <DialogContent>
+          <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', mb: 2, mt: 1 }}>
+            <TextField
+              label="Nowa branża"
+              value={newIndustry}
+              onChange={e => setNewIndustry(e.target.value)}
+              size="small"
+            />
+            <CustomButton
+              bgColor="#6F87F6"
+              textColor="#fff"
+              height="32px"
+              width="auto"
+              fontSize="0.8rem"
+              onClick={addIndustry}
+              icon={<AddIcon sx={{ color: '#fff', fontSize: 18 }} />}
+              iconPosition="left"
+            >
+              Dodaj
+            </CustomButton>
+          </Box>
+          <Table size="small">
+            <TableHead>
+              <TableRow>
+                <TableCell>Nazwa</TableCell>
+                <TableCell align="right">Użycia</TableCell>
+                <TableCell align="right">Akcje</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {industries.sort((a, b) => a.industry.localeCompare(b.industry)).map(row => (
+                <TableRow key={row.industry}>
+                  <TableCell>
+                    {editingIndustry && editingIndustry.old === row.industry ? (
+                      <TextField
+                        value={editingIndustry.next}
+                        onChange={e => setEditingIndustry({ old: editingIndustry.old, next: e.target.value })}
+                        size="small"
+                      />
+                    ) : (
+                      row.industry
+                    )}
+                  </TableCell>
+                  <TableCell align="right">{row.usage_count}</TableCell>
+                  <TableCell align="right">
+                    {editingIndustry && editingIndustry.old === row.industry ? (
+                      <>
+                        <CustomButton
+                          bgColor="#6F87F6"
+                          textColor="#fff"
+                          height="28px"
+                          width="auto"
+                          fontSize="0.75rem"
+                          onClick={saveIndustryRename}
+                        >
+                          Zapisz
+                        </CustomButton>
+                        <CustomButton
+                          bgColor="#e9ecef"
+                          textColor="#2e2e38"
+                          height="28px"
+                          width="auto"
+                          fontSize="0.75rem"
+                          onClick={() => setEditingIndustry(null)}
+                        >
+                          Anuluj
+                        </CustomButton>
+                      </>
+                    ) : (
+                      <>
+                        <IconButton size="small" onClick={() => setEditingIndustry({ old: row.industry, next: row.industry })}>
+                          <EditIcon fontSize="small" />
+                        </IconButton>
+                        <IconButton size="small" onClick={() => deleteIndustry(row.industry)}>
+                          <DeleteIcon fontSize="small" />
+                        </IconButton>
+                      </>
+                    )}
+                  </TableCell>
+                </TableRow>
+              ))}
+              {industries.length === 0 && (
+                <TableRow>
+                  <TableCell colSpan={3}>Brak branż</TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </DialogContent>
+        <DialogActions>
+          <CustomButton
+            bgColor="#e9ecef"
+            textColor="#2e2e38"
+            height="32px"
+            width="auto"
+            fontSize="0.8rem"
+            onClick={() => setOpenIndustries(false)}
+          >
+            Zamknij
+          </CustomButton>
+        </DialogActions>
+      </Dialog>
+
+      {/* Brands modal */}
+      <Dialog open={openBrands} onClose={() => setOpenBrands(false)} maxWidth="sm" fullWidth>
+        <DialogTitle>Zarządzaj markami</DialogTitle>
+        <DialogContent>
+          <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', mb: 2, mt: 1 }}>
+            <TextField
+              label="Nowa marka"
+              value={newBrand}
+              onChange={e => setNewBrand(e.target.value)}
+              size="small"
+            />
+            <CustomButton
+              bgColor="#6F87F6"
+              textColor="#fff"
+              height="32px"
+              width="auto"
+              fontSize="0.8rem"
+              onClick={addBrand}
+              icon={<AddIcon sx={{ color: '#fff', fontSize: 18 }} />}
+              iconPosition="left"
+            >
+              Dodaj
+            </CustomButton>
+          </Box>
+          <Table size="small">
+            <TableHead>
+              <TableRow>
+                <TableCell>Nazwa</TableCell>
+                <TableCell align="right">Użycia</TableCell>
+                <TableCell align="right">Akcje</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {brands.sort((a, b) => a.brand.localeCompare(b.brand)).map(row => (
+                <TableRow key={row.brand}>
+                  <TableCell>
+                    {editingBrand && editingBrand.old === row.brand ? (
+                      <TextField
+                        value={editingBrand.next}
+                        onChange={e => setEditingBrand({ old: editingBrand.old, next: e.target.value })}
+                        size="small"
+                      />
+                    ) : (
+                      row.brand
+                    )}
+                  </TableCell>
+                  <TableCell align="right">{row.usage_count}</TableCell>
+                  <TableCell align="right">
+                    {editingBrand && editingBrand.old === row.brand ? (
+                      <>
+                        <CustomButton
+                          bgColor="#6F87F6"
+                          textColor="#fff"
+                          height="28px"
+                          width="auto"
+                          fontSize="0.75rem"
+                          onClick={saveBrandRename}
+                        >
+                          Zapisz
+                        </CustomButton>
+                        <CustomButton
+                          bgColor="#e9ecef"
+                          textColor="#2e2e38"
+                          height="28px"
+                          width="auto"
+                          fontSize="0.75rem"
+                          onClick={() => setEditingBrand(null)}
+                        >
+                          Anuluj
+                        </CustomButton>
+                      </>
+                    ) : (
+                      <>
+                        <IconButton size="small" onClick={() => setEditingBrand({ old: row.brand, next: row.brand })}>
+                          <EditIcon fontSize="small" />
+                        </IconButton>
+                        <IconButton size="small" onClick={() => deleteBrand(row.brand)}>
+                          <DeleteIcon fontSize="small" />
+                        </IconButton>
+                      </>
+                    )}
+                  </TableCell>
+                </TableRow>
+              ))}
+              {brands.length === 0 && (
+                <TableRow>
+                  <TableCell colSpan={3}>Brak marek</TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </DialogContent>
+        <DialogActions>
+          <CustomButton
+            bgColor="#e9ecef"
+            textColor="#2e2e38"
+            height="32px"
+            width="auto"
+            fontSize="0.8rem"
+            onClick={() => setOpenBrands(false)}
+          >
+            Zamknij
+          </CustomButton>
+        </DialogActions>
+      </Dialog>
     </>
   );
 };

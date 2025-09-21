@@ -13,15 +13,17 @@ const getLinkedExhibitorIdByEmail = async (email) => {
 router.get('/tags', verifyToken, requireExhibitorOrAdmin, async (req, res) => {
   try {
     const q = String(req.query.query || '').trim().toLowerCase();
+    const limit = Math.min(2000, Math.max(1, parseInt(String(req.query.limit || '50'), 10) || 50));
     let result;
     if (q) {
       result = await db.query(
-        `SELECT tag, usage_count FROM catalog_tags WHERE LOWER(tag) LIKE $1 ORDER BY usage_count DESC, tag ASC LIMIT 50`,
-        [q + '%']
+        `SELECT tag, usage_count FROM catalog_tags WHERE LOWER(tag) LIKE $1 ORDER BY usage_count DESC, tag ASC LIMIT $2`,
+        [q + '%', limit]
       );
     } else {
       result = await db.query(
-        `SELECT tag, usage_count FROM catalog_tags ORDER BY usage_count DESC, tag ASC LIMIT 50`
+        `SELECT tag, usage_count FROM catalog_tags ORDER BY usage_count DESC, tag ASC LIMIT $1`,
+        [limit]
       );
     }
     return res.json({ success: true, data: result.rows });
@@ -51,19 +53,62 @@ router.post('/tags', verifyToken, requireExhibitorOrAdmin, async (req, res) => {
   }
 });
 
+// Admin: add single tag
+router.post('/tags/add', verifyToken, requireAdmin, async (req, res) => {
+  try {
+    const raw = String((req.body?.tag ?? '')).trim();
+    if (!raw) return res.status(400).json({ success: false, message: 'Missing tag' });
+    await db.query(`INSERT INTO catalog_tags(tag, usage_count) VALUES($1, 1)
+                    ON CONFLICT (tag) DO UPDATE SET updated_at = NOW()`, [raw]);
+    return res.json({ success: true });
+  } catch (e) {
+    console.error('Error adding catalog tag:', e);
+    return res.status(500).json({ success: false, message: 'Failed to add tag' });
+  }
+});
+
+// Admin: rename tag
+router.put('/tags', verifyToken, requireAdmin, async (req, res) => {
+  try {
+    const oldTag = String((req.body?.oldTag ?? '')).trim();
+    const newTag = String((req.body?.newTag ?? '')).trim();
+    if (!oldTag || !newTag) return res.status(400).json({ success: false, message: 'Missing oldTag or newTag' });
+    await db.query(`UPDATE catalog_tags SET tag = $2, updated_at = NOW() WHERE tag = $1`, [oldTag, newTag]);
+    return res.json({ success: true });
+  } catch (e) {
+    console.error('Error renaming catalog tag:', e);
+    return res.status(500).json({ success: false, message: 'Failed to rename tag' });
+  }
+});
+
+// Admin: delete tag
+router.delete('/tags', verifyToken, requireAdmin, async (req, res) => {
+  try {
+    const tag = String((req.query?.tag ?? req.body?.tag ?? '')).trim();
+    if (!tag) return res.status(400).json({ success: false, message: 'Missing tag' });
+    await db.query(`DELETE FROM catalog_tags WHERE tag = $1`, [tag]);
+    return res.json({ success: true });
+  } catch (e) {
+    console.error('Error deleting catalog tag:', e);
+    return res.status(500).json({ success: false, message: 'Failed to delete tag' });
+  }
+});
+
 // Suggest brands (optionally filtered by prefix)
 router.get('/brands', verifyToken, requireExhibitorOrAdmin, async (req, res) => {
   try {
     const q = String(req.query.query || '').trim().toLowerCase();
+    const limit = Math.min(2000, Math.max(1, parseInt(String(req.query.limit || '50'), 10) || 50));
     let result;
     if (q) {
       result = await db.query(
-        `SELECT brand, usage_count FROM catalog_brands WHERE LOWER(brand) LIKE $1 ORDER BY usage_count DESC, brand ASC LIMIT 50`,
-        [q + '%']
+        `SELECT brand, usage_count FROM catalog_brands WHERE LOWER(brand) LIKE $1 ORDER BY usage_count DESC, brand ASC LIMIT $2`,
+        [q + '%', limit]
       );
     } else {
       result = await db.query(
-        `SELECT brand, usage_count FROM catalog_brands ORDER BY usage_count DESC, brand ASC LIMIT 50`
+        `SELECT brand, usage_count FROM catalog_brands ORDER BY usage_count DESC, brand ASC LIMIT $1`,
+        [limit]
       );
     }
     return res.json({ success: true, data: result.rows });
@@ -93,19 +138,62 @@ router.post('/brands', verifyToken, requireExhibitorOrAdmin, async (req, res) =>
   }
 });
 
+// Admin: add single brand
+router.post('/brands/add', verifyToken, requireAdmin, async (req, res) => {
+  try {
+    const raw = String((req.body?.brand ?? '')).trim();
+    if (!raw) return res.status(400).json({ success: false, message: 'Missing brand' });
+    await db.query(`INSERT INTO catalog_brands(brand, usage_count) VALUES($1, 1)
+                    ON CONFLICT (brand) DO UPDATE SET updated_at = NOW()`, [raw]);
+    return res.json({ success: true });
+  } catch (e) {
+    console.error('Error adding catalog brand:', e);
+    return res.status(500).json({ success: false, message: 'Failed to add brand' });
+  }
+});
+
+// Admin: rename brand
+router.put('/brands', verifyToken, requireAdmin, async (req, res) => {
+  try {
+    const oldBrand = String((req.body?.oldBrand ?? '')).trim();
+    const newBrand = String((req.body?.newBrand ?? '')).trim();
+    if (!oldBrand || !newBrand) return res.status(400).json({ success: false, message: 'Missing oldBrand or newBrand' });
+    await db.query(`UPDATE catalog_brands SET brand = $2, updated_at = NOW() WHERE brand = $1`, [oldBrand, newBrand]);
+    return res.json({ success: true });
+  } catch (e) {
+    console.error('Error renaming catalog brand:', e);
+    return res.status(500).json({ success: false, message: 'Failed to rename brand' });
+  }
+});
+
+// Admin: delete brand
+router.delete('/brands', verifyToken, requireAdmin, async (req, res) => {
+  try {
+    const brand = String((req.query?.brand ?? req.body?.brand ?? '')).trim();
+    if (!brand) return res.status(400).json({ success: false, message: 'Missing brand' });
+    await db.query(`DELETE FROM catalog_brands WHERE brand = $1`, [brand]);
+    return res.json({ success: true });
+  } catch (e) {
+    console.error('Error deleting catalog brand:', e);
+    return res.status(500).json({ success: false, message: 'Failed to delete brand' });
+  }
+});
+
 // Suggest industries (optionally filtered by prefix)
 router.get('/industries', verifyToken, requireExhibitorOrAdmin, async (req, res) => {
   try {
     const q = String(req.query.query || '').trim().toLowerCase();
+    const limit = Math.min(2000, Math.max(1, parseInt(String(req.query.limit || '50'), 10) || 50));
     let result;
     if (q) {
       result = await db.query(
-        `SELECT industry, usage_count FROM catalog_industries WHERE LOWER(industry) LIKE $1 ORDER BY usage_count DESC, industry ASC LIMIT 50`,
-        [q + '%']
+        `SELECT industry, usage_count FROM catalog_industries WHERE LOWER(industry) LIKE $1 ORDER BY usage_count DESC, industry ASC LIMIT $2`,
+        [q + '%', limit]
       );
     } else {
       result = await db.query(
-        `SELECT industry, usage_count FROM catalog_industries ORDER BY usage_count DESC, industry ASC LIMIT 50`
+        `SELECT industry, usage_count FROM catalog_industries ORDER BY usage_count DESC, industry ASC LIMIT $1`,
+        [limit]
       );
     }
     return res.json({ success: true, data: result.rows });
@@ -132,6 +220,47 @@ router.post('/industries', verifyToken, requireExhibitorOrAdmin, async (req, res
   } catch (e) {
     console.error('Error upserting catalog industries:', e);
     return res.status(500).json({ success: false, message: 'Failed to upsert industries' });
+  }
+});
+
+// Admin: add single industry
+router.post('/industries/add', verifyToken, requireAdmin, async (req, res) => {
+  try {
+    const raw = String((req.body?.industry ?? '')).trim();
+    if (!raw) return res.status(400).json({ success: false, message: 'Missing industry' });
+    await db.query(`INSERT INTO catalog_industries(industry, usage_count) VALUES($1, 1)
+                    ON CONFLICT (industry) DO UPDATE SET updated_at = NOW()`, [raw]);
+    return res.json({ success: true });
+  } catch (e) {
+    console.error('Error adding catalog industry:', e);
+    return res.status(500).json({ success: false, message: 'Failed to add industry' });
+  }
+});
+
+// Admin: rename industry
+router.put('/industries', verifyToken, requireAdmin, async (req, res) => {
+  try {
+    const oldValue = String((req.body?.oldIndustry ?? '')).trim();
+    const newValue = String((req.body?.newIndustry ?? '')).trim();
+    if (!oldValue || !newValue) return res.status(400).json({ success: false, message: 'Missing oldIndustry or newIndustry' });
+    await db.query(`UPDATE catalog_industries SET industry = $2, updated_at = NOW() WHERE industry = $1`, [oldValue, newValue]);
+    return res.json({ success: true });
+  } catch (e) {
+    console.error('Error renaming catalog industry:', e);
+    return res.status(500).json({ success: false, message: 'Failed to rename industry' });
+  }
+});
+
+// Admin: delete industry
+router.delete('/industries', verifyToken, requireAdmin, async (req, res) => {
+  try {
+    const value = String((req.query?.industry ?? req.body?.industry ?? '')).trim();
+    if (!value) return res.status(400).json({ success: false, message: 'Missing industry' });
+    await db.query(`DELETE FROM catalog_industries WHERE industry = $1`, [value]);
+    return res.json({ success: true });
+  } catch (e) {
+    console.error('Error deleting catalog industry:', e);
+    return res.status(500).json({ success: false, message: 'Failed to delete industry' });
   }
 });
 

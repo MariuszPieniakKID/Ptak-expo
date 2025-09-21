@@ -470,6 +470,115 @@ export const publicAPI = {
   rssUrl: (): string => `${config.API_BASE_URL}/public/rss`,
 };
 
+// ===== Catalog dictionaries (tags/industries/brands) =====
+export interface CatalogTag { tag: string; usage_count: number }
+export interface CatalogIndustry { industry: string; usage_count: number }
+export interface CatalogBrand { brand: string; usage_count: number }
+
+export const catalogAPI = {
+  // Tags
+  listTags: async (token: string, query?: string): Promise<CatalogTag[]> => {
+    const qs: string[] = [];
+    if (query && query.trim()) qs.push(`query=${encodeURIComponent(query.trim())}`);
+    qs.push('limit=2000');
+    const url = `${config.API_BASE_URL}/api/v1/catalog/tags${qs.length ? `?${qs.join('&')}` : ''}`;
+    const res = await apiCall(url, { headers: { Authorization: `Bearer ${token}` } });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data?.message || 'Nie udało się pobrać tagów');
+    return Array.isArray(data.data) ? data.data : [];
+  },
+  addTag: async (token: string, tag: string): Promise<void> => {
+    const res = await apiCall(`${config.API_BASE_URL}/api/v1/catalog/tags/add`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ tag }),
+    });
+    if (!res.ok) { const d = await res.json(); throw new Error(d?.message || 'Nie udało się dodać tagu'); }
+  },
+  renameTag: async (token: string, oldTag: string, newTag: string): Promise<void> => {
+    const res = await apiCall(`${config.API_BASE_URL}/api/v1/catalog/tags`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ oldTag, newTag }),
+    });
+    if (!res.ok) { const d = await res.json(); throw new Error(d?.message || 'Nie udało się zmienić tagu'); }
+  },
+  deleteTag: async (token: string, tag: string): Promise<void> => {
+    const res = await apiCall(`${config.API_BASE_URL}/api/v1/catalog/tags?tag=${encodeURIComponent(tag)}`, {
+      method: 'DELETE', headers: { Authorization: `Bearer ${token}` }
+    });
+    if (!res.ok) { const d = await res.json(); throw new Error(d?.message || 'Nie udało się usunąć tagu'); }
+  },
+
+  // Industries
+  listIndustries: async (token: string, query?: string): Promise<CatalogIndustry[]> => {
+    const qs: string[] = [];
+    if (query && query.trim()) qs.push(`query=${encodeURIComponent(query.trim())}`);
+    qs.push('limit=2000');
+    const url = `${config.API_BASE_URL}/api/v1/catalog/industries${qs.length ? `?${qs.join('&')}` : ''}`;
+    const res = await apiCall(url, { headers: { Authorization: `Bearer ${token}` } });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data?.message || 'Nie udało się pobrać branż');
+    return Array.isArray(data.data) ? data.data : [];
+  },
+  addIndustry: async (token: string, industry: string): Promise<void> => {
+    const res = await apiCall(`${config.API_BASE_URL}/api/v1/catalog/industries/add`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ industry }),
+    });
+    if (!res.ok) { const d = await res.json(); throw new Error(d?.message || 'Nie udało się dodać branży'); }
+  },
+  renameIndustry: async (token: string, oldIndustry: string, newIndustry: string): Promise<void> => {
+    const res = await apiCall(`${config.API_BASE_URL}/api/v1/catalog/industries`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ oldIndustry, newIndustry }),
+    });
+    if (!res.ok) { const d = await res.json(); throw new Error(d?.message || 'Nie udało się zmienić branży'); }
+  },
+  deleteIndustry: async (token: string, industry: string): Promise<void> => {
+    const res = await apiCall(`${config.API_BASE_URL}/api/v1/catalog/industries?industry=${encodeURIComponent(industry)}`, {
+      method: 'DELETE', headers: { Authorization: `Bearer ${token}` }
+    });
+    if (!res.ok) { const d = await res.json(); throw new Error(d?.message || 'Nie udało się usunąć branży'); }
+  },
+
+  // Brands
+  listBrands: async (token: string, query?: string): Promise<CatalogBrand[]> => {
+    const qs: string[] = [];
+    if (query && query.trim()) qs.push(`query=${encodeURIComponent(query.trim())}`);
+    qs.push('limit=2000');
+    const url = `${config.API_BASE_URL}/api/v1/catalog/brands${qs.length ? `?${qs.join('&')}` : ''}`;
+    const res = await apiCall(url, { headers: { Authorization: `Bearer ${token}` } });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data?.message || 'Nie udało się pobrać marek');
+    return Array.isArray(data.data) ? data.data : [];
+  },
+  addBrand: async (token: string, brand: string): Promise<void> => {
+    const res = await apiCall(`${config.API_BASE_URL}/api/v1/catalog/brands/add`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ brand }),
+    });
+    if (!res.ok) { const d = await res.json(); throw new Error(d?.message || 'Nie udało się dodać marki'); }
+  },
+  renameBrand: async (token: string, oldBrand: string, newBrand: string): Promise<void> => {
+    const res = await apiCall(`${config.API_BASE_URL}/api/v1/catalog/brands`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ oldBrand, newBrand }),
+    });
+    if (!res.ok) { const d = await res.json(); throw new Error(d?.message || 'Nie udało się zmienić marki'); }
+  },
+  deleteBrand: async (token: string, brand: string): Promise<void> => {
+    const res = await apiCall(`${config.API_BASE_URL}/api/v1/catalog/brands?brand=${encodeURIComponent(brand)}`, {
+      method: 'DELETE', headers: { Authorization: `Bearer ${token}` }
+    });
+    if (!res.ok) { const d = await res.json(); throw new Error(d?.message || 'Nie udało się usunąć marki'); }
+  },
+};
+
 export interface AddExhibitionPayload {
   name: string;
   description?: string;
