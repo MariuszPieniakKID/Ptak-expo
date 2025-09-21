@@ -55,7 +55,7 @@ function TradeFairEvents({
       console.error('[TradeFairEvents] fetch error', _e);
       // ignore for now; child content handles errors in its own flow
     }
-  }, [event.id, token]);
+  }, [event.id, token, agendaEventIds.size]);
 
   useEffect(() => {
     console.log('[TradeFairEvents] useEffect loadTradeEvents');
