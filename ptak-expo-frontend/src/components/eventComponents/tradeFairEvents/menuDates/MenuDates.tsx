@@ -1,17 +1,16 @@
 import Tabs, { tabsClasses } from '@mui/material/Tabs';
 import { Box, Tab } from '@mui/material';
 import { Exhibition } from '../../../../services/api';
-import { getDaysBetweenDates } from '../../../../helpers/function';
 import CircleDate from '../circleDate/CircleDate';
 
 type MenuDatesProps = {
   event: Exhibition;
   value: number;
   handleChange: (_event: React.SyntheticEvent, newValue: number) => void;
+  days: string[];
 };
 
-function MenuDates({ event, value, handleChange }: MenuDatesProps) {
-  const days = getDaysBetweenDates(event.start_date, event.end_date);
+function MenuDates({ event, value, handleChange, days }: MenuDatesProps) {
 
     function a11yProps(index: number) {
         return {
@@ -63,6 +62,13 @@ function MenuDates({ event, value, handleChange }: MenuDatesProps) {
             },
         }}
       >
+        <Tab
+          key="all"
+          disableRipple
+          label="Wszystkie"
+          aria-label="Wszystkie wydarzenia"
+          {...a11yProps(0)}
+        />
         {days.map((date, index) => (
           <Tab
             key={index}
@@ -72,12 +78,12 @@ function MenuDates({ event, value, handleChange }: MenuDatesProps) {
                 dayId={index}
                 date={date}
                 event={event}
-                isActive={index === value}
+                isActive={index + 1 === value}
               />
             }
             iconPosition="start"
             aria-label={date}
-            {...a11yProps(index)}
+            {...a11yProps(index + 1)}
           />
         ))}
       </Tabs>

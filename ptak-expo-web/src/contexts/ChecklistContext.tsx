@@ -1,6 +1,7 @@
 import { createContext, ReactNode, useContext, useEffect, useMemo, useState } from "react";
 import { addElectronicId, addEvent, addMaterial, addMaterialFile, addProduct, Checklist, CompanyInfo, DownloadMaterial, ElectrionicId, EventInfo, getChecklist, ProductInfo, updateCompanyInfo, updateProduct as apiUpdateProduct } from "../services/checkListApi";
 import { deleteProduct as apiDeleteProduct } from "../services/checkListApi";
+import { updateEvent as apiUpdateEvent, deleteEvent as apiDeleteEvent } from "../services/checkListApi";
 
 interface ChecklistContextType {
   checklist: Checklist;
@@ -8,6 +9,8 @@ interface ChecklistContextType {
 	addProduct: (pi: ProductInfo) => void;
 	removeProduct: (index: number) => void;
 	addEvent: (ei: EventInfo) => void;
+	updateEvent: (index: number, ei: EventInfo) => void;
+	removeEvent: (index: number) => void;
 	addMaterial: (dm: DownloadMaterial) => void;
 	uploadMaterialFile: (file: File) => void;
 	addElectronicId: (ei: ElectrionicId) => void;
@@ -86,7 +89,38 @@ export const ChecklistProvider = ({ children, eventId }: {children: ReactNode, e
 			});
 			apiUpdateProduct(index, pi).then(() => getChecklist(eventId)).then(setChecklist);
 		},
-		addEvent: (ci: EventInfo) => { addEvent(ci).then(() => getChecklist(eventId)).then(setChecklist);},
+		addEvent: (ei: EventInfo) => {
+			// Optimistic append so nie trzeba odświeżać strony
+			setChecklist(prev => ({ ...prev, events: [...prev.events, ei].sort((a, b) => (a.date + a.startTime).localeCompare(b.date + b.startTime)) }));
+			addEvent(ei).then(() => getChecklist(eventId)).then(setChecklist);
+		},
+		updateEvent: (index: number, ei: EventInfo) => {
+			setChecklist(prev => {
+				const next = [...prev.events];
+				if (index >= 0 && index < next.length) next[index] = ei;
+				return { ...prev, events: next.sort((a, b) => (a.date + a.startTime).localeCompare(b.date + b.startTime)) };
+			});
+			const id = (checklist.events[index] as any)?.id;
+			if (typeof id === 'number') {
+				apiUpdateEvent(id, ei).then(() => getChecklist(eventId)).then(setChecklist);
+			} else {
+				// fallback: full refresh
+				getChecklist(eventId).then(setChecklist);
+			}
+		},
+		removeEvent: (index: number) => {
+			const id = (checklist.events[index] as any)?.id;
+			setChecklist(prev => {
+				const next = [...prev.events];
+				if (index >= 0 && index < next.length) next.splice(index, 1);
+				return { ...prev, events: next };
+			});
+			if (typeof id === 'number') {
+				apiDeleteEvent(id).then(() => getChecklist(eventId)).then(setChecklist);
+			} else {
+				getChecklist(eventId).then(setChecklist);
+			}
+		},
 		addMaterial: (ci: DownloadMaterial) => { addMaterial(ci).then(() => getChecklist(eventId)).then(setChecklist);},
 		uploadMaterialFile: (file: File) => { addMaterialFile(file, eventId).then(() => getChecklist(eventId)).then(setChecklist);},
 		addElectronicId: (ci: ElectrionicId) => { addElectronicId(ci).then(() => getChecklist(eventId)).then(setChecklist);},

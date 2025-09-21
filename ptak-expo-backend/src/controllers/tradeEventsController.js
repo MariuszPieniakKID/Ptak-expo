@@ -107,10 +107,23 @@ exports.remove = async (req, res) => {
     if (Number.isNaN(exhibitionId) || Number.isNaN(eventId)) {
       return res.status(400).json({ success: false, message: 'Invalid parameters' });
     }
-    const del = await db.query(
-      'DELETE FROM trade_events WHERE id = $1 AND exhibition_id = $2 RETURNING *',
-      [eventId, exhibitionId]
-    );
+    // If exhibitor user, enforce ownership
+    if (req.user?.role === 'exhibitor') {
+      const me = await db.query('SELECT id FROM exhibitors WHERE email = $1 LIMIT 1', [req.user.email]);
+      const myId = me.rows?.[0]?.id ?? null;
+      if (!myId) return res.status(403).json({ success: false, message: 'Brak uprawnień' });
+      const del = await db.query(
+        'DELETE FROM trade_events WHERE id = $1 AND exhibition_id = $2 AND exhibitor_id = $3 RETURNING *',
+        [eventId, exhibitionId, myId]
+      );
+      if (del.rowCount === 0) {
+        return res.status(404).json({ success: false, message: 'Nie znaleziono wydarzenia do usunięcia' });
+      }
+      console.log('✅ [trade-events] deleted (owner)', del.rows[0]);
+      return res.json({ success: true, message: 'Usunięto wydarzenie', data: del.rows[0] });
+    }
+    // Admin or other roles: delete without owner restriction
+    const del = await db.query('DELETE FROM trade_events WHERE id = $1 AND exhibition_id = $2 RETURNING *', [eventId, exhibitionId]);
     if (del.rowCount === 0) {
       return res.status(404).json({ success: false, message: 'Nie znaleziono wydarzenia do usunięcia' });
     }
@@ -123,7 +136,7 @@ exports.remove = async (req, res) => {
 };
 
 
-// Update trade event (admin only)
+// Update trade event (admin and exhibitor-owner)
 exports.update = async (req, res) => {
   const client = await db.pool.connect();
   try {
@@ -140,10 +153,20 @@ exports.update = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Brak wymaganych pól' });
     }
 
-    // Ensure event exists and belongs to exhibition
-    const existing = await db.query('SELECT id FROM trade_events WHERE id = $1 AND exhibition_id = $2', [eventId, exhibitionId]);
+    // Ensure event exists and belongs to exhibition; fetch exhibitor owner
+    const existing = await db.query('SELECT id, exhibitor_id FROM trade_events WHERE id = $1 AND exhibition_id = $2', [eventId, exhibitionId]);
     if (existing.rowCount === 0) {
       return res.status(404).json({ success: false, message: 'Nie znaleziono wydarzenia' });
+    }
+
+    // If exhibitor user, enforce ownership
+    if (req.user?.role === 'exhibitor') {
+      const me = await db.query('SELECT id FROM exhibitors WHERE email = $1 LIMIT 1', [req.user.email]);
+      const myId = me.rows?.[0]?.id ?? null;
+      const ownerId = existing.rows[0].exhibitor_id ?? null;
+      if (!myId || !ownerId || myId !== ownerId) {
+        return res.status(403).json({ success: false, message: 'Brak uprawnień do edycji tego wydarzenia' });
+      }
     }
 
     // Accept any eventDate without limiting to exhibition range

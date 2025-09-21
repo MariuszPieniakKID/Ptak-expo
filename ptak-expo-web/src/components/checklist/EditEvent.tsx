@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
-import { EventInfo, EventKind, EventType } from "../../services/checkListApi"
+import { EventInfo, EventKind, EventType, getEventKindString } from "../../services/checkListApi"
 import { Button, FormControl, Grid, InputLabel, MenuItem, Select, TextField } from "@mui/material";
 import { Alert } from "@mui/material";
 import { useChecklist } from "../../contexts/ChecklistContext";
-import { eventKinds, eventTypes, getEventKindString, getEventTypeString } from "../../shared/EventUtils";
+import { eventTypes, getEventTypeString } from "../../shared/EventUtils";
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
@@ -30,8 +30,9 @@ for(let i = 8; i <= 21; i++) {
 
 
 export default function EditEvent({eventNum, onClose} :{eventNum?: number, onClose: () => void}) {
-	const {checklist, addEvent} = useChecklist();
-	const event = checklist.events[eventNum || -1];
+    const {checklist, addEvent, updateEvent} = useChecklist();
+    const effectiveIndex = (typeof eventNum === 'number') ? eventNum : -1;
+    const event = checklist.events[effectiveIndex];
 	const [editedEvent, setEditedEvent] = useState<EventInfo>(emptyEvent);
 	const [saveError, setSaveError] = useState("");
 	const [saving, setSaving] = useState(false);
@@ -42,7 +43,15 @@ export default function EditEvent({eventNum, onClose} :{eventNum?: number, onClo
 		editedEvent.endTime && 
 		editedEvent.name &&
 		editedEvent.startTime < editedEvent.endTime;
-	useEffect(() => setEditedEvent(event || emptyEvent), [event]);
+    useEffect(() => setEditedEvent(event || emptyEvent), [event]);
+    const kindOptions: EventKind[] = [
+        EventKind.PRESENTATION,
+        EventKind.LIVE,
+        EventKind.WORKSHOP,
+        EventKind.EDUCATION,
+        EventKind.SETUP,
+        EventKind.TEARDOWN,
+    ];
 	return <Grid container spacing={2} component="form">
 		<Grid size={6}>
 			<TextField 
@@ -119,33 +128,36 @@ export default function EditEvent({eventNum, onClose} :{eventNum?: number, onClo
       </FormControl>
 		</Grid>
 		<Grid size={6}/>
-		<Grid size={6}>
+        <Grid size={6}>
 			<FormControl variant="standard" fullWidth>
         <InputLabel id="event-type-label">Określ rodzaj wydarzenia</InputLabel>
         <Select
           labelId="event-kind-label"
           id="event-kind-select"
-          value={eventKinds.indexOf(editedEvent.kind)}
-          onChange={e => setEditedEvent({...editedEvent, kind: eventKinds[+e.target.value]})}
+          value={kindOptions.indexOf(editedEvent.kind)}
+          onChange={e => setEditedEvent({...editedEvent, kind: kindOptions[+e.target.value]})}
           label="Określ typ wydarzenia"
         >
-					{eventKinds.map((d, i) => <MenuItem value={i} key={d}>{getEventKindString(d)}</MenuItem>)}
+                    {kindOptions.map((d, i) => <MenuItem value={i} key={d}>{getEventKindString(d)}</MenuItem>)}
         </Select>
       </FormControl>
 		</Grid>
     {saveError ? <Grid size={12}><Alert severity="error">{saveError}</Alert></Grid> : null}
-		{/* TODO support update */}
 		<Button onClick={async ()=> { 
         setSaveError("");
         setSaving(true);
         try { 
-          await addEvent(editedEvent); 
+          if (typeof eventNum === 'number') {
+            await updateEvent(eventNum, editedEvent);
+          } else {
+            await addEvent(editedEvent);
+          }
           onClose();
         } catch (e: any) {
           setSaveError(e?.message || "Nie udało się dodać wydarzenia");
         } finally {
           setSaving(false);
         }
-      }} disabled={!canSave || saving}>Zapisz</Button> 
+      }} disabled={!canSave || saving}>{typeof eventNum === 'number' ? 'Zapisz zmiany' : 'Zapisz'}</Button> 
 	</Grid>
 }

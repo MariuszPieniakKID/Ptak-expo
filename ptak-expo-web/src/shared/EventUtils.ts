@@ -1,20 +1,32 @@
-import { EidType, EventKind, EventType } from "../services/checkListApi";
+// Import only types that don't create circular runtime dependency
+import { EidType, EventType } from "../services/checkListApi";
+// Duplicate enum to avoid runtime circular import (TS will erase at compile time)
+export enum EventKindLocal {
+    SETUP,
+    TEARDOWN,
+    PRESENTATION,
+    LIVE,
+    WORKSHOP,
+    EDUCATION
+}
 
-export function getEventKindString(kind: EventKind): string 
+export function getEventKindString(kind: any): string 
 {
 	switch(kind) {
-		case EventKind.EDUCATION:
+        case EventKindLocal.EDUCATION:
 			return "Akademie, panele edukacyjne";
-		case EventKind.LIVE:
+        case EventKindLocal.LIVE:
 			return "Pokazy na żywo";
-		case EventKind.WORKSHOP:
+        case EventKindLocal.WORKSHOP:
 			return "Warsztaty tematyczne";
-		case EventKind.PRESENTATION:
+        case EventKindLocal.PRESENTATION:
 			return "Prezentacje produktów / marek"
-		case EventKind.SETUP:
+        case EventKindLocal.SETUP:
 			return "Montaż stoiska"
-		case EventKind.TEARDOWN:
+        case EventKindLocal.TEARDOWN:
 			return "Demontaż stoiska"
+        default:
+            return "Prezentacje produktów / marek";
 	}
 }
 export function getEventTypeString(type: EventType) 
@@ -39,10 +51,10 @@ export const eidTypes = [EidType.TECH_WORKER, EidType.GUEST]
 
 export const eventTypes = [EventType.OPEN, EventType.CLOSED]
 export const eventKinds = [
-	EventKind.PRESENTATION,
-	EventKind.LIVE,
-	EventKind.WORKSHOP,
-	EventKind.EDUCATION,
-	EventKind.SETUP,
-	EventKind.TEARDOWN
+    EventKindLocal.PRESENTATION,
+    EventKindLocal.LIVE,
+    EventKindLocal.WORKSHOP,
+    EventKindLocal.EDUCATION,
+    EventKindLocal.SETUP,
+    EventKindLocal.TEARDOWN
 ];

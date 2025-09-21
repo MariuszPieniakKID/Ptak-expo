@@ -6,22 +6,59 @@ import CustomTypography from "../../../customTypography/CustomTypography";
 import { Exhibition, TradeEvent } from "../../../../services/api";
 import MenuDates from "../menuDates/MenuDates";
 import TabCard from "../tabCard/TabCard";
+import { getDaysBetweenDates } from "../../../../helpers/function";
 
 interface AccompanyingEventsProps {
-  tradeEvents:TradeEvent[];
-  event:Exhibition;
+  tradeEvents: TradeEvent[];
+  event: Exhibition;
+  onAddToAgenda?: (ev: TradeEvent) => void;
+  agendaEventIds?: number[];
 }
 
 const AccompanyingEvents: React.FC<AccompanyingEventsProps> = ({
   event,
-  tradeEvents 
+  tradeEvents,
+  onAddToAgenda,
+  agendaEventIds = [],
 }) => {
   const [value, setValue] = React.useState(0);
+  const hasAutoSelectedRef = React.useRef(false);
+  const allRangeDays = React.useMemo(() => getDaysBetweenDates(event.start_date, event.end_date), [event.start_date, event.end_date]);
     
   const handleChange = (_event: React.SyntheticEvent, newValue: number) => {
     console.log('[AccompanyingEvents] tab change', { from: value, to: newValue });
     setValue(newValue);
   };
+
+  // Auto-select first day that has events to avoid empty list despite non-zero total count
+  const normalizeYmd = (value?: string): string => {
+    const s = String(value || '');
+    const m = s.match(/\d{4}-\d{2}-\d{2}/);
+    if (m) return m[0];
+    const d = new Date(s);
+    if (isNaN(d.getTime())) return '';
+    const y = d.getFullYear();
+    const mth = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${y}-${mth}-${day}`;
+  };
+
+  const days = React.useMemo(() => {
+    const unique = Array.from(new Set((tradeEvents || []).map(ev => normalizeYmd(ev.eventDate)).filter(Boolean)));
+    if (unique.length === 0) return allRangeDays;
+    return unique.sort();
+  }, [tradeEvents, allRangeDays]);
+
+  React.useEffect(() => {
+    if (hasAutoSelectedRef.current) return; // only once
+    if (!tradeEvents || tradeEvents.length === 0) return;
+    const idxDay = days.findIndex(d => tradeEvents.some(ev => normalizeYmd(ev.eventDate) === d));
+    const target = idxDay !== -1 ? idxDay + 1 : 0; // +1 bo panel 0 to "Wszystkie"
+    hasAutoSelectedRef.current = true;
+    if (target !== value) {
+      setValue(target);
+    }
+  }, [tradeEvents, days, value]);
 
   return (
 
@@ -31,13 +68,17 @@ const AccompanyingEvents: React.FC<AccompanyingEventsProps> = ({
         <MenuDates 
         event={event}
         value={value}
-        handleChange={handleChange} 
+        handleChange={handleChange}
+        days={days}
         /> 
       </Box>
         <TabCard 
         tradeEvents={tradeEvents}
         event={event} 
         value={value}
+        days={days}
+        onAddToAgenda={onAddToAgenda}
+        agendaEventIds={agendaEventIds}
         />
     </Box>  
   );

@@ -11,11 +11,13 @@ router.get('/:exhibitionId', verifyToken, controller.listByExhibition);
 // Admin: can create for any exhibitor, Exhibitor: can create only for self
 router.post('/:exhibitionId', verifyToken, controller.create);
 
-// Update trade event (admin only)
-router.put('/:exhibitionId/:eventId', verifyToken, requireAdmin, controller.update);
+// Update trade event
+// Admin: any event; Exhibitor: only own event
+router.put('/:exhibitionId/:eventId', verifyToken, controller.update);
 
-// Delete trade event (admin only)
-router.delete('/:exhibitionId/:eventId', verifyToken, requireAdmin, controller.remove);
+// Delete trade event
+// Admin: any event; Exhibitor: only own event
+router.delete('/:exhibitionId/:eventId', verifyToken, controller.remove);
 
 module.exports = router;
 

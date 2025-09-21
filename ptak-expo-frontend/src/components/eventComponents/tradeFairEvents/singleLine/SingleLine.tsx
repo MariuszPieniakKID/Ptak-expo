@@ -12,6 +12,7 @@ type SingleLineProps = {
   title?: string;
   shortDescription?: string;
   link?: string;
+  rightAction?: React.ReactNode;
   //tradeEvents:TradeEvent[];
 };
 
@@ -21,6 +22,7 @@ function SingleLine({
   title = 'Arch day',
   shortDescription = "Wymagany dodatkowy sprzęt",
   link = " ",
+  rightAction,
 }: SingleLineProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [error, setError] = useState('');
@@ -53,6 +55,11 @@ function SingleLine({
               ? (<ExpandMoreIcon className={styles.expandIcon} />) 
               : (<ExpandMoreIcon className={`${styles.expandIcon} ${styles.rotateIcon}`} />)}
           </Box>
+          {rightAction && (
+            <Box sx={{ ml: 1 }}>
+              {rightAction}
+            </Box>
+          )}
         </Box>
       </Box>
       {isOpen && (

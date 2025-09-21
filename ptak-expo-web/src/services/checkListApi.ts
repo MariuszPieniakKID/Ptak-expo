@@ -1,4 +1,5 @@
 import config from '../config/config';
+// Do not import from EventUtils to avoid circular deps
 
 export interface CompanyInfo {
 	name: string | null,
@@ -45,8 +46,29 @@ export enum EventKind {
 	WORKSHOP,
 	EDUCATION
 }
+
+// Local mapping to avoid circular import with shared/EventUtils
+export function getEventKindString(kind: EventKind): string {
+    switch (kind) {
+        case EventKind.EDUCATION:
+            return 'Akademie, panele edukacyjne';
+        case EventKind.LIVE:
+            return 'Pokazy na żywo';
+        case EventKind.WORKSHOP:
+            return 'Warsztaty tematyczne';
+        case EventKind.PRESENTATION:
+            return 'Prezentacje produktów / marek';
+        case EventKind.SETUP:
+            return 'Montaż stoiska';
+        case EventKind.TEARDOWN:
+            return 'Demontaż stoiska';
+        default:
+            return 'Prezentacje produktów / marek';
+    }
+}
 export interface EventInfo {
-	date: string,
+    id?: number,
+    date: string,
 	startTime: string,
 	endTime: string,
 	name: string,
@@ -150,16 +172,28 @@ export const getChecklist = async (exhibitionId: number) => {
 			if (r.ok) {
 				const j = await r.json();
 				const list = Array.isArray(j.data) ? j.data : [];
-				ExampleChecklist = {
+                // helper: map backend type string to EventKind enum
+                const toKind = (t: any): EventKind => {
+                    const s = String(t || '').toLowerCase();
+                    if (s.includes('warsztat')) return EventKind.WORKSHOP;
+                    if (s.includes('akadem') || s.includes('eduk')) return EventKind.EDUCATION;
+                    if (s.includes('live') || s.includes('pokaz')) return EventKind.LIVE;
+                    if (s.includes('monta')) return EventKind.SETUP;
+                    if (s.includes('demonta')) return EventKind.TEARDOWN;
+                    return EventKind.PRESENTATION;
+                };
+
+                ExampleChecklist = {
 					...ExampleChecklist,
-					events: list.map((row: any): EventInfo => ({
-						date: row.eventDate ?? row.event_date ?? '',
+                    events: list.map((row: any): EventInfo => ({
+                        id: row.id,
+                        date: (row.eventDate ?? row.event_date ?? ''),
 						startTime: row.startTime ?? row.start_time ?? '',
 						endTime: row.endTime ?? row.end_time ?? '',
 						name: row.name ?? '',
 						description: row.description ?? '',
 						type: EventType.OPEN,
-						kind: EventKind.PRESENTATION
+                        kind: toKind(row.type)
 					})).sort((a: EventInfo, b: EventInfo) => (a.date + a.startTime).localeCompare(b.date + b.startTime))
 				};
 			}
@@ -284,25 +318,66 @@ export const addEvent = async (event: EventInfo) => {
 		const meRes = await fetch(`${config.API_BASE_URL}/api/v1/exhibitors/me`, { headers: { Authorization: `Bearer ${token}` } });
 		const meJson = await meRes.json();
 		const exhibitorId: number | null = meJson?.data?.id ?? null;
-		const payload: any = {
+        const payload: any = {
 			name: event.name,
 			description: event.description,
 			eventDate: event.date,
 			startTime: event.startTime,
 			endTime: event.endTime,
-			type: 'Prezentacja'
+            // map EventKind -> backend type string and encode closed state
+            type: (event.type === EventType.CLOSED ? 'Zamknięte - ' : '') + getEventKindString(event.kind)
 		};
 		if (typeof exhibitorId === 'number') payload.exhibitor_id = exhibitorId;
 		const resp = await fetch(`${config.API_BASE_URL}/api/v1/trade-events/${exhibitionId}`, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify(payload) });
-		if (!resp.ok) {
+        if (!resp.ok) {
 			let msg = 'Nie udało się dodać wydarzenia';
 			try { const j = await resp.json(); msg = j?.message || msg; } catch {}
 			throw new Error(msg);
 		}
+        try { const j = await resp.json(); return j?.data; } catch { return null; }
 	} catch (e) {
 		// Surface error to UI consumer
 		throw e;
 	}
+}
+
+export const updateEvent = async (eventId: number, event: EventInfo) => {
+    const exhibitionId = Number((window as any).currentSelectedExhibitionId) || 0;
+    const token = localStorage.getItem('authToken') || '';
+    const resp = await fetch(`${config.API_BASE_URL}/api/v1/trade-events/${exhibitionId}/${encodeURIComponent(String(eventId))}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({
+            name: event.name,
+            description: event.description,
+            eventDate: event.date,
+            startTime: event.startTime,
+            endTime: event.endTime,
+            // encode closed state in type string as prefix
+            type: (event.type === EventType.CLOSED ? 'Zamknięte - ' : '') + getEventKindString(event.kind)
+        })
+    });
+    if (!resp.ok) {
+        let msg = 'Nie udało się zaktualizować wydarzenia';
+        try { const j = await resp.json(); msg = j?.message || msg; } catch {}
+        throw new Error(msg);
+    }
+    return resp.json();
+}
+
+export const deleteEvent = async (eventId: number) => {
+    const exhibitionId = Number((window as any).currentSelectedExhibitionId) || 0;
+    const token = localStorage.getItem('authToken') || '';
+    const resp = await fetch(`${config.API_BASE_URL}/api/v1/trade-events/${exhibitionId}/${encodeURIComponent(String(eventId))}`, {
+        method: 'DELETE',
+        headers: { Authorization: `Bearer ${token}` }
+    });
+    if (!resp.ok) {
+        let msg = 'Nie udało się usunąć wydarzenia';
+        try { const j = await resp.json(); msg = j?.message || msg; } catch {}
+        throw new Error(msg);
+    }
+    return resp.json();
 }
 
 export const addMaterial = async (material: DownloadMaterial) => {

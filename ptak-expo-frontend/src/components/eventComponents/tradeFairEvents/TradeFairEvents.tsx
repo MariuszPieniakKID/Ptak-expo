@@ -12,6 +12,7 @@ import { Exhibition, getTradeEvents, TradeEvent } from '../../../services/api';
 import TradeFairEventsContent from './tradeFairEventsContent/TradeFairEventsContent';
 import AccompanyingEvents from './accompanyingEvents/AccompanyingEvents';
 import { useAuth } from '../../../contexts/AuthContext';
+import CustomButton from '../../customButton/CustomButton';
 
 
 // removed local default newEvent; form handled in child content
@@ -32,6 +33,8 @@ function TradeFairEvents({
   const [expandedAccordions, setExpandedAccordions] = useState<boolean[]>([true, true]);
   const [expandedOne, setExpandedOne] = useState<number | false>(false);
   const [tradeEvents, setTradeEvents] = useState<TradeEvent[]>([]);
+  const [agendaEventIds, setAgendaEventIds] = useState<Set<number>>(new Set());
+  const [viewMode, setViewMode] = useState<'all' | 'exhibitor' | 'agenda'>('all');
   // child manages its own form state for official events
 
   const loadTradeEvents = useCallback(async () => {
@@ -41,6 +44,13 @@ function TradeFairEvents({
       const res = await getTradeEvents(event.id, token);
       console.log('[TradeFairEvents] fetched events count', res.data.length, res.data);
       setTradeEvents(res.data || []);
+      if (!agendaEventIds.size) {
+        const officialIds = (res.data || [])
+          .filter((ev: any) => ev && (ev.exhibitor_id === null || typeof ev.exhibitor_id === 'undefined'))
+          .map((ev: any) => ev.id)
+          .filter((id: any) => typeof id === 'number');
+        setAgendaEventIds(new Set(officialIds));
+      }
     } catch (_e: any) {
       console.error('[TradeFairEvents] fetch error', _e);
       // ignore for now; child content handles errors in its own flow
@@ -73,6 +83,27 @@ function TradeFairEvents({
   ) => {
     setExpandedOne(isExpanded ? index : false);
   };
+  const baseList = (tradeEvents || []);
+  const displayEvents = (() => {
+    if (viewMode === 'exhibitor') {
+      return baseList.filter(ev => typeof ev.exhibitor_id === 'number' && ev.exhibitor_id !== null);
+    }
+    if (viewMode === 'agenda') {
+      return baseList.filter(ev => typeof ev.id === 'number' && agendaEventIds.has(ev.id as number));
+    }
+    return baseList;
+  })();
+
+  const handleAddToAgenda = (ev: TradeEvent) => {
+    if (typeof ev?.id !== 'number') return;
+    const isClosed = String(ev.type || '').toLowerCase().includes('zamk');
+    if (isClosed) {
+      console.warn('Event is closed, cannot add to agenda');
+      return;
+    }
+    setAgendaEventIds(prev => new Set(prev).add(ev.id as number));
+  };
+
   const items =[
     {
       id: 1,
@@ -88,11 +119,13 @@ function TradeFairEvents({
     {
       id: 2,
       icon: null,
-      title: <>Wszystkie wydarzenia towarzyszące ({tradeEvents.length})</>,
+      title: <>Wszystkie wydarzenia towarzyszące ({displayEvents.length})</>,
       container: (
         <AccompanyingEvents 
         event={event} 
-        tradeEvents={tradeEvents} 
+        tradeEvents={displayEvents}
+        onAddToAgenda={handleAddToAgenda}
+        agendaEventIds={Array.from(agendaEventIds)}
         />
       ),
       style: {
@@ -206,20 +239,56 @@ function TradeFairEvents({
                 >
                   {item.icon}
                 </Box>}
-                <Typography
-                  sx={{
-                    margin: "24px 0",
-                    fontWeight: 600,
-                    fontSize: '1rem',
-                    color:titleColor,
-                    '@media (max-width:440px)': {
-                      fontSize: '13px',
-                    },
-                  }}
-                  component="span"
-                >
-                  {item.title}
-                </Typography>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <Typography
+                    sx={{
+                      margin: "24px 0",
+                      fontWeight: 600,
+                      fontSize: '1rem',
+                      color:titleColor,
+                      '@media (max-width:440px)': {
+                        fontSize: '13px',
+                      },
+                    }}
+                    component="span"
+                  >
+                    {item.title}
+                  </Typography>
+                  {item.id === 2 && (
+                    <>
+                      <CustomButton
+                        bgColor="#6F87F6"
+                        textColor="#fff"
+                        height="28px"
+                        width="auto"
+                        fontSize="0.75rem"
+                        onClick={(e: any) => { e.stopPropagation(); setViewMode('all'); }}
+                      >
+                        Wszystkie
+                      </CustomButton>
+                      <CustomButton
+                        bgColor="#6F87F6"
+                        textColor="#fff"
+                        height="28px"
+                        width="auto"
+                        fontSize="0.75rem"
+                        onClick={(e: any) => { e.stopPropagation(); setViewMode('exhibitor'); }}
+                      >
+                        Stoiska
+                      </CustomButton>
+                      <CustomButton
+                        bgColor="#5041d0"
+                        textColor="#fff"
+                        height="28px"
+                        width="auto"
+                        fontSize="0.75rem"
+                        onClick={(e: any) => { e.stopPropagation(); setViewMode('agenda'); }}
+                      >
+                        Agenda
+                      </CustomButton>
+                    </>
+                  )}
+                </Box>
               </Box>
             </AccordionSummary>
 
