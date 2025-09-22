@@ -33,6 +33,7 @@ router.get('/user-events', verifyToken, requireExhibitorOrAdmin, async (req, res
           e.start_date,
           e.end_date,
           e.location,
+          e.website,
           e.status,
           e.created_at,
           e.updated_at,
@@ -64,6 +65,7 @@ router.get('/user-events', verifyToken, requireExhibitorOrAdmin, async (req, res
           e.start_date,
           e.end_date,
           e.location,
+          e.website,
           e.status,
           e.created_at,
           e.updated_at,
@@ -92,6 +94,7 @@ router.get('/user-events', verifyToken, requireExhibitorOrAdmin, async (req, res
       startDate: event.start_date,
       endDate: event.end_date,
       location: event.location,
+      website: event.website,
       status: event.status,
       createdAt: event.created_at,
       updatedAt: event.updated_at,
@@ -204,10 +207,10 @@ router.post('/', verifyToken, requireAdmin, async (req, res) => {
     }
     
     const result = await db.query(`
-      INSERT INTO exhibitions (name, description, start_date, end_date, location, status)
-      VALUES ($1, $2, $3, $4, $5, $6)
+      INSERT INTO exhibitions (name, description, start_date, end_date, location, website, status)
+      VALUES ($1, $2, $3, $4, $5, $6, $7)
       RETURNING *
-    `, [name, description, start_date, end_date, location, status]);
+    `, [name, description, start_date, end_date, location, req.body.website || null, status]);
     
     console.log('New exhibition created with ID:', result.rows[0].id);
     res.status(201).json(result.rows[0]);
@@ -221,7 +224,7 @@ router.post('/', verifyToken, requireAdmin, async (req, res) => {
 router.put('/:id', verifyToken, requireAdmin, async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, description, start_date, end_date, location, status } = req.body;
+    const { name, description, start_date, end_date, location, website, status } = req.body;
     
     const result = await db.query(`
       UPDATE exhibitions 
@@ -231,11 +234,12 @@ router.put('/:id', verifyToken, requireAdmin, async (req, res) => {
         start_date = COALESCE($3, start_date),
         end_date = COALESCE($4, end_date),
         location = COALESCE($5, location),
-        status = COALESCE($6, status),
+        website = COALESCE($6, website),
+        status = COALESCE($7, status),
         updated_at = CURRENT_TIMESTAMP
-      WHERE id = $7
+      WHERE id = $8
       RETURNING *
-    `, [name, description, start_date, end_date, location, status, id]);
+    `, [name, description, start_date, end_date, location, website, status, id]);
     
     if (result.rows.length === 0) {
       return res.status(404).json({ error: 'Exhibition not found' });

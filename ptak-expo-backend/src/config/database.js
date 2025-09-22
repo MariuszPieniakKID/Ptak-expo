@@ -168,10 +168,22 @@ const initializeDatabase = async () => {
         start_date DATE,
         end_date DATE,
         location VARCHAR(255),
+        website TEXT,
         status VARCHAR(20) DEFAULT 'planned' CHECK (status IN ('planned', 'active', 'completed', 'cancelled')),
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
+    `);
+    // Ensure website column exists for older databases
+    await pool.query(`
+      DO $$ BEGIN
+        IF NOT EXISTS (
+          SELECT 1 FROM information_schema.columns
+          WHERE table_name = 'exhibitions' AND column_name = 'website'
+        ) THEN
+          ALTER TABLE exhibitions ADD COLUMN website TEXT;
+        END IF;
+      END $$;
     `);
 
     console.log('🔍 Creating documents table...');

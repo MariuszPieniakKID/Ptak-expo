@@ -32,6 +32,7 @@ const AddEventModal: React.FC<AddEventModalProps> = ({ isOpen, onClose, onEventA
     start_date: '',
     end_date: '',
     location: '',
+    website: '',
     status: 'planned'
   });
   const [loading, setLoading] = useState(false);
@@ -44,6 +45,7 @@ const AddEventModal: React.FC<AddEventModalProps> = ({ isOpen, onClose, onEventA
       start_date: '',
       end_date: '',
       location: '',
+      website: '',
       status: 'planned'
     });
     setError(null);
@@ -209,6 +211,23 @@ const AddEventModal: React.FC<AddEventModalProps> = ({ isOpen, onClose, onEventA
                 value={formData.location || ''}
                 onChange={handleInputChange('location')}
                 placeholder="Wprowadź lokalizację wydarzenia"
+                className={styles.fieldInput}
+              />
+            </div>
+
+            <div className={`${styles.formField} ${styles.fullWidth}`}>
+              <CustomTypography 
+                fontSize="0.875rem" 
+                fontWeight={500} 
+                className={styles.fieldLabel}
+              >
+                Strona wydarzenia (URL)
+              </CustomTypography>
+              <CustomField
+                type="text"
+                value={formData.website || ''}
+                onChange={handleInputChange('website')}
+                placeholder="https://..."
                 className={styles.fieldInput}
               />
             </div>
