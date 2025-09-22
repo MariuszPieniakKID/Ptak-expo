@@ -65,6 +65,7 @@ const AddEventModal_: React.FC<AddEventModalProps> = ({
     start_date: '',
     end_date: '',
     location: '',
+    website: '',
     status: 'planned',
     field:'all',
   });
@@ -132,6 +133,7 @@ const AddEventModal_: React.FC<AddEventModalProps> = ({
       start_date: '',
       end_date: '',
       location: '',
+      website: '',
       status: 'planned',
       field:'all'
     });
@@ -526,6 +528,16 @@ const AddEventModal_: React.FC<AddEventModalProps> = ({
                     /> */}
                 </Box>
                 <Box className={styles.halfFormRow}>
+                    <CustomField
+                    type="text"
+                    label="Strona wydarzenia (URL)"
+                    value={formData.website || ''}
+                    onChange={handleInputChange('website')}
+                    fullWidth
+                    margin="none"
+                    placeholder="https://..."
+                    className={styles.input}
+                    />
                     <CustomField
                     type="description"
                     label="Opis wydarzenia"
