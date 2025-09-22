@@ -585,6 +585,7 @@ export interface AddExhibitionPayload {
   start_date: string;
   end_date: string;
   location?: string;
+  website?: string;
   status?: string;
   field?:string; //LISTA ZAMKNIETA?
 }
