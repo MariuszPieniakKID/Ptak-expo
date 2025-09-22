@@ -18,19 +18,31 @@ exports.listByExhibition = async (req, res) => {
     }
     // If exhibitor role, force exhibitorId to self
     let effectiveExhibitorId = exhibitorId;
+    let result;
     if (req.user?.role === 'exhibitor') {
       // Map user email to exhibitor id
       const me = await db.query('SELECT id FROM exhibitors WHERE email = $1 LIMIT 1', [req.user.email]);
       effectiveExhibitorId = me.rows?.[0]?.id || null;
+      // Exhibitor should see official events (exhibitor_id IS NULL) and their own
+      result = await db.query(
+        `SELECT id, exhibition_id, exhibitor_id, name, event_date, start_time, end_time, hall, organizer, description, type, link
+         FROM trade_events 
+         WHERE exhibition_id = $1 
+           AND (exhibitor_id IS NULL OR exhibitor_id = $2)
+         ORDER BY event_date ASC, start_time ASC`,
+        [exhibitionId, effectiveExhibitorId]
+      );
+    } else {
+      // Admin/others: allow optional exhibitor filter
+      result = await db.query(
+        `SELECT id, exhibition_id, exhibitor_id, name, event_date, start_time, end_time, hall, organizer, description, type, link
+         FROM trade_events 
+         WHERE exhibition_id = $1 
+           AND ($2::int IS NULL OR exhibitor_id = $2)
+         ORDER BY event_date ASC, start_time ASC`,
+        [exhibitionId, effectiveExhibitorId]
+      );
     }
-    const result = await db.query(
-      `SELECT id, exhibition_id, exhibitor_id, name, event_date, start_time, end_time, hall, organizer, description, type, link
-       FROM trade_events 
-       WHERE exhibition_id = $1 
-         AND ($2::int IS NULL OR exhibitor_id = $2)
-       ORDER BY event_date ASC, start_time ASC`,
-      [exhibitionId, effectiveExhibitorId]
-    );
     return res.json({ success: true, data: result.rows });
   } catch (error) {
     console.error('❌ listByExhibition error:', error);
