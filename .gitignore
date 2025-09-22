@@ -1,3 +1,12 @@
+# Ignore Railway backup artifacts and temp files
+/railway_backups/
+/ptak-expo-backend/railway_backups/
+/ptak-expo-web/railway_backups/
+ptak-expo-web/src/.reload
+
+# Common large dump formats (scoped to backup dirs via above rules)
+*.dump
+*.jsonl
 # Dependencies
 node_modules/
 */node_modules/

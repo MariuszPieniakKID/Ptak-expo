@@ -563,6 +563,7 @@ const initializeDatabase = async () => {
         organizer VARCHAR(255),
         description TEXT,
         type VARCHAR(100) NOT NULL,
+        link TEXT,
         created_at TIMESTAMPTZ DEFAULT NOW(),
         updated_at TIMESTAMPTZ DEFAULT NOW()
       )
@@ -588,6 +589,16 @@ const initializeDatabase = async () => {
           WHERE table_name = 'trade_events' AND column_name = 'organizer'
         ) THEN
           ALTER TABLE trade_events ADD COLUMN organizer VARCHAR(255);
+        END IF;
+      END $$;
+    `);
+    await pool.query(`
+      DO $$ BEGIN
+        IF NOT EXISTS (
+          SELECT 1 FROM information_schema.columns 
+          WHERE table_name = 'trade_events' AND column_name = 'link'
+        ) THEN
+          ALTER TABLE trade_events ADD COLUMN link TEXT;
         END IF;
       END $$;
     `);
