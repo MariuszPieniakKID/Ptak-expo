@@ -17,13 +17,12 @@ import {
 import styles from "./Header.module.scss";
 import Logo from "../assets/group-257@3x.png";
 import MenuIcon from "@mui/icons-material/Menu";
-import HomeIcon from "@mui/icons-material/Home";
 import ArticleIcon from "@mui/icons-material/Article";
 import ListAltIcon from "@mui/icons-material/ListAlt";
 import FingerprintIcon from "@mui/icons-material/Fingerprint";
-// import InfoIcon from "@mui/icons-material/Info";
 import IconMarketing from "../assets/group-842.png";
 import IconEmails from "../assets/emails-border.png";
+import IconHome from "../assets/home.png";
 import IconDocuments from "../assets/documents.png";
 import IconBell from "../assets/bell.png";
 
@@ -44,7 +43,16 @@ type NavItem = {
 const navItems: NavItem[] = [
   {
     label: "Home",
-    icon: <HomeIcon />,
+    customIcon: (
+      <div className={styles.customIconMenuImage}>
+        <img
+          src={IconHome}
+          alt="ikona strony głównej"
+          width="auto"
+          height={22}
+        />
+      </div>
+    ),
     key: "home",
     getUrl: (id) => `/event/${id}/home`,
   },
