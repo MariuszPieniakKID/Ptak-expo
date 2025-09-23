@@ -910,6 +910,7 @@ export interface InvitationData {
   contact_phone: string;
   booth_info: string;
   special_offers: string;
+  vip_value?: string; // dodatkowa wartość zaproszenia VIP
   is_template?: boolean;
   is_active?: boolean;
   created_by?: number;

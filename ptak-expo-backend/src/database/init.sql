@@ -232,6 +232,7 @@ CREATE TABLE IF NOT EXISTS invitation_templates (
     contact_phone VARCHAR(50),
     booth_info TEXT, -- Information about booth/stand
     special_offers TEXT, -- Special offers or benefits
+    vip_value TEXT, -- dodatkowa wartość zaproszenia VIP
     is_template BOOLEAN DEFAULT false, -- Whether this is a template for future use
     is_active BOOLEAN DEFAULT true,
     created_by INTEGER REFERENCES users(id),

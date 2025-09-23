@@ -106,6 +106,7 @@ const saveInvitation = async (req, res) => {
       contact_phone,
       booth_info,
       special_offers,
+      vip_value,
       is_template = false
     } = req.body;
 
@@ -146,7 +147,8 @@ const saveInvitation = async (req, res) => {
             contact_phone = $9,
             booth_info = $10,
             special_offers = $11,
-            is_template = $12,
+            vip_value = $12,
+            is_template = $13,
             updated_at = NOW()
           WHERE id = $1 AND exhibition_id = $2
           RETURNING *
@@ -154,7 +156,7 @@ const saveInvitation = async (req, res) => {
         values = [
           invitationId, exhibitionId, title, content, greeting,
           company_info, contact_person, contact_email, contact_phone,
-          booth_info, special_offers, is_template
+          booth_info, special_offers, vip_value || null, is_template
         ];
       } else {
         // Create new invitation
@@ -162,14 +164,14 @@ const saveInvitation = async (req, res) => {
           INSERT INTO invitation_templates (
             exhibition_id, invitation_type, title, content, greeting,
             company_info, contact_person, contact_email, contact_phone,
-            booth_info, special_offers, is_template, created_by
-          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+            booth_info, special_offers, vip_value, is_template, created_by
+          ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14)
           RETURNING *
         `;
         values = [
           exhibitionId, invitation_type, title, content, greeting,
           company_info, contact_person, contact_email, contact_phone,
-          booth_info, special_offers, is_template, null  // Nie przypisuj do konkretnego użytkownika
+          booth_info, special_offers, vip_value || null, is_template, null  // Nie przypisuj do konkretnego użytkownika
         ];
       }
 

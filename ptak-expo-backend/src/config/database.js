@@ -493,6 +493,7 @@ const initializeDatabase = async () => {
         contact_phone VARCHAR(50),
         booth_info TEXT,
         special_offers TEXT,
+        vip_value TEXT,
         is_template BOOLEAN DEFAULT false,
         is_active BOOLEAN DEFAULT true,
         created_by INTEGER REFERENCES users(id),

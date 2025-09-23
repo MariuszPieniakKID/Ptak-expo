@@ -68,7 +68,7 @@ const CustomTextField = styled(TextField)(({ multiline }) => ({
 
 const Invitation: React.FC<InvitationProps> = ({ exhibitionId }) => {
 const { token } = useAuth();
- const [price] = useState<string>('');
+ const [price, setPrice] = useState<string>('');
  const [benefitTitle, setBenefitTitle] = useState<string>('');
  const [benefitContent, setBenefitContent] = useState<string>('');
  const [benefitFile, setBenefitFile] = useState<File | null>(null);
@@ -131,6 +131,10 @@ const [invitationData, setInvitationData] = useState<InvitationData>({
                 .filter((n: number) => !Number.isNaN(n))
             : (Array.isArray((invitation as any).special_offers) ? (invitation as any).special_offers : prev.special_offers)
         }));
+        // ustaw pole VIP price jeśli istnieje
+        if ((invitation as any).vip_value) {
+          setPrice(String((invitation as any).vip_value));
+        }
         // lista zapisanych zaproszeń posortowana po tytule
         const list = [...response.data.invitations]
           .map((i: any) => ({ id: i.id as number, title: String(i.title || ''), type: String(i.invitation_type || '') }))
@@ -181,6 +185,7 @@ const handleInputChange = (
 
 const saveData = {
   ...invitationData,
+  ...(price ? { vip_value: price } : {}),
   
   special_offers: invitationData.special_offers
   ? invitationData.special_offers.join(',')
@@ -435,19 +440,10 @@ ${invitationData.company_info || ''}`;
                 <CustomField 
                 type={'text'} 
                 value={price} 
-                onChange={()=>console.log("Ustawianie wartości zaproszenia")}
+                onChange={(e)=>setPrice(e.target.value)}
                 label="Określ wartość zaproszenia VIP"
                 placeholder="Określ wartość zaproszenia VIP"
                 fullWidth
-                />
-            </Box>
-            <Box className={styles.savePrise}>
-            <ComponentWithAction 
-                iconType={'save'} 
-                handleAction={()=>console.log("Add endpoint to save")}
-                buttonTitle={'zapisz'}
-                iconFirst={false}
-                disabled={price===''}
                 />
             </Box>
         </Box>
