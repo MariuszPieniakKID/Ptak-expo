@@ -501,6 +501,17 @@ const initializeDatabase = async () => {
         updated_at TIMESTAMPTZ DEFAULT NOW()
       )
     `);
+    // Ensure vip_value column exists for older databases
+    await pool.query(`
+      DO $$ BEGIN
+        IF NOT EXISTS (
+          SELECT 1 FROM information_schema.columns
+          WHERE table_name = 'invitation_templates' AND column_name = 'vip_value'
+        ) THEN
+          ALTER TABLE invitation_templates ADD COLUMN vip_value TEXT;
+        END IF;
+      END $$;
+    `);
 
     console.log('🔍 Creating invitation_recipients table...');
     await pool.query(`
