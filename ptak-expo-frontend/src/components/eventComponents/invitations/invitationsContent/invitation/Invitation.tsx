@@ -446,15 +446,6 @@ ${invitationData.company_info || ''}`;
                 fullWidth
                 />
             </Box>
-            <Box className={styles.savePrise}>
-            <ComponentWithAction 
-                iconType={'save'} 
-                handleAction={handleSave}
-                buttonTitle={'zapisz'}
-                iconFirst={false}
-                disabled={price===''}
-                />
-            </Box>
         </Box>
 
         <Divider className={styles.divider_} />
