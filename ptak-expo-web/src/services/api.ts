@@ -250,4 +250,34 @@ export const exhibitorDocumentsAPI = {
   },
 };
 
+// ============= TRADE EVENTS API (ptak-expo-web) =============
+
+export interface TradeEventRow {
+  id: number;
+  exhibition_id?: number;
+  exhibitor_id?: number | null;
+  name: string;
+  event_date: string; // YYYY-MM-DD
+  start_time: string; // HH:MM:SS or HH:MM
+  end_time: string;   // HH:MM:SS or HH:MM
+  hall?: string | null;
+  organizer?: string | null;
+  description?: string | null;
+  type?: string | null;
+  link?: string | null;
+}
+
+export const tradeEventsAPI = {
+  listByExhibition: async (
+    exhibitionId: number,
+    exhibitorId?: number
+  ): Promise<TradeEventRow[]> => {
+    const res = await api.get(`/api/v1/trade-events/${exhibitionId}`, {
+      params: { exhibitorId },
+    });
+    const data = res.data as { success?: boolean; data?: TradeEventRow[] };
+    return Array.isArray(data?.data) ? data!.data! : [];
+  },
+};
+
 export default api;

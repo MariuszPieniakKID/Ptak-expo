@@ -1,12 +1,76 @@
-.container { width: 100%; padding: 0 2rem; padding-top: 7rem; box-sizing: border-box; }
-@media (max-width: 1280px) { .container { padding: 0 0.8rem; padding-top: 4rem; } }
-@media (max-width: 600px) { .container { padding: 0 0.8rem; padding-top: 0; } }
-.header { font-weight: bold; margin-bottom: 12px; }
-.section { margin-bottom: 24px; }
-.sectionTitle { font-weight: 600; margin-bottom: 8px; padding-bottom: 12px; }
-.list { display: flex; flex-direction: column; gap: 16px; width: 100%; }
-.card { width: 100%; border-radius: 16px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); transition: box-shadow 0.2s ease; background: #fff; align-self: stretch; }
-.card:hover { box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-.cardTitle { font-weight: 600; margin-bottom: 4px; }
-.time { display: block; margin-top: 8px; font-weight: 600; color: #666; }
+.container {
+  width: 100%;
+  padding: 0 2rem;
+  padding-top: 7rem;
+  box-sizing: border-box;
+}
 
+@media (max-width: 899px) {
+  .container {
+    padding: 0 0.8rem;
+    padding-top: 0;
+  }
+}
+.header {
+  font-weight: bold;
+  margin-bottom: 12px;
+  font-size: 18px;
+  padding-top: 0px;
+}
+.section {
+  margin-bottom: 38px;
+}
+.sectionTitle {
+  font-weight: 700;
+  font-size: 14px;
+  margin: 0;
+  padding-bottom: 10px;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+}
+.card {
+  width: 100%;
+  border-radius: 20px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+  transition: box-shadow 0.2s ease;
+  background: #fff;
+  align-self: stretch;
+  padding: 14px 12px;
+}
+.card:hover {
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.cardContent {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 20px;
+}
+
+.cardTitle {
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0px;
+  padding-bottom: 5px;
+}
+
+.cardDescription {
+  font-size: 13px;
+  font-weight: 500;
+  margin: 0px;
+  color: #6f6f6f;
+  padding-bottom: 8px;
+}
+
+.time {
+  display: block;
+  margin: 0px;
+  font-weight: 500;
+  color: #a7a7a7;
+}
