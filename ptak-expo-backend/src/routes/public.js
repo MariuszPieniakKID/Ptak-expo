@@ -169,6 +169,303 @@ router.get('/rss.json', async (req, res) => {
   }
 });
 
+// Public: JSON feed with FULL exhibitor checklist data for a given exhibition and exhibitor
+// GET /public/exhibitions/:exhibitionId/exhibitors/:exhibitorId.json
+router.get('/exhibitions/:exhibitionId/exhibitors/:exhibitorId.json', async (req, res) => {
+  try {
+    const siteLink = req.protocol + '://' + req.get('host');
+    const exhibitionId = parseInt(req.params.exhibitionId, 10);
+    const exhibitorId = parseInt(req.params.exhibitorId, 10);
+    if (!Number.isInteger(exhibitionId) || !Number.isInteger(exhibitorId)) {
+      return res.status(400).json({ success: false, message: 'Invalid exhibitionId or exhibitorId' });
+    }
+
+    // Company/catalog entry – prefer specific (per exhibition), fallback to global, fallback to base exhibitor
+    const companyRows = await db.query(`
+      WITH specific AS (
+        SELECT c.exhibitor_id, c.name, c.logo, c.description, c.contact_info, c.website, c.socials, c.contact_email,
+               c.catalog_tags, c.products, c.brands, c.industries, c.display_name, c.why_visit
+        FROM exhibitor_catalog_entries c
+        WHERE c.exhibition_id = $1 AND c.exhibitor_id = $2
+      ),
+      global AS (
+        SELECT DISTINCT ON (c.exhibitor_id)
+               c.exhibitor_id, c.name, c.logo, c.description, c.contact_info, c.website, c.socials, c.contact_email,
+               c.catalog_tags, c.products, c.brands, c.industries, c.display_name, c.why_visit, c.updated_at
+        FROM exhibitor_catalog_entries c
+        WHERE c.exhibition_id IS NULL AND c.exhibitor_id = $2
+        ORDER BY c.exhibitor_id, c.updated_at DESC
+      ),
+      base AS (
+        SELECT id AS exhibitor_id, company_name AS name, NULL::text AS logo, NULL::text AS description,
+               contact_person AS contact_info, NULL::text AS website, NULL::text AS socials, email AS contact_email,
+               NULL::text AS catalog_tags, '[]'::jsonb AS products, NULL::text AS brands, NULL::text AS industries,
+               NULL::text AS display_name, NULL::text AS why_visit
+        FROM exhibitors WHERE id = $2
+      )
+      SELECT COALESCE(s.name, g.name, b.name) AS name,
+             COALESCE(s.logo, g.logo) AS logo,
+             COALESCE(s.description, g.description, b.description) AS description,
+             COALESCE(s.contact_info, g.contact_info, b.contact_info) AS contact_info,
+             COALESCE(s.website, g.website, b.website) AS website,
+             COALESCE(s.socials, g.socials, b.socials) AS socials,
+             COALESCE(s.contact_email, g.contact_email, b.contact_email) AS contact_email,
+             COALESCE(s.catalog_tags, g.catalog_tags, b.catalog_tags) AS catalog_tags,
+             COALESCE(s.products, g.products, b.products) AS products,
+             COALESCE(s.brands, g.brands, b.brands) AS brands,
+             COALESCE(s.industries, g.industries, b.industries) AS industries,
+             COALESCE(s.display_name, g.display_name, b.display_name) AS display_name,
+             COALESCE(s.why_visit, g.why_visit, b.why_visit) AS why_visit
+      FROM specific s
+      FULL OUTER JOIN global g ON true
+      FULL OUTER JOIN base b ON true
+      LIMIT 1
+    `, [exhibitionId, exhibitorId]);
+
+    const company = companyRows.rows[0] || {};
+
+    // Events for exhibitor at exhibition (include all fields)
+    const eventsRes = await db.query(`
+      SELECT id, exhibition_id, exhibitor_id, name, event_date, start_time, end_time, hall, organizer, description, type, link, created_at, updated_at
+      FROM trade_events
+      WHERE exhibition_id = $1 AND exhibitor_id = $2
+      ORDER BY event_date ASC, start_time ASC
+    `, [exhibitionId, exhibitorId]);
+
+    // Documents for exhibitor at exhibition with download URLs
+    const docsRes = await db.query(`
+      SELECT id, title, description, file_name, original_name, file_size, mime_type, category, created_at
+      FROM exhibitor_documents
+      WHERE exhibitor_id = $1 AND exhibition_id = $2
+      ORDER BY category, created_at DESC
+    `, [exhibitorId, exhibitionId]);
+
+    const token = req.query.token ? String(req.query.token) : null;
+    const documents = docsRes.rows.map((d) => ({
+      id: d.id,
+      title: d.title,
+      description: d.description,
+      category: d.category,
+      fileName: d.file_name,
+      originalName: d.original_name,
+      fileSize: d.file_size,
+      mimeType: d.mime_type,
+      createdAt: d.created_at,
+      downloadUrl: `${siteLink}/api/v1/exhibitor-documents/${encodeURIComponent(String(exhibitorId))}/${encodeURIComponent(String(exhibitionId))}/download/${encodeURIComponent(String(d.id))}${token ? `?token=${encodeURIComponent(token)}` : ''}`
+    }));
+
+    // Build payload
+    const payload = {
+      success: true,
+      exhibitionId,
+      exhibitorId,
+      companyInfo: {
+        name: company.name || null,
+        displayName: company.display_name || null,
+        logo: company.logo || null,
+        description: company.description || null,
+        whyVisit: company.why_visit || null,
+        contactInfo: company.contact_info || null,
+        website: company.website || null,
+        socials: company.socials || null,
+        contactEmail: company.contact_email || null,
+        catalogTags: company.catalog_tags || null,
+        brands: company.brands || null,
+        industries: company.industries || null
+      },
+      products: Array.isArray(company.products) ? company.products : (typeof company.products === 'string' ? (() => { try { return JSON.parse(company.products); } catch { return []; } })() : []),
+      events: eventsRes.rows,
+      documents
+    };
+
+    res.set('Content-Type', 'application/json; charset=utf-8');
+    res.json(payload);
+  } catch (error) {
+    console.error('[public] exhibitor checklist json error', error);
+    res.status(500).json({ success: false, message: 'Failed to generate exhibitor JSON feed' });
+  }
+});
+
+// Public: RSS feed with exhibitor checklist data (company, products, events, documents)
+// GET /public/exhibitions/:exhibitionId/exhibitors/:exhibitorId.rss
+router.get('/exhibitions/:exhibitionId/exhibitors/:exhibitorId.rss', async (req, res) => {
+  try {
+    const siteTitle = 'PTAK EXPO – Wystawca – Checklista';
+    const siteLink = req.protocol + '://' + req.get('host');
+    const exhibitionId = parseInt(req.params.exhibitionId, 10);
+    const exhibitorId = parseInt(req.params.exhibitorId, 10);
+    if (!Number.isInteger(exhibitionId) || !Number.isInteger(exhibitorId)) {
+      return res.status(400).send('Invalid exhibitionId or exhibitorId');
+    }
+
+    // Fetch JSON payload from the handler above (reuse logic indirectly)
+    // We replicate minimal queries here to avoid an extra HTTP call
+    const companyRows = await db.query(`
+      WITH specific AS (
+        SELECT c.exhibitor_id, c.name, c.logo, c.description, c.contact_info, c.website, c.socials, c.contact_email,
+               c.catalog_tags, c.products, c.brands, c.industries, c.display_name, c.why_visit
+        FROM exhibitor_catalog_entries c
+        WHERE c.exhibition_id = $1 AND c.exhibitor_id = $2
+      ),
+      global AS (
+        SELECT DISTINCT ON (c.exhibitor_id)
+               c.exhibitor_id, c.name, c.logo, c.description, c.contact_info, c.website, c.socials, c.contact_email,
+               c.catalog_tags, c.products, c.brands, c.industries, c.display_name, c.why_visit, c.updated_at
+        FROM exhibitor_catalog_entries c
+        WHERE c.exhibition_id IS NULL AND c.exhibitor_id = $2
+        ORDER BY c.exhibitor_id, c.updated_at DESC
+      ),
+      base AS (
+        SELECT id AS exhibitor_id, company_name AS name, NULL::text AS logo, NULL::text AS description,
+               contact_person AS contact_info, NULL::text AS website, NULL::text AS socials, email AS contact_email,
+               NULL::text AS catalog_tags, '[]'::jsonb AS products, NULL::text AS brands, NULL::text AS industries,
+               NULL::text AS display_name, NULL::text AS why_visit
+        FROM exhibitors WHERE id = $2
+      )
+      SELECT COALESCE(s.name, g.name, b.name) AS name,
+             COALESCE(s.logo, g.logo) AS logo,
+             COALESCE(s.description, g.description, b.description) AS description,
+             COALESCE(s.contact_info, g.contact_info, b.contact_info) AS contact_info,
+             COALESCE(s.website, g.website, b.website) AS website,
+             COALESCE(s.socials, g.socials, b.socials) AS socials,
+             COALESCE(s.contact_email, g.contact_email, b.contact_email) AS contact_email,
+             COALESCE(s.catalog_tags, g.catalog_tags, b.catalog_tags) AS catalog_tags,
+             COALESCE(s.products, g.products, b.products) AS products,
+             COALESCE(s.brands, g.brands, b.brands) AS brands,
+             COALESCE(s.industries, g.industries, b.industries) AS industries,
+             COALESCE(s.display_name, g.display_name, b.display_name) AS display_name,
+             COALESCE(s.why_visit, g.why_visit, b.why_visit) AS why_visit
+      FROM specific s
+      FULL OUTER JOIN global g ON true
+      FULL OUTER JOIN base b ON true
+      LIMIT 1
+    `, [exhibitionId, exhibitorId]);
+
+    const company = companyRows.rows[0] || {};
+
+    const eventsRes = await db.query(`
+      SELECT id, name, event_date, start_time, end_time, hall, organizer, description, type, link, created_at
+      FROM trade_events
+      WHERE exhibition_id = $1 AND exhibitor_id = $2
+      ORDER BY event_date ASC, start_time ASC
+    `, [exhibitionId, exhibitorId]);
+
+    const docsRes = await db.query(`
+      SELECT id, title, description, file_name, original_name, file_size, mime_type, category, created_at
+      FROM exhibitor_documents
+      WHERE exhibitor_id = $1 AND exhibition_id = $2
+      ORDER BY category, created_at DESC
+    `, [exhibitorId, exhibitionId]);
+
+    const token = req.query.token ? String(req.query.token) : null;
+
+    const escapeXml = (s) => String(s || '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+
+    // Build items: company, products, events, documents
+    const items = [];
+
+    // Company item
+    const companyDesc = [
+      company.description ? `Opis: ${escapeXml(company.description)}` : '',
+      company.why_visit ? `Dlaczego warto odwiedzić: ${escapeXml(company.why_visit)}` : '',
+      company.contact_info ? `Kontakt: ${escapeXml(company.contact_info)}` : '',
+      company.website ? `Strona: ${escapeXml(company.website)}` : '',
+      company.socials ? `Socials: ${escapeXml(company.socials)}` : '',
+      company.contact_email ? `Email: ${escapeXml(company.contact_email)}` : '',
+      company.catalog_tags ? `Tagi: ${escapeXml(company.catalog_tags)}` : '',
+      company.brands ? `Marki: ${escapeXml(company.brands)}` : '',
+      company.industries ? `Branże: ${escapeXml(company.industries)}` : ''
+    ].filter(Boolean).join(' | ');
+
+    items.push(
+      `      <item>
+        <title>${escapeXml(company.display_name || company.name || 'Firma')}</title>
+        <link>${siteLink}/public/exhibitions/${exhibitionId}/exhibitors/${exhibitorId}.json</link>
+        <guid isPermaLink="false">company-${exhibitorId}-${exhibitionId}</guid>
+        <description>${companyDesc}</description>
+        <category>company</category>
+        <pubDate>${new Date().toUTCString()}</pubDate>
+      </item>`
+    );
+
+    // Products items (if any)
+    const products = Array.isArray(company.products) ? company.products : (typeof company.products === 'string' ? (() => { try { return JSON.parse(company.products); } catch { return []; } })() : []);
+    products.forEach((p, idx) => {
+      const pDesc = [p.description ? escapeXml(p.description) : '', Array.isArray(p.tags) ? `Tagi: ${escapeXml(p.tags.join(', '))}` : ''].filter(Boolean).join(' | ');
+      items.push(
+        `      <item>
+        <title>${escapeXml(p.name || 'Produkt')}</title>
+        <link>${escapeXml(p.img || (siteLink + '/public'))}</link>
+        <guid isPermaLink="false">product-${exhibitorId}-${exhibitionId}-${idx}</guid>
+        <description>${pDesc}</description>
+        <category>product</category>
+        <pubDate>${new Date().toUTCString()}</pubDate>
+      </item>`
+      );
+    });
+
+    // Events items
+    eventsRes.rows.forEach((ev) => {
+      const timeRange = [ev.start_time, ev.end_time].filter(Boolean).join(' - ');
+      const evDesc = [
+        ev.description ? escapeXml(ev.description) : '',
+        ev.hall ? `Hala: ${escapeXml(ev.hall)}` : '',
+        ev.organizer ? `Organizator: ${escapeXml(ev.organizer)}` : '',
+        ev.type ? `Typ: ${escapeXml(ev.type)}` : '',
+        timeRange ? `Godziny: ${escapeXml(timeRange)}` : ''
+      ].filter(Boolean).join(' | ');
+      items.push(
+        `      <item>
+        <title>${escapeXml(ev.name || 'Wydarzenie')}</title>
+        <link>${escapeXml(ev.link || (siteLink + '/public'))}</link>
+        <guid isPermaLink="false">event-${ev.id}</guid>
+        <description>${evDesc}</description>
+        <category>event</category>
+        <pubDate>${new Date(ev.event_date || ev.created_at || Date.now()).toUTCString()}</pubDate>
+      </item>`
+      );
+    });
+
+    // Documents items (include enclosure for download)
+    docsRes.rows.forEach((d) => {
+      const downloadUrl = `${siteLink}/api/v1/exhibitor-documents/${encodeURIComponent(String(exhibitorId))}/${encodeURIComponent(String(exhibitionId))}/download/${encodeURIComponent(String(d.id))}${token ? `?token=${encodeURIComponent(token)}` : ''}`;
+      const desc = [d.description ? escapeXml(d.description) : '', d.category ? `Kategoria: ${escapeXml(d.category)}` : ''].filter(Boolean).join(' | ');
+      items.push(
+        `      <item>
+        <title>${escapeXml(d.title || d.original_name || 'Dokument')}</title>
+        <link>${downloadUrl}</link>
+        <guid isPermaLink="false">doc-${d.id}</guid>
+        <description>${desc}</description>
+        <category>document</category>
+        <pubDate>${new Date(d.created_at || Date.now()).toUTCString()}</pubDate>
+        <enclosure url="${downloadUrl}" length="${d.file_size || 0}" type="${escapeXml(d.mime_type || 'application/octet-stream')}" />
+      </item>`
+      );
+    });
+
+    const rssXml = `<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+  <channel>
+    <title>${siteTitle}</title>
+    <link>${siteLink}</link>
+    <description>Checklist danych wystawcy dla wydarzenia</description>
+    <language>pl-PL</language>
+    <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>
+${items.join('\n')}
+  </channel>
+</rss>`;
+
+    res.set('Content-Type', 'application/rss+xml; charset=utf-8');
+    res.send(rssXml);
+  } catch (error) {
+    console.error('[public] exhibitor checklist rss error', error);
+    res.status(500).send('Failed to generate exhibitor RSS feed');
+  }
+});
+
 module.exports = router;
 
 
