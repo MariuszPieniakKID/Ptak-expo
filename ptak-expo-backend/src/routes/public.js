@@ -169,6 +169,112 @@ router.get('/rss.json', async (req, res) => {
   }
 });
 
+// Public HTML index: browse exhibitions and exhibitors with ready links
+router.get('/', async (req, res) => {
+  try {
+    const siteLink = req.protocol + '://' + req.get('host');
+    const exhibitionsRes = await db.query(`
+      SELECT id, name, description, start_date, end_date, location, status
+      FROM exhibitions
+      ORDER BY start_date DESC NULLS LAST, id DESC
+    `);
+
+    // For each exhibition, list assigned exhibitors with display name
+    const exhibitions = [];
+    for (const ev of exhibitionsRes.rows) {
+      const exhibitorsRes = await db.query(`
+        WITH assigned AS (
+          SELECT e.id AS exhibitor_id
+          FROM exhibitor_events ee
+          JOIN exhibitors e ON e.id = ee.exhibitor_id
+          WHERE ee.exhibition_id = $1
+        ),
+        specific AS (
+          SELECT c.exhibitor_id, c.name, c.display_name, c.updated_at
+          FROM exhibitor_catalog_entries c
+          WHERE c.exhibition_id = $1
+        ),
+        global AS (
+          SELECT DISTINCT ON (c.exhibitor_id)
+                 c.exhibitor_id, c.name, c.display_name, c.updated_at
+          FROM exhibitor_catalog_entries c
+          WHERE c.exhibition_id IS NULL
+          ORDER BY c.exhibitor_id, c.updated_at DESC
+        )
+        SELECT a.exhibitor_id,
+               COALESCE(s.display_name, s.name, g.display_name, g.name, ex.company_name) AS display_name
+        FROM assigned a
+        LEFT JOIN specific s ON s.exhibitor_id = a.exhibitor_id
+        LEFT JOIN global g ON g.exhibitor_id = a.exhibitor_id
+        LEFT JOIN exhibitors ex ON ex.id = a.exhibitor_id
+        ORDER BY COALESCE(s.display_name, s.name, g.display_name, g.name, ex.company_name) ASC
+      `, [ev.id]);
+
+      exhibitions.push({ ev, exhibitors: exhibitorsRes.rows });
+    }
+
+    const escapeHtml = (s) => String(s || '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+
+    const html = `<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>PTAK EXPO – Public Feeds Index</title>
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, 'Helvetica Neue', Arial, 'Noto Sans', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji'; margin: 24px; color: #2e2e38; }
+    h1 { margin: 0 0 16px; }
+    .subtitle { color: #666; margin-bottom: 24px; }
+    .exh { border: 1px solid #e5e7eb; border-radius: 12px; padding: 16px; margin-bottom: 16px; background: #fff; }
+    .exh h2 { margin: 0 0 8px; font-size: 18px; }
+    .meta { color: #555; font-size: 13px; margin-bottom: 8px; }
+    ul { margin: 8px 0 0 18px; }
+    li { margin: 4px 0; }
+    a { color: #5041d0; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .links { font-size: 13px; margin-left: 6px; }
+    .empty { color: #999; font-style: italic; }
+  </style>
+  </head>
+  <body>
+    <h1>PTAK EXPO – Public feeds</h1>
+    <div class="subtitle">Przeglądaj wydarzenia i wystawców, a następnie pobieraj JSON / RSS bez podawania ID.</div>
+    ${exhibitions.map(({ ev, exhibitors }) => {
+      const period = [ev.start_date, ev.end_date].filter(Boolean).join(' – ');
+      const head = `<div class="exh">
+        <h2>${escapeHtml(ev.name || 'Wydarzenie')}</h2>
+        <div class="meta">${escapeHtml(period)}${ev.location ? ' · ' + escapeHtml(ev.location) : ''}</div>
+        <div><strong>Wystawcy:</strong></div>
+        ${exhibitors.length === 0 ? '<div class="empty">Brak przypisanych wystawców</div>' : ''}
+        <ul>
+          ${exhibitors.map((x) => {
+            const json = `${siteLink}/public/exhibitions/${encodeURIComponent(String(ev.id))}/exhibitors/${encodeURIComponent(String(x.exhibitor_id))}.json`;
+            const rss = `${siteLink}/public/exhibitions/${encodeURIComponent(String(ev.id))}/exhibitors/${encodeURIComponent(String(x.exhibitor_id))}.rss`;
+            return `<li>${escapeHtml(x.display_name || ('Wystawca #' + x.exhibitor_id))}
+              <span class="links">[
+                <a href="${json}">JSON</a> ·
+                <a href="${rss}">RSS</a>
+              ]</span>
+            </li>`;
+          }).join('')}
+        </ul>
+      </div>`;
+      return head;
+    }).join('')}
+  </body>
+</html>`;
+
+    res.set('Content-Type', 'text/html; charset=utf-8');
+    res.send(html);
+  } catch (error) {
+    console.error('[public] index page error', error);
+    res.status(500).send('Failed to render public index');
+  }
+});
+
 // Public: JSON feed with FULL exhibitor checklist data for a given exhibition and exhibitor
 // GET /public/exhibitions/:exhibitionId/exhibitors/:exhibitorId.json
 router.get('/exhibitions/:exhibitionId/exhibitors/:exhibitorId.json', async (req, res) => {
