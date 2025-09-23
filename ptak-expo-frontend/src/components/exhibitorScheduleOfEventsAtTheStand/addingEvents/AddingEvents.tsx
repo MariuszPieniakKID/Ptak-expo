@@ -33,7 +33,6 @@ interface AddEvent {
   description?: string;
   type: string;
   organizer: string;
-  link?: string;
 }
 
 type AddingEventsProps = { exhibitionId?: number | undefined; exhibitorId: number; onCreated?: (ev: TradeEvent) => void; onUpdated?: (ev: TradeEvent) => void };
@@ -53,7 +52,6 @@ const AddingEvents: React.FC<AddingEventsProps> = ({ exhibitionId, exhibitorId, 
     // Default to a valid type so backend doesn't reject empty value
     type: 'Montaż stoiska',
     organizer: '',
-    link: '',
   });
 
   const [formErrors, setFormErrors] = useState<Record<string, string>>({
@@ -64,7 +62,6 @@ const AddingEvents: React.FC<AddingEventsProps> = ({ exhibitionId, exhibitorId, 
     description: '',
     type: '',
     organizer: '',
-    link: '',
   });
 
   const validators: Partial<Record<keyof AddEvent, (value: string) => string>> = {
@@ -103,12 +100,6 @@ const AddingEvents: React.FC<AddingEventsProps> = ({ exhibitionId, exhibitorId, 
       return '';
     },
     organizer: (_value) => '',
-    link: (value) => {
-      if (!value) return '';
-      const v = value.trim();
-      if (v.length === 0) return '';
-      try { new URL(v.startsWith('http') ? v : `https://${v}`); return '' } catch { return 'Podaj poprawny URL'; }
-    },
   };
 
   const handleFormValueChange = (field: keyof AddEvent) =>
@@ -143,7 +134,6 @@ const AddingEvents: React.FC<AddingEventsProps> = ({ exhibitionId, exhibitorId, 
       description: validators.description?.(formValues.description || '') || '',
       type: validators.type?.(formValues.type) || '',
       organizer: validators.organizer?.(formValues.organizer) || '',
-      link: validators.link?.(formValues.link || '') || '',
     };
     setFormErrors(nextErrors);
     return Object.values(nextErrors).every(e => e === '');
@@ -174,9 +164,6 @@ const AddingEvents: React.FC<AddingEventsProps> = ({ exhibitionId, exhibitorId, 
       if (typeof formValues.organizer === 'string' && formValues.organizer.trim() !== '') {
         payload.organizer = formValues.organizer;
       }
-      if (typeof formValues.link === 'string' && formValues.link.trim() !== '') {
-        payload.link = formValues.link.trim();
-      }
       if (typeof formValues.id === 'number' && formValues.id > 0) {
         // update existing
         console.log('[AddingEvents] Calling updateTradeEvent', { exhibitionId: resolvedExhibitionId, eventId: formValues.id, payload });
@@ -191,7 +178,7 @@ const AddingEvents: React.FC<AddingEventsProps> = ({ exhibitionId, exhibitorId, 
         if (onCreated) onCreated(res.data);
       }
       // Clear form after save/update
-      setFormValues({ name: '', eventDate: '', startTime: '', endTime: '', description: '', type: 'Montaż stoiska', organizer: '', link: '' });
+      setFormValues({ name: '', eventDate: '', startTime: '', endTime: '', description: '', type: 'Montaż stoiska', organizer: '' });
     } catch (err: any) {
       console.error('❌ Błąd zapisu wydarzenia', err);
       const message = (err && err.message) ? String(err.message) : 'Błąd zapisu wydarzenia';

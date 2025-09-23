@@ -31,7 +31,6 @@ const TradeFairEventsContent: React.FC<TradeFairEventsContentProps> = ({ event, 
     description: '',
     type: 'Ceremonia otwarcia',
     organizer: '',
-    link: '',
   });
 
   const typeOptions = [
@@ -71,7 +70,7 @@ const TradeFairEventsContent: React.FC<TradeFairEventsContentProps> = ({ event, 
         await createTradeEvent(event.id, payload, token);
       }
       setTradeEventsError('');
-      setNewEvent({ name: '', eventDate: '', startTime: '09:00', endTime: '17:00', hall: '', description: '', type: 'Ceremonia otwarcia', organizer: '', link: '' });
+      setNewEvent({ name: '', eventDate: '', startTime: '09:00', endTime: '17:00', hall: '', description: '', type: 'Ceremonia otwarcia', organizer: '' });
       setEditingEventId(null);
       onEventsChanged && onEventsChanged();
     } catch (err: any) {
@@ -81,7 +80,7 @@ const TradeFairEventsContent: React.FC<TradeFairEventsContentProps> = ({ event, 
 
   const handleCancelEdit = () => {
     setEditingEventId(null);
-    setNewEvent({ name: '', eventDate: '', startTime: '09:00', endTime: '17:00', hall: '', description: '', type: 'Ceremonia otwarcia', organizer: '', link: '' });
+    setNewEvent({ name: '', eventDate: '', startTime: '09:00', endTime: '17:00', hall: '', description: '', type: 'Ceremonia otwarcia', organizer: '' });
   };
 
   
@@ -144,13 +143,6 @@ const TradeFairEventsContent: React.FC<TradeFairEventsContentProps> = ({ event, 
               value={newEvent.organizer || ''}
               onChange={handleNewEventChange('organizer')}
               placeholder="Nazwa organizatora"
-              fullWidth
-            />
-            <CustomField
-              type="text"
-              value={newEvent.link || ''}
-              onChange={handleNewEventChange('link')}
-              placeholder="Strona www (https://...)"
               fullWidth
             />
             <CustomField
