@@ -86,6 +86,7 @@ export interface Checklist {
 	availableInvitesCount: number,
 	events: EventInfo[],
 	electrionicIds: ElectrionicId[],
+	sentInvites?: Array<{ id: number; recipientEmail: string; recipientName: string | null; invitationType: string; status: string; sentAt?: string }>,
 }
 let ExampleChecklist: Checklist = {
 	companyInfo: {
@@ -101,6 +102,7 @@ let ExampleChecklist: Checklist = {
 	downloadMaterials: [],
 	events: [],
 	electrionicIds: [],
+	sentInvites: [],
 	products: []
 }
 
@@ -226,6 +228,28 @@ export const getChecklist = async (exhibitionId: number) => {
 				ExampleChecklist = {
 					...ExampleChecklist,
 					electrionicIds: list.map((row: any) => ({ name: row.full_name, email: row.email, type: EidType.TECH_WORKER }))
+				};
+			}
+		} catch {}
+
+		// invitations – recipients list and counts
+		try {
+			const r = await fetch(`${config.API_BASE_URL}/api/v1/invitations/${encodeURIComponent(String(exhibitionId))}/recipients`, { headers: { Authorization: `Bearer ${token}` } });
+			if (r.ok) {
+				const j = await r.json();
+				const recipients = Array.isArray(j.data) ? j.data : [];
+				ExampleChecklist = {
+					...ExampleChecklist,
+					sentInvites: recipients.map((row: any) => ({
+						id: row.id,
+						recipientEmail: row.recipientEmail,
+						recipientName: row.recipientName || null,
+						invitationType: row.invitationType || 'standard',
+						status: row.status || 'wysłane',
+						sentAt: row.sentAt
+					})),
+					sentInvitesCount: recipients.length,
+					availableInvitesCount: Math.max(recipients.length, ExampleChecklist.availableInvitesCount || 0)
 				};
 			}
 		} catch {}
