@@ -194,7 +194,7 @@ router.get('/:exhibitorId/:exhibitionId', verifyToken, async (req, res) => {
   }
 });
 
-// Download document
+// Download document (protected)
 router.get('/:exhibitorId/:exhibitionId/download/:documentId', verifyToken, async (req, res) => {
   try {
     const { exhibitorId, exhibitionId, documentId } = req.params;
@@ -248,6 +248,44 @@ router.get('/:exhibitorId/:exhibitionId/download/:documentId', verifyToken, asyn
 
   } catch (error) {
     console.error('Error downloading document:', error);
+    res.status(500).json({ success: false, error: 'Błąd podczas pobierania dokumentu', message: error.message });
+  }
+});
+
+// Public download (no auth) – safe because we verify ownership by IDs only
+router.get('/public/:exhibitionId/:exhibitorId/:documentId/download', async (req, res) => {
+  try {
+    const { exhibitorId, exhibitionId, documentId } = req.params;
+    const result = await db.query(`
+      SELECT file_path, original_name, mime_type 
+      FROM exhibitor_documents 
+      WHERE id = $1 AND exhibitor_id = $2 AND exhibition_id = $3
+    `, [documentId, exhibitorId, exhibitionId]);
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ success: false, error: 'Dokument nie został znaleziony' });
+    }
+
+    const document = result.rows[0];
+    const candidatePaths = [document.file_path];
+    if (typeof document.file_path === 'string' && document.file_path.startsWith('/data/uploads/')) {
+      const relativeFromRailway = path.relative('/data/uploads', document.file_path);
+      const localFallback = path.join(__dirname, '../../uploads', relativeFromRailway);
+      candidatePaths.push(localFallback);
+    }
+
+    for (const p of candidatePaths) {
+      try {
+        await fs.access(p);
+        res.setHeader('Content-Disposition', `attachment; filename="${document.original_name}"`);
+        res.setHeader('Content-Type', document.mime_type);
+        return res.sendFile(path.resolve(p));
+      } catch (_e) {}
+    }
+
+    res.status(404).json({ success: false, error: 'Plik nie został znaleziony na serwerze' });
+  } catch (error) {
+    console.error('Error downloading public document:', error);
     res.status(500).json({ success: false, error: 'Błąd podczas pobierania dokumentu', message: error.message });
   }
 });

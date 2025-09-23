@@ -248,7 +248,6 @@ router.get('/exhibitions/:exhibitionId/exhibitors/:exhibitorId.json', async (req
       ORDER BY created_at DESC
     `, [exhibitorId, exhibitionId]);
 
-    const token = req.query.token ? String(req.query.token) : null;
     const documents = docsRes.rows.map((d) => ({
       id: d.id,
       title: d.title,
@@ -259,7 +258,7 @@ router.get('/exhibitions/:exhibitionId/exhibitors/:exhibitorId.json', async (req
       fileSize: d.file_size,
       mimeType: d.mime_type,
       createdAt: d.created_at,
-      downloadUrl: `${siteLink}/api/v1/exhibitor-documents/${encodeURIComponent(String(exhibitorId))}/${encodeURIComponent(String(exhibitionId))}/download/${encodeURIComponent(String(d.id))}${token ? `?token=${encodeURIComponent(token)}` : ''}`
+      downloadUrl: `${siteLink}/public/exhibitions/${encodeURIComponent(String(exhibitionId))}/exhibitors/${encodeURIComponent(String(exhibitorId))}/documents/${encodeURIComponent(String(d.id))}/download`
     }));
 
     // Build payload
@@ -365,7 +364,6 @@ router.get('/exhibitions/:exhibitionId/exhibitors/:exhibitorId.rss', async (req,
       ORDER BY category, created_at DESC
     `, [exhibitorId, exhibitionId]);
 
-    const token = req.query.token ? String(req.query.token) : null;
 
     const escapeXml = (s) => String(s || '')
       .replace(/&/g, '&amp;')
@@ -439,7 +437,7 @@ router.get('/exhibitions/:exhibitionId/exhibitors/:exhibitorId.rss', async (req,
 
     // Documents items (include enclosure for download)
     docsRes.rows.forEach((d) => {
-      const downloadUrl = `${siteLink}/api/v1/exhibitor-documents/${encodeURIComponent(String(exhibitorId))}/${encodeURIComponent(String(exhibitionId))}/download/${encodeURIComponent(String(d.id))}${token ? `?token=${encodeURIComponent(token)}` : ''}`;
+      const downloadUrl = `${siteLink}/public/exhibitions/${encodeURIComponent(String(exhibitionId))}/exhibitors/${encodeURIComponent(String(exhibitorId))}/documents/${encodeURIComponent(String(d.id))}/download`;
       const desc = [d.description ? escapeXml(d.description) : '', d.category ? `Kategoria: ${escapeXml(d.category)}` : ''].filter(Boolean).join(' | ');
       items.push(
         `      <item>
