@@ -162,6 +162,9 @@ router.get('/rss.json', async (req, res) => {
     };
 
     res.set('Content-Type', 'application/json; charset=utf-8');
+    if (String(req.query.pretty || '').toLowerCase() === '1' || String(req.query.format || '') === 'pretty') {
+      return res.send(JSON.stringify(payload, null, 2));
+    }
     res.json(payload);
   } catch (error) {
     console.error('[public] rss.json error', error);
