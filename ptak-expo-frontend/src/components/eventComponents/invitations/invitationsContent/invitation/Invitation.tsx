@@ -414,9 +414,16 @@ ${invitationData.company_info || ''}`;
         return;
       }
       setError('');
-      // Ensure the latest form data is saved to template
-      const saveRes = await saveInvitation(exhibitionId, saveData as any, token);
-      const templateId = (saveRes && saveRes.data && saveRes.data.id) ? saveRes.data.id : invitationData.id;
+      // Ensure the latest form data is saved to template (admins only)
+      let templateId: number | undefined = invitationData.id;
+      if (user?.role === 'admin') {
+        const saveRes = await saveInvitation(exhibitionId, saveData as any, token);
+        if (saveRes && saveRes.data && saveRes.data.id) templateId = saveRes.data.id;
+      }
+      if (!templateId) {
+        setError('Najpierw zapisz zaproszenie, aby wysłać test.');
+        return;
+      }
       const payload: { templateId?: number; recipientName?: string; recipientEmail: string } = { recipientEmail: meEmail };
       if (typeof templateId === 'number') payload.templateId = templateId;
       const rn = user?.firstName ? `${user?.firstName} ${user?.lastName || ''}`.trim() : '';
