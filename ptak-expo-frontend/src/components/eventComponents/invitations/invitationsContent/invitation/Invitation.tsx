@@ -3,7 +3,7 @@ import { Box, TextField, Alert, CircularProgress, Divider, styled } from '@mui/m
 import styles from './Invitation.module.scss';
 import { useAuth } from '../../../../../contexts/AuthContext';
 import config from '../../../../../config/config';
-import { getInvitations, saveInvitation, getBenefits, createBenefit, updateBenefit, deleteBenefit, getInvitationById, deleteInvitation } from '../../../../../services/api';
+import { getInvitations, saveInvitation, getBenefits, createBenefit, updateBenefit, deleteBenefit, getInvitationById, deleteInvitation, sendInvitationTest } from '../../../../../services/api';
 import CustomField from '../../../../customField/CustomField';
 import CustomTypography from '../../../../customTypography/CustomTypography';
 import ComponentWithAction from '../../../../componentWithAction/ComponentWithAction';
@@ -67,7 +67,7 @@ const CustomTextField = styled(TextField)(({ multiline }) => ({
 
 
 const Invitation: React.FC<InvitationProps> = ({ exhibitionId }) => {
-const { token } = useAuth();
+const { token, user } = useAuth();
  const [price, setPrice] = useState<string>('');
  const [benefitTitle, setBenefitTitle] = useState<string>('');
  const [benefitContent, setBenefitContent] = useState<string>('');
@@ -401,6 +401,36 @@ ${invitationData.company_info || ''}`;
       return { ...prev, content };
     });
   }, [generateInvitationContent]);
+
+  const handleTestSend = async () => {
+    try {
+      if (!token) {
+        setError('Brak autoryzacji - zaloguj się ponownie');
+        return;
+      }
+      const meEmail = user?.email || '';
+      if (!meEmail) {
+        setError('Brak adresu e-mail zalogowanego użytkownika');
+        return;
+      }
+      setError('');
+      // Ensure the latest form data is saved to template
+      const saveRes = await saveInvitation(exhibitionId, saveData as any, token);
+      const templateId = (saveRes && saveRes.data && saveRes.data.id) ? saveRes.data.id : invitationData.id;
+      const payload: { templateId?: number; recipientName?: string; recipientEmail: string } = { recipientEmail: meEmail };
+      if (typeof templateId === 'number') payload.templateId = templateId;
+      const rn = user?.firstName ? `${user?.firstName} ${user?.lastName || ''}`.trim() : '';
+      if (rn) payload.recipientName = rn;
+      const res = await sendInvitationTest(exhibitionId, payload, token);
+      if (res.success) {
+        setSuccessMessage('Wysłano testowe zaproszenie');
+      } else {
+        setError(res.message || 'Nie udało się wysłać testowego zaproszenia');
+      }
+    } catch (e: any) {
+      setError(e.message || 'Błąd podczas wysyłki testowej');
+    }
+  };
 
   if (loading && !invitationData.title) {
     return (
@@ -769,7 +799,7 @@ ${invitationData.company_info || ''}`;
                     <Box>
                     <ComponentWithAction 
                       iconType={'send'} 
-                      handleAction={()=>console.log("Testowe wysyłanie")} 
+                      handleAction={handleTestSend} 
                       buttonTitle={'Testowe wysyłanie'}/>
                     </Box>
                     <Box>

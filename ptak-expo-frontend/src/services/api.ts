@@ -1117,6 +1117,26 @@ export const deleteInvitation = async (
   return data;
 };
 
+export const sendInvitationTest = async (
+  exhibitionId: number,
+  payload: { templateId?: number; recipientName?: string; recipientEmail: string },
+  token: string
+): Promise<{ success: boolean; message: string; data?: any }> => {
+  const response = await apiCall(`${config.API_BASE_URL}/api/v1/invitations/${exhibitionId}/send`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(payload),
+  });
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data.message || 'Błąd podczas wysyłki testowego zaproszenia');
+  }
+  return data;
+};
+
 // ============= EXHIBITOR ASSIGNMENT API =============
 
 export const assignExhibitorToEvent = async (
