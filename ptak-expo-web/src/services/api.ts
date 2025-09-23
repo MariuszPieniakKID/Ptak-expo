@@ -90,30 +90,6 @@ export const tradeInfoAPI = {
     api.get(`/api/v1/trade-info/${exhibitionId}/download/${spaceId}`, { responseType: 'blob' }),
 };
 
-// Trade events (official + exhibitor)
-export interface TradeEventRow {
-  id: number;
-  exhibition_id: number;
-  exhibitor_id?: number | null;
-  name: string;
-  event_date: string; // YYYY-MM-DD
-  start_time: string; // HH:mm:ss
-  end_time: string;   // HH:mm:ss
-  hall?: string | null;
-  organizer?: string | null;
-  description?: string | null;
-  type: string;
-  link?: string | null;
-}
-
-export const tradeEventsAPI = {
-  listByExhibition: async (exhibitionId: number): Promise<TradeEventRow[]> => {
-    const res = await api.get(`/api/v1/trade-events/${exhibitionId}`);
-    const data = res.data as { success?: boolean; data?: TradeEventRow[] };
-    return Array.isArray(data?.data) ? data!.data! : [];
-  }
-};
-
 // Branding files (global per exhibition)
 export interface BrandingFilesResponse {
   success: boolean;

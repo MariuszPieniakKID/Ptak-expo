@@ -9,7 +9,7 @@ import {
   formatDateRangeDays,
 } from "./utilities";
 import {TradeInfoPlan} from "./TradeInfoPlan";
-import { tradeInfoAPI, exhibitionsAPI, tradeEventsAPI, TradeEventRow } from "../../../services/api";
+import { tradeInfoAPI, exhibitionsAPI } from "../../../services/api";
 
 // removed mock placeholders – values now come from backend
 
@@ -121,8 +121,6 @@ export const TradeInfoPage: React.FC<T_TradeInfoPage> = ({eventId}) => {
   const [selectedDayId, setSelectedDayId] = useState<number | null>(null);
   const [tradeData, setTradeData] = useState<any | null>(null);
   const [eventMeta, setEventMeta] = useState<any | null>(null);
-  const [allEvents, setAllEvents] = useState<TradeEventRow[]>([]);
-  const [activeTab, setActiveTab] = useState<'all' | 'byday'>('all');
   // const exhibStart = tradeInfo?.tradeHours.exhibitorStart || "-";
   // const exhibEnd = tradeInfo?.tradeHours.exhibitorEnd || "-";
   // const visitStart = tradeInfo?.tradeHours.visitorStart || "-";
@@ -135,15 +133,13 @@ export const TradeInfoPage: React.FC<T_TradeInfoPage> = ({eventId}) => {
     (async () => {
       try {
         const exId = Number(eventId);
-        const [tiRes, exRes, evRows] = await Promise.all([
+        const [tiRes, exRes] = await Promise.all([
           tradeInfoAPI.get(exId),
-          exhibitionsAPI.getById(exId),
-          tradeEventsAPI.listByExhibition(exId)
+          exhibitionsAPI.getById(exId)
         ]);
         const ti = (tiRes.data && tiRes.data.data) ? tiRes.data.data : null;
         setTradeData(ti);
         setEventMeta(exRes.data || null);
-        setAllEvents(evRows);
         // default day select from buildDays or from event start date
         const firstDay = (ti?.buildDays && ti.buildDays[0]) ? 1 : (mockFairPlan.days.at(0)?.id || null);
         setSelectedDayId(firstDay as any);
@@ -203,46 +199,20 @@ export const TradeInfoPage: React.FC<T_TradeInfoPage> = ({eventId}) => {
     }
   );
 
-  const handleDownloadPlan = useCallback(async (spaceId: string, filename: string) => {
-    try {
-      const exId = Number(eventId);
-      const res = await tradeInfoAPI.downloadPlan(exId, spaceId);
-      const blob = res.data;
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = filename || 'plan-targow.pdf';
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      window.URL.revokeObjectURL(url);
-    } catch (e) {
-      console.warn('Download plan failed', e);
-    }
-  }, [eventId]);
-
   const mapHall = (() => {
-    // Build list with meta (id/name/originalFilename) if available
-    const hallsWithMeta: Array<{ id?: string; name: string; originalFilename?: string | null }> =
-      tradeData?.tradeSpaces && tradeData.tradeSpaces.length > 0
-        ? tradeData.tradeSpaces.map((s: any) => ({ id: String(s.id), name: s.hallName || s.name || '-', originalFilename: s.originalFilename || null }))
-        : mockFairPlan.halls.map((h: any) => ({ name: h.name, originalFilename: undefined }));
-
+    const halls = tradeData?.tradeSpaces && tradeData.tradeSpaces.length > 0
+      ? tradeData.tradeSpaces.map((s: any) => ({ name: s.hallName || s.name || '-', isYourHall: false }))
+      : mockFairPlan.halls;
     const my = tradeData?.exhibitorAssignment;
-    return hallsWithMeta.map((item, index: number) => {
+    return halls.map((item: any, index: number) => {
       const isMine = my && my.hallName && String(item.name).toLowerCase() === String(my.hallName).toLowerCase();
-      const isDownloadable = Boolean(item.id && item.originalFilename);
-      const onClick = isDownloadable ? () => handleDownloadPlan(item.id as string, item.originalFilename as string) : undefined;
       return (
         <div
           key={`hall_${index}`}
           className={styles.planCard}
-          onClick={onClick}
           style={{
             borderColor: isMine ? "#6F87F6" : "#4d4c4f",
-            cursor: isDownloadable ? 'pointer' : undefined,
           }}
-          title={isDownloadable ? `Pobierz – ${item.originalFilename}` : undefined}
         >
           <CustomTypography fontSize="10px" fontWeight={700} color="white">
             {item.name}
@@ -254,11 +224,6 @@ export const TradeInfoPage: React.FC<T_TradeInfoPage> = ({eventId}) => {
                   __html: `Twoje stoisko - <b>${my.standNumber}</b>`,
                 }}
               />
-            </div>
-          )}
-          {isDownloadable && (
-            <div className={styles.planCardPosition}>
-              <p>Pobierz – {item.originalFilename}</p>
             </div>
           )}
         </div>
@@ -302,28 +267,6 @@ export const TradeInfoPage: React.FC<T_TradeInfoPage> = ({eventId}) => {
       />
     );
   });
-
-  const mapAllEvents = (() => {
-    const items = (allEvents || []).slice().sort((a, b) => {
-      const ad = String(a.event_date);
-      const bd = String(b.event_date);
-      if (ad !== bd) return ad.localeCompare(bd);
-      return String(a.start_time).localeCompare(String(b.start_time));
-    });
-    if (items.length === 0) return null;
-    return (
-      <div style={{ display: 'grid', gap: 12 }}>
-        {items.map(ev => (
-          <div key={ev.id} style={{ border: '1px solid #3d3c40', borderRadius: 8, padding: 12 }}>
-            <div style={{ color: '#A7A7A7', fontSize: 12 }}>{ev.event_date} • {String(ev.start_time).slice(0,5)}–{String(ev.end_time).slice(0,5)}</div>
-            <div style={{ color: '#fff', fontWeight: 700 }}>{ev.name}</div>
-            {ev.hall && <div style={{ color: '#D7D9DD', fontSize: 12 }}>{ev.hall}</div>}
-            {ev.description && <div style={{ color: '#D7D9DD', fontSize: 12 }}>{ev.description}</div>}
-          </div>
-        ))}
-      </div>
-    );
-  })();
 
   return (
     <div className={styles.layout}>
@@ -503,30 +446,24 @@ export const TradeInfoPage: React.FC<T_TradeInfoPage> = ({eventId}) => {
           </CustomTypography>
           <div className={styles.plansContent}>{mapHall}</div>
           <CustomTypography fontSize="1rem" fontWeight={700} color="white">
-            Wydarzenia towarzyszące
+            {`Wydarzenia towarzyszące`}
           </CustomTypography>
-          <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
-            <button onClick={() => setActiveTab('all')} style={{ padding: '6px 10px', borderRadius: 6, border: 0, background: activeTab==='all' ? '#6f87f6' : '#2f2f35', color: '#fff' }}>Wszystkie</button>
-            <button onClick={() => setActiveTab('byday')} style={{ padding: '6px 10px', borderRadius: 6, border: 0, background: activeTab==='byday' ? '#6f87f6' : '#2f2f35', color: '#fff' }}>Po dniach</button>
+          <div className={styles.plansDays}>
+            <CustomTypography fontSize="13px" fontWeight={500} color="#A7A7A7">
+              Wybierz dzień targów:
+            </CustomTypography>
+            {mapDays}
           </div>
-          {activeTab === 'all' ? (
-            mapAllEvents
-          ) : (
-            <>
-              <div className={styles.plansDays}>
-                <CustomTypography fontSize="13px" fontWeight={500} color="#A7A7A7">
-                  Wybierz dzień targów:
-                </CustomTypography>
-                {mapDays}
-              </div>
-              {mapDayPlans}
-            </>
-          )}
+          {mapDayPlans}
           <div className={styles.dayPlanEvent}>
             <CustomTypography fontSize="13px" fontWeight={500} color="#D7D9DD">
-              Wydarzenia towarzyszące
+              Wydarzenia towarzyszące to wsaniały pomysł lorem ipsum. Wydarzenia
+              towarzyszące to wsaniały pomysł lorem ipsum
             </CustomTypography>
           </div>
+          <button className={styles.dayPlanEventButton}>
+            Zgłoś wydarzenie na swoim stoisku
+          </button>
         </section>
       </main>
     </div>
