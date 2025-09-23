@@ -111,7 +111,20 @@ const IdentifierCard: React.FC<IdentifierCardProps> = ({data}) => {
                 odwiedzili Cię na targach w wyjątkowych warunkach. Każda osoba
                 zaproszona przez Ciebie przez aplikację otrzyma imienny
               </div>
-              <button className={styles.cardDarkOtherContentButton}>
+              <button className={styles.cardDarkOtherContentButton} onClick={() => {
+                try {
+                  const parts = window.location.pathname.split('/').filter(Boolean);
+                  const idx = parts.findIndex(p => p === 'event');
+                  const eventId = idx >= 0 && parts[idx+1] ? parts[idx+1] : '';
+                  if (eventId) {
+                    window.location.href = `/event/${eventId}/invitations`;
+                  } else {
+                    window.location.href = `/invitations`;
+                  }
+                } catch {
+                  window.location.href = `/invitations`;
+                }
+              }}>
                 Przejdź do generatora zaproszeń
               </button>
             </>
