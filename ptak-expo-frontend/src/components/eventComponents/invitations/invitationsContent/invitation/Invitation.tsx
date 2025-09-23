@@ -449,91 +449,6 @@ ${invitationData.company_info || ''}`;
         </Box>
 
         <Divider className={styles.divider_} />
-
-       {/* Opis Priority Bussiness Pass */}
-         <Box className={styles.section} sx={{marginTop:'1rem', marginBottom:'1rem'}}>
-            <Box className={styles.column}> 
-                <CustomTypography className={styles.titleUpload}>Benefit</CustomTypography>
-                <Box className={styles.technicalInfoView}>
-                    <Box className={styles.technicalInfoViewText}> opis</Box>
-                    {<Box className={styles.technicalInfoViewText}> wymiar px</Box>}
-                </Box>
-           <Box className={styles.row}>
-             <Box className={styles.imageBenefit}>
-                <Box className={styles.uploadFile}>
-                    <Box className={styles.uploadBox}>
-                        <Box className={`${styles.uploadBoxIn} `}>
-                           <Box className={styles.insideUploadBox} onClick={handleBenefitFileClick}>
-                            <Box className={styles.iconCircle}><ImgIcon/></Box>
-                            <CustomTypography className={styles.infoInUploadBox}>
-                             {benefitFile ? benefitFile.name : 'Przeciągnij i upuść, aby dodać plik'}
-                            </CustomTypography>
-                           </Box>
-                        </Box>
-                    </Box>
-                    
-                </Box>
-                <Box className={styles.column}> 
-                    <Box className={styles.viewLabel}>Podgląd:</Box>
-                    <Box className={styles.view}>{benefitPreviewUrl && (
-                        <img src={benefitPreviewUrl} alt="benefit" style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} />
-                      )}</Box>
-                    <input type="file" ref={benefitFileInputRef} style={{ display: 'none' }} onChange={handleBenefitFileChange} />
-                </Box>
-            </Box>
-             <Box className={styles.infoBenefit}>
-                <Box  className={styles.column}>
-                    <Box className={styles.onetextField}>
-                        <CustomTextField
-                        label="Tytuł benefitu"
-                        value={benefitTitle}
-                        onChange={(e) => setBenefitTitle(e.target.value)}
-                        multiline
-                        rows={1}
-                        fullWidth
-                        size="small"
-                        className={styles.textField}
-                        />
-                    </Box>
-                    <Box>       
-                    <CustomTextField
-                        label="Treść benefitu"
-                        value={benefitContent}
-                        onChange={(e) => setBenefitContent(e.target.value)}
-                        multiline
-                        rows={4}
-                        fullWidth
-                        size="small"
-                        className={styles.textField}
-                        placeholder="Opis (max 840znaków)"
-                        inputProps={{ maxLength: 840}}
-                        />
-                    </Box>
-                </Box>
-             </Box>
-
-           </Box>
-           <Box className={styles.rowWithAction}>
-             <Box className={styles.addBenefit}>
-                <ComponentWithAction 
-                iconType={'add'} 
-                handleAction={handleCreateBenefit} 
-                buttonTitle={'dodaj benefit'}
-                disabled={isUploadingBenefit || (!benefitTitle.trim() || !benefitContent.trim())}/>
-            </Box>
-             <Box className={styles.saveBenefit}>
-               <ComponentWithAction 
-                iconType={'save'} 
-                handleAction={editingBenefitId ? handleSaveBenefitEdit : handleCreateBenefit} 
-                buttonTitle={editingBenefitId ? 'zapisz zmiany' : 'zapisz zmiany'}
-                iconFirst={false}
-                disabled={isUploadingBenefit}/>
-             </Box>
-           </Box>
-           </Box>
-         </Box>
-
-        <Divider className={styles.divider_} sx={{margin:'2rem 0rem'}}/>
     
 
 
@@ -609,6 +524,88 @@ ${invitationData.company_info || ''}`;
                                 placeholder="Szanowna Pani / Szanowny Panie,"
                                 inputProps={{ }}
                                 />              
+                        </Box>
+                    {/* Dodaj nowy benefit – przeniesione nad listę benefitów */}
+                        <Box className={styles.section} sx={{marginTop:'1rem', marginBottom:'1rem'}}>
+                          <Box className={styles.column}> 
+                            <CustomTypography className={styles.titleUpload}>Benefit</CustomTypography>
+                            <Box className={styles.technicalInfoView}>
+                              <Box className={styles.technicalInfoViewText}> opis</Box>
+                              {<Box className={styles.technicalInfoViewText}> wymiar px</Box>}
+                            </Box>
+                            <Box className={styles.row}>
+                              <Box className={styles.imageBenefit}>
+                                <Box className={styles.uploadFile}>
+                                  <Box className={styles.uploadBox}>
+                                    <Box className={`${styles.uploadBoxIn} `}>
+                                      <Box className={styles.insideUploadBox} onClick={handleBenefitFileClick}>
+                                        <Box className={styles.iconCircle}><ImgIcon/></Box>
+                                        <CustomTypography className={styles.infoInUploadBox}>
+                                          {benefitFile ? benefitFile.name : 'Przeciągnij i upuść, aby dodać plik'}
+                                        </CustomTypography>
+                                      </Box>
+                                    </Box>
+                                  </Box>
+                                </Box>
+                                <Box className={styles.column}> 
+                                  <Box className={styles.viewLabel}>Podgląd:</Box>
+                                  <Box className={styles.view}>{benefitPreviewUrl && (
+                                    <img src={benefitPreviewUrl} alt="benefit" style={{ maxWidth: '100%', maxHeight: '100%', objectFit: 'contain' }} />
+                                  )}</Box>
+                                  <input type="file" ref={benefitFileInputRef} style={{ display: 'none' }} onChange={handleBenefitFileChange} />
+                                </Box>
+                              </Box>
+                              <Box className={styles.infoBenefit}>
+                                <Box  className={styles.column}>
+                                  <Box className={styles.onetextField}>
+                                    <CustomTextField
+                                      label="Tytuł benefitu"
+                                      value={benefitTitle}
+                                      onChange={(e) => setBenefitTitle(e.target.value)}
+                                      multiline
+                                      rows={1}
+                                      fullWidth
+                                      size="small"
+                                      className={styles.textField}
+                                    />
+                                  </Box>
+                                  <Box>       
+                                    <CustomTextField
+                                      label="Treść benefitu"
+                                      value={benefitContent}
+                                      onChange={(e) => setBenefitContent(e.target.value)}
+                                      multiline
+                                      rows={4}
+                                      fullWidth
+                                      size="small"
+                                      className={styles.textField}
+                                      placeholder="Opis (max 840znaków)"
+                                      inputProps={{ maxLength: 840}}
+                                    />
+                                  </Box>
+                                </Box>
+                              </Box>
+                            </Box>
+                            <Box className={styles.rowWithAction}>
+                              <Box className={styles.addBenefit}>
+                                <ComponentWithAction 
+                                  iconType={'add'} 
+                                  handleAction={handleCreateBenefit} 
+                                  buttonTitle={'dodaj benefit'}
+                                  disabled={isUploadingBenefit || (!benefitTitle.trim() || !benefitContent.trim())}
+                                />
+                              </Box>
+                              <Box className={styles.saveBenefit}>
+                                <ComponentWithAction 
+                                  iconType={'save'} 
+                                  handleAction={editingBenefitId ? handleSaveBenefitEdit : handleCreateBenefit} 
+                                  buttonTitle={editingBenefitId ? 'zapisz zmiany' : 'zapisz zmiany'}
+                                  iconFirst={false}
+                                  disabled={isUploadingBenefit}
+                                />
+                              </Box>
+                            </Box>
+                          </Box>
                         </Box>
                     {/* Special Offers - checkbox list with edit/delete */}
                         <Box>
