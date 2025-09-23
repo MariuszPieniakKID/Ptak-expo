@@ -240,6 +240,14 @@ router.get('/exhibitions/:exhibitionId/exhibitors/:exhibitorId.json', async (req
       ORDER BY category, created_at DESC
     `, [exhibitorId, exhibitionId]);
 
+    // Electronic IDs (people) for exhibitor
+    const peopleRes = await db.query(`
+      SELECT id, full_name, position, email, created_at
+      FROM exhibitor_people
+      WHERE exhibitor_id = $1 AND exhibition_id = $2
+      ORDER BY created_at DESC
+    `, [exhibitorId, exhibitionId]);
+
     const token = req.query.token ? String(req.query.token) : null;
     const documents = docsRes.rows.map((d) => ({
       id: d.id,
@@ -442,6 +450,27 @@ router.get('/exhibitions/:exhibitionId/exhibitors/:exhibitorId.rss', async (req,
         <category>document</category>
         <pubDate>${new Date(d.created_at || Date.now()).toUTCString()}</pubDate>
         <enclosure url="${downloadUrl}" length="${d.file_size || 0}" type="${escapeXml(d.mime_type || 'application/octet-stream')}" />
+      </item>`
+      );
+    });
+
+    // Electronic IDs items
+    const peopleRes = await db.query(`
+      SELECT id, full_name, position, email, created_at
+      FROM exhibitor_people
+      WHERE exhibitor_id = $1 AND exhibition_id = $2
+      ORDER BY created_at DESC
+    `, [exhibitorId, exhibitionId]);
+    peopleRes.rows.forEach((p) => {
+      const pDesc = [p.position ? `Rola: ${escapeXml(p.position)}` : '', p.email ? `Email: ${escapeXml(p.email)}` : ''].filter(Boolean).join(' | ');
+      items.push(
+        `      <item>
+        <title>${escapeXml(p.full_name || 'Osoba')}</title>
+        <link>${siteLink}/public/exhibitions/${exhibitionId}/exhibitors/${exhibitorId}.json</link>
+        <guid isPermaLink="false">person-${p.id}</guid>
+        <description>${pDesc}</description>
+        <category>electronic_id</category>
+        <pubDate>${new Date(p.created_at || Date.now()).toUTCString()}</pubDate>
       </item>`
       );
     });
