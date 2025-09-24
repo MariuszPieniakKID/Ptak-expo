@@ -4,6 +4,7 @@ import { useChecklist } from "../../contexts/ChecklistContext";
 import { EidType, ElectrionicId } from "../../services/checkListApi";
 import { useState } from "react";
 import { eidTypes, getEidTypeString } from "../../shared/EventUtils";
+import QRCode from 'qrcode';
 const boxSx = {
 	backgroundColor: '#fff',
 	padding: "40px",
@@ -65,6 +66,16 @@ function AddElectronicId() {
 
 export default function ElectronicIdsCard() {
 	const {filled, checklist} = useChecklist();
+	const [qrDataUrls, setQrDataUrls] = useState<Record<string, string>>({});
+
+	const ensureQr = async (key: string, text?: string | null) => {
+		if (!text) return;
+		if (qrDataUrls[key]) return;
+		try {
+			const dataUrl = await QRCode.toDataURL(text, { margin: 0, scale: 4 });
+			setQrDataUrls(prev => ({ ...prev, [key]: dataUrl }));
+		} catch {}
+	};
 
 	return (
 	<ChecklistCard icon={
@@ -80,7 +91,28 @@ export default function ElectronicIdsCard() {
 							<TableCell>{eid.email}</TableCell>
 							<TableCell>{getEidTypeString(eid.type)}</TableCell>
 							<TableCell>
-								{eid.accessCode ? <Typography fontSize={10} sx={{ whiteSpace: 'nowrap' }}>{eid.accessCode}</Typography> : null}
+								{eid.accessCode ? (
+									<Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+										<Typography fontSize={10} sx={{ whiteSpace: 'nowrap' }}>{eid.accessCode}</Typography>
+									</Box>
+								) : null}
+							</TableCell>
+							<TableCell>
+								{eid.accessCode ? (
+									<Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+										{ensureQr(`${eid.email}-${i}`, eid.accessCode) as any}
+										{qrDataUrls[`${eid.email}-${i}`] ? (
+											<img src={qrDataUrls[`${eid.email}-${i}`]} alt="QR" width={48} height={48} />
+										) : (
+											<Typography fontSize={10}>QR...</Typography>
+										)}
+										{qrDataUrls[`${eid.email}-${i}`] && (
+											<a href={qrDataUrls[`${eid.email}-${i}`]} download={`eid-${i + 1}.png`}>
+												<Button size="small" variant="outlined">Pobierz QR</Button>
+											</a>
+										)}
+									</Box>
+								) : null}
 							</TableCell>
 						</TableRow>)}
 

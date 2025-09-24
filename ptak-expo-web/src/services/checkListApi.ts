@@ -435,13 +435,8 @@ export const addElectronicId = async (electronicId: ElectrionicId) => {
             }
         } catch {}
 
-        // Build event code (AAAA from name), 0000 event id (padded), w000 exhibitor id (padded), entry_id (unique), rndXXXX, entry_id again
-        const toAbbrev = (name: string): string => {
-            const letters = String(name || '').replace(/[^A-Za-z]/g, '').toUpperCase();
-            const base = letters.slice(0, 4);
-            return base.padEnd(4, 'X');
-        };
-        const eventCode = toAbbrev(exhibitionName);
+        // Build event code (FULL exhibition name), 0000 event id (padded), w000 exhibitor id (padded), entry_id (unique), rndXXXX, entry_id again
+        const eventCode = String(exhibitionName || '').replace(/\s+/g, ' ').trim();
         const eventIdPadded = String(exhibitionId).padStart(4, '0');
         const exhibitorIdPadded = 'w' + String(typeof exhibitorId === 'number' ? exhibitorId : 0).padStart(3, '0');
         const entryId = (() => {
