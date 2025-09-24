@@ -216,12 +216,14 @@ export const invitationsAPI = {
     exhibitionId: number,
     templateId: number,
     recipientName: string,
-    recipientEmail: string
+    recipientEmail: string,
+    htmlOverride?: string
   ): Promise<{ success: boolean; data?: any; message?: string }> => {
     const res = await api.post(`/api/v1/invitations/${exhibitionId}/send`, {
       templateId,
       recipientName,
       recipientEmail,
+      htmlOverride,
     });
     return res.data;
   },
@@ -232,6 +234,30 @@ export const invitationsAPI = {
     const data = res.data as { success?: boolean; data?: any[] };
     return Array.isArray(data?.data) ? data!.data! : [];
   }
+};
+
+// Marketing materials (benefits) for exhibitions
+export interface BenefitItem {
+  id: number;
+  title: string;
+  description?: string | null;
+  file_url?: string | null;
+  file_type?: string | null;
+}
+
+export const marketingAPI = {
+  listByExhibition: async (exhibitionId: number): Promise<BenefitItem[]> => {
+    const res = await api.get(`/api/v1/marketing-materials/${exhibitionId}`);
+    const data = res.data as { success?: boolean; data?: any[] };
+    const arr = Array.isArray(data?.data) ? data!.data! : [];
+    return arr.map((row: any) => ({
+      id: row.id,
+      title: row.title,
+      description: row.description ?? null,
+      file_url: row.file_url ?? null,
+      file_type: row.file_type ?? null,
+    }));
+  },
 };
 
 // ============= NEWS (Aktualności) API =============

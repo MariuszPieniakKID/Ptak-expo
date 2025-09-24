@@ -348,13 +348,46 @@ const sendInvitation = async (req, res) => {
       const companyInfo = (tpl.company_info || '').trim();
       const contactBlock = [tpl.contact_person, tpl.contact_email, tpl.contact_phone].filter(Boolean).join(' • ');
 
-      const html = `<!doctype html><html><head><meta charset="utf-8"/></head><body style="font-family:Arial,sans-serif;color:#333;line-height:1.5;">
+      // Resolve benefits (marketing materials) content
+      let offersBlock = '';
+      try {
+        const ids = (tpl.special_offers && typeof tpl.special_offers === 'string')
+          ? String(tpl.special_offers).split(',').map((s) => Number(String(s).trim())).filter((n) => !Number.isNaN(n))
+          : [];
+        if (ids.length > 0) {
+          const q = await client.query(
+            `SELECT id, title, description FROM marketing_materials WHERE exhibition_id = $1 AND id = ANY($2::int[])`,
+            [exhibitionId, ids]
+          );
+          if (q.rows.length > 0) {
+            const list = q.rows.map((b) => `<li><strong>${b.title}</strong>${b.description ? ' – ' + b.description : ''}</li>`).join('');
+            offersBlock = `<h4>Oferta specjalna:</h4><ul>${list}</ul>`;
+          }
+        }
+      } catch {}
+
+      // Invitations header image from branding: 'tlo_wydarzenia_logo_zaproszenia'
+      let headerImageUrl = null;
+      try {
+        const f = await client.query(
+          `SELECT file_path FROM exhibitor_branding_files WHERE exhibitor_id IS NULL AND exhibition_id = $1 AND file_type = 'tlo_wydarzenia_logo_zaproszenia' ORDER BY created_at DESC LIMIT 1`,
+          [exhibitionId]
+        );
+        if (f.rows.length > 0 && f.rows[0].file_path) {
+          const base = process.env.API_BASE_URL || '';
+          headerImageUrl = `${base}/api/v1/exhibitor-branding/serve/global/${encodeURIComponent(String(f.rows[0].file_path).split('/').pop())}`;
+        }
+      } catch {}
+
+      const headerImgHtml = headerImageUrl ? `<div style=\"height:160px;overflow:hidden;margin-bottom:16px;\"><img alt=\"header\" src=\"${headerImageUrl}\" style=\"width:100%;height:100%;object-fit:cover;\"/></div>` : '';
+
+      const html = `<!doctype html><html><head><meta charset=\"utf-8\"/></head><body style=\"font-family:Arial,sans-serif;color:#333;line-height:1.5;\">${headerImgHtml}
         ${greetingLine ? `<p>${greetingLine}</p>` : ''}
         ${contentHtml ? `<div>${contentHtml.replace(/\n/g, '<br/>')}</div>` : ''}
-        ${tpl.booth_info ? `<p style="margin-top:12px;"><strong>Stoisko:</strong> ${tpl.booth_info}</p>` : ''}
-        ${tpl.special_offers ? `<p style="margin-top:12px;"><strong>Oferta specjalna:</strong> ${tpl.special_offers}</p>` : ''}
-        ${companyInfo ? `<p style="margin-top:16px;">${companyInfo.replace(/\n/g, '<br/>')}</p>` : ''}
-        ${contactBlock ? `<p style="margin-top:8px;color:#555;">${contactBlock}</p>` : ''}
+        ${tpl.booth_info ? `<p style=\"margin-top:12px;\"><strong>Stoisko:</strong> ${tpl.booth_info}</p>` : ''}
+        ${offersBlock}
+        ${companyInfo ? `<p style=\"margin-top:16px;\">${companyInfo.replace(/\n/g, '<br/>')}</p>` : ''}
+        ${contactBlock ? `<p style=\"margin-top:8px;color:#555;\">${contactBlock}</p>` : ''}
       </body></html>`;
 
       // Insert recipient row first (to keep record even if email fails)

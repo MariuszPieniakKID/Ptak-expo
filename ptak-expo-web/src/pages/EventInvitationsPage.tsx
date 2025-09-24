@@ -1,9 +1,13 @@
-import { Box, TextField, Button, Typography } from '@mui/material';
+import { Box, TextField, Button, Typography, IconButton } from '@mui/material';
+import FormatBoldIcon from '@mui/icons-material/FormatBold';
+import FormatItalicIcon from '@mui/icons-material/FormatItalic';
+import InsertLinkIcon from '@mui/icons-material/InsertLink';
+import EmojiEmotionsIcon from '@mui/icons-material/EmojiEmotions';
 import EventLayout from '../components/eventLayout/EventLayout';
 import LeftColumn from '../components/event-left/LeftColumn';
 import { useParams } from 'react-router-dom';
-import { useEffect, useState } from 'react';
-import { exhibitionsAPI, brandingAPI, invitationsAPI } from '../services/api';
+import { useEffect, useRef, useState } from 'react';
+import { exhibitionsAPI, brandingAPI, invitationsAPI, marketingAPI, BenefitItem } from '../services/api';
 import styles from './EventHomePage.module.scss';
 
 // no date fields in invitations card
@@ -14,10 +18,14 @@ const EventInvitationsPage = () => {
   const [guestName, setGuestName] = useState<string>('');
   const [guestEmail, setGuestEmail] = useState<string>('');
   const [templates, setTemplates] = useState<{ id: number; title: string; invitation_type: string }[]>([]);
+  const [benefits, setBenefits] = useState<BenefitItem[]>([]);
   const [selectedTemplateId, setSelectedTemplateId] = useState<number | ''>('');
   const [sent, setSent] = useState<Array<{ id: number; recipientName: string; recipientEmail: string; invitationType: string; status: string; sentAt?: string }>>([]);
   const [isSending, setIsSending] = useState(false);
   const [previewHtml, setPreviewHtml] = useState<string>('');
+  const [showPreview, setShowPreview] = useState<boolean>(false);
+  const editorRef = useRef<HTMLDivElement | null>(null);
+  const [editorHtml, setEditorHtml] = useState<string>('');
   const isFormValid = Boolean(guestName.trim() && guestEmail.trim() && selectedTemplateId);
 
   useEffect(() => {
@@ -25,9 +33,10 @@ const EventInvitationsPage = () => {
       if (!eventId) return;
       try {
         const idNum = Number(eventId);
-        const [evRes, brandingRes] = await Promise.all([
+        const [evRes, brandingRes, benefitsRes] = await Promise.all([
           exhibitionsAPI.getById(idNum),
           brandingAPI.getGlobal(idNum).catch(() => null),
+          marketingAPI.listByExhibition(idNum).catch(() => []),
         ]);
 
         const e = evRes.data;
@@ -46,6 +55,7 @@ const EventInvitationsPage = () => {
           eventName: e.name || '',
           headerImageUrl,
         });
+        setBenefits(Array.isArray(benefitsRes) ? benefitsRes : []);
 
         // Load invitation templates for this event
         try {
@@ -71,7 +81,7 @@ const EventInvitationsPage = () => {
     setIsSending(true);
     try {
       const idNum = Number(eventId);
-      const res = await invitationsAPI.send(idNum, Number(selectedTemplateId), guestName.trim(), guestEmail.trim());
+      const res = await invitationsAPI.send(idNum, Number(selectedTemplateId), guestName.trim(), guestEmail.trim(), previewHtml || undefined);
       if (res?.success) {
         // Refresh list
         const recipients = await invitationsAPI.recipients(idNum);
@@ -103,20 +113,61 @@ const EventInvitationsPage = () => {
       const contentHtml = (tpl.content || '').trim();
       const companyInfo = (tpl.company_info || '').trim();
       const contactBlock = [tpl.contact_person, tpl.contact_email, tpl.contact_phone].filter(Boolean).join(' • ');
-      const html = `<!doctype html><html><head><meta charset='utf-8'/></head><body style='font-family:Arial,sans-serif;color:#333;line-height:1.5;'>
+      // Build special offers block from IDs in tpl.special_offers (comma-separated IDs)
+      const offersBlock = (() => {
+        const raw = tpl.special_offers;
+        const ids: number[] = Array.isArray(raw)
+          ? raw
+          : (typeof raw === 'string' ? raw.split(',').map((s: string) => Number(s.trim())).filter((n) => !Number.isNaN(n)) : []);
+        const items = ids
+          .map((id: number) => benefits.find((b) => b.id === id))
+          .filter(Boolean) as BenefitItem[];
+        if (items.length === 0) return '';
+        const list = items.map((b) => `<li><strong>${b.title}</strong>${b.description ? ' – ' + b.description : ''}</li>`).join('');
+        return `<h4>Oferta specjalna:</h4><ul>${list}</ul>`;
+      })();
+
+      const headerImgHtml = data?.headerImageUrl ? `<div style='height:160px;overflow:hidden;margin-bottom:16px;'><img alt='header' src='${data.headerImageUrl}' style='width:100%;height:100%;object-fit:cover;'/></div>` : '';
+
+      const html = `<!doctype html><html><head><meta charset='utf-8'/></head><body style='font-family:Arial,sans-serif;color:#333;line-height:1.5;'>${headerImgHtml}
         ${greetingLine ? `<p>${greetingLine}</p>` : ''}
         ${contentHtml ? `<div>${contentHtml.replace(/\n/g, '<br/>')}</div>` : ''}
         ${tpl.booth_info ? `<p style='margin-top:12px;'><strong>Stoisko:</strong> ${tpl.booth_info}</p>` : ''}
-        ${tpl.special_offers ? `<p style='margin-top:12px;'><strong>Oferta specjalna:</strong> ${tpl.special_offers}</p>` : ''}
+        ${offersBlock}
         ${companyInfo ? `<p style='margin-top:16px;'>${companyInfo.replace(/\n/g, '<br/>')}</p>` : ''}
         ${contactBlock ? `<p style='margin-top:8px;color:#555;'>${contactBlock}</p>` : ''}
       </body></html>`;
+      setEditorHtml(html);
       setPreviewHtml(html);
+      setShowPreview(true);
     } catch (e) {
       console.warn('Preview build failed', e);
       setPreviewHtml('');
     }
   };
+
+  // Initialize editor content once when preview opens
+  useEffect(() => {
+    if (showPreview && editorRef.current && editorRef.current.innerHTML === '' && editorHtml) {
+      editorRef.current.innerHTML = editorHtml;
+    }
+  }, [showPreview, editorHtml]);
+
+  // Toolbar actions for contentEditable editor
+  const exec = (cmd: string, val?: string) => {
+    if (editorRef.current) editorRef.current.focus();
+    try { document.execCommand(cmd, false, val); } catch {}
+    if (editorRef.current) {
+      const html = editorRef.current.innerHTML;
+      setEditorHtml(html);
+      setPreviewHtml(html);
+    }
+  };
+  const onInsertLink = () => {
+    const url = window.prompt('Wprowadź adres URL', 'https://');
+    if (url) exec('createLink', url);
+  };
+  const onInsertEmoji = (emoji: string) => exec('insertText', emoji);
 
   return (
     <EventLayout
@@ -184,20 +235,58 @@ const EventInvitationsPage = () => {
                 <Button
                   variant="contained"
                   fullWidth
-                  onClick={handleSend}
-                  disabled={isSending || !guestName.trim() || !guestEmail.trim() || !selectedTemplateId}
+                  onClick={handlePreview}
+                  disabled={!isFormValid}
                 >
-                  {isSending ? 'Wysyłanie…' : 'Wyślij zaproszenie'}
+                  Sprawdź wiadomość
                 </Button>
+
+                {showPreview && (
+                  <Box sx={{ mt: 2, p: 2, border: '1px solid #eee', borderRadius: 1 }}>
+                    <Typography variant="subtitle2" sx={{ mb: 1 }}>Podgląd wiadomości – edycja 1:1</Typography>
+                    <Box sx={{ display: 'flex', gap: 0.5, mb: 1 }}>
+                      <IconButton aria-label="Pogrubienie" size="small" onClick={() => exec('bold')} sx={{ p: 0.5, border: '1px solid #e5e7eb', borderRadius: 1, color: '#2E2E38' }}>
+                        <FormatBoldIcon sx={{ fontSize: 16 }} />
+                      </IconButton>
+                      <IconButton aria-label="Kursywa" size="small" onClick={() => exec('italic')} sx={{ p: 0.5, border: '1px solid #e5e7eb', borderRadius: 1, color: '#2E2E38' }}>
+                        <FormatItalicIcon sx={{ fontSize: 16 }} />
+                      </IconButton>
+                      <IconButton aria-label="Wstaw link" size="small" onClick={onInsertLink} sx={{ p: 0.5, border: '1px solid #e5e7eb', borderRadius: 1, color: '#2E2E38' }}>
+                        <InsertLinkIcon sx={{ fontSize: 16 }} />
+                      </IconButton>
+                      <IconButton aria-label="Wstaw emotkę" size="small" onClick={() => onInsertEmoji('🙂')} sx={{ p: 0.5, border: '1px solid #e5e7eb', borderRadius: 1, color: '#2E2E38' }}>
+                        <EmojiEmotionsIcon sx={{ fontSize: 16 }} />
+                      </IconButton>
+                    </Box>
+                    <div
+                      ref={editorRef}
+                      contentEditable
+                      suppressContentEditableWarning
+                      onInput={() => {
+                        if (editorRef.current) {
+                          const html = editorRef.current.innerHTML;
+                          setEditorHtml(html);
+                          setPreviewHtml(html);
+                        }
+                      }}
+                      style={{
+                        minHeight: 240,
+                        border: '1px solid #ddd',
+                        borderRadius: 8,
+                        padding: 12,
+                      }}
+                    />
+                  </Box>
+                )}
 
                 <Button
                   variant="contained"
                   fullWidth
                   sx={{ mt: 1 }}
-                  onClick={handlePreview}
-                  disabled={!isFormValid}
+                  onClick={handleSend}
+                  disabled={isSending || !guestName.trim() || !guestEmail.trim() || !selectedTemplateId}
                 >
-                  Sprawdź wiadomość
+                  {isSending ? 'Wysyłanie…' : 'Wyślij zaproszenie'}
                 </Button>
 
                 {/* Sent list */}
@@ -214,12 +303,7 @@ const EventInvitationsPage = () => {
                     ))}
                   </Box>
                 )}
-                {previewHtml && (
-                  <Box sx={{ mt: 2, p: 2, border: '1px solid #eee', borderRadius: 1 }}>
-                    <Typography variant="subtitle2" sx={{ mb: 1 }}>Podgląd wiadomości</Typography>
-                    <div dangerouslySetInnerHTML={{ __html: previewHtml }} />
-                  </Box>
-                )}
+                {/* (Usunięto duplikat podglądu) */}
               </Box>
             </Box>
           )}
