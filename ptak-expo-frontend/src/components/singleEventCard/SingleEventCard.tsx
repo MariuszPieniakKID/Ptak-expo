@@ -148,7 +148,7 @@ const SingleEventCard: React.FC<SingleEventCardProps> = ({
 
   return (
     <>
-      <Box className={`${styles.eventCardContainer} ${token && eventLogoFileName ? styles.hasLogoCard : ''}`}>
+      <Box className={`${styles.eventCardContainer} ${token && eventLogoFileName ? styles.hasLogoCard : ''} ${showEdit ? styles.autoHeight : ''}`}>
         <Box className={styles.deleteIconContainer}>
           {showDelete && handleDeleteEventFromExhibitor && exhibitorId !== undefined ? (
             <WastebasketIcon
@@ -177,27 +177,39 @@ const SingleEventCard: React.FC<SingleEventCardProps> = ({
         </Box>
 
         {showEdit ? (
-          <Box className={styles.editBox}>
-            <Box className={styles.fieldLabelContainer} >
-              <CustomTypography className={styles.fieldLabel}>Branża:</CustomTypography>
-            </Box>
+          <>
+            <Box className={styles.editBox}>
+              <Box className={styles.fieldLabelContainer} >
+                <CustomTypography className={styles.fieldLabel}>Branża:</CustomTypography>
+              </Box>
 
-            <Box className={styles.editInfo}>
-              <CustomTypography className={styles.fieldValue}>Dom</CustomTypography>
-              <Box className={styles.actionEditButton}>
-                <Box 
-                  className={styles.boxWithHover}
-                  onClick={() => {
-                    const evt = new CustomEvent('open-edit-event-modal', { detail: { id, title, start_date, end_date } });
-                    window.dispatchEvent(evt);
-                  }}
-                > 
-                  <EditIcon className={styles.editEvent}/>         
-                  <CustomTypography className={styles.editEventText}>edytuj</CustomTypography>
-                </Box>         
+              <Box className={styles.editInfo}>
+                <CustomTypography className={styles.fieldValue}>Dom</CustomTypography>
+                <Box className={styles.actionEditButton}>
+                  <Box 
+                    className={styles.boxWithHover}
+                    onClick={() => {
+                      const evt = new CustomEvent('open-edit-event-modal', { detail: { id, title, start_date, end_date } });
+                      window.dispatchEvent(evt);
+                    }}
+                  > 
+                    <EditIcon className={styles.editEvent}/>         
+                    <CustomTypography className={styles.editEventText}>edytuj</CustomTypography>
+                  </Box>         
+                </Box>
               </Box>
             </Box>
-          </Box>
+
+            <Box className={styles.editBox}>
+              <Box className={styles.fieldLabelContainer} >
+                <CustomTypography className={styles.fieldLabel}>ID wydarzenia:</CustomTypography>
+              </Box>
+
+              <Box className={styles.editInfo}>
+                <CustomTypography className={styles.fieldValue}>{id}</CustomTypography>
+              </Box>
+            </Box>
+          </>
         ) : (
           <Box className={styles.actionInfo}>
             <Box className={styles.readyInfo}>

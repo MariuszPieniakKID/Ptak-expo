@@ -7,6 +7,7 @@ import {
   exhibitorsSelfAPI,
   exhibitorDocumentsAPI,
   ExhibitorDocument,
+  tradeInfoAPI,
 } from "../services/api";
 import IconDownload from "../assets/group-914.png";
 import IconPdf from "../assets/pdf.png";
@@ -21,6 +22,7 @@ const DocumentsPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [isFetchingFileId, setIsFetchingFileId] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [supervisor, setSupervisor] = useState<any | null>(null);
 
   // Filter documents by category
   const invoices = documents.filter((doc) => doc.category === "faktury");
@@ -44,12 +46,18 @@ const DocumentsPage: React.FC = () => {
         const profileResponse = await exhibitorsSelfAPI.getMe();
         const exhibitorId = profileResponse.data.data.id;
 
-        // Then fetch documents for this exhibitor and event
-        const documentsData = await exhibitorDocumentsAPI.list(
-          exhibitorId,
-          parseInt(eventId)
-        );
+        // Then fetch documents for this exhibitor and event, and trade info (for supervisor)
+        const [documentsData, tiRes] = await Promise.all([
+          exhibitorDocumentsAPI.list(
+            exhibitorId,
+            parseInt(eventId)
+          ),
+          tradeInfoAPI.get(parseInt(eventId)),
+        ]);
         setDocuments(documentsData);
+        const ti: any = (tiRes && (tiRes as any).data && (tiRes as any).data.data) ? (tiRes as any).data.data : null;
+        const sup = ti?.exhibitorAssignment?.supervisor || null;
+        setSupervisor(sup);
       } catch (err: any) {
         setError(
           err.response?.data?.message ||
@@ -274,9 +282,15 @@ const DocumentsPage: React.FC = () => {
           <div className={styles.contactRow}>
             <div className={styles.contactAvatar} />
             <div className={styles.contactMeta}>
-              <div className={styles.contactName}>Magda Masny</div>
-              <div className={styles.contactPhone}>+48 518 739 124</div>
-              <div className={styles.contactMail}>m.masny@warsawexpo.eu</div>
+              <div className={styles.contactName}>
+                {supervisor ? `${supervisor.firstName || ''} ${supervisor.lastName || ''}`.trim() : '-'}
+              </div>
+              <div className={styles.contactPhone}>
+                {supervisor?.phone || '-'}
+              </div>
+              <div className={styles.contactMail}>
+                {supervisor?.email || '-'}
+              </div>
             </div>
           </div>
         </section>
