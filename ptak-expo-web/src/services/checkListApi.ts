@@ -1,4 +1,5 @@
 import config from '../config/config';
+import * as QRCode from 'qrcode';
 // Do not import from EventUtils to avoid circular deps
 
 export interface CompanyInfo {
@@ -447,6 +448,12 @@ export const addElectronicId = async (electronicId: ElectrionicId) => {
         const rndSuffix = 'rnd' + Math.floor(Math.random() * 1_000_000).toString().padStart(6, '0');
         const accessCode = `${eventCode}${eventIdPadded}${exhibitorIdPadded}${entryId}${rndSuffix}${entryId}`;
 
+        // Generate QR as Data URL
+        let qrDataUrl: string | null = null;
+        try {
+            qrDataUrl = await QRCode.toDataURL(accessCode, { margin: 0, scale: 6 });
+        } catch {}
+
         await fetch(`${config.API_BASE_URL}/api/v1/exhibitors/me/people`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
@@ -456,8 +463,25 @@ export const addElectronicId = async (electronicId: ElectrionicId) => {
                 email: electronicId.email,
                 exhibitionId,
                 accessCode,
+                qrPngDataUrl: qrDataUrl || undefined,
             })
         });
+        // Also upload QR image to exhibitor documents so it can be downloaded later
+        if (qrDataUrl) {
+            try {
+                const resMe = await fetch(`${config.API_BASE_URL}/api/v1/exhibitors/me`, { headers: { Authorization: `Bearer ${token}` } });
+                const me = await resMe.json();
+                const exbId: number | null = me?.data?.id ?? null;
+                if (typeof exbId === 'number') {
+                    const blob = (await (await fetch(qrDataUrl)).blob());
+                    const clean = (s: string) => s.replace(/[^a-zA-Z0-9._-]+/g, '-');
+                    const entrySuffix = entryId.slice(-6);
+                    const fileName = `e-id-qr-${clean(String(exhibitionName || 'event'))}-${String(exhibitionId).padStart(4, '0')}-${clean(electronicId.email)}-${entrySuffix}.png`;
+                    const file = new File([blob], fileName, { type: 'image/png' });
+                    await addMaterialFile(file, exhibitionId);
+                }
+            } catch {}
+        }
         // Optimistic local store with accessCode
         ExampleChecklist = {...ExampleChecklist, electrionicIds: [...ExampleChecklist.electrionicIds, { ...electronicId, accessCode }].sort(
             (a, b) =>(a.type.toString() + a.name).localeCompare(b.type.toString() + b.name)

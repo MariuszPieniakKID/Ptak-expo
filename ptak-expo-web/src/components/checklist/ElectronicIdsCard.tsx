@@ -97,23 +97,21 @@ export default function ElectronicIdsCard() {
 									</Box>
 								) : null}
 							</TableCell>
-							<TableCell>
-								{eid.accessCode ? (
-									<Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-										{ensureQr(`${eid.email}-${i}`, eid.accessCode) as any}
-										{qrDataUrls[`${eid.email}-${i}`] ? (
-											<img src={qrDataUrls[`${eid.email}-${i}`]} alt="QR" width={48} height={48} />
-										) : (
-											<Typography fontSize={10}>QR...</Typography>
-										)}
-										{qrDataUrls[`${eid.email}-${i}`] && (
-											<a href={qrDataUrls[`${eid.email}-${i}`]} download={`eid-${i + 1}.png`}>
-												<Button size="small" variant="outlined">Pobierz QR</Button>
-											</a>
-										)}
-									</Box>
-								) : null}
-							</TableCell>
+                            <TableCell>
+                                {eid.accessCode ? (
+                                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                                        {ensureQr(`${eid.email}-${i}`, eid.accessCode) as any}
+                                        {qrDataUrls[`${eid.email}-${i}`] ? (
+                                            <img src={qrDataUrls[`${eid.email}-${i}`]} alt="QR" width={48} height={48} />
+                                        ) : (
+                                            <Typography fontSize={10}>QR...</Typography>
+                                        )}
+                                        <a href={qrDataUrls[`${eid.email}-${i}`] || '#'} download={`eid-${i + 1}.png`}>
+                                            <Button size="small" variant="outlined" disabled={!qrDataUrls[`${eid.email}-${i}`]}>Pobierz QR</Button>
+                                        </a>
+                                    </Box>
+                                ) : null}
+                            </TableCell>
 						</TableRow>)}
 
 				</TableBody>
