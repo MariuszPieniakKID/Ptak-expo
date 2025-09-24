@@ -653,16 +653,8 @@ router.post('/me/people', verifyToken, requireExhibitorOrAdmin, async (req, res)
             .map((d) => `${String(d.getDate()).padStart(2,'0')}.${String(d.getMonth()+1).padStart(2,'0')}.${d.getFullYear()}`)
             .join(' – ');
           const html = `<p>Dzień dobry ${fullName},</p><p>Otrzymujesz e‑identyfikator na wydarzenie: <strong>${ev.name || ''}</strong> (${dates}).</p><p>E‑identyfikator znajdziesz w załączniku (PDF). Prosimy o zabranie go na wydarzenie.</p><p>Pozdrawiamy,<br/>Zespół PTAK EXPO</p>`;
-          const attachments = [];
-          if (pdfBuffer) attachments.push({ filename: 'e-identyfikator.pdf', content: pdfBuffer, contentType: 'application/pdf' });
-          if (qrPngDataUrl && typeof qrPngDataUrl === 'string' && qrPngDataUrl.startsWith('data:image/png')) {
-            try {
-              const b64 = qrPngDataUrl.split(',')[1];
-              const pngBuffer = Buffer.from(b64, 'base64');
-              attachments.push({ filename: 'e-identyfikator-qr.png', content: pngBuffer, contentType: 'image/png' });
-            } catch {}
-          }
-          await sendEmail({ to: personEmail, subject, text: undefined, html, attachments: attachments.length ? attachments : undefined });
+          const attachments = pdfBuffer ? [{ filename: 'e-identyfikator.pdf', content: pdfBuffer, contentType: 'application/pdf' }] : undefined;
+          await sendEmail({ to: personEmail, subject, text: undefined, html, attachments });
         } finally {
           client.release();
         }
