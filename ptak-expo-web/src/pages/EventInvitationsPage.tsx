@@ -17,6 +17,8 @@ const EventInvitationsPage = () => {
   const [selectedTemplateId, setSelectedTemplateId] = useState<number | ''>('');
   const [sent, setSent] = useState<Array<{ id: number; recipientName: string; recipientEmail: string; invitationType: string; status: string; sentAt?: string }>>([]);
   const [isSending, setIsSending] = useState(false);
+  const [previewHtml, setPreviewHtml] = useState<string>('');
+  const isFormValid = Boolean(guestName.trim() && guestEmail.trim() && selectedTemplateId);
 
   useEffect(() => {
     const load = async () => {
@@ -82,6 +84,37 @@ const EventInvitationsPage = () => {
       // noop, error shown in console by axios interceptor if needed
     } finally {
       setIsSending(false);
+    }
+  };
+
+  const handlePreview = async () => {
+    if (!eventId || !selectedTemplateId || !isFormValid) return;
+    try {
+      // Try inline fields from list (avoids extra request)
+      let tpl = templates.find(t => t.id === selectedTemplateId) as any;
+      if (!tpl) {
+        // Fallback: fetch full template by id
+        tpl = await invitationsAPI.getById(Number(selectedTemplateId));
+      }
+      if (!tpl) { setPreviewHtml(''); return; }
+      const greeting = (tpl.greeting || '').trim();
+      const namePart = (guestName || '').trim();
+      const greetingLine = greeting ? `${greeting}${namePart ? ' ' + namePart : ''},` : (namePart ? `${namePart},` : '');
+      const contentHtml = (tpl.content || '').trim();
+      const companyInfo = (tpl.company_info || '').trim();
+      const contactBlock = [tpl.contact_person, tpl.contact_email, tpl.contact_phone].filter(Boolean).join(' • ');
+      const html = `<!doctype html><html><head><meta charset='utf-8'/></head><body style='font-family:Arial,sans-serif;color:#333;line-height:1.5;'>
+        ${greetingLine ? `<p>${greetingLine}</p>` : ''}
+        ${contentHtml ? `<div>${contentHtml.replace(/\n/g, '<br/>')}</div>` : ''}
+        ${tpl.booth_info ? `<p style='margin-top:12px;'><strong>Stoisko:</strong> ${tpl.booth_info}</p>` : ''}
+        ${tpl.special_offers ? `<p style='margin-top:12px;'><strong>Oferta specjalna:</strong> ${tpl.special_offers}</p>` : ''}
+        ${companyInfo ? `<p style='margin-top:16px;'>${companyInfo.replace(/\n/g, '<br/>')}</p>` : ''}
+        ${contactBlock ? `<p style='margin-top:8px;color:#555;'>${contactBlock}</p>` : ''}
+      </body></html>`;
+      setPreviewHtml(html);
+    } catch (e) {
+      console.warn('Preview build failed', e);
+      setPreviewHtml('');
     }
   };
 
@@ -157,6 +190,16 @@ const EventInvitationsPage = () => {
                   {isSending ? 'Wysyłanie…' : 'Wyślij zaproszenie'}
                 </Button>
 
+                <Button
+                  variant="contained"
+                  fullWidth
+                  sx={{ mt: 1 }}
+                  onClick={handlePreview}
+                  disabled={!isFormValid}
+                >
+                  Sprawdź wiadomość
+                </Button>
+
                 {/* Sent list */}
                 {sent.length > 0 && (
                   <Box sx={{ mt: 3 }}>
@@ -169,6 +212,12 @@ const EventInvitationsPage = () => {
                         <Typography variant="body2" sx={{ color: '#2e7d32' }}>{row.status}</Typography>
                       </Box>
                     ))}
+                  </Box>
+                )}
+                {previewHtml && (
+                  <Box sx={{ mt: 2, p: 2, border: '1px solid #eee', borderRadius: 1 }}>
+                    <Typography variant="subtitle2" sx={{ mb: 1 }}>Podgląd wiadomości</Typography>
+                    <div dangerouslySetInnerHTML={{ __html: previewHtml }} />
                   </Box>
                 )}
               </Box>

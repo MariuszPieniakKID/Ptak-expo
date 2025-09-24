@@ -144,9 +144,55 @@ export interface InvitationTemplate {
   id: number;
   title: string;
   invitation_type: string;
+  content?: string;
+  greeting?: string;
+  company_info?: string;
+  contact_person?: string;
+  contact_email?: string;
+  contact_phone?: string;
+  booth_info?: string;
+  special_offers?: string;
+  vip_value?: string | null;
 }
 
 export const invitationsAPI = {
+  getById: async (
+    invitationId: number
+  ): Promise<{
+    id: number;
+    exhibition_title?: string;
+    title: string;
+    invitation_type: string;
+    content?: string;
+    greeting?: string;
+    company_info?: string;
+    contact_person?: string;
+    contact_email?: string;
+    contact_phone?: string;
+    booth_info?: string;
+    special_offers?: string;
+    vip_value?: string | null;
+  } | null> => {
+    const res = await api.get(`/api/v1/invitations/item/${invitationId}`);
+    const data = res.data as { success?: boolean; data?: any };
+    if (!data?.data) return null;
+    const t = data.data;
+    return {
+      id: t.id,
+      exhibition_title: t.exhibition_title,
+      title: t.title,
+      invitation_type: t.invitation_type,
+      content: t.content,
+      greeting: t.greeting,
+      company_info: t.company_info,
+      contact_person: t.contact_person,
+      contact_email: t.contact_email,
+      contact_phone: t.contact_phone,
+      booth_info: t.booth_info,
+      special_offers: t.special_offers,
+      vip_value: t.vip_value ?? null,
+    };
+  },
   list: async (exhibitionId: number): Promise<InvitationTemplate[]> => {
     const res = await api.get(`/api/v1/invitations/${exhibitionId}`);
     const data = res.data as { success?: boolean; data?: { invitations: any[] } };
@@ -155,6 +201,15 @@ export const invitationsAPI = {
       id: row.id,
       title: row.title || row.name || 'Zaproszenie',
       invitation_type: row.invitation_type || 'standard',
+      content: row.content,
+      greeting: row.greeting,
+      company_info: row.company_info,
+      contact_person: row.contact_person,
+      contact_email: row.contact_email,
+      contact_phone: row.contact_phone,
+      booth_info: row.booth_info,
+      special_offers: row.special_offers,
+      vip_value: row.vip_value ?? null,
     }));
   },
   send: async (
