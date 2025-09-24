@@ -402,7 +402,8 @@ router.get('/:exhibitionId', verifyToken, requireExhibitorOrAdmin, async (req, r
       if (!exhibitorId) return res.json({ success: true, data: null });
     } else {
       exhibitorId = req.query.exhibitorId ? parseInt(req.query.exhibitorId, 10) : null;
-      if (!exhibitorId) return res.status(400).json({ success: false, message: 'Missing exhibitorId' });
+      // For admin without explicit exhibitorId, return empty data instead of error
+      if (!exhibitorId) return res.json({ success: true, data: null });
     }
     // Fetch catalog entry
     // 1) Try event-specific entry
