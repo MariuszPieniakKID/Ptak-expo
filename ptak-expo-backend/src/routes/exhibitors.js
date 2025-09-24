@@ -21,7 +21,7 @@ const getUploadsBaseForRead = () => {
 
 // Build Identifier PDF buffer mirroring web IdentifierCard layout
 const buildIdentifierPdf = async (client, exhibitionId, payload) => {
-  // payload: { personName, personEmail }
+  // payload: { personName, personEmail, accessCode? }
   const evRes = await client.query('SELECT id, name, start_date, end_date, location FROM exhibitions WHERE id = $1', [exhibitionId]);
   if (evRes.rows.length === 0) return null;
   const ev = evRes.rows[0];
@@ -79,10 +79,11 @@ const buildIdentifierPdf = async (client, exhibitionId, payload) => {
     }
   } catch {}
 
-  // QR image
+  // QR image (prefer provided accessCode, fallback to exhibition id)
   let qrBuffer = null;
   try {
-    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=${encodeURIComponent(String(ev.id))}`;
+    const qrData = (payload && payload.accessCode) ? String(payload.accessCode) : String(ev.id);
+    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=${encodeURIComponent(qrData)}`;
     const resp = await fetch(qrUrl);
     if (resp.ok) qrBuffer = Buffer.from(await resp.arrayBuffer());
   } catch {}
@@ -180,7 +181,9 @@ const buildIdentifierPdf = async (client, exhibitionId, payload) => {
     try {
       if (qrBuffer) {
         doc.image(qrBuffer, qrX, footerY, { width: qrSize, height: qrSize });
-        doc.font('Helvetica').fontSize(8).fillColor('#555').text('Kod QR', qrX, footerY + qrSize + 2, { width: qrSize, align: 'center' });
+        // Optional: show short code under QR (last 10 chars) for manual check-in
+        const codePreview = (payload && payload.accessCode) ? String(payload.accessCode).slice(-10) : 'Kod QR';
+        doc.font('Helvetica').fontSize(8).fillColor('#555').text(codePreview, qrX, footerY + qrSize + 2, { width: qrSize, align: 'center' });
       }
     } catch {}
 
@@ -620,7 +623,7 @@ router.post('/me/people', verifyToken, requireExhibitorOrAdmin, async (req, res)
     const exRes = await db.query('SELECT id FROM exhibitors WHERE email = $1 LIMIT 1', [email]);
     if (exRes.rows.length === 0) return res.status(404).json({ success: false, message: 'Wystawca nie został znaleziony' });
     const exhibitorId = exRes.rows[0].id;
-    const { fullName, position, email: personEmail, exhibitionId } = req.body || {};
+    const { fullName, position, email: personEmail, exhibitionId, accessCode, qrPngDataUrl } = req.body || {};
     if (!fullName) return res.status(400).json({ success: false, message: 'Imię i nazwisko są wymagane' });
     let exId = null;
     try {
@@ -640,7 +643,7 @@ router.post('/me/people', verifyToken, requireExhibitorOrAdmin, async (req, res)
       if (personEmail && exId) {
         const client = await db.pool.connect();
         try {
-          const pdfBuffer = await buildIdentifierPdf(client, exId, { personName: fullName, personEmail });
+          const pdfBuffer = await buildIdentifierPdf(client, exId, { personName: fullName, personEmail, accessCode });
           const evInfo = await client.query('SELECT name, start_date, end_date FROM exhibitions WHERE id = $1', [exId]);
           const ev = evInfo.rows[0] || {};
           const subject = `E-identyfikator – ${ev.name || 'Wydarzenie PTAK EXPO'}`;
@@ -650,8 +653,16 @@ router.post('/me/people', verifyToken, requireExhibitorOrAdmin, async (req, res)
             .map((d) => `${String(d.getDate()).padStart(2,'0')}.${String(d.getMonth()+1).padStart(2,'0')}.${d.getFullYear()}`)
             .join(' – ');
           const html = `<p>Dzień dobry ${fullName},</p><p>Otrzymujesz e‑identyfikator na wydarzenie: <strong>${ev.name || ''}</strong> (${dates}).</p><p>E‑identyfikator znajdziesz w załączniku (PDF). Prosimy o zabranie go na wydarzenie.</p><p>Pozdrawiamy,<br/>Zespół PTAK EXPO</p>`;
-          const attachments = pdfBuffer ? [{ filename: 'e-identyfikator.pdf', content: pdfBuffer, contentType: 'application/pdf' }] : undefined;
-          await sendEmail({ to: personEmail, subject, text: undefined, html, attachments });
+          const attachments = [];
+          if (pdfBuffer) attachments.push({ filename: 'e-identyfikator.pdf', content: pdfBuffer, contentType: 'application/pdf' });
+          if (qrPngDataUrl && typeof qrPngDataUrl === 'string' && qrPngDataUrl.startsWith('data:image/png')) {
+            try {
+              const b64 = qrPngDataUrl.split(',')[1];
+              const pngBuffer = Buffer.from(b64, 'base64');
+              attachments.push({ filename: 'e-identyfikator-qr.png', content: pngBuffer, contentType: 'image/png' });
+            } catch {}
+          }
+          await sendEmail({ to: personEmail, subject, text: undefined, html, attachments: attachments.length ? attachments : undefined });
         } finally {
           client.release();
         }
