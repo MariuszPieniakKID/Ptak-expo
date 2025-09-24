@@ -89,7 +89,7 @@ const EventsPage_: React.FC = () => {
       }
     };
     loadEventFields();
-  }, [loadExhibitions]);
+  }, [loadExhibitions, token]);
 
   const handleSelectFieldOfExhibitions = useCallback(
   (value: string) => {
