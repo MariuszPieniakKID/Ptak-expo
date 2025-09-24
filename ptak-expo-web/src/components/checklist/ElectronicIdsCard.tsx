@@ -79,6 +79,9 @@ export default function ElectronicIdsCard() {
 							<TableCell>{eid.name}</TableCell>
 							<TableCell>{eid.email}</TableCell>
 							<TableCell>{getEidTypeString(eid.type)}</TableCell>
+							<TableCell>
+								{eid.accessCode ? <Typography fontSize={10} sx={{ whiteSpace: 'nowrap' }}>{eid.accessCode}</Typography> : null}
+							</TableCell>
 						</TableRow>)}
 
 				</TableBody>

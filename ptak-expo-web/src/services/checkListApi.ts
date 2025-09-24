@@ -25,9 +25,10 @@ export interface DownloadMaterial {
 	fileUri: string
 }
 export interface ElectrionicId {
-	name: string,
-	type: EidType,
-	email: string,
+    name: string,
+    type: EidType,
+    email: string,
+    accessCode?: string,
 }
 export enum EidType {
 	TECH_WORKER,
@@ -219,7 +220,7 @@ export const getChecklist = async (exhibitionId: number) => {
 			}
 		} catch {}
 
-		// people (e-identyfikatory)
+        // people (e-identyfikatory)
 		try {
 			const r = await fetch(`${config.API_BASE_URL}/api/v1/exhibitors/me/people?exhibitionId=${encodeURIComponent(String(exhibitionId))}`, { headers: { Authorization: `Bearer ${token}` } });
 			if (r.ok) {
@@ -227,7 +228,12 @@ export const getChecklist = async (exhibitionId: number) => {
 				const list = Array.isArray(j.data) ? j.data : [];
 				ExampleChecklist = {
 					...ExampleChecklist,
-					electrionicIds: list.map((row: any) => ({ name: row.full_name, email: row.email, type: EidType.TECH_WORKER }))
+                    electrionicIds: list.map((row: any) => ({
+                        name: row.full_name,
+                        email: row.email,
+                        type: EidType.TECH_WORKER,
+                        accessCode: row.access_code || row.accessCode || row.qr_code || null,
+                    }))
 				};
 			}
 		} catch {}
@@ -413,11 +419,55 @@ export const addElectronicId = async (electronicId: ElectrionicId) => {
 	const exhibitionId = Number((window as any).currentSelectedExhibitionId) || 0;
 	const token = localStorage.getItem('authToken') || '';
 	try {
-		await fetch(`${config.API_BASE_URL}/api/v1/exhibitors/me/people`, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify({ fullName: electronicId.name, position: String(electronicId.type), email: electronicId.email, exhibitionId }) });
+        // Fetch exhibitor and exhibition to build access code
+        let exhibitorId: number | null = null;
+        let exhibitionName: string = '';
+        try {
+            const meRes = await fetch(`${config.API_BASE_URL}/api/v1/exhibitors/me`, { headers: { Authorization: `Bearer ${token}` } });
+            const meJson = await meRes.json();
+            exhibitorId = meJson?.data?.id ?? null;
+        } catch {}
+        try {
+            const exRes = await fetch(`${config.API_BASE_URL}/api/v1/exhibitions/${encodeURIComponent(String(exhibitionId))}`, { headers: { Authorization: `Bearer ${token}` } });
+            if (exRes.ok) {
+                const exJson = await exRes.json();
+                exhibitionName = exJson?.name || exJson?.data?.name || '';
+            }
+        } catch {}
+
+        // Build event code (AAAA from name), 0000 event id (padded), w000 exhibitor id (padded), entry_id (unique), rndXXXX, entry_id again
+        const toAbbrev = (name: string): string => {
+            const letters = String(name || '').replace(/[^A-Za-z]/g, '').toUpperCase();
+            const base = letters.slice(0, 4);
+            return base.padEnd(4, 'X');
+        };
+        const eventCode = toAbbrev(exhibitionName);
+        const eventIdPadded = String(exhibitionId).padStart(4, '0');
+        const exhibitorIdPadded = 'w' + String(typeof exhibitorId === 'number' ? exhibitorId : 0).padStart(3, '0');
+        const entryId = (() => {
+            const ts = Date.now().toString().slice(-6);
+            const rnd = Math.floor(Math.random() * 1_000_000).toString().padStart(6, '0');
+            return ts.slice(0,3) + rnd.slice(0,3) + ts.slice(3);
+        })();
+        const rndSuffix = 'rnd' + Math.floor(Math.random() * 1_000_000).toString().padStart(6, '0');
+        const accessCode = `${eventCode}${eventIdPadded}${exhibitorIdPadded}${entryId}${rndSuffix}${entryId}`;
+
+        await fetch(`${config.API_BASE_URL}/api/v1/exhibitors/me/people`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+            body: JSON.stringify({
+                fullName: electronicId.name,
+                position: String(electronicId.type),
+                email: electronicId.email,
+                exhibitionId,
+                accessCode,
+            })
+        });
+        // Optimistic local store with accessCode
+        ExampleChecklist = {...ExampleChecklist, electrionicIds: [...ExampleChecklist.electrionicIds, { ...electronicId, accessCode }].sort(
+            (a, b) =>(a.type.toString() + a.name).localeCompare(b.type.toString() + b.name)
+        )};
 	} catch {}
-	ExampleChecklist = {...ExampleChecklist, electrionicIds: [...ExampleChecklist.electrionicIds, electronicId].sort(
-		(a, b) =>(a.type.toString() + a.name).localeCompare(b.type.toString() + b.name)
-	)};
 }
 
 export const addMaterialFile = async (file: File, _eventId: number) => {
