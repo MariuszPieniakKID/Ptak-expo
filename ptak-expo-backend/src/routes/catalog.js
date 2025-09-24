@@ -264,6 +264,133 @@ router.delete('/industries', verifyToken, requireAdmin, async (req, res) => {
   }
 });
 
+// Event fields (industry type of exhibition)
+// Suggest event fields
+router.get('/event-fields', verifyToken, requireAdmin, async (req, res) => {
+  try {
+    const q = String(req.query.query || '').trim().toLowerCase();
+    const limit = Math.min(2000, Math.max(1, parseInt(String(req.query.limit || '50'), 10) || 50));
+    let result;
+    if (q) {
+      result = await db.query(
+        `SELECT event_field, usage_count FROM catalog_event_fields WHERE LOWER(event_field) LIKE $1 ORDER BY usage_count DESC, event_field ASC LIMIT $2`,
+        [q + '%', limit]
+      );
+    } else {
+      result = await db.query(
+        `SELECT event_field, usage_count FROM catalog_event_fields ORDER BY usage_count DESC, event_field ASC LIMIT $1`,
+        [limit]
+      );
+    }
+    return res.json({ success: true, data: result.rows });
+  } catch (e) {
+    console.error('Error fetching catalog event fields:', e);
+    return res.status(500).json({ success: false, message: 'Failed to fetch event fields' });
+  }
+});
+
+// Admin: add single event field
+router.post('/event-fields/add', verifyToken, requireAdmin, async (req, res) => {
+  try {
+    const raw = String((req.body?.eventField ?? '')).trim();
+    if (!raw) return res.status(400).json({ success: false, message: 'Missing eventField' });
+    await db.query(`INSERT INTO catalog_event_fields(event_field, usage_count) VALUES($1, 1)
+                    ON CONFLICT (event_field) DO UPDATE SET updated_at = NOW()`, [raw]);
+    return res.json({ success: true });
+  } catch (e) {
+    console.error('Error adding catalog event field:', e);
+    return res.status(500).json({ success: false, message: 'Failed to add event field' });
+  }
+});
+
+// Admin: rename event field
+router.put('/event-fields', verifyToken, requireAdmin, async (req, res) => {
+  try {
+    const oldValue = String((req.body?.oldEventField ?? '')).trim();
+    const newValue = String((req.body?.newEventField ?? '')).trim();
+    if (!oldValue || !newValue) return res.status(400).json({ success: false, message: 'Missing oldEventField or newEventField' });
+    await db.query(`UPDATE catalog_event_fields SET event_field = $2, updated_at = NOW() WHERE event_field = $1`, [oldValue, newValue]);
+    return res.json({ success: true });
+  } catch (e) {
+    console.error('Error renaming catalog event field:', e);
+    return res.status(500).json({ success: false, message: 'Failed to rename event field' });
+  }
+});
+
+// Admin: delete event field
+router.delete('/event-fields', verifyToken, requireAdmin, async (req, res) => {
+  try {
+    const value = String((req.query?.eventField ?? req.body?.eventField ?? '')).trim();
+    if (!value) return res.status(400).json({ success: false, message: 'Missing eventField' });
+    await db.query(`DELETE FROM catalog_event_fields WHERE event_field = $1`, [value]);
+    return res.json({ success: true });
+  } catch (e) {
+    console.error('Error deleting catalog event field:', e);
+    return res.status(500).json({ success: false, message: 'Failed to delete event field' });
+  }
+});
+
+// Build types (Zabudowa targowa)
+router.get('/build-types', verifyToken, requireAdmin, async (req, res) => {
+  try {
+    const q = String(req.query.query || '').trim().toLowerCase();
+    const limit = Math.min(2000, Math.max(1, parseInt(String(req.query.limit || '50'), 10) || 50));
+    let result;
+    if (q) {
+      result = await db.query(
+        `SELECT build_type, usage_count FROM catalog_build_types WHERE LOWER(build_type) LIKE $1 ORDER BY usage_count DESC, build_type ASC LIMIT $2`,
+        [q + '%', limit]
+      );
+    } else {
+      result = await db.query(
+        `SELECT build_type, usage_count FROM catalog_build_types ORDER BY usage_count DESC, build_type ASC LIMIT $1`,
+        [limit]
+      );
+    }
+    return res.json({ success: true, data: result.rows });
+  } catch (e) {
+    console.error('Error fetching build types:', e);
+    return res.status(500).json({ success: false, message: 'Failed to fetch build types' });
+  }
+});
+
+router.post('/build-types/add', verifyToken, requireAdmin, async (req, res) => {
+  try {
+    const raw = String((req.body?.buildType ?? '')).trim();
+    if (!raw) return res.status(400).json({ success: false, message: 'Missing buildType' });
+    await db.query(`INSERT INTO catalog_build_types(build_type, usage_count) VALUES($1, 1)
+                    ON CONFLICT (build_type) DO UPDATE SET updated_at = NOW()`, [raw]);
+    return res.json({ success: true });
+  } catch (e) {
+    console.error('Error adding build type:', e);
+    return res.status(500).json({ success: false, message: 'Failed to add build type' });
+  }
+});
+
+router.put('/build-types', verifyToken, requireAdmin, async (req, res) => {
+  try {
+    const oldValue = String((req.body?.oldBuildType ?? '')).trim();
+    const newValue = String((req.body?.newBuildType ?? '')).trim();
+    if (!oldValue || !newValue) return res.status(400).json({ success: false, message: 'Missing oldBuildType or newBuildType' });
+    await db.query(`UPDATE catalog_build_types SET build_type = $2, updated_at = NOW() WHERE build_type = $1`, [oldValue, newValue]);
+    return res.json({ success: true });
+  } catch (e) {
+    console.error('Error renaming build type:', e);
+    return res.status(500).json({ success: false, message: 'Failed to rename build type' });
+  }
+});
+
+router.delete('/build-types', verifyToken, requireAdmin, async (req, res) => {
+  try {
+    const value = String((req.query?.buildType ?? req.body?.buildType ?? '')).trim();
+    if (!value) return res.status(400).json({ success: false, message: 'Missing buildType' });
+    await db.query(`DELETE FROM catalog_build_types WHERE build_type = $1`, [value]);
+    return res.json({ success: true });
+  } catch (e) {
+    console.error('Error deleting build type:', e);
+    return res.status(500).json({ success: false, message: 'Failed to delete build type' });
+  }
+});
 // GET current exhibitor entry (exhibitor/admin) - event-specific with fallbacks
 router.get('/:exhibitionId', verifyToken, requireExhibitorOrAdmin, async (req, res) => {
   try {

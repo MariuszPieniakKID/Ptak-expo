@@ -468,8 +468,21 @@ router.post('/', verifyToken, requireAdmin, async (req, res) => {
       });
     }
 
+    // Check if exhibitor with this EMAIL already exists (normalize to lowercase)
+    const normalizedEmail = String(email || '').trim().toLowerCase();
+    const existingEmail = await db.query(
+      'SELECT id FROM exhibitors WHERE lower(email) = $1',
+      [normalizedEmail]
+    );
+    if (existingEmail.rows.length > 0) {
+      return res.status(409).json({
+        error: 'Exhibitor email exists',
+        message: 'Wystawca z tym adresem e-mail już istnieje'
+      });
+    }
+
     // Normalize and hash password
-    const normalizedEmail = (email || '').trim().toLowerCase();
+    // normalizedEmail already computed above
     const saltRounds = 10;
     const passwordHash = await bcrypt.hash(password, saltRounds);
 
@@ -583,9 +596,23 @@ router.post('/', verifyToken, requireAdmin, async (req, res) => {
     console.error('Error creating exhibitor:', error);
     
     if (error.code === '23505') { // Unique constraint violation
+      const detail = String(error.detail || '').toLowerCase();
+      if (detail.includes('(nip)')) {
+        return res.status(409).json({ 
+          error: 'Exhibitor already exists', 
+          message: 'Wystawca z tym numerem NIP już istnieje' 
+        });
+      }
+      if (detail.includes('(email)')) {
+        return res.status(409).json({ 
+          error: 'Exhibitor email exists', 
+          message: 'Wystawca z tym adresem e-mail już istnieje' 
+        });
+      }
+      // Generic message if constraint unknown
       return res.status(409).json({ 
         error: 'Exhibitor already exists', 
-        message: 'Wystawca z tym numerem NIP już istnieje' 
+        message: 'Wystawca już istnieje' 
       });
     }
     

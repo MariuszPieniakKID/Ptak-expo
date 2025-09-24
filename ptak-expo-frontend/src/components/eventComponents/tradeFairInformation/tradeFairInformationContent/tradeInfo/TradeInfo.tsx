@@ -5,7 +5,9 @@ import { useAuth } from '../../../../../contexts/AuthContext';
 import { downloadTradePlan, getTradeInfo, saveTradeInfo, TradeInfoData, uploadTradePlan, getTradeEvents, createTradeEvent, deleteTradeEvent, TradeEvent, fetchExhibition, Exhibition } from '../../../../../services/api';
 import CustomTypography from '../../../../customTypography/CustomTypography';
 import CustomField from '../../../../customField/CustomField';
-import { buildDaysOption} from '../../../../../helpers/mockData';
+import { buildDaysOption as fallbackBuildDaysOption} from '../../../../../helpers/mockData';
+import { catalogAPI } from '../../../../../services/api';
+import type { OptionType } from '../../../../customSelectMui/CustomSelectMui';
 import CustomSelectMui from '../../../../customSelectMui/CustomSelectMui';
 import { ReactComponent as Wastebasket} from "../../../../../assets/wastebasket.svg";
 import { ReactComponent as RedCross } from "../../../../../assets/redCross.svg";
@@ -73,6 +75,7 @@ const TradeInfo: React.FC<TradeInfoProps> = ({ exhibitionId }) => {
   ]);
 
   const [buildType, setBuildType] = useState<string>('');
+  const [buildOptions, setBuildOptions] = useState<OptionType[]>(fallbackBuildDaysOption);
 
   // New: Construction events (treated as trade events)
   const [constructionType, setConstructionType] = useState<string>('');
@@ -183,7 +186,7 @@ const TradeInfo: React.FC<TradeInfoProps> = ({ exhibitionId }) => {
         setLoadingConstruction(true);
         console.log('[TradeInfo] Loading construction events', { exhibitionId });
         const res = await getTradeEvents(exhibitionId, token);
-        const allowedTypes = new Set((buildDaysOption || []).map((o: any) => String(o.value)));
+        const allowedTypes = new Set((buildOptions || []).map((o: any) => String(o.value)));
         const filtered = (res.data || []).filter((ev: TradeEvent) => allowedTypes.has(String(ev.type)));
         console.log('[TradeInfo] Loaded trade events', { total: res.data?.length || 0, constructionCount: filtered.length, allowedTypes: Array.from(allowedTypes.values()) });
         setConstructionEvents(filtered);
@@ -195,7 +198,22 @@ const TradeInfo: React.FC<TradeInfoProps> = ({ exhibitionId }) => {
       }
     };
     loadConstructionEvents();
-  }, [exhibitionId, token]);
+  }, [exhibitionId, token, buildOptions]);
+
+  // Load build types from backend
+  useEffect(() => {
+    const loadBuildTypes = async () => {
+      if (!token) return;
+      try {
+        const list = await catalogAPI.listBuildTypes(token);
+        const opts: OptionType[] = list.map(i => ({ value: i.build_type, label: i.build_type }));
+        setBuildOptions(opts.length ? opts : fallbackBuildDaysOption);
+      } catch (_) {
+        setBuildOptions(fallbackBuildDaysOption);
+      }
+    };
+    loadBuildTypes();
+  }, [token]);
 
   // Load exhibition date range to validate constructionDate
   useEffect(() => {
@@ -385,7 +403,7 @@ const TradeInfo: React.FC<TradeInfoProps> = ({ exhibitionId }) => {
     try {
       setError('');
       const payload: TradeEvent = {
-        name: `Zabudowa targowa – ${buildDaysOption.find(o => String(o.value) === String(constructionType))?.label || constructionType}`,
+        name: `Zabudowa targowa – ${String(buildOptions.find((o: OptionType) => String(o.value) === String(constructionType))?.label || constructionType)}`,
         eventDate: constructionDate,
         startTime: constructionStartTime,
         endTime: constructionEndTime,
@@ -580,7 +598,7 @@ const TradeInfo: React.FC<TradeInfoProps> = ({ exhibitionId }) => {
               placeholder="Wybierz typ"
               value={constructionType}
               onChange={(value) => setConstructionType(String(value))}
-              options={buildDaysOption}
+              options={buildOptions}
               size="small"
               fullWidth
             />

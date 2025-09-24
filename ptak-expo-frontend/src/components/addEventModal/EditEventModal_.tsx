@@ -1,13 +1,14 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import CustomField from '../customField/CustomField';
 import CustomTypography from '../customTypography/CustomTypography';
-import { AddExhibitionPayload, Exhibition, updateExhibition, uploadBrandingFile, getBrandingFileUrl } from '../../services/api';
+import { AddExhibitionPayload, Exhibition, updateExhibition, uploadBrandingFile, getBrandingFileUrl, catalogAPI } from '../../services/api';
 import { Box, CircularProgress, Dialog, DialogTitle, IconButton, Typography } from '@mui/material';
 import { ReactComponent as CloseIcon } from '../../assets/closeIcon.svg';
 import EventsPageIcon from '../../assets/eventIcon.png';
 import styles from './AddEventModal_.module.scss';
 import { useAuth } from '../../contexts/AuthContext';
-import { fieldOptions } from '../../helpers/mockData';
+import { fieldOptions as fallbackFieldOptions } from '../../helpers/mockData';
+import { OptionType } from '../customField/CustomField';
 
 interface EditEventModalProps {
   isOpen: boolean;
@@ -32,6 +33,7 @@ const EditEventModal_: React.FC<EditEventModalProps> = ({ isOpen, onClose, event
   const [eventLogoFile, setEventLogoFile] = useState<File | null>(null);
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [eventFieldOptions, setEventFieldOptions] = useState<OptionType[]>([{ value: 'all', label: 'Wszystkie' }, ...fallbackFieldOptions.filter(o => o.value !== 'all')]);
 
   useEffect(() => {
     if (isOpen && event) {
@@ -50,6 +52,24 @@ const EditEventModal_: React.FC<EditEventModalProps> = ({ isOpen, onClose, event
       setError(null);
     }
   }, [isOpen, event]);
+
+  // Load dynamic event fields when modal opens
+  useEffect(() => {
+    const load = async () => {
+      if (!isOpen || !token) return;
+      try {
+        const list = await catalogAPI.listEventFields(token);
+        const opts: OptionType[] = [
+          { value: 'all', label: 'Wszystkie' },
+          ...list.map(i => ({ value: i.event_field, label: i.event_field }))
+        ];
+        setEventFieldOptions(opts);
+      } catch (_) {
+        setEventFieldOptions([{ value: 'all', label: 'Wszystkie' }, ...fallbackFieldOptions.filter(o => o.value !== 'all')]);
+      }
+    };
+    load();
+  }, [isOpen, token]);
 
   const handleInputChange = useCallback((field: keyof AddExhibitionPayload) => (
     e: React.ChangeEvent<HTMLInputElement>
@@ -205,7 +225,7 @@ const EditEventModal_: React.FC<EditEventModalProps> = ({ isOpen, onClose, event
                   label="Typ. branża wydarzenia"
                   value={(formData as any).field || 'all'}
                   onChange={handleInputChange('field')}
-                  options={fieldOptions}
+                  options={eventFieldOptions}
                   forceSelectionFromOptions={true}
                   placeholder="Typ. branża wydarzenia"
                   fullWidth

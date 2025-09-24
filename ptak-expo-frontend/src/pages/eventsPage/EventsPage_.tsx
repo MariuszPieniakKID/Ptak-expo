@@ -22,11 +22,12 @@ import { ReactComponent as BackIcon } from '../../assets/back.svg';
 import UserAvatar from '../../assets/7bb764a0137abc7a8142b6438e529133@2x.png';
 import Applause from '../../assets/applause.png';
 import { ReactComponent as UsersIcon } from '../../assets/addIcon.svg';
-import { Exhibition, fetchExhibitions, getBrandingFileUrl } from '../../services/api';
+import { Exhibition, fetchExhibitions, getBrandingFileUrl, catalogAPI } from '../../services/api';
 import { getEventAssets } from '../../helpers/getEventAssets';
 import CustomField from '../../components/customField/CustomField';
 import AddEventModal from '../../components/addEventModal/AddEventModal_';
-import { fieldOptions } from '../../helpers/mockData';
+import { fieldOptions as fallbackFieldOptions } from '../../helpers/mockData';
+import { OptionType } from '../../components/customField/CustomField';
 import EventCardPage from '../eventCardPage/EventCardPage';
 
 
@@ -41,6 +42,7 @@ const EventsPage_: React.FC = () => {
   const navigate = useNavigate();
   const { token, user, logout } = useAuth();
   const [selectedField,setSelectedField]=useState<string>('all')  
+  const [eventFieldOptions, setEventFieldOptions] = useState<OptionType[]>([{ value: 'all', label: 'Wszystkie' }, ...fallbackFieldOptions.filter(o => o.value !== 'all')]);
 
 
   const loadExhibitions = useCallback(async (): Promise<void> => {
@@ -73,6 +75,20 @@ const EventsPage_: React.FC = () => {
   
   useEffect(() => {
     loadExhibitions();
+    const loadEventFields = async () => {
+      if (!token) return;
+      try {
+        const list = await catalogAPI.listEventFields(token);
+        const opts: OptionType[] = [
+          { value: 'all', label: 'Wszystkie' },
+          ...list.map(i => ({ value: i.event_field, label: i.event_field }))
+        ];
+        setEventFieldOptions(opts);
+      } catch (_) {
+        setEventFieldOptions([{ value: 'all', label: 'Wszystkie' }, ...fallbackFieldOptions.filter(o => o.value !== 'all')]);
+      }
+    };
+    loadEventFields();
   }, [loadExhibitions]);
 
   const handleSelectFieldOfExhibitions = useCallback(
@@ -308,7 +324,7 @@ const formatDateRange = useCallback((startDate: string, endDate: string): string
                         value={selectedField}
                         onChange={e => handleSelectFieldOfExhibitions(e.target.value)}
                         placeholder="Wszystkie"
-                        options={fieldOptions}
+                        options={eventFieldOptions}
                         forceSelectionFromOptions
                         fullWidth
                         className={styles.selectBox}

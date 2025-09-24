@@ -19,7 +19,7 @@ import UserAvatar from '../../assets/7bb764a0137abc7a8142b6438e529133@2x.png';
 import Applause from '../../assets/applause.png';
 
 import styles from '../usersPage/UsersPage.module.scss';
-import { ExhibitorPerson, fetchExhibitorPeople, catalogAPI, CatalogTag, CatalogIndustry, CatalogBrand } from '../../services/api';
+import { ExhibitorPerson, fetchExhibitorPeople, catalogAPI, CatalogTag, CatalogIndustry, CatalogBrand, CatalogEventField, CatalogBuildType } from '../../services/api';
 
 const DatabasePage: React.FC = () => {
   const [people, setPeople] = useState<ExhibitorPerson[]>([]);
@@ -36,15 +36,23 @@ const DatabasePage: React.FC = () => {
   const [openTags, setOpenTags] = useState(false);
   const [openIndustries, setOpenIndustries] = useState(false);
   const [openBrands, setOpenBrands] = useState(false);
+  const [openEventFields, setOpenEventFields] = useState(false);
+  const [openBuildTypes, setOpenBuildTypes] = useState(false);
   const [tags, setTags] = useState<CatalogTag[]>([]);
   const [industries, setIndustries] = useState<CatalogIndustry[]>([]);
   const [brands, setBrands] = useState<CatalogBrand[]>([]);
+  const [eventFields, setEventFields] = useState<CatalogEventField[]>([]);
+  const [buildTypes, setBuildTypes] = useState<CatalogBuildType[]>([]);
   const [newTag, setNewTag] = useState('');
   const [newIndustry, setNewIndustry] = useState('');
   const [newBrand, setNewBrand] = useState('');
+  const [newEventField, setNewEventField] = useState('');
+  const [newBuildType, setNewBuildType] = useState('');
   const [editingTag, setEditingTag] = useState<{ old: string; next: string } | null>(null);
   const [editingIndustry, setEditingIndustry] = useState<{ old: string; next: string } | null>(null);
   const [editingBrand, setEditingBrand] = useState<{ old: string; next: string } | null>(null);
+  const [editingEventField, setEditingEventField] = useState<{ old: string; next: string } | null>(null);
+  const [editingBuildType, setEditingBuildType] = useState<{ old: string; next: string } | null>(null);
   const isAdmin = (user as any)?.role === 'admin';
 
   const loadPeople = useCallback(async (): Promise<void> => {
@@ -145,6 +153,32 @@ const DatabasePage: React.FC = () => {
     }
   }, [token]);
 
+  const openEventFieldsModal = useCallback(async () => {
+    if (!token) return;
+    try {
+      const list = await catalogAPI.listEventFields(token);
+      setEventFields(list);
+      setNewEventField('');
+      setEditingEventField(null);
+      setOpenEventFields(true);
+    } catch (e) {
+      console.error(e);
+    }
+  }, [token]);
+
+  const openBuildTypesModal = useCallback(async () => {
+    if (!token) return;
+    try {
+      const list = await catalogAPI.listBuildTypes(token);
+      setBuildTypes(list);
+      setNewBuildType('');
+      setEditingBuildType(null);
+      setOpenBuildTypes(true);
+    } catch (e) {
+      console.error(e);
+    }
+  }, [token]);
+
   const addTag = async () => {
     if (!token) return;
     const v = newTag.trim();
@@ -226,6 +260,60 @@ const DatabasePage: React.FC = () => {
     setBrands(prev => prev.filter(t => t.brand !== brand));
   };
 
+  const addEventField = async () => {
+    if (!token) return;
+    const v = newEventField.trim();
+    if (!v) return;
+    await catalogAPI.addEventField(token, v);
+    setEventFields(prev => {
+      const exists = prev.some(t => t.event_field.toLowerCase() === v.toLowerCase());
+      return exists ? prev : [...prev, { event_field: v, usage_count: 1 }].sort((a, b) => a.event_field.localeCompare(b.event_field));
+    });
+    setNewEventField('');
+  };
+
+  const saveEventFieldRename = async () => {
+    if (!token || !editingEventField) return;
+    const next = editingEventField.next.trim();
+    if (!next || next === editingEventField.old) { setEditingEventField(null); return; }
+    await catalogAPI.renameEventField(token, editingEventField.old, next);
+    setEventFields(prev => prev.map(t => t.event_field === editingEventField.old ? { ...t, event_field: next } : t).sort((a, b) => a.event_field.localeCompare(b.event_field)));
+    setEditingEventField(null);
+  };
+
+  const deleteEventField = async (value: string) => {
+    if (!token) return;
+    await catalogAPI.deleteEventField(token, value);
+    setEventFields(prev => prev.filter(t => t.event_field !== value));
+  };
+
+  const addBuildType = async () => {
+    if (!token) return;
+    const v = newBuildType.trim();
+    if (!v) return;
+    await catalogAPI.addBuildType(token, v);
+    setBuildTypes(prev => {
+      const exists = prev.some(t => t.build_type.toLowerCase() === v.toLowerCase());
+      return exists ? prev : [...prev, { build_type: v, usage_count: 1 }].sort((a, b) => a.build_type.localeCompare(b.build_type));
+    });
+    setNewBuildType('');
+  };
+
+  const saveBuildTypeRename = async () => {
+    if (!token || !editingBuildType) return;
+    const next = editingBuildType.next.trim();
+    if (!next || next === editingBuildType.old) { setEditingBuildType(null); return; }
+    await catalogAPI.renameBuildType(token, editingBuildType.old, next);
+    setBuildTypes(prev => prev.map(t => t.build_type === editingBuildType.old ? { ...t, build_type: next } : t).sort((a, b) => a.build_type.localeCompare(b.build_type)));
+    setEditingBuildType(null);
+  };
+
+  const deleteBuildType = async (value: string) => {
+    if (!token) return;
+    await catalogAPI.deleteBuildType(token, value);
+    setBuildTypes(prev => prev.filter(t => t.build_type !== value));
+  };
+
   return (
     <>
       <Box className={styles.usersPage}>
@@ -300,6 +388,26 @@ const DatabasePage: React.FC = () => {
                       onClick={openIndustriesModal}
                     >
                       Branże
+                    </CustomButton>
+                    <CustomButton
+                      bgColor="#6F87F6"
+                      textColor="#fff"
+                      height="28px"
+                      width="auto"
+                      fontSize="0.75rem"
+                      onClick={openEventFieldsModal}
+                    >
+                      Branże wydarzenia
+                    </CustomButton>
+                    <CustomButton
+                      bgColor="#6F87F6"
+                      textColor="#fff"
+                      height="28px"
+                      width="auto"
+                      fontSize="0.75rem"
+                      onClick={openBuildTypesModal}
+                    >
+                      Typy zabudowy
                     </CustomButton>
                     <CustomButton
                       bgColor="#6F87F6"
@@ -759,6 +867,218 @@ const DatabasePage: React.FC = () => {
             width="auto"
             fontSize="0.8rem"
             onClick={() => setOpenBrands(false)}
+          >
+            Zamknij
+          </CustomButton>
+        </DialogActions>
+      </Dialog>
+
+      {/* Event fields modal */}
+      <Dialog open={openEventFields} onClose={() => setOpenEventFields(false)} maxWidth="sm" fullWidth>
+        <DialogTitle>Zarządzaj branżami wydarzenia</DialogTitle>
+        <DialogContent>
+          <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', mb: 2, mt: 1 }}>
+            <TextField
+              label="Nowy typ branży wydarzenia"
+              value={newEventField}
+              onChange={e => setNewEventField(e.target.value)}
+              size="small"
+            />
+            <CustomButton
+              bgColor="#6F87F6"
+              textColor="#fff"
+              height="32px"
+              width="auto"
+              fontSize="0.8rem"
+              onClick={addEventField}
+              icon={<AddIcon sx={{ color: '#fff', fontSize: 18 }} />}
+              iconPosition="left"
+            >
+              Dodaj
+            </CustomButton>
+          </Box>
+          <Table size="small">
+            <TableHead>
+              <TableRow>
+                <TableCell>Nazwa</TableCell>
+                <TableCell align="right">Użycia</TableCell>
+                <TableCell align="right">Akcje</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {eventFields.sort((a, b) => a.event_field.localeCompare(b.event_field)).map(row => (
+                <TableRow key={row.event_field}>
+                  <TableCell>
+                    {editingEventField && editingEventField.old === row.event_field ? (
+                      <TextField
+                        value={editingEventField.next}
+                        onChange={e => setEditingEventField({ old: editingEventField.old, next: e.target.value })}
+                        size="small"
+                      />
+                    ) : (
+                      row.event_field
+                    )}
+                  </TableCell>
+                  <TableCell align="right">{row.usage_count}</TableCell>
+                  <TableCell align="right">
+                    {editingEventField && editingEventField.old === row.event_field ? (
+                      <>
+                        <CustomButton
+                          bgColor="#6F87F6"
+                          textColor="#fff"
+                          height="28px"
+                          width="auto"
+                          fontSize="0.75rem"
+                          onClick={saveEventFieldRename}
+                        >
+                          Zapisz
+                        </CustomButton>
+                        <CustomButton
+                          bgColor="#e9ecef"
+                          textColor="#2e2e38"
+                          height="28px"
+                          width="auto"
+                          fontSize="0.75rem"
+                          onClick={() => setEditingEventField(null)}
+                        >
+                          Anuluj
+                        </CustomButton>
+                      </>
+                    ) : (
+                      <>
+                        <IconButton size="small" onClick={() => setEditingEventField({ old: row.event_field, next: row.event_field })}>
+                          <EditIcon fontSize="small" />
+                        </IconButton>
+                        <IconButton size="small" onClick={() => deleteEventField(row.event_field)}>
+                          <DeleteIcon fontSize="small" />
+                        </IconButton>
+                      </>
+                    )}
+                  </TableCell>
+                </TableRow>
+              ))}
+              {eventFields.length === 0 && (
+                <TableRow>
+                  <TableCell colSpan={3}>Brak branż wydarzenia</TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </DialogContent>
+        <DialogActions>
+          <CustomButton
+            bgColor="#e9ecef"
+            textColor="#2e2e38"
+            height="32px"
+            width="auto"
+            fontSize="0.8rem"
+            onClick={() => setOpenEventFields(false)}
+          >
+            Zamknij
+          </CustomButton>
+        </DialogActions>
+      </Dialog>
+
+      {/* Build types modal */}
+      <Dialog open={openBuildTypes} onClose={() => setOpenBuildTypes(false)} maxWidth="sm" fullWidth>
+        <DialogTitle>Zarządzaj typami zabudowy</DialogTitle>
+        <DialogContent>
+          <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', mb: 2, mt: 1 }}>
+            <TextField
+              label="Nowy typ zabudowy"
+              value={newBuildType}
+              onChange={e => setNewBuildType(e.target.value)}
+              size="small"
+            />
+            <CustomButton
+              bgColor="#6F87F6"
+              textColor="#fff"
+              height="32px"
+              width="auto"
+              fontSize="0.8rem"
+              onClick={addBuildType}
+              icon={<AddIcon sx={{ color: '#fff', fontSize: 18 }} />}
+              iconPosition="left"
+            >
+              Dodaj
+            </CustomButton>
+          </Box>
+          <Table size="small">
+            <TableHead>
+              <TableRow>
+                <TableCell>Nazwa</TableCell>
+                <TableCell align="right">Użycia</TableCell>
+                <TableCell align="right">Akcje</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {buildTypes.sort((a, b) => a.build_type.localeCompare(b.build_type)).map(row => (
+                <TableRow key={row.build_type}>
+                  <TableCell>
+                    {editingBuildType && editingBuildType.old === row.build_type ? (
+                      <TextField
+                        value={editingBuildType.next}
+                        onChange={e => setEditingBuildType({ old: editingBuildType.old, next: e.target.value })}
+                        size="small"
+                      />
+                    ) : (
+                      row.build_type
+                    )}
+                  </TableCell>
+                  <TableCell align="right">{row.usage_count}</TableCell>
+                  <TableCell align="right">
+                    {editingBuildType && editingBuildType.old === row.build_type ? (
+                      <>
+                        <CustomButton
+                          bgColor="#6F87F6"
+                          textColor="#fff"
+                          height="28px"
+                          width="auto"
+                          fontSize="0.75rem"
+                          onClick={saveBuildTypeRename}
+                        >
+                          Zapisz
+                        </CustomButton>
+                        <CustomButton
+                          bgColor="#e9ecef"
+                          textColor="#2e2e38"
+                          height="28px"
+                          width="auto"
+                          fontSize="0.75rem"
+                          onClick={() => setEditingBuildType(null)}
+                        >
+                          Anuluj
+                        </CustomButton>
+                      </>
+                    ) : (
+                      <>
+                        <IconButton size="small" onClick={() => setEditingBuildType({ old: row.build_type, next: row.build_type })}>
+                          <EditIcon fontSize="small" />
+                        </IconButton>
+                        <IconButton size="small" onClick={() => deleteBuildType(row.build_type)}>
+                          <DeleteIcon fontSize="small" />
+                        </IconButton>
+                      </>
+                    )}
+                  </TableCell>
+                </TableRow>
+              ))}
+              {buildTypes.length === 0 && (
+                <TableRow>
+                  <TableCell colSpan={3}>Brak typów zabudowy</TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </DialogContent>
+        <DialogActions>
+          <CustomButton
+            bgColor="#e9ecef"
+            textColor="#2e2e38"
+            height="32px"
+            width="auto"
+            fontSize="0.8rem"
+            onClick={() => setOpenBuildTypes(false)}
           >
             Zamknij
           </CustomButton>

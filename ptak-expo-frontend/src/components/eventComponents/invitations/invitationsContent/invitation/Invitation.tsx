@@ -679,24 +679,6 @@ ${invitationData.company_info || ''}`;
                                 className={styles.textField}
                                 placeholder="Numer Hali"
                             /> 
-                            <CustomTextField
-                                label="Informacje o stoisku"
-                                value={''}
-                                onChange={()=>console.log("Jeżeli potrzebne pole na nr stoiska")}
-                                fullWidth
-                                size="small"
-                                className={styles.textField}
-                                placeholder="Numer stoiska"
-                            /> 
-                            <CustomTextField
-                                label="Informacje o stoisku"
-                                value={''}
-                                onChange={()=>console.log("Jeżeli potrzebna nazwa wystawcy")}
-                                fullWidth
-                                size="small"
-                                className={styles.textField}
-                                placeholder="Nazwa wystawcy"
-                            />   
                         </Box>
                     {/* Contact Information */}
                         <Box>

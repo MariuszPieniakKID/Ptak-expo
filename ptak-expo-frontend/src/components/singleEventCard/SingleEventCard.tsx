@@ -200,7 +200,7 @@ const SingleEventCard: React.FC<SingleEventCardProps> = ({
               </Box>
             </Box>
 
-            <Box className={styles.editBox}>
+            <Box className={styles.editBoxCompact}>
               <Box className={styles.fieldLabelContainer} >
                 <CustomTypography className={styles.fieldLabel}>ID wydarzenia:</CustomTypography>
               </Box>

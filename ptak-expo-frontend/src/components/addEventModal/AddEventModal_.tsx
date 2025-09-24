@@ -1,7 +1,7 @@
 import {  useCallback, useEffect, useRef, useState } from 'react';
 import CustomField from '../customField/CustomField';
 import CustomTypography from '../customTypography/CustomTypography';
-import { addExhibition, AddExhibitionPayload, uploadBrandingFile} from '../../services/api';
+import { addExhibition, AddExhibitionPayload, uploadBrandingFile, catalogAPI } from '../../services/api';
 
 
 import { Box, CircularProgress, Dialog, DialogTitle, IconButton, Typography } from '@mui/material';
@@ -11,7 +11,8 @@ import EventsPageIcon from '../../assets/eventIcon.png';
 
 import styles from './AddEventModal_.module.scss';
 import { useAuth } from '../../contexts/AuthContext';
-import { fieldOptions } from '../../helpers/mockData';
+import { fieldOptions as fallbackFieldOptions } from '../../helpers/mockData';
+import { OptionType } from '../customField/CustomField';
 
 interface AddEventModalProps {
   isOpen: boolean;
@@ -59,6 +60,7 @@ const AddEventModal_: React.FC<AddEventModalProps> = ({
   onEventAdded,
 }) => {
   const { token } = useAuth();
+  const [eventFieldOptions, setEventFieldOptions] = useState<OptionType[]>([{ value: 'all', label: 'Wszystkie' }, ...fallbackFieldOptions.filter(o => o.value !== 'all')]);
   const [formData, setFormData] = useState<AddExhibitionPayload>({
     name: '',
     description: '',
@@ -313,6 +315,25 @@ const AddEventModal_: React.FC<AddEventModalProps> = ({
 
   useEffect(() => () => { if (logoPreview) { try { URL.revokeObjectURL(logoPreview); } catch(_){} } }, [logoPreview]);
 
+  // Load dynamic event fields when modal opens
+  useEffect(() => {
+    const load = async () => {
+      if (!isOpen || !token) return;
+      try {
+        const list = await catalogAPI.listEventFields(token);
+        const opts: OptionType[] = [
+          { value: 'all', label: 'Wszystkie' },
+          ...list.map(i => ({ value: i.event_field, label: i.event_field }))
+        ];
+        setEventFieldOptions(opts);
+      } catch (_) {
+        // keep fallback
+        setEventFieldOptions([{ value: 'all', label: 'Wszystkie' }, ...fallbackFieldOptions.filter(o => o.value !== 'all')]);
+      }
+    };
+    load();
+  }, [isOpen, token]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -562,7 +583,7 @@ const AddEventModal_: React.FC<AddEventModalProps> = ({
                   label="Typ. branża wydarzenia"
                   value={formData.field || 'all'}
                   onChange={handleInputChange('field')}
-                  options={fieldOptions}
+                  options={eventFieldOptions}
                   forceSelectionFromOptions={true}
                   placeholder="Typ. branża wydarzenia"
                   fullWidth

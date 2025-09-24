@@ -805,6 +805,30 @@ const initializeDatabase = async () => {
       `);
       await pool.query(`CREATE INDEX IF NOT EXISTS idx_catalog_industries_usage ON catalog_industries(usage_count DESC)`);
 
+      // Event fields dictionary for editable event industries/types
+      await pool.query(`
+        CREATE TABLE IF NOT EXISTS catalog_event_fields (
+          id SERIAL PRIMARY KEY,
+          event_field VARCHAR(255) UNIQUE NOT NULL,
+          usage_count INTEGER NOT NULL DEFAULT 0,
+          created_at TIMESTAMPTZ DEFAULT NOW(),
+          updated_at TIMESTAMPTZ DEFAULT NOW()
+        )
+      `);
+      await pool.query(`CREATE INDEX IF NOT EXISTS idx_catalog_event_fields_usage ON catalog_event_fields(usage_count DESC)`);
+
+      // Build types dictionary for trade fair construction options
+      await pool.query(`
+        CREATE TABLE IF NOT EXISTS catalog_build_types (
+          id SERIAL PRIMARY KEY,
+          build_type VARCHAR(255) UNIQUE NOT NULL,
+          usage_count INTEGER NOT NULL DEFAULT 0,
+          created_at TIMESTAMPTZ DEFAULT NOW(),
+          updated_at TIMESTAMPTZ DEFAULT NOW()
+        )
+      `);
+      await pool.query(`CREATE INDEX IF NOT EXISTS idx_catalog_build_types_usage ON catalog_build_types(usage_count DESC)`);
+
       // Ensure exhibitor_catalog_entries has event-specific industries column (comma-separated list)
       await pool.query(`
         DO $$ BEGIN

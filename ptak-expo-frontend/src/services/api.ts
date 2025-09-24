@@ -474,6 +474,8 @@ export const publicAPI = {
 export interface CatalogTag { tag: string; usage_count: number }
 export interface CatalogIndustry { industry: string; usage_count: number }
 export interface CatalogBrand { brand: string; usage_count: number }
+export interface CatalogEventField { event_field: string; usage_count: number }
+export interface CatalogBuildType { build_type: string; usage_count: number }
 
 export const catalogAPI = {
   // Tags
@@ -576,6 +578,74 @@ export const catalogAPI = {
       method: 'DELETE', headers: { Authorization: `Bearer ${token}` }
     });
     if (!res.ok) { const d = await res.json(); throw new Error(d?.message || 'Nie udało się usunąć marki'); }
+  },
+  
+  // Event fields (industry type for exhibitions)
+  listEventFields: async (token: string, query?: string): Promise<CatalogEventField[]> => {
+    const qs: string[] = [];
+    if (query && query.trim()) qs.push(`query=${encodeURIComponent(query.trim())}`);
+    qs.push('limit=2000');
+    const url = `${config.API_BASE_URL}/api/v1/catalog/event-fields${qs.length ? `?${qs.join('&')}` : ''}`;
+    const res = await apiCall(url, { headers: { Authorization: `Bearer ${token}` } });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data?.message || 'Nie udało się pobrać branż wydarzeń');
+    return Array.isArray(data.data) ? data.data : [];
+  },
+  addEventField: async (token: string, eventField: string): Promise<void> => {
+    const res = await apiCall(`${config.API_BASE_URL}/api/v1/catalog/event-fields/add`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ eventField }),
+    });
+    if (!res.ok) { const d = await res.json(); throw new Error(d?.message || 'Nie udało się dodać branży wydarzenia'); }
+  },
+  renameEventField: async (token: string, oldEventField: string, newEventField: string): Promise<void> => {
+    const res = await apiCall(`${config.API_BASE_URL}/api/v1/catalog/event-fields`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ oldEventField, newEventField }),
+    });
+    if (!res.ok) { const d = await res.json(); throw new Error(d?.message || 'Nie udało się zmienić branży wydarzenia'); }
+  },
+  deleteEventField: async (token: string, eventField: string): Promise<void> => {
+    const res = await apiCall(`${config.API_BASE_URL}/api/v1/catalog/event-fields?eventField=${encodeURIComponent(eventField)}`, {
+      method: 'DELETE', headers: { Authorization: `Bearer ${token}` }
+    });
+    if (!res.ok) { const d = await res.json(); throw new Error(d?.message || 'Nie udało się usunąć branży wydarzenia'); }
+  },
+  
+  // Build types (Zabudowa targowa)
+  listBuildTypes: async (token: string, query?: string): Promise<CatalogBuildType[]> => {
+    const qs: string[] = [];
+    if (query && query.trim()) qs.push(`query=${encodeURIComponent(query.trim())}`);
+    qs.push('limit=2000');
+    const url = `${config.API_BASE_URL}/api/v1/catalog/build-types${qs.length ? `?${qs.join('&')}` : ''}`;
+    const res = await apiCall(url, { headers: { Authorization: `Bearer ${token}` } });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data?.message || 'Nie udało się pobrać typów zabudowy');
+    return Array.isArray(data.data) ? data.data : [];
+  },
+  addBuildType: async (token: string, buildType: string): Promise<void> => {
+    const res = await apiCall(`${config.API_BASE_URL}/api/v1/catalog/build-types/add`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ buildType }),
+    });
+    if (!res.ok) { const d = await res.json(); throw new Error(d?.message || 'Nie udało się dodać typu zabudowy'); }
+  },
+  renameBuildType: async (token: string, oldBuildType: string, newBuildType: string): Promise<void> => {
+    const res = await apiCall(`${config.API_BASE_URL}/api/v1/catalog/build-types`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ oldBuildType, newBuildType }),
+    });
+    if (!res.ok) { const d = await res.json(); throw new Error(d?.message || 'Nie udało się zmienić typu zabudowy'); }
+  },
+  deleteBuildType: async (token: string, buildType: string): Promise<void> => {
+    const res = await apiCall(`${config.API_BASE_URL}/api/v1/catalog/build-types?buildType=${encodeURIComponent(buildType)}`, {
+      method: 'DELETE', headers: { Authorization: `Bearer ${token}` }
+    });
+    if (!res.ok) { const d = await res.json(); throw new Error(d?.message || 'Nie udało się usunąć typu zabudowy'); }
   },
 };
 
