@@ -4,7 +4,7 @@ import { useChecklist } from "../../contexts/ChecklistContext";
 import { EidType, ElectrionicId } from "../../services/checkListApi";
 import { useState } from "react";
 import { eidTypes, getEidTypeString } from "../../shared/EventUtils";
-import QRCode from 'qrcode';
+import * as QRCode from 'qrcode';
 const boxSx = {
 	backgroundColor: '#fff',
 	padding: "40px",
