@@ -179,6 +179,22 @@ export const invitationsAPI = {
   }
 };
 
+// ============= NEWS (Aktualności) API =============
+export interface NewsItemDto {
+  kind: string;
+  title: string;
+  description: string;
+  timestamp: string;
+}
+
+export const newsAPI = {
+  listByExhibition: async (exhibitionId: number): Promise<NewsItemDto[]> => {
+    const res = await api.get(`/api/v1/news/${exhibitionId}`);
+    const data = res.data as { success?: boolean; data?: any[] };
+    return Array.isArray(data?.data) ? data!.data! : [];
+  },
+};
+
 // ============= EXHIBITOR SELF API (ptak-expo-web) =============
 
 export interface ExhibitorProfile {

@@ -7,6 +7,8 @@ import News, {type NewsItem} from "../components/news/News";
 import IconBell from "../assets/group-23.png";
 import IconEmails from "../assets/emails.png";
 import IconMarketing from "../assets/group-21.png";
+import { useEffect, useState } from "react";
+import { newsAPI } from "../services/api";
 
 const mockNews: NewsItem[] = [
   {
@@ -62,6 +64,38 @@ const mockNews: NewsItem[] = [
 
 const EventNewsPage = () => {
   const {eventId} = useParams();
+  const [items, setItems] = useState<NewsItem[]>([]);
+
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const idNum = Number(eventId);
+        if (!idNum) { setItems(mockNews); return; }
+        const list = await newsAPI.listByExhibition(idNum);
+        const mapped: NewsItem[] = list.map((row, idx) => ({
+          id: idx + 1,
+          title: row.title,
+          description: row.description,
+          category: row.kind,
+          date: new Date(row.timestamp),
+          icon: (
+            <div className={styles.customIconMenuImage}>
+              <img
+                src={row.kind.includes('event') ? IconBell : (row.kind.includes('branding') ? IconMarketing : IconEmails)}
+                alt="ikona"
+                width={35}
+                height="auto"
+              />
+            </div>
+          ),
+        }));
+        setItems(mapped.length ? mapped : mockNews);
+      } catch {
+        setItems(mockNews);
+      }
+    };
+    load();
+  }, [eventId]);
 
   return (
     <EventLayout
@@ -69,7 +103,7 @@ const EventNewsPage = () => {
       right={
         <Box className={styles.rightContainer}>
           <Box className="children">
-            <News news={mockNews} />
+            <News news={items} />
           </Box>
         </Box>
       }
