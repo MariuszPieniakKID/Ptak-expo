@@ -65,7 +65,6 @@ function AddElectronicId() {
 
 export default function ElectronicIdsCard() {
 	const {filled, checklist} = useChecklist();
-    const [qrUrls, setQrUrls] = useState<Record<string, string>>({});
     const getQrUrl = (text?: string | null, size: number = 96) => {
         if (!text) return '';
         return `https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&data=${encodeURIComponent(text)}`;
