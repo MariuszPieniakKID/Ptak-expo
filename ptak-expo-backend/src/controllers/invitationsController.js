@@ -374,8 +374,14 @@ const sendInvitation = async (req, res) => {
           [exhibitionId]
         );
         if (f.rows.length > 0 && f.rows[0].file_path) {
-          const base = process.env.API_BASE_URL || '';
-          headerImageUrl = `${base}/api/v1/exhibitor-branding/serve/global/${encodeURIComponent(String(f.rows[0].file_path).split('/').pop())}`;
+          const fileName = String(f.rows[0].file_path).split('/').pop();
+          // Build absolute URL: prefer PUBLIC_BASE_URL, otherwise infer from request
+          const proto = String(req.headers['x-forwarded-proto'] || (req.secure ? 'https' : 'http'));
+          const host = (req.headers['x-forwarded-host'] || req.get('host') || '').toString();
+          const base = (process.env.PUBLIC_BASE_URL && process.env.PUBLIC_BASE_URL.trim())
+            ? process.env.PUBLIC_BASE_URL.trim().replace(/\/$/, '')
+            : `${proto}://${host}`;
+          headerImageUrl = `${base}/api/v1/exhibitor-branding/serve/global/${encodeURIComponent(fileName)}`;
         }
       } catch {}
 
