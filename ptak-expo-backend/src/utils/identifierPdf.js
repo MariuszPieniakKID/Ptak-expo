@@ -2,18 +2,32 @@ const PDFDocument = require('pdfkit');
 const path = require('path');
 const fs = require('fs');
 
-// Try to resolve a font that supports Polish glyphs
-const resolveFontPath = () => {
+// Resolve a font buffer that supports Polish glyphs
+let cachedFontBuffer = null;
+async function resolveFontBuffer() {
+  if (cachedFontBuffer) return cachedFontBuffer;
+  // 1) Env path
+  const fp = process.env.ID_PDF_FONT_PATH && process.env.ID_PDF_FONT_PATH.trim();
+  if (fp) { try { cachedFontBuffer = fs.readFileSync(fp); return cachedFontBuffer; } catch {} }
+  // 2) Env URL
+  const fu = process.env.ID_PDF_FONT_URL && process.env.ID_PDF_FONT_URL.trim();
+  if (fu) { try { const r = await fetch(fu); if (r.ok) { cachedFontBuffer = Buffer.from(await r.arrayBuffer()); return cachedFontBuffer; } } catch {} }
+  // 3) System fonts
   const candidates = [
-    process.env.ID_PDF_FONT_PATH && process.env.ID_PDF_FONT_PATH.trim(),
     '/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf',
     '/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf',
-  ].filter(Boolean);
+  ];
   for (const p of candidates) {
-    try { if (fs.existsSync(p)) return p; } catch {}
+    try { if (fs.existsSync(p)) { cachedFontBuffer = fs.readFileSync(p); return cachedFontBuffer; } } catch {}
   }
+  // 4) Remote Noto Sans fallback
+  try {
+    const noto = 'https://github.com/googlefonts/noto-fonts/raw/main/hinted/ttf/NotoSans/NotoSans-Regular.ttf';
+    const r = await fetch(noto);
+    if (r.ok) { cachedFontBuffer = Buffer.from(await r.arrayBuffer()); return cachedFontBuffer; }
+  } catch {}
   return null;
-};
+}
 
 // Helper to resolve uploads base for reading branding assets
 const getUploadsBase = () => {
@@ -144,13 +158,10 @@ async function buildIdentifierPdf(client, exhibitionId, payload, exhibitorId) {
 
   const doc = new PDFDocument({ size: 'A6', margin: 12 });
   const chunks = [];
-
-  const fontPath = resolveFontPath();
-  if (fontPath) {
-    try { doc.font(fontPath); } catch {}
-  } else {
-    try { doc.font('Helvetica'); } catch {}
-  }
+  try {
+    const fontBuf = await resolveFontBuffer();
+    if (fontBuf) doc.font(fontBuf); else doc.font('Helvetica');
+  } catch { try { doc.font('Helvetica'); } catch {} }
 
   return await new Promise((resolve) => {
     doc.on('data', (d) => chunks.push(d));
@@ -190,32 +201,25 @@ async function buildIdentifierPdf(client, exhibitionId, payload, exhibitorId) {
     };
 
     // Title
-    try { doc.font(fontPath || 'Helvetica'); } catch {}
     doc.fontSize(12).fillColor('#2E2E38').text(ev.name || 'Wydarzenie', cardX + 12, y, { width: cardW - 24 });
     y = doc.y + 8;
 
     // Date and time
-    try { doc.font(fontPath || 'Helvetica'); } catch {}
     doc.fontSize(9).fillColor('#333').text('Data', cardX + 12, y);
     y = doc.y + 4;
-    try { doc.font(fontPath || 'Helvetica'); } catch {}
     doc.fillColor('#000').text(`${formatDate(ev.start_date)} – ${formatDate(ev.end_date)}`, cardX + 12, y, { width: cardW - 24 });
     y = doc.y + 10;
 
     // Name
-    try { doc.font(fontPath || 'Helvetica'); } catch {}
     doc.fillColor('#333').text('Imię i nazwisko', cardX + 12, y);
     y = doc.y + 4;
-    try { doc.font(fontPath || 'Helvetica-Bold'); } catch { try { doc.font(fontPath || 'Helvetica'); } catch {} }
-    doc.fillColor('#000').fontSize(10).text(payload?.personName || '', cardX + 12, y);
+    doc.fillColor('#000').fontSize(10).text(payload?.personName || '', cardX + 12, y, { width: cardW - 24 });
     y = doc.y + 8;
 
     // Role
-    try { doc.font(fontPath || 'Helvetica'); } catch {}
     doc.fillColor('#333').fontSize(9).text('Rola', cardX + 12, y);
     y = doc.y + 4;
-    try { doc.font(fontPath || 'Helvetica-Bold'); } catch { try { doc.font(fontPath || 'Helvetica'); } catch {} }
-    doc.fillColor('#000').fontSize(10).text('Gość', cardX + 12, y);
+    doc.fillColor('#000').fontSize(10).text('Gość', cardX + 12, y, { width: cardW - 24 });
 
     // Dashed separator
     y = y + 12;
