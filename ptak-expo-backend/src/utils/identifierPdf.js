@@ -178,6 +178,10 @@ async function buildIdentifierPdf(client, exhibitionId, payload, exhibitorId) {
     if (resp.ok) qrBuffer = Buffer.from(await resp.arrayBuffer());
   } catch {}
 
+  // Precompute normalized buffers for images before PDF drawing (no awaits inside PDF flow)
+  const headerBuffer = await toPdfImageBuffer(headerImageSource);
+  const footerBuffer = await toPdfImageBuffer(footerLogoSource);
+
   const doc = new PDFDocument({ size: 'A6', margin: 12 });
   const chunks = [];
   try {
@@ -203,7 +207,6 @@ async function buildIdentifierPdf(client, exhibitionId, payload, exhibitorId) {
     doc.save();
     doc.roundedRect(cardX, 10, cardW, doc.page.height - 20, 12).clip();
     try {
-      const headerBuffer = await toPdfImageBuffer(headerImageSource);
       if (headerBuffer) {
         doc.image(headerBuffer, cardX, 10, { width: cardW, height: headerH, fit: [cardW, headerH] });
       } else {
@@ -259,9 +262,8 @@ async function buildIdentifierPdf(client, exhibitionId, payload, exhibitorId) {
     try {
       const logoBoxW = qrX - (cardX + 12) - 8;
       const logoMaxH = 40;
-      const footerBuf = await toPdfImageBuffer(footerLogoSource);
-      if (footerBuf) {
-        doc.image(footerBuf, cardX + 12, y + 8, { fit: [logoBoxW, logoMaxH], align: 'left' });
+      if (footerBuffer) {
+        doc.image(footerBuffer, cardX + 12, y + 8, { fit: [logoBoxW, logoMaxH], align: 'left' });
       } else {
         // fallback text logo
         try { /* keep current font */ } catch {}
