@@ -1,4 +1,7 @@
 const { pool } = require('../config/database');
+const PDFDocument = require('pdfkit');
+const path = require('path');
+const fs = require('fs');
 
 // Get invitations for exhibition
 const getInvitations = async (req, res) => {
@@ -406,8 +409,146 @@ const sendInvitation = async (req, res) => {
       );
       const recipientRow = insRes.rows[0];
 
-      // Send email via SMTP
-      const mailResult = await sendEmail({ to: recipientEmail, subject, html });
+      // Attempt to create e-identifier (exhibitor_people) and generate PDF attachment
+      let attachments = undefined;
+      try {
+        // Resolve exhibitorId for current user
+        let exhibitorId = null;
+        if (req.user && req.user.role !== 'admin') {
+          // Map by email
+          const me = await client.query('SELECT id FROM exhibitors WHERE email = $1 LIMIT 1', [req.user.email]);
+          exhibitorId = me.rows?.[0]?.id || null;
+          if (!exhibitorId) {
+            const rel = await client.query('SELECT exhibitor_id FROM exhibitor_events WHERE supervisor_user_id = $1 LIMIT 1', [req.user.id]);
+            exhibitorId = rel.rows?.[0]?.exhibitor_id || null;
+          }
+        } else {
+          // Admin may optionally pass exhibitorId in body to attach person under a specific exhibitor
+          const bodyExhibitorId = req.body && req.body.exhibitorId ? parseInt(req.body.exhibitorId, 10) : null;
+          if (Number.isInteger(bodyExhibitorId)) {
+            exhibitorId = bodyExhibitorId;
+          }
+        }
+
+        const personFullName = (recipientName && String(recipientName).trim()) || String(recipientEmail).split('@')[0];
+
+        if (exhibitorId) {
+          // Ensure exhibitor_people table exists (ignore error if not)
+          try {
+            await client.query(
+              `INSERT INTO exhibitor_people (exhibitor_id, exhibition_id, full_name, position, email)
+               VALUES ($1, $2, $3, $4, $5)`,
+              [exhibitorId, parseInt(exhibitionId, 10), personFullName, 'Gość', recipientEmail]
+            );
+          } catch (e) {
+            console.warn('[sendInvitation] exhibitor_people insert failed:', e?.message || e);
+          }
+        }
+
+        // Build Identifier PDF (compact A6) using event branding if available
+        const pdfBuffer = await (async () => {
+          try {
+            // Fetch minimal event info
+            const evRes = await client.query('SELECT id, name, start_date, end_date, location FROM exhibitions WHERE id = $1', [exhibitionId]);
+            const ev = evRes.rows?.[0];
+            if (!ev) return null;
+
+            // Optional header/brand assets
+            let headerImagePath = null;
+            try {
+              const uploadsBase = (process.env.UPLOADS_DIR && process.env.UPLOADS_DIR.trim()) ? path.resolve(process.env.UPLOADS_DIR) : (fs.existsSync('/data/uploads') ? '/data/uploads' : path.join(__dirname, '../../uploads'));
+              const h = await client.query(
+                `SELECT file_path FROM exhibitor_branding_files
+                 WHERE exhibitor_id IS NULL AND exhibition_id = $1 AND file_type = 'kolorowe_tlo_logo_wydarzenia'
+                 ORDER BY created_at DESC LIMIT 1`,
+                [exhibitionId]
+              );
+              if (h.rows.length > 0 && h.rows[0].file_path) {
+                const normalized = String(h.rows[0].file_path).startsWith('uploads/') ? String(h.rows[0].file_path).replace(/^uploads\//, '') : String(h.rows[0].file_path);
+                const resolved = path.join(uploadsBase, normalized);
+                if (fs.existsSync(resolved)) headerImagePath = resolved;
+              }
+            } catch {}
+
+            // Prepare QR buffer up-front (use invitation recipient id as code)
+            let qrBuffer = null;
+            try {
+              const qrData = String(recipientRow.id);
+              const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${encodeURIComponent(qrData)}`;
+              const resp = await fetch(qrUrl);
+              if (resp.ok) {
+                const arr = await resp.arrayBuffer();
+                qrBuffer = Buffer.from(arr);
+              }
+            } catch {}
+
+            const doc = new PDFDocument({ size: 'A6', margin: 12 });
+            const chunks = [];
+            return await new Promise((resolve) => {
+              doc.on('data', (d) => chunks.push(d));
+              doc.on('end', () => resolve(Buffer.concat(chunks)));
+
+              const pageW = doc.page.width;
+              const cardX = 10;
+              const cardW = pageW - 20;
+
+              doc.save();
+              doc.roundedRect(cardX, 10, cardW, doc.page.height - 20, 12).fill('#FFFFFF');
+              doc.restore();
+
+              // Header image or color
+              doc.save();
+              doc.roundedRect(cardX, 10, cardW, doc.page.height - 20, 12).clip();
+              try {
+                const headerH = 120;
+                if (headerImagePath) {
+                  doc.image(headerImagePath, cardX, 10, { width: cardW, height: headerH, fit: [cardW, headerH] });
+                } else {
+                  doc.rect(cardX, 10, cardW, headerH).fill('#5a6ec8');
+                }
+              } catch {}
+              doc.restore();
+
+              let y = 10 + 120 + 14;
+              const formatDate = (d) => { if (!d) return ''; const dt = new Date(d); return `${String(dt.getDate()).padStart(2,'0')}.${String(dt.getMonth()+1).padStart(2,'0')}.${dt.getFullYear()}`; };
+              doc.font('Helvetica-Bold').fontSize(12).fillColor('#2E2E38').text(ev.name || 'Wydarzenie', cardX + 12, y, { width: cardW - 24 });
+              y = doc.y + 8;
+              doc.font('Helvetica').fontSize(9).fillColor('#333').text('Data', cardX + 12, y);
+              y = doc.y + 4;
+              doc.font('Helvetica').fontSize(9).fillColor('#000').text(`${formatDate(ev.start_date)} – ${formatDate(ev.end_date)}`, cardX + 12, y, { width: cardW - 24 });
+              y = doc.y + 10;
+              doc.font('Helvetica').fontSize(9).fillColor('#333').text('Imię i nazwisko', cardX + 12, y);
+              y = doc.y + 4;
+              doc.font('Helvetica').fontSize(10).fillColor('#000').text(personFullName, cardX + 12, y);
+              y = doc.y + 8;
+              doc.font('Helvetica').fontSize(9).fillColor('#333').text('Rola', cardX + 12, y);
+              y = doc.y + 4;
+              doc.font('Helvetica-Bold').fontSize(10).fillColor('#000').text('Gość', cardX + 12, y);
+
+              // QR image
+              try {
+                if (qrBuffer) {
+                  doc.image(qrBuffer, cardX + cardW - 12 - 70, y - 16, { width: 70, height: 70 });
+                }
+              } catch {}
+
+              doc.end();
+            });
+          } catch (e) {
+            console.warn('[sendInvitation] identifier PDF build failed:', e?.message || e);
+            return null;
+          }
+        })();
+
+        if (pdfBuffer) {
+          attachments = [{ filename: 'e-identyfikator.pdf', content: pdfBuffer, contentType: 'application/pdf' }];
+        }
+      } catch (e) {
+        console.warn('[sendInvitation] e-identifier generation error:', e?.message || e);
+      }
+
+      // Send email via SMTP (with identifier PDF if generated)
+      const mailResult = await sendEmail({ to: recipientEmail, subject, html, attachments });
       if (!mailResult.success) {
         // Keep DB row; report error
         return res.status(500).json({ success: false, message: 'Nie udało się wysłać zaproszenia', error: mailResult.error });
