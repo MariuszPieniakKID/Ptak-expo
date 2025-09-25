@@ -31,7 +31,14 @@ router.get('/exhibitions/:exhibitionId/exhibitors', async (req, res) => {
     // Prefer event-specific catalog entry; fallback to GLOBAL; fallback to exhibitors base
     const rows = await db.query(
       `WITH assigned AS (
-         SELECT e.id AS exhibitor_id
+         SELECT e.id AS exhibitor_id,
+                e.nip,
+                e.address,
+                e.postal_code,
+                e.city,
+                ee.hall_name,
+                ee.stand_number,
+                ee.booth_area
          FROM exhibitor_events ee
          JOIN exhibitors e ON e.id = ee.exhibitor_id
          WHERE ee.exhibition_id = $1
@@ -55,6 +62,13 @@ router.get('/exhibitions/:exhibitionId/exhibitors', async (req, res) => {
          FROM exhibitors
        )
        SELECT a.exhibitor_id,
+              a.nip,
+              a.address,
+              a.postal_code,
+              a.city,
+              a.hall_name,
+              a.stand_number,
+              a.booth_area,
               COALESCE(s.name, g.name, b.name) AS name,
               COALESCE(s.logo, g.logo) AS logo,
               COALESCE(s.description, g.description, b.description) AS description,
@@ -78,7 +92,39 @@ router.get('/exhibitions/:exhibitionId/exhibitors', async (req, res) => {
       [exhibitionId]
     );
 
-    res.json({ success: true, exhibitionId, exhibitors: rows.rows });
+    const siteLink = req.protocol + '://' + req.get('host');
+    const toUrl = (value) => {
+      const s = String(value || '').trim();
+      if (!s) return null;
+      if (/^https?:\/\//i.test(s)) return s;
+      // Fallback: serve via public global branding endpoint
+      return `${siteLink}/api/v1/exhibitor-branding/serve/global/${encodeURIComponent(s)}`;
+    };
+
+    const exhibitors = rows.rows.map((r) => ({
+      exhibitor_id: r.exhibitor_id,
+      name: r.name,
+      description: r.description,
+      contact_info: r.contact_info,
+      website: r.website,
+      socials: r.socials,
+      contact_email: r.contact_email,
+      catalog_tags: r.catalog_tags,
+      products: r.products,
+      // Images as URL
+      logoUrl: toUrl(r.logo),
+      // Stand assignment details
+      hallName: r.hall_name || null,
+      standNumber: r.stand_number || null,
+      boothArea: r.booth_area === null ? null : Number(r.booth_area),
+      // Exhibitor company details
+      nip: r.nip || null,
+      address: r.address || null,
+      postalCode: r.postal_code || null,
+      city: r.city || null,
+    }));
+
+    res.json({ success: true, exhibitionId, exhibitors });
   } catch (error) {
     console.error('[public] list exhibitors for exhibition error', error);
     res.status(500).json({ success: false, message: 'Failed to fetch exhibitors' });
@@ -333,6 +379,18 @@ router.get('/exhibitions/:exhibitionId/exhibitors/:exhibitorId.json', async (req
 
     const company = companyRows.rows[0] || {};
 
+    // Exhibitor core details (nip + address) and stand assignment (hall/stand/area)
+    const exhibitorCoreRes = await db.query(
+      `SELECT nip, company_name, address, postal_code, city FROM exhibitors WHERE id = $1 LIMIT 1`,
+      [exhibitorId]
+    );
+    const exhibitorCore = exhibitorCoreRes.rows[0] || {};
+    const assignRes = await db.query(
+      `SELECT hall_name, stand_number, booth_area FROM exhibitor_events WHERE exhibition_id = $1 AND exhibitor_id = $2 LIMIT 1`,
+      [exhibitionId, exhibitorId]
+    );
+    const assign = assignRes.rows[0] || {};
+
     // Events for exhibitor at exhibition (include all fields)
     const eventsRes = await db.query(`
       SELECT id, exhibition_id, exhibitor_id, name, event_date, start_time, end_time, hall, organizer, description, type, link, created_at, updated_at
@@ -370,6 +428,13 @@ router.get('/exhibitions/:exhibitionId/exhibitors/:exhibitorId.json', async (req
       downloadUrl: `${siteLink}/public/exhibitions/${encodeURIComponent(String(exhibitionId))}/exhibitors/${encodeURIComponent(String(exhibitorId))}/documents/${encodeURIComponent(String(d.id))}/download`
     }));
 
+    const toUrl = (value) => {
+      const s = String(value || '').trim();
+      if (!s) return null;
+      if (/^https?:\/\//i.test(s)) return s;
+      return `${siteLink}/api/v1/exhibitor-branding/serve/global/${encodeURIComponent(s)}`;
+    };
+
     // Build payload
     const payload = {
       success: true,
@@ -378,7 +443,8 @@ router.get('/exhibitions/:exhibitionId/exhibitors/:exhibitorId.json', async (req
       companyInfo: {
         name: company.name || null,
         displayName: company.display_name || null,
-        logo: company.logo || null,
+        // Images as URL
+        logoUrl: toUrl(company.logo),
         description: company.description || null,
         whyVisit: company.why_visit || null,
         contactInfo: company.contact_info || null,
@@ -388,6 +454,17 @@ router.get('/exhibitions/:exhibitionId/exhibitors/:exhibitorId.json', async (req
         catalogTags: company.catalog_tags || null,
         brands: company.brands || null,
         industries: company.industries || null
+      },
+      exhibitor: {
+        nip: exhibitorCore.nip || null,
+        address: exhibitorCore.address || null,
+        postalCode: exhibitorCore.postal_code || null,
+        city: exhibitorCore.city || null,
+      },
+      stand: {
+        hallName: assign.hall_name || null,
+        standNumber: assign.stand_number || null,
+        boothArea: assign.booth_area === null ? null : Number(assign.booth_area),
       },
       products: Array.isArray(company.products) ? company.products : (typeof company.products === 'string' ? (() => { try { return JSON.parse(company.products); } catch { return []; } })() : []),
       events: eventsRes.rows,

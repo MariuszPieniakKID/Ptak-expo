@@ -1,0 +1,520 @@
+
+> ptak-expo-frontend@0.2.0 start
+> react-scripts start
+
+(node:95331) [DEP_WEBPACK_DEV_SERVER_ON_AFTER_SETUP_MIDDLEWARE] DeprecationWarning: 'onAfterSetupMiddleware' option is deprecated. Please use the 'setupMiddlewares' option.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+(node:95331) [DEP_WEBPACK_DEV_SERVER_ON_BEFORE_SETUP_MIDDLEWARE] DeprecationWarning: 'onBeforeSetupMiddleware' option is deprecated. Please use the 'setupMiddlewares' option.
+Starting the development server...
+
+Compiled successfully!
+
+You can now view ptak-expo-frontend in the browser.
+
+  Local:            http://localhost:3000
+  On Your Network:  http://192.168.100.190:3000
+
+Note that the development build is not optimized.
+To create a production build, use npm run build.
+
+webpack compiled successfully
+Files successfully emitted, waiting for typecheck results...
+Issues checking in progress...
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+Compiling...
+No issues found.
+Compiled successfully!
+webpack compiled successfully
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+Files successfully emitted, waiting for typecheck results...
+Issues checking in progress...
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+Files successfully emitted, waiting for typecheck results...
+Issues checking in progress...
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+Files successfully emitted, waiting for typecheck results...
+Issues checking in progress...
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+Files successfully emitted, waiting for typecheck results...
+Issues checking in progress...
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+Compiling...
+Files successfully emitted, waiting for typecheck results...
+Issues checking in progress...
+Compiled successfully!
+webpack compiled successfully
+Files successfully emitted, waiting for typecheck results...
+Issues checking in progress...
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+Files successfully emitted, waiting for typecheck results...
+Issues checking in progress...
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+Files successfully emitted, waiting for typecheck results...
+Issues checking in progress...
+No issues found.
+Compiling...
+Failed to compile.
+
+[eslint] 
+src/components/eventComponents/invitations/invitationsContent/invitation/Invitation.tsx
+  Line 411:24:  React Hook "useAuth" is called in function "handleTestSend" that is neither a React function component nor a custom React Hook function. React component names must start with an uppercase letter. React Hook names must start with the word "use"  react-hooks/rules-of-hooks
+  Line 419:24:  React Hook "useAuth" is called in function "handleTestSend" that is neither a React function component nor a custom React Hook function. React component names must start with an uppercase letter. React Hook names must start with the word "use"  react-hooks/rules-of-hooks
+  Line 419:55:  React Hook "useAuth" is called in function "handleTestSend" that is neither a React function component nor a custom React Hook function. React component names must start with an uppercase letter. React Hook names must start with the word "use"  react-hooks/rules-of-hooks
+  Line 419:84:  React Hook "useAuth" is called in function "handleTestSend" that is neither a React function component nor a custom React Hook function. React component names must start with an uppercase letter. React Hook names must start with the word "use"  react-hooks/rules-of-hooks
+
+Search for the keywords to learn more about each error.
+ERROR in [eslint] 
+src/components/eventComponents/invitations/invitationsContent/invitation/Invitation.tsx
+  Line 411:24:  React Hook "useAuth" is called in function "handleTestSend" that is neither a React function component nor a custom React Hook function. React component names must start with an uppercase letter. React Hook names must start with the word "use"  react-hooks/rules-of-hooks
+  Line 419:24:  React Hook "useAuth" is called in function "handleTestSend" that is neither a React function component nor a custom React Hook function. React component names must start with an uppercase letter. React Hook names must start with the word "use"  react-hooks/rules-of-hooks
+  Line 419:55:  React Hook "useAuth" is called in function "handleTestSend" that is neither a React function component nor a custom React Hook function. React component names must start with an uppercase letter. React Hook names must start with the word "use"  react-hooks/rules-of-hooks
+  Line 419:84:  React Hook "useAuth" is called in function "handleTestSend" that is neither a React function component nor a custom React Hook function. React component names must start with an uppercase letter. React Hook names must start with the word "use"  react-hooks/rules-of-hooks
+
+Search for the keywords to learn more about each error.
+
+webpack compiled with 1 error
+Files successfully emitted, waiting for typecheck results...
+Issues checking in progress...
+ERROR in src/components/eventComponents/invitations/invitationsContent/invitation/Invitation.tsx:417:58
+TS2379: Argument of type '{ templateId: number | undefined; recipientName: string | undefined; recipientEmail: string; }' is not assignable to parameter of type '{ templateId?: number; recipientName?: string; recipientEmail: string; }' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'templateId' are incompatible.
+    Type 'number | undefined' is not assignable to type 'number'.
+      Type 'undefined' is not assignable to type 'number'.
+    415 |       }
+    416 |       setError('');
+  > 417 |       const res = await sendInvitationTest(exhibitionId, {
+        |                                                          ^
+  > 418 |         templateId: invitationData.id,
+        | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  > 419 |         recipientName: useAuth().user?.firstName ? `${useAuth().user?.firstName} ${useAuth().user?.lastName || ''}`.trim() : undefined,
+        | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  > 420 |         recipientEmail: meEmail,
+        | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  > 421 |       }, token);
+        | ^^^^^^^^
+    422 |       if (res.success) {
+    423 |         setSuccessMessage('Wysłano testowe zaproszenie');
+    424 |       } else {
+
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+Files successfully emitted, waiting for typecheck results...
+Issues checking in progress...
+ERROR in src/components/eventComponents/invitations/invitationsContent/invitation/Invitation.tsx:420:58
+TS2379: Argument of type '{ templateId: number | undefined; recipientName: string | undefined; recipientEmail: string; }' is not assignable to parameter of type '{ templateId?: number; recipientName?: string; recipientEmail: string; }' with 'exactOptionalPropertyTypes: true'. Consider adding 'undefined' to the types of the target's properties.
+  Types of property 'templateId' are incompatible.
+    Type 'number | undefined' is not assignable to type 'number'.
+      Type 'undefined' is not assignable to type 'number'.
+    418 |       const saveRes = await saveInvitation(exhibitionId, saveData as any, token);
+    419 |       const templateId = (saveRes && saveRes.data && saveRes.data.id) ? saveRes.data.id : invitationData.id;
+  > 420 |       const res = await sendInvitationTest(exhibitionId, {
+        |                                                          ^
+  > 421 |         templateId,
+        | ^^^^^^^^^^^^^^^^^^^
+  > 422 |         recipientName: user?.firstName ? `${user?.firstName} ${user?.lastName || ''}`.trim() : undefined,
+        | ^^^^^^^^^^^^^^^^^^^
+  > 423 |         recipientEmail: meEmail,
+        | ^^^^^^^^^^^^^^^^^^^
+  > 424 |       }, token);
+        | ^^^^^^^^
+    425 |       if (res.success) {
+    426 |         setSuccessMessage('Wysłano testowe zaproszenie');
+    427 |       } else {
+
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+Files successfully emitted, waiting for typecheck results...
+Issues checking in progress...
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+Files successfully emitted, waiting for typecheck results...
+Issues checking in progress...
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+No issues found.
+Compiling...
+Failed to compile.
+
+[eslint] 
+src/components/singleEventCard/SingleEventCard.tsx
+Syntax error: ')' expected (202:10)
+ERROR in ./src/components/singleEventCard/SingleEventCard.tsx
+Module build failed (from ./node_modules/babel-loader/lib/index.js):
+SyntaxError: /Users/kid/Ptak-expo/ptak-expo-frontend/src/components/singleEventCard/SingleEventCard.tsx: Unexpected token, expected "," (202:10)
+
+  200 |           </Box>
+  201 |           
+> 202 |           {/* ID wydarzenia row */}
+      |           ^
+  203 |           <Box className={styles.editBox}>
+  204 |             <Box className={styles.fieldLabelContainer} >
+  205 |               <CustomTypography className={styles.fieldLabel}>ID wydarzenia:</CustomTypography>
+    at constructor (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:367:19)
+    at TypeScriptParserMixin.raise (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:6630:19)
+    at TypeScriptParserMixin.unexpected (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:6650:16)
+    at TypeScriptParserMixin.expect (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:6930:12)
+    at TypeScriptParserMixin.parseParenAndDistinguishExpression (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:11665:14)
+    at TypeScriptParserMixin.parseExprAtom (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:11331:23)
+    at TypeScriptParserMixin.parseExprAtom (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:4797:20)
+    at TypeScriptParserMixin.parseExprSubscripts (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:11081:23)
+    at TypeScriptParserMixin.parseUpdate (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:11066:21)
+    at TypeScriptParserMixin.parseMaybeUnary (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:11046:23)
+    at TypeScriptParserMixin.parseMaybeUnary (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:9857:18)
+    at TypeScriptParserMixin.parseMaybeUnaryOrPrivate (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:10899:61)
+    at TypeScriptParserMixin.parseExprOps (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:10904:23)
+    at TypeScriptParserMixin.parseMaybeConditional (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:10881:23)
+    at TypeScriptParserMixin.parseMaybeAssign (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:10831:21)
+    at TypeScriptParserMixin.parseMaybeAssign (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:9806:20)
+    at /Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:10800:39
+    at TypeScriptParserMixin.allowInAnd (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:12432:12)
+    at TypeScriptParserMixin.parseMaybeAssignAllowIn (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:10800:17)
+    at TypeScriptParserMixin.parseConditional (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:10891:30)
+    at TypeScriptParserMixin.parseConditional (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:9631:18)
+    at TypeScriptParserMixin.parseMaybeConditional (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:10885:17)
+    at TypeScriptParserMixin.parseMaybeAssign (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:10831:21)
+    at TypeScriptParserMixin.parseMaybeAssign (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:9806:20)
+    at TypeScriptParserMixin.parseExpressionBase (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:10784:23)
+    at /Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:10780:39
+    at TypeScriptParserMixin.allowInAnd (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:12432:12)
+    at TypeScriptParserMixin.parseExpression (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:10780:17)
+    at TypeScriptParserMixin.jsxParseExpressionContainer (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:4665:31)
+    at TypeScriptParserMixin.jsxParseElementAt (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:4744:36)
+    at TypeScriptParserMixin.jsxParseElementAt (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:4731:32)
+    at TypeScriptParserMixin.jsxParseElement (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:4782:17)
+    at TypeScriptParserMixin.parseExprAtom (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:4792:19)
+    at TypeScriptParserMixin.parseExprSubscripts (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:11081:23)
+    at TypeScriptParserMixin.parseUpdate (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:11066:21)
+    at TypeScriptParserMixin.parseMaybeUnary (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:11046:23)
+    at TypeScriptParserMixin.parseMaybeUnary (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:9857:18)
+    at TypeScriptParserMixin.parseMaybeUnaryOrPrivate (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:10899:61)
+    at TypeScriptParserMixin.parseExprOps (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:10904:23)
+    at TypeScriptParserMixin.parseMaybeConditional (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:10881:23)
+    at TypeScriptParserMixin.parseMaybeAssign (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:10831:21)
+    at /Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:9795:39
+    at TypeScriptParserMixin.tryParse (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:6938:20)
+    at TypeScriptParserMixin.parseMaybeAssign (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:9795:18)
+    at /Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:10800:39
+    at TypeScriptParserMixin.allowInAnd (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:12432:12)
+    at TypeScriptParserMixin.parseMaybeAssignAllowIn (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:10800:17)
+    at TypeScriptParserMixin.parseMaybeAssignAllowInOrVoidPattern (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:12499:17)
+    at TypeScriptParserMixin.parseParenAndDistinguishExpression (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:11679:28)
+    at TypeScriptParserMixin.parseExprAtom (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:11331:23)
+
+ERROR in [eslint] 
+src/components/singleEventCard/SingleEventCard.tsx
+  Line 202:10:  Parsing error: ')' expected
+
+webpack compiled with 2 errors
+Files successfully emitted, waiting for typecheck results...
+Issues checking in progress...
+ERROR in src/components/singleEventCard/SingleEventCard.tsx:202:11
+TS1005: ')' expected.
+    200 |           </Box>
+    201 |           
+  > 202 |           {/* ID wydarzenia row */}
+        |           ^
+    203 |           <Box className={styles.editBox}>
+    204 |             <Box className={styles.fieldLabelContainer} >
+    205 |               <CustomTypography className={styles.fieldLabel}>ID wydarzenia:</CustomTypography>
+
+ERROR in src/components/singleEventCard/SingleEventCard.tsx:231:10
+TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+    229 |             </Box>
+    230 |           </Box>
+  > 231 |         )}
+        |          ^
+    232 |       </Box>
+    233 |
+    234 |       <ConfirmationDialog
+
+Compiling...
+Failed to compile.
+
+[eslint] 
+src/components/singleEventCard/SingleEventCard.tsx
+Syntax error: ')' expected (202:10)
+ERROR in ./src/components/singleEventCard/SingleEventCard.tsx
+Module build failed (from ./node_modules/babel-loader/lib/index.js):
+SyntaxError: /Users/kid/Ptak-expo/ptak-expo-frontend/src/components/singleEventCard/SingleEventCard.tsx: Unexpected token, expected "," (202:10)
+
+  200 |           </Box>
+  201 |           
+> 202 |           {/* ID wydarzenia row */}
+      |           ^
+  203 |           <Box className={styles.editBox}>
+  204 |             <Box className={styles.fieldLabelContainer} >
+  205 |               <CustomTypography className={styles.fieldLabel}>ID wydarzenia:</CustomTypography>
+    at constructor (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:367:19)
+    at TypeScriptParserMixin.raise (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:6630:19)
+    at TypeScriptParserMixin.unexpected (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:6650:16)
+    at TypeScriptParserMixin.expect (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:6930:12)
+    at TypeScriptParserMixin.parseParenAndDistinguishExpression (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:11665:14)
+    at TypeScriptParserMixin.parseExprAtom (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:11331:23)
+    at TypeScriptParserMixin.parseExprAtom (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:4797:20)
+    at TypeScriptParserMixin.parseExprSubscripts (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:11081:23)
+    at TypeScriptParserMixin.parseUpdate (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:11066:21)
+    at TypeScriptParserMixin.parseMaybeUnary (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:11046:23)
+    at TypeScriptParserMixin.parseMaybeUnary (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:9857:18)
+    at TypeScriptParserMixin.parseMaybeUnaryOrPrivate (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:10899:61)
+    at TypeScriptParserMixin.parseExprOps (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:10904:23)
+    at TypeScriptParserMixin.parseMaybeConditional (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:10881:23)
+    at TypeScriptParserMixin.parseMaybeAssign (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:10831:21)
+    at TypeScriptParserMixin.parseMaybeAssign (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:9806:20)
+    at /Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:10800:39
+    at TypeScriptParserMixin.allowInAnd (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:12432:12)
+    at TypeScriptParserMixin.parseMaybeAssignAllowIn (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:10800:17)
+    at TypeScriptParserMixin.parseConditional (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:10891:30)
+    at TypeScriptParserMixin.parseConditional (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:9631:18)
+    at TypeScriptParserMixin.parseMaybeConditional (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:10885:17)
+    at TypeScriptParserMixin.parseMaybeAssign (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:10831:21)
+    at TypeScriptParserMixin.parseMaybeAssign (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:9806:20)
+    at TypeScriptParserMixin.parseExpressionBase (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:10784:23)
+    at /Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:10780:39
+    at TypeScriptParserMixin.allowInAnd (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:12432:12)
+    at TypeScriptParserMixin.parseExpression (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:10780:17)
+    at TypeScriptParserMixin.jsxParseExpressionContainer (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:4665:31)
+    at TypeScriptParserMixin.jsxParseElementAt (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:4744:36)
+    at TypeScriptParserMixin.jsxParseElementAt (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:4731:32)
+    at TypeScriptParserMixin.jsxParseElement (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:4782:17)
+    at TypeScriptParserMixin.parseExprAtom (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:4792:19)
+    at TypeScriptParserMixin.parseExprSubscripts (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:11081:23)
+    at TypeScriptParserMixin.parseUpdate (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:11066:21)
+    at TypeScriptParserMixin.parseMaybeUnary (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:11046:23)
+    at TypeScriptParserMixin.parseMaybeUnary (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:9857:18)
+    at TypeScriptParserMixin.parseMaybeUnaryOrPrivate (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:10899:61)
+    at TypeScriptParserMixin.parseExprOps (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:10904:23)
+    at TypeScriptParserMixin.parseMaybeConditional (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:10881:23)
+    at TypeScriptParserMixin.parseMaybeAssign (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:10831:21)
+    at /Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:9795:39
+    at TypeScriptParserMixin.tryParse (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:6938:20)
+    at TypeScriptParserMixin.parseMaybeAssign (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:9795:18)
+    at /Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:10800:39
+    at TypeScriptParserMixin.allowInAnd (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:12432:12)
+    at TypeScriptParserMixin.parseMaybeAssignAllowIn (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:10800:17)
+    at TypeScriptParserMixin.parseMaybeAssignAllowInOrVoidPattern (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:12499:17)
+    at TypeScriptParserMixin.parseParenAndDistinguishExpression (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:11679:28)
+    at TypeScriptParserMixin.parseExprAtom (/Users/kid/Ptak-expo/ptak-expo-frontend/node_modules/@babel/parser/lib/index.js:11331:23)
+
+ERROR in [eslint] 
+src/components/singleEventCard/SingleEventCard.tsx
+  Line 202:10:  Parsing error: ')' expected
+
+webpack compiled with 2 errors
+ERROR in src/components/singleEventCard/SingleEventCard.tsx:202:11
+TS1005: ')' expected.
+    200 |           </Box>
+    201 |           
+  > 202 |           {/* ID wydarzenia row */}
+        |           ^
+    203 |           <Box className={styles.editBox}>
+    204 |             <Box className={styles.fieldLabelContainer} >
+    205 |               <CustomTypography className={styles.fieldLabel}>ID wydarzenia:</CustomTypography>
+
+ERROR in src/components/singleEventCard/SingleEventCard.tsx:231:10
+TS1381: Unexpected token. Did you mean `{'}'}` or `&rbrace;`?
+    229 |             </Box>
+    230 |           </Box>
+  > 231 |         )}
+        |          ^
+    232 |       </Box>
+    233 |
+    234 |       <ConfirmationDialog
+
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+No issues found.
+Compiling...
+Compiled successfully!
+LOG from ./node_modules/sass-loader/dist/cjs.js sass-loader ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[1]!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[2]!./node_modules/resolve-url-loader/index.js??ruleSet[1].rules[1].oneOf[8].use[3]!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[4]!./src/components/singleEventCard/SingleEventCard.module.scss
+<w> Deprecation The legacy JS API is deprecated and will be removed in Dart Sass 2.0.0.
+<w> 
+<w> More info: https://sass-lang.com/d/legacy-js-api
+<w> 
+<w> null
+<w> Deprecation Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+<w> 
+<w> More info and automated migrator: https://sass-lang.com/d/import
+<w> 
+<w> src/components/singleEventCard/SingleEventCard.module.scss 1:9  root stylesheet
+<w> 
+<w> Deprecation Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+<w> 
+<w> More info and automated migrator: https://sass-lang.com/d/import
+<w> 
+<w> src/components/singleEventCard/SingleEventCard.module.scss 2:9  root stylesheet
+<w>
+
+webpack compiled successfully
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+Files successfully emitted, waiting for typecheck results...
+Issues checking in progress...
+No issues found.
+Compiling...
+Compiled successfully!
+LOG from ./node_modules/sass-loader/dist/cjs.js sass-loader ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[1]!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[2]!./node_modules/resolve-url-loader/index.js??ruleSet[1].rules[1].oneOf[8].use[3]!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[4]!./src/components/singleEventCard/SingleEventCard.module.scss
+<w> Deprecation The legacy JS API is deprecated and will be removed in Dart Sass 2.0.0.
+<w> 
+<w> More info: https://sass-lang.com/d/legacy-js-api
+<w> 
+<w> null
+<w> Deprecation Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+<w> 
+<w> More info and automated migrator: https://sass-lang.com/d/import
+<w> 
+<w> src/components/singleEventCard/SingleEventCard.module.scss 1:9  root stylesheet
+<w> 
+<w> Deprecation Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+<w> 
+<w> More info and automated migrator: https://sass-lang.com/d/import
+<w> 
+<w> src/components/singleEventCard/SingleEventCard.module.scss 2:9  root stylesheet
+<w>
+
+webpack compiled successfully
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+Files successfully emitted, waiting for typecheck results...
+Issues checking in progress...
+No issues found.
+Compiling...
+Compiled successfully!
+LOG from ./node_modules/sass-loader/dist/cjs.js sass-loader ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[1]!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[2]!./node_modules/resolve-url-loader/index.js??ruleSet[1].rules[1].oneOf[8].use[3]!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[4]!./src/components/singleEventCard/SingleEventCard.module.scss
+<w> Deprecation The legacy JS API is deprecated and will be removed in Dart Sass 2.0.0.
+<w> 
+<w> More info: https://sass-lang.com/d/legacy-js-api
+<w> 
+<w> null
+<w> Deprecation Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+<w> 
+<w> More info and automated migrator: https://sass-lang.com/d/import
+<w> 
+<w> src/components/singleEventCard/SingleEventCard.module.scss 1:9  root stylesheet
+<w> 
+<w> Deprecation Sass @import rules are deprecated and will be removed in Dart Sass 3.0.0.
+<w> 
+<w> More info and automated migrator: https://sass-lang.com/d/import
+<w> 
+<w> src/components/singleEventCard/SingleEventCard.module.scss 2:9  root stylesheet
+<w>
+
+webpack compiled successfully
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+Files successfully emitted, waiting for typecheck results...
+Issues checking in progress...
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+Files successfully emitted, waiting for typecheck results...
+Issues checking in progress...
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+Files successfully emitted, waiting for typecheck results...
+Issues checking in progress...
+No issues found.
+Compiling...
+Compiled with warnings.
+
+[eslint] 
+src/pages/eventsPage/EventsPage_.tsx
+  Line 92:6:  React Hook useEffect has a missing dependency: 'token'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+WARNING in [eslint] 
+src/pages/eventsPage/EventsPage_.tsx
+  Line 92:6:  React Hook useEffect has a missing dependency: 'token'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+webpack compiled with 1 warning
+No issues found.
+Compiling...
+Compiled with warnings.
+
+[eslint] 
+src/pages/eventsPage/EventsPage_.tsx
+  Line 92:6:  React Hook useEffect has a missing dependency: 'token'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+WARNING in [eslint] 
+src/pages/eventsPage/EventsPage_.tsx
+  Line 92:6:  React Hook useEffect has a missing dependency: 'token'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+webpack compiled with 1 warning
+No issues found.
+The build failed because the process exited too early. This probably means the system ran out of memory or someone called `kill -9` on the process.

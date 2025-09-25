@@ -340,6 +340,10 @@ router.delete('/:id', verifyToken, requireAdmin, async (req, res) => {
     await client.query('DELETE FROM invitation_templates WHERE exhibition_id = $1', [id]);
     console.log('Deleted invitation templates');
     
+    // Usuń wydarzenia targowe (plan wydarzeń)
+    await client.query('DELETE FROM trade_events WHERE exhibition_id = $1', [id]);
+    console.log('Deleted trade events');
+
     // Usuń space'y targowe
     await client.query(`
       DELETE FROM trade_spaces 
@@ -378,9 +382,34 @@ router.delete('/:id', verifyToken, requireAdmin, async (req, res) => {
     await client.query('DELETE FROM marketing_materials WHERE exhibition_id = $1', [id]);
     console.log('Deleted marketing materials');
     
-    // Usuń dokumenty
-    await client.query('DELETE FROM documents WHERE exhibition_id = $1', [id]);
-    console.log('Deleted documents');
+    // Usuń dokumenty wystawców wraz z plikami z dysku
+    try {
+      const exDocs = await client.query('SELECT file_path FROM exhibitor_documents WHERE exhibition_id = $1', [id]);
+      console.log(`Found ${exDocs.rows.length} exhibitor document files to delete`);
+      for (const row of exDocs.rows) {
+        try {
+          const fs = require('fs').promises;
+          const path = require('path');
+          const filePath = path.join(__dirname, '../..', row.file_path);
+          await fs.unlink(filePath);
+          console.log('Deleted exhibitor document file:', row.file_path);
+        } catch (e) {
+          console.warn('Failed to delete exhibitor document file:', row.file_path, e.message);
+        }
+      }
+      await client.query('DELETE FROM exhibitor_documents WHERE exhibition_id = $1', [id]);
+      console.log('Deleted exhibitor documents');
+    } catch (e) {
+      console.warn('Exhibitor documents cleanup skipped or failed:', e.message);
+    }
+
+    // Następnie usuń ewentualne globalne dokumenty wydarzenia (jeśli istnieje tabela documents)
+    try {
+      await client.query('DELETE FROM documents WHERE exhibition_id = $1', [id]);
+      console.log('Deleted documents');
+    } catch (e) {
+      console.warn('Documents table cleanup skipped or failed:', e.message);
+    }
     
     // Usuń zaproszenia (stare)
     await client.query('DELETE FROM invitations WHERE exhibition_id = $1', [id]);

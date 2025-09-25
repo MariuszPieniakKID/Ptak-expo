@@ -10,7 +10,8 @@ import { ReactComponent as ProgressIcon21 } from '../../assets/21%.svg';
 import { ReactComponent as ProgressIcon65 } from '../../assets/65%.svg';
 import { Box } from '@mui/material';
 import { useState, useCallback, useEffect } from 'react';
-import { getBrandingFiles } from '../../services/api';
+import { getBrandingFiles, deleteExhibition } from '../../services/api';
+import { useNavigate } from 'react-router-dom';
 import ConfirmationDialog from '../confirmationDialog/ConfirmationDialog';
 
 interface SingleEventCardProps {
@@ -45,6 +46,8 @@ const SingleEventCard: React.FC<SingleEventCardProps> = ({
   eventLogoFileName,
 }) => {
   const [openConfirm, setOpenConfirm] = useState(false);
+  const [openDeleteExhibitionConfirm, setOpenDeleteExhibitionConfirm] = useState(false);
+  const navigate = useNavigate();
   const { token } = useAuth();
   const [resolvedLogoUrl, setResolvedLogoUrl] = useState<string | null>(null);
 
@@ -93,6 +96,19 @@ const SingleEventCard: React.FC<SingleEventCardProps> = ({
       handleDeleteEventFromExhibitor(id, exhibitorId);
     }
     setOpenConfirm(false);
+  };
+
+  const handleConfirmDeleteExhibition = async () => {
+    try {
+      if (!token) return;
+      await deleteExhibition(id, token);
+      // Navigate to main dashboard after successful deletion
+      navigate('/dashboard');
+    } catch (e: any) {
+      alert(e?.message || 'Nie udało się usunąć wydarzenia');
+    } finally {
+      setOpenDeleteExhibitionConfirm(false);
+    }
   };
 
   // Resolve event logo dynamically
@@ -193,9 +209,17 @@ const SingleEventCard: React.FC<SingleEventCardProps> = ({
                       window.dispatchEvent(evt);
                     }}
                   > 
-                    <EditIcon className={styles.editEvent}/>         
+                    <EditIcon className={styles.editEvent}/>
                     <CustomTypography className={styles.editEventText}>edytuj</CustomTypography>
-                  </Box>         
+                  </Box>
+                  <Box 
+                    className={styles.boxWithHover}
+                    onClick={() => setOpenDeleteExhibitionConfirm(true)}
+                    style={{ marginLeft: '12px' }}
+                  > 
+                    <WastebasketIcon className={styles.editEvent}/>
+                    <CustomTypography className={styles.editEventText}>usuń</CustomTypography>
+                  </Box>
                 </Box>
               </Box>
             </Box>
@@ -238,6 +262,13 @@ const SingleEventCard: React.FC<SingleEventCardProps> = ({
         onConfirm={handleConfirmDelete}
         title="Odłącz wydarzenie od wystawcy"
         description="Czy na pewno chcesz odłączyć to wydarzenie od tego wystawcy?"
+      />
+      <ConfirmationDialog
+        open={openDeleteExhibitionConfirm}
+        onClose={() => setOpenDeleteExhibitionConfirm(false)}
+        onConfirm={handleConfirmDeleteExhibition}
+        title="Usuń wydarzenie"
+        description="Czy na pewno chcesz trwale usunąć to wydarzenie wraz ze wszystkimi danymi?"
       />
     </>
   );

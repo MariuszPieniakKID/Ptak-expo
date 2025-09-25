@@ -1,0 +1,648 @@
+
+> ptak-expo-web@0.2.0 start
+> react-scripts start
+
+(node:95669) [DEP_WEBPACK_DEV_SERVER_ON_AFTER_SETUP_MIDDLEWARE] DeprecationWarning: 'onAfterSetupMiddleware' option is deprecated. Please use the 'setupMiddlewares' option.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+(node:95669) [DEP_WEBPACK_DEV_SERVER_ON_BEFORE_SETUP_MIDDLEWARE] DeprecationWarning: 'onBeforeSetupMiddleware' option is deprecated. Please use the 'setupMiddlewares' option.
+Starting the development server...
+
+Compiled successfully!
+
+You can now view ptak-expo-web in the browser.
+
+  Local:            http://localhost:3002
+  On Your Network:  http://192.168.100.190:3002
+
+Note that the development build is not optimized.
+To create a production build, use npm run build.
+
+LOG from ./node_modules/sass-loader/dist/cjs.js sass-loader ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[1]!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[2]!./node_modules/resolve-url-loader/index.js??ruleSet[1].rules[1].oneOf[8].use[3]!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[4]!./src/components/event-home-menu/EventHomeMenu.module.scss
+<w> Deprecation The legacy JS API is deprecated and will be removed in Dart Sass 2.0.0.
+<w> 
+<w> More info: https://sass-lang.com/d/legacy-js-api
+<w> 
+<w> null
+
+webpack compiled successfully
+No issues found.
+Compiling...
+Compiled successfully!
+LOG from ./node_modules/sass-loader/dist/cjs.js sass-loader ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[1]!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[2]!./node_modules/resolve-url-loader/index.js??ruleSet[1].rules[1].oneOf[8].use[3]!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[4]!./src/components/event-home-menu/EventHomeMenu.module.scss
+<w> Deprecation The legacy JS API is deprecated and will be removed in Dart Sass 2.0.0.
+<w> 
+<w> More info: https://sass-lang.com/d/legacy-js-api
+<w> 
+<w> null
+
+webpack compiled successfully
+Compiling...
+ERROR in src/components/news/RenderSection/RenderSection.tsx:23:19
+TS2339: Property 'icon' does not exist on type 'NewsItem'.
+    21 |           <div key={n.id} className={styles.card}>
+    22 |             <div className={styles.cardContent}>
+  > 23 |               {n?.icon && n.icon}
+       |                   ^^^^
+    24 |               <div>
+    25 |                 <p className={styles.cardTitle}>{n.title}</p>
+    26 |                 <p className={styles.cardDescription}>{n.description}</p>
+
+ERROR in src/components/news/RenderSection/RenderSection.tsx:23:29
+TS2339: Property 'icon' does not exist on type 'NewsItem'.
+    21 |           <div key={n.id} className={styles.card}>
+    22 |             <div className={styles.cardContent}>
+  > 23 |               {n?.icon && n.icon}
+       |                             ^^^^
+    24 |               <div>
+    25 |                 <p className={styles.cardTitle}>{n.title}</p>
+    26 |                 <p className={styles.cardDescription}>{n.description}</p>
+
+Failed to compile.
+
+Attempted import error: 'tradeEventsAPI' is not exported from '../../../services/api' (imported as 'tradeEventsAPI').
+LOG from ./node_modules/sass-loader/dist/cjs.js sass-loader ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[1]!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[2]!./node_modules/resolve-url-loader/index.js??ruleSet[1].rules[1].oneOf[8].use[3]!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[4]!./src/components/news/News.module.scss
+<w> Deprecation The legacy JS API is deprecated and will be removed in Dart Sass 2.0.0.
+<w> 
+<w> More info: https://sass-lang.com/d/legacy-js-api
+<w> 
+<w> null
+
+ERROR in ./src/pages/tradeInfoPage/TradeInfoPage/TradeInfoPage.tsx 94:112-143
+export 'tradeEventsAPI' (imported as 'tradeEventsAPI') was not found in '../../../services/api' (possible exports: authAPI, brandingAPI, default, exhibitionsAPI, exhibitorDocumentsAPI, exhibitorsSelfAPI, healthAPI, invitationsAPI, publicAPI, tradeInfoAPI)
+
+webpack compiled with 1 error
+ERROR in src/pages/tradeInfoPage/TradeInfoPage/TradeInfoPage.tsx:12:40
+TS2614: Module '"../../../services/api"' has no exported member 'tradeEventsAPI'. Did you mean to use 'import tradeEventsAPI from "../../../services/api"' instead?
+    10 | } from "./utilities";
+    11 | import {TradeInfoPlan} from "./TradeInfoPlan";
+  > 12 | import { tradeInfoAPI, exhibitionsAPI, tradeEventsAPI, TradeEventRow } from "../../../services/api";
+       |                                        ^^^^^^^^^^^^^^
+    13 |
+    14 | // removed mock placeholders – values now come from backend
+    15 |
+
+ERROR in src/pages/tradeInfoPage/TradeInfoPage/TradeInfoPage.tsx:12:56
+TS2614: Module '"../../../services/api"' has no exported member 'TradeEventRow'. Did you mean to use 'import TradeEventRow from "../../../services/api"' instead?
+    10 | } from "./utilities";
+    11 | import {TradeInfoPlan} from "./TradeInfoPlan";
+  > 12 | import { tradeInfoAPI, exhibitionsAPI, tradeEventsAPI, TradeEventRow } from "../../../services/api";
+       |                                                        ^^^^^^^^^^^^^
+    13 |
+    14 | // removed mock placeholders – values now come from backend
+    15 |
+
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+Files successfully emitted, waiting for typecheck results...
+Issues checking in progress...
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+No issues found.
+Compiled successfully!
+webpack compiled successfully
+Compiling...
+No issues found.
+Compiled successfully!
+LOG from ./node_modules/sass-loader/dist/cjs.js sass-loader ./node_modules/css-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[1]!./node_modules/postcss-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[2]!./node_modules/resolve-url-loader/index.js??ruleSet[1].rules[1].oneOf[8].use[3]!./node_modules/sass-loader/dist/cjs.js??ruleSet[1].rules[1].oneOf[8].use[4]!./src/components/news/News.module.scss
+<w> Deprecation The legacy JS API is deprecated and will be removed in Dart Sass 2.0.0.
+<w> 
+<w> More info: https://sass-lang.com/d/legacy-js-api
+<w> 
+<w> null
+
+webpack compiled successfully
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+Files successfully emitted, waiting for typecheck results...
+Issues checking in progress...
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+No issues found.
+Compiling...
+Failed to compile.
+
+Module not found: Error: Can't resolve 'qrcode' in '/Users/kid/Ptak-expo/ptak-expo-web/src/components/checklist'
+ERROR in ./src/components/checklist/ElectronicIdsCard.tsx 12:0-28
+Module not found: Error: Can't resolve 'qrcode' in '/Users/kid/Ptak-expo/ptak-expo-web/src/components/checklist'
+
+webpack compiled with 1 error
+ERROR in src/components/checklist/ElectronicIdsCard.tsx:7:20
+TS2307: Cannot find module 'qrcode' or its corresponding type declarations.
+     5 | import { useState } from "react";
+     6 | import { eidTypes, getEidTypeString } from "../../shared/EventUtils";
+  >  7 | import QRCode from 'qrcode';
+       |                    ^^^^^^^^
+     8 | const boxSx = {
+     9 | 	backgroundColor: '#fff',
+    10 | 	padding: "40px",
+
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+ERROR in src/components/checklist/ElectronicIdsCard.tsx:7:20
+TS2307: Cannot find module 'qrcode' or its corresponding type declarations.
+     5 | import { useState } from "react";
+     6 | import { eidTypes, getEidTypeString } from "../../shared/EventUtils";
+  >  7 | import QRCode from 'qrcode';
+       |                    ^^^^^^^^
+     8 | const boxSx = {
+     9 | 	backgroundColor: '#fff',
+    10 | 	padding: "40px",
+
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+ERROR in src/components/checklist/ElectronicIdsCard.tsx:7:20
+TS2307: Cannot find module 'qrcode' or its corresponding type declarations.
+     5 | import { useState } from "react";
+     6 | import { eidTypes, getEidTypeString } from "../../shared/EventUtils";
+  >  7 | import QRCode from 'qrcode';
+       |                    ^^^^^^^^
+     8 | const boxSx = {
+     9 | 	backgroundColor: '#fff',
+    10 | 	padding: "40px",
+
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+ERROR in src/components/checklist/ElectronicIdsCard.tsx:7:25
+TS2307: Cannot find module 'qrcode' or its corresponding type declarations.
+     5 | import { useState } from "react";
+     6 | import { eidTypes, getEidTypeString } from "../../shared/EventUtils";
+  >  7 | import * as QRCode from 'qrcode';
+       |                         ^^^^^^^^
+     8 | const boxSx = {
+     9 | 	backgroundColor: '#fff',
+    10 | 	padding: "40px",
+
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+ERROR in src/components/checklist/ElectronicIdsCard.tsx:7:25
+TS2307: Cannot find module 'qrcode' or its corresponding type declarations.
+     5 | import { useState } from "react";
+     6 | import { eidTypes, getEidTypeString } from "../../shared/EventUtils";
+  >  7 | import * as QRCode from 'qrcode';
+       |                         ^^^^^^^^
+     8 | const boxSx = {
+     9 | 	backgroundColor: '#fff',
+    10 | 	padding: "40px",
+
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+ERROR in src/components/checklist/ElectronicIdsCard.tsx:7:25
+TS2307: Cannot find module 'qrcode' or its corresponding type declarations.
+     5 | import { useState } from "react";
+     6 | import { eidTypes, getEidTypeString } from "../../shared/EventUtils";
+  >  7 | import * as QRCode from 'qrcode';
+       |                         ^^^^^^^^
+     8 | const boxSx = {
+     9 | 	backgroundColor: '#fff',
+    10 | 	padding: "40px",
+
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+ERROR in src/components/checklist/ElectronicIdsCard.tsx:7:25
+TS2307: Cannot find module 'qrcode' or its corresponding type declarations.
+     5 | import { useState } from "react";
+     6 | import { eidTypes, getEidTypeString } from "../../shared/EventUtils";
+  >  7 | import * as QRCode from 'qrcode';
+       |                         ^^^^^^^^
+     8 | const boxSx = {
+     9 | 	backgroundColor: '#fff',
+    10 | 	padding: "40px",
+
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+ERROR in src/components/checklist/ElectronicIdsCard.tsx:7:25
+TS2307: Cannot find module 'qrcode' or its corresponding type declarations.
+     5 | import { useState } from "react";
+     6 | import { eidTypes, getEidTypeString } from "../../shared/EventUtils";
+  >  7 | import * as QRCode from 'qrcode';
+       |                         ^^^^^^^^
+     8 | const boxSx = {
+     9 | 	backgroundColor: '#fff',
+    10 | 	padding: "40px",
+
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+ERROR in src/components/checklist/ElectronicIdsCard.tsx:7:25
+TS2307: Cannot find module 'qrcode' or its corresponding type declarations.
+     5 | import { useState } from "react";
+     6 | import { eidTypes, getEidTypeString } from "../../shared/EventUtils";
+  >  7 | import * as QRCode from 'qrcode';
+       |                         ^^^^^^^^
+     8 | const boxSx = {
+     9 | 	backgroundColor: '#fff',
+    10 | 	padding: "40px",
+
+Compiling...
+Compiled with warnings.
+
+[eslint] 
+src/components/checklist/ElectronicIdsCard.tsx
+  Line 68:12:  'qrUrls' is assigned a value but never used     @typescript-eslint/no-unused-vars
+  Line 68:20:  'setQrUrls' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  Line 69:11:  'getQrUrl' is assigned a value but never used   @typescript-eslint/no-unused-vars
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+WARNING in [eslint] 
+src/components/checklist/ElectronicIdsCard.tsx
+  Line 68:12:  'qrUrls' is assigned a value but never used     @typescript-eslint/no-unused-vars
+  Line 68:20:  'setQrUrls' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  Line 69:11:  'getQrUrl' is assigned a value but never used   @typescript-eslint/no-unused-vars
+
+webpack compiled with 1 warning
+ERROR in src/components/checklist/ElectronicIdsCard.tsx:68:12
+TS6133: 'qrUrls' is declared but its value is never read.
+    66 | export default function ElectronicIdsCard() {
+    67 | 	const {filled, checklist} = useChecklist();
+  > 68 |     const [qrUrls, setQrUrls] = useState<Record<string, string>>({});
+       |            ^^^^^^
+    69 |     const getQrUrl = (text?: string | null, size: number = 96) => {
+    70 |         if (!text) return '';
+    71 |         return `https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&data=${encodeURIComponent(text)}`;
+
+ERROR in src/components/checklist/ElectronicIdsCard.tsx:68:20
+TS6133: 'setQrUrls' is declared but its value is never read.
+    66 | export default function ElectronicIdsCard() {
+    67 | 	const {filled, checklist} = useChecklist();
+  > 68 |     const [qrUrls, setQrUrls] = useState<Record<string, string>>({});
+       |                    ^^^^^^^^^
+    69 |     const getQrUrl = (text?: string | null, size: number = 96) => {
+    70 |         if (!text) return '';
+    71 |         return `https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&data=${encodeURIComponent(text)}`;
+
+ERROR in src/components/checklist/ElectronicIdsCard.tsx:69:11
+TS6133: 'getQrUrl' is declared but its value is never read.
+    67 | 	const {filled, checklist} = useChecklist();
+    68 |     const [qrUrls, setQrUrls] = useState<Record<string, string>>({});
+  > 69 |     const getQrUrl = (text?: string | null, size: number = 96) => {
+       |           ^^^^^^^^
+    70 |         if (!text) return '';
+    71 |         return `https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&data=${encodeURIComponent(text)}`;
+    72 |     };
+
+ERROR in src/components/checklist/ElectronicIdsCard.tsx:97:42
+TS2304: Cannot find name 'ensureQr'.
+     95 |                                 {eid.accessCode ? (
+     96 |                                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+  >  97 |                                         {ensureQr(`${eid.email}-${i}`, eid.accessCode) as any}
+        |                                          ^^^^^^^^
+     98 |                                         {qrDataUrls[`${eid.email}-${i}`] ? (
+     99 |                                             <img src={qrDataUrls[`${eid.email}-${i}`]} alt="QR" width={48} height={48} />
+    100 |                                         ) : (
+
+ERROR in src/components/checklist/ElectronicIdsCard.tsx:98:42
+TS2304: Cannot find name 'qrDataUrls'.
+     96 |                                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+     97 |                                         {ensureQr(`${eid.email}-${i}`, eid.accessCode) as any}
+  >  98 |                                         {qrDataUrls[`${eid.email}-${i}`] ? (
+        |                                          ^^^^^^^^^^
+     99 |                                             <img src={qrDataUrls[`${eid.email}-${i}`]} alt="QR" width={48} height={48} />
+    100 |                                         ) : (
+    101 |                                             <Typography fontSize={10}>QR...</Typography>
+
+ERROR in src/components/checklist/ElectronicIdsCard.tsx:99:55
+TS2304: Cannot find name 'qrDataUrls'.
+     97 |                                         {ensureQr(`${eid.email}-${i}`, eid.accessCode) as any}
+     98 |                                         {qrDataUrls[`${eid.email}-${i}`] ? (
+  >  99 |                                             <img src={qrDataUrls[`${eid.email}-${i}`]} alt="QR" width={48} height={48} />
+        |                                                       ^^^^^^^^^^
+    100 |                                         ) : (
+    101 |                                             <Typography fontSize={10}>QR...</Typography>
+    102 |                                         )}
+
+ERROR in src/components/checklist/ElectronicIdsCard.tsx:103:50
+TS2304: Cannot find name 'qrDataUrls'.
+    101 |                                             <Typography fontSize={10}>QR...</Typography>
+    102 |                                         )}
+  > 103 |                                         <a href={qrDataUrls[`${eid.email}-${i}`] || '#'} download={`eid-${i + 1}.png`}>
+        |                                                  ^^^^^^^^^^
+    104 |                                             <Button size="small" variant="outlined" disabled={!qrDataUrls[`${eid.email}-${i}`]}>Pobierz QR</Button>
+    105 |                                         </a>
+    106 |                                     </Box>
+
+ERROR in src/components/checklist/ElectronicIdsCard.tsx:104:96
+TS2304: Cannot find name 'qrDataUrls'.
+    102 |                                         )}
+    103 |                                         <a href={qrDataUrls[`${eid.email}-${i}`] || '#'} download={`eid-${i + 1}.png`}>
+  > 104 |                                             <Button size="small" variant="outlined" disabled={!qrDataUrls[`${eid.email}-${i}`]}>Pobierz QR</Button>
+        |                                                                                                ^^^^^^^^^^
+    105 |                                         </a>
+    106 |                                     </Box>
+    107 |                                 ) : null}
+
+Compiling...
+Compiled with warnings.
+
+[eslint] 
+src/components/checklist/ElectronicIdsCard.tsx
+  Line 68:12:  'qrUrls' is assigned a value but never used     @typescript-eslint/no-unused-vars
+  Line 68:20:  'setQrUrls' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+WARNING in [eslint] 
+src/components/checklist/ElectronicIdsCard.tsx
+  Line 68:12:  'qrUrls' is assigned a value but never used     @typescript-eslint/no-unused-vars
+  Line 68:20:  'setQrUrls' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+webpack compiled with 1 warning
+ERROR in src/components/checklist/ElectronicIdsCard.tsx:68:12
+TS6133: 'qrUrls' is declared but its value is never read.
+    66 | export default function ElectronicIdsCard() {
+    67 | 	const {filled, checklist} = useChecklist();
+  > 68 |     const [qrUrls, setQrUrls] = useState<Record<string, string>>({});
+       |            ^^^^^^
+    69 |     const getQrUrl = (text?: string | null, size: number = 96) => {
+    70 |         if (!text) return '';
+    71 |         return `https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&data=${encodeURIComponent(text)}`;
+
+ERROR in src/components/checklist/ElectronicIdsCard.tsx:68:20
+TS6133: 'setQrUrls' is declared but its value is never read.
+    66 | export default function ElectronicIdsCard() {
+    67 | 	const {filled, checklist} = useChecklist();
+  > 68 |     const [qrUrls, setQrUrls] = useState<Record<string, string>>({});
+       |                    ^^^^^^^^^
+    69 |     const getQrUrl = (text?: string | null, size: number = 96) => {
+    70 |         if (!text) return '';
+    71 |         return `https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&data=${encodeURIComponent(text)}`;
+
+Compiling...
+Compiled with warnings.
+
+[eslint] 
+src/components/checklist/ElectronicIdsCard.tsx
+  Line 68:12:  'qrUrls' is assigned a value but never used     @typescript-eslint/no-unused-vars
+  Line 68:20:  'setQrUrls' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+WARNING in [eslint] 
+src/components/checklist/ElectronicIdsCard.tsx
+  Line 68:12:  'qrUrls' is assigned a value but never used     @typescript-eslint/no-unused-vars
+  Line 68:20:  'setQrUrls' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+webpack compiled with 1 warning
+ERROR in src/components/checklist/ElectronicIdsCard.tsx:68:12
+TS6133: 'qrUrls' is declared but its value is never read.
+    66 | export default function ElectronicIdsCard() {
+    67 | 	const {filled, checklist} = useChecklist();
+  > 68 |     const [qrUrls, setQrUrls] = useState<Record<string, string>>({});
+       |            ^^^^^^
+    69 |     const getQrUrl = (text?: string | null, size: number = 96) => {
+    70 |         if (!text) return '';
+    71 |         return `https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&data=${encodeURIComponent(text)}`;
+
+ERROR in src/components/checklist/ElectronicIdsCard.tsx:68:20
+TS6133: 'setQrUrls' is declared but its value is never read.
+    66 | export default function ElectronicIdsCard() {
+    67 | 	const {filled, checklist} = useChecklist();
+  > 68 |     const [qrUrls, setQrUrls] = useState<Record<string, string>>({});
+       |                    ^^^^^^^^^
+    69 |     const getQrUrl = (text?: string | null, size: number = 96) => {
+    70 |         if (!text) return '';
+    71 |         return `https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&data=${encodeURIComponent(text)}`;
+
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+Files successfully emitted, waiting for typecheck results...
+Issues checking in progress...
+No issues found.
+Compiling...
+Compiled with warnings.
+
+[eslint] 
+src/pages/EventInvitationsPage.tsx
+  Line 105:42:  Unnecessary escape character: \"  no-useless-escape
+  Line 105:60:  Unnecessary escape character: \"  no-useless-escape
+  Line 106:35:  Unnecessary escape character: \"  no-useless-escape
+  Line 106:53:  Unnecessary escape character: \"  no-useless-escape
+  Line 107:36:  Unnecessary escape character: \"  no-useless-escape
+  Line 107:64:  Unnecessary escape character: \"  no-useless-escape
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+WARNING in [eslint] 
+src/pages/EventInvitationsPage.tsx
+  Line 105:42:  Unnecessary escape character: \"  no-useless-escape
+  Line 105:60:  Unnecessary escape character: \"  no-useless-escape
+  Line 106:35:  Unnecessary escape character: \"  no-useless-escape
+  Line 106:53:  Unnecessary escape character: \"  no-useless-escape
+  Line 107:36:  Unnecessary escape character: \"  no-useless-escape
+  Line 107:64:  Unnecessary escape character: \"  no-useless-escape
+
+webpack compiled with 1 warning
+No issues found.
+Compiling...
+Compiled with warnings.
+
+[eslint] 
+src/pages/EventInvitationsPage.tsx
+  Line 105:42:  Unnecessary escape character: \"  no-useless-escape
+  Line 105:60:  Unnecessary escape character: \"  no-useless-escape
+  Line 106:35:  Unnecessary escape character: \"  no-useless-escape
+  Line 106:53:  Unnecessary escape character: \"  no-useless-escape
+  Line 107:36:  Unnecessary escape character: \"  no-useless-escape
+  Line 107:64:  Unnecessary escape character: \"  no-useless-escape
+
+Search for the keywords to learn more about each warning.
+To ignore, add // eslint-disable-next-line to the line before.
+
+WARNING in [eslint] 
+src/pages/EventInvitationsPage.tsx
+  Line 105:42:  Unnecessary escape character: \"  no-useless-escape
+  Line 105:60:  Unnecessary escape character: \"  no-useless-escape
+  Line 106:35:  Unnecessary escape character: \"  no-useless-escape
+  Line 106:53:  Unnecessary escape character: \"  no-useless-escape
+  Line 107:36:  Unnecessary escape character: \"  no-useless-escape
+  Line 107:64:  Unnecessary escape character: \"  no-useless-escape
+
+webpack compiled with 1 warning
+Files successfully emitted, waiting for typecheck results...
+Issues checking in progress...
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+Files successfully emitted, waiting for typecheck results...
+Issues checking in progress...
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+Files successfully emitted, waiting for typecheck results...
+Issues checking in progress...
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+No issues found.
+Compiling...
+Failed to compile.
+
+[eslint] 
+src/pages/EventInvitationsPage.tsx
+Syntax error: Unexpected token. Did you mean `{'>'}` or `&gt;`? (276:21)
+ERROR in [eslint] 
+src/pages/EventInvitationsPage.tsx
+  Line 276:21:  Parsing error: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+
+webpack compiled with 1 error
+ERROR in src/pages/EventInvitationsPage.tsx:276:22
+TS1382: Unexpected token. Did you mean `{'>'}` or `&gt;`?
+    274 |                       <script dangerouslySetInnerHTML={{ __html: `(function(){var el=document.querySelector('[contenteditable]'); if(el && el.innerHTML===''){el.innerHTML=${JSON.stringify(editorHtml)};} })();` }} />
+    275 |                     )}
+  > 276 |                     />
+        |                      ^
+    277 |                   </Box>
+    278 |                 )}
+    279 |
+
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+No issues found.
+Compiling...
+Compiled successfully!
+webpack compiled successfully
+No issues found.
+The build failed because the process exited too early. This probably means the system ran out of memory or someone called `kill -9` on the process.
