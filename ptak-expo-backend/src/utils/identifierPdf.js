@@ -26,7 +26,8 @@ const getUploadsBase = () => {
 
 // Build Identifier PDF buffer (A6) with event branding and QR
 // payload: { personName, personEmail, accessCode? }
-async function buildIdentifierPdf(client, exhibitionId, payload) {
+// exhibitorId: prefer exhibitor-specific header branding if provided
+async function buildIdentifierPdf(client, exhibitionId, payload, exhibitorId) {
   // Fetch minimal event info
   const evRes = await client.query(
     'SELECT id, name, start_date, end_date, location FROM exhibitions WHERE id = $1',
@@ -59,13 +60,36 @@ async function buildIdentifierPdf(client, exhibitionId, payload) {
   try {
     const uploadsBase = getUploadsBase();
 
-    // Header: prefer 'kolorowe_tlo_logo_wydarzenia', then 'tlo_wydarzenia_logo_zaproszenia', then 'event_logo'
+    // Header: prefer exhibitor-specific 'kolorowe_tlo_logo_wydarzenia' if exhibitorId provided
+    if (exhibitorId) {
+      const hEx = await client.query(
+        `SELECT file_path, file_blob FROM exhibitor_branding_files
+         WHERE exhibitor_id = $1 AND exhibition_id = $2 AND file_type = 'kolorowe_tlo_logo_wydarzenia'
+         ORDER BY created_at DESC LIMIT 1`,
+        [exhibitorId, exhibitionId]
+      );
+      if (hEx.rows.length > 0) {
+        const row = hEx.rows[0];
+        if (row.file_blob) {
+          headerImagePath = row.file_blob; // buffer
+        } else if (row.file_path) {
+          const normalized = String(row.file_path).startsWith('uploads/')
+            ? String(row.file_path).replace(/^uploads\//, '')
+            : String(row.file_path);
+          const resolved = path.join(uploadsBase, normalized);
+          if (fs.existsSync(resolved)) headerImagePath = resolved;
+        }
+      }
+    }
+
+    // If not found, fallback to global: 'kolorowe_tlo_logo_wydarzenia' → 'tlo_wydarzenia_logo_zaproszenia' → 'event_logo'
     const headerTypes = [
       'kolorowe_tlo_logo_wydarzenia',
       'tlo_wydarzenia_logo_zaproszenia',
       'event_logo',
     ];
     for (const fileType of headerTypes) {
+      if (headerImagePath) break;
       const h = await client.query(
         `SELECT file_path, file_blob FROM exhibitor_branding_files
          WHERE exhibitor_id IS NULL AND exhibition_id = $1 AND file_type = $2
@@ -85,7 +109,6 @@ async function buildIdentifierPdf(client, exhibitionId, payload) {
           const resolved = path.join(uploadsBase, normalized);
           if (fs.existsSync(resolved)) { headerImagePath = resolved; }
         }
-        if (headerImagePath) break;
       }
     }
 

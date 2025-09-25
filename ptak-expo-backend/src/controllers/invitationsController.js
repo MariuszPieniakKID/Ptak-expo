@@ -444,7 +444,12 @@ const sendInvitation = async (req, res) => {
         }
 
         // Build Identifier PDF (compact A6) using event branding if available
-        const pdfBuffer = await buildIdentifierPdf(client, parseInt(exhibitionId, 10), { personName: personFullName, personEmail: recipientEmail, accessCode: String(recipientRow.id) });
+        const pdfBuffer = await buildIdentifierPdf(
+          client,
+          parseInt(exhibitionId, 10),
+          { personName: personFullName, personEmail: recipientEmail, accessCode: String(recipientRow.id) },
+          exhibitorId || undefined
+        );
 
         if (pdfBuffer) {
           attachments = [{ filename: 'e-identyfikator.pdf', content: pdfBuffer, contentType: 'application/pdf' }];
