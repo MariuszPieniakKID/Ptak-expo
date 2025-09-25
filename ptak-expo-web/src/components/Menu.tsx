@@ -19,13 +19,13 @@ import Logo from "../assets/group-257@3x.png";
 import MenuIcon from "@mui/icons-material/Menu";
 import HomeIcon from "@mui/icons-material/Home";
 import ArticleIcon from "@mui/icons-material/Article";
-import ListAltIcon from "@mui/icons-material/ListAlt";
 import FingerprintIcon from "@mui/icons-material/Fingerprint";
 // import InfoIcon from "@mui/icons-material/Info";
 import IconMarketing from "../assets/group-842.png";
 import IconEmails from "../assets/emails-border.png";
 import IconDocuments from "../assets/documents.png";
 import IconBell from "../assets/bell.png";
+import IconCalendar from "../assets/calendar-check-gray.png";
 
 export type MenuType = {
   className?: string;
@@ -62,7 +62,16 @@ const navItems: NavItem[] = [
   },
   {
     label: "Checklista targowa",
-    icon: <ListAltIcon />,
+    customIcon: (
+      <div className={styles.customIconMenuImage}>
+        <img
+          src={IconCalendar}
+          alt="ikona dokumentów"
+          width="auto"
+          height={24}
+        />
+      </div>
+    ),
     key: "checklist",
     getUrl: (id) => `/event/${id}/checklist`,
   },
