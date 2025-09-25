@@ -1,6 +1,8 @@
 const PDFDocument = require('pdfkit');
 const path = require('path');
 const fs = require('fs');
+let sharp;
+try { sharp = require('sharp'); } catch (_) { sharp = null; }
 
 // Resolve a font buffer that supports Polish glyphs
 let cachedFontBuffer = null;
@@ -69,8 +71,8 @@ async function buildIdentifierPdf(client, exhibitionId, payload, exhibitorId) {
   } catch {}
 
   // Branding header image (fallbacks) and footer logo
-  let headerImagePath = null;
-  let footerLogoPath = null;
+  let headerImageSource = null; // string path or Buffer
+  let footerLogoSource = null;  // string path or Buffer
   try {
     const uploadsBase = getUploadsBase();
 
@@ -85,13 +87,13 @@ async function buildIdentifierPdf(client, exhibitionId, payload, exhibitorId) {
       if (hEx.rows.length > 0) {
         const row = hEx.rows[0];
         if (row.file_blob) {
-          headerImagePath = row.file_blob; // buffer
+          headerImageSource = row.file_blob; // buffer
         } else if (row.file_path) {
           const normalized = String(row.file_path).startsWith('uploads/')
             ? String(row.file_path).replace(/^uploads\//, '')
             : String(row.file_path);
           const resolved = path.join(uploadsBase, normalized);
-          if (fs.existsSync(resolved)) headerImagePath = resolved;
+          if (fs.existsSync(resolved)) headerImageSource = resolved;
         }
       }
     }
@@ -103,7 +105,7 @@ async function buildIdentifierPdf(client, exhibitionId, payload, exhibitorId) {
       'event_logo',
     ];
     for (const fileType of headerTypes) {
-      if (headerImagePath) break;
+      if (headerImageSource) break;
       const h = await client.query(
         `SELECT file_path, file_blob FROM exhibitor_branding_files
          WHERE exhibitor_id IS NULL AND exhibition_id = $1 AND file_type = $2
@@ -113,15 +115,13 @@ async function buildIdentifierPdf(client, exhibitionId, payload, exhibitorId) {
       if (h.rows.length > 0) {
         const row = h.rows[0];
         if (row.file_blob) {
-          // Save to temp buffer file if needed, PDFKit can draw from buffer via doc.image(buffer)
-          headerImagePath = null; // will use buffer path below
-          headerImagePath = row.file_blob; // overload to pass buffer downstream
+          headerImageSource = row.file_blob; // buffer
         } else if (row.file_path) {
           const normalized = String(row.file_path).startsWith('uploads/')
             ? String(row.file_path).replace(/^uploads\//, '')
             : String(row.file_path);
           const resolved = path.join(uploadsBase, normalized);
-          if (fs.existsSync(resolved)) { headerImagePath = resolved; }
+          if (fs.existsSync(resolved)) { headerImageSource = resolved; }
         }
       }
     }
@@ -136,16 +136,38 @@ async function buildIdentifierPdf(client, exhibitionId, payload, exhibitorId) {
     if (f.rows.length > 0) {
       const row = f.rows[0];
       if (row.file_blob) {
-        footerLogoPath = row.file_blob; // buffer
+        footerLogoSource = row.file_blob; // buffer
       } else if (row.file_path) {
         const normalized = String(row.file_path).startsWith('uploads/')
           ? String(row.file_path).replace(/^uploads\//, '')
           : String(row.file_path);
         const resolved = path.join(uploadsBase, normalized);
-        if (fs.existsSync(resolved)) footerLogoPath = resolved;
+        if (fs.existsSync(resolved)) footerLogoSource = resolved;
       }
     }
   } catch {}
+
+  // Normalize image to PNG/JPEG buffer usable by PDFKit
+  const toPdfImageBuffer = async (input) => {
+    try {
+      if (!input) return null;
+      let buf;
+      if (Buffer.isBuffer(input)) {
+        buf = input;
+      } else if (typeof input === 'string') {
+        try { buf = fs.readFileSync(input); } catch { buf = null; }
+      }
+      if (!buf) return null;
+      if (!sharp) {
+        // Fallback: hope it's PNG/JPEG already
+        return buf;
+      }
+      // Convert any format (webp/svg/…) to PNG for reliable embedding
+      return await sharp(buf).png().toBuffer();
+    } catch {
+      return null;
+    }
+  };
 
   // Prepare QR image buffer (use accessCode if provided, otherwise exhibition id)
   let qrBuffer = null;
@@ -181,12 +203,9 @@ async function buildIdentifierPdf(client, exhibitionId, payload, exhibitorId) {
     doc.save();
     doc.roundedRect(cardX, 10, cardW, doc.page.height - 20, 12).clip();
     try {
-      if (headerImagePath) {
-        if (Buffer.isBuffer(headerImagePath)) {
-          doc.image(headerImagePath, cardX, 10, { width: cardW, height: headerH, fit: [cardW, headerH] });
-        } else {
-          doc.image(headerImagePath, cardX, 10, { width: cardW, height: headerH, fit: [cardW, headerH] });
-        }
+      const headerBuffer = await toPdfImageBuffer(headerImageSource);
+      if (headerBuffer) {
+        doc.image(headerBuffer, cardX, 10, { width: cardW, height: headerH, fit: [cardW, headerH] });
       } else {
         doc.rect(cardX, 10, cardW, headerH).fill('#5a6ec8');
       }
@@ -240,15 +259,12 @@ async function buildIdentifierPdf(client, exhibitionId, payload, exhibitorId) {
     try {
       const logoBoxW = qrX - (cardX + 12) - 8;
       const logoMaxH = 40;
-      if (footerLogoPath) {
-        if (Buffer.isBuffer(footerLogoPath)) {
-          doc.image(footerLogoPath, cardX + 12, y + 8, { fit: [logoBoxW, logoMaxH], align: 'left' });
-        } else {
-          doc.image(footerLogoPath, cardX + 12, y + 8, { fit: [logoBoxW, logoMaxH], align: 'left' });
-        }
+      const footerBuf = await toPdfImageBuffer(footerLogoSource);
+      if (footerBuf) {
+        doc.image(footerBuf, cardX + 12, y + 8, { fit: [logoBoxW, logoMaxH], align: 'left' });
       } else {
         // fallback text logo
-        try { doc.font(fontPath || 'Helvetica-Bold'); } catch {}
+        try { /* keep current font */ } catch {}
         doc.fontSize(11).fillColor('#2E2E38').text('PTAK EXPO', cardX + 12, y + 8);
       }
     } catch {}
