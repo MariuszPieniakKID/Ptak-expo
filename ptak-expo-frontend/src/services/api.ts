@@ -17,6 +17,7 @@ export interface ExhibitorPerson {
   exhibitorId: number;
   exhibitorCompanyName: string;
   exhibitionId?: number | null;
+  exhibitionName?: string | null;
   createdAt: string;
 }
 
@@ -310,8 +311,15 @@ export const remindExhibitorToFillCatalog = async (
 };
 
 // People (E-identyfikatory) API
-export const fetchExhibitorPeople = async (token: string, exhibitionId?: number): Promise<ExhibitorPerson[]> => {
-  const query = typeof exhibitionId === 'number' ? `?exhibitionId=${encodeURIComponent(String(exhibitionId))}` : '';
+export const fetchExhibitorPeople = async (
+  token: string,
+  opts?: { exhibitionId?: number; exhibitorId?: number; query?: string }
+): Promise<ExhibitorPerson[]> => {
+  const qs: string[] = [];
+  if (opts && typeof opts.exhibitionId === 'number') qs.push(`exhibitionId=${encodeURIComponent(String(opts.exhibitionId))}`);
+  if (opts && typeof opts.exhibitorId === 'number') qs.push(`exhibitorId=${encodeURIComponent(String(opts.exhibitorId))}`);
+  if (opts?.query && opts.query.trim()) qs.push(`query=${encodeURIComponent(opts.query.trim())}`);
+  const query = qs.length ? `?${qs.join('&')}` : '';
   const response = await apiCall(`${config.API_BASE_URL}/api/v1/exhibitors/people${query}`, {
     headers: { 'Authorization': `Bearer ${token}` },
   });

@@ -22,6 +22,7 @@
 }
 .content810 {
   margin: 0 auto;
+  max-width: 810px;
 }
 /* Sidebar inner blocks */
 .navCard {
@@ -333,13 +334,19 @@
   cursor: pointer;
 }
 
+/* Add hover style preserved from stashed changes */
+.primaryCta:hover {
+  background: #5041d0;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+}
+
 /* New top container based on 4b */
 .topContainer {
   background: #fff;
   border-radius: 20px;
   border: 1px solid #eff3f6;
   padding: 24px;
-  margin: 32px 0 24px;
+  margin: 140px 0 24px;
   position: relative;
 }
 

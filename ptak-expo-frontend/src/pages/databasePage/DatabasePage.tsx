@@ -4,6 +4,7 @@ import { useAuth } from '../../contexts/AuthContext';
 import Menu from '../../components/menu/Menu';
 import CustomTypography from '../../components/customTypography/CustomTypography';
 import CustomButton from '../../components/customButton/CustomButton';
+import CustomField from '../../components/customField/CustomField';
 import { Box, Container, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Avatar, CircularProgress, Alert, Breadcrumbs, Link, TablePagination, Dialog, DialogTitle, DialogContent, DialogActions, TextField, IconButton } from '@mui/material';
 import { useMediaQuery } from '@mui/material';
 
@@ -19,7 +20,7 @@ import UserAvatar from '../../assets/7bb764a0137abc7a8142b6438e529133@2x.png';
 import Applause from '../../assets/applause.png';
 
 import styles from '../usersPage/UsersPage.module.scss';
-import { ExhibitorPerson, fetchExhibitorPeople, catalogAPI, CatalogTag, CatalogIndustry, CatalogBrand, CatalogEventField, CatalogBuildType } from '../../services/api';
+import { ExhibitorPerson, fetchExhibitorPeople, catalogAPI, CatalogTag, CatalogIndustry, CatalogBrand, CatalogEventField, CatalogBuildType, fetchExhibitors, Exhibitor, fetchExhibitions, Exhibition } from '../../services/api';
 
 const DatabasePage: React.FC = () => {
   const [people, setPeople] = useState<ExhibitorPerson[]>([]);
@@ -28,6 +29,12 @@ const DatabasePage: React.FC = () => {
   const [page, setPage] = useState<number>(0);
   const [rowsPerPage, setRowsPerPage] = useState<number>(5);
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc' | null>(null);
+  // filters
+  const [search, setSearch] = useState<string>('');
+  const [selectedExhibitorId, setSelectedExhibitorId] = useState<string>('');
+  const [selectedExhibitionId, setSelectedExhibitionId] = useState<string>('');
+  const [exhibitors, setExhibitors] = useState<Exhibitor[]>([]);
+  const [exhibitions, setExhibitions] = useState<Exhibition[]>([]);
   const navigate = useNavigate();
   const { token, user, logout } = useAuth();
   const isLargeScreen = useMediaQuery('(min-width:600px)');
@@ -64,7 +71,11 @@ const DatabasePage: React.FC = () => {
     }
     try {
       setLoading(true);
-      const list = await fetchExhibitorPeople(token);
+      const filters: { exhibitionId?: number; exhibitorId?: number; query?: string } = {};
+      if (selectedExhibitionId) filters.exhibitionId = Number(selectedExhibitionId);
+      if (selectedExhibitorId) filters.exhibitorId = Number(selectedExhibitorId);
+      if (search && search.trim()) filters.query = search.trim();
+      const list = await fetchExhibitorPeople(token, filters);
       setPeople(list);
       setError('');
     } catch (err: any) {
@@ -76,9 +87,34 @@ const DatabasePage: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }, [token, logout, navigate]);
+  }, [token, logout, navigate, selectedExhibitionId, selectedExhibitorId, search]);
 
   useEffect(() => { loadPeople(); }, [loadPeople]);
+
+  // load filter datasets
+  useEffect(() => {
+    (async () => {
+      if (!token) return;
+      try {
+        const [exhbs, exhs] = await Promise.all([
+          fetchExhibitors(token),
+          fetchExitionsSafe(token)
+        ]);
+        setExhibitors(exhbs);
+        setExhibitions(exhs);
+      } catch (e) {
+        // ignore silently for filters
+      }
+    })();
+  }, [token]);
+
+  const fetchExitionsSafe = async (t: string): Promise<Exhibition[]> => {
+    try {
+      return await fetchExhibitions(t);
+    } catch {
+      return [];
+    }
+  };
 
   const handleLogout = useCallback(() => {
     logout();
@@ -91,16 +127,36 @@ const DatabasePage: React.FC = () => {
     return fullName.charAt(0).toUpperCase();
   }, []);
 
+  const filteredPeople = useMemo(() => {
+    let rows = people;
+    const s = (search || '').trim().toLowerCase();
+    if (selectedExhibitorId) {
+      rows = rows.filter(p => String(p.exhibitorId || '') === String(selectedExhibitorId));
+    }
+    if (selectedExhibitionId) {
+      rows = rows.filter(p => String((p as any).exhibitionId || '') === String(selectedExhibitionId));
+    }
+    if (s) {
+      rows = rows.filter(p => (
+        (p.fullName || '').toLowerCase().includes(s) ||
+        (p.email || '').toLowerCase().includes(s) ||
+        (p.exhibitorCompanyName || '').toLowerCase().includes(s) ||
+        ((p as any).exhibitionName || '').toLowerCase().includes(s)
+      ));
+    }
+    return rows;
+  }, [people, search, selectedExhibitorId, selectedExhibitionId]);
+
   const sortedPeople = useMemo(() => {
-    if (!sortOrder) return people;
-    return [...people].sort((a, b) => {
+    if (!sortOrder) return filteredPeople;
+    return [...filteredPeople].sort((a, b) => {
       const nameA = (a.fullName || '').toLowerCase();
       const nameB = (b.fullName || '').toLowerCase();
       if (nameA < nameB) return sortOrder === 'asc' ? -1 : 1;
       if (nameA > nameB) return sortOrder === 'asc' ? 1 : -1;
       return 0;
     });
-  }, [people, sortOrder]);
+  }, [filteredPeople, sortOrder]);
 
   const paginated = sortedPeople.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
 
@@ -367,6 +423,41 @@ const DatabasePage: React.FC = () => {
                     <CustomTypography className={styles.linkEnd}>Baza danych</CustomTypography>
                   </Breadcrumbs>
                 </Box>
+              {/* Top-right filters */}
+              <Box className={styles.filtersBar} sx={{ marginLeft: 'auto', display: 'flex', gap: 1, alignItems: 'center', flexWrap: 'wrap' }}>
+                <CustomField
+                  type="text"
+                  value={search}
+                  onChange={(e: any) => setSearch(e.target.value)}
+                  placeholder="Szukaj (imię, email, firma, wydarzenie)"
+                  size="small"
+                  className={styles.searchField}
+                />
+                <CustomField
+                  type="text"
+                  value={selectedExhibitorId}
+                  onChange={(e: any) => setSelectedExhibitorId(String(e.target.value))}
+                  placeholder="Wystawca"
+                  size="small"
+                  forceSelectionFromOptions
+                  options={[{ value: '', label: 'Wszyscy wystawcy' } as any].concat(
+                    exhibitors.map(x => ({ value: x.id, label: x.companyName }))
+                  )}
+                  className={styles.searchField}
+                />
+                <CustomField
+                  type="text"
+                  value={selectedExhibitionId}
+                  onChange={(e: any) => setSelectedExhibitionId(String(e.target.value))}
+                  placeholder="Wydarzenie"
+                  size="small"
+                  forceSelectionFromOptions
+                  options={[{ value: '', label: 'Wszystkie wydarzenia' } as any].concat(
+                    exhibitions.map(x => ({ value: x.id, label: x.name }))
+                  )}
+                  className={styles.searchField}
+                />
+              </Box>
                 {isAdmin && (
                   <Box sx={{ marginLeft: 'auto', display: 'flex', gap: 1, alignItems: 'center' }}>
                     <CustomButton
@@ -484,6 +575,11 @@ const DatabasePage: React.FC = () => {
                             Wystawca
                           </CustomTypography>
                         </TableCell>
+                        <TableCell className={styles.tableCell}>
+                          <CustomTypography fontSize="0.875em" fontWeight={300} color={'#7F8D8E'} className={styles.firstRow}>
+                            Wydarzenie
+                          </CustomTypography>
+                        </TableCell>
                       </TableRow>
                     </TableHead>
                     <TableBody>
@@ -512,6 +608,11 @@ const DatabasePage: React.FC = () => {
                           <TableCell className={styles.tableCell}>
                             <CustomTypography fontSize="0.8125em" fontWeight={400}>
                               {p.exhibitorCompanyName}
+                            </CustomTypography>
+                          </TableCell>
+                          <TableCell className={styles.tableCell}>
+                            <CustomTypography fontSize="0.8125em" fontWeight={400}>
+                              {p.exhibitionName || (exhibitions.find(x => x.id === (p.exhibitionId as any))?.name || '—')}
                             </CustomTypography>
                           </TableCell>
                         </TableRow>
@@ -556,9 +657,9 @@ const DatabasePage: React.FC = () => {
       </Box>
 
       {/* Tags modal */}
-      <Dialog open={openTags} onClose={() => setOpenTags(false)} maxWidth="sm" fullWidth>
-        <DialogTitle>Zarządzaj tagami</DialogTitle>
-        <DialogContent>
+      <Dialog open={openTags} onClose={() => setOpenTags(false)} maxWidth="sm" fullWidth PaperProps={{ className: styles.customDialogPaper }}>
+        <DialogTitle className={styles.dialogTitle}>Zarządzaj tagami</DialogTitle>
+        <DialogContent className={styles.dictionaryDialogContent}>
           <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', mb: 2, mt: 1 }}>
             <TextField
               label="Nowy tag"
@@ -579,7 +680,7 @@ const DatabasePage: React.FC = () => {
               Dodaj
             </CustomButton>
           </Box>
-          <Table size="small">
+          <Table size="small" className={styles.dictionaryTable}>
             <TableHead>
               <TableRow>
                 <TableCell>Nazwa</TableCell>
@@ -647,7 +748,7 @@ const DatabasePage: React.FC = () => {
             </TableBody>
           </Table>
         </DialogContent>
-        <DialogActions>
+        <DialogActions className={styles.dialogAction}>
           <CustomButton
             bgColor="#e9ecef"
             textColor="#2e2e38"
@@ -662,9 +763,9 @@ const DatabasePage: React.FC = () => {
       </Dialog>
 
       {/* Industries modal */}
-      <Dialog open={openIndustries} onClose={() => setOpenIndustries(false)} maxWidth="sm" fullWidth>
-        <DialogTitle>Zarządzaj branżami</DialogTitle>
-        <DialogContent>
+      <Dialog open={openIndustries} onClose={() => setOpenIndustries(false)} maxWidth="sm" fullWidth PaperProps={{ className: styles.customDialogPaper }}>
+        <DialogTitle className={styles.dialogTitle}>Zarządzaj branżami</DialogTitle>
+        <DialogContent className={styles.dictionaryDialogContent}>
           <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', mb: 2, mt: 1 }}>
             <TextField
               label="Nowa branża"
@@ -685,7 +786,7 @@ const DatabasePage: React.FC = () => {
               Dodaj
             </CustomButton>
           </Box>
-          <Table size="small">
+          <Table size="small" className={styles.dictionaryTable}>
             <TableHead>
               <TableRow>
                 <TableCell>Nazwa</TableCell>
@@ -753,7 +854,7 @@ const DatabasePage: React.FC = () => {
             </TableBody>
           </Table>
         </DialogContent>
-        <DialogActions>
+        <DialogActions className={styles.dialogAction}>
           <CustomButton
             bgColor="#e9ecef"
             textColor="#2e2e38"
@@ -768,9 +869,9 @@ const DatabasePage: React.FC = () => {
       </Dialog>
 
       {/* Brands modal */}
-      <Dialog open={openBrands} onClose={() => setOpenBrands(false)} maxWidth="sm" fullWidth>
-        <DialogTitle>Zarządzaj markami</DialogTitle>
-        <DialogContent>
+      <Dialog open={openBrands} onClose={() => setOpenBrands(false)} maxWidth="sm" fullWidth PaperProps={{ className: styles.customDialogPaper }}>
+        <DialogTitle className={styles.dialogTitle}>Zarządzaj markami</DialogTitle>
+        <DialogContent className={styles.dictionaryDialogContent}>
           <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', mb: 2, mt: 1 }}>
             <TextField
               label="Nowa marka"
@@ -791,7 +892,7 @@ const DatabasePage: React.FC = () => {
               Dodaj
             </CustomButton>
           </Box>
-          <Table size="small">
+          <Table size="small" className={styles.dictionaryTable}>
             <TableHead>
               <TableRow>
                 <TableCell>Nazwa</TableCell>
@@ -859,7 +960,7 @@ const DatabasePage: React.FC = () => {
             </TableBody>
           </Table>
         </DialogContent>
-        <DialogActions>
+        <DialogActions className={styles.dialogAction}>
           <CustomButton
             bgColor="#e9ecef"
             textColor="#2e2e38"
@@ -874,9 +975,9 @@ const DatabasePage: React.FC = () => {
       </Dialog>
 
       {/* Event fields modal */}
-      <Dialog open={openEventFields} onClose={() => setOpenEventFields(false)} maxWidth="sm" fullWidth>
-        <DialogTitle>Zarządzaj branżami wydarzenia</DialogTitle>
-        <DialogContent>
+      <Dialog open={openEventFields} onClose={() => setOpenEventFields(false)} maxWidth="sm" fullWidth PaperProps={{ className: styles.customDialogPaper }}>
+        <DialogTitle className={styles.dialogTitle}>Zarządzaj branżami wydarzenia</DialogTitle>
+        <DialogContent className={styles.dictionaryDialogContent}>
           <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', mb: 2, mt: 1 }}>
             <TextField
               label="Nowy typ branży wydarzenia"
@@ -897,7 +998,7 @@ const DatabasePage: React.FC = () => {
               Dodaj
             </CustomButton>
           </Box>
-          <Table size="small">
+          <Table size="small" className={styles.dictionaryTable}>
             <TableHead>
               <TableRow>
                 <TableCell>Nazwa</TableCell>
@@ -965,7 +1066,7 @@ const DatabasePage: React.FC = () => {
             </TableBody>
           </Table>
         </DialogContent>
-        <DialogActions>
+        <DialogActions className={styles.dialogAction}>
           <CustomButton
             bgColor="#e9ecef"
             textColor="#2e2e38"
@@ -980,9 +1081,9 @@ const DatabasePage: React.FC = () => {
       </Dialog>
 
       {/* Build types modal */}
-      <Dialog open={openBuildTypes} onClose={() => setOpenBuildTypes(false)} maxWidth="sm" fullWidth>
-        <DialogTitle>Zarządzaj typami zabudowy</DialogTitle>
-        <DialogContent>
+      <Dialog open={openBuildTypes} onClose={() => setOpenBuildTypes(false)} maxWidth="sm" fullWidth PaperProps={{ className: styles.customDialogPaper }}>
+        <DialogTitle className={styles.dialogTitle}>Zarządzaj typami zabudowy</DialogTitle>
+        <DialogContent className={styles.dictionaryDialogContent}>
           <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', mb: 2, mt: 1 }}>
             <TextField
               label="Nowy typ zabudowy"
@@ -1003,7 +1104,7 @@ const DatabasePage: React.FC = () => {
               Dodaj
             </CustomButton>
           </Box>
-          <Table size="small">
+          <Table size="small" className={styles.dictionaryTable}>
             <TableHead>
               <TableRow>
                 <TableCell>Nazwa</TableCell>
@@ -1071,7 +1172,7 @@ const DatabasePage: React.FC = () => {
             </TableBody>
           </Table>
         </DialogContent>
-        <DialogActions>
+        <DialogActions className={styles.dialogAction}>
           <CustomButton
             bgColor="#e9ecef"
             textColor="#2e2e38"

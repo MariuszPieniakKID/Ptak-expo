@@ -123,7 +123,7 @@ export const ChecklistProvider = ({ children, eventId }: {children: ReactNode, e
 		},
 		addMaterial: (ci: DownloadMaterial) => { addMaterial(ci).then(() => getChecklist(eventId)).then(setChecklist);},
 		uploadMaterialFile: (file: File) => { addMaterialFile(file, eventId).then(() => getChecklist(eventId)).then(setChecklist);},
-		addElectronicId: (ci: ElectrionicId) => { addElectronicId(ci).then(() => getChecklist(eventId)).then(setChecklist);},
+    addElectronicId: (ci: ElectrionicId) => { addElectronicId(ci, eventId).then(() => getChecklist(eventId)).then(setChecklist);},
 		filled,
 		companyInfoFilledCount
 	}

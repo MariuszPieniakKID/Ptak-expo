@@ -528,6 +528,15 @@ const initializeDatabase = async () => {
         created_at TIMESTAMPTZ DEFAULT NOW()
       )
     `);
+    // Ensure inviter/exhibitor and exhibition linkage columns exist
+    await pool.query(`
+      ALTER TABLE invitation_recipients
+      ADD COLUMN IF NOT EXISTS exhibitor_id INTEGER REFERENCES exhibitors(id) ON DELETE SET NULL
+    `);
+    await pool.query(`
+      ALTER TABLE invitation_recipients
+      ADD COLUMN IF NOT EXISTS exhibition_id INTEGER REFERENCES exhibitions(id) ON DELETE CASCADE
+    `);
 
     console.log('🔍 Creating exhibitor_documents table...');
     await pool.query(`
@@ -571,6 +580,12 @@ const initializeDatabase = async () => {
     `);
     await pool.query(`
       CREATE INDEX IF NOT EXISTS idx_invitation_recipients_email ON invitation_recipients(recipient_email)
+    `);
+    await pool.query(`
+      CREATE INDEX IF NOT EXISTS idx_invitation_recipients_exhibitor_id ON invitation_recipients(exhibitor_id)
+    `);
+    await pool.query(`
+      CREATE INDEX IF NOT EXISTS idx_invitation_recipients_exhibition_id ON invitation_recipients(exhibition_id)
     `);
 
     console.log('🔍 Creating trade_events table...');

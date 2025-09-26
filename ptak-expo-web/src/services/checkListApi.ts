@@ -416,8 +416,10 @@ export const addMaterial = async (material: DownloadMaterial) => {
 		(a, b) =>(a.fileName).localeCompare(b.fileName)
 )};
 }
-export const addElectronicId = async (electronicId: ElectrionicId) => {
-	const exhibitionId = Number((window as any).currentSelectedExhibitionId) || 0;
+export const addElectronicId = async (electronicId: ElectrionicId, exhibitionIdFromArg?: number) => {
+    const exhibitionId = typeof exhibitionIdFromArg === 'number' && exhibitionIdFromArg > 0
+        ? exhibitionIdFromArg
+        : (Number((window as any).currentSelectedExhibitionId) || 0);
 	const token = localStorage.getItem('authToken') || '';
 	try {
         // Fetch exhibitor and exhibition to build access code
@@ -454,12 +456,19 @@ export const addElectronicId = async (electronicId: ElectrionicId) => {
             qrDataUrl = await QRCode.toDataURL(accessCode, { margin: 0, scale: 6 });
         } catch {}
 
+        // Map type to readable label for admin DB (avoid numeric "0")
+        const typeLabel = ((): string => {
+            try {
+                return electronicId.type === EidType.TECH_WORKER ? 'Pracownik techniczny' : 'Gość';
+            } catch { return 'Gość'; }
+        })();
+
         await fetch(`${config.API_BASE_URL}/api/v1/exhibitors/me/people`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
             body: JSON.stringify({
                 fullName: electronicId.name,
-                position: String(electronicId.type),
+                position: typeLabel,
                 email: electronicId.email,
                 exhibitionId,
                 accessCode,

@@ -473,6 +473,40 @@ router.post('/me/people', verifyToken, requireExhibitorOrAdmin, async (req, res)
         exId = parsed;
       }
     } catch {}
+    // Fallback 1: also accept exhibitionId from query string if not present in body
+    if (!exId) {
+      try {
+        const parsedFromQuery = parseInt(req.query?.exhibitionId, 10);
+        if (Number.isInteger(parsedFromQuery) && parsedFromQuery > 0) {
+          exId = parsedFromQuery;
+        }
+      } catch {}
+    }
+    // Fallback: if exhibitionId not provided, try to infer latest assigned event for this exhibitor
+    if (!exId) {
+      try {
+        const rel = await db.query(
+          `SELECT ee.exhibition_id FROM exhibitor_events ee
+           JOIN exhibitions ex ON ex.id = ee.exhibition_id
+           WHERE ee.exhibitor_id = $1
+           ORDER BY ex.start_date DESC NULLS LAST, ex.id DESC
+           LIMIT 1`,
+          [exhibitorId]
+        );
+        exId = rel.rows?.[0]?.exhibition_id || null;
+      } catch {}
+    }
+
+    // Enforce: must have exhibitionId to avoid orphaned people without assigned event
+    if (!exId) {
+      return res.status(400).json({ success: false, message: 'Brak przypisanego wydarzenia (exhibitionId). Otwórz checklistę dla konkretnego wydarzenia i spróbuj ponownie.' });
+    }
+
+    // Validate that exhibition exists
+    const exExists = await db.query('SELECT id FROM exhibitions WHERE id = $1 LIMIT 1', [exId]);
+    if (exExists.rows.length === 0) {
+      return res.status(400).json({ success: false, message: 'Podane wydarzenie nie istnieje' });
+    }
     const ins = await db.query(
       'INSERT INTO exhibitor_people (exhibitor_id, exhibition_id, full_name, position, email) VALUES ($1, $2, $3, $4, $5) RETURNING id, full_name, position, email, created_at',
       [exhibitorId, exId, fullName, position || null, personEmail || null]
@@ -837,6 +871,9 @@ router.get('/people', verifyToken, requireAdmin, async (req, res) => {
   try {
     console.log('[exhibitors/people] request', { user: req.user?.email, role: req.user?.role, query: req.query });
     const exhibitionId = req.query.exhibitionId ? parseInt(req.query.exhibitionId, 10) : null;
+    const exhibitorId = req.query.exhibitorId ? parseInt(req.query.exhibitorId, 10) : null;
+    const rawQ = (req.query.query ?? req.query.q ?? '').toString();
+    const q = rawQ && rawQ.trim() ? rawQ.trim().toLowerCase() : '';
 
     // Ensure table exists; if not, return empty list instead of 500
     const existsCheck = await db.query(`
@@ -851,6 +888,30 @@ router.get('/people', verifyToken, requireAdmin, async (req, res) => {
       return res.json({ success: true, data: [] });
     }
 
+    // Backfill: assign exhibition_id for legacy rows missing it (take latest assigned event per exhibitor)
+    try {
+      await db.query(`
+        UPDATE exhibitor_people p
+        SET exhibition_id = latest.exhibition_id
+        FROM (
+          SELECT p2.id as person_id,
+                 (
+                   SELECT ee.exhibition_id
+                   FROM exhibitor_events ee
+                   JOIN exhibitions ex ON ex.id = ee.exhibition_id
+                   WHERE ee.exhibitor_id = p2.exhibitor_id
+                   ORDER BY ex.start_date DESC NULLS LAST, ex.id DESC
+                   LIMIT 1
+                 ) as exhibition_id
+          FROM exhibitor_people p2
+          WHERE p2.exhibition_id IS NULL
+        ) as latest
+        WHERE p.id = latest.person_id AND latest.exhibition_id IS NOT NULL
+      `);
+    } catch (bfErr) {
+      console.warn('[exhibitors/people] backfill skipped:', bfErr?.message || bfErr);
+    }
+
     let query = `
       SELECT 
         p.id,
@@ -858,16 +919,39 @@ router.get('/people', verifyToken, requireAdmin, async (req, res) => {
         p.email,
         p.position AS person_position,
         p.exhibition_id,
+        ex.name AS exhibition_name,
         p.created_at,
         e.id as exhibitor_id,
         e.company_name
       FROM exhibitor_people p
       LEFT JOIN exhibitors e ON e.id = p.exhibitor_id
+      LEFT JOIN exhibitions ex ON ex.id = p.exhibition_id
     `;
     const params = [];
+    const where = [];
+
     if (Number.isInteger(exhibitionId)) {
-      query += ' WHERE p.exhibition_id = $1';
       params.push(exhibitionId);
+      where.push(`p.exhibition_id = $${params.length}`);
+    }
+    if (Number.isInteger(exhibitorId)) {
+      params.push(exhibitorId);
+      where.push(`p.exhibitor_id = $${params.length}`);
+    }
+    if (q) {
+      const term = `%${q}%`;
+      params.push(term);
+      const p = params.length;
+      where.push(`(
+        lower(p.full_name) LIKE $${p} OR
+        lower(p.email) LIKE $${p} OR
+        lower(e.company_name) LIKE $${p} OR
+        lower(ex.name) LIKE $${p}
+      )`);
+    }
+
+    if (where.length) {
+      query += ` WHERE ${where.join(' AND ')}`;
     }
     query += ' ORDER BY p.created_at DESC';
 
@@ -880,6 +964,7 @@ router.get('/people', verifyToken, requireAdmin, async (req, res) => {
       email: row.email,
       type: row.person_position,
       exhibitionId: row.exhibition_id,
+      exhibitionName: row.exhibition_name,
       createdAt: row.created_at,
       exhibitorId: row.exhibitor_id,
       exhibitorCompanyName: row.company_name

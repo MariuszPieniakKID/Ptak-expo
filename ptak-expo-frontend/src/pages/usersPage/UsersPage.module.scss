@@ -596,3 +596,115 @@ transform: rotate(180deg);
  font-weight: 300!important;
  padding-top: 0.5em;
 }
+
+// DatabasePage: unified filters bar styling
+.filtersBar {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+  flex-wrap: wrap;
+  margin-left: auto;
+
+  .searchField {
+    min-width: 14rem;
+    // match compact height and rounded corners like in add modals
+    :global(.MuiOutlinedInput-root) {
+      height: 2.25rem; // ~36px
+      border-radius: $border-radius-lg;
+      background: $color-white;
+    }
+    :global(.MuiInputBase-input) {
+      padding: $spacing-sm $spacing-md;
+      font-family: $font-open-sans;
+      font-size: $font-size-sm;
+    }
+  }
+
+  @include for-phone-only {
+    width: 100%;
+    gap: $spacing-sm;
+    .searchField { min-width: 0; width: 100%; }
+  }
+}
+
+// Dialog look aligned with add modals
+.customDialogPaper {
+  background-color: $color-gray !important;
+  border-radius: 20px !important;
+  max-width: 600px !important;
+  width: 100% !important;
+  max-height: 90vh !important;
+  overflow-y: auto !important;
+  padding: 16px;
+
+  @include for-tablet-portrait-up {
+    padding: 24px 32px !important;
+  }
+
+  /* scrollbar */
+  &::-webkit-scrollbar { width: 8px; }
+  &::-webkit-scrollbar-track { background: transparent; }
+  &::-webkit-scrollbar-thumb {
+    background-color: $color-dodgerblue; border-radius: 4px; border: 2px solid transparent; background-clip: content-box;
+  }
+  &::-webkit-scrollbar-thumb:hover { background-color: darken($color-dodgerblue, 10%); }
+}
+
+.dialogTitle {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+  background-color: $color-gray;
+  padding: 16px 0;
+}
+
+// Database dictionaries dialog content styled like add modals
+.dictionaryDialogContent {
+  padding: $spacing-xl $spacing-xxl;
+  background-color: $color-gray;
+  :global(.MuiTextField-root) {
+    :global(.MuiOutlinedInput-root) {
+      border-radius: $border-radius-lg;
+    }
+  }
+}
+
+// Unified table look for dictionaries
+.dictionaryTable {
+  :global(.MuiTableHead-root .MuiTableCell-head) {
+    font-family: $font-roc-grotesk !important;
+    font-weight: 500 !important;
+    color: $color-darkslategray !important;
+    background: transparent;
+  }
+  :global(.MuiTableBody-root .MuiTableRow-root) {
+    transition: background-color 0.2s ease;
+  }
+  :global(.MuiTableBody-root .MuiTableRow-root:hover) {
+    background-color: rgba(0,0,0,0.02);
+  }
+  :global(.MuiTableCell-root) {
+    padding: $spacing-md $spacing-lg !important;
+    font-family: $font-open-sans !important;
+    font-size: $font-size-sm !important;
+  }
+  // Make the first column read as a tidy label
+  :global(.MuiTableBody-root .MuiTableCell-root:first-child) {
+    font-weight: 500 !important;
+    color: $color-almostblack !important;
+  }
+  // Action icons subtle
+  :global(.MuiIconButton-root) {
+    padding: $spacing-xs !important;
+    border-radius: $border-radius-sm !important;
+    &:hover { background: $color-gainsboro-100 !important; }
+  }
+}
+
+// Dialog actions aligned with design system
+.dialogAction {
+  display: flex;
+  justify-content: flex-end;
+  gap: $spacing-sm;
+  padding: $spacing-lg 0 0 0;
+}
