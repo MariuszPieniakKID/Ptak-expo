@@ -719,7 +719,7 @@ transform: rotate(180deg);
 
 .dialogSubtitle {
   font-family: $font-open-sans !important;
-  font-size: $font-size-14 !important;
+  font-size: 0.875em !important; // 14px
   color: $color-darkgray !important;
   margin: 0;
 }
