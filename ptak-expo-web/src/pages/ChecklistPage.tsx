@@ -8,13 +8,28 @@ import MaterialsCard from "../components/checklist/MaterialsCard";
 import ElectronicIdsCard from "../components/checklist/ElectronicIdsCard";
 import InvitesCard from "../components/checklist/InvitesCard";
 import IconCalendar from "../assets/calendar-check.png";
-import IconCrooked from "../assets/crooked.png";
 import IconMedal from "../assets/medal.png";
-import IconEye from "../assets/eye.png";
-import IconCheckGreen from "../assets/check-green.png";
 
 const ChecklistPage: React.FC = () => {
-  var {filled} = useChecklist();
+  var {filled, checklist} = useChecklist();
+  const daysRemaining = (() => {
+    try {
+      const now = new Date();
+      const dates = Array.isArray(checklist?.events)
+        ? checklist.events
+            .map((e: any) => new Date(`${e.date}T${(e.startTime || '00:00')}`))
+            .filter((d: Date) => !isNaN(d.getTime()))
+        : [];
+      if (dates.length === 0) return null;
+      const future = dates.filter((d) => d >= now);
+      const target = (future.length ? future : dates).sort((a, b) => a.getTime() - b.getTime())[0];
+      const ms = target.getTime() - now.getTime();
+      const days = Math.ceil(ms / (1000 * 60 * 60 * 24));
+      return days < 0 ? 0 : days;
+    } catch {
+      return null;
+    }
+  })();
   return (
     <div className={styles.pageRoot}>
       {/* Right main content area */}
@@ -28,45 +43,18 @@ const ChecklistPage: React.FC = () => {
               height={51}
             />
             <p className={styles.title}>Checklista targowa</p>
-            <div className={styles.nextStep}>
-              <div className={styles.nextStepItem}>
-                <p className={styles.nextStepTitle}>Twoje kolejne zadanie:</p>
-                <p className={styles.nextStepDescription}>
-                  Wyślij katalog kampanii do akceptacji
-                </p>
-              </div>
-              <div className={styles.nextStepItem}>
-                <button className={styles.nextStepButton}>
-                  Prześlij katalog
-                  <img
-                    src={IconCrooked}
-                    alt="ikona dokumentów"
-                    width="auto"
-                    height={17}
-                  />
-                </button>
-              </div>
-            </div>
+            {/* Hidden next task and CTA per request */}
           </div>
           {/* Header area intentionally hidden: removed next task title, CTA, and preview link */}
           {/* Top container with progress and steps (web checklista 4b) */}
           <div className={styles.topContainer}>
             <div className={styles.topContent}>
-              <div
-                className={styles.topCountdown}
-                dangerouslySetInnerHTML={{
-                  __html: `Do wydarzenia zostalo <b>386 dni</b>`,
-                }}
-              />
-              <div className={styles.previewContent}>
-                <img
-                  src={IconEye}
-                  alt="ikona medalu"
-                  width="auto"
-                  height={10}
-                />
-                <div className={styles.previewText}>Podejrzyj wpis</div>
-              </div>
+              {daysRemaining != null && (
+                <div className={styles.topCountdown}>
+                  Do wydarzenia zostało <b>{daysRemaining}</b> dni
+                </div>
+              )}
+              {/* Hidden preview link per request */}
             </div>
             <div className={styles.topHeading}>
               {filled.every((f) => f) && "Gratulacje, mamy wszystko!🎉"}Wasza
@@ -93,15 +81,7 @@ const ChecklistPage: React.FC = () => {
                     />
                   </ApplyGreenCheck>
                   <div className={styles.stepLabel}>{label}</div>
-                  <div className={styles.stepIcon}>
-                    <img
-                      className={styles.stepIconImg}
-                      src={IconCheckGreen}
-                      alt="ikona"
-                      width="auto"
-                      height={13}
-                    />
-                  </div>
+                  {/* Removed static green check; dynamic ApplyGreenCheck remains */}
                 </div>
               ))}
             </div>

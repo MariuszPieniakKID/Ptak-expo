@@ -424,7 +424,7 @@ const DatabasePage: React.FC = () => {
                   </Breadcrumbs>
                 </Box>
               {/* Top-right filters */}
-              <Box className={styles.filtersBar} sx={{ marginLeft: 'auto', display: 'flex', gap: 1, alignItems: 'center', flexWrap: 'wrap' }}>
+              <Box className={styles.filtersBar}>
                 <CustomField
                   type="text"
                   value={search}
@@ -459,57 +459,67 @@ const DatabasePage: React.FC = () => {
                 />
               </Box>
                 {isAdmin && (
-                  <Box sx={{ marginLeft: 'auto', display: 'flex', gap: 1, alignItems: 'center' }}>
-                    <CustomButton
-                      bgColor="#6F87F6"
-                      textColor="#fff"
-                      height="28px"
-                      width="auto"
-                      fontSize="0.75rem"
-                      onClick={openTagsModal}
-                    >
-                      Tagi
-                    </CustomButton>
-                    <CustomButton
-                      bgColor="#6F87F6"
-                      textColor="#fff"
-                      height="28px"
-                      width="auto"
-                      fontSize="0.75rem"
-                      onClick={openIndustriesModal}
-                    >
-                      Branże
-                    </CustomButton>
-                    <CustomButton
-                      bgColor="#6F87F6"
-                      textColor="#fff"
-                      height="28px"
-                      width="auto"
-                      fontSize="0.75rem"
-                      onClick={openEventFieldsModal}
-                    >
-                      Branże wydarzenia
-                    </CustomButton>
-                    <CustomButton
-                      bgColor="#6F87F6"
-                      textColor="#fff"
-                      height="28px"
-                      width="auto"
-                      fontSize="0.75rem"
-                      onClick={openBuildTypesModal}
-                    >
-                      Typy zabudowy
-                    </CustomButton>
-                    <CustomButton
-                      bgColor="#6F87F6"
-                      textColor="#fff"
-                      height="28px"
-                      width="auto"
-                      fontSize="0.75rem"
-                      onClick={openBrandsModal}
-                    >
-                      Marki
-                    </CustomButton>
+                  <Box className={`${styles.dictButtonsRow}`}>
+                    <div className={styles.dictButton}>
+                      <CustomButton
+                        bgColor="#6F87F6"
+                        textColor="#fff"
+                        height="28px"
+                        width="auto"
+                        fontSize="0.75rem"
+                        onClick={openTagsModal}
+                      >
+                        Tagi
+                      </CustomButton>
+                    </div>
+                    <div className={styles.dictButton}>
+                      <CustomButton
+                        bgColor="#6F87F6"
+                        textColor="#fff"
+                        height="28px"
+                        width="auto"
+                        fontSize="0.75rem"
+                        onClick={openIndustriesModal}
+                      >
+                        Branże
+                      </CustomButton>
+                    </div>
+                    <div className={styles.dictButton}>
+                      <CustomButton
+                        bgColor="#6F87F6"
+                        textColor="#fff"
+                        height="28px"
+                        width="auto"
+                        fontSize="0.75rem"
+                        onClick={openEventFieldsModal}
+                      >
+                        Branże wydarzenia
+                      </CustomButton>
+                    </div>
+                    <div className={styles.dictButton}>
+                      <CustomButton
+                        bgColor="#6F87F6"
+                        textColor="#fff"
+                        height="28px"
+                        width="auto"
+                        fontSize="0.75rem"
+                        onClick={openBuildTypesModal}
+                      >
+                        Typy zabudowy
+                      </CustomButton>
+                    </div>
+                    <div className={styles.dictButton}>
+                      <CustomButton
+                        bgColor="#6F87F6"
+                        textColor="#fff"
+                        height="28px"
+                        width="auto"
+                        fontSize="0.75rem"
+                        onClick={openBrandsModal}
+                      >
+                        Marki
+                      </CustomButton>
+                    </div>
                   </Box>
                 )}
               </Box>
@@ -658,7 +668,12 @@ const DatabasePage: React.FC = () => {
 
       {/* Tags modal */}
       <Dialog open={openTags} onClose={() => setOpenTags(false)} maxWidth="sm" fullWidth PaperProps={{ className: styles.customDialogPaper }}>
-        <DialogTitle className={styles.dialogTitle}>Zarządzaj tagami</DialogTitle>
+        <DialogTitle className={styles.dialogTitle}>
+          <Box>
+            <CustomTypography className={styles.dialogTitleMain}>Zarządzaj tagami</CustomTypography>
+            <CustomTypography className={styles.dialogSubtitle}>Dodawaj, edytuj i usuwaj tagi używane w katalogu</CustomTypography>
+          </Box>
+        </DialogTitle>
         <DialogContent className={styles.dictionaryDialogContent}>
           <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', mb: 2, mt: 1 }}>
             <TextField
@@ -750,12 +765,12 @@ const DatabasePage: React.FC = () => {
         </DialogContent>
         <DialogActions className={styles.dialogAction}>
           <CustomButton
-            bgColor="#e9ecef"
-            textColor="#2e2e38"
-            height="32px"
+            bgColor="transparent"
+            textColor="#6c757d"
             width="auto"
-            fontSize="0.8rem"
+            height="36px"
             onClick={() => setOpenTags(false)}
+            sx={{ border: '1px solid #e0e0e0', '&:hover': { backgroundColor: '#f5f5f5' } }}
           >
             Zamknij
           </CustomButton>
@@ -764,7 +779,12 @@ const DatabasePage: React.FC = () => {
 
       {/* Industries modal */}
       <Dialog open={openIndustries} onClose={() => setOpenIndustries(false)} maxWidth="sm" fullWidth PaperProps={{ className: styles.customDialogPaper }}>
-        <DialogTitle className={styles.dialogTitle}>Zarządzaj branżami</DialogTitle>
+        <DialogTitle className={styles.dialogTitle}>
+          <Box>
+            <CustomTypography className={styles.dialogTitleMain}>Zarządzaj branżami</CustomTypography>
+            <CustomTypography className={styles.dialogSubtitle}>Lista branż przypisywanych do wystawców</CustomTypography>
+          </Box>
+        </DialogTitle>
         <DialogContent className={styles.dictionaryDialogContent}>
           <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', mb: 2, mt: 1 }}>
             <TextField
@@ -856,12 +876,12 @@ const DatabasePage: React.FC = () => {
         </DialogContent>
         <DialogActions className={styles.dialogAction}>
           <CustomButton
-            bgColor="#e9ecef"
-            textColor="#2e2e38"
-            height="32px"
+            bgColor="transparent"
+            textColor="#6c757d"
             width="auto"
-            fontSize="0.8rem"
+            height="36px"
             onClick={() => setOpenIndustries(false)}
+            sx={{ border: '1px solid #e0e0e0', '&:hover': { backgroundColor: '#f5f5f5' } }}
           >
             Zamknij
           </CustomButton>
@@ -870,7 +890,12 @@ const DatabasePage: React.FC = () => {
 
       {/* Brands modal */}
       <Dialog open={openBrands} onClose={() => setOpenBrands(false)} maxWidth="sm" fullWidth PaperProps={{ className: styles.customDialogPaper }}>
-        <DialogTitle className={styles.dialogTitle}>Zarządzaj markami</DialogTitle>
+        <DialogTitle className={styles.dialogTitle}>
+          <Box>
+            <CustomTypography className={styles.dialogTitleMain}>Zarządzaj markami</CustomTypography>
+            <CustomTypography className={styles.dialogSubtitle}>Marki przypisywane produktom lub firmom</CustomTypography>
+          </Box>
+        </DialogTitle>
         <DialogContent className={styles.dictionaryDialogContent}>
           <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', mb: 2, mt: 1 }}>
             <TextField
@@ -962,12 +987,12 @@ const DatabasePage: React.FC = () => {
         </DialogContent>
         <DialogActions className={styles.dialogAction}>
           <CustomButton
-            bgColor="#e9ecef"
-            textColor="#2e2e38"
-            height="32px"
+            bgColor="transparent"
+            textColor="#6c757d"
             width="auto"
-            fontSize="0.8rem"
+            height="36px"
             onClick={() => setOpenBrands(false)}
+            sx={{ border: '1px solid #e0e0e0', '&:hover': { backgroundColor: '#f5f5f5' } }}
           >
             Zamknij
           </CustomButton>
@@ -976,7 +1001,12 @@ const DatabasePage: React.FC = () => {
 
       {/* Event fields modal */}
       <Dialog open={openEventFields} onClose={() => setOpenEventFields(false)} maxWidth="sm" fullWidth PaperProps={{ className: styles.customDialogPaper }}>
-        <DialogTitle className={styles.dialogTitle}>Zarządzaj branżami wydarzenia</DialogTitle>
+        <DialogTitle className={styles.dialogTitle}>
+          <Box>
+            <CustomTypography className={styles.dialogTitleMain}>Zarządzaj branżami wydarzenia</CustomTypography>
+            <CustomTypography className={styles.dialogSubtitle}>Kategorie tematyczne wydarzeń</CustomTypography>
+          </Box>
+        </DialogTitle>
         <DialogContent className={styles.dictionaryDialogContent}>
           <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', mb: 2, mt: 1 }}>
             <TextField
@@ -1068,12 +1098,12 @@ const DatabasePage: React.FC = () => {
         </DialogContent>
         <DialogActions className={styles.dialogAction}>
           <CustomButton
-            bgColor="#e9ecef"
-            textColor="#2e2e38"
-            height="32px"
+            bgColor="transparent"
+            textColor="#6c757d"
             width="auto"
-            fontSize="0.8rem"
+            height="36px"
             onClick={() => setOpenEventFields(false)}
+            sx={{ border: '1px solid #e0e0e0', '&:hover': { backgroundColor: '#f5f5f5' } }}
           >
             Zamknij
           </CustomButton>
@@ -1082,7 +1112,12 @@ const DatabasePage: React.FC = () => {
 
       {/* Build types modal */}
       <Dialog open={openBuildTypes} onClose={() => setOpenBuildTypes(false)} maxWidth="sm" fullWidth PaperProps={{ className: styles.customDialogPaper }}>
-        <DialogTitle className={styles.dialogTitle}>Zarządzaj typami zabudowy</DialogTitle>
+        <DialogTitle className={styles.dialogTitle}>
+          <Box>
+            <CustomTypography className={styles.dialogTitleMain}>Zarządzaj typami zabudowy</CustomTypography>
+            <CustomTypography className={styles.dialogSubtitle}>Typy stoisk dostępne dla wystawców</CustomTypography>
+          </Box>
+        </DialogTitle>
         <DialogContent className={styles.dictionaryDialogContent}>
           <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', mb: 2, mt: 1 }}>
             <TextField
@@ -1174,12 +1209,12 @@ const DatabasePage: React.FC = () => {
         </DialogContent>
         <DialogActions className={styles.dialogAction}>
           <CustomButton
-            bgColor="#e9ecef"
-            textColor="#2e2e38"
-            height="32px"
+            bgColor="transparent"
+            textColor="#6c757d"
             width="auto"
-            fontSize="0.8rem"
+            height="36px"
             onClick={() => setOpenBuildTypes(false)}
+            sx={{ border: '1px solid #e0e0e0', '&:hover': { backgroundColor: '#f5f5f5' } }}
           >
             Zamknij
           </CustomButton>

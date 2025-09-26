@@ -599,17 +599,16 @@ transform: rotate(180deg);
 
 // DatabasePage: unified filters bar styling
 .filtersBar {
-  display: flex;
-  align-items: center;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(220px, 1fr));
   gap: $spacing-md;
-  flex-wrap: wrap;
+  align-items: center;
   margin-left: auto;
 
   .searchField {
-    min-width: 14rem;
-    // match compact height and rounded corners like in add modals
+    min-width: 0;
     :global(.MuiOutlinedInput-root) {
-      height: 2.25rem; // ~36px
+      height: 2.5rem; // ~40px
       border-radius: $border-radius-lg;
       background: $color-white;
     }
@@ -621,47 +620,114 @@ transform: rotate(180deg);
   }
 
   @include for-phone-only {
+    grid-template-columns: 1fr;
     width: 100%;
     gap: $spacing-sm;
-    .searchField { min-width: 0; width: 100%; }
+    .searchField { width: 100%; }
+  }
+
+  @include for-tablet {
+    grid-template-columns: repeat(2, minmax(220px, 1fr));
+  }
+}
+
+// DatabasePage: unified small action buttons row (Tags, Branże, etc.)
+.dictButtonsRow {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  flex-wrap: wrap;
+  align-self: flex-start;
+  margin-left: 0;
+  margin-top: $spacing-sm;
+
+  .dictButton {
+    // normalize all small action buttons to match app's compact pill look
+    :global(button) {
+      background-color: $color-dodgerblue !important;
+      color: $color-white !important;
+      height: 28px !important;
+      padding: 0 $spacing-md !important;
+      border-radius: $border-radius-md !important;
+      box-shadow: 0 4px 12px rgba(111, 135, 246, 0.18) !important;
+      font-family: $font-open-sans !important;
+      font-size: $font-size-sm !important;
+      font-weight: 600 !important;
+      transition: all 0.2s ease !important;
+
+      &:hover {
+        background-color: $color-mediumslateblue !important;
+        box-shadow: 0 6px 16px rgba(80, 65, 208, 0.28) !important;
+      }
+
+      &:active {
+        transform: translateY(1px);
+      }
+    }
+  }
+
+  @include for-phone-only {
+    width: 100%;
+    gap: $spacing-xs;
   }
 }
 
 // Dialog look aligned with add modals
 .customDialogPaper {
-  background-color: $color-gray !important;
-  border-radius: 20px !important;
+  background-color: $color-white !important;
+  border-radius: 12px !important; // match "+dodaj wydarzenie"
+  border: 1px solid $color-gainsboro-100 !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08) !important;
   max-width: 600px !important;
   width: 100% !important;
-  max-height: 90vh !important;
-  overflow-y: auto !important;
-  padding: 16px;
+  max-height: 80vh !important; // similar to assign event modal
+  overflow: hidden !important; // let sections manage own scroll
 
-  @include for-tablet-portrait-up {
-    padding: 24px 32px !important;
-  }
-
-  /* scrollbar */
-  &::-webkit-scrollbar { width: 8px; }
-  &::-webkit-scrollbar-track { background: transparent; }
-  &::-webkit-scrollbar-thumb {
+  /* scrollbar inside content areas */
+  & *::-webkit-scrollbar { width: 8px; }
+  & *::-webkit-scrollbar-track { background: transparent; }
+  & *::-webkit-scrollbar-thumb {
     background-color: $color-dodgerblue; border-radius: 4px; border: 2px solid transparent; background-clip: content-box;
   }
-  &::-webkit-scrollbar-thumb:hover { background-color: darken($color-dodgerblue, 10%); }
+  & *::-webkit-scrollbar-thumb:hover { background-color: darken($color-dodgerblue, 10%); }
 }
 
 .dialogTitle {
   display: flex;
   align-items: center;
   gap: $spacing-md;
-  background-color: $color-gray;
-  padding: 16px 0;
+  background-color: transparent;
+  padding: 16px 24px;
+  border-bottom: 1px solid $color-gainsboro-100;
+
+  :global(.MuiDialogTitle-root) { margin: 0; }
+  h2, h6, div { // support default MUI title node or CustomTypography
+    font-family: $font-roc-grotesk !important;
+    font-weight: 600 !important;
+    font-size: 1.25rem !important; // like +dodaj wydarzenie
+    color: $color-darkslategray !important;
+  }
+}
+
+.dialogTitleMain {
+  font-family: $font-roc-grotesk !important;
+  font-weight: 600 !important;
+  font-size: 1.25rem !important;
+  color: $color-darkslategray !important;
+  margin: 0;
+}
+
+.dialogSubtitle {
+  font-family: $font-open-sans !important;
+  font-size: $font-size-14 !important;
+  color: $color-darkgray !important;
+  margin: 0;
 }
 
 // Database dictionaries dialog content styled like add modals
 .dictionaryDialogContent {
-  padding: $spacing-xl $spacing-xxl;
-  background-color: $color-gray;
+  padding: 16px 24px;
+  background-color: $color-white;
   :global(.MuiTextField-root) {
     :global(.MuiOutlinedInput-root) {
       border-radius: $border-radius-lg;
@@ -678,13 +744,14 @@ transform: rotate(180deg);
     background: transparent;
   }
   :global(.MuiTableBody-root .MuiTableRow-root) {
-    transition: background-color 0.2s ease;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+    border-bottom: 1px solid $color-gainsboro-100;
   }
   :global(.MuiTableBody-root .MuiTableRow-root:hover) {
     background-color: rgba(0,0,0,0.02);
   }
   :global(.MuiTableCell-root) {
-    padding: $spacing-md $spacing-lg !important;
+    padding: 12px 16px !important;
     font-family: $font-open-sans !important;
     font-size: $font-size-sm !important;
   }
