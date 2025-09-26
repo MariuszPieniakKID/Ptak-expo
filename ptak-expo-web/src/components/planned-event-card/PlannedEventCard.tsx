@@ -1,6 +1,14 @@
-import { Card, CardContent, Typography, Box, Chip, Avatar, Link } from '@mui/material';
-import { brandingAPI } from '../../services/api';
-import styles from './PlannedEventCard.module.scss';
+import {
+  Card,
+  CardContent,
+  Typography,
+  Box,
+  Chip,
+  Avatar,
+  Link,
+} from "@mui/material";
+import {brandingAPI} from "../../services/api";
+import styles from "./PlannedEventCard.module.scss";
 
 export interface EventData {
   id: string;
@@ -16,7 +24,10 @@ interface PlannedEventCardProps {
   onSelect?: () => void;
 }
 
-const PlannedEventCard: React.FC<PlannedEventCardProps> = ({ event, onSelect }) => {
+const PlannedEventCard: React.FC<PlannedEventCardProps> = ({
+  event,
+  onSelect,
+}) => {
   const getReadinessClass = (value: number) => {
     if (value <= 30) return styles.red;
     if (value <= 55) return styles.orange;
@@ -27,19 +38,44 @@ const PlannedEventCard: React.FC<PlannedEventCardProps> = ({ event, onSelect }) 
     <Card className={styles.card}>
       <CardContent className={styles.cardContent}>
         <Box className={styles.logoBox}>
-          <Avatar 
-            className={styles.avatar} 
-            variant="rounded" 
-            src={(event as any).event_logo_file_name ? brandingAPI.serveGlobalUrl((event as any).event_logo_file_name) : event.logoUrl} 
-            alt={event.title} 
+          <Avatar
+            className={styles.avatar}
+            variant="rounded"
+            src={
+              (event as any).event_logo_file_name
+                ? brandingAPI.serveGlobalUrl(
+                    (event as any).event_logo_file_name
+                  )
+                : event.logoUrl
+            }
+            alt={event.title}
           />
         </Box>
         <Box className={styles.titleBox}>
           <Box>
-            <Typography variant="body2" color="text.info" className={styles.date}>
+            <Typography
+              color="#6F6F6F"
+              variant="body2"
+              fontSize={11}
+              paddingBottom="10px"
+            >
+              Twoje wydarzenie:
+            </Typography>
+            <Typography
+              variant="body2"
+              color="text.info"
+              fontWeight={700}
+              className={styles.date}
+              paddingBottom="8px"
+            >
               {event.dateFrom} – {event.dateTo}
             </Typography>
-            <Typography variant="subtitle1" className={styles.title}>
+            <Typography
+              variant="subtitle1"
+              className={styles.title}
+              fontSize={14}
+              fontWeight={700}
+            >
               {event.title}
             </Typography>
           </Box>
@@ -47,10 +83,16 @@ const PlannedEventCard: React.FC<PlannedEventCardProps> = ({ event, onSelect }) 
             {/* Hide readiness visually, keep DOM minimal for future use */}
             <Chip
               label={`${event.readiness}%`}
-              className={`${styles.readiness} ${getReadinessClass(event.readiness)}`}
-              sx={{ visibility: 'hidden' }}
+              className={`${styles.readiness} ${getReadinessClass(
+                event.readiness
+              )}`}
+              sx={{visibility: "hidden"}}
             />
-            <Link onClick={onSelect} className={styles.selectBtn} color="text.primary">
+            <Link
+              onClick={onSelect}
+              className={styles.selectBtn}
+              color="text.primary"
+            >
               Zmień
             </Link>
           </Box>
@@ -61,5 +103,3 @@ const PlannedEventCard: React.FC<PlannedEventCardProps> = ({ event, onSelect }) 
 };
 
 export default PlannedEventCard;
-
-

@@ -1,14 +1,63 @@
-.card { height: 12.6rem; padding: 0.6rem; width: 100%; }
-.cardContent { display: flex; flex-direction: row; gap: 0.8rem; height: 100%; }
-.boxLink { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
-.date { margin-bottom: 0.25rem; }
-.title { font-weight: 500; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; text-overflow: ellipsis; }
-.readiness { color: #fff !important; border-radius: 0.5rem !important; }
-.selectBtn { cursor: pointer; }
-.red { background: linear-gradient(135deg, #ff4d4f, #d9363e) !important; }
-.orange { background: linear-gradient(135deg, #ffa940, #d48806) !important; }
-.green { background: linear-gradient(135deg, #52c41a, #389e0d) !important; }
-.logoBox { display: flex; flex-direction: column; justify-content: space-between; width: 35%; }
-.titleBox { display: flex; flex-direction: column; justify-content: space-between; width: 65%; }
-.avatar { width: 6rem !important; height: 5rem !important; }
-
+.card {
+  height: 12.6rem;
+  padding: 0.6rem;
+  width: 100%;
+}
+.cardContent {
+  display: flex;
+  flex-direction: row;
+  gap: 0.8rem;
+  height: 100%;
+  padding-bottom: 0px !important;
+}
+.boxLink {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.date {
+  margin-bottom: 0.25rem;
+}
+.title {
+  font-weight: 500;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.readiness {
+  color: #fff !important;
+  border-radius: 0.5rem !important;
+}
+.selectBtn {
+  cursor: pointer;
+  font-size: 13px !important;
+}
+.red {
+  background: linear-gradient(135deg, #ff4d4f, #d9363e) !important;
+}
+.orange {
+  background: linear-gradient(135deg, #ffa940, #d48806) !important;
+}
+.green {
+  background: linear-gradient(135deg, #52c41a, #389e0d) !important;
+}
+.logoBox {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 35%;
+}
+.titleBox {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 65%;
+}
+.avatar {
+  width: 6rem !important;
+  height: 5rem !important;
+}
