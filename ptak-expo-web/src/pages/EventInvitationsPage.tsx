@@ -9,6 +9,7 @@ import { useParams } from 'react-router-dom';
 import { useEffect, useRef, useState } from 'react';
 import { exhibitionsAPI, brandingAPI, invitationsAPI, marketingAPI, BenefitItem } from '../services/api';
 import styles from './EventHomePage.module.scss';
+import BulkSendModal from '../components/invitations/BulkSendModal';
 
 // no date fields in invitations card
 
@@ -22,6 +23,7 @@ const EventInvitationsPage = () => {
   const [selectedTemplateId, setSelectedTemplateId] = useState<number | ''>('');
   const [sent, setSent] = useState<Array<{ id: number; recipientName: string; recipientEmail: string; invitationType: string; status: string; sentAt?: string }>>([]);
   const [isSending, setIsSending] = useState(false);
+  const [bulkOpen, setBulkOpen] = useState<boolean>(false);
   const [previewHtml, setPreviewHtml] = useState<string>('');
   const [showPreview, setShowPreview] = useState<boolean>(false);
   const editorRef = useRef<HTMLDivElement | null>(null);
@@ -145,6 +147,10 @@ const EventInvitationsPage = () => {
       setPreviewHtml('');
     }
   };
+
+  const selectedTemplate = templates.find(t => t.id === selectedTemplateId);
+  const openBulk = () => setBulkOpen(true);
+  const closeBulk = () => setBulkOpen(false);
 
   // Initialize editor content once when preview opens
   useEffect(() => {
@@ -289,6 +295,17 @@ const EventInvitationsPage = () => {
                   {isSending ? 'Wysyłanie…' : 'Wyślij zaproszenie'}
                 </Button>
 
+                <Button
+                  variant="contained"
+                  fullWidth
+                  sx={{ mt: 1 }}
+                  color="secondary"
+                  onClick={openBulk}
+                  disabled={!selectedTemplateId}
+                >
+                  Wyślij masowo
+                </Button>
+
                 {/* Sent list */}
                 {sent.length > 0 && (
                   <Box sx={{ mt: 3 }}>
@@ -307,6 +324,21 @@ const EventInvitationsPage = () => {
               </Box>
             </Box>
           )}
+          <BulkSendModal
+            isOpen={bulkOpen}
+            onClose={closeBulk}
+            exhibitionId={Number(eventId)}
+            templateId={Number(selectedTemplateId) as number}
+            templateTitle={selectedTemplate?.title}
+            invitationType={selectedTemplate?.invitation_type}
+            onFinished={() => {
+              // reload recipients list after bulk send
+              if (eventId) {
+                invitationsAPI.recipients(Number(eventId)).then(setSent).catch(() => {});
+              }
+              closeBulk();
+            }}
+          />
         </Box>
       }
       colorRight="#5a6ec8"
