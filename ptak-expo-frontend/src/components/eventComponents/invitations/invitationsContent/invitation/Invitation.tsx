@@ -10,7 +10,7 @@ import ComponentWithAction from '../../../../componentWithAction/ComponentWithAc
 import { ReactComponent as ImgIcon} from '../../../../../assets/imgIcon.svg';
 import CustomSelectMui from '../../../../customSelectMui/CustomSelectMui';
 import { invitationOptions } from '../../../../../helpers/mockData';
-import BulkSendModal from './BulkSendModal';
+// BulkSendModal intentionally hidden from admin UI per request
 
 
 interface InvitationData {
@@ -98,7 +98,6 @@ const [invitationData, setInvitationData] = useState<InvitationData>({
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
   const [previewMode, setPreviewMode] = useState(false);
-  const [bulkOpen, setBulkOpen] = useState(false);
 
  
   const loadInvitationData = useCallback(async () => {
@@ -253,11 +252,7 @@ const saveData = {
     setBenefitPreviewUrl('');
   };
 
-  const handleBulkOpen = () => setBulkOpen(true);
-  const handleBulkClose = () => setBulkOpen(false);
-  const handleBulkFinished = (_res: { total: number; success: number; failed: number }) => {
-    // Optionally refresh recipients list elsewhere
-  };
+  
 
   const handleSaveBenefitEdit = async () => {
     if (!token || editingBenefitId === null) return;
@@ -799,19 +794,7 @@ ${invitationData.company_info || ''}`;
                       handleAction={handleTestSend} 
                       buttonTitle={'Testowe wysyłanie'}/>
                     </Box>
-                    <Box>
-                      <ComponentWithAction
-                        iconType={'send'}
-                        handleAction={handleBulkOpen}
-                        buttonTitle={'wyślij masowo'}
-                      />
-                    </Box>
-                    <Box>
-                    <ComponentWithAction 
-                      iconType={'tools'} 
-                      handleAction={()=>console.log("Zarządzanie odpbiorcami")} 
-                      buttonTitle={'Zarządzanie odpbiorcami'}/>
-                    </Box>
+                    
 
                 </Box>
             </Box>
@@ -852,16 +835,7 @@ ${invitationData.company_info || ''}`;
 
 
 
-      <BulkSendModal
-        isOpen={bulkOpen}
-        onClose={handleBulkClose}
-        exhibitionId={exhibitionId}
-        token={token || ''}
-        {...(typeof invitationData.id === 'number' ? { templateId: invitationData.id } : {})}
-        invitationType={invitationData.invitation_type}
-        templateTitle={invitationData.title}
-        onFinished={handleBulkFinished}
-      />
+      
 
 
       </Box>
