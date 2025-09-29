@@ -181,7 +181,11 @@ const BulkSendModal: React.FC<BulkSendModalProps> = ({
     let success = 0, failed = 0;
     for (let i = 0; i < total; i++) {
       const { idx, r } = toSendIdx[i];
-      setRows(prev => prev.map((row, j) => (j === idx ? { ...row, status: 'sending', error: undefined } : row)));
+      setRows(prev => prev.map((row, j) => {
+        if (j !== idx) return row;
+        const { error: _ignored, ...rest } = row;
+        return { ...rest, status: 'sending' };
+      }));
       try {
         const payload: { templateId?: number; recipientName?: string; recipientEmail: string } = {
           templateId,
