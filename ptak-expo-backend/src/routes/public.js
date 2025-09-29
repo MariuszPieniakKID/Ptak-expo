@@ -134,9 +134,9 @@ router.get('/exhibitions/:exhibitionId/exhibitors', async (req, res) => {
 // Public: RSS feed of exhibitions ordered by start_date
 router.get('/rss', async (req, res) => {
   try {
-    const siteTitle = 'PTAK EXPO – Wydarzenia';
+    const siteTitle = 'PTAK WARSAW EXPO – Wydarzenia';
     const siteLink = req.protocol + '://' + req.get('host');
-    const siteDescription = 'Aktualny wykaz wydarzeń PTAK EXPO';
+    const siteDescription = 'Aktualny wykaz wydarzeń PTAK WARSAW EXPO';
 
     const eventsRes = await db.query(
       `SELECT id, name, description, start_date, end_date, location, status
@@ -150,7 +150,7 @@ router.get('/rss', async (req, res) => {
       const desc = (ev.description || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
       const title = String(ev.name || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
       const loc = ev.location ? `, ${String(ev.location).replace(/&/g, '&amp;')}` : '';
-      return `\n      <item>\n        <title>${title}</title>\n        <link>${itemLink}</link>\n        <guid isPermaLink="false">exhibition-${ev.id}</guid>\n        <description>${desc}</description>\n        <category>${ev.status || 'planned'}</category>\n        <pubDate>${pubDate}</pubDate>\n        <author>info@ptak-expo.eu (${siteTitle})</author>\n        <source url="${siteLink}/public/rss">PTAK EXPO</source>\n      </item>`;
+      return `\n      <item>\n        <title>${title}</title>\n        <link>${itemLink}</link>\n        <guid isPermaLink="false">exhibition-${ev.id}</guid>\n        <description>${desc}</description>\n        <category>${ev.status || 'planned'}</category>\n        <pubDate>${pubDate}</pubDate>\n        <author>info@ptak-expo.eu (${siteTitle})</author>\n        <source url="${siteLink}/public/rss">PTAK WARSAW EXPO</source>\n      </item>`;
     }).join('');
 
     const rssXml = `<?xml version="1.0" encoding="UTF-8"?>\n<rss version="2.0">\n  <channel>\n    <title>${siteTitle}</title>\n    <link>${siteLink}</link>\n    <description>${siteDescription}</description>\n    <language>pl-PL</language>\n    <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>${itemsXml}\n  </channel>\n</rss>`;
@@ -166,9 +166,9 @@ router.get('/rss', async (req, res) => {
 // Public: JSON feed mirroring RSS structure
 router.get('/rss.json', async (req, res) => {
   try {
-    const siteTitle = 'PTAK EXPO – Wydarzenia';
+    const siteTitle = 'PTAK WARSAW EXPO – Wydarzenia';
     const siteLink = req.protocol + '://' + req.get('host');
-    const siteDescription = 'Aktualny wykaz wydarzeń PTAK EXPO';
+    const siteDescription = 'Aktualny wykaz wydarzeń PTAK WARSAW EXPO';
 
     const eventsRes = await db.query(
       `SELECT id, name, description, start_date, end_date, location, status
@@ -187,7 +187,7 @@ router.get('/rss.json', async (req, res) => {
         category: ev.status || 'planned',
         pubDate,
         author: `info@ptak-expo.eu (${siteTitle})`,
-        source: { url: `${siteLink}/public/rss`, title: 'PTAK EXPO' },
+        source: { url: `${siteLink}/public/rss`, title: 'PTAK WARSAW EXPO' },
         id: ev.id,
         start_date: ev.start_date,
         end_date: ev.end_date,
@@ -272,7 +272,7 @@ router.get('/', async (req, res) => {
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>PTAK EXPO – Public Feeds Index</title>
+  <title>PTAK WARSAW EXPO – Public Feeds Index</title>
   <style>
     body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, 'Helvetica Neue', Arial, 'Noto Sans', 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji'; margin: 24px; color: #2e2e38; }
     h1 { margin: 0 0 16px; }
@@ -289,7 +289,7 @@ router.get('/', async (req, res) => {
   </style>
   </head>
   <body>
-    <h1>PTAK EXPO – Public feeds</h1>
+    <h1>PTAK WARSAW EXPO – Public feeds</h1>
     <div class="subtitle">Przeglądaj wydarzenia i wystawców, a następnie pobieraj JSON / RSS bez podawania ID.</div>
     ${exhibitions.map(({ ev, exhibitors }) => {
       const period = [ev.start_date, ev.end_date].filter(Boolean).join(' – ');
@@ -483,7 +483,7 @@ router.get('/exhibitions/:exhibitionId/exhibitors/:exhibitorId.json', async (req
 // GET /public/exhibitions/:exhibitionId/exhibitors/:exhibitorId.rss
 router.get('/exhibitions/:exhibitionId/exhibitors/:exhibitorId.rss', async (req, res) => {
   try {
-    const siteTitle = 'PTAK EXPO – Wystawca – Checklista';
+    const siteTitle = 'PTAK WARSAW EXPO – Wystawca – Checklista';
     const siteLink = req.protocol + '://' + req.get('host');
     const exhibitionId = parseInt(req.params.exhibitionId, 10);
     const exhibitorId = parseInt(req.params.exhibitorId, 10);

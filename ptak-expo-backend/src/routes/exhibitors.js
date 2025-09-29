@@ -521,13 +521,13 @@ router.post('/me/people', verifyToken, requireExhibitorOrAdmin, async (req, res)
           const pdfBuffer = await buildIdentifierPdf(client, exId, { personName: fullName, personEmail, accessCode }, exhibitorId);
           const evInfo = await client.query('SELECT name, start_date, end_date FROM exhibitions WHERE id = $1', [exId]);
           const ev = evInfo.rows[0] || {};
-          const subject = `E-identyfikator – ${ev.name || 'Wydarzenie PTAK EXPO'}`;
+          const subject = `E-identyfikator – ${ev.name || 'Wydarzenie PTAK WARSAW EXPO'}`;
           const dates = [ev.start_date, ev.end_date]
             .filter(Boolean)
             .map((d) => new Date(d))
             .map((d) => `${String(d.getDate()).padStart(2,'0')}.${String(d.getMonth()+1).padStart(2,'0')}.${d.getFullYear()}`)
             .join(' – ');
-          const html = `<p>Dzień dobry ${fullName},</p><p>Otrzymujesz e‑identyfikator na wydarzenie: <strong>${ev.name || ''}</strong> (${dates}).</p><p>E‑identyfikator znajdziesz w załączniku (PDF). Prosimy o zabranie go na wydarzenie.</p><p>Pozdrawiamy,<br/>Zespół PTAK EXPO</p>`;
+          const html = `<p>Dzień dobry ${fullName},</p><p>Otrzymujesz e‑identyfikator na wydarzenie: <strong>${ev.name || ''}</strong> (${dates}).</p><p>E‑identyfikator znajdziesz w załączniku (PDF). Prosimy o zabranie go na wydarzenie.</p><p>Pozdrawiamy,<br/>Zespół PTAK WARSAW EXPO</p>`;
           const attachments = pdfBuffer ? [{ filename: 'e-identyfikator.pdf', content: pdfBuffer, contentType: 'application/pdf' }] : undefined;
           await sendEmail({ to: personEmail, subject, text: undefined, html, attachments });
         } finally {

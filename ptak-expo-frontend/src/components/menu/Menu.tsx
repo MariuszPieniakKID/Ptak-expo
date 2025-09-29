@@ -70,7 +70,7 @@ const Menu: FunctionComponent<MenuType> = ({
       <Toolbar className={styles.toolbar}>
         <Box className={styles.navLogo}> <img
           src={Logo}
-          alt="Ptak Expo Logo"
+          alt="PTAK WARSAW EXPO Logo"
           className={styles.logo}
           onClick={() => navigate('/dashboard')}
         />

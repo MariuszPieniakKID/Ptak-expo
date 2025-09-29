@@ -341,7 +341,7 @@ const sendInvitation = async (req, res) => {
       const tpl = tplRes.rows[0];
 
       // Compose email
-      const subject = `Zaproszenie – ${tpl.exhibition_name || 'PTAK EXPO'}`;
+      const subject = `Zaproszenie – ${tpl.exhibition_name || 'PTAK WARSAW EXPO'}`;
       const greeting = (tpl.greeting || '').trim();
       const namePart = (recipientName || '').trim();
       const greetingLine = greeting ? `${greeting}${namePart ? ' ' + namePart : ''},` : (namePart ? `${namePart},` : '');

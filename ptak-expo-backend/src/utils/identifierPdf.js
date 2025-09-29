@@ -267,7 +267,7 @@ async function buildIdentifierPdf(client, exhibitionId, payload, exhibitorId) {
       } else {
         // fallback text logo
         try { /* keep current font */ } catch {}
-        doc.fontSize(11).fillColor('#2E2E38').text('PTAK EXPO', cardX + 12, y + 8);
+        doc.fontSize(11).fillColor('#2E2E38').text('PTAK WARSAW EXPO', cardX + 12, y + 8);
       }
     } catch {}
 

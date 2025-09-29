@@ -169,7 +169,7 @@ const BrandingContent: React.FC<BrandingContentProps> = ({ event }) => {
           {event && brandingFiles && user && (
             <BrandingFileUpload
               fileType="logo_ptak_expo"
-              title="Logo PTAK EXPO"
+              title="Logo PTAK WARSAW EXPO"
               description="Format: png, jpg, webp"
               dimensions="200x200"
               allowedFormats={['png', 'jpg', 'jpeg', 'webp']}

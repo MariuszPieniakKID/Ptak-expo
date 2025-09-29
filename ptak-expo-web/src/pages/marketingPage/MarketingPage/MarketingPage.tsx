@@ -97,7 +97,7 @@ export const MarketingPage: React.FC = () => {
 
           // Logos: event_logo, logo_ptak_expo
           if (files.event_logo) pushSingle(files.event_logo, 'Logo wydarzenia');
-          if (files.logo_ptak_expo) pushSingle(files.logo_ptak_expo, 'Logo PTAK EXPO');
+          if (files.logo_ptak_expo) pushSingle(files.logo_ptak_expo, 'Logo PTAK WARSAW EXPO');
 
           // Banners: banner_wystawcy_800, banner_wystawcy_1200
           const pushBanner = (fileObj: any, fallbackTitle?: string) => {

@@ -12,11 +12,11 @@ router.post('/test-email', verifyToken, requireAdmin, async (req, res) => {
     }
     const result = await sendEmail({
       to,
-      subject: subject || 'PTAK EXPO - Test email',
-      text: text || 'To jest testowa wiadomość wysłana z systemu PTAK EXPO (SMTP Office365).',
+      subject: subject || 'PTAK WARSAW EXPO - Test email',
+      text: text || 'To jest testowa wiadomość wysłana z systemu PTAK WARSAW EXPO (SMTP Office365).',
       html:
         html ||
-        '<p>To jest <strong>testowa wiadomość</strong> wysłana z systemu PTAK EXPO (SMTP Office365).</p>',
+        '<p>To jest <strong>testowa wiadomość</strong> wysłana z systemu PTAK WARSAW EXPO (SMTP Office365).</p>',
     });
     if (!result.success) {
       return res.status(500).json({ success: false, error: result.error });
