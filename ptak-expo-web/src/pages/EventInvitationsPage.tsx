@@ -329,8 +329,8 @@ const EventInvitationsPage = () => {
             onClose={closeBulk}
             exhibitionId={Number(eventId)}
             templateId={Number(selectedTemplateId) as number}
-            templateTitle={selectedTemplate?.title}
-            invitationType={selectedTemplate?.invitation_type}
+            {...(selectedTemplate?.title ? { templateTitle: selectedTemplate.title } : {})}
+            {...(selectedTemplate?.invitation_type ? { invitationType: selectedTemplate.invitation_type } : {})}
             previewHtml={previewHtml}
             onFinished={() => {
               // reload recipients list after bulk send
