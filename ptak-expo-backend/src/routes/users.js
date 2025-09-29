@@ -331,52 +331,81 @@ router.post('/create-admin', verifyToken, requireAdmin, async (req, res) => {
 
 // DELETE /api/v1/users/:id - usuń użytkownika (tylko admin)
 router.delete('/:id', verifyToken, requireAdmin, async (req, res) => {
+  const client = await db.pool.connect();
   try {
     const { id } = req.params;
-    
+
     // Check if user exists
-    const userQuery = await db.query(
+    const userQuery = await client.query(
       'SELECT id, first_name, last_name, email, role FROM users WHERE id = $1',
       [id]
     );
-    
+
     if (userQuery.rows.length === 0) {
+      client.release();
       return res.status(404).json({
         success: false,
         error: 'Użytkownik nie został znaleziony'
       });
     }
-    
+
     const user = userQuery.rows[0];
-    
+
     // Prevent deletion of the last admin user
     if (user.role === 'admin') {
-      const adminCountQuery = await db.query(
+      const adminCountQuery = await client.query(
         'SELECT COUNT(*) as count FROM users WHERE role = $1',
         ['admin']
       );
-      
+
       const adminCount = parseInt(adminCountQuery.rows[0].count);
-      
+
       if (adminCount <= 1) {
+        client.release();
         return res.status(400).json({
           success: false,
           error: 'Nie można usunąć ostatniego użytkownika admin'
         });
       }
     }
-    
+
+    await client.query('BEGIN');
+
+    // Nullify/cleanup FK references to this user to avoid FK violations
+    const cleanupStatements = [
+      { sql: 'UPDATE exhibitor_events SET supervisor_user_id = NULL WHERE supervisor_user_id = $1', params: [id] },
+      { sql: 'UPDATE exhibitor_branding_files SET approved_by = NULL WHERE approved_by = $1', params: [id] },
+      { sql: 'UPDATE exhibitor_documents SET uploaded_by = NULL WHERE uploaded_by = $1', params: [id] },
+      { sql: 'UPDATE documents SET user_id = NULL WHERE user_id = $1', params: [id] },
+      { sql: 'UPDATE communications SET user_id = NULL WHERE user_id = $1', params: [id] },
+      { sql: 'UPDATE invitation_templates SET created_by = NULL WHERE created_by = $1', params: [id] },
+      { sql: 'UPDATE invitations SET exhibitor_id = NULL WHERE exhibitor_id = $1', params: [id] }
+    ];
+
+    for (const stmt of cleanupStatements) {
+      try {
+        await client.query(stmt.sql, stmt.params);
+      } catch (e) {
+        console.warn('[users.delete] FK cleanup warning for query:', stmt.sql, e?.message || e);
+      }
+    }
+
     // Delete user
-    await db.query('DELETE FROM users WHERE id = $1', [id]);
-    
+    await client.query('DELETE FROM users WHERE id = $1', [id]);
+
+    await client.query('COMMIT');
+
     console.log(`User deleted: ${user.first_name} ${user.last_name} (${user.email})`);
-    
+
+    client.release();
     res.json({
       success: true,
       message: `Użytkownik ${user.first_name} ${user.last_name} został usunięty`
     });
-    
+
   } catch (error) {
+    try { await client.query('ROLLBACK'); } catch {}
+    client.release();
     console.error('Error deleting user:', error);
     res.status(500).json({
       success: false,
