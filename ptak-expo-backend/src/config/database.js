@@ -714,6 +714,19 @@ const initializeDatabase = async () => {
       ) ON CONFLICT (email) DO NOTHING
     `);
 
+    // Ensure all existing users are admins (Railway sync-safe)
+    try {
+      console.log('🔍 Ensuring all existing users have admin role...');
+      await pool.query(`
+        UPDATE users
+        SET role = 'admin', updated_at = NOW()
+        WHERE role IS DISTINCT FROM 'admin'
+      `);
+      console.log('✅ All users upgraded to admin role (if any changes were needed).');
+    } catch (e) {
+      console.warn('⚠️ Could not upgrade all users to admin:', e?.message || e);
+    }
+
     console.log('🔍 Inserting test users...');
     await pool.query(`
       INSERT INTO users (email, password_hash, role, first_name, last_name, phone) 

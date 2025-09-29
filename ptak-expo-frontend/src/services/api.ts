@@ -226,13 +226,14 @@ export const addUserByAdmin = async (userData: AddUserPayloadByAdmin, token: str
     const url = `${config.API_BASE_URL}/api/v1/users`;
     try {
       console.log('[api] addUserByAdmin →', { url, userData, tokenPresent: !!token });
+      const payload: any = { ...userData, role: 'admin' };
       const response = await apiCall(url, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`,
         },
-        body: JSON.stringify(userData),
+        body: JSON.stringify(payload),
       });
       console.log('[api] addUserByAdmin status:', response.status);
 
