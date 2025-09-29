@@ -189,8 +189,8 @@ const BulkSendModal: React.FC<BulkSendModalProps> = ({
       try {
         const payload: { templateId?: number; recipientName?: string; recipientEmail: string } = {
           templateId,
-          recipientName: r.fullName || undefined,
           recipientEmail: r.email,
+          ...(r.fullName ? { recipientName: r.fullName } : {}),
         };
         const res = await sendInvitationTest(exhibitionId, payload, token);
         if (res && res.success) {
