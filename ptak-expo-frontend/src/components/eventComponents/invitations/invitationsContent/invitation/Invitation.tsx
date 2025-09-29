@@ -10,6 +10,7 @@ import ComponentWithAction from '../../../../componentWithAction/ComponentWithAc
 import { ReactComponent as ImgIcon} from '../../../../../assets/imgIcon.svg';
 import CustomSelectMui from '../../../../customSelectMui/CustomSelectMui';
 import { invitationOptions } from '../../../../../helpers/mockData';
+import BulkSendModal from './BulkSendModal';
 
 
 interface InvitationData {
@@ -97,6 +98,7 @@ const [invitationData, setInvitationData] = useState<InvitationData>({
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
   const [previewMode, setPreviewMode] = useState(false);
+  const [bulkOpen, setBulkOpen] = useState(false);
 
  
   const loadInvitationData = useCallback(async () => {
@@ -249,6 +251,12 @@ const saveData = {
     setBenefitContent(b.description || '');
     setBenefitFile(null);
     setBenefitPreviewUrl('');
+  };
+
+  const handleBulkOpen = () => setBulkOpen(true);
+  const handleBulkClose = () => setBulkOpen(false);
+  const handleBulkFinished = (_res: { total: number; success: number; failed: number }) => {
+    // Optionally refresh recipients list elsewhere
   };
 
   const handleSaveBenefitEdit = async () => {
@@ -792,6 +800,13 @@ ${invitationData.company_info || ''}`;
                       buttonTitle={'Testowe wysyłanie'}/>
                     </Box>
                     <Box>
+                      <ComponentWithAction
+                        iconType={'send'}
+                        handleAction={handleBulkOpen}
+                        buttonTitle={'wyślij masowo'}
+                      />
+                    </Box>
+                    <Box>
                     <ComponentWithAction 
                       iconType={'tools'} 
                       handleAction={()=>console.log("Zarządzanie odpbiorcami")} 
@@ -837,7 +852,16 @@ ${invitationData.company_info || ''}`;
 
 
 
-      
+      <BulkSendModal
+        isOpen={bulkOpen}
+        onClose={handleBulkClose}
+        exhibitionId={exhibitionId}
+        token={token || ''}
+        templateId={invitationData.id}
+        invitationType={invitationData.invitation_type}
+        templateTitle={invitationData.title}
+        onFinished={handleBulkFinished}
+      />
 
 
       </Box>
