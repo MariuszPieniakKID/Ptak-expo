@@ -714,17 +714,27 @@ const initializeDatabase = async () => {
       ) ON CONFLICT (email) DO NOTHING
     `);
 
-    // Ensure all existing users are admins (Railway sync-safe)
+    // Ensure exhibitor accounts keep 'exhibitor' role, and upgrade only non-exhibitor users to admin
     try {
-      console.log('🔍 Ensuring all existing users have admin role...');
+      console.log('🔍 Ensuring exhibitor accounts have role exhibitor...');
       await pool.query(`
-        UPDATE users
-        SET role = 'admin', updated_at = NOW()
-        WHERE role IS DISTINCT FROM 'admin'
+        UPDATE users u
+        SET role = 'exhibitor', updated_at = NOW()
+        FROM exhibitors e
+        WHERE LOWER(u.email) = LOWER(e.email) AND u.role IS DISTINCT FROM 'exhibitor'
       `);
-      console.log('✅ All users upgraded to admin role (if any changes were needed).');
+      console.log('✅ Exhibitor roles ensured.');
+
+      console.log('🔍 Upgrading non-exhibitor users to admin role...');
+      await pool.query(`
+        UPDATE users u
+        SET role = 'admin', updated_at = NOW()
+        WHERE u.role IS DISTINCT FROM 'admin'
+          AND LOWER(u.email) NOT IN (SELECT LOWER(email) FROM exhibitors)
+      `);
+      console.log('✅ Non-exhibitor users upgraded to admin (if any changes were needed).');
     } catch (e) {
-      console.warn('⚠️ Could not upgrade all users to admin:', e?.message || e);
+      console.warn('⚠️ Could not enforce roles for users:', e?.message || e);
     }
 
     console.log('🔍 Inserting test users...');
