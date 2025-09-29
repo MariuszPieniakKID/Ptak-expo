@@ -857,7 +857,7 @@ ${invitationData.company_info || ''}`;
         onClose={handleBulkClose}
         exhibitionId={exhibitionId}
         token={token || ''}
-        templateId={invitationData.id}
+        {...(typeof invitationData.id === 'number' ? { templateId: invitationData.id } : {})}
         invitationType={invitationData.invitation_type}
         templateTitle={invitationData.title}
         onFinished={handleBulkFinished}
