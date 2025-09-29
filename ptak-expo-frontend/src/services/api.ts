@@ -109,13 +109,18 @@ export const fetchUsers = async (token: string): Promise<User[]> => {
   return data.data.sort((a: User, b: User) => a.fullName.localeCompare(b.fullName));
 };
 
-export const resetUserPassword = async (userId: number): Promise<void> => {
+export const resetUserPassword = async (userId: number, token: string): Promise<{ success: boolean; message: string }> => {
   const response = await apiCall(`${config.API_BASE_URL}/api/v1/users/${userId}/reset-password`, {
     method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+    },
   });
+  const data = await response.json();
   if (!response.ok) {
-    throw new Error('Failed to reset password');
+    throw new Error(data?.message || data?.error || 'Błąd podczas resetowania hasła');
   }
+  return data;
 };
 
 export const deleteUser = async (userId: number, token: string): Promise<any> => {

@@ -101,13 +101,19 @@ const UsersPage: React.FC = () => {
   }, [token]);
 
   const handleResetPassword = useCallback(async (userId: number): Promise<void> => {
+    if (!token) return;
     try {
-      await resetUserPassword(userId);
-      alert('Nowe hasło zostało wysłane do użytkownika.');
+      const res = await resetUserPassword(userId, token);
+      alert(res?.message || 'Nowe hasło zostało wysłane do użytkownika.');
     } catch (err: any) {
-      setError(err.message || 'Błąd podczas resetowania hasła');
+      const msg = err?.message || 'Błąd podczas resetowania hasła';
+      setError(msg);
+      if (String(msg).includes('401')) {
+        logout();
+        navigate('/login');
+      }
     }
-  }, []);
+  }, [token, logout, navigate]);
   
   const getUserInitials = useCallback((fullName: string): string => {
     const names = fullName.trim().split(' ');
