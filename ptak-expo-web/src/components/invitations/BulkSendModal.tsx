@@ -207,7 +207,7 @@ const BulkSendModal: React.FC<BulkSendModalProps> = ({
     }
     setSending(false);
     onFinished && onFinished({ total, success, failed });
-  }, [rows, exhibitionId, templateId, onFinished]);
+  }, [rows, exhibitionId, templateId, onFinished, usePreviewOverride, previewHtml]);
 
   const handleClose = () => {
     if (sending) return;
