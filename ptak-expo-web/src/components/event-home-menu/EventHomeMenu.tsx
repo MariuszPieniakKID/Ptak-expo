@@ -13,8 +13,8 @@ const EventHomeMenu: React.FC<Props> = ({ id }) => {
   const menu = [
     { id: 'checklist', title: 'Checklista targowa', icon: NotificationsIcon, href: `/event/${id}/checklist` },
     { id: 'docs', title: 'Portal dokumentów', icon: DescriptionIcon, href: `/event/${id}/documents` },
-    { id: 'marketing', title: 'Materiały marketingowe', icon: CampaignIcon, href: `/event/${id}` },
-    { id: 'invites', title: 'Generator zaproszeń', icon: EmailIcon, href: `/event/${id}` },
+    { id: 'marketing', title: 'Materiały marketingowe', icon: CampaignIcon, href: `/event/${id}/marketing` },
+    { id: 'invites', title: 'Generator zaproszeń', icon: EmailIcon, href: `/event/${id}/invitations` },
   ];
   return (
     <Box sx={{ mt: 4 }} className={styles.container}>
