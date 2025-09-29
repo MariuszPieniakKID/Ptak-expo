@@ -331,6 +331,7 @@ const EventInvitationsPage = () => {
             templateId={Number(selectedTemplateId) as number}
             templateTitle={selectedTemplate?.title}
             invitationType={selectedTemplate?.invitation_type}
+            previewHtml={previewHtml}
             onFinished={() => {
               // reload recipients list after bulk send
               if (eventId) {

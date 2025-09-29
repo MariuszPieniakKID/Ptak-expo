@@ -16,6 +16,8 @@ import {
   TableHead,
   TableRow,
   Button,
+  FormControlLabel,
+  Checkbox,
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import { invitationsAPI } from '../../services/api';
@@ -27,6 +29,7 @@ type BulkSendModalProps = {
   templateId: number;
   templateTitle?: string;
   invitationType?: string;
+  previewHtml?: string; // opcjonalny HTML z podglądu
   onFinished?: (result: { total: number; success: number; failed: number }) => void;
 };
 
@@ -104,6 +107,7 @@ const BulkSendModal: React.FC<BulkSendModalProps> = ({
   templateId,
   templateTitle,
   invitationType,
+  previewHtml,
   onFinished,
 }) => {
   const inputRef = useRef<HTMLInputElement | null>(null);
@@ -111,6 +115,7 @@ const BulkSendModal: React.FC<BulkSendModalProps> = ({
   const [rows, setRows] = useState<ParsedRow[]>([]);
   const [sending, setSending] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [usePreviewOverride, setUsePreviewOverride] = useState(false);
 
   const stats = useMemo(() => {
     const total = rows.length;
@@ -179,7 +184,13 @@ const BulkSendModal: React.FC<BulkSendModalProps> = ({
         return { ...rest, status: 'sending' };
       }));
       try {
-        const res = await invitationsAPI.send(exhibitionId, templateId, r.fullName || '', r.email);
+        const res = await invitationsAPI.send(
+          exhibitionId,
+          templateId,
+          r.fullName || '',
+          r.email,
+          usePreviewOverride && previewHtml ? previewHtml : undefined
+        );
         if (res && res.success) {
           success++;
           setRows(prev => prev.map((row, j) => (j === idx ? { ...row, status: 'success' } : row)));
@@ -228,6 +239,24 @@ const BulkSendModal: React.FC<BulkSendModalProps> = ({
           {invitationType ? <Chip label={`Typ: ${invitationType}`} /> : null}
           {templateTitle ? <Chip label={`Szablon: ${templateTitle}`} /> : null}
           <Chip label={`ID szablonu: ${templateId}`} />
+        </Box>
+
+        <Box sx={{ mb: 2 }}>
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={usePreviewOverride}
+                onChange={(e) => setUsePreviewOverride(e.target.checked)}
+                disabled={!previewHtml}
+              />
+            }
+            label="Użyj bieżącego podglądu jako treści wiadomości"
+          />
+          {!previewHtml && (
+            <Typography variant="caption" sx={{ color: '#888' }}>
+              Podgląd nie jest dostępny – najpierw przygotuj i zapisz podgląd na stronie.
+            </Typography>
+          )}
         </Box>
 
         {parseError && <Alert severity="error" sx={{ mb: 2 }}>{parseError}</Alert>}
