@@ -1,6 +1,7 @@
 import React, { ChangeEvent,useCallback,useEffect,useState} from 'react';
 import {Alert, Box,CircularProgress,Dialog,DialogActions,DialogTitle, IconButton,Typography} from '@mui/material';
 import CustomField from '../customField/CustomField';
+import CountryPhoneField from '../countryPhoneField/CountryPhoneField';
 import { addUserByAdmin, AddUserPayloadByAdmin } from '../../services/api';
 import CustomTypography from '../customTypography/CustomTypography';
 import { ReactComponent as CloseIcon  } from '../../assets/closeIcon.svg';
@@ -220,18 +221,14 @@ const [apiError, setApiError] = useState('');
                   className={styles.input}
                   errorMessageClassName={styles.inputErrorMessage}
                 />
-                <CustomField
-                  label="Telefon"
-                  type="phone"
+                <CountryPhoneField
                   value={phone}
-                  onChange={handlePhoneChange}
+                  onChange={(v) => { handlePhoneChange({ target: { value: v } } as any); }}
+                  label="Telefon"
                   error={!!phoneError}
                   errorMessage={phoneError}
-                  placeholder="600600600"
-                  fullWidth
-                  margin="none"
                   className={styles.input}
-                  errorMessageClassName={styles.inputErrorMessage}
+                  fullWidth
                 /> 
             </Box>
 

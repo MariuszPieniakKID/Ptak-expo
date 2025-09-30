@@ -5,6 +5,7 @@ const { verifyToken, requireAdmin } = require('../middleware/auth');
 const { requireExhibitorOrAdmin } = require('../middleware/auth');
 const bcrypt = require('bcryptjs');
 const { sendEmail } = require('../utils/emailService');
+const { sendPasswordResetEmail } = require('../utils/emailService');
 const { buildIdentifierPdf } = require('../utils/identifierPdf');
 
 // Helper: resolve uploads base similar to branding controller
@@ -1085,5 +1086,64 @@ router.post('/:id/remind-catalog', verifyToken, requireAdmin, async (req, res) =
   } catch (e) {
     console.error('[remind-catalog] error', e);
     return res.status(500).json({ success: false, message: 'Błąd podczas wysyłania przypomnienia' });
+  }
+});
+
+// POST /api/v1/exhibitors/:id/reset-password - wygeneruj i wyślij nowe hasło wystawcy (admin)
+router.post('/:id/reset-password', verifyToken, requireAdmin, async (req, res) => {
+  try {
+    const exhibitorId = parseInt(req.params.id, 10);
+    if (!Number.isInteger(exhibitorId)) {
+      return res.status(400).json({ success: false, message: 'Nieprawidłowy identyfikator wystawcy' });
+    }
+
+    // Fetch exhibitor
+    const exRes = await db.query(
+      'SELECT id, email, contact_person, company_name FROM exhibitors WHERE id = $1',
+      [exhibitorId]
+    );
+    if (exRes.rows.length === 0) {
+      return res.status(404).json({ success: false, message: 'Wystawca nie został znaleziony' });
+    }
+    const exhibitor = exRes.rows[0];
+
+    // Generate new password
+    const newPassword = Math.random().toString(36).slice(-8) + Math.random().toString(36).slice(-4).toUpperCase();
+
+    // Hash and update in exhibitors table
+    const saltRounds = 10;
+    const passwordHash = await bcrypt.hash(newPassword, saltRounds);
+    await db.query('UPDATE exhibitors SET password_hash = $1, updated_at = NOW() WHERE id = $2', [passwordHash, exhibitorId]);
+
+    // Ensure users table is updated too for login (role exhibitor)
+    try {
+      await db.query(
+        `INSERT INTO users (email, password_hash, role, status)
+         VALUES ($1, $2, 'exhibitor', 'active')
+         ON CONFLICT (email)
+         DO UPDATE SET password_hash = EXCLUDED.password_hash, role = 'exhibitor', status = 'active'`,
+        [String(exhibitor.email || '').toLowerCase(), passwordHash]
+      );
+    } catch (userErr) {
+      console.warn('[exhibitors.reset-password] users upsert warning:', userErr?.message || userErr);
+    }
+
+    // Send password reset email
+    try {
+      const fullName = exhibitor.contact_person || '';
+      const first = fullName.split(' ')[0] || '';
+      const last = fullName.split(' ').slice(1).join(' ') || '';
+      const emailResult = await sendPasswordResetEmail(exhibitor.email, first, last, newPassword);
+      if (!emailResult.success) {
+        console.warn('[exhibitors.reset-password] email send failed:', emailResult.error);
+      }
+    } catch (mailErr) {
+      console.warn('[exhibitors.reset-password] email error:', mailErr?.message || mailErr);
+    }
+
+    return res.json({ success: true, message: `Nowe hasło zostało wygenerowane i wysłane na adres ${exhibitor.email}` });
+  } catch (e) {
+    console.error('[exhibitors.reset-password] error', e);
+    return res.status(500).json({ success: false, message: 'Błąd podczas resetowania hasła wystawcy' });
   }
 });

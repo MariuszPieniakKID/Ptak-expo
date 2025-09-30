@@ -15,7 +15,8 @@ import {
   Box,
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
-import { addUser, AddUserPayload } from '../../services/api';
+import { addUser, AddUserPayload, uploadUserAvatar } from '../../services/api';
+import CountryPhoneField from '../countryPhoneField/CountryPhoneField';
 import styles from './AddUserModal.module.scss';
 import UsersPageIcon from '../../assets/mask-group-5@2x.png';
 
@@ -45,6 +46,7 @@ const AddUserModal: React.FC<AddUserModalProps> = ({
     email: '',
     password: '',
   });
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
 
   const [loading, setLoading] = useState(false);
   const [apiError, setApiError] = useState('');
@@ -137,6 +139,15 @@ const AddUserModal: React.FC<AddUserModalProps> = ({
       console.log('[AddUserModal] submit payload:', { ...payload, password: payload.password ? '***' : undefined });
       const res = await addUser(payload, token);
       console.log('[AddUserModal] API response:', res);
+      // If avatar selected, upload it
+      const newUserId = res?.data?.id;
+      if (avatarFile && newUserId) {
+        try {
+          await uploadUserAvatar(newUserId, avatarFile, token);
+        } catch (upErr: any) {
+          console.warn('Avatar upload failed:', upErr?.message || upErr);
+        }
+      }
       onUserAdded();
       onClose();
     } catch (err: any) {
@@ -194,13 +205,27 @@ const AddUserModal: React.FC<AddUserModalProps> = ({
                         required
                         disabled={loading}
                     /> 
-                    <TextField
-                        name="phone"
-                        label="Telefon"
-                        value={formData.phone}
-                        onChange={handleInputChange}
-                        fullWidth
-                        disabled={loading}
+                    <Button
+                      component="label"
+                      variant="outlined"
+                      disabled={loading}
+                    >
+                      Dodaj zdjęcie użytkownika
+                      <input
+                        hidden
+                        accept="image/png,image/jpeg,image/webp"
+                        type="file"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0] || null;
+                          setAvatarFile(file);
+                        }}
+                      />
+                    </Button>
+                    <CountryPhoneField
+                      value={formData.phone}
+                      onChange={(v) => handleInputChange({ target: { name: 'phone', value: v } } as any)}
+                      label="Telefon"
+                      fullWidth
                     />
 
             </Box>

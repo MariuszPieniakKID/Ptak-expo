@@ -1,5 +1,6 @@
 import { ChangeEvent, useCallback, useEffect, useState } from 'react';
 import CustomField from '../customField/CustomField';
+import CountryPhoneField from '../countryPhoneField/CountryPhoneField';
 import CustomTypography from '../customTypography/CustomTypography';
 import {
   Exhibitor,
@@ -322,18 +323,14 @@ const EditExhibitorModal: React.FC<EditExhibitorModalProps> = ({
 
               <Box className={styles.formRow}>
                 <Box className={styles.halfFormRow}>
-                  <CustomField
-                    type="phone"
-                    label="Telefon"
+                  <CountryPhoneField
                     value={formValues.phone || ''}
-                    onChange={handleChange('phone')}
+                    onChange={(v) => handleChange('phone')({ target: { value: v } } as any)}
+                    label="Telefon"
                     error={!!formErrors.phone}
                     errorMessage={formErrors.phone}
                     fullWidth
-                    margin="none"
-                    placeholder="Telefon"
                     className={styles.input}
-                    errorMessageClassName={styles.inputErrorMessage}
                   />
                 </Box>
                 <Box className={styles.halfFormRow}>

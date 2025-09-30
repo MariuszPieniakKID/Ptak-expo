@@ -7,6 +7,7 @@ export interface User {
   fullName: string;
   email: string;
   phone?: string;
+  avatarUrl?: string | null;
 }
 
 export interface ExhibitorPerson {
@@ -107,6 +108,20 @@ export const fetchUsers = async (token: string): Promise<User[]> => {
   }
   const data = await response.json();
   return data.data.sort((a: User, b: User) => a.fullName.localeCompare(b.fullName));
+};
+
+export const uploadUserAvatar = async (userId: number, file: File, token: string): Promise<{ success: boolean; data: { id: number; avatarUrl: string } }> => {
+  const form = new FormData();
+  form.append('avatar', file);
+  const res = await fetch(`${config.API_BASE_URL}/api/v1/users/${userId}/avatar`, {
+    method: 'POST',
+    headers: { 'Authorization': `Bearer ${token}` },
+    credentials: 'include',
+    body: form,
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data?.message || data?.error || 'Błąd podczas zapisu zdjęcia');
+  return data;
 };
 
 export const resetUserPassword = async (userId: number, token: string): Promise<{ success: boolean; message: string }> => {
@@ -446,6 +461,24 @@ export const updateExhibitor = async (
   }
   // backend returns { success, message, data }
   return (data.data ?? data) as Exhibitor;
+};
+
+// Reset exhibitor password (admin only)
+export const resetExhibitorPassword = async (
+  exhibitorId: number,
+  token: string
+): Promise<{ success: boolean; message: string }> => {
+  const response = await apiCall(`${config.API_BASE_URL}/api/v1/exhibitors/${exhibitorId}/reset-password`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+    },
+  });
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data?.message || data?.error || 'Nie udało się zresetować hasła wystawcy');
+  }
+  return data;
 };
 
 export const fetchExhibition = async (id: number, token?: string): Promise<Exhibition> => {

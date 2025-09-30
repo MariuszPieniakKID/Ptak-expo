@@ -5,6 +5,7 @@ import { useAuth } from '../../../../../contexts/AuthContext';
 import { downloadTradePlan, getTradeInfo, saveTradeInfo, TradeInfoData, uploadTradePlan, getTradeEvents, createTradeEvent, deleteTradeEvent, TradeEvent, fetchExhibition, Exhibition } from '../../../../../services/api';
 import CustomTypography from '../../../../customTypography/CustomTypography';
 import CustomField from '../../../../customField/CustomField';
+import CountryPhoneField from '../../../../countryPhoneField/CountryPhoneField';
 import { buildDaysOption as fallbackBuildDaysOption} from '../../../../../helpers/mockData';
 import { catalogAPI } from '../../../../../services/api';
 import type { OptionType } from '../../../../customSelectMui/CustomSelectMui';
@@ -561,27 +562,21 @@ const TradeInfo: React.FC<TradeInfoProps> = ({ exhibitionId }) => {
         <CustomTypography className={styles.subsectionTitle_}> Kontakt podczas targów:</CustomTypography>
         <Box className={styles.contactWrapper_}>
             <Box className={styles.contactWidth_}>
-                <CustomField
-                    type="text"
-                    label=""
-                    value={contactInfo.guestService}
-                    onChange={(e) => setContactInfo({...contactInfo, guestService: e.target.value})}
-                    size="small"
-                    placeholder="Numer telefonu"
-                    fullWidth
+                <CountryPhoneField
+                  value={contactInfo.guestService}
+                  onChange={(v) => setContactInfo({ ...contactInfo, guestService: v })}
+                  placeholder="Numer telefonu"
+                  fullWidth
                 />
                 <CustomTypography className={styles.LabelInfo_}>Obsługa Gości</CustomTypography>
             </Box>
             <Box className={styles.contactWidth_}>
-                 <CustomField
-                    type="text"
-                    label=""
-                    value={contactInfo.security}
-                    onChange={(e) => setContactInfo({...contactInfo, security: e.target.value})}
-                    size="small"
-                    placeholder="Numer telefonu"
-                    fullWidth
-                />
+                 <CountryPhoneField
+                   value={contactInfo.security}
+                   onChange={(v) => setContactInfo({ ...contactInfo, security: v })}
+                   placeholder="Numer telefonu"
+                   fullWidth
+                 />
                 <CustomTypography className={styles.LabelInfo_}>Ochrona</CustomTypography>
             </Box>
         </Box>

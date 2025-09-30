@@ -1,5 +1,6 @@
 import { ChangeEvent, useCallback, useEffect, useMemo, useState } from 'react';
 import CustomField, { OptionType } from '../customField/CustomField';
+import CountryPhoneField from '../countryPhoneField/CountryPhoneField';
 import CustomTypography from '../customTypography/CustomTypography';
 import { addExhibitor, AddExhibitorPayload, Exhibition, fetchExhibitions, fetchUsers, User, fetchCompanyByNip } from '../../services/api';
 import {
@@ -567,19 +568,15 @@ const AddExhibitorModal: React.FC<AddExhibitorModalProps> = ({
 
               <Box className={styles.formRow}>
                 <Box className={styles.halfFormRow}>
-                    <CustomField
-                    type="phone"
-                    label="Telefon"
+                  <CountryPhoneField
                     value={formValues.phone}
-                    onChange={handleFormValueChange('phone')}
+                    onChange={(v) => handleFormValueChange('phone')({ target: { value: v } } as any)}
+                    label="Telefon"
                     error={!!formErrors.phone}
                     errorMessage={formErrors.phone}
                     fullWidth
-                    margin="none"
-                    placeholder="Telefon"
                     className={styles.input}
-                    errorMessageClassName={styles.inputErrorMessage}
-                    />
+                  />
                 </Box>
                 <Box className={styles.halfFormRow}>
                     <CustomField

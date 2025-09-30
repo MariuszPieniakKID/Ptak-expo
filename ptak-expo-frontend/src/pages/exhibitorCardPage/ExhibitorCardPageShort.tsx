@@ -6,6 +6,7 @@ import {
        deleteExhibitor, 
        getBrandingFiles,
        unassignExhibitorFromEvent,
+       resetExhibitorPassword,
 } from '../../services/api';
 import Tabs, { tabsClasses } from '@mui/material/Tabs';
 import { useAuth } from '../../contexts/AuthContext';
@@ -46,6 +47,7 @@ import { ReactComponent as AddIcon } from '../../assets/addIcon.svg';
 import UserAvatar from '../../assets/7bb764a0137abc7a8142b6438e529133@2x.png';
 import Applause from '../../assets/applause.png';
 import SingleEventCard from '../../components/singleEventCard/SingleEventCard';
+import AddEventToExhibitorModal from '../../components/addEventToExhibitorModal/AddEventToExhibitorModal';
 import ExhibitorWithEvent from '../../components/exhibitorWithEvent/ExhibitorWithEvent';
 import ExhibitorDatabaseDocuments from '../../components/exhibitorDatabaseDocuments/ExhibitorDatabaseDocuments';
 import ExhibitoiIdentifiers from '../../components/exhibitoiIdentifiers/ExhibitoiIdentifiers';
@@ -70,6 +72,8 @@ const ExhibitorCardPage: React.FC = () => {
   const [selectedEvent,setSelectedEvent]=useState<number | null>(null)
   const [hasLogo, setHasLogo] = useState<boolean>(false);
   const [isEventAddToExhibitor, setIsEventAddToExhibitorn] = useState<boolean>(false);
+  const [isEditEventOpen, setIsEditEventOpen] = useState<boolean>(false);
+  const [eventToEditId, setEventToEditId] = useState<number | null>(null);
   const [isEditOpen, setIsEditOpen] = useState(false);
   
   const [openConfirm, setOpenConfirm] = useState(false); //To confirm delete Exhibitor
@@ -142,6 +146,21 @@ const ExhibitorCardPage: React.FC = () => {
     }
   };
 
+  const handleResetExhibitorPassword = async () => {
+    if (!token || !exhibitor) return;
+    try {
+      const res = await resetExhibitorPassword(exhibitor.id, token);
+      alert(res?.message || 'Nowe hasło zostało wysłane do wystawcy.');
+    } catch (err: any) {
+      const msg = err?.message || 'Błąd podczas resetowania hasła wystawcy';
+      setError(msg);
+      if (String(msg).includes('401')) {
+        logout();
+        navigate('/login');
+      }
+    }
+  };
+
   const handleConfirmDelete = () => {
     handleDeleteExhibitor();
     setOpenConfirm(false);
@@ -176,6 +195,18 @@ const ExhibitorCardPage: React.FC = () => {
       setError(err.message || 'Błąd podczas odłączania wydarzenia od wystawcy');
     }
   };
+
+  useEffect(() => {
+    const handler = (e: any) => {
+      const d = e?.detail || {};
+      if (typeof d?.id === 'number') {
+        setEventToEditId(d.id);
+        setIsEditEventOpen(true);
+      }
+    };
+    window.addEventListener('open-edit-event-modal', handler as any);
+    return () => window.removeEventListener('open-edit-event-modal', handler as any);
+  }, []);
 
 
     const getEventImage = (index: number): number => {
@@ -283,7 +314,7 @@ const ExhibitorCardPage: React.FC = () => {
               </Box>
               <Box className={styles.logedUserInfo}>
                 <Avatar 
-                  src={UserAvatar} 
+                  src={(user as any)?.avatarUrl || UserAvatar} 
                   alt={user?.firstName || 'User'} 
                   className={styles.avatar} 
                   onClick={()=>console.log("")}
@@ -388,7 +419,7 @@ const ExhibitorCardPage: React.FC = () => {
                             : <CustomTypography className={styles.noEvents}>Brak zaplanowanych wydarzeń wystawcy</CustomTypography>}  
                         </Box>
                         <Box className={styles.sectionAction}>
-                            <Box className={styles.actionButton} onClick={()=>{console.log("Klik: wyślij nowe hasło")}}>
+                            <Box className={styles.actionButton} onClick={handleResetExhibitorPassword}>
                                     <KeyIcon className={styles.keyIcon} />
                                     <CustomTypography className={styles.wastebasketText}> wyślij nowe hasło </CustomTypography>
                             </Box>
@@ -417,6 +448,7 @@ const ExhibitorCardPage: React.FC = () => {
                             end_date={event.end_date}
                             handleSelectEvent={handleSelectEvent}
                             handleDeleteEventFromExhibitor={handleDeleteEventFromExhibitor}
+                            showEdit
                             /> 
                           ))}
 
@@ -650,6 +682,18 @@ const ExhibitorCardPage: React.FC = () => {
         companyName={exhibitor?.companyName}
         exhibitorEvents={exhibitor.events ?? []}
         />}
+
+      {exhibitor && isEditEventOpen && (
+        <AddEventToExhibitorModal
+          isOpen={isEditEventOpen}
+          onClose={() => setIsEditEventOpen(false)}
+          onEventToExhibitiorAdd={() => { setIsEditEventOpen(false); loadExhibitor(); }}
+          token={token || ''}
+          exhibitorId={exhibitor.id}
+          companyName={exhibitor.companyName}
+          exhibitorEvents={exhibitor.events ?? []}
+        />
+      )}
 
       {exhibitor && (
         <EditExhibitorModal
