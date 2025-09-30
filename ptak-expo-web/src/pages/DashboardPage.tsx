@@ -84,11 +84,6 @@ const DashboardPage: React.FC = () => {
     logout();
   };
 
-  const handleCalendarClick = () => {
-    // Placeholder for calendar functionality
-    console.log('Calendar clicked');
-  };
-
   const handleEventSelect = (eventId: number) => {
     // Navigate to the event home view for this event
     navigate(`/event/${eventId}/home`);
