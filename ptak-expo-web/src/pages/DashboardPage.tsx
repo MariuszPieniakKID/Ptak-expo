@@ -133,12 +133,13 @@ const DashboardPage: React.FC = () => {
         Twoje zaplanowane wydarzenia:
       </div>
       
-      <div className={styles.path10Parent} onClick={handleCalendarClick}>
+      {/* Hidden per request: calendar teaser */}
+      {/* <div className={styles.path10Parent} onClick={handleCalendarClick}>
         <img className={styles.path10Icon} alt="" src="/path-10.svg" />
         <div className={styles.zobaczKalendariumPtak}>
           Zobacz kalendarium Ptak Warsaw Expo
         </div>
-      </div>
+      </div> */}
       
       <div className={styles.kontakt}>
         Kontakt • Polityka prywatności • www.warsawexpo.eu
