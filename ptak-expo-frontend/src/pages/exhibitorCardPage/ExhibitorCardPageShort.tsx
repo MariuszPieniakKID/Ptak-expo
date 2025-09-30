@@ -72,7 +72,6 @@ const ExhibitorCardPage: React.FC = () => {
   const [hasLogo, setHasLogo] = useState<boolean>(false);
   const [isEventAddToExhibitor, setIsEventAddToExhibitorn] = useState<boolean>(false);
   const [isEditEventOpen, setIsEditEventOpen] = useState<boolean>(false);
-  const [eventToEditId, setEventToEditId] = useState<number | null>(null);
   const [isEditOpen, setIsEditOpen] = useState(false);
   
   const [openConfirm, setOpenConfirm] = useState(false); //To confirm delete Exhibitor
@@ -199,7 +198,6 @@ const ExhibitorCardPage: React.FC = () => {
     const handler = (e: any) => {
       const d = e?.detail || {};
       if (typeof d?.id === 'number') {
-        setEventToEditId(d.id);
         setIsEditEventOpen(true);
       }
     };
