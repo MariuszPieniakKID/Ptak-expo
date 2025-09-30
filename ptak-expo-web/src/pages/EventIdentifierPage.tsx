@@ -5,6 +5,7 @@ import IdentifierCard, { type Identifier } from '../components/identifierCard/Id
 import { useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { exhibitionsAPI, tradeInfoAPI, brandingAPI } from '../services/api';
+import { getChecklist } from '../services/checkListApi';
 import styles from './EventHomePage.module.scss';
 
 const formatDate = (iso?: string): string => {
@@ -54,6 +55,14 @@ const EventIdentifierPage = () => {
           headerImageUrl = brandingAPI.serveGlobalUrl(headerFile.fileName);
         }
 
+        // Resolve exhibitor catalog logo from checklist
+        let catalogLogoUrl: string | null = null;
+        try {
+          const cl = await getChecklist(idNum);
+          const l = cl?.companyInfo?.logo || null;
+          if (l && typeof l === 'string' && l.trim().length > 0) catalogLogoUrl = l;
+        } catch {}
+
         const data: Identifier = {
           id: String(e.id),
           eventName: e.name || '',
@@ -64,7 +73,7 @@ const EventIdentifierPage = () => {
           location: hallName,
           qrCodeUrl: `https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${encodeURIComponent(String(e.id))}`,
           headerImageUrl,
-          logoUrl: '/assets/logo192.png',
+          logoUrl: catalogLogoUrl || '/assets/logo192.png',
         };
         setIdentifier(data);
       } catch (_err) {
