@@ -155,6 +155,14 @@ const UsersPage: React.FC = () => {
 
   const paginatedUsers = sortedUsers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
 
+  // Helper: build absolute served avatar URL via backend (includes token for auth)
+  const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
+  const buildAvatarUrl = useCallback((userId?: number | null): string | undefined => {
+    if (!userId || !token) return undefined;
+    const t = encodeURIComponent(token);
+    return `${API_BASE_URL}/api/v1/users/${userId}/avatar?token=${t}`;
+  }, [API_BASE_URL, token]);
+
 
   return (
     <>
@@ -195,7 +203,7 @@ const UsersPage: React.FC = () => {
                   </Box>
                   <Box className={styles.logedUserInfo}>
                     <Avatar 
-                      src={UserAvatar} 
+                      src={buildAvatarUrl(user?.id) || undefined}
                       alt={user?.firstName || 'User'} 
                       className={styles.avatar} 
                       onClick={()=>console.log("")}
@@ -319,8 +327,8 @@ const UsersPage: React.FC = () => {
                                 <Box className={styles.avatarCell}>
                                   <Avatar 
                                     className={styles.avatarTableCell}
-                                    src={(user as any)?.avatarUrl || undefined}
-                                  >
+                                    src={buildAvatarUrl((user as any)?.id) || undefined}
+                                   >
                                     {getUserInitials(user.fullName)}
                                   </Avatar>
                                   <CustomTypography fontSize="1em" fontWeight={500}>
