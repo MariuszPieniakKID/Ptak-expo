@@ -83,7 +83,7 @@ const EventIdentifierPage = () => {
           logoUrl: catalogLogoUrl || '/assets/logo192.png',
           invitesSentCount: Array.isArray(recipients) ? recipients.length : 0,
           invitesLimit: 50,
-          vipValue: vipTemplate ? String(vipTemplate.vip_value) : undefined,
+          ...(vipTemplate ? { vipValue: String(vipTemplate.vip_value) } : {}),
         };
         setIdentifier(data);
       } catch (_err) {
