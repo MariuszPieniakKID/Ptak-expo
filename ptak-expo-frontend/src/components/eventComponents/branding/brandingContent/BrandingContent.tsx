@@ -207,7 +207,7 @@ const BrandingContent: React.FC<BrandingContentProps> = ({ event }) => {
           {event && brandingFiles && user && (
             <BrandingFileUpload
               fileType="logo_kolowe_tlo_kafel"
-              title="Logo - kołowe tło z logiem wydarzenia - na kafel"
+              title="Logotyp wydarzenia na kafel"
               description="Format: png, jpg, webp"
               dimensions="300x300"
               allowedFormats={['png', 'jpg', 'jpeg', 'webp']}

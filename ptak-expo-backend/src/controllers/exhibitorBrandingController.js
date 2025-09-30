@@ -74,7 +74,7 @@ const FILE_TYPES = {
     maxSize: 5 * 1024 * 1024 // 5MB
   },
   'logo_kolowe_tlo_kafel': {
-    name: 'Logo - kołowe tło z logiem wydarzenia - na kafel',
+    name: 'Logotyp wydarzenia na kafel',
     dimensions: '300x300',
     allowedFormats: ['png', 'jpg', 'jpeg', 'webp'],
     maxSize: 5 * 1024 * 1024 // 5MB
