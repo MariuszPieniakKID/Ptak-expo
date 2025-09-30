@@ -501,15 +501,41 @@ const listRecipientsByExhibition = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Exhibition ID jest wymagane' });
     }
 
-    const rows = await pool.query(
-      `SELECT r.id, r.recipient_email, r.recipient_name, r.sent_at, r.response_status,
-              t.invitation_type, t.title
-       FROM invitation_recipients r
-       JOIN invitation_templates t ON t.id = r.invitation_template_id
-       WHERE t.exhibition_id = $1
-       ORDER BY r.created_at DESC`,
-      [exhibitionId]
-    );
+    // If exhibitor is requesting, restrict to recipients linked to this exhibitor for this exhibition
+    let rows;
+    if (req.user && req.user.role === 'exhibitor') {
+      // resolve exhibitor_id by user email
+      const exq = await pool.query('SELECT id FROM exhibitors WHERE email = $1 LIMIT 1', [req.user.email]);
+      const exhibitorId = exq.rows?.[0]?.id || null;
+      if (!exhibitorId) {
+        return res.json({ success: true, data: [] });
+      }
+      rows = await pool.query(
+        `SELECT r.id, r.recipient_email, r.recipient_name, r.sent_at, r.response_status,
+                t.invitation_type, t.title
+         FROM invitation_recipients r
+         JOIN invitation_templates t ON t.id = r.invitation_template_id
+         WHERE t.exhibition_id = $1
+           AND EXISTS (
+             SELECT 1 FROM exhibitor_people p
+             WHERE p.exhibitor_id = $2 AND p.exhibition_id = $1
+               AND LOWER(p.email) = LOWER(r.recipient_email)
+           )
+         ORDER BY r.created_at DESC`,
+        [exhibitionId, exhibitorId]
+      );
+    } else {
+      // admin or other roles: show all recipients for exhibition (unchanged behavior)
+      rows = await pool.query(
+        `SELECT r.id, r.recipient_email, r.recipient_name, r.sent_at, r.response_status,
+                t.invitation_type, t.title
+         FROM invitation_recipients r
+         JOIN invitation_templates t ON t.id = r.invitation_template_id
+         WHERE t.exhibition_id = $1
+         ORDER BY r.created_at DESC`,
+        [exhibitionId]
+      );
+    }
 
     const data = rows.rows.map((r) => ({
       id: r.id,
