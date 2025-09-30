@@ -54,7 +54,6 @@ import ExhibitoiIdentifiers from '../../components/exhibitoiIdentifiers/Exhibito
 import ExhibitorInvitations from '../../components/exhibitorInvitations/ExhibitorInvitations';
 import ExhibitorScheduleOfEventsAtTheStand from '../../components/exhibitorScheduleOfEventsAtTheStand/ExhibitorScheduleOfEventsAtTheStand';
 import ExhibitorTradeFairAwards from '../../components/exhibitorTradeFairAwards/ExhibitorTradeFairAwards';
-import AddEventToExhibitorModal from '../../components/addEventToExhibitorModal/AddEventToExhibitorModal';
 import EditExhibitorModal from '../../components/editExhibitorModal/EditExhibitorModal';
 import ConfirmationDialog from '../../components/confirmationDialog/ConfirmationDialog';
 
