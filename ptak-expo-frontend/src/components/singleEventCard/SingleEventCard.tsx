@@ -204,7 +204,7 @@ const SingleEventCard: React.FC<SingleEventCardProps> = ({
           </Box>
         </Box>
 
-        {showEdit ? (
+        {showEdit && (
           <>
             <Box className={styles.editBox}>
               <Box className={styles.fieldLabelContainer} >
@@ -246,26 +246,25 @@ const SingleEventCard: React.FC<SingleEventCardProps> = ({
               </Box>
             </Box>
           </>
-        ) : (
-          <Box className={styles.actionInfo}>
-            <Box className={styles.readyInfo}>
-              <CustomTypography className={styles.readyText}>Gotowość:</CustomTypography>
-              {renderProgressIcon(event_readiness)}
-            </Box>
-            <Box className={styles.action}>
-              {showSelect && handleSelectEvent ? (
-                <Box
-                  className={styles.actionButton}
-                  onClick={() => handleSelectEvent(id)}
-                >
-                  <CustomTypography className={styles.chooseText}>wybierz</CustomTypography>
-                </Box>
-              ) : (
-                <Box className={styles.actionButton} />  
-              )}
-            </Box>
-          </Box>
         )}
+        <Box className={styles.actionInfo}>
+          <Box className={styles.readyInfo}>
+            <CustomTypography className={styles.readyText}>Gotowość:</CustomTypography>
+            {renderProgressIcon(event_readiness)}
+          </Box>
+          <Box className={styles.action}>
+            {showSelect && handleSelectEvent ? (
+              <Box
+                className={styles.actionButton}
+                onClick={() => handleSelectEvent(id)}
+              >
+                <CustomTypography className={styles.chooseText}>wybierz</CustomTypography>
+              </Box>
+            ) : (
+              <Box className={styles.actionButton} />  
+            )}
+          </Box>
+        </Box>
       </Box>
 
       <ConfirmationDialog
