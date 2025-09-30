@@ -255,19 +255,43 @@ app.listen(PORT, '0.0.0.0', () => {
   console.log(`🔍 DATABASE_URL: ${process.env.DATABASE_URL ? 'Set' : 'Not set'}`);
   console.log(`🔍 JWT_SECRET: ${process.env.JWT_SECRET ? 'Set' : 'Not set'}`);
   
-  // Initialize database asynchronously after server starts
-  console.log('🔍 Server started successfully, initializing database in background...');
-  
-  // Don't await - let it run in background
-  db.initializeDatabase()
-    .then(() => {
-      console.log('✅ Database initialization completed');
-    })
-    .catch((error) => {
-      console.error('❌ Database initialization failed:', error.message);
-      console.error('❌ Database error details:', error.stack);
-      console.error('⚠️  Server will continue running without database');
-    });
+  // Initialize database only when safe:
+  // - In production (Railway), create/alter tables idempotently
+  // - In development, only if using local DB or explicitly allowed
+  const isProdOrRailway = process.env.NODE_ENV === 'production' || Boolean(process.env.RAILWAY_ENVIRONMENT);
+  const dbUrl = db.databaseUrl || process.env.DATABASE_URL || '';
+  let shouldInitDb = false;
+  try {
+    const u = new URL(dbUrl || '');
+    const host = u.hostname || '';
+    const isLocal = ['localhost', '127.0.0.1', '::1', 'host.docker.internal'].includes(host);
+    if (isProdOrRailway) {
+      shouldInitDb = true;
+    } else if (isLocal) {
+      shouldInitDb = true;
+    } else if (process.env.ALLOW_REMOTE_DB_IN_DEV === '1') {
+      console.warn('⚠️ ALLOW_REMOTE_DB_IN_DEV=1 set — proceeding to initialize remote DB from dev environment');
+      shouldInitDb = true;
+    }
+  } catch {
+    // If URL parsing fails, default to safe path: don't initialize
+    shouldInitDb = false;
+  }
+
+  if (shouldInitDb) {
+    console.log('🔍 Server started successfully, initializing database in background...');
+    db.initializeDatabase()
+      .then(() => {
+        console.log('✅ Database initialization completed');
+      })
+      .catch((error) => {
+        console.error('❌ Database initialization failed:', error.message);
+        console.error('❌ Database error details:', error.stack);
+        console.error('⚠️  Server will continue running without database');
+      });
+  } else {
+    console.log('🛑 Skipping database initialization to avoid touching remote DB in development');
+  }
 });
 
 module.exports = app; 

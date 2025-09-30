@@ -50,6 +50,22 @@ if (!databaseUrl || String(databaseUrl).trim().length === 0) {
   throw new Error('DATABASE_URL is required');
 }
 
+// Extra safety: in local development, block connecting to remote DBs unless explicitly allowed
+try {
+  const parsed = new URL(databaseUrl);
+  const host = parsed.hostname || '';
+  const isLocalHost = ['localhost', '127.0.0.1', '::1', 'host.docker.internal'].includes(host);
+  const isDev = (process.env.NODE_ENV || 'development') !== 'production' && !process.env.RAILWAY_ENVIRONMENT;
+  const allowRemoteInDev = process.env.ALLOW_REMOTE_DB_IN_DEV === '1';
+  if (isDev && !isLocalHost && !allowRemoteInDev) {
+    console.error('❌ Refusing to connect to a remote database in development:', host);
+    console.error('💡 Set LOCAL_DATABASE_URL to a local Postgres, or set ALLOW_REMOTE_DB_IN_DEV=1 to override (use with caution).');
+    throw new Error('Remote DB connection blocked in development');
+  }
+} catch (e) {
+  // If URL parsing fails, proceed (will likely fail later when Pool connects)
+}
+
 // Database connection configuration
 // Decide SSL based on host: internal Railway postgres usually doesn't need SSL
 let sslOption = false;
@@ -913,5 +929,7 @@ console.log('🔍 Database module loaded - initialization will be handled by ser
 module.exports = {
   query: (text, params) => pool.query(text, params),
   pool,
-  initializeDatabase
+  initializeDatabase,
+  // Expose for startup logic/safety checks
+  databaseUrl
 }; 
