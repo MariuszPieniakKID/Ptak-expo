@@ -23,21 +23,17 @@ function ExhibitoiIdentifiers({
 
   const { token } = useAuth();
   const [people, setPeople] = useState<ExhibitorPerson[]>([]);
-  const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>("");
 
   const load = useCallback(async () => {
     if (!token || !exhibitorId || !exhibitionId) { setPeople([]); return; }
     try {
-      setLoading(true);
       const list = await fetchExhibitorPeople(token, { exhibitorId, exhibitionId });
       setPeople(list);
       setError("");
     } catch (e: any) {
       setError(e?.message || "Nie udało się pobrać identyfikatorów");
       setPeople([]);
-    } finally {
-      setLoading(false);
     }
   }, [token, exhibitorId, exhibitionId]);
 
