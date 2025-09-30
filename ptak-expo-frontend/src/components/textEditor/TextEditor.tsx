@@ -38,7 +38,7 @@ const TextEditor: React.FC<TextEditorProps> = ({
     }
   };
 
-  const applyChangeWithCaret = (nextValue: string, caretStart: number, caretEnd?: number) => {
+  const applyChangeWithCaret = useCallback((nextValue: string, caretStart: number, caretEnd?: number) => {
     if (maxLength && nextValue.length > maxLength) {
       return; // do not exceed limit
     }
@@ -53,7 +53,7 @@ const TextEditor: React.FC<TextEditorProps> = ({
         el.setSelectionRange(caretStart, end);
       } catch {}
     });
-  };
+  }, [maxLength, onChange]);
 
   const wrapSelection = useCallback((prefix: string, suffix: string) => {
     const el = textAreaRef.current;
@@ -79,7 +79,7 @@ const TextEditor: React.FC<TextEditorProps> = ({
     const newStart = start + prefix.length;
     const newEnd = newStart + selected.length;
     applyChangeWithCaret(nextValue, newStart, newEnd);
-  }, [value, maxLength, onChange]);
+  }, [value, applyChangeWithCaret]);
 
   const insertAtCursor = useCallback((text: string) => {
     const el = textAreaRef.current;
@@ -91,7 +91,7 @@ const TextEditor: React.FC<TextEditorProps> = ({
     const nextValue = before + text + after;
     const caret = start + text.length;
     applyChangeWithCaret(nextValue, caret);
-  }, [value, maxLength, onChange]);
+  }, [value, applyChangeWithCaret]);
 
   const handleBold = useCallback(() => {
     wrapSelection("**", "**");
@@ -120,7 +120,7 @@ const TextEditor: React.FC<TextEditorProps> = ({
     const caretStart = before.length + 1; // after opening [
     const caretEnd = caretStart + selected.length;
     applyChangeWithCaret(nextValue, caretStart, caretEnd);
-  }, [value, maxLength, onChange]);
+  }, [value, applyChangeWithCaret]);
 
   return (
     <Box 
