@@ -9,7 +9,7 @@ import {
   formatDateRangeDays,
 } from "./utilities";
 import {TradeInfoPlan} from "./TradeInfoPlan";
-import { tradeInfoAPI, exhibitionsAPI, tradeEventsAPI, TradeEventRow } from "../../../services/api";
+import { tradeInfoAPI, exhibitionsAPI, tradeEventsAPI, brandingAPI, TradeEventRow } from "../../../services/api";
 
 // removed mock placeholders – values now come from backend
 
@@ -123,6 +123,7 @@ export const TradeInfoPage: React.FC<T_TradeInfoPage> = ({eventId}) => {
   const [eventMeta, setEventMeta] = useState<any | null>(null);
   const [allEvents, setAllEvents] = useState<TradeEventRow[]>([]);
   const [activeTab, setActiveTab] = useState<'all' | 'byday'>('all');
+  const [eventLogoUrl, setEventLogoUrl] = useState<string | null>(null);
   // const exhibStart = tradeInfo?.tradeHours.exhibitorStart || "-";
   // const exhibEnd = tradeInfo?.tradeHours.exhibitorEnd || "-";
   // const visitStart = tradeInfo?.tradeHours.visitorStart || "-";
@@ -135,18 +136,31 @@ export const TradeInfoPage: React.FC<T_TradeInfoPage> = ({eventId}) => {
     (async () => {
       try {
         const exId = Number(eventId);
-        const [tiRes, exRes, evRows] = await Promise.all([
+        const [tiRes, exRes, evRows, brandingRes] = await Promise.all([
           tradeInfoAPI.get(exId),
           exhibitionsAPI.getById(exId),
-          tradeEventsAPI.listByExhibition(exId)
+          tradeEventsAPI.listByExhibition(exId),
+          brandingAPI.getGlobal(exId).catch(() => null),
         ]);
         const ti = (tiRes.data && tiRes.data.data) ? tiRes.data.data : null;
         setTradeData(ti);
-        setEventMeta(exRes.data || null);
+        const exData = exRes.data || null;
+        setEventMeta(exData);
         setAllEvents(evRows);
         // default day select from buildDays or from event start date
         const firstDay = (ti?.buildDays && ti.buildDays[0]) ? 1 : (mockFairPlan.days.at(0)?.id || null);
         setSelectedDayId(firstDay as any);
+        // Resolve event logo same as left tile: prefer global branding 'event_logo', fallback to exhibition.event_logo_file_name
+        try {
+          let logoUrl: string | null = null;
+          const files: any = brandingRes && brandingRes.data && brandingRes.data.success ? brandingRes.data.files : null;
+          if (files && files['event_logo']?.fileName) {
+            logoUrl = brandingAPI.serveGlobalUrl(files['event_logo'].fileName);
+          } else if (exData && exData.event_logo_file_name) {
+            logoUrl = brandingAPI.serveGlobalUrl(exData.event_logo_file_name);
+          }
+          setEventLogoUrl(logoUrl);
+        } catch { setEventLogoUrl(null); }
       } catch (e: any) {
         console.warn('TradeInfo load error', e?.message || e);
       } finally {
@@ -338,7 +352,11 @@ export const TradeInfoPage: React.FC<T_TradeInfoPage> = ({eventId}) => {
           <div className={styles.contentWhite}>
             <div className={styles.eventInformations}>
               <div className={styles.eventInformationsLogo}>
-                <img alt="logo" src={IconMain} height="auto" width={55} />
+                {eventLogoUrl ? (
+                  <img alt="logo" src={eventLogoUrl} style={{ width: 55, height: 55, objectFit: 'contain' }} />
+                ) : (
+                  <img alt="logo" src={IconMain} height="auto" width={55} />
+                )}
               </div>
               <div>
                 <CustomTypography
