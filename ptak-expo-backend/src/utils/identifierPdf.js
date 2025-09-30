@@ -212,8 +212,8 @@ async function buildIdentifierPdf(client, exhibitionId, payload, exhibitorId) {
     }
   } catch {}
 
-  // Normalize image to PNG/JPEG buffer usable by PDFKit
-  const toPdfImageBuffer = async (input) => {
+  // Normalize image to PNG buffer usable by PDFKit, optionally resizing to target pixel box
+  const toPdfImageBuffer = async (input, targetPx) => {
     try {
       if (!input) return null;
       let buf;
@@ -228,7 +228,11 @@ async function buildIdentifierPdf(client, exhibitionId, payload, exhibitorId) {
         return buf;
       }
       // Convert any format (webp/svg/…) to PNG for reliable embedding
-      return await sharp(buf).png().toBuffer();
+      let img = sharp(buf);
+      if (targetPx && (targetPx.width || targetPx.height)) {
+        img = img.resize(targetPx.width || null, targetPx.height || null, { fit: 'inside', withoutEnlargement: true });
+      }
+      return await img.png().toBuffer();
     } catch {
       return null;
     }
@@ -238,14 +242,16 @@ async function buildIdentifierPdf(client, exhibitionId, payload, exhibitorId) {
   let qrBuffer = null;
   try {
     const qrData = payload && payload.accessCode ? String(payload.accessCode) : String(ev.id);
-    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=${encodeURIComponent(qrData)}`;
+    // Request high-resolution QR (for crisp print at ~300 DPI when scaled down)
+    const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=600x600&data=${encodeURIComponent(qrData)}`;
     const resp = await fetch(qrUrl);
     if (resp.ok) qrBuffer = Buffer.from(await resp.arrayBuffer());
   } catch {}
 
   // Precompute normalized buffers for images before PDF drawing (no awaits inside PDF flow)
-  const headerBuffer = await toPdfImageBuffer(headerImageSource);
-  const footerBuffer = await toPdfImageBuffer(footerLogoSource);
+  // We'll calculate target pixel sizes for ~300 DPI rendering inside the page layout below
+  let headerBuffer = null;
+  let footerBuffer = null;
 
   const doc = new PDFDocument({ size: 'A6', margin: 12 });
   const chunks = [];
@@ -267,6 +273,17 @@ async function buildIdentifierPdf(client, exhibitionId, payload, exhibitorId) {
     doc.save();
     doc.roundedRect(cardX, 10, cardW, doc.page.height - 20, 12).fill('#FFFFFF');
     doc.restore();
+
+    // Compute 300 DPI targets for images
+    const toPx = (points) => Math.max(1, Math.round((points / 72) * 300));
+    // Prepare header/footer buffers now that we know target sizes
+    (async () => {
+      headerBuffer = await toPdfImageBuffer(headerImageSource, { width: toPx(cardW), height: toPx(headerH) });
+      // Footer box dimensions computed later; pre-scale to a generous width to preserve detail
+      footerBuffer = await toPdfImageBuffer(footerLogoSource, { width: toPx(cardW / 2), height: toPx(40) });
+    })().then(() => {
+      // no-op; buffers will be used below if ready
+    });
 
     // Header image
     doc.save();
@@ -317,7 +334,7 @@ async function buildIdentifierPdf(client, exhibitionId, payload, exhibitorId) {
     doc.restore();
 
     // Footer: logo left, QR right
-    const qrSize = 70;
+    const qrSize = 70; // points (~0.97")
     const qrX = cardX + cardW - 12 - qrSize;
     try {
       if (qrBuffer) {
