@@ -7,7 +7,8 @@ import EventLayout from '../components/eventLayout/EventLayout';
 import LeftColumn from '../components/event-left/LeftColumn';
 import { useParams } from 'react-router-dom';
 import { useEffect, useRef, useState } from 'react';
-import { exhibitionsAPI, brandingAPI, invitationsAPI, marketingAPI, BenefitItem } from '../services/api';
+import { exhibitionsAPI, brandingAPI, invitationsAPI, marketingAPI, BenefitItem, type InvitationTemplate } from '../services/api';
+import IconEmail from '../assets/email.png';
 import { getChecklist } from '../services/checkListApi';
 import styles from './EventHomePage.module.scss';
 import BulkSendModal from '../components/invitations/BulkSendModal';
@@ -19,7 +20,7 @@ const EventInvitationsPage = () => {
   const [data, setData] = useState<any | null>(null);
   const [guestName, setGuestName] = useState<string>('');
   const [guestEmail, setGuestEmail] = useState<string>('');
-  const [templates, setTemplates] = useState<{ id: number; title: string; invitation_type: string }[]>([]);
+  const [templates, setTemplates] = useState<InvitationTemplate[]>([]);
   const [benefits, setBenefits] = useState<BenefitItem[]>([]);
   const [selectedTemplateId, setSelectedTemplateId] = useState<number | ''>('');
   const [sent, setSent] = useState<Array<{ id: number; recipientName: string; recipientEmail: string; invitationType: string; status: string; sentAt?: string }>>([]);
@@ -155,6 +156,10 @@ const EventInvitationsPage = () => {
   };
 
   const selectedTemplate = templates.find(t => t.id === selectedTemplateId);
+  const invitedCount = sent.length;
+  const invitesLimit = 50;
+  const vipTemplate = Array.isArray(templates) ? templates.find(t => (t as any).vip_value && String((t as any).vip_value).trim().length > 0) : undefined as any;
+  const vipValue: string | undefined = vipTemplate ? String((vipTemplate as any).vip_value) : undefined;
   const openBulk = () => setBulkOpen(true);
   const closeBulk = () => setBulkOpen(false);
 
@@ -339,6 +344,38 @@ const EventInvitationsPage = () => {
               </Box>
             </Box>
           )}
+
+          {/* Dark summary box: Wysłane zaproszenia + VIP value (mirrors e-identifier box) */}
+          <Box
+            sx={{
+              mt: 2,
+              width: '100%',
+              maxWidth: 420,
+              bgcolor: '#2f2f35',
+              borderRadius: '12px',
+              boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
+              overflow: 'hidden',
+              color: '#fff',
+              p: 2.5,
+            }}
+          >
+            <Box sx={{ display: 'flex', alignItems: 'center', mb: 1.5 }}>
+              <Box sx={{ width: 24, height: 24, mr: 1 }}>
+                <img alt="ikona koperty" src={IconEmail} style={{ width: 24, height: 24 }} />
+              </Box>
+              <Box sx={{ fontWeight: 700, lineHeight: 1.2 }}>
+                <span>Wysłane</span><br />
+                <span>zaproszenia</span>
+                <span style={{ marginLeft: 8, fontWeight: 400 }}>
+                  ({invitedCount} <span style={{ color: '#A7A7A7' }}>/ {invitesLimit}</span>)
+                </span>
+              </Box>
+            </Box>
+            <Box sx={{ mt: 1.5, fontWeight: 700, color: '#fff' }}>Biznes Priority Pass</Box>
+            {vipValue && vipValue.trim().length > 0 && (
+              <Box sx={{ color: '#D7D9DD', mb: 1.5 }}>bilet o wartości {vipValue}</Box>
+            )}
+          </Box>
           <BulkSendModal
             isOpen={bulkOpen}
             onClose={closeBulk}
