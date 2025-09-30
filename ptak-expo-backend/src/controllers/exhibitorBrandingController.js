@@ -73,6 +73,12 @@ const FILE_TYPES = {
     allowedFormats: ['png', 'jpg', 'jpeg', 'webp'],
     maxSize: 5 * 1024 * 1024 // 5MB
   },
+  'logo_kolowe_tlo_kafel': {
+    name: 'Logo - kołowe tło z logiem wydarzenia - na kafel',
+    dimensions: '300x300',
+    allowedFormats: ['png', 'jpg', 'jpeg', 'webp'],
+    maxSize: 5 * 1024 * 1024 // 5MB
+  },
   'logo_ptak_expo': {
     name: 'Logo PTAK EXPO',
     dimensions: '200x200',

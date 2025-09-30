@@ -206,6 +206,25 @@ const BrandingContent: React.FC<BrandingContentProps> = ({ event }) => {
 
           {event && brandingFiles && user && (
             <BrandingFileUpload
+              fileType="logo_kolowe_tlo_kafel"
+              title="Logo - kołowe tło z logiem wydarzenia - na kafel"
+              description="Format: png, jpg, webp"
+              dimensions="300x300"
+              allowedFormats={['png', 'jpg', 'jpeg', 'webp']}
+              maxSize={5 * 1024 * 1024}
+              exhibitorId={null}
+              exhibitionId={event.id}
+              existingFile={(Array.isArray(brandingFiles.files['logo_kolowe_tlo_kafel'])
+                ? (brandingFiles.files['logo_kolowe_tlo_kafel'] as any[])[0]
+                : brandingFiles.files['logo_kolowe_tlo_kafel']) || null}
+              onUploadSuccess={() => handleUploadSuccess(null)}
+              onUploadError={handleUploadError}
+              onDeleteSuccess={() => handleUploadSuccess(null)}
+            />
+          )}
+
+          {event && brandingFiles && user && (
+            <BrandingFileUpload
               fileType="dokumenty_brandingowe"
               title="Dokumenty brandingowe dla wystawcy"
               description="Format: PDF"
