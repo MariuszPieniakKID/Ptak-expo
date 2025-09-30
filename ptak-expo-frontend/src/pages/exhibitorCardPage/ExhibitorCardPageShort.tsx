@@ -170,7 +170,7 @@ const ExhibitorCardPage: React.FC = () => {
 
   const handleModalClose = useCallback((): void => {
       setIsEventAddToExhibitorn(false);
-  }, []);
+  }, [exhibitor, token]);
   const handleEventToExhibitiorAdd = useCallback((): void => {
       setIsEventAddToExhibitorn(false);
       // Reload exhibitor to reflect newly assigned event
