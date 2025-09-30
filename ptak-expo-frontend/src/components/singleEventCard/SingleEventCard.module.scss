@@ -71,23 +71,20 @@
 .eventLogo{
     width:20%;
     background: none !important;
+    display:flex;
+    align-items: center;
+    justify-content: center;
+    height: 55px;
 }
 .hasLogo { position: relative; }
 .hasLogo svg { display: none !important; }
 .hasLogo *:not(img) { display: none !important; }
 .logo{
     display: block;
-    width:auto;
-    height: 55px;
-    @media (max-width: 527px) {
-    height: 45px;
-    width:auto;
-  }
-    @media (max-width: 440px) {
-    height: 30px;
-    width:auto;     
-  }
-  
+    width: 100%;
+    height: 100%;
+    max-width: 100%;
+    object-fit: contain;
 }
 .eventInfo{
     width:70%;
