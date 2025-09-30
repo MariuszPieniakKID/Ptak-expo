@@ -22,7 +22,7 @@ import { ReactComponent as BackIcon } from '../../assets/back.svg';
 import UserAvatar from '../../assets/7bb764a0137abc7a8142b6438e529133@2x.png';
 import Applause from '../../assets/applause.png';
 import { ReactComponent as UsersIcon } from '../../assets/addIcon.svg';
-import { Exhibition, fetchExhibitions, getBrandingFileUrl, catalogAPI } from '../../services/api';
+import { Exhibition, fetchExhibitions, getBrandingFileUrl, catalogAPI, getBrandingFiles } from '../../services/api';
 import { getEventAssets } from '../../helpers/getEventAssets';
 import CustomField from '../../components/customField/CustomField';
 import AddEventModal from '../../components/addEventModal/AddEventModal_';
@@ -43,6 +43,7 @@ const EventsPage_: React.FC = () => {
   const { token, user, logout } = useAuth();
   const [selectedField,setSelectedField]=useState<string>('all')  
   const [eventFieldOptions, setEventFieldOptions] = useState<OptionType[]>([{ value: 'all', label: 'Wszystkie' }, ...fallbackFieldOptions.filter(o => o.value !== 'all')]);
+  const [tileLogoByEventId, setTileLogoByEventId] = useState<Record<number, string | null>>({});
 
 
   const loadExhibitions = useCallback(async (): Promise<void> => {
@@ -90,6 +91,33 @@ const EventsPage_: React.FC = () => {
     };
     loadEventFields();
   }, [loadExhibitions, token]);
+
+  // Load circular tile logo (global branding) for all loaded exhibitions
+  useEffect(() => {
+    const loadTileLogos = async () => {
+      if (!token || !exhibitions.length) return;
+      try {
+        const entries = await Promise.all(
+          exhibitions.map(async (exh) => {
+            try {
+              const res = await getBrandingFiles(null, exh.id, token);
+              const files = (res as any)?.files || {};
+              const fileObj = files['logo_kolowe_tlo_kafel'] || files['event_logo'] || null;
+              const file = fileObj && (Array.isArray(fileObj) ? fileObj[0] : fileObj);
+              const fileName = file?.fileName || null;
+              return [exh.id, fileName] as [number, string | null];
+            } catch {
+              return [exh.id, null] as [number, string | null];
+            }
+          })
+        );
+        const map: Record<number, string | null> = {};
+        for (const [k, v] of entries) map[k] = v;
+        setTileLogoByEventId(map);
+      } catch {}
+    };
+    loadTileLogos();
+  }, [exhibitions, token]);
 
   const handleSelectFieldOfExhibitions = useCallback(
   (value: string) => {
@@ -260,10 +288,13 @@ const formatDateRange = useCallback((startDate: string, endDate: string): string
                   ?
                   currentEvents.map((exhibition)=> {
                       const { background, logo } = getEventAssets(exhibition.name);
-                      const hasCustomLogo = Boolean(exhibition.event_logo_file_name && token);
+                      const tileFileName = tileLogoByEventId[exhibition.id] || null;
+                      const hasCustomLogo = Boolean(tileFileName && token);
                       const eventLogoUrl = hasCustomLogo
-                        ? getBrandingFileUrl(null, exhibition.event_logo_file_name as string, token as string)
-                        : logo;
+                        ? getBrandingFileUrl(null, tileFileName as string, token as string)
+                        : (exhibition.event_logo_file_name && token
+                            ? getBrandingFileUrl(null, exhibition.event_logo_file_name as string, token as string)
+                            : logo);
 
                       return (
                           <Box 
@@ -340,10 +371,13 @@ const formatDateRange = useCallback((startDate: string, endDate: string): string
 
                     filteredEvents.map((exhibition)=> {
                       const { background, logo } = getEventAssets(exhibition.name);
-                      const hasCustomLogo = Boolean(exhibition.event_logo_file_name && token);
+                      const tileFileName = tileLogoByEventId[exhibition.id] || null;
+                      const hasCustomLogo = Boolean(tileFileName && token);
                       const eventLogoUrl = hasCustomLogo
-                        ? getBrandingFileUrl(null, exhibition.event_logo_file_name as string, token as string)
-                        : logo;
+                        ? getBrandingFileUrl(null, tileFileName as string, token as string)
+                        : (exhibition.event_logo_file_name && token
+                            ? getBrandingFileUrl(null, exhibition.event_logo_file_name as string, token as string)
+                            : logo);
 
                       return (
                           <Box 
