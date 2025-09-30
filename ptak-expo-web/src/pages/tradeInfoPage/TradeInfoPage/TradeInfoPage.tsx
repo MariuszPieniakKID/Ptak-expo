@@ -96,9 +96,7 @@ export const TradeInfoPage: React.FC<T_TradeInfoPage> = ({eventId}) => {
     })();
   }, [eventId]);
 
-  const handleClickDay = useCallback((newDayId: number) => {
-    setSelectedDayId(newDayId);
-  }, []);
+  // By-day selection disabled
 
   const foundDay = useMemo(() => {
     return null; // by-day view removed; no fallback
