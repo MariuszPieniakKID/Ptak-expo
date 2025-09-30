@@ -124,10 +124,12 @@ const SingleEventCard: React.FC<SingleEventCardProps> = ({
           try {
             const filesResp = await getBrandingFiles(exhibitorId, id, token);
             const files = filesResp.files || {};
-            const preferredKey = files['event_logo']
-              ? 'event_logo'
-              : Object.keys(files).find(k => k.toLowerCase().includes('logo'))
-                || Object.keys(files)[0];
+            const preferredKey = files['logo_kolowe_tlo_kafel']
+              ? 'logo_kolowe_tlo_kafel'
+              : (files['event_logo']
+                  ? 'event_logo'
+                  : (Object.keys(files).find(k => k.toLowerCase().includes('logo'))
+                      || Object.keys(files)[0]));
             if (preferredKey && files[preferredKey]) {
               const value: any = files[preferredKey] as any;
               const file = Array.isArray(value) ? value[0] : value;
@@ -143,8 +145,9 @@ const SingleEventCard: React.FC<SingleEventCardProps> = ({
         // 2) Fall back to global event_logo
         try {
           const g = await getBrandingFiles(null, id, token);
-          if (g.files && g.files['event_logo']) {
-            const value: any = g.files['event_logo'] as any;
+          const globalKey = g.files && (g.files['logo_kolowe_tlo_kafel'] ? 'logo_kolowe_tlo_kafel' : (g.files['event_logo'] ? 'event_logo' : null));
+          if (globalKey) {
+            const value: any = g.files[globalKey] as any;
             const file = Array.isArray(value) ? value[0] : value;
             if (file?.fileName) {
               setResolvedLogoUrl(getBrandingFileUrl(null, file.fileName, token));

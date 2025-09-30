@@ -1,5 +1,6 @@
 import { Card, CardContent, Typography, Box, Chip, Avatar, Link } from '@mui/material';
 import { brandingAPI } from '../../services/api';
+import { useEffect, useState } from 'react';
 import styles from './PlannedEventCard.module.scss';
 
 export interface EventData {
@@ -17,6 +18,24 @@ interface PlannedEventCardProps {
 }
 
 const PlannedEventCard: React.FC<PlannedEventCardProps> = ({ event, onSelect }) => {
+  const [logoUrl, setLogoUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    let mounted = true;
+    const resolve = async () => {
+      try {
+        const res = await brandingAPI.getGlobal(Number(event.id));
+        const files = res.data?.files || {};
+        const fileObj = files['logo_kolowe_tlo_kafel'] || files['event_logo'] || null;
+        const file = fileObj && (Array.isArray(fileObj) ? fileObj[0] : fileObj);
+        if (file?.fileName && mounted) setLogoUrl(brandingAPI.serveGlobalUrl(file.fileName));
+      } catch {
+        if (mounted) setLogoUrl(null);
+      }
+    };
+    resolve();
+    return () => { mounted = false; };
+  }, [event.id]);
   const getReadinessClass = (value: number) => {
     if (value <= 30) return styles.red;
     if (value <= 55) return styles.orange;
@@ -27,11 +46,11 @@ const PlannedEventCard: React.FC<PlannedEventCardProps> = ({ event, onSelect }) 
     <Card className={styles.card}>
       <CardContent className={styles.cardContent}>
         <Box className={styles.logoBox}>
-          <Avatar 
-            className={styles.avatar} 
-            variant="rounded" 
-            src={(event as any).event_logo_file_name ? brandingAPI.serveGlobalUrl((event as any).event_logo_file_name) : event.logoUrl} 
-            alt={event.title} 
+          <Avatar
+            className={styles.avatar}
+            variant="rounded"
+            src={logoUrl || ((event as any).event_logo_file_name ? brandingAPI.serveGlobalUrl((event as any).event_logo_file_name) : event.logoUrl)}
+            alt={event.title}
           />
         </Box>
         <Box className={styles.titleBox}>
