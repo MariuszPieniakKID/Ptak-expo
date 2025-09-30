@@ -14,7 +14,6 @@ import { useAuth } from '../../contexts/AuthContext';
 import { listInvitationRecipients, type InvitationRecipientRow } from '../../services/api';
 
 
-import { mockInvitations } from '../../helpers/mockData';
 
 type ExhibitorInvitationsProps = {
   exhibitorId: number;
