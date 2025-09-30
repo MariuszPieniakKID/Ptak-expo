@@ -8,6 +8,7 @@ import LeftColumn from '../components/event-left/LeftColumn';
 import { useParams } from 'react-router-dom';
 import { useEffect, useRef, useState } from 'react';
 import { exhibitionsAPI, brandingAPI, invitationsAPI, marketingAPI, BenefitItem } from '../services/api';
+import { getChecklist } from '../services/checkListApi';
 import styles from './EventHomePage.module.scss';
 import BulkSendModal from '../components/invitations/BulkSendModal';
 
@@ -44,18 +45,23 @@ const EventInvitationsPage = () => {
         const e = evRes.data;
         // trade info not used in invitations card for now
 
-        // Resolve header image specifically for invitations: tlo_wydarzenia_logo_zaproszenia
+        // Resolve header image for invitations (right side) and catalog logo (left side)
         let headerImageUrl = '/assets/background.png';
         const files = brandingRes && brandingRes.data && brandingRes.data.success ? brandingRes.data.files : null;
         const headerFile = files && files['tlo_wydarzenia_logo_zaproszenia'];
-        if (headerFile?.fileName) {
-          headerImageUrl = brandingAPI.serveGlobalUrl(headerFile.fileName);
-        }
+        if (headerFile?.fileName) headerImageUrl = brandingAPI.serveGlobalUrl(headerFile.fileName);
+        let catalogLogoUrl: string | null = null;
+        try {
+          const cl = await getChecklist(idNum);
+          const l = cl?.companyInfo?.logo || null;
+          if (l && typeof l === 'string' && l.trim().length > 0) catalogLogoUrl = l;
+        } catch {}
 
         setData({
           id: String(e.id),
           eventName: e.name || '',
           headerImageUrl,
+          catalogLogoUrl,
         });
         setBenefits(Array.isArray(benefitsRes) ? benefitsRes : []);
 
@@ -191,13 +197,22 @@ const EventInvitationsPage = () => {
                 overflow: 'hidden',
               }}
             >
-              {/* Header image */}
-              <Box sx={{ height: 160, overflow: 'hidden' }}>
-                <img
-                  src={data.headerImageUrl}
-                  alt={data.eventName}
-                  style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                />
+              {/* Split header: left (catalog logo), right (branding invitation header) */}
+              <Box sx={{ height: 160, display: 'flex', overflow: 'hidden' }}>
+                <Box sx={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: '#fff' }}>
+                  {data.catalogLogoUrl ? (
+                    <img src={data.catalogLogoUrl} alt="Logo" style={{ maxWidth: '80%', maxHeight: '80%', objectFit: 'contain' }} />
+                  ) : (
+                    <img src="/assets/logo192.png" alt="Logo" style={{ maxWidth: '60%', maxHeight: '60%', objectFit: 'contain' }} />
+                  )}
+                </Box>
+                <Box sx={{ flex: 1, overflow: 'hidden' }}>
+                  <img
+                    src={data.headerImageUrl}
+                    alt={data.eventName}
+                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                  />
+                </Box>
               </Box>
               {/* Content */}
               <Box sx={{ p: 2.5 }}>
