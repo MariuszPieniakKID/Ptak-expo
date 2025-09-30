@@ -92,6 +92,7 @@ const TextEditor: React.FC<TextEditorProps> = ({
         role="textbox"
         aria-label={legend}
         suppressContentEditableWarning
+        data-placeholder={placeholder}
         onInput={() => setHtmlValue(editorRef.current?.innerHTML || '')}
         sx={{
           width: '100%',
@@ -99,6 +100,10 @@ const TextEditor: React.FC<TextEditorProps> = ({
           outline: 'none',
           padding: '8px 12px',
           borderRadius: '6px',
+          '&:empty:before': {
+            content: 'attr(data-placeholder)',
+            color: '#A7A7A7',
+          },
         }}
       />
 
