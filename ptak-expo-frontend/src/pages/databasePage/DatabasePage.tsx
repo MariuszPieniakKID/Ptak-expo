@@ -398,7 +398,7 @@ const DatabasePage: React.FC = () => {
                   <CustomTypography className={styles.backText}> wstecz </CustomTypography>
                 </Box>
                 <Box className={styles.logedUserInfo}>
-                  <Avatar src={UserAvatar} alt={user?.firstName || 'User'} className={styles.avatar} />
+                  <Avatar src={(user as any)?.avatarUrl || UserAvatar} alt={user?.firstName || 'User'} className={styles.avatar} />
                   <Box>
                     <CustomTypography className={styles.welcomeMessageTitle}>
                       Dzień dobry, {user?.firstName || 'Użytkowniku'}

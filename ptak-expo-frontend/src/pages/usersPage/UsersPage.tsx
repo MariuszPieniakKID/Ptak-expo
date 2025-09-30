@@ -318,8 +318,8 @@ const UsersPage: React.FC = () => {
                               <TableCell className={styles.tableCellL}>
                                 <Box className={styles.avatarCell}>
                                   <Avatar 
-                                  className={styles.avatarTableCell}
-                          
+                                    className={styles.avatarTableCell}
+                                    src={(user as any)?.avatarUrl || undefined}
                                   >
                                     {getUserInitials(user.fullName)}
                                   </Avatar>

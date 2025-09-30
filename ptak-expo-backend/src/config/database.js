@@ -113,6 +113,7 @@ const initializeDatabase = async () => {
         last_name VARCHAR(100),
         company_name VARCHAR(255),
         phone VARCHAR(50),
+        avatar_url TEXT,
         status VARCHAR(20) DEFAULT 'active',
         created_at TIMESTAMPTZ DEFAULT NOW(),
         updated_at TIMESTAMPTZ DEFAULT NOW()
@@ -140,6 +141,23 @@ const initializeDatabase = async () => {
       }
     } catch (statusError) {
       console.error('❌ Error checking/adding status column:', statusError);
+    }
+
+    // Ensure avatar_url column exists for user profile photos
+    try {
+      const avatarCol = await pool.query(`
+        SELECT 1 FROM information_schema.columns 
+        WHERE table_name = 'users' AND column_name = 'avatar_url'
+      `);
+      if (avatarCol.rows.length === 0) {
+        console.log('⚠️ Adding missing column users.avatar_url ...');
+        await pool.query(`ALTER TABLE users ADD COLUMN avatar_url TEXT`);
+        console.log('✅ Added users.avatar_url');
+      } else {
+        console.log('✅ users.avatar_url already exists');
+      }
+    } catch (alterErr) {
+      console.error('❌ Error ensuring users.avatar_url column:', alterErr);
     }
 
     // Log current table structure

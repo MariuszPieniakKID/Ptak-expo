@@ -241,7 +241,7 @@ const ExhibitorsPage: React.FC = () => {
               </Box>
               <Box className={styles._logedUserInfo}>
                 <Avatar 
-                  src={UserAvatar} 
+                  src={(user as any)?.avatarUrl || UserAvatar} 
                   alt={user?.firstName || 'User'} 
                   className={styles._avatar} 
                   onClick={()=>console.log("")}

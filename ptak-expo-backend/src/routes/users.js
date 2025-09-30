@@ -4,6 +4,90 @@ const db = require('../config/database');
 const bcrypt = require('bcryptjs');
 const { verifyToken, requireAdmin } = require('../middleware/auth');
 const { sendWelcomeEmail, sendPasswordResetEmail } = require('../utils/emailService');
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
+
+// Setup avatar uploads (store in uploads/users/{id}/avatar)
+const getUploadsBase = () => {
+  try {
+    if (process.env.UPLOADS_DIR && process.env.UPLOADS_DIR.trim()) {
+      const p = path.resolve(process.env.UPLOADS_DIR);
+      if (!fs.existsSync(p)) fs.mkdirSync(p, { recursive: true });
+      return p;
+    }
+  } catch {}
+  const fallback = path.join(__dirname, '../../uploads');
+  try { if (!fs.existsSync(fallback)) fs.mkdirSync(fallback, { recursive: true }); } catch {}
+  return fallback;
+};
+
+const avatarStorage = multer.diskStorage({
+  destination: async function (req, file, cb) {
+    try {
+      const userId = req.params.id;
+      const dir = path.join(getUploadsBase(), 'users', String(userId), 'avatar');
+      if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+      cb(null, dir);
+    } catch (e) {
+      cb(e);
+    }
+  },
+  filename: function (_req, file, cb) {
+    const ext = path.extname(file.originalname) || '.png';
+    cb(null, `avatar${ext}`);
+  }
+});
+
+const avatarUpload = multer({
+  storage: avatarStorage,
+  limits: { fileSize: 5 * 1024 * 1024 },
+  fileFilter: (_req, file, cb) => {
+    const allowed = ['image/png', 'image/jpeg', 'image/webp'];
+    if (allowed.includes(file.mimetype)) return cb(null, true);
+    return cb(new Error('Only PNG, JPEG, WEBP are allowed'));
+  }
+});
+
+// Upload user avatar
+router.post('/:id/avatar', verifyToken, requireAdmin, avatarUpload.single('avatar'), async (req, res) => {
+  try {
+    const userId = req.params.id;
+    if (!req.file) {
+      return res.status(400).json({ success: false, error: 'Brak pliku' });
+    }
+    const uploadsBase = getUploadsBase();
+    const relativePath = path.relative(path.join(__dirname, '../..'), path.join(uploadsBase, 'users', String(userId), 'avatar', req.file.filename));
+
+    // Normalize to start with 'uploads/' for serving compatibility
+    const normalized = relativePath.startsWith('uploads') ? relativePath : path.join('uploads', 'users', String(userId), 'avatar', req.file.filename);
+
+    const result = await db.query('UPDATE users SET avatar_url = $1, updated_at = NOW() WHERE id = $2 RETURNING id, avatar_url', [normalized, userId]);
+    return res.json({ success: true, message: 'Avatar zapisany', data: { id: result.rows[0].id, avatarUrl: result.rows[0].avatar_url } });
+  } catch (e) {
+    console.error('Avatar upload error:', e);
+    return res.status(500).json({ success: false, error: 'Błąd podczas zapisu avatara', message: e.message });
+  }
+});
+
+// Serve user avatar (by id)
+router.get('/:id/avatar', verifyToken, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const q = await db.query('SELECT avatar_url FROM users WHERE id = $1', [id]);
+    if (q.rows.length === 0 || !q.rows[0].avatar_url) {
+      return res.status(404).json({ success: false, error: 'Brak avatara' });
+    }
+    const uploadsBase = getUploadsBase();
+    const stored = q.rows[0].avatar_url;
+    const normalized = stored.startsWith('uploads/') ? stored.replace(/^uploads\//, '') : stored;
+    const filePath = path.join(uploadsBase, normalized);
+    return res.sendFile(filePath);
+  } catch (e) {
+    console.error('Serve avatar error:', e);
+    return res.status(500).json({ success: false, error: 'Błąd podczas serwowania avatara' });
+  }
+});
 
 // GET /api/v1/users - pobierz wszystkich użytkowników (tylko admin)
 router.get('/', verifyToken, requireAdmin, async (req, res) => {
@@ -17,6 +101,7 @@ router.get('/', verifyToken, requireAdmin, async (req, res) => {
         last_name,
         email,
         phone,
+        avatar_url,
         created_at,
         updated_at
       FROM users 
@@ -35,6 +120,7 @@ router.get('/', verifyToken, requireAdmin, async (req, res) => {
       fullName: `${user.first_name} ${user.last_name}`,
       email: user.email,
       phone: user.phone || 'Brak numeru',
+      avatarUrl: user.avatar_url || null,
       createdAt: user.created_at,
       updatedAt: user.updated_at
     }));
@@ -114,7 +200,7 @@ router.post('/', verifyToken, requireAdmin, async (req, res) => {
     const insertQuery = `
       INSERT INTO users (first_name, last_name, email, phone, password_hash, role)
       VALUES ($1, $2, $3, $4, $5, $6)
-      RETURNING id, first_name, last_name, email, phone, role, created_at
+      RETURNING id, first_name, last_name, email, phone, role, created_at, avatar_url
     `;
     
     const result = await db.query(insertQuery, [
@@ -172,6 +258,7 @@ router.post('/', verifyToken, requireAdmin, async (req, res) => {
         email: newUser.email,
         phone: newUser.phone,
         role: newUser.role,
+        avatarUrl: newUser.avatar_url || null,
         createdAt: newUser.created_at
       }
     });
@@ -288,7 +375,7 @@ router.post('/create-admin', verifyToken, requireAdmin, async (req, res) => {
     const insertQuery = `
       INSERT INTO users (first_name, last_name, email, phone, password_hash, role)
       VALUES ($1, $2, $3, $4, $5, $6)
-      RETURNING id, first_name, last_name, email, phone, role, created_at
+      RETURNING id, first_name, last_name, email, phone, role, created_at, avatar_url
     `;
     
     const result = await db.query(insertQuery, [
@@ -315,6 +402,7 @@ router.post('/create-admin', verifyToken, requireAdmin, async (req, res) => {
         email: newUser.email,
         phone: newUser.phone || 'Brak numeru',
         role: newUser.role,
+        avatarUrl: newUser.avatar_url || null,
         createdAt: newUser.created_at
       }
     });

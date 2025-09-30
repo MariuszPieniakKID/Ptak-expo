@@ -98,10 +98,10 @@ const DashboardPage: React.FC = () => {
           </CustomButton>
           <Box className={styles.welcomeMessage}>
             <Avatar 
-            src={UserAvatar} 
-            alt={user?.firstName || 'User'} 
-            className={styles.avatar} 
-            onClick={()=>console.log("")}
+              src={(user as any)?.avatarUrl || UserAvatar}
+              alt={user?.firstName || 'User'} 
+              className={styles.avatar} 
+              onClick={()=>console.log("")}
             />
             <Box> 
               <CustomTypography className={styles.welcomeMessageTitle}> Dzień dobry, {user?.firstName || 'Użytkowniku'} 

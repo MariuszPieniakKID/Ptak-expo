@@ -100,7 +100,8 @@ const exhibitorLogin = async (req, res) => {
             firstName: user.first_name,
             lastName: user.last_name,
             role: user.role,
-            companyName: user.company_name
+            companyName: user.company_name,
+            avatarUrl: user.avatar_url || null
           },
           token
         });
@@ -212,7 +213,8 @@ const login = async (req, res) => {
             firstName: user.first_name,
             lastName: user.last_name,
             role: user.role,
-            companyName: user.company_name
+            companyName: user.company_name,
+            avatarUrl: user.avatar_url || null
           },
           token
         });
