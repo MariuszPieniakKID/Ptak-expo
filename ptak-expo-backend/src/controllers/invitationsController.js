@@ -367,11 +367,18 @@ const sendInvitation = async (req, res) => {
         }
       } catch {}
 
-      // Invitations header image from branding: 'tlo_wydarzenia_logo_zaproszenia'
+      // Invitations header image from branding: prefer 'mailing_header_800x300', fallback to legacy 'tlo_wydarzenia_logo_zaproszenia'
       let headerImageUrl = null;
       try {
         const f = await client.query(
-          `SELECT file_path FROM exhibitor_branding_files WHERE exhibitor_id IS NULL AND exhibition_id = $1 AND file_type = 'tlo_wydarzenia_logo_zaproszenia' ORDER BY created_at DESC LIMIT 1`,
+          `SELECT file_path FROM exhibitor_branding_files 
+           WHERE exhibitor_id IS NULL AND exhibition_id = $1 
+             AND file_type IN ('mailing_header_800x300', 'tlo_wydarzenia_logo_zaproszenia')
+           ORDER BY CASE file_type 
+                      WHEN 'mailing_header_800x300' THEN 0 
+                      WHEN 'tlo_wydarzenia_logo_zaproszenia' THEN 1 
+                    END, created_at DESC 
+           LIMIT 1`,
           [exhibitionId]
         );
         if (f.rows.length > 0 && f.rows[0].file_path) {
