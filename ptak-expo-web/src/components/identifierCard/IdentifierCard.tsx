@@ -16,6 +16,8 @@ export interface Identifier {
   qrCodeUrl: string;
   headerImageUrl: string;
   logoUrl: string;
+  invitesSentCount?: number;
+  invitesLimit?: number;
 }
 
 interface IdentifierCardProps {
@@ -95,11 +97,11 @@ const IdentifierCard: React.FC<IdentifierCardProps> = ({data}) => {
                 <div
                   className={styles.cardDarkHeaderTitle}
                   dangerouslySetInnerHTML={{
-                    __html: `Wysłane<br/>zaproszenia (15 <span>/ 50</span>)`,
+                    __html: `Wysłane<br/>zaproszenia (${Number.isFinite(data.invitesSentCount) ? data.invitesSentCount : 0} <span>/ ${Number.isFinite(data.invitesLimit) ? data.invitesLimit : 50}</span>)`,
                   }}
                 ></div>
               </div>
-              <Chart value={15} valueMax={50} />
+              <Chart value={Number.isFinite(data.invitesSentCount) ? (data.invitesSentCount as number) : 0} valueMax={Number.isFinite(data.invitesLimit) ? (data.invitesLimit as number) : 50} />
               <div className={styles.cardDarkOtherContentTitle}>
                 Biznes Priority Pass
               </div>

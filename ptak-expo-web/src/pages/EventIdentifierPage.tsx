@@ -4,7 +4,7 @@ import LeftColumn from '../components/event-left/LeftColumn';
 import IdentifierCard, { type Identifier } from '../components/identifierCard/IdentifierCard';
 import { useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import { exhibitionsAPI, tradeInfoAPI, brandingAPI } from '../services/api';
+import { exhibitionsAPI, tradeInfoAPI, brandingAPI, invitationsAPI } from '../services/api';
 import { getChecklist } from '../services/checkListApi';
 import styles from './EventHomePage.module.scss';
 
@@ -26,10 +26,11 @@ const EventIdentifierPage = () => {
       if (!eventId) return;
       try {
         const idNum = Number(eventId);
-        const [evRes, tradeRes, brandingRes] = await Promise.all([
+        const [evRes, tradeRes, brandingRes, recipients] = await Promise.all([
           exhibitionsAPI.getById(idNum),
           tradeInfoAPI.get(idNum).catch(() => null),
           brandingAPI.getGlobal(idNum).catch(() => null),
+          invitationsAPI.recipients(idNum).catch(() => [])
         ]);
 
         const e = evRes.data;
@@ -74,6 +75,8 @@ const EventIdentifierPage = () => {
           qrCodeUrl: `https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${encodeURIComponent(String(e.id))}`,
           headerImageUrl,
           logoUrl: catalogLogoUrl || '/assets/logo192.png',
+          invitesSentCount: Array.isArray(recipients) ? recipients.length : 0,
+          invitesLimit: 50,
         };
         setIdentifier(data);
       } catch (_err) {
