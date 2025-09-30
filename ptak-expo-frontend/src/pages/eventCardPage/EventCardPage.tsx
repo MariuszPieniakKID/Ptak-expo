@@ -89,6 +89,7 @@ function EventCardPage({ event }: EventCardPagetProps) {
               start_date={event.start_date}
               end_date={event.end_date}
               eventLogoFileName={(event as any).event_logo_file_name ?? null}
+              preferTileLogo={false}
               handleSelectEvent={()=>console.log('')}
               handleDeleteEventFromExhibitor={()=>console.log('')}
               showDelete={false}

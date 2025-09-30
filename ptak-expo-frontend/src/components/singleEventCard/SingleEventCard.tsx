@@ -28,6 +28,7 @@ interface SingleEventCardProps {
   showSelect?: boolean;  
   showEdit?: boolean;
   eventLogoFileName?: string | null;
+  preferTileLogo?: boolean; // prefer logo_kolowe_tlo_kafel when available
 }
 
 const SingleEventCard: React.FC<SingleEventCardProps> = ({
@@ -44,6 +45,7 @@ const SingleEventCard: React.FC<SingleEventCardProps> = ({
   showSelect = true,
   showEdit = false,
   eventLogoFileName,
+  preferTileLogo = true,
 }) => {
   const [openConfirm, setOpenConfirm] = useState(false);
   const [openDeleteExhibitionConfirm, setOpenDeleteExhibitionConfirm] = useState(false);
@@ -124,8 +126,13 @@ const SingleEventCard: React.FC<SingleEventCardProps> = ({
           try {
             const filesResp = await getBrandingFiles(exhibitorId, id, token);
             const files = filesResp.files || {};
-            const preferredKey = files['logo_kolowe_tlo_kafel']
-              ? 'logo_kolowe_tlo_kafel'
+            const preferredKey = preferTileLogo
+              ? (files['logo_kolowe_tlo_kafel']
+                  ? 'logo_kolowe_tlo_kafel'
+                  : (files['event_logo']
+                      ? 'event_logo'
+                      : (Object.keys(files).find(k => k.toLowerCase().includes('logo'))
+                          || Object.keys(files)[0])))
               : (files['event_logo']
                   ? 'event_logo'
                   : (Object.keys(files).find(k => k.toLowerCase().includes('logo'))
@@ -142,10 +149,12 @@ const SingleEventCard: React.FC<SingleEventCardProps> = ({
             // ignore, try global
           }
         }
-        // 2) Fall back to global event_logo
+        // 2) Fall back to global (prefer event_logo when preferTileLogo is false)
         try {
           const g = await getBrandingFiles(null, id, token);
-          const globalKey = g.files && (g.files['logo_kolowe_tlo_kafel'] ? 'logo_kolowe_tlo_kafel' : (g.files['event_logo'] ? 'event_logo' : null));
+          const globalKey = g.files && (preferTileLogo
+            ? (g.files['logo_kolowe_tlo_kafel'] ? 'logo_kolowe_tlo_kafel' : (g.files['event_logo'] ? 'event_logo' : null))
+            : (g.files['event_logo'] ? 'event_logo' : null));
           if (globalKey) {
             const value: any = g.files[globalKey] as any;
             const file = Array.isArray(value) ? value[0] : value;
@@ -163,7 +172,7 @@ const SingleEventCard: React.FC<SingleEventCardProps> = ({
       }
     };
     void resolveLogo();
-  }, [token, id, exhibitorId]);
+  }, [token, id, exhibitorId, preferTileLogo]);
 
   return (
     <>
