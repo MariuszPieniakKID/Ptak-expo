@@ -121,13 +121,13 @@ const CountryPhoneField: React.FC<CountryPhoneFieldProps> = ({
       <Box sx={{ flex: 1 }}>
         <CustomField
           type="tel"
-          label={label}
+          label={label ?? ''}
           value={localPart}
           onChange={handleLocalChange}
           placeholder={placeholder || '600600600'}
-          error={error}
-          errorMessage={errorMessage}
-          fullWidth={fullWidth}
+          error={!!error}
+          errorMessage={errorMessage ?? ''}
+          fullWidth={!!fullWidth}
           margin="none"
         />
       </Box>
