@@ -453,3 +453,72 @@ module.exports = {
   uploadTradePlan,
   downloadTradePlan
 }; 
+
+// Broadcast a trade message to all exhibitors assigned to an exhibition
+// Sends email and logs a global communication so it appears in Aktualności for the event
+const broadcastTradeMessage = async (req, res) => {
+  try {
+    const exhibitionId = parseInt(req.params.exhibitionId, 10);
+    const { message, subject } = req.body || {};
+    if (!Number.isFinite(exhibitionId)) {
+      return res.status(400).json({ success: false, message: 'Nieprawidłowe ID wydarzenia' });
+    }
+    if (!message || !String(message).trim()) {
+      return res.status(400).json({ success: false, message: 'Treść wiadomości jest wymagana' });
+    }
+
+    const client = await pool.connect();
+    try {
+      // Collect all exhibitors assigned to this exhibition with an email
+      const q = await client.query(
+        `SELECT e.id AS exhibitor_id, e.email, e.company_name
+         FROM exhibitor_events ee
+         JOIN exhibitors e ON e.id = ee.exhibitor_id
+         WHERE ee.exhibition_id = $1 AND e.email IS NOT NULL AND LENGTH(TRIM(e.email)) > 0`,
+        [exhibitionId]
+      );
+      const recipients = q.rows || [];
+
+      // Send emails (best-effort)
+      const { sendEmail } = require('../utils/emailService');
+      const emailSubject = subject && String(subject).trim().length ? subject : 'Komunikat targowy – PTAK WARSAW EXPO';
+      let sentCount = 0;
+      let failCount = 0;
+      for (const r of recipients) {
+        try {
+          const html = `
+            <div style="font-family: Arial, sans-serif; line-height:1.6;">
+              <p>Dzień dobry,</p>
+              <p>${String(message).replace(/\n/g, '<br/>')}</p>
+              <p style="margin-top:16px; color:#666; font-size:12px;">Ta wiadomość została wysłana z panelu administracyjnego PTAK WARSAW EXPO.</p>
+            </div>
+          `;
+          const result = await sendEmail({ to: r.email, subject: emailSubject, html, text: message });
+          if (result?.success) sentCount++; else failCount++;
+        } catch {
+          failCount++;
+        }
+      }
+
+      // Insert a single global communication so news shows for all exhibitors of this event
+      try {
+        await client.query(
+          `INSERT INTO communications (title, content, type, exhibition_id, user_id)
+           VALUES ($1, $2, $3, $4, NULL)`,
+          ['Komunikat targowy', message, 'notification', exhibitionId]
+        );
+      } catch (e) {
+        console.warn('⚠️ Could not insert global communication:', e?.message || e);
+      }
+
+      return res.json({ success: true, message: 'Wiadomość rozesłana', data: { recipients: recipients.length, sent: sentCount, failed: failCount } });
+    } finally {
+      client.release();
+    }
+  } catch (error) {
+    console.error('❌ Error broadcasting trade message:', error);
+    return res.status(500).json({ success: false, message: 'Błąd podczas wysyłki wiadomości', error: error.message });
+  }
+};
+
+module.exports.broadcastTradeMessage = broadcastTradeMessage;

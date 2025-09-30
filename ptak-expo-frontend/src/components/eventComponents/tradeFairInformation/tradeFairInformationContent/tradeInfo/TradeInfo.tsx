@@ -15,6 +15,7 @@ import { ReactComponent as AddIconSVG} from "../../../../../assets/blackAddIcon.
 import ComponentWithDocument from '../../../../componentWithDocument/ComponentWithDocument';
 import ComponentWithAction from '../../../../componentWithAction/ComponentWithAction';
 import SendMessageContainer from '../../../../exhibitorDatabaseDocuments/messageContainer/SendMessageContainer';
+import * as api from '../../../../../services/api';
 
 interface TradeHours {
   exhibitorStart: string;
@@ -838,7 +839,13 @@ const TradeInfo: React.FC<TradeInfoProps> = ({ exhibitionId }) => {
                  }, token);
 
                  setTradeMessage(message);
-                 setSuccessMessage('Wiadomość zapisana');
+                 // Broadcast email + log to Aktualności
+                 try {
+                   await api.broadcastTradeMessage(exhibitionId, message, token);
+                 } catch (e: any) {
+                   console.warn('[TradeInfo] broadcast failed:', e?.message || e);
+                 }
+                 setSuccessMessage('Wiadomość zapisana i rozesłana');
                  setTimeout(() => setSuccessMessage(''), 2500);
                } catch (e: any) {
                  setError(e?.message || 'Błąd podczas zapisywania wiadomości');

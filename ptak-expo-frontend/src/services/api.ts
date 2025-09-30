@@ -960,6 +960,28 @@ export const saveTradeInfo = async (
   return data;
 };
 
+// Broadcast trade message to all exhibitors of the exhibition
+export const broadcastTradeMessage = async (
+  exhibitionId: number,
+  message: string,
+  token: string,
+  subject?: string,
+): Promise<{ success: boolean; message: string; data?: { recipients: number; sent: number; failed: number } }> => {
+  const response = await apiCall(`${config.API_BASE_URL}/api/v1/trade-info/${exhibitionId}/broadcast`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+    },
+    body: JSON.stringify({ message, subject }),
+  });
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data.message || 'Błąd podczas wysyłki komunikatu');
+  }
+  return data;
+};
+
 export const getTradeInfo = async (
   exhibitionId: number,
   token: string
