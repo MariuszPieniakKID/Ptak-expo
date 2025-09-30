@@ -80,7 +80,7 @@ const EventHomePage = () => {
           <AvatarBanner />
           {event && (
             <>
-              <PlannedEventCard event={event} onSelect={() => navigate('/dashboard')} />
+              <PlannedEventCard event={event} onSelect={() => navigate('/dashboard')} preferTileLogo={false} />
               <ChecklistProgressCard
                 daysLeft={event.daysLeft}
                 onChecklistClick={() => navigate(`/event/${event.id}/checklist`)}

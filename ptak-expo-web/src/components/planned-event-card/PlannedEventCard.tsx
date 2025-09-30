@@ -15,9 +15,10 @@ export interface EventData {
 interface PlannedEventCardProps {
   event: EventData;
   onSelect?: () => void;
+  preferTileLogo?: boolean; // prefer logo_kolowe_tlo_kafel on dashboard; false on inner pages
 }
 
-const PlannedEventCard: React.FC<PlannedEventCardProps> = ({ event, onSelect }) => {
+const PlannedEventCard: React.FC<PlannedEventCardProps> = ({ event, onSelect, preferTileLogo = true }) => {
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
 
   useEffect(() => {
@@ -26,7 +27,9 @@ const PlannedEventCard: React.FC<PlannedEventCardProps> = ({ event, onSelect }) 
       try {
         const res = await brandingAPI.getGlobal(Number(event.id));
         const files = res.data?.files || {};
-        const fileObj = files['logo_kolowe_tlo_kafel'] || files['event_logo'] || null;
+        const fileObj = preferTileLogo
+          ? (files['logo_kolowe_tlo_kafel'] || files['event_logo'] || null)
+          : (files['event_logo'] || null);
         const file = fileObj && (Array.isArray(fileObj) ? fileObj[0] : fileObj);
         if (file?.fileName && mounted) setLogoUrl(brandingAPI.serveGlobalUrl(file.fileName));
       } catch {
@@ -35,7 +38,7 @@ const PlannedEventCard: React.FC<PlannedEventCardProps> = ({ event, onSelect }) 
     };
     resolve();
     return () => { mounted = false; };
-  }, [event.id]);
+  }, [event.id, preferTileLogo]);
   const getReadinessClass = (value: number) => {
     if (value <= 30) return styles.red;
     if (value <= 55) return styles.orange;

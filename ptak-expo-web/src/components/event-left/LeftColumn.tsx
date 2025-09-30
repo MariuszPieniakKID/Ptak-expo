@@ -89,7 +89,7 @@ const LeftColumn: React.FC<LeftColumnProps> = ({ eventId, isDarkBg = false }) =>
       <AvatarBanner isWhite={isDarkBg}/>
       {event && (
         <>
-          <PlannedEventCard event={event} onSelect={() => navigate('/dashboard')} />
+          <PlannedEventCard event={event} onSelect={() => navigate('/dashboard')} preferTileLogo={false} />
           {/* Hide readiness for now */}
           <ChecklistProgressCard
             daysLeft={event.daysLeft}
