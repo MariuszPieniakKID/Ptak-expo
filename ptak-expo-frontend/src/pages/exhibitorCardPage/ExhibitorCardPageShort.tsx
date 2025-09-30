@@ -459,7 +459,6 @@ const ExhibitorCardPage: React.FC = () => {
                             preferTileLogo={false}
                             handleSelectEvent={handleSelectEvent}
                             handleDeleteEventFromExhibitor={handleDeleteEventFromExhibitor}
-                            showEdit
                             /> 
                           ))}
 
