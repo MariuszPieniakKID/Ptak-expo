@@ -32,7 +32,6 @@ import {
 import { useMediaQuery } from '@mui/material';
 
 import UsersPageIcon from '../../assets/mask-group-5@2x.png';
-import UserAvatar from '../../assets/7bb764a0137abc7a8142b6438e529133@2x.png';
 import Applause from '../../assets/applause.png';
 
 import { ReactComponent as LogoutIcon } from '../../assets/log-out.svg';
@@ -202,12 +201,17 @@ const UsersPage: React.FC = () => {
 
                   </Box>
                   <Box className={styles.logedUserInfo}>
-                    <Avatar 
-                      src={buildAvatarUrl(user?.id) || undefined}
-                      alt={user?.firstName || 'User'} 
-                      className={styles.avatar} 
-                      onClick={()=>console.log("")}
-                      />
+                    {(() => {
+                      const src = buildAvatarUrl(user?.id);
+                      return (
+                        <Avatar
+                          {...(src ? { src } : {})}
+                          alt={user?.firstName || 'User'}
+                          className={styles.avatar}
+                          onClick={() => console.log("")}
+                        />
+                      );
+                    })()}
                     <Box> 
                       <CustomTypography className={styles.welcomeMessageTitle}> Dzień dobry, {user?.firstName || 'Użytkowniku'} 
                           <img
@@ -321,29 +325,34 @@ const UsersPage: React.FC = () => {
                           </TableRow>
                         </TableHead>
                         <TableBody>
-                          {paginatedUsers.map((user: User) => (
-                            <TableRow key={user.id}>
+                          {paginatedUsers.map((u: User) => (
+                            <TableRow key={u.id}>
                               <TableCell className={styles.tableCellL}>
                                 <Box className={styles.avatarCell}>
-                                  <Avatar 
-                                    className={styles.avatarTableCell}
-                                    src={buildAvatarUrl((user as any)?.id) || undefined}
-                                   >
-                                    {getUserInitials(user.fullName)}
-                                  </Avatar>
+                                  {(() => {
+                                    const src = buildAvatarUrl(u.id);
+                                    return (
+                                      <Avatar
+                                        className={styles.avatarTableCell}
+                                        {...(src ? { src } : {})}
+                                      >
+                                        {getUserInitials(u.fullName)}
+                                      </Avatar>
+                                    );
+                                  })()}
                                   <CustomTypography fontSize="1em" fontWeight={500}>
-                                    {user.fullName}
+                                    {u.fullName}
                                   </CustomTypography>
                                 </Box>
                               </TableCell>
                               <TableCell className={styles.tableCell}>
                                 <CustomTypography fontSize="0.8125em" fontWeight={400}>
-                                  {user.email}
+                                  {u.email}
                                 </CustomTypography>
                               </TableCell>
                               <TableCell className={styles.tableCell}>
                                 <CustomTypography fontSize="0.8125em" fontWeight={400}>
-                                  {user.phone || '—'}
+                                  {u.phone || '—'}
                                 </CustomTypography>
                               </TableCell>
                               <TableCell className={styles.tableCell} align="right" >
@@ -355,11 +364,11 @@ const UsersPage: React.FC = () => {
                                   gap={1} 
                                   className={styles.actionButtonWithHover}>
                                     <KeyIcon
-                                      onClick={() => handleResetPassword(user.id)}
+                                      onClick={() => handleResetPassword(u.id)}
                                       className={styles.iconActionButton}
                                     />
                                     <CustomTypography
-                                      onClick={() => handleResetPassword(user.id)}
+                                      onClick={() => handleResetPassword(u.id)}
                                       className={styles.textActionButton}
                                       sx={{fontSize:'0.8125em !important'}}
                                     >
@@ -368,7 +377,7 @@ const UsersPage: React.FC = () => {
                                   </Box>
               
                                   <WastebasketIcon 
-                                    onClick={() => handleDeleteUser(user.id, user.fullName)} 
+                                    onClick={() => handleDeleteUser(u.id, u.fullName)} 
                                     className={styles.noEffectsButton}
                                   />
                                 </Box>
