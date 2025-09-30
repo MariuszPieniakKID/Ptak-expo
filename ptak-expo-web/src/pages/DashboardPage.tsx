@@ -21,6 +21,7 @@ const DashboardPage: React.FC = () => {
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [tileLogoByEventId, setTileLogoByEventId] = useState<Record<number, string | null>>({});
 
   // Load exhibitor events on component mount
   useEffect(() => {
@@ -49,6 +50,35 @@ const DashboardPage: React.FC = () => {
       loadEvents();
     }
   }, [user]);
+
+  // Resolve tile logos for dashboard (prefer logo_kolowe_tlo_kafel, fallback event_logo)
+  useEffect(() => {
+    const loadTileLogos = async () => {
+      if (!events || events.length === 0) return;
+      try {
+        const entries = await Promise.all(
+          events.map(async (ev) => {
+            try {
+              const res = await brandingAPI.getGlobal(ev.id);
+              const files: any = res.data?.files || {};
+              const fileObj = files['logo_kolowe_tlo_kafel'] || files['event_logo'] || null;
+              const file = fileObj && (Array.isArray(fileObj) ? fileObj[0] : fileObj);
+              const fileName = file?.fileName || null;
+              return [ev.id, fileName] as [number, string | null];
+            } catch {
+              return [ev.id, null] as [number, string | null];
+            }
+          })
+        );
+        const m: Record<number, string | null> = {};
+        for (const [k, v] of entries) m[k] = v;
+        setTileLogoByEventId(m);
+      } catch {
+        // ignore
+      }
+    };
+    loadTileLogos();
+  }, [events]);
 
   const handleLogout = () => {
     logout();
@@ -144,9 +174,12 @@ const DashboardPage: React.FC = () => {
       
       {/* Dynamic event boxes */}
       {!loading && !error && events.map((event, index) => {
-        const logoSrc = (event as any).event_logo_file_name
-          ? brandingAPI.serveGlobalUrl((event as any).event_logo_file_name)
-          : "/image-29@2x.png";
+        const tileName = tileLogoByEventId[event.id] || null;
+        const logoSrc = tileName
+          ? brandingAPI.serveGlobalUrl(tileName)
+          : ((event as any).event_logo_file_name
+              ? brandingAPI.serveGlobalUrl((event as any).event_logo_file_name)
+              : "/image-29@2x.png");
         const completion = getCompletionPercentage(event);
         
         // Define CSS classes for positioning based on index
