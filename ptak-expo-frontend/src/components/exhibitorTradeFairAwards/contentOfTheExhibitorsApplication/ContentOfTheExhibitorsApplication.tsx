@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Box } from "@mui/material";
 import styles from "./ContentOfTheExhibitorsApplication.module.scss";
 import CustomTypography from "../../customTypography/CustomTypography";
@@ -15,24 +15,30 @@ interface ContentOfTheExhibitorsApplicationProps {
 }
 
 const ContentOfTheExhibitorsApplication: React.FC<ContentOfTheExhibitorsApplicationProps> = ({ data }) => {
+  const [messages, setMessages] = useState<_TradeAwardsFair[]>(data);
+  const [newMsg, setNewMsg] = useState<string>("");
   
   const handleAcceptanceOftheApplication = (id: number) => {
     console.log("Akcept zgłoszenia wystawcy o id:", id);
   }
 
   const handleSentMessage = () => {
-    console.log("Wysłanie wiadomości");
+    const v = (newMsg || "").trim();
+    if (!v) return;
+    const next: _TradeAwardsFair = { id: Date.now(), message: v };
+    setMessages(prev => [next, ...prev]);
+    setNewMsg("");
   }
 
   return (
     <Box className={styles.container}>
-      {data.length === 0 ? (
+      {messages.length === 0 ? (
         <CustomTypography className={styles.title}>
           Brak zgłoszeń wystawcy
         </CustomTypography>
       ) : (
         <Box className={styles.page}>
-          {data.map((item) => (
+          {messages.map((item) => (
             <Box key={item.id} className={styles.applicationItem}>
               <CustomTypography className={styles.title}>
                 Treść zgłoszenia wystawcy:
@@ -59,13 +65,14 @@ const ContentOfTheExhibitorsApplication: React.FC<ContentOfTheExhibitorsApplicat
           ))}
 
           <CustomTypography className={styles.title}>
-            Wyślij wiadomość
+            Zapisane wiadomości
           </CustomTypography>
 
           <Box className={styles.message}>
             <TextEditor 
               legend="Treść powiadomienia"
-              value=""
+              value={newMsg}
+              onChange={setNewMsg}
               showToolbar={true}
               placeholder="Wyślij wiadomość dotyczącą zgłoszenia (max. 750 znaków)"         
             />
