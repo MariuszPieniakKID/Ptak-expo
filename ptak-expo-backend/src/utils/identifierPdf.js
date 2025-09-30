@@ -155,16 +155,36 @@ async function buildIdentifierPdf(client, exhibitionId, payload, exhibitorId) {
           } catch {}
         }
         if (row && row.logo) {
-          const logoVal = String(row.logo);
+          const logoVal = String(row.logo).trim();
           if (/^data:image\//.test(logoVal)) {
             const base64 = logoVal.split(',')[1] || '';
             try { footerLogoSource = Buffer.from(base64, 'base64'); } catch {}
           } else if (/^https?:\/\//i.test(logoVal)) {
             try { const r = await fetch(logoVal); if (r.ok) footerLogoSource = Buffer.from(await r.arrayBuffer()); } catch {}
+          } else if (/^\/?api\//i.test(logoVal)) {
+            // Relative API URL (e.g. /api/v1/exhibitor-branding/serve/global/<file>) → build absolute and fetch
+            const base = (process.env.PUBLIC_BASE_URL && process.env.PUBLIC_BASE_URL.trim())
+              ? process.env.PUBLIC_BASE_URL.trim().replace(/\/$/, '')
+              : 'http://localhost:3001';
+            const abs = logoVal.startsWith('/') ? `${base}${logoVal}` : `${base}/${logoVal}`;
+            try { const r = await fetch(abs); if (r.ok) footerLogoSource = Buffer.from(await r.arrayBuffer()); } catch {}
           } else {
+            // Try file on disk under uploads
             const normalized = logoVal.startsWith('uploads/') ? logoVal.replace(/^uploads\//, '') : logoVal;
-            const resolved = path.join(uploadsBase, normalized);
-            if (fs.existsSync(resolved)) footerLogoSource = resolved;
+            let resolved = path.join(uploadsBase, normalized);
+            if (fs.existsSync(resolved)) {
+              footerLogoSource = resolved;
+            } else {
+              // As a last resort, try serving via global branding endpoint using filename
+              const fileName = normalized.split('/').pop();
+              if (fileName) {
+                const base = (process.env.PUBLIC_BASE_URL && process.env.PUBLIC_BASE_URL.trim())
+                  ? process.env.PUBLIC_BASE_URL.trim().replace(/\/$/, '')
+                  : 'http://localhost:3001';
+                const url = `${base}/api/v1/exhibitor-branding/serve/global/${encodeURIComponent(fileName)}`;
+                try { const r = await fetch(url); if (r.ok) footerLogoSource = Buffer.from(await r.arrayBuffer()); } catch {}
+              }
+            }
           }
         }
       }
