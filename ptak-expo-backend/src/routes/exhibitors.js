@@ -802,6 +802,43 @@ router.post('/:id/assign-event', verifyToken, requireAdmin, async (req, res) => 
   }
 });
 
+// GET /api/v1/exhibitors/:id/assign-event/:exhibitionId - pobierz szczegóły przypisania (tylko admin)
+router.get('/:id/assign-event/:exhibitionId', verifyToken, requireAdmin, async (req, res) => {
+  try {
+    const { id, exhibitionId } = req.params;
+
+    // Validate existence
+    const exRes = await db.query('SELECT id FROM exhibitors WHERE id = $1 LIMIT 1', [id]);
+    if (exRes.rows.length === 0) {
+      return res.status(404).json({ success: false, message: 'Wystawca nie został znaleziony' });
+    }
+
+    const asg = await db.query(
+      `SELECT supervisor_user_id, hall_name, stand_number, booth_area
+       FROM exhibitor_events
+       WHERE exhibitor_id = $1 AND exhibition_id = $2 LIMIT 1`,
+      [id, exhibitionId]
+    );
+
+    if (asg.rows.length === 0) {
+      return res.json({ success: true, data: null });
+    }
+    const row = asg.rows[0];
+    return res.json({
+      success: true,
+      data: {
+        supervisorUserId: row.supervisor_user_id ?? null,
+        hallName: row.hall_name ?? '',
+        standNumber: row.stand_number ?? '',
+        boothArea: row.booth_area !== null && row.booth_area !== undefined ? String(row.booth_area) : '',
+      }
+    });
+  } catch (e) {
+    console.error('[get assign-event details] error', e);
+    return res.status(500).json({ success: false, message: 'Błąd podczas pobierania szczegółów przypisania' });
+  }
+});
+
 // DELETE /api/v1/exhibitors/:id/assign-event/:exhibitionId - odłącz wystawcę od wydarzenia (tylko admin)
 router.delete('/:id/assign-event/:exhibitionId', verifyToken, requireAdmin, async (req, res) => {
   try {

@@ -179,6 +179,18 @@ const AddEventToExhibitorModal: React.FC<AddEventToExhibitorModalProps> = ({
       resetForm();
       loadExhibitions();
       loadExhibitionSupervisors();
+      try {
+        const prefill = (window as any).__prefillExhibitorAssign;
+        if (prefill) {
+          setFormEventValues((prev) => ({
+            ...prev,
+            hallName: prefill.hallName ?? '',
+            standNumber: prefill.standNumber ?? '',
+            boothArea: prefill.boothArea ?? '',
+            exhibitionSupervisor: prefill.supervisorUserId ? String(prefill.supervisorUserId) : '',
+          }));
+        }
+      } catch {}
     }
   }, [isOpen, resetForm, loadExhibitions,loadExhibitionSupervisors]);
 

@@ -1,5 +1,5 @@
 import React, { ChangeEvent,useCallback,useEffect,useState} from 'react';
-import {Alert, Box,CircularProgress,Dialog,DialogActions,DialogTitle, IconButton,Typography} from '@mui/material';
+import {Alert, Box,CircularProgress,Dialog,DialogActions,DialogTitle, IconButton,Typography, Avatar, Button} from '@mui/material';
 import CustomField from '../customField/CustomField';
 import CountryPhoneField from '../countryPhoneField/CountryPhoneField';
 import { addUserByAdmin, AddUserPayloadByAdmin } from '../../services/api';
@@ -31,6 +31,7 @@ const [emailError, setEmailError] = useState('');
 const [phone,setPhone]=useState('');
 const [phoneError, setPhoneError] = useState('');
 const [error, setError]=useState('');
+const [avatarFile, setAvatarFile] = useState<File | null>(null);
 const [loading, setLoading] = useState(false);
 const [apiError, setApiError] = useState('');
 
@@ -48,6 +49,7 @@ const [apiError, setApiError] = useState('');
       setApiError('');
       setError('');
       setLoading(false);
+      setAvatarFile(null);
     }
    }, [isOpen]);
 
@@ -142,6 +144,20 @@ const [apiError, setApiError] = useState('');
           console.log('[AddUserModalShort] submit payload:', payload);
           const res = await addUserByAdmin(payload, token);
           console.log('[AddUserModalShort] API response:', res);
+          const newUserId = (res as any)?.data?.id;
+          if (avatarFile && newUserId) {
+            try {
+              const form = new FormData();
+              form.append('avatar', avatarFile);
+              await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:3001'}/api/v1/users/${newUserId}/avatar`, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${token}` },
+                body: form,
+              });
+            } catch (upErr: any) {
+              console.warn('[AddUserModalShort] avatar upload failed:', upErr?.message || upErr);
+            }
+          }
           onUserAdded();
           onClose();
           
@@ -154,7 +170,7 @@ const [apiError, setApiError] = useState('');
           setLoading(false);
         }
       },
-      [fullName, email, phone, token, onUserAdded, onClose]
+      [fullName, email, phone, token, onUserAdded, onClose, avatarFile]
     );
   
 
@@ -221,15 +237,24 @@ const [apiError, setApiError] = useState('');
                   className={styles.input}
                   errorMessageClassName={styles.inputErrorMessage}
                 />
-                <CountryPhoneField
-                  value={phone}
-                  onChange={(v) => { handlePhoneChange({ target: { value: v } } as any); }}
-                  label="Telefon"
-                  error={!!phoneError}
-                  errorMessage={phoneError}
-                  className={styles.input}
-                  fullWidth
-                /> 
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                  <CountryPhoneField
+                    value={phone}
+                    onChange={(v) => { handlePhoneChange({ target: { value: v } } as any); }}
+                    label="Telefon"
+                    error={!!phoneError}
+                    errorMessage={phoneError}
+                    className={styles.input}
+                    fullWidth
+                  />
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                    <Avatar sx={{ width: 48, height: 48 }} src={avatarFile ? URL.createObjectURL(avatarFile) : undefined} />
+                    <Button variant="outlined" component="label" disabled={loading}>
+                      Dodaj avatar
+                      <input hidden accept="image/png, image/jpeg, image/webp" type="file" onChange={(e) => setAvatarFile(e.target.files?.[0] || null)} />
+                    </Button>
+                  </Box>
+                </Box>
             </Box>
 
             <Box>

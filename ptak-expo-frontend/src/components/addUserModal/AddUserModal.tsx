@@ -13,6 +13,7 @@ import {
   Alert,
   IconButton,
   Box,
+  Avatar,
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import { addUser, AddUserPayload, uploadUserAvatar } from '../../services/api';
@@ -180,7 +181,7 @@ const AddUserModal: React.FC<AddUserModalProps> = ({
         <form onSubmit={handleSubmit}>
             <DialogContent className={styles.dialogContent}>
             {apiError && <Alert severity="error" sx={{ mb: 2 }}>{apiError}</Alert>}
-            <Box sx={{ display: 'flex', flexDirection: 'row', gap: 2 }}>
+            <Box sx={{ display: 'flex', flexDirection: 'row', gap: 2, alignItems: 'flex-start' }}>
             
                 <TextField
                     name="fullName"
@@ -221,12 +222,24 @@ const AddUserModal: React.FC<AddUserModalProps> = ({
                         }}
                       />
                     </Button>
-                    <CountryPhoneField
-                      value={formData.phone}
-                      onChange={(v) => handleInputChange({ target: { name: 'phone', value: v } } as any)}
-                      label="Telefon"
-                      fullWidth
-                    />
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, flex: 1 }}>
+                      <CountryPhoneField
+                        value={formData.phone}
+                        onChange={(v) => handleInputChange({ target: { name: 'phone', value: v } } as any)}
+                        label="Telefon"
+                        fullWidth
+                      />
+                      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                        <Avatar sx={{ width: 48, height: 48 }} src={avatarFile ? URL.createObjectURL(avatarFile) : undefined} />
+                        <Button variant="outlined" component="label" disabled={loading}>
+                          Dodaj avatar
+                          <input hidden accept="image/png, image/jpeg, image/webp" type="file" onChange={(e) => {
+                            const f = e.target.files?.[0] || null;
+                            setAvatarFile(f);
+                          }} />
+                        </Button>
+                      </Box>
+                    </Box>
 
             </Box>
             {/* <Box

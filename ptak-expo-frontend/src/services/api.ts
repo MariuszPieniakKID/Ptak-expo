@@ -1329,6 +1329,22 @@ export const unassignExhibitorFromEvent = async (
   return data;
 };
 
+export const fetchExhibitorAssignment = async (
+  exhibitorId: number,
+  exhibitionId: number,
+  token: string
+): Promise<{ success: boolean; data: { supervisorUserId: number | null; hallName: string; standNumber: string; boothArea: string } | null }> => {
+  const response = await apiCall(`${config.API_BASE_URL}/api/v1/exhibitors/${exhibitorId}/assign-event/${exhibitionId}`, {
+    method: 'GET',
+    headers: { 'Authorization': `Bearer ${token}` },
+  });
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data?.message || 'Błąd podczas pobierania szczegółów przypisania');
+  }
+  return data;
+};
+
 // ============= TRADE PLAN FILES API =============
 
 export interface TradePlanUploadResponse {

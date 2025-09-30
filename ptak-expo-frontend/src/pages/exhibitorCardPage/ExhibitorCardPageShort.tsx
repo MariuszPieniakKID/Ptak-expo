@@ -48,6 +48,7 @@ import UserAvatar from '../../assets/7bb764a0137abc7a8142b6438e529133@2x.png';
 import Applause from '../../assets/applause.png';
 import SingleEventCard from '../../components/singleEventCard/SingleEventCard';
 import AddEventToExhibitorModal from '../../components/addEventToExhibitorModal/AddEventToExhibitorModal';
+import { fetchExhibitorAssignment } from '../../services/api';
 import ExhibitorWithEvent from '../../components/exhibitorWithEvent/ExhibitorWithEvent';
 import ExhibitorDatabaseDocuments from '../../components/exhibitorDatabaseDocuments/ExhibitorDatabaseDocuments';
 import ExhibitoiIdentifiers from '../../components/exhibitoiIdentifiers/ExhibitoiIdentifiers';
@@ -198,7 +199,18 @@ const ExhibitorCardPage: React.FC = () => {
     const handler = (e: any) => {
       const d = e?.detail || {};
       if (typeof d?.id === 'number') {
-        setIsEditEventOpen(true);
+        // Preload current assignment details into the add/edit modal fields by temporarily overriding its defaults
+        // We open the modal; the modal itself fetches event list. We'll additionally fetch assignment here to prefill.
+        (async () => {
+          try {
+            if (exhibitor && token) {
+              const assign = await fetchExhibitorAssignment(exhibitor.id, d.id, token);
+              // Store into a temp global to be read by modal via window (simple bridge without refactor)
+              (window as any).__prefillExhibitorAssign = assign?.data || null;
+            }
+          } catch {}
+          setIsEditEventOpen(true);
+        })();
       }
     };
     window.addEventListener('open-edit-event-modal', handler as any);
