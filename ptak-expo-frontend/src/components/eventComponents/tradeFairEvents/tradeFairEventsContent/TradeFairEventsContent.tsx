@@ -115,6 +115,11 @@ const TradeFairEventsContent: React.FC<TradeFairEventsContentProps> = ({ event, 
                     setNewEvent(prev => ({ ...prev, eventDate: dateStr }));
                   }}
                 />
+                {tradeEventsError && newEvent.eventDate === '' && (
+                  <Box component="span" sx={{ color: 'error.main', fontSize: '0.75rem', marginTop: '4px', display: 'block', px: 1 }}>
+                    Data jest wymagana
+                  </Box>
+                )}
               </Box>
             </LocalizationProvider>
             <CustomField

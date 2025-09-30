@@ -269,15 +269,22 @@ const AddingEvents: React.FC<AddingEventsProps> = ({ exhibitionId, exhibitorId, 
         </Box>
         <Box className={styles.singleRowWrap}>
           <Box className={styles.pickers}>
-            <LocalizationProvider dateAdapter={AdapterDayjs}>
+            <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="pl">
               <Box sx={{ background: '#f6f8fa', borderRadius: '8px' }}>
                 <DateCalendar
                   value={formValues.eventDate ? dayjs(formValues.eventDate) : null}
+                  {...(exhibitionRange?.start ? { minDate: dayjs(exhibitionRange.start) } : {})}
+                  {...(exhibitionRange?.end ? { maxDate: dayjs(exhibitionRange.end) } : {})}
                   onChange={(newValue) => {
                     const dateStr = newValue ? newValue.format('YYYY-MM-DD') : '';
                     handleFormValueChange('eventDate')(dateStr);
                   }}
                 />
+                {formErrors.eventDate && (
+                  <Box component="span" sx={{ color: 'error.main', fontSize: '0.75rem', marginTop: '4px', display: 'block', px: 1 }}>
+                    {formErrors.eventDate}
+                  </Box>
+                )}
               </Box>
             </LocalizationProvider>
             <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="pl">
