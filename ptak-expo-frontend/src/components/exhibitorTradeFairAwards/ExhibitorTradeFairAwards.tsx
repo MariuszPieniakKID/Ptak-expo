@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Box, Accordion, AccordionSummary, AccordionDetails, Typography } from "@mui/material";
 import styles from "./ExhibitorTradeFairAwards.module.scss";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import { ExhibitorAward, getExhibitorAward, saveExhibitorAward } from "../../services/api";
+import { ExhibitorAward, getExhibitorAward, saveExhibitorAward, addExhibitorAwardMessage, listExhibitorAwardMessages } from "../../services/api";
 import { ReactComponent as  TradeAwardcIcon} from '../../assets/trade_fair_awardsIcon.svg';
 import ContentOfTheExhibitorsApplication from "./contentOfTheExhibitorsApplication/ContentOfTheExhibitorsApplication";
 import { useAuth } from "../../contexts/AuthContext";
@@ -30,6 +30,7 @@ import CustomButton from "../customButton/CustomButton";
    const [award, setAward] = useState<ExhibitorAward | null>(null);
    const [draftText, setDraftText] = useState<string>("");
    const [isEditing, setIsEditing] = useState<boolean>(false);
+   const [messages, setMessages] = useState<Array<{ id: number; message: string; created_at?: string }>>([]);
 
    const items = [
      {
@@ -37,7 +38,18 @@ import CustomButton from "../customButton/CustomButton";
        title: "Nagrody targowe",
        container: (
          <ContentOfTheExhibitorsApplication
-           data={award ? [{ id: award.id || 0, message: award.applicationText }] : []}
+           data={(award ? [{ id: award.id || 0, message: award.applicationText }] : []).concat(
+             messages.map(m => ({ id: m.id, message: m.message }))
+           )}
+           onAddMessage={async (text: string) => {
+             if (!token || !exhibitionId) return;
+             try {
+               const row = await addExhibitorAwardMessage(exhibitorId, exhibitionId, text, token);
+               setMessages(prev => [{ id: row.id, message: row.message, created_at: row.created_at }, ...prev]);
+             } catch (e: any) {
+               setError(e?.message || 'Nie udało się zapisać wiadomości');
+             }
+           }}
          />
        ),
      },
@@ -59,6 +71,7 @@ import CustomButton from "../customButton/CustomButton";
        if (!token || !exhibitionId) {
          setAward(null);
          setDraftText("");
+         setMessages([]);
          return;
        }
        try {
@@ -74,6 +87,10 @@ import CustomButton from "../customButton/CustomButton";
            setDraftText("");
            setIsEditing(true);
          }
+         try {
+           const list = await listExhibitorAwardMessages(exhibitorId, exhibitionId, token);
+           setMessages(list);
+         } catch {}
        } catch (e: any) {
          setError(e?.message || "Błąd podczas pobierania zgłoszenia");
        } finally {

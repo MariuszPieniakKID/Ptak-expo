@@ -12,9 +12,10 @@ export interface _TradeAwardsFair {
 
 interface ContentOfTheExhibitorsApplicationProps {
   data: _TradeAwardsFair[];
+  onAddMessage?: (text: string) => void;
 }
 
-const ContentOfTheExhibitorsApplication: React.FC<ContentOfTheExhibitorsApplicationProps> = ({ data }) => {
+const ContentOfTheExhibitorsApplication: React.FC<ContentOfTheExhibitorsApplicationProps> = ({ data, onAddMessage }) => {
   const [messages, setMessages] = useState<_TradeAwardsFair[]>(data);
   const [newMsg, setNewMsg] = useState<string>("");
   
@@ -25,8 +26,12 @@ const ContentOfTheExhibitorsApplication: React.FC<ContentOfTheExhibitorsApplicat
   const handleSentMessage = () => {
     const v = (newMsg || "").trim();
     if (!v) return;
-    const next: _TradeAwardsFair = { id: Date.now(), message: v };
-    setMessages(prev => [next, ...prev]);
+    if (onAddMessage) {
+      onAddMessage(v);
+    } else {
+      const next: _TradeAwardsFair = { id: Date.now(), message: v };
+      setMessages(prev => [next, ...prev]);
+    }
     setNewMsg("");
   }
 

@@ -1672,6 +1672,41 @@ export const sendExhibitorDocumentMessage = async (
   return data;
 };
 
+// ===== Exhibitor Awards Messages (Admin) =====
+export interface AwardMessageRow { id: number; message: string; created_at: string }
+
+export const listExhibitorAwardMessages = async (
+  exhibitorId: number,
+  exhibitionId: number,
+  token: string
+): Promise<AwardMessageRow[]> => {
+  const res = await apiCall(`${config.API_BASE_URL}/api/v1/exhibitor-awards/${exhibitorId}/${exhibitionId}/messages`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data?.message || 'Błąd podczas pobierania wiadomości');
+  return Array.isArray(data?.data) ? data.data : [];
+};
+
+export const addExhibitorAwardMessage = async (
+  exhibitorId: number,
+  exhibitionId: number,
+  message: string,
+  token: string
+): Promise<AwardMessageRow> => {
+  const res = await apiCall(`${config.API_BASE_URL}/api/v1/exhibitor-awards/${exhibitorId}/${exhibitionId}/messages`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ message }),
+  });
+  const data = await res.json();
+  if (!res.ok) throw new Error(data?.message || 'Błąd podczas zapisu wiadomości');
+  return data.data as AwardMessageRow;
+};
+
 // ===== Invitations (Admin) =====
 export interface InvitationRecipientRow {
   id: number;
