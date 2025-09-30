@@ -187,6 +187,25 @@ const BrandingContent: React.FC<BrandingContentProps> = ({ event }) => {
 
           {event && brandingFiles && user && (
             <BrandingFileUpload
+              fileType="mailing_header_800x300"
+              title="Heder w mailingu"
+              description="Format: png, jpg, webp"
+              dimensions="800x300"
+              allowedFormats={['png', 'jpg', 'jpeg', 'webp']}
+              maxSize={5 * 1024 * 1024}
+              exhibitorId={null}
+              exhibitionId={event.id}
+              existingFile={(Array.isArray(brandingFiles.files['mailing_header_800x300'])
+                ? (brandingFiles.files['mailing_header_800x300'] as any[])[0]
+                : brandingFiles.files['mailing_header_800x300']) || null}
+              onUploadSuccess={() => handleUploadSuccess(null)}
+              onUploadError={handleUploadError}
+              onDeleteSuccess={() => handleUploadSuccess(null)}
+            />
+          )}
+
+          {event && brandingFiles && user && (
+            <BrandingFileUpload
               fileType="dokumenty_brandingowe"
               title="Dokumenty brandingowe dla wystawcy"
               description="Format: PDF"

@@ -67,6 +67,12 @@ const FILE_TYPES = {
     allowedFormats: ['png', 'jpg', 'jpeg', 'webp'],
     maxSize: 15 * 1024 * 1024 // 15MB
   },
+  'mailing_header_800x300': {
+    name: 'Heder w mailingu',
+    dimensions: '800x300',
+    allowedFormats: ['png', 'jpg', 'jpeg', 'webp'],
+    maxSize: 5 * 1024 * 1024 // 5MB
+  },
   'logo_ptak_expo': {
     name: 'Logo PTAK EXPO',
     dimensions: '200x200',
