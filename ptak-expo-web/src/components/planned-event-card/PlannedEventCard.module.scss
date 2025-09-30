@@ -12,3 +12,7 @@
 .titleBox { display: flex; flex-direction: column; justify-content: space-between; width: 65%; }
 .avatar { width: 6rem !important; height: 5rem !important; }
 
+/* Ensure logo is fully visible without cropping */
+.avatar { background-color: transparent !important; }
+.avatar img { width: 100% !important; height: 100% !important; object-fit: contain !important; }
+
