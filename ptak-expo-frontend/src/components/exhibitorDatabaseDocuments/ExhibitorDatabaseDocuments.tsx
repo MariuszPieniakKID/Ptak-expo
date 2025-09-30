@@ -9,7 +9,7 @@ import UploadDocuments, { SelectedFileEntry } from "./uploadDocuments/UploadDocu
 import InvoicesList, { DocumentItem } from "./invoices/InvoicesList";
 import SendMessageContainer from "./messageContainer/SendMessageContainer";
 import { useAuth } from "../../contexts/AuthContext";
-import { deleteExhibitorDocument, downloadExhibitorDocument, ExhibitorDocumentCategory, getExhibitorDocuments, uploadExhibitorDocument } from "../../services/api";
+import { deleteExhibitorDocument, downloadExhibitorDocument, ExhibitorDocumentCategory, getExhibitorDocuments, uploadExhibitorDocument, sendExhibitorDocumentMessage } from "../../services/api";
 
 type ExhibitorDatabaseDocumentsProps = {
   allowMultiple?: boolean;
@@ -98,10 +98,14 @@ function ExhibitorDatabaseDocuments({
     }
   };
 
-  const handleSendMessage = (msg: string) => {
-    console.log("Wysłana wiadomość:", msg);
-    // tutaj możesz dodać wysyłkę przez API:
-    // fetch("/api/send", { method: "POST", body: JSON.stringify({ text: msg }) })
+  const handleSendMessage = async (msg: string) => {
+    if (!token || !exhibitionId) return;
+    try {
+      const res = await sendExhibitorDocumentMessage(exhibitorId, exhibitionId, msg, token);
+      console.log('[ExhibitorDatabaseDocuments] message sent result:', res);
+    } catch (e: any) {
+      console.error('[ExhibitorDatabaseDocuments] message send error:', e?.message || e);
+    }
   };
 
   // Definicja sekcji

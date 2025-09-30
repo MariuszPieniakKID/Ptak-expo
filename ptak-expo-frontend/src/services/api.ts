@@ -1648,3 +1648,26 @@ export const downloadExhibitorDocument = async (
   a.remove();
   window.URL.revokeObjectURL(blobUrl);
 };
+
+// Send message to exhibitor regarding documents and log to communications/news
+export const sendExhibitorDocumentMessage = async (
+  exhibitorId: number,
+  exhibitionId: number,
+  message: string,
+  token: string
+): Promise<{ success: boolean; message: string }> => {
+  const url = `${config.API_BASE_URL}/api/v1/exhibitor-documents/${exhibitorId}/${exhibitionId}/message`;
+  const response = await apiCall(url, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ message }),
+  });
+  const data = await response.json();
+  if (!response.ok) {
+    throw new Error(data?.message || data?.error || 'Nie udało się wysłać wiadomości');
+  }
+  return data;
+};

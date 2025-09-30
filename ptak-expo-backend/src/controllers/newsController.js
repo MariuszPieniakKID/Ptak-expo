@@ -92,6 +92,27 @@ exports.listByExhibition = async (req, res) => {
       }
     } catch {}
 
+    // 5) Communications targeted to this exhibition and current user (exhibitor)
+    try {
+      const cm = await db.pool.query(
+        `SELECT title, content, created_at
+         FROM communications
+         WHERE exhibition_id = $1
+           AND (user_id IS NULL OR user_id = $2)
+         ORDER BY created_at DESC
+         LIMIT 100`,
+        [exhibitionId, req.user?.id || 0]
+      );
+      for (const row of cm.rows) {
+        items.push({
+          kind: 'communication',
+          title: row.title || 'Komunikat',
+          description: row.content || '',
+          timestamp: row.created_at,
+        });
+      }
+    } catch {}
+
     // Sort by timestamp desc and limit
     const sorted = items
       .filter(i => i && i.timestamp)

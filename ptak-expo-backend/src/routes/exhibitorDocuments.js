@@ -3,7 +3,7 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs').promises;
 const fsSync = require('fs');
-const { verifyToken } = require('../middleware/auth');
+const { verifyToken, requireAdmin } = require('../middleware/auth');
 
 const router = express.Router();
 
@@ -346,3 +346,79 @@ router.delete('/:exhibitorId/:exhibitionId/:documentId', verifyToken, async (req
 });
 
 module.exports = router;
+
+// Send message to exhibitor about documents and log to communications/news
+router.post('/:exhibitorId/:exhibitionId/message', verifyToken, async (req, res) => {
+  try {
+    const { exhibitorId, exhibitionId } = req.params;
+    const { message } = req.body || {};
+    if (!message || !String(message).trim()) {
+      return res.status(400).json({ success: false, message: 'Treść wiadomości jest wymagana' });
+    }
+
+    // Fetch exhibitor email and name
+    const exhibitorRes = await db.query('SELECT id, email, company_name, contact_person FROM exhibitors WHERE id = $1', [exhibitorId]);
+    if (exhibitorRes.rows.length === 0) {
+      return res.status(404).json({ success: false, message: 'Wystawca nie znaleziony' });
+    }
+    const exhibitor = exhibitorRes.rows[0];
+
+    // Permission: admin or supervisor for this exhibitor
+    if (req.user.role !== 'admin') {
+      let selfExhibitorId = null;
+      const meByEmail = await db.query('SELECT id FROM exhibitors WHERE email = $1 LIMIT 1', [req.user.email]);
+      if (meByEmail.rows?.[0]?.id) {
+        selfExhibitorId = meByEmail.rows[0].id;
+      } else {
+        const rel = await db.query('SELECT exhibitor_id FROM exhibitor_events WHERE supervisor_user_id = $1 LIMIT 1', [req.user.id]);
+        selfExhibitorId = rel.rows?.[0]?.exhibitor_id ?? null;
+      }
+      if (String(selfExhibitorId) !== String(exhibitorId)) {
+        return res.status(403).json({ success: false, message: 'Brak uprawnień do wysyłki wiadomości dla tego wystawcy' });
+      }
+    }
+
+    // Send email
+    const { sendEmail } = require('../utils/emailService');
+    const subject = 'Wiadomość dotycząca dokumentów – PTAK WARSAW EXPO';
+    const html = `
+      <div style="font-family: Arial, sans-serif; line-height:1.6;">
+        <p>Dzień dobry${exhibitor.contact_person ? ` ${exhibitor.contact_person}` : ''},</p>
+        <p>${String(message).replace(/\n/g, '<br/>')}</p>
+        <p style="margin-top:16px; color:#666; font-size:12px;">Ta wiadomość została wysłana z panelu administracyjnego PTAK WARSAW EXPO.</p>
+      </div>
+    `;
+    const sent = await sendEmail({ to: exhibitor.email, subject, html, text: message });
+    if (!sent?.success) {
+      return res.status(500).json({ success: false, message: sent?.error || 'Nie udało się wysłać wiadomości email' });
+    }
+
+    // Resolve user_id in users table for this exhibitor's email (communications.user_id references users.id)
+    let userIdForExhibitor = null;
+    try {
+      const userRow = await db.query('SELECT id FROM users WHERE LOWER(email) = LOWER($1) LIMIT 1', [exhibitor.email]);
+      userIdForExhibitor = userRow.rows?.[0]?.id || null;
+    } catch {}
+
+    // Log into communications/news table so it appears in Aktualności
+    try {
+      await db.query(`
+        INSERT INTO communications (title, content, type, exhibition_id, user_id)
+        VALUES ($1, $2, $3, $4, $5)
+      `, [
+        'Wiadomość dotycząca dokumentów',
+        message,
+        'notification',
+        Number(exhibitionId),
+        userIdForExhibitor,
+      ]);
+    } catch (e) {
+      console.warn('Could not insert communications entry:', e?.message || e);
+    }
+
+    return res.json({ success: true, message: 'Wiadomość wysłana i zapisana do aktualności' });
+  } catch (error) {
+    console.error('Error sending exhibitor message:', error);
+    return res.status(500).json({ success: false, message: 'Błąd podczas wysyłki wiadomości' });
+  }
+});
