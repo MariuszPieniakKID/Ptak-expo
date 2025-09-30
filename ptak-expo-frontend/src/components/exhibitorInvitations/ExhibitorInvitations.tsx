@@ -35,21 +35,14 @@ function ExhibitorInvitations({
 
   const { token } = useAuth();
   const [recipients, setRecipients] = useState<InvitationRecipientRow[]>([]);
-  const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string>('');
 
   const loadRecipients = useCallback(async () => {
     if (!token || !exhibitionId) { setRecipients([]); return; }
     try {
-      setLoading(true);
       const rows = await listInvitationRecipients(exhibitionId, token);
       setRecipients(rows);
-      setError('');
-    } catch (e: any) {
-      setError(e?.message || 'Nie udało się pobrać zaproszeń');
+    } catch {
       setRecipients([]);
-    } finally {
-      setLoading(false);
     }
   }, [token, exhibitionId]);
 
