@@ -11,79 +11,7 @@ import {
 import {TradeInfoPlan} from "./TradeInfoPlan";
 import { tradeInfoAPI, exhibitionsAPI, tradeEventsAPI, brandingAPI, TradeEventRow } from "../../../services/api";
 
-// removed mock placeholders – values now come from backend
-
-const mockFairPlan = {
-  halls: [
-    {
-      name: "Hala A",
-      isYourHall: false,
-      positionNumber: undefined,
-    },
-    {
-      name: "Hala B",
-      isYourHall: false,
-      positionNumber: undefined,
-    },
-    {
-      name: "Hala C",
-      isYourHall: false,
-      positionNumber: undefined,
-    },
-    {
-      name: "Hala D",
-      isYourHall: true,
-      positionNumber: "3.47",
-    },
-  ],
-  days: [
-    {
-      id: 1,
-      date: "2025-10-26T08:00:00",
-      plans: [
-        {
-          id: 1,
-          hours: "09:00-17:00",
-          hall: {
-            name: "Hala D",
-          },
-          title: "ArchiDay",
-          description:
-            "Sala konferencyjna, Hala C Wymagany własny sprzęt. Sala konferencyjna, Hala C Wymagany własny sprzęt",
-        },
-        {
-          id: 2,
-          hours: "02:00-17:00",
-          hall: {
-            name: "Hala C",
-          },
-          title: "ArchiDay",
-          description:
-            "Sala konferencyjna, Hala C Wymagany własny sprzęt. Sala konferencyjna, Hala C Wymagany własny sprzęt",
-          urlMore: "https://www.google.com/",
-        },
-      ],
-    },
-    {
-      id: 2,
-      date: "2025-10-28T08:00:00",
-      plans: [
-        {
-          id: 3,
-          hours: "09:00-17:00",
-          hall: {
-            name: "Hala D",
-          },
-          title: "ArchiDay",
-          description:
-            "Sala konferencyjna, Hala C Wymagany własny sprzęt. Sala konferencyjna, Hala C Wymagany własny sprzęt",
-          urlMore: "https://www.google.com/",
-        },
-      ],
-    },
-  ],
-  countEvents: 65,
-};
+// Removed mock placeholders – values now come from backend only
 
 type T_TradeInfoPage = {
   tradeInfo: {
@@ -147,9 +75,9 @@ export const TradeInfoPage: React.FC<T_TradeInfoPage> = ({eventId}) => {
         const exData = exRes.data || null;
         setEventMeta(exData);
         setAllEvents(evRows);
-        // default day select from buildDays or from event start date
-        const firstDay = (ti?.buildDays && ti.buildDays[0]) ? 1 : (mockFairPlan.days.at(0)?.id || null);
-        setSelectedDayId(firstDay as any);
+        // default day select from buildDays if present
+        const firstDay = (ti?.buildDays && ti.buildDays.length > 0) ? 1 : null;
+        setSelectedDayId(firstDay);
         // Resolve event logo same as left tile: prefer global branding 'event_logo', fallback to exhibition.event_logo_file_name
         try {
           let logoUrl: string | null = null;
@@ -174,7 +102,7 @@ export const TradeInfoPage: React.FC<T_TradeInfoPage> = ({eventId}) => {
   }, []);
 
   const foundDay = useMemo(() => {
-    return mockFairPlan.days.find((item) => item.id === selectedDayId);
+    return null; // by-day view removed; no fallback
   }, [selectedDayId]);
 
   const mapBuildInformations = (tradeData?.buildDays && tradeData.buildDays.length > 0 ? tradeData.buildDays : []).map(
@@ -240,7 +168,7 @@ export const TradeInfoPage: React.FC<T_TradeInfoPage> = ({eventId}) => {
     const hallsWithMeta: Array<{ id?: string; name: string; originalFilename?: string | null }> =
       tradeData?.tradeSpaces && tradeData.tradeSpaces.length > 0
         ? tradeData.tradeSpaces.map((s: any) => ({ id: String(s.id), name: s.hallName || s.name || '-', originalFilename: s.originalFilename || null }))
-        : mockFairPlan.halls.map((h: any) => ({ name: h.name, originalFilename: undefined }));
+        : [];
 
     const my = tradeData?.exhibitorAssignment;
     return hallsWithMeta.map((item, index: number) => {
@@ -283,7 +211,7 @@ export const TradeInfoPage: React.FC<T_TradeInfoPage> = ({eventId}) => {
 
   const buildDays = tradeData?.buildDays && tradeData.buildDays.length > 0
     ? tradeData.buildDays.map((d: any, idx: number) => ({ id: idx + 1, date: d.date }))
-    : mockFairPlan.days;
+    : [];
   const mapDays = buildDays.map((item: any, index: number) => {
     const {day, month} = formatDateForDisplay({
       date: item.date,
@@ -525,20 +453,13 @@ export const TradeInfoPage: React.FC<T_TradeInfoPage> = ({eventId}) => {
           </CustomTypography>
           <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
             <button onClick={() => setActiveTab('all')} style={{ padding: '6px 10px', borderRadius: 6, border: 0, background: activeTab==='all' ? '#6f87f6' : '#2f2f35', color: '#fff' }}>Wszystkie</button>
-            <button onClick={() => setActiveTab('byday')} style={{ padding: '6px 10px', borderRadius: 6, border: 0, background: activeTab==='byday' ? '#6f87f6' : '#2f2f35', color: '#fff' }}>Po dniach</button>
+            {/* Hidden by request: 'Po dniach' button */}
+            {/* <button onClick={() => setActiveTab('byday')} style={{ padding: '6px 10px', borderRadius: 6, border: 0, background: activeTab==='byday' ? '#6f87f6' : '#2f2f35', color: '#fff' }}>Po dniach</button> */}
           </div>
           {activeTab === 'all' ? (
             mapAllEvents
           ) : (
-            <>
-              <div className={styles.plansDays}>
-                <CustomTypography fontSize="13px" fontWeight={500} color="#A7A7A7">
-                  Wybierz dzień targów:
-                </CustomTypography>
-                {mapDays}
-              </div>
-              {mapDayPlans}
-            </>
+            <></>
           )}
           <div className={styles.dayPlanEvent}>
             <CustomTypography fontSize="13px" fontWeight={500} color="#D7D9DD">
