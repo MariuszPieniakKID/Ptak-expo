@@ -5,7 +5,7 @@ import Typography from '@mui/material/Typography';
 import { ReactComponent as EnvelopeOnABlackBackground } from '../../assets/envelopeOnABlackBackground.svg';
 import { ReactComponent as GreenCircle } from '../../assets/greenCircleWithChecked.svg';
 import { Box } from '@mui/material';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import styles from './ExhibitorInvitations.module.scss';
 import { Exhibitor } from '../../services/api';
 import TicketType from './ticketType/TicketType';
