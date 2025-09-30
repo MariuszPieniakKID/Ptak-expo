@@ -1,29 +1,49 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { Box, Accordion, AccordionSummary, AccordionDetails, Typography } from "@mui/material";
 import styles from "./ExhibitoiIdentifiers.module.scss";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import { Exhibitor } from "../../services/api";
+import { Exhibitor, fetchExhibitorPeople, type ExhibitorPerson } from "../../services/api";
 import { ReactComponent as  BadgesIcon} from '../../assets/blue_badgesIcon.svg';
 import IdentifiersCard from "./identifiersCard/IdentifiersCard";
+import { useAuth } from "../../contexts/AuthContext";
 
 type ExhibitoiIdentifiersProps = {
   allowMultiple?: boolean;
   exhibitorId: number;
   exhibitor?: Exhibitor;
+  exhibitionId?: number;
 };
 
 function ExhibitoiIdentifiers({
   allowMultiple = true,
   exhibitorId,
   exhibitor,
+  exhibitionId,
 }: ExhibitoiIdentifiersProps) {
 
-  // Dane startowe TODOO
-    const data = [
-    { id: 1, imieNazwisko: "Jan Kowalski", typ: "Obsługa techniczna" },
-    { id: 2, imieNazwisko: "Anna Nowak", typ: "Ekspert/Prelegent" },
-    { id: 3, imieNazwisko: "Piotr Wiśniewski", typ: "Marketing/PR" },
-    ];
+  const { token } = useAuth();
+  const [people, setPeople] = useState<ExhibitorPerson[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string>("");
+
+  const load = useCallback(async () => {
+    if (!token || !exhibitorId || !exhibitionId) { setPeople([]); return; }
+    try {
+      setLoading(true);
+      const list = await fetchExhibitorPeople(token, { exhibitorId, exhibitionId });
+      setPeople(list);
+      setError("");
+    } catch (e: any) {
+      setError(e?.message || "Nie udało się pobrać identyfikatorów");
+      setPeople([]);
+    } finally {
+      setLoading(false);
+    }
+  }, [token, exhibitorId, exhibitionId]);
+
+  useEffect(() => { load(); }, [load]);
+
+  const data = people.map(p => ({ id: p.id, imieNazwisko: p.fullName, typ: p.type || "" }));
 
 
 
@@ -53,8 +73,8 @@ function ExhibitoiIdentifiers({
   const overlapIndexes = [1, 2];
     
   useEffect(() => {
-     console.log('exhibitorId:', exhibitorId, 'exhibitor:', exhibitor)
-    }, [exhibitorId, exhibitor]); 
+     console.log('exhibitorId:', exhibitorId, 'exhibitionId:', exhibitionId, 'exhibitor:', exhibitor)
+    }, [exhibitorId, exhibitionId, exhibitor]); 
   
   return (
     <Box className={styles.container}>
