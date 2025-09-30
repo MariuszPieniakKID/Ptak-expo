@@ -1,10 +1,8 @@
-import React, { useCallback, useRef } from "react";
-import { Box, TextField, Tooltip, IconButton } from "@mui/material";
+import React, { useCallback, useEffect, useMemo, useRef } from "react";
+import { Box, Tooltip, IconButton } from "@mui/material";
 import styles from "./TextEditor.module.scss";
 
 // Ikony do paska narzędzi
-import emotionIcon from "../../assets/EmotionIcon_m (1).png";
-import { ReactComponent as LinkIcon } from "../../assets/chainIcon.svg";
 import { ReactComponent as ItalicIconFormat } from "../../assets/I.svg";
 import { ReactComponent as BoldIconFormat } from "../../assets/B.svg";
 
@@ -29,98 +27,55 @@ const TextEditor: React.FC<TextEditorProps> = ({
   legendBackground='white',
   textAreaBackground='white',
 }) => {
-  const textAreaRef = useRef<HTMLTextAreaElement | null>(null);
+  const editorRef = useRef<HTMLDivElement | null>(null);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const text = e.target.value;
-    if (!maxLength || text.length <= maxLength) {
-      onChange?.(text);
+  const setHtmlValue = useCallback((html: string) => {
+    onChange?.(html);
+  }, [onChange]);
+
+  // Keep editor HTML in sync when parent value changes externally
+  useEffect(() => {
+    const el = editorRef.current;
+    if (!el) return;
+    if (el.innerHTML !== (value || '')) {
+      el.innerHTML = value || '';
     }
+  }, [value]);
+
+  // Helpers to execute formatting commands within the contentEditable
+  const focusEditor = () => {
+    const el = editorRef.current;
+    if (!el) return;
+    el.focus();
   };
 
-  const applyChangeWithCaret = useCallback((nextValue: string, caretStart: number, caretEnd?: number) => {
-    if (maxLength && nextValue.length > maxLength) {
-      return; // do not exceed limit
-    }
-    onChange?.(nextValue);
-    // restore selection/caret after value updates
-    window.requestAnimationFrame(() => {
-      const el = textAreaRef.current;
-      if (!el) return;
-      try {
-        el.focus();
-        const end = typeof caretEnd === 'number' ? caretEnd : caretStart;
-        el.setSelectionRange(caretStart, end);
-      } catch {}
-    });
-  }, [maxLength, onChange]);
-
-  const wrapSelection = useCallback((prefix: string, suffix: string) => {
-    const el = textAreaRef.current;
-    if (!el) return;
-    const start = el.selectionStart ?? 0;
-    const end = el.selectionEnd ?? 0;
-    const selected = value.slice(start, end);
-    const before = value.slice(0, start);
-    const after = value.slice(end);
-
-    // If already wrapped with same markers, unwrap
-    const alreadyWrapped = selected.startsWith(prefix) && selected.endsWith(suffix);
-    if (alreadyWrapped) {
-      const inner = selected.slice(prefix.length, selected.length - suffix.length);
-      const nextValue = before + inner + after;
-      const newStart = start;
-      const newEnd = start + inner.length;
-      applyChangeWithCaret(nextValue, newStart, newEnd);
-      return;
-    }
-
-    const nextValue = before + prefix + selected + suffix + after;
-    const newStart = start + prefix.length;
-    const newEnd = newStart + selected.length;
-    applyChangeWithCaret(nextValue, newStart, newEnd);
-  }, [value, applyChangeWithCaret]);
-
-  const insertAtCursor = useCallback((text: string) => {
-    const el = textAreaRef.current;
-    if (!el) return;
-    const start = el.selectionStart ?? 0;
-    const end = el.selectionEnd ?? 0;
-    const before = value.slice(0, start);
-    const after = value.slice(end);
-    const nextValue = before + text + after;
-    const caret = start + text.length;
-    applyChangeWithCaret(nextValue, caret);
-  }, [value, applyChangeWithCaret]);
-
   const handleBold = useCallback(() => {
-    wrapSelection("**", "**");
-  }, [wrapSelection]);
+    focusEditor();
+    document.execCommand('bold');
+    setHtmlValue(editorRef.current?.innerHTML || '');
+  }, [setHtmlValue]);
 
   const handleItalic = useCallback(() => {
-    wrapSelection("_", "_");
-  }, [wrapSelection]);
+    focusEditor();
+    document.execCommand('italic');
+    setHtmlValue(editorRef.current?.innerHTML || '');
+  }, [setHtmlValue]);
 
-  const handleEmoji = useCallback(() => {
-    insertAtCursor("🙂");
-  }, [insertAtCursor]);
+  const handleUnderline = useCallback(() => {
+    focusEditor();
+    document.execCommand('underline');
+    setHtmlValue(editorRef.current?.innerHTML || '');
+  }, [setHtmlValue]);
 
-  const handleLink = useCallback(() => {
-    const el = textAreaRef.current;
-    if (!el) return;
-    const start = el.selectionStart ?? 0;
-    const end = el.selectionEnd ?? 0;
-    const selected = value.slice(start, end) || "link";
-    const url = window.prompt("Wklej URL dla linku:", "https://");
-    if (!url) return;
-    const before = value.slice(0, start);
-    const after = value.slice(end);
-    const insertion = `[${selected}](${url})`;
-    const nextValue = before + insertion + after;
-    const caretStart = before.length + 1; // after opening [
-    const caretEnd = caretStart + selected.length;
-    applyChangeWithCaret(nextValue, caretStart, caretEnd);
-  }, [value, applyChangeWithCaret]);
+  const plainTextLength = useMemo(() => {
+    try {
+      const el = document.createElement('div');
+      el.innerHTML = value || '';
+      return (el.innerText || '').length;
+    } catch {
+      return (value || '').length;
+    }
+  }, [value]);
 
   return (
     <Box 
@@ -131,20 +86,19 @@ const TextEditor: React.FC<TextEditorProps> = ({
       className={styles.legend}
       style={{ background: legendBackground }}
       >{legend}</legend>
-      <TextField
-        value={value}
-        onChange={handleChange}
-        placeholder={placeholder}
-        fullWidth
-        multiline
-        minRows={3}
-        variant="outlined"
-        inputRef={textAreaRef}
+      <Box
+        ref={editorRef}
+        contentEditable
+        role="textbox"
+        aria-label={legend}
+        suppressContentEditableWarning
+        onInput={() => setHtmlValue(editorRef.current?.innerHTML || '')}
         sx={{
-          width: "100%",
-          "& .MuiOutlinedInput-notchedOutline": {
-            border: "none",
-          },
+          width: '100%',
+          minHeight: '4.5em',
+          outline: 'none',
+          padding: '8px 12px',
+          borderRadius: '6px',
         }}
       />
 
@@ -161,18 +115,9 @@ const TextEditor: React.FC<TextEditorProps> = ({
               <ItalicIconFormat className={styles.icon} />
             </IconButton>
           </Tooltip>
-          <Tooltip title="Emotikona">
-            <IconButton size="small" onClick={handleEmoji}>
-              <img
-                src={emotionIcon}
-                alt="Emotikona"
-                className={styles.iconImage}
-              />
-            </IconButton>
-          </Tooltip>
-          <Tooltip title="Dodaj link">
-            <IconButton size="small" onClick={handleLink}>
-              <LinkIcon className={styles.icon} />
+          <Tooltip title="Podkreślenie">
+            <IconButton size="small" onClick={handleUnderline}>
+              <span className={styles.icon} style={{ textDecoration: 'underline', display: 'inline-block' }}>U</span>
             </IconButton>
           </Tooltip>
         </Box>
@@ -181,7 +126,7 @@ const TextEditor: React.FC<TextEditorProps> = ({
       {/* licznik znaków */}
       {maxLength && (
         <Box className={styles.charCounter}>
-          {value.length}/{maxLength}
+          {plainTextLength}/{maxLength}
         </Box>
       )}
     </Box>
