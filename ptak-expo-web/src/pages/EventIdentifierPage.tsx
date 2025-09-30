@@ -26,11 +26,12 @@ const EventIdentifierPage = () => {
       if (!eventId) return;
       try {
         const idNum = Number(eventId);
-        const [evRes, tradeRes, brandingRes, recipients] = await Promise.all([
+        const [evRes, tradeRes, brandingRes, recipients, templates] = await Promise.all([
           exhibitionsAPI.getById(idNum),
           tradeInfoAPI.get(idNum).catch(() => null),
           brandingAPI.getGlobal(idNum).catch(() => null),
-          invitationsAPI.recipients(idNum).catch(() => [])
+          invitationsAPI.recipients(idNum).catch(() => []),
+          invitationsAPI.list(idNum).catch(() => [])
         ]);
 
         const e = evRes.data;
@@ -64,6 +65,11 @@ const EventIdentifierPage = () => {
           if (l && typeof l === 'string' && l.trim().length > 0) catalogLogoUrl = l;
         } catch {}
 
+        // Pick first template with vip_value
+        const vipTemplate = Array.isArray(templates)
+          ? templates.find((t: any) => t && typeof t.vip_value === 'string' && t.vip_value.trim().length > 0)
+          : null;
+
         const data: Identifier = {
           id: String(e.id),
           eventName: e.name || '',
@@ -77,6 +83,7 @@ const EventIdentifierPage = () => {
           logoUrl: catalogLogoUrl || '/assets/logo192.png',
           invitesSentCount: Array.isArray(recipients) ? recipients.length : 0,
           invitesLimit: 50,
+          vipValue: vipTemplate ? String(vipTemplate.vip_value) : undefined,
         };
         setIdentifier(data);
       } catch (_err) {

@@ -18,6 +18,7 @@ export interface Identifier {
   logoUrl: string;
   invitesSentCount?: number;
   invitesLimit?: number;
+  vipValue?: string;
 }
 
 interface IdentifierCardProps {
@@ -101,12 +102,15 @@ const IdentifierCard: React.FC<IdentifierCardProps> = ({data}) => {
                   }}
                 ></div>
               </div>
-              <Chart value={Number.isFinite(data.invitesSentCount) ? (data.invitesSentCount as number) : 0} valueMax={Number.isFinite(data.invitesLimit) ? (data.invitesLimit as number) : 50} />
+              {/* Chart hidden as requested */}
+              {/* <Chart value={Number.isFinite(data.invitesSentCount) ? (data.invitesSentCount as number) : 0} valueMax={Number.isFinite(data.invitesLimit) ? (data.invitesLimit as number) : 50} /> */}
               <div className={styles.cardDarkOtherContentTitle}>
                 Biznes Priority Pass
               </div>
               <div className={styles.cardDarkOtherContentPrice}>
-                bilet o wartości 249 PLN
+                {data.vipValue && data.vipValue.trim().length > 0
+                  ? `bilet o wartości ${data.vipValue}`
+                  : ''}
               </div>
               <div className={styles.cardDarkOtherContentDescription}>
                 Zaproś swoich najważniejszych klientów i partnerów, aby
