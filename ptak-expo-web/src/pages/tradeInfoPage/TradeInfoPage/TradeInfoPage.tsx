@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useMemo, useState} from "react";
+import React, {useCallback, useEffect, useState} from "react";
 import styles from "./TradeInfoPage.module.css";
 import IconMain from "../../../assets/group-23.png";
 import IconArrowRight from "../../../assets/arrow-right.png";
@@ -7,7 +7,7 @@ import {
   formatDateRange,
   formatDateRangeDays,
 } from "./utilities";
-import {TradeInfoPlan} from "./TradeInfoPlan";
+// import {TradeInfoPlan} from "./TradeInfoPlan";
 import { tradeInfoAPI, exhibitionsAPI, tradeEventsAPI, brandingAPI, TradeEventRow } from "../../../services/api";
 
 // Removed mock placeholders – values now come from backend only
@@ -45,7 +45,6 @@ type T_TradeInfoPage = {
 };
 
 export const TradeInfoPage: React.FC<T_TradeInfoPage> = ({eventId}) => {
-  const [selectedDayId, setSelectedDayId] = useState<number | null>(null);
   const [tradeData, setTradeData] = useState<any | null>(null);
   const [eventMeta, setEventMeta] = useState<any | null>(null);
   const [allEvents, setAllEvents] = useState<TradeEventRow[]>([]);
@@ -74,9 +73,7 @@ export const TradeInfoPage: React.FC<T_TradeInfoPage> = ({eventId}) => {
         const exData = exRes.data || null;
         setEventMeta(exData);
         setAllEvents(evRows);
-        // default day select from buildDays if present
-        const firstDay = (ti?.buildDays && ti.buildDays.length > 0) ? 1 : null;
-        setSelectedDayId(firstDay);
+        // by-day selection disabled
         // Resolve event logo same as left tile: prefer global branding 'event_logo', fallback to exhibition.event_logo_file_name
         try {
           let logoUrl: string | null = null;
@@ -98,9 +95,7 @@ export const TradeInfoPage: React.FC<T_TradeInfoPage> = ({eventId}) => {
 
   // By-day selection disabled
 
-  const foundDay = useMemo(() => {
-    return null; // by-day view removed; no fallback
-  }, [selectedDayId]);
+  // by-day view removed
 
   const mapBuildInformations = (tradeData?.buildDays && tradeData.buildDays.length > 0 ? tradeData.buildDays : []).map(
     (item: any, index: number) => {
@@ -205,21 +200,9 @@ export const TradeInfoPage: React.FC<T_TradeInfoPage> = ({eventId}) => {
     });
   })();
   
+  // By-day UI hidden
 
-  const buildDays = tradeData?.buildDays && tradeData.buildDays.length > 0
-    ? tradeData.buildDays.map((d: any, idx: number) => ({ id: idx + 1, date: d.date }))
-    : [];
-  // By-day UI hidden; mapDays not used
-
-  const mapDayPlans = foundDay?.plans?.map((item: any, index: number) => {
-    return (
-      <TradeInfoPlan
-        {...item}
-        key={`infoPlan_${item.id}_${index}`}
-        isFirstItem={index === 0}
-      />
-    );
-  });
+  // by-day plans removed
 
   const mapAllEvents = (() => {
     const items = (allEvents || []).slice().sort((a, b) => {
