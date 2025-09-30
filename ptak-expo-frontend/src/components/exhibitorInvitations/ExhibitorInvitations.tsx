@@ -49,14 +49,15 @@ function ExhibitorInvitations({
   useEffect(() => { loadRecipients(); }, [loadRecipients]);
 
 
-  //dane do przygotowania
-    const sampleTickets =   [{
-        id: 1,
-        type: "Biznes Priority Pass",
-        price: 249,
-        numberInvitedguests: 50,
-        invitationLimit: 50
-      }]
+  // Tickets block (static info + dynamic count based on recipients length)
+  const invitedCount = recipients.length;
+  const sampleTickets =   [{
+    id: 1,
+    type: "Biznes Priority Pass",
+    price: 249,
+    numberInvitedguests: invitedCount,
+    invitationLimit: 50
+  }];
 
 
   const items = [
@@ -64,7 +65,7 @@ function ExhibitorInvitations({
       id: 1,
       icon: <EnvelopeOnABlackBackground fontSize="small" />,
       title: <>Wysłane zaproszenia ({sampleTickets[0].numberInvitedguests}/ <span style={{ color: '#7A7A7A', fontSize: '11px' }}>50</span>)</>,
-      container: <TicketType data={sampleTickets}/>,
+      container: <TicketType data={sampleTickets} hideLimitControls />,
       showBadge: true // tu pojawi się zielone kółko
     },
     {

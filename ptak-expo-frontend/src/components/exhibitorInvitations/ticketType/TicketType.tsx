@@ -16,9 +16,10 @@ interface Ticket {
 
 interface TicketTypeProps {
   data: Ticket[];
+  hideLimitControls?: boolean;
 }
 
-const TicketType: React.FC<TicketTypeProps> = ({ data }) => {
+const TicketType: React.FC<TicketTypeProps> = ({ data, hideLimitControls = false }) => {
   const [stepperValues, setStepperValues] = useState<Record<number, number>>(
     () => Object.fromEntries(data.map(ticket => [ticket.id, ticket.numberInvitedguests]))
   );
@@ -73,34 +74,36 @@ const TicketType: React.FC<TicketTypeProps> = ({ data }) => {
             </Box>
           </Box>
 
-          {/* Sekcja akcji */}
-          <Box className={styles.actionRow}>
-            <Box className={styles.limitationLine}>
-              <Box className={styles.inLine1}>
-                <CustomTypography className={styles.limitLabel}>
-                  Zwiększ limit dostępnych zaproszeń specjalnych
-                </CustomTypography>
-                <Box>
-                  <MiniStepper
-                    value={stepperValues[ticket.id]}
-                    min={10}
-                    noMax
-                    disableDecrease
-                    onChange={(value) => handleStepperChange(ticket.id, value)}
-                  />
+          {/* Sekcja akcji (ukryta na życzenie) */}
+          {hideLimitControls ? null : (
+            <Box className={styles.actionRow}>
+              <Box className={styles.limitationLine}>
+                <Box className={styles.inLine1}>
+                  <CustomTypography className={styles.limitLabel}>
+                    Zwiększ limit dostępnych zaproszeń specjalnych
+                  </CustomTypography>
+                  <Box>
+                    <MiniStepper
+                      value={stepperValues[ticket.id]}
+                      min={10}
+                      noMax
+                      disableDecrease
+                      onChange={(value) => handleStepperChange(ticket.id, value)}
+                    />
+                  </Box>
                 </Box>
-              </Box>
-              <Box className={styles.inLine2}>
-                <Box
-                  className={styles.actionBox}
-                  onClick={() => handleIncreasingTheTicketLimit(ticket.id)}
-                >
-                  <CustomTypography className={styles.actionLabel}>potwierdź ilość</CustomTypography>
-                  <CircleOrangeIcon className={styles.actionIcon} />
+                <Box className={styles.inLine2}>
+                  <Box
+                    className={styles.actionBox}
+                    onClick={() => handleIncreasingTheTicketLimit(ticket.id)}
+                  >
+                    <CustomTypography className={styles.actionLabel}>potwierdź ilość</CustomTypography>
+                    <CircleOrangeIcon className={styles.actionIcon} />
+                  </Box>
                 </Box>
               </Box>
             </Box>
-          </Box>
+          )}
         </React.Fragment>
       ))}
     </Box>
