@@ -274,6 +274,7 @@ const ExhibitorCardPage: React.FC = () => {
               title={event.name}
               start_date={event.start_date}
               end_date={event.end_date}
+              preferTileLogo={false}
               handleSelectEvent={handleSelectEvent}
               handleDeleteEventFromExhibitor={handleDeleteEventFromExhibitor}
               showDelete={false}
@@ -455,6 +456,7 @@ const ExhibitorCardPage: React.FC = () => {
                             title={event.name}
                             start_date={event.start_date}
                             end_date={event.end_date}
+                            preferTileLogo={false}
                             handleSelectEvent={handleSelectEvent}
                             handleDeleteEventFromExhibitor={handleDeleteEventFromExhibitor}
                             showEdit
