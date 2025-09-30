@@ -1671,3 +1671,27 @@ export const sendExhibitorDocumentMessage = async (
   }
   return data;
 };
+
+// ===== Invitations (Admin) =====
+export interface InvitationRecipientRow {
+  id: number;
+  recipientEmail: string;
+  recipientName?: string | null;
+  invitationType: string;
+  status: string; // 'wysłane' | 'pending' | 'accepted' | ...
+  sentAt?: string | null;
+}
+
+export const listInvitationRecipients = async (
+  exhibitionId: number,
+  token: string
+): Promise<InvitationRecipientRow[]> => {
+  const url = `${config.API_BASE_URL}/api/v1/invitations/${exhibitionId}/recipients`;
+  const res = await apiCall(url, { headers: { Authorization: `Bearer ${token}` } });
+  const data = await res.json();
+  if (!res.ok) {
+    throw new Error(data?.message || 'Błąd podczas pobierania listy zaproszeń');
+  }
+  const arr = Array.isArray(data?.data) ? data.data : [];
+  return arr;
+};

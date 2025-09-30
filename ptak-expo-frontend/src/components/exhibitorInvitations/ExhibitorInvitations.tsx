@@ -5,11 +5,13 @@ import Typography from '@mui/material/Typography';
 import { ReactComponent as EnvelopeOnABlackBackground } from '../../assets/envelopeOnABlackBackground.svg';
 import { ReactComponent as GreenCircle } from '../../assets/greenCircleWithChecked.svg';
 import { Box } from '@mui/material';
-import { useEffect } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import styles from './ExhibitorInvitations.module.scss';
 import { Exhibitor } from '../../services/api';
 import TicketType from './ticketType/TicketType';
 import StatusOfSentInvitations from './statusOfSentInvitations/StatusOfSentInvitations';
+import { useAuth } from '../../contexts/AuthContext';
+import { listInvitationRecipients, type InvitationRecipientRow } from '../../services/api';
 
 
 import { mockInvitations } from '../../helpers/mockData';
@@ -17,6 +19,7 @@ import { mockInvitations } from '../../helpers/mockData';
 type ExhibitorInvitationsProps = {
   exhibitorId: number;
   exhibitor?: Exhibitor;
+  exhibitionId?: number; // required to fetch recipients
 };
 
 
@@ -27,8 +30,31 @@ type ExhibitorInvitationsProps = {
 
 function ExhibitorInvitations({ 
   exhibitorId,
-  exhibitor
+  exhibitor,
+  exhibitionId
 }: ExhibitorInvitationsProps) {
+
+  const { token } = useAuth();
+  const [recipients, setRecipients] = useState<InvitationRecipientRow[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string>('');
+
+  const loadRecipients = useCallback(async () => {
+    if (!token || !exhibitionId) { setRecipients([]); return; }
+    try {
+      setLoading(true);
+      const rows = await listInvitationRecipients(exhibitionId, token);
+      setRecipients(rows);
+      setError('');
+    } catch (e: any) {
+      setError(e?.message || 'Nie udało się pobrać zaproszeń');
+      setRecipients([]);
+    } finally {
+      setLoading(false);
+    }
+  }, [token, exhibitionId]);
+
+  useEffect(() => { loadRecipients(); }, [loadRecipients]);
 
 
   //dane do przygotowania
@@ -52,8 +78,14 @@ function ExhibitorInvitations({
     {
       id: 2,
       icon: null,
-      title: <>Wysłane zaproszenia (15/ <span style={{ color: '#7A7A7A', fontSize: '11px' }}>50</span>)</>,
-      container: <StatusOfSentInvitations data={mockInvitations}/>,
+      title: <>Wysłane zaproszenia {recipients.length > 0 ? `(${recipients.length})` : ''}</>,
+      container: <StatusOfSentInvitations data={recipients.map((r, idx) => ({
+        id: r.id,
+        fullName: r.recipientName || r.recipientEmail,
+        email: r.recipientEmail,
+        status: (r.status && r.status.toLowerCase() === 'wysłane') ? 'Wysłane' : 'Wysłane',
+        reminder: undefined,
+      }))}/>,
       showBadge: false
     }
   ];
@@ -61,8 +93,8 @@ function ExhibitorInvitations({
   // Accordions are always expanded in current design; remove unused state to satisfy CI lint rules
 
   useEffect(() => {
-    console.log('exhibitorId:', exhibitorId, 'exhibitor:', exhibitor);
-  }, [exhibitorId, exhibitor]);
+    console.log('exhibitorId:', exhibitorId, 'exhibitionId:', exhibitionId, 'exhibitor:', exhibitor);
+  }, [exhibitorId, exhibitionId, exhibitor]);
 
   return (
     <Box className={styles.container}>
