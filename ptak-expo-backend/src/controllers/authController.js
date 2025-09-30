@@ -30,9 +30,8 @@ const exhibitorLogin = async (req, res) => {
       });
     }
 
-    // Check database for user
-    if (process.env.DATABASE_URL && process.env.DATABASE_URL !== 'postgresql://username:password@host/dbname?sslmode=require') {
-      try {
+    // Check database for user (always use configured database pool)
+    try {
         // Query database for exhibitor with case-insensitive email
         const normalizedEmail = (email || '').trim().toLowerCase();
         let result;
@@ -108,14 +107,11 @@ const exhibitorLogin = async (req, res) => {
 
       } catch (dbError) {
         console.error('Database error:', dbError);
+        return res.status(500).json({
+          success: false,
+          message: 'Błąd bazy danych podczas logowania'
+        });
       }
-    }
-
-    // If database not configured or user not found
-    return res.status(401).json({
-      success: false,
-      message: 'Nieprawidłowy email lub hasło'
-    });
 
   } catch (error) {
     console.error('Exhibitor login error:', error);
@@ -140,9 +136,8 @@ const login = async (req, res) => {
       });
     }
 
-    // Check database for user
-    if (process.env.DATABASE_URL && process.env.DATABASE_URL !== 'postgresql://username:password@host/dbname?sslmode=require') {
-      try {
+    // Check database for user (always use configured database pool)
+    try {
         // Query database for user
         
         let result;
@@ -224,14 +219,11 @@ const login = async (req, res) => {
 
       } catch (dbError) {
         console.error('Database error:', dbError);
+        return res.status(500).json({
+          success: false,
+          message: 'Błąd bazy danych podczas logowania'
+        });
       }
-    }
-
-    // If database not configured or user not found
-    return res.status(401).json({
-      success: false,
-      message: 'Nieprawidłowy email lub hasło'
-    });
 
   } catch (error) {
     console.error('Login error:', error);
