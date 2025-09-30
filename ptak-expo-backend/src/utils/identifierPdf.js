@@ -248,11 +248,7 @@ async function buildIdentifierPdf(client, exhibitionId, payload, exhibitorId) {
     if (resp.ok) qrBuffer = Buffer.from(await resp.arrayBuffer());
   } catch {}
 
-  // Precompute normalized buffers for images before PDF drawing (no awaits inside PDF flow)
-  // We'll calculate target pixel sizes for ~300 DPI rendering inside the page layout below
-  let headerBuffer = null;
-  let footerBuffer = null;
-
+  // Create PDF and set font
   const doc = new PDFDocument({ size: 'A6', margin: 12 });
   const chunks = [];
   try {
@@ -260,30 +256,25 @@ async function buildIdentifierPdf(client, exhibitionId, payload, exhibitorId) {
     if (fontBuf) doc.font(fontBuf); else doc.font('Helvetica');
   } catch { try { doc.font('Helvetica'); } catch {} }
 
+  // Calculate layout and target pixel sizes BEFORE drawing
+  const pageW = doc.page.width;
+  const cardX = 10;
+  const cardW = pageW - 20;
+  const headerH = 120;
+  const toPx = (points) => Math.max(1, Math.round((points / 72) * 300));
+
+  // Precompute normalized buffers before drawing to avoid race conditions
+  const headerBuffer = await toPdfImageBuffer(headerImageSource, { width: toPx(cardW), height: toPx(headerH) });
+  const footerBuffer = await toPdfImageBuffer(footerLogoSource, { width: toPx(cardW / 2), height: toPx(40) });
+
   return await new Promise((resolve) => {
     doc.on('data', (d) => chunks.push(d));
     doc.on('end', () => resolve(Buffer.concat(chunks)));
-
-    const pageW = doc.page.width;
-    const cardX = 10;
-    const cardW = pageW - 20;
-    const headerH = 120;
 
     // Background card
     doc.save();
     doc.roundedRect(cardX, 10, cardW, doc.page.height - 20, 12).fill('#FFFFFF');
     doc.restore();
-
-    // Compute 300 DPI targets for images
-    const toPx = (points) => Math.max(1, Math.round((points / 72) * 300));
-    // Prepare header/footer buffers now that we know target sizes
-    (async () => {
-      headerBuffer = await toPdfImageBuffer(headerImageSource, { width: toPx(cardW), height: toPx(headerH) });
-      // Footer box dimensions computed later; pre-scale to a generous width to preserve detail
-      footerBuffer = await toPdfImageBuffer(footerLogoSource, { width: toPx(cardW / 2), height: toPx(40) });
-    })().then(() => {
-      // no-op; buffers will be used below if ready
-    });
 
     // Header image
     doc.save();
