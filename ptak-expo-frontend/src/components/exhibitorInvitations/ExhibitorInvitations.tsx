@@ -76,7 +76,6 @@ function ExhibitorInvitations({
         fullName: r.recipientName || r.recipientEmail,
         email: r.recipientEmail,
         status: (r.status && r.status.toLowerCase() === 'wysłane') ? 'Wysłane' : 'Wysłane',
-        reminder: undefined,
       }))}/>,
       showBadge: false
     }
