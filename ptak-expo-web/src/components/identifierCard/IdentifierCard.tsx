@@ -3,7 +3,6 @@ import styles from "./IdentifierCard.module.scss";
 import IconMain from "../../assets/group-21.png";
 import IconEmail from "../../assets/email.png";
 import {Ticket} from "../ticket";
-import {Chart} from "../chart";
 
 export interface Identifier {
   id: string;
