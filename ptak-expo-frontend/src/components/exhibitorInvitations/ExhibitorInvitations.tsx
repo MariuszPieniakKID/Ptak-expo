@@ -71,7 +71,7 @@ function ExhibitorInvitations({
       id: 2,
       icon: null,
       title: <>Wysłane zaproszenia {recipients.length > 0 ? `(${recipients.length})` : ''}</>,
-      container: <StatusOfSentInvitations data={recipients.map((r, idx) => ({
+      container: <StatusOfSentInvitations data={recipients.map((r) => ({
         id: r.id,
         fullName: r.recipientName || r.recipientEmail,
         email: r.recipientEmail,
