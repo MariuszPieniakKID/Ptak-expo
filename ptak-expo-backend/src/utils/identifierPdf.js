@@ -126,29 +126,46 @@ async function buildIdentifierPdf(client, exhibitionId, payload, exhibitorId) {
       }
     }
 
-    // Footer: prefer exhibitor catalog logo for this exhibition; fallback to 'logo_ptak_expo'
+    // Footer: prefer exhibitor's catalog logo (event-specific, then GLOBAL), fallback to branding 'logo_ptak_expo'
     try {
-      // Resolve exhibitor linked to current user is not available here; try to find any exhibitor for this event with recent catalog entry
-      const cat = await client.query(
-        `SELECT ece.logo FROM exhibitor_catalog_entries ece
-         WHERE ece.exhibition_id = $1 AND ece.logo IS NOT NULL
-         ORDER BY ece.updated_at DESC NULLS LAST, ece.created_at DESC NULLS LAST
-         LIMIT 1`,
-        [exhibitionId]
-      );
-      if (cat.rows.length > 0 && cat.rows[0].logo) {
-        const logoVal = String(cat.rows[0].logo);
-        if (/^data:image\//.test(logoVal)) {
-          // Data URL base64
-          const base64 = logoVal.split(',')[1] || '';
-          try { footerLogoSource = Buffer.from(base64, 'base64'); } catch {}
-        } else if (/^https?:\/\//i.test(logoVal)) {
-          try { const r = await fetch(logoVal); if (r.ok) footerLogoSource = Buffer.from(await r.arrayBuffer()); } catch {}
-        } else {
-          // Assume stored as relative path under uploads
-          const normalized = logoVal.startsWith('uploads/') ? logoVal.replace(/^uploads\//, '') : logoVal;
-          const resolved = path.join(uploadsBase, normalized);
-          if (fs.existsSync(resolved)) footerLogoSource = resolved;
+      if (typeof exhibitorId === 'number' && exhibitorId > 0) {
+        // 1) Event-specific catalog logo for this exhibitor
+        let row = null;
+        try {
+          const res1 = await client.query(
+            `SELECT logo FROM exhibitor_catalog_entries 
+             WHERE exhibitor_id = $1 AND exhibition_id = $2 AND logo IS NOT NULL
+             ORDER BY updated_at DESC NULLS LAST, created_at DESC NULLS LAST
+             LIMIT 1`,
+            [exhibitorId, exhibitionId]
+          );
+          row = res1.rows?.[0] || null;
+        } catch {}
+        // 2) GLOBAL catalog logo for this exhibitor
+        if (!row || !row.logo) {
+          try {
+            const res2 = await client.query(
+              `SELECT logo FROM exhibitor_catalog_entries 
+               WHERE exhibitor_id = $1 AND exhibition_id IS NULL AND logo IS NOT NULL
+               ORDER BY updated_at DESC NULLS LAST, created_at DESC NULLS LAST
+               LIMIT 1`,
+              [exhibitorId]
+            );
+            row = res2.rows?.[0] || row;
+          } catch {}
+        }
+        if (row && row.logo) {
+          const logoVal = String(row.logo);
+          if (/^data:image\//.test(logoVal)) {
+            const base64 = logoVal.split(',')[1] || '';
+            try { footerLogoSource = Buffer.from(base64, 'base64'); } catch {}
+          } else if (/^https?:\/\//i.test(logoVal)) {
+            try { const r = await fetch(logoVal); if (r.ok) footerLogoSource = Buffer.from(await r.arrayBuffer()); } catch {}
+          } else {
+            const normalized = logoVal.startsWith('uploads/') ? logoVal.replace(/^uploads\//, '') : logoVal;
+            const resolved = path.join(uploadsBase, normalized);
+            if (fs.existsSync(resolved)) footerLogoSource = resolved;
+          }
         }
       }
     } catch {}
