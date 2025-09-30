@@ -170,7 +170,7 @@ const ExhibitorCardPage: React.FC = () => {
 
   const handleModalClose = useCallback((): void => {
       setIsEventAddToExhibitorn(false);
-  }, [exhibitor, token]);
+  }, []);
   const handleEventToExhibitiorAdd = useCallback((): void => {
       setIsEventAddToExhibitorn(false);
       // Reload exhibitor to reflect newly assigned event
@@ -215,7 +215,7 @@ const ExhibitorCardPage: React.FC = () => {
     };
     window.addEventListener('open-edit-event-modal', handler as any);
     return () => window.removeEventListener('open-edit-event-modal', handler as any);
-  }, []);
+  }, [exhibitor, token]);
 
 
     const getEventImage = (index: number): number => {
