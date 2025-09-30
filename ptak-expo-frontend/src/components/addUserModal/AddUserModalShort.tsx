@@ -248,7 +248,7 @@ const [apiError, setApiError] = useState('');
                     fullWidth
                   />
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                    <Avatar sx={{ width: 48, height: 48 }} src={avatarFile ? URL.createObjectURL(avatarFile) : undefined} />
+                    <Avatar sx={{ width: 48, height: 48 }} src={avatarFile ? URL.createObjectURL(avatarFile) : ''} />
                     <Button variant="outlined" component="label" disabled={loading}>
                       Dodaj avatar
                       <input hidden accept="image/png, image/jpeg, image/webp" type="file" onChange={(e) => setAvatarFile(e.target.files?.[0] || null)} />
