@@ -4,7 +4,6 @@ import IconMain from "../../../assets/group-23.png";
 import IconArrowRight from "../../../assets/arrow-right.png";
 import CustomTypography from "../../../components/customTypography/CustomTypography";
 import {
-  formatDateForDisplay,
   formatDateRange,
   formatDateRangeDays,
 } from "./utilities";
