@@ -1,0 +1,25 @@
+# VCS and OS
+.git
+.DS_Store
+
+# Node artifacts
+node_modules
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Build outputs
+build
+dist
+.cache
+coverage
+
+# Runtime uploads (use volume at runtime)
+uploads
+
+# Logs
+*.log
+
+# Env
+.env*
