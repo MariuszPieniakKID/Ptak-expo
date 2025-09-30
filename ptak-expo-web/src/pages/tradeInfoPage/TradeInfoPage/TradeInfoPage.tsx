@@ -212,28 +212,7 @@ export const TradeInfoPage: React.FC<T_TradeInfoPage> = ({eventId}) => {
   const buildDays = tradeData?.buildDays && tradeData.buildDays.length > 0
     ? tradeData.buildDays.map((d: any, idx: number) => ({ id: idx + 1, date: d.date }))
     : [];
-  const mapDays = buildDays.map((item: any, index: number) => {
-    const {day, month} = formatDateForDisplay({
-      date: item.date,
-    });
-
-    const isSelectedDay = selectedDayId === item.id;
-
-    return (
-      <button
-        className={styles.plansDay}
-        key={`day_${index}`}
-        onClick={() => handleClickDay(item.id)}
-        style={{
-          backgroundColor: isSelectedDay ? "#6f87f6" : undefined,
-        }}
-      >
-        {day}
-        <br />
-        {month}
-      </button>
-    );
-  });
+  // By-day UI hidden; mapDays not used
 
   const mapDayPlans = foundDay?.plans?.map((item: any, index: number) => {
     return (
