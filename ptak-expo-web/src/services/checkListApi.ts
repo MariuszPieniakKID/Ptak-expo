@@ -204,7 +204,7 @@ export const getChecklist = async (exhibitionId: number) => {
 			}
 		} catch {}
 
-        // materials (ONLY exhibitor's own uploads for this exhibition)
+        // materials (ONLY exhibitor's own uploads for this exhibition, category == 'inne_dokumenty')
 		try {
 			if (exhibitor?.id) {
                 const r = await fetch(`${config.API_BASE_URL}/api/v1/exhibitor-documents/${encodeURIComponent(String(exhibitor.id))}/${encodeURIComponent(String(exhibitionId))}?selfOnly=1`, { headers: { Authorization: `Bearer ${token}` } });
@@ -213,11 +213,14 @@ export const getChecklist = async (exhibitionId: number) => {
 					const docs = Array.isArray(j.documents) ? j.documents : [];
 					ExampleChecklist = {
 						...ExampleChecklist,
-                        downloadMaterials: docs.map((row: any) => ({
-                            id: row.id,
-							fileName: row.original_name || row.title || row.file_name,
-							fileUri: `${config.API_BASE_URL}/api/v1/exhibitor-documents/${encodeURIComponent(String(exhibitor.id))}/${encodeURIComponent(String(exhibitionId))}/download/${encodeURIComponent(String(row.id))}?token=${encodeURIComponent(token)}`
-						})).sort((a: DownloadMaterial, b: DownloadMaterial) => a.fileName.localeCompare(b.fileName))
+                        downloadMaterials: docs
+                            .filter((row: any) => String(row.category) === 'inne_dokumenty')
+                            .map((row: any) => ({
+                                id: row.id,
+                                fileName: row.original_name || row.title || row.file_name,
+                                fileUri: `${config.API_BASE_URL}/api/v1/exhibitor-documents/${encodeURIComponent(String(exhibitor.id))}/${encodeURIComponent(String(exhibitionId))}/download/${encodeURIComponent(String(row.id))}?token=${encodeURIComponent(token)}`
+                            }))
+                            .sort((a: DownloadMaterial, b: DownloadMaterial) => a.fileName.localeCompare(b.fileName))
 					};
 				}
 			}
