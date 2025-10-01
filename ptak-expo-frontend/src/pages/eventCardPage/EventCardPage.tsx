@@ -4,7 +4,7 @@ import { ReactComponent as  CatalogEntryIcon} from '../../assets/catalog_entryIc
 import { ReactComponent as  DocumentsIcon} from '../../assets/documentsIcon.svg';
 import { ReactComponent as  InvitationsIcon} from '../../assets/invitationsIcon.svg';
 import { ReactComponent as  EventScheduleIcon} from '../../assets/event_scheduleIcon.svg';
-import { ReactComponent as  PushNotificationIcon} from '../../assets/pushNotificationsIcon.svg';
+// import { ReactComponent as  PushNotificationIcon} from '../../assets/pushNotificationsIcon.svg';
 
 import {Box, Tab} from '@mui/material';
 import styles from './EventCardPage.module.scss';
@@ -258,16 +258,7 @@ function EventCardPage({ event }: EventCardPagetProps) {
                                   marginBottom: '-1rem'
                                 }}
                             />
-                            <Tab
-                                disableRipple
-                                icon={<PushNotificationIcon />}
-                                iconPosition="start"
-                                label={<span className="tab-label-text">Powiadomienia Push</span>}
-                                {...a11yProps(4)}
-                                sx={{
-                                  marginBottom: '-1rem'
-                                }}
-                            />
+                            {/* Hidden: Push Notifications tab */}
                     </Tabs>
                     </Box>
                     <CustomTabPanel value={value} index={0}>
