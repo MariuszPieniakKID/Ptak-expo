@@ -204,12 +204,16 @@ function ExhibitorWithEvent({
             const res = prodRes; // alias to avoid stale references
             const prodJson = await res.json();
             const raw = Array.isArray(prodJson?.data) ? prodJson.data : [];
-            const mapped: PresentedProductItem[] = raw.map((p: any) => ({
-              imageSrc: p.img || productImg,
-              title: p.name || '',
-              description: p.description || '',
-              tabList: Array.isArray(p.tabList) ? p.tabList : null
-            }));
+            const mapped: PresentedProductItem[] = raw.map((p: any) => {
+              // Use tags field first (from checklist), fallback to tabList
+              const tagsArray = Array.isArray(p.tags) ? p.tags : (Array.isArray(p.tabList) ? p.tabList : null);
+              return {
+                imageSrc: p.img || productImg,
+                title: p.name || '',
+                description: p.description || '',
+                tabList: tagsArray
+              };
+            });
             setProducts(mapped);
           } else {
             setProducts([]);
