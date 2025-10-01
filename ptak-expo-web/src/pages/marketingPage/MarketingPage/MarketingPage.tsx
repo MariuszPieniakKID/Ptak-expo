@@ -157,6 +157,12 @@ export const MarketingPage: React.FC = () => {
 
   // removed old generic documents download handler – we now use branding download for exhibitor branding docs
 
+  // Funkcja do skracania nazw plików
+  const truncateFilename = (filename: string, maxLength: number = 10): string => {
+    if (filename.length <= maxLength) return filename;
+    return filename.substring(0, maxLength) + '...';
+  };
+
   const handleDownloadBranding = async (file: T_File) => {
     try {
       setIsFetchingFileId(file.id);
@@ -194,7 +200,7 @@ export const MarketingPage: React.FC = () => {
           <div className={styles.rowImage}>
             <img alt="logo" src={item.src} height={34} width="auto" />
           </div>
-          <div className={styles.rowText}>{item.title}</div>
+          <div className={styles.rowText} title={item.title}>{truncateFilename(item.title)}</div>
         </div>
         <div className={styles.actions}>
           <button
@@ -238,7 +244,7 @@ export const MarketingPage: React.FC = () => {
           <div className={styles.rowImage}>
             <img alt="banner" src={item.src} height={34} width="auto" />
           </div>
-          <div className={styles.rowText}>{item.title}</div>
+          <div className={styles.rowText} title={item.title}>{truncateFilename(item.title)}</div>
         </div>
         <div className={styles.actions}>
           <button
@@ -268,7 +274,7 @@ export const MarketingPage: React.FC = () => {
       <div className={styles.listRow}>
         <div className={styles.rowLeft}>
           <img alt="pdf ikona" src={IconPdf} height={30} width={23} />
-          <span className={styles.rowText}>{doc.originalName}</span>
+          <span className={styles.rowText} title={doc.originalName}>{truncateFilename(doc.originalName, 20)}</span>
         </div>
         <div className={styles.actions}>
           <button
@@ -294,7 +300,7 @@ export const MarketingPage: React.FC = () => {
       <div className={styles.listRow}>
         <div className={styles.rowLeft}>
           <img alt="pdf ikona" src={IconPdf} height={30} width={23} />
-          <span className={styles.rowText}>{doc.originalName}</span>
+          <span className={styles.rowText} title={doc.originalName}>{truncateFilename(doc.originalName, 20)}</span>
         </div>
         <div className={styles.actions}>
           <button
