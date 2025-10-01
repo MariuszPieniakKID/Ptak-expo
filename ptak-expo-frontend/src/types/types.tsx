@@ -19,6 +19,7 @@ export type _AddedEvent =
       description?: string;
       organizer: string;
       addedToOfficialCatalog: boolean;
+      organizerLogoUrl?: string;
       //isDelete?: boolean;
       //isEdited?: boolean;
     }
@@ -37,6 +38,7 @@ export type _AddedEvent =
       //addedToOfficialCatalog: undefined; // wyraźne odrzucenie tej właściwości
       isDelete: boolean;
       isEdited: boolean;
+      organizerLogoUrl?: string;
     };
   export interface _TradeAwardsFair {
   id: number;

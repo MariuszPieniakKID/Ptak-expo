@@ -8,7 +8,8 @@ import { Exhibitor } from "../../services/api";
 import AddingEvents from "./addingEvents/AddingEvents";
 import AddedEvents from "./addedEvents/AddedEvents";
 import { useAuth } from '../../contexts/AuthContext';
-import { getTradeEvents, TradeEvent } from '../../services/api';
+import { getTradeEvents, TradeEvent, getBrandingFiles } from '../../services/api';
+import config from '../../config/config';
 
 type ExhibitorScheduleOfEventsAtTheStandProps = {
   allowMultiple?: boolean;
@@ -35,7 +36,25 @@ function ExhibitorScheduleOfEventsAtTheStand({
       if (!token || !currentExhibitionId) return;
       try {
         const res = await getTradeEvents(currentExhibitionId, token, exhibitorId);
-        setTradeEvents(res.data);
+        // Try to resolve exhibitor catalog logo from branding files for this exhibition
+        let organizerLogoUrl: string | undefined = undefined;
+        try {
+          if (exhibitorId && currentExhibitionId) {
+            const branding = await getBrandingFiles(exhibitorId, currentExhibitionId, token);
+            const files = (branding as any).files || {};
+            const base = config.API_BASE_URL || '';
+            const pick = files['logo_kolowe_tlo_kafel']?.fileName || files['biale_logo_identyfikator']?.fileName;
+            if (pick) {
+              organizerLogoUrl = `${base}/api/v1/exhibitor-branding/serve/${exhibitorId}/${encodeURIComponent(pick)}?token=${encodeURIComponent(token)}`;
+            }
+          }
+        } catch {}
+
+        const enriched = res.data.map(ev => ({
+          ...ev,
+          ...(organizerLogoUrl ? { organizerLogoUrl } : {}),
+        }));
+        setTradeEvents(enriched);
       } catch (_e) {
         setTradeEvents([]);
       }

@@ -116,8 +116,14 @@ function getColorForEvent(eventId: string): string {
             {/* Sekcja Organizator + Akcje */}
             <Box className={styles.lastRow}>
               <Box className={styles.organizer}>
-                <CustomTypography className={styles.organizerLabel}>Organizuje:</CustomTypography>
-                <Box className={styles.organizerIcon}><img src={LogoPtakExpo} alt="Organizer logo" /></Box>
+                <CustomTypography className={styles.organizerLabel}>Organizator:</CustomTypography>
+                <Box className={styles.organizerIcon}>
+                  {event.organizerLogoUrl ? (
+                    <img src={event.organizerLogoUrl} alt="logo" />
+                  ) : (
+                    <img src={LogoPtakExpo} alt="logo" />
+                  )}
+                </Box>
               </Box>
 
               <Box className={styles.actionButton}>
