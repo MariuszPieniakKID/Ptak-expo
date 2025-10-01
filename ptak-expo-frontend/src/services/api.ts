@@ -1488,6 +1488,9 @@ const mapTradeEventRow = (row: any): TradeEvent => ({
   type: row.type,
   organizer: row.organizer ?? undefined,
   link: row.link ?? undefined,
+  event_source: row.event_source ?? undefined,
+  booth_number: row.booth_number ?? undefined,
+  is_in_agenda: row.is_in_agenda ?? false,
 });
 
 export const getTradeEvents = async (
