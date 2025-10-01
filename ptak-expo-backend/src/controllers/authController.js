@@ -30,78 +30,43 @@ const exhibitorLogin = async (req, res) => {
       });
     }
 
-    // Check database for user (always use configured database pool)
+    // Check database for exhibitor (distinct auth realm from admin users)
     try {
-        // Query database for exhibitor with case-insensitive email
         const normalizedEmail = (email || '').trim().toLowerCase();
-        let result;
-        try {
-          result = await db.query(
-            'SELECT * FROM users WHERE LOWER(email) = $1 AND status = $2',
-            [normalizedEmail, 'active']
-          );
-        } catch (statusError) {
-          result = await db.query(
-            'SELECT * FROM users WHERE LOWER(email) = $1',
-            [normalizedEmail]
-          );
+        // Fetch exhibitor by email
+        const exRes = await db.query(
+          'SELECT id, email, password_hash, company_name, contact_person, status FROM exhibitors WHERE LOWER(email) = $1',
+          [normalizedEmail]
+        );
+        if (exRes.rows.length === 0) {
+          return res.status(401).json({ success: false, message: 'Nieprawidłowy email lub hasło' });
         }
-
-        // Query result
-        if (result.rows.length > 0) {
-          // Found user
-          
-          // Check if user has status column and if it's active
-          if (result.rows[0].status && result.rows[0].status !== 'active') {
-            // Inactive account
-            return res.status(401).json({
-              success: false,
-              message: 'Konto jest nieaktywne'
-            });
-          }
+        const exhibitor = exRes.rows[0];
+        if (exhibitor.status && exhibitor.status !== 'active') {
+          return res.status(401).json({ success: false, message: 'Konto wystawcy jest nieaktywne' });
         }
-        if (result.rows.length === 0) {
-          // No user found
-          return res.status(401).json({
-            success: false,
-            message: 'Nieprawidłowy email lub hasło'
-          });
-        }
-
-        const user = result.rows[0];
-        // User found
-        
-        // Walidacja hasła
-        const isPasswordValid = await bcrypt.compare(password, user.password_hash);
-        // Password check
-
+        // Validate password against exhibitors.password_hash (separate od users)
+        const isPasswordValid = await bcrypt.compare(password, exhibitor.password_hash || '');
         if (!isPasswordValid) {
-          return res.status(401).json({
-            success: false,
-            message: 'Nieprawidłowy email lub hasło'
-          });
+          return res.status(401).json({ success: false, message: 'Nieprawidłowy email lub hasło' });
         }
 
-        // W tym endpointzie logujemy do panelu wystawcy NAWET jeżeli użytkownik ma rolę admin w tabeli users,
-        // pod warunkiem, że istnieje jako wystawca (email w tabeli exhibitors) – to dwa konteksty tego samego maila.
-        const exq = await db.query('SELECT id FROM exhibitors WHERE LOWER(email) = $1 LIMIT 1', [normalizedEmail]);
-        if (exq.rows.length === 0) {
-          return res.status(403).json({ success: false, message: 'Konto nie jest przypisane jako wystawca' });
-        }
-
-        // Generuj token z rolą "exhibitor" niezależnie od roli w users, aby frontend miał właściwe uprawnienia kontekstowe
-        const token = jwt.sign({ id: user.id, email: user.email, role: 'exhibitor' }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRE || '7d' });
+        // Build exhibitor-context token and user payload
+        const token = jwt.sign({ id: exhibitor.id, email: exhibitor.email, role: 'exhibitor' }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRE || '7d' });
+        const contact = String(exhibitor.contact_person || '').trim();
+        const [firstName, ...rest] = contact.split(' ').filter(Boolean);
+        const lastName = rest.join(' ');
         return res.json({
           success: true,
           message: 'Logowanie zakończone pomyślnie',
           user: {
-            id: user.id,
-            email: user.email,
-            firstName: user.first_name,
-            lastName: user.last_name,
+            id: exhibitor.id,
+            email: exhibitor.email,
+            firstName: firstName || exhibitor.company_name || 'Wystawca',
+            lastName: lastName || '',
             role: 'exhibitor',
-            companyName: user.company_name,
-            avatarUrl: user.avatar_url || null
+            companyName: exhibitor.company_name || null,
+            avatarUrl: null
           },
           token
         });
