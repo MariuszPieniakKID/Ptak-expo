@@ -43,8 +43,15 @@ exports.listByExhibition = async (req, res) => {
         [exhibitionId, effectiveExhibitorId]
       );
     }
-    console.log('📅 [trade-events] Sample event data:', result.rows[0]);
-    return res.json({ success: true, data: result.rows });
+    // Convert event_date from Date object to YYYY-MM-DD string
+    const formattedRows = result.rows.map(row => ({
+      ...row,
+      event_date: row.event_date instanceof Date 
+        ? row.event_date.toISOString().slice(0, 10) 
+        : (row.event_date || '').toString().slice(0, 10)
+    }));
+    console.log('📅 [trade-events] Sample formatted event:', formattedRows[0]);
+    return res.json({ success: true, data: formattedRows });
   } catch (error) {
     console.error('❌ listByExhibition error:', error);
     return res.status(500).json({ success: false, message: 'Błąd podczas pobierania wydarzeń targowych' });
@@ -124,12 +131,19 @@ exports.remove = async (req, res) => {
     if (req.user?.role === 'exhibitor') {
       const me = await db.query('SELECT id FROM exhibitors WHERE email = $1 LIMIT 1', [req.user.email]);
       const myId = me.rows?.[0]?.id ?? null;
+      console.log('🔍 [trade-events] Exhibitor attempting delete:', { myId, eventId, exhibitionId });
       if (!myId) return res.status(403).json({ success: false, message: 'Brak uprawnień' });
+      
+      // First check if event exists and who owns it
+      const existing = await db.query('SELECT * FROM trade_events WHERE id = $1 AND exhibition_id = $2', [eventId, exhibitionId]);
+      console.log('🔍 [trade-events] Event to delete:', existing.rows[0]);
+      
       const del = await db.query(
         'DELETE FROM trade_events WHERE id = $1 AND exhibition_id = $2 AND exhibitor_id = $3 RETURNING *',
         [eventId, exhibitionId, myId]
       );
       if (del.rowCount === 0) {
+        console.log('❌ [trade-events] Delete failed - event not found or wrong owner');
         return res.status(404).json({ success: false, message: 'Nie znaleziono wydarzenia do usunięcia' });
       }
       console.log('✅ [trade-events] deleted (owner)', del.rows[0]);

@@ -22,10 +22,14 @@ function DateCircle({date}: {date: string}) {
 	console.log('[DateCircle] Received date:', date);
 	
 	// Ensure date is in YYYY-MM-DD format
+	// Handle both ISO format (2025-10-07T00:00:00.000Z) and simple format (2025-10-07)
 	let normalizedDate = date;
 	if (!date || typeof date !== 'string') {
 		console.warn('[DateCircle] Invalid date:', date);
 		normalizedDate = new Date().toISOString().slice(0, 10);
+	} else if (date.includes('T')) {
+		// ISO format - extract just the date part
+		normalizedDate = date.slice(0, 10);
 	}
 	
 	const parts = normalizedDate.split('-');
