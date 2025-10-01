@@ -110,21 +110,7 @@ const ChecklistPage: React.FC = () => {
             <ElectronicIdsCard />
           </div>
 
-          <div
-            className={styles.stylesToCompletedWrapper}
-            style={{
-              paddingTop: "24px",
-            }}
-          >
-            <div className={styles.stylesToCompletedText}>Opcjonalnie:</div>
-            <div className={styles.stylesToCompletedLine}></div>
-          </div>
-          <div className={styles.sectionCardWhite}>
-            <div className={styles.sectionHeaderLeft}>
-              <div className={styles.sectionCircleOrange} />
-              <div className={styles.sectionTitle}>Nagrody targowe</div>
-            </div>
-          </div>
+          {/* Hidden optional awards section per request */}
         </div>
       </main>
     </div>
