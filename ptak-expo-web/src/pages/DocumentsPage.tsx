@@ -9,7 +9,6 @@ import {
   ExhibitorDocument,
   tradeInfoAPI,
   userAvatarUrl,
-  brandingAPI,
 } from "../services/api";
 import IconDownload from "../assets/group-914.png";
 import IconPdf from "../assets/pdf.png";
@@ -21,7 +20,8 @@ const DocumentsPage: React.FC = () => {
   const {eventId} = useParams<{eventId: string}>();
   const {token, isAuthenticated} = useAuth();
   const [documents, setDocuments] = useState<ExhibitorDocument[]>([]);
-  const [exhibitorBrandingDocs, setExhibitorBrandingDocs] = useState<{ id: number; originalName: string; mimeType: string; url: string }[]>([]);
+  // Branding docs not used in this view now
+  // Only admin-uploaded exhibitor-documents are shown in downloads
   const [loading, setLoading] = useState(true);
   const [isFetchingFileId, setIsFetchingFileId] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -29,13 +29,11 @@ const DocumentsPage: React.FC = () => {
 
   // Filter documents by category
   const invoices = documents.filter((doc) => doc.category === "faktury");
-  // "Dokumenty do pobrania": połączone źródła ADMINA
-  // 1) exhibitor-documents dodane przez ADMINA (umowy + inne_dokumenty z uploadedByRole === 'admin')
+  // "Dokumenty do pobrania": tylko ADMIN – pliki dodane w panelu admina (umowy + inne_dokumenty)
   const adminFromExhibitorDocs = documents.filter(
     (doc) => (doc.category === 'umowy' || doc.category === 'inne_dokumenty') && (String(doc.uploadedByRole || '').toLowerCase() === 'admin')
   ).map(doc => ({ id: doc.id, originalName: doc.originalName, mimeType: doc.mimeType, url: '' }));
-  // 2) brandingAPI dla wystawcy (dokumenty_brandingowe)
-  const downloadsBranding = exhibitorBrandingDocs;
+  const combinedAdminDocs = adminFromExhibitorDocs;
 
   // Fetch documents on component mount
   useEffect(() => {
@@ -64,25 +62,7 @@ const DocumentsPage: React.FC = () => {
         const sup = ti?.exhibitorAssignment?.supervisor || null;
         setSupervisor(sup);
 
-        // Pobierz dokumenty brandingowe wystawcy dla tej wystawy (sekcja "Dokumenty do pobrania")
-        try {
-          const exbRes = await brandingAPI.getForExhibitor(exhibitorId, parseInt(eventId));
-          const exbFiles = (exbRes.data && (exbRes.data as any).files) || {};
-          const exbDocs: { id: number; originalName: string; mimeType: string; url: string }[] = [];
-          if (Array.isArray(exbFiles.dokumenty_brandingowe)) {
-            for (const f of exbFiles.dokumenty_brandingowe) {
-              exbDocs.push({
-                id: f.id,
-                originalName: f.originalName || 'dokument.pdf',
-                mimeType: f.mimeType || 'application/pdf',
-                url: brandingAPI.serveExhibitorUrl(exhibitorId, f.fileName),
-              });
-            }
-          }
-          setExhibitorBrandingDocs(exbDocs);
-        } catch {
-          setExhibitorBrandingDocs([]);
-        }
+        // Brak brandingu w tym widoku – tylko adminowe pliki z exhibitor-documents
       } catch (err: any) {
         setError(
           err.response?.data?.message ||
@@ -285,14 +265,14 @@ const DocumentsPage: React.FC = () => {
               </CustomTypography>
             </div>
             <div className={styles.list}>
-              {(adminFromExhibitorDocs.length + downloadsBranding.length) === 0 ? (
+              {combinedAdminDocs.length === 0 ? (
                 <div
                   style={{padding: "12px", color: "#666", fontStyle: "italic"}}
                 >
                   Brak dokumentów do wyświetlenia
                 </div>
               ) : (
-                [...adminFromExhibitorDocs, ...downloadsBranding].map((document) => (
+                combinedAdminDocs.map((document) => (
                   <div key={`exb_branding_${document.id}`}>
                     <div className={styles.listRow}>
                       <div className={styles.rowLeft}>
