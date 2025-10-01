@@ -587,11 +587,21 @@ const initializeDatabase = async () => {
         mime_type VARCHAR(100),
         category VARCHAR(50) NOT NULL CHECK (category IN ('faktury', 'umowy', 'inne_dokumenty')),
         uploaded_by INTEGER REFERENCES users(id),
+        document_source VARCHAR(50) DEFAULT 'exhibitor_self' CHECK (document_source IN ('admin_exhibitor_card', 'exhibitor_self', 'admin_other')),
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         UNIQUE(exhibitor_id, exhibition_id, file_name)
       )
     `);
+    
+    // Add document_source column to existing tables (migration)
+    await pool.query(`
+      ALTER TABLE exhibitor_documents 
+      ADD COLUMN IF NOT EXISTS document_source VARCHAR(50) DEFAULT 'exhibitor_self' 
+      CHECK (document_source IN ('admin_exhibitor_card', 'exhibitor_self', 'admin_other'))
+    `).catch(err => {
+      console.log('Note: document_source column may already exist or constraint failed');
+    });
 
     console.log('🔍 Creating indexes for trade_info and invitations tables...');
     await pool.query(`

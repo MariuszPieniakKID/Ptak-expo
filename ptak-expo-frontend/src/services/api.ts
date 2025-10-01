@@ -1590,6 +1590,9 @@ export interface ExhibitorDocument {
   mimeType: string;
   category: ExhibitorDocumentCategory;
   createdAt: string;
+  uploadedBy?: number | null;
+  uploadedByRole?: string | null;
+  documentSource?: 'admin_exhibitor_card' | 'exhibitor_self' | 'admin_other';
 }
 
 export const getExhibitorDocuments = async (
@@ -1622,6 +1625,9 @@ export const getExhibitorDocuments = async (
     mimeType: row.mime_type,
     category: row.category,
     createdAt: row.created_at,
+    uploadedBy: row.uploaded_by ?? null,
+    uploadedByRole: row.uploaded_by_role ?? null,
+    documentSource: row.document_source ?? 'exhibitor_self',
   })) : [];
 };
 
@@ -1630,14 +1636,16 @@ export const uploadExhibitorDocument = async (
   exhibitorId: number,
   exhibitionId: number,
   category: ExhibitorDocumentCategory,
-  token: string
+  token: string,
+  documentSource: 'admin_exhibitor_card' | 'exhibitor_self' | 'admin_other' = 'admin_exhibitor_card'
 ): Promise<{ success: boolean; message: string; document: ExhibitorDocument }> => {
   const formData = new FormData();
   formData.append('document', file);
   formData.append('title', file.name);
   formData.append('category', category);
+  formData.append('documentSource', documentSource);
   const url = `${config.API_BASE_URL}/api/v1/exhibitor-documents/${exhibitorId}/${exhibitionId}/upload`;
-  if (config.DEBUG) console.log('[api] POST upload document', { url, file: file.name, exhibitorId, exhibitionId, category });
+  if (config.DEBUG) console.log('[api] POST upload document', { url, file: file.name, exhibitorId, exhibitionId, category, documentSource });
   const response = await fetch(url, {
     method: 'POST',
     headers: {

@@ -28,11 +28,11 @@ const DocumentsPage: React.FC = () => {
   const [supervisor, setSupervisor] = useState<any | null>(null);
   const [assignedExhibitorId, setAssignedExhibitorId] = useState<number | null>(null);
 
-  // Pokaż TYLKO pliki dodane w zakładce "Dokumenty" w bazie wystawców (admin upload)
-  const isAdminUploaded = (doc: ExhibitorDocument) => String(doc.uploadedByRole || '').toLowerCase() === 'admin';
-  const invoices = documents.filter((doc) => doc.category === 'faktury' && isAdminUploaded(doc));
+  // Pokaż TYLKO pliki dodane w zakładce "Dokumenty" w karcie wystawcy (admin_exhibitor_card)
+  const isFromExhibitorCard = (doc: ExhibitorDocument) => doc.documentSource === 'admin_exhibitor_card';
+  const invoices = documents.filter((doc) => doc.category === 'faktury' && isFromExhibitorCard(doc));
   const combinedAdminDocs = documents
-    .filter((doc) => (doc.category === 'umowy' || doc.category === 'inne_dokumenty') && isAdminUploaded(doc))
+    .filter((doc) => (doc.category === 'umowy' || doc.category === 'inne_dokumenty') && isFromExhibitorCard(doc))
     .map((doc) => ({ id: doc.id, originalName: doc.originalName, mimeType: doc.mimeType, url: '' }));
 
   // Fetch documents on component mount

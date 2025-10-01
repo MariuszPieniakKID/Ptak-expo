@@ -329,6 +329,7 @@ export interface ExhibitorDocument {
   createdAt: string;
   uploadedBy?: number | null;
   uploadedByRole?: string | null;
+  documentSource?: 'admin_exhibitor_card' | 'exhibitor_self' | 'admin_other';
 }
 
 export const exhibitorDocumentsAPI = {
@@ -351,6 +352,7 @@ export const exhibitorDocumentsAPI = {
       createdAt: row.created_at,
       uploadedBy: row.uploaded_by ?? null,
       uploadedByRole: row.uploaded_by_role ?? null,
+      documentSource: row.document_source ?? 'exhibitor_self',
     }));
   },
   download: async (

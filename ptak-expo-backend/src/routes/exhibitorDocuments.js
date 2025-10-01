@@ -72,7 +72,7 @@ const upload = multer({
 router.post('/:exhibitorId/:exhibitionId/upload', verifyToken, upload.single('document'), async (req, res) => {
   try {
     const { exhibitorId, exhibitionId } = req.params;
-    const { title, description, category } = req.body;
+    const { title, description, category, documentSource } = req.body;
     const file = req.file;
 
     if (!file) {
@@ -86,6 +86,10 @@ router.post('/:exhibitorId/:exhibitionId/upload', verifyToken, upload.single('do
     if (!['faktury', 'umowy', 'inne_dokumenty'].includes(category)) {
       return res.status(400).json({ success: false, error: 'Nieprawidłowa kategoria' });
     }
+    
+    // Validate document_source
+    const validSources = ['admin_exhibitor_card', 'exhibitor_self', 'admin_other'];
+    const finalDocumentSource = validSources.includes(documentSource) ? documentSource : 'exhibitor_self';
 
     // Verify exhibitor and exhibition exist and ownership if not admin
     const exhibitorCheck = await db.query('SELECT id FROM exhibitors WHERE id = $1', [exhibitorId]);
@@ -133,8 +137,8 @@ router.post('/:exhibitorId/:exhibitionId/upload', verifyToken, upload.single('do
     const result = await db.query(`
       INSERT INTO exhibitor_documents (
         exhibitor_id, exhibition_id, title, description, file_name, original_name, 
-        file_path, file_size, mime_type, category, uploaded_by
-      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+        file_path, file_size, mime_type, category, uploaded_by, document_source
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
       RETURNING *
     `, [
       exhibitorId,
@@ -147,7 +151,8 @@ router.post('/:exhibitorId/:exhibitionId/upload', verifyToken, upload.single('do
       file.size,
       file.mimetype,
       category,
-      uploaderUserId
+      uploaderUserId,
+      finalDocumentSource
     ]);
 
     res.json({
@@ -232,6 +237,7 @@ router.get('/:exhibitorId/:exhibitionId', verifyToken, async (req, res) => {
       SELECT 
         d.id, d.title, d.description, d.file_name, d.original_name, d.file_size, 
         d.mime_type, d.category, d.created_at, d.updated_at, d.uploaded_by,
+        d.document_source,
         u.role AS uploaded_by_role
       FROM exhibitor_documents d
       LEFT JOIN users u ON u.id = d.uploaded_by
