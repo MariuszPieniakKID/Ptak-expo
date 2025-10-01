@@ -191,190 +191,194 @@ const EventInvitationsPage = () => {
       left={<LeftColumn eventId={eventId || '0'} isDarkBg={true}/>} 
       right={
         <Box className={styles.rightContainer}>
-          {data && (
-            <Box
-              sx={{
-                width: '100%',
-                maxWidth: 420,
-                bgcolor: '#fff',
-                borderRadius: '12px',
-                boxShadow: '0 8px 24px rgba(0,0,0,0.08)',
-                overflow: 'hidden',
-              }}
-            >
-              {/* Split header: left (catalog logo), right (branding invitation header) */}
-              <Box sx={{ height: 160, display: 'flex', overflow: 'hidden' }}>
-                <Box sx={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: '#fff' }}>
-                  {data.catalogLogoUrl ? (
-                    <img src={data.catalogLogoUrl} alt="Logo" style={{ maxWidth: '80%', maxHeight: '80%', objectFit: 'contain' }} />
-                  ) : (
-                    <img src="/assets/logo192.png" alt="Logo" style={{ maxWidth: '60%', maxHeight: '60%', objectFit: 'contain' }} />
-                  )}
-                </Box>
-                <Box sx={{ flex: 1, overflow: 'hidden' }}>
-                  <img
-                    src={data.headerImageUrl}
-                    alt={data.eventName}
-                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                  />
-                </Box>
-              </Box>
-              {/* Content */}
-              <Box sx={{ p: 2.5 }}>
-                <Typography variant="h6" sx={{ mb: 2, color: '#2E2E38' }}>
-                  {data.eventName}
-                </Typography>
-                <TextField
-                  label="Imię i Nazwisko gościa"
-                  variant="standard"
-                  fullWidth
-                  value={guestName}
-                  onChange={(e) => setGuestName(e.target.value)}
-                  sx={{ mb: 2 }}
-                />
-                <TextField
-                  label="Adres e-mail"
-                  variant="standard"
-                  fullWidth
-                  value={guestEmail}
-                  onChange={(e) => setGuestEmail(e.target.value)}
-                  type="email"
-                  sx={{ mb: 3 }}
-                />
-                {/* Invitation type selector */}
-                <Box sx={{ mb: 2 }}>
-                  <Typography variant="caption" sx={{ color: '#666' }}>Typ zaproszenia</Typography>
-                  <TextField
-                    variant="standard"
-                    select
-                    fullWidth
-                    SelectProps={{ native: true }}
-                    value={selectedTemplateId}
-                    onChange={(e) => setSelectedTemplateId(e.target.value ? Number(e.target.value) : '')}
-                  >
-                    {templates.map(t => (
-                      <option key={t.id} value={t.id}>{t.title}</option>
-                    ))}
-                  </TextField>
-                </Box>
-
-                <Button
-                  variant="contained"
-                  fullWidth
-                  onClick={handlePreview}
-                  disabled={!isFormValid}
-                >
-                  Sprawdź wiadomość
-                </Button>
-
-                {showPreview && (
-                  <Box sx={{ mt: 2, p: 2, border: '1px solid #eee', borderRadius: 1 }}>
-                    <Typography variant="subtitle2" sx={{ mb: 1 }}>Podgląd wiadomości – edycja 1:1</Typography>
-                    <Box sx={{ display: 'flex', gap: 0.5, mb: 1 }}>
-                      <IconButton aria-label="Pogrubienie" size="small" onClick={() => exec('bold')} sx={{ p: 0.5, border: '1px solid #e5e7eb', borderRadius: 1, color: '#2E2E38' }}>
-                        <FormatBoldIcon sx={{ fontSize: 16 }} />
-                      </IconButton>
-                      <IconButton aria-label="Kursywa" size="small" onClick={() => exec('italic')} sx={{ p: 0.5, border: '1px solid #e5e7eb', borderRadius: 1, color: '#2E2E38' }}>
-                        <FormatItalicIcon sx={{ fontSize: 16 }} />
-                      </IconButton>
-                      <IconButton aria-label="Wstaw link" size="small" onClick={onInsertLink} sx={{ p: 0.5, border: '1px solid #e5e7eb', borderRadius: 1, color: '#2E2E38' }}>
-                        <InsertLinkIcon sx={{ fontSize: 16 }} />
-                      </IconButton>
-                      <IconButton aria-label="Wstaw emotkę" size="small" onClick={() => onInsertEmoji('🙂')} sx={{ p: 0.5, border: '1px solid #e5e7eb', borderRadius: 1, color: '#2E2E38' }}>
-                        <EmojiEmotionsIcon sx={{ fontSize: 16 }} />
-                      </IconButton>
-                    </Box>
-                    <div
-                      ref={editorRef}
-                      contentEditable
-                      suppressContentEditableWarning
-                      onInput={() => {
-                        if (editorRef.current) {
-                          const html = editorRef.current.innerHTML;
-                          setEditorHtml(html);
-                          setPreviewHtml(html);
-                        }
-                      }}
-                      style={{
-                        minHeight: 240,
-                        border: '1px solid #ddd',
-                        borderRadius: 8,
-                        padding: 12,
-                      }}
+          <Box sx={{ display: 'flex', gap: 2, alignItems: 'stretch' }}>
+            {data && (
+              <Box
+                sx={{
+                  flex: '1 1 0%',
+                  minWidth: 0,
+                  bgcolor: '#fff',
+                  borderRadius: '12px',
+                  boxShadow: '0 8px 24px rgba(0,0,0,0.08)',
+                  overflow: 'hidden',
+                  display: 'flex',
+                  flexDirection: 'column',
+                }}
+              >
+                {/* Split header: left (catalog logo), right (branding invitation header) */}
+                <Box sx={{ height: 160, display: 'flex', overflow: 'hidden' }}>
+                  <Box sx={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: '#fff' }}>
+                    {data.catalogLogoUrl ? (
+                      <img src={data.catalogLogoUrl} alt="Logo" style={{ maxWidth: '80%', maxHeight: '80%', objectFit: 'contain' }} />
+                    ) : (
+                      <img src="/assets/logo192.png" alt="Logo" style={{ maxWidth: '60%', maxHeight: '60%', objectFit: 'contain' }} />
+                    )}
+                  </Box>
+                  <Box sx={{ flex: 1, overflow: 'hidden' }}>
+                    <img
+                      src={data.headerImageUrl}
+                      alt={data.eventName}
+                      style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                     />
                   </Box>
-                )}
-
-                <Button
-                  variant="contained"
-                  fullWidth
-                  sx={{ mt: 1 }}
-                  onClick={handleSend}
-                  disabled={isSending || !guestName.trim() || !guestEmail.trim() || !selectedTemplateId}
-                >
-                  {isSending ? 'Wysyłanie…' : 'Wyślij zaproszenie'}
-                </Button>
-
-                <Button
-                  variant="contained"
-                  fullWidth
-                  sx={{ mt: 1 }}
-                  color="secondary"
-                  onClick={openBulk}
-                  disabled={!selectedTemplateId}
-                >
-                  Wyślij masowo
-                </Button>
-
-                {/* Sent list */}
-                {sent.length > 0 && (
-                  <Box sx={{ mt: 3 }}>
-                    <Typography variant="subtitle2" sx={{ mb: 1 }}>Wysłane zaproszenia</Typography>
-                    {sent.map((row) => (
-                      <Box key={row.id} sx={{ display: 'flex', justifyContent: 'space-between', py: 0.75, borderBottom: '1px solid #eee' }}>
-                        <Typography variant="body2" sx={{ mr: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                          {(row.recipientName || row.recipientEmail) + (row.recipientName ? `, ${row.invitationType}` : ` (${row.invitationType})`)}
-                        </Typography>
-                        <Typography variant="body2" sx={{ color: '#2e7d32' }}>{row.status}</Typography>
-                      </Box>
-                    ))}
+                </Box>
+                {/* Content */}
+                <Box sx={{ p: 2.5, flex: '1 1 auto' }}>
+                  <Typography variant="h6" sx={{ mb: 2, color: '#2E2E38' }}>
+                    {data.eventName}
+                  </Typography>
+                  <TextField
+                    label="Imię i Nazwisko gościa"
+                    variant="standard"
+                    fullWidth
+                    value={guestName}
+                    onChange={(e) => setGuestName(e.target.value)}
+                    sx={{ mb: 2 }}
+                  />
+                  <TextField
+                    label="Adres e-mail"
+                    variant="standard"
+                    fullWidth
+                    value={guestEmail}
+                    onChange={(e) => setGuestEmail(e.target.value)}
+                    type="email"
+                    sx={{ mb: 3 }}
+                  />
+                  {/* Invitation type selector */}
+                  <Box sx={{ mb: 2 }}>
+                    <Typography variant="caption" sx={{ color: '#666' }}>Typ zaproszenia</Typography>
+                    <TextField
+                      variant="standard"
+                      select
+                      fullWidth
+                      SelectProps={{ native: true }}
+                      value={selectedTemplateId}
+                      onChange={(e) => setSelectedTemplateId(e.target.value ? Number(e.target.value) : '')}
+                    >
+                      {templates.map(t => (
+                        <option key={t.id} value={t.id}>{t.title}</option>
+                      ))}
+                    </TextField>
                   </Box>
-                )}
-                {/* (Usunięto duplikat podglądu) */}
-              </Box>
-            </Box>
-          )}
 
-          {/* Dark summary box: Wysłane zaproszenia + VIP value (mirrors e-identifier box) */}
-          <Box
-            sx={{
-              mt: 2,
-              width: '100%',
-              maxWidth: 420,
-              bgcolor: '#2f2f35',
-              borderRadius: '12px',
-              boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
-              overflow: 'hidden',
-              color: '#fff',
-              p: 2.5,
-            }}
-          >
-            <Box sx={{ display: 'flex', alignItems: 'center', mb: 1.5 }}>
-              <Box sx={{ width: 24, height: 24, mr: 1 }}>
-                <img alt="ikona koperty" src={IconEmail} style={{ width: 24, height: 24 }} />
+                  <Button
+                    variant="contained"
+                    fullWidth
+                    onClick={handlePreview}
+                    disabled={!isFormValid}
+                  >
+                    Sprawdź wiadomość
+                  </Button>
+
+                  {showPreview && (
+                    <Box sx={{ mt: 2, p: 2, border: '1px solid #eee', borderRadius: 1 }}>
+                      <Typography variant="subtitle2" sx={{ mb: 1 }}>Podgląd wiadomości – edycja 1:1</Typography>
+                      <Box sx={{ display: 'flex', gap: 0.5, mb: 1 }}>
+                        <IconButton aria-label="Pogrubienie" size="small" onClick={() => exec('bold')} sx={{ p: 0.5, border: '1px solid #e5e7eb', borderRadius: 1, color: '#2E2E38' }}>
+                          <FormatBoldIcon sx={{ fontSize: 16 }} />
+                        </IconButton>
+                        <IconButton aria-label="Kursywa" size="small" onClick={() => exec('italic')} sx={{ p: 0.5, border: '1px solid #e5e7eb', borderRadius: 1, color: '#2E2E38' }}>
+                          <FormatItalicIcon sx={{ fontSize: 16 }} />
+                        </IconButton>
+                        <IconButton aria-label="Wstaw link" size="small" onClick={onInsertLink} sx={{ p: 0.5, border: '1px solid #e5e7eb', borderRadius: 1, color: '#2E2E38' }}>
+                          <InsertLinkIcon sx={{ fontSize: 16 }} />
+                        </IconButton>
+                        <IconButton aria-label="Wstaw emotkę" size="small" onClick={() => onInsertEmoji('🙂')} sx={{ p: 0.5, border: '1px solid #e5e7eb', borderRadius: 1, color: '#2E2E38' }}>
+                          <EmojiEmotionsIcon sx={{ fontSize: 16 }} />
+                        </IconButton>
+                      </Box>
+                      <div
+                        ref={editorRef}
+                        contentEditable
+                        suppressContentEditableWarning
+                        onInput={() => {
+                          if (editorRef.current) {
+                            const html = editorRef.current.innerHTML;
+                            setEditorHtml(html);
+                            setPreviewHtml(html);
+                          }
+                        }}
+                        style={{
+                          minHeight: 240,
+                          border: '1px solid #ddd',
+                          borderRadius: 8,
+                          padding: 12,
+                        }}
+                      />
+                    </Box>
+                  )}
+
+                  <Button
+                    variant="contained"
+                    fullWidth
+                    sx={{ mt: 1 }}
+                    onClick={handleSend}
+                    disabled={isSending || !guestName.trim() || !guestEmail.trim() || !selectedTemplateId}
+                  >
+                    {isSending ? 'Wysyłanie…' : 'Wyślij zaproszenie'}
+                  </Button>
+
+                  <Button
+                    variant="contained"
+                    fullWidth
+                    sx={{ mt: 1 }}
+                    color="secondary"
+                    onClick={openBulk}
+                    disabled={!selectedTemplateId}
+                  >
+                    Wyślij masowo
+                  </Button>
+
+                  {/* Sent list */}
+                  {sent.length > 0 && (
+                    <Box sx={{ mt: 3 }}>
+                      <Typography variant="subtitle2" sx={{ mb: 1 }}>Wysłane zaproszenia</Typography>
+                      {sent.map((row) => (
+                        <Box key={row.id} sx={{ display: 'flex', justifyContent: 'space-between', py: 0.75, borderBottom: '1px solid #eee' }}>
+                          <Typography variant="body2" sx={{ mr: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                            {(row.recipientName || row.recipientEmail) + (row.recipientName ? `, ${row.invitationType}` : ` (${row.invitationType})`)}
+                          </Typography>
+                          <Typography variant="body2" sx={{ color: '#2e7d32' }}>{row.status}</Typography>
+                        </Box>
+                      ))}
+                    </Box>
+                  )}
+                </Box>
               </Box>
-              <Box sx={{ fontWeight: 700, lineHeight: 1.2 }}>
-                <span>Wysłane</span><br />
-                <span>zaproszenia</span>
-                <span style={{ marginLeft: 8, fontWeight: 400 }}>
-                  ({invitedCount} <span style={{ color: '#A7A7A7' }}>/ {invitesLimit}</span>)
-                </span>
-              </Box>
-            </Box>
-            <Box sx={{ mt: 1.5, fontWeight: 700, color: '#fff' }}>Biznes Priority Pass</Box>
-            {vipValue && vipValue.trim().length > 0 && (
-              <Box sx={{ color: '#D7D9DD', mb: 1.5 }}>bilet o wartości {vipValue}</Box>
             )}
+
+            {/* Dark summary box aligned to the right, full height of invitations module */}
+            <Box
+              sx={{
+                flex: '0 0 340px',
+                bgcolor: '#2f2f35',
+                borderRadius: '12px',
+                boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
+                overflow: 'hidden',
+                color: '#fff',
+                p: 2.5,
+                display: 'flex',
+                flexDirection: 'column',
+              }}
+            >
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 1.5 }}>
+                <Box sx={{ width: 24, height: 24, mr: 1 }}>
+                  <img alt="ikona koperty" src={IconEmail} style={{ width: 24, height: 24 }} />
+                </Box>
+                <Box sx={{ fontWeight: 700, lineHeight: 1.2 }}>
+                  <span>Wysłane</span><br />
+                  <span>zaproszenia</span>
+                  <span style={{ marginLeft: 8, fontWeight: 400 }}>
+                    ({invitedCount} <span style={{ color: '#A7A7A7' }}>/ {invitesLimit}</span>)
+                  </span>
+                </Box>
+              </Box>
+              <Box sx={{ mt: 1.5, fontWeight: 700, color: '#fff' }}>Biznes Priority Pass</Box>
+              {vipValue && vipValue.trim().length > 0 && (
+                <Box sx={{ color: '#D7D9DD', mb: 1.5 }}>bilet o wartości {vipValue}</Box>
+              )}
+              <Box sx={{ flex: '1 1 auto' }} />
+            </Box>
           </Box>
           <BulkSendModal
             isOpen={bulkOpen}
