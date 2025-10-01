@@ -222,13 +222,20 @@ const uploadBrandingFile = async (req, res) => {
       }
     }
 
-    // Ensure DB blob is stored even when rename succeeded (for resilience across deployments)
-    if (!tempBuffer) {
+    // For large files (PDFs > 5MB), skip storing BLOB in DB to improve performance
+    // Only read file into buffer for smaller files or images
+    const shouldStoreBlobInDB = fileType !== 'dokumenty_brandingowe' && uploadedFile.size < 5 * 1024 * 1024;
+    
+    if (!tempBuffer && shouldStoreBlobInDB) {
       try {
         tempBuffer = await fs.readFile(filePath);
       } catch (_) {
         tempBuffer = null;
       }
+    } else if (!shouldStoreBlobInDB) {
+      // Don't store large PDFs as BLOBs - too slow
+      console.log(`⚡ Skipping BLOB storage for ${fileType} (${uploadedFile.size} bytes) - performance optimization`);
+      tempBuffer = null;
     }
 
     // Delete existing file of same type (if any) - legacy code, will be replaced by new logic below

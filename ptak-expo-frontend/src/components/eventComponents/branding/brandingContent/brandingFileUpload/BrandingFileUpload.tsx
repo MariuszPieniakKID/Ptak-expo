@@ -317,10 +317,15 @@ const BrandingFileUpload: React.FC<BrandingFileUploadProps> = ({
           >
             {isUploading ? (
               <Box className={styles.uploadingContainer}>
-                <CircularProgress size={24} />
-                <CustomTypography fontSize="0.75rem" color="#6c757d">
+                <CircularProgress size={32} />
+                <CustomTypography fontSize="0.875rem" fontWeight={600} color="#6F87F6" sx={{ mt: 1 }}>
                   Przesyłanie pliku...
                 </CustomTypography>
+                {fileType === 'dokumenty_brandingowe' && (
+                  <CustomTypography fontSize="0.7rem" color="#6c757d" sx={{ mt: 0.5, textAlign: 'center', maxWidth: '250px' }}>
+                    Duże pliki PDF mogą potrwać do 30 sekund
+                  </CustomTypography>
+                )}
               </Box>
             ) : (
               <>
