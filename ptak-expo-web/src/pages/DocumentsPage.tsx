@@ -27,12 +27,16 @@ const DocumentsPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [supervisor, setSupervisor] = useState<any | null>(null);
 
-  // Filter documents by category
-  const invoices = documents.filter((doc) => doc.category === "faktury");
-  // "Dokumenty do pobrania": tylko ADMIN – pliki dodane w panelu admina (umowy + inne_dokumenty)
-  const adminFromExhibitorDocs = documents.filter(
-    (doc) => (doc.category === 'umowy' || doc.category === 'inne_dokumenty') && (String(doc.uploadedByRole || '').toLowerCase() === 'admin')
-  ).map(doc => ({ id: doc.id, originalName: doc.originalName, mimeType: doc.mimeType, url: '' }));
+  // Filter documents by category and uploader role (only admin uploads should be visible here)
+  const isAdminUploaded = (doc: ExhibitorDocument) => String(doc.uploadedByRole || '').toLowerCase() === 'admin';
+
+  // Faktury: tylko te dodane przez ADMINA
+  const invoices = documents.filter((doc) => doc.category === 'faktury' && isAdminUploaded(doc));
+
+  // "Dokumenty do pobrania": tylko ADMIN – (umowy + inne_dokumenty)
+  const adminFromExhibitorDocs = documents
+    .filter((doc) => (doc.category === 'umowy' || doc.category === 'inne_dokumenty') && isAdminUploaded(doc))
+    .map((doc) => ({ id: doc.id, originalName: doc.originalName, mimeType: doc.mimeType, url: '' }));
   const combinedAdminDocs = adminFromExhibitorDocs;
 
   // Fetch documents on component mount
