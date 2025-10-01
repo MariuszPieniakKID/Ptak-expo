@@ -76,15 +76,17 @@ function AddElectronicId() {
           <Select
             labelId="event-type-label"
             id="event-type-select"
-            value={editedId.type}
-            onChange={(e) =>
-              setEditedId({...editedId, type: eidTypes[+e.target.value]})
-            }
+            value={String(eidTypes.indexOf(editedId.type))}
+            onChange={(e) => {
+              const idx = parseInt(String(e.target.value), 10);
+              const safeIdx = Number.isFinite(idx) && idx >= 0 && idx < eidTypes.length ? idx : 0;
+              setEditedId({ ...editedId, type: eidTypes[safeIdx] });
+            }}
             label="Określ typ wydarzenia"
             fullWidth
           >
             {eidTypes.map((d, i) => (
-              <MenuItem value={i} key={String(d)}>
+              <MenuItem value={String(i)} key={String(d)}>
                 {getEidTypeString(d)}
               </MenuItem>
             ))}

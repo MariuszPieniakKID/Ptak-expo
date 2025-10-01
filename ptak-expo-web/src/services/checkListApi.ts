@@ -227,15 +227,20 @@ export const getChecklist = async (exhibitionId: number) => {
 			if (r.ok) {
 				const j = await r.json();
 				const list = Array.isArray(j.data) ? j.data : [];
-				ExampleChecklist = {
-					...ExampleChecklist,
-                    electrionicIds: list.map((row: any) => ({
-                        name: row.full_name,
-                        email: row.email,
-                        type: EidType.TECH_WORKER,
-                        accessCode: row.access_code || row.accessCode || row.qr_code || null,
-                    }))
-				};
+            const inferType = (pos: any): EidType => {
+                const s = String(pos || '').toLowerCase();
+                if (s.includes('tech') || s.includes('technicz') || s.includes('obsług')) return EidType.TECH_WORKER;
+                return EidType.GUEST;
+            };
+            ExampleChecklist = {
+                ...ExampleChecklist,
+                electrionicIds: list.map((row: any) => ({
+                    name: row.full_name,
+                    email: row.email,
+                    type: inferType((row.position ?? row.person_position) as any),
+                    accessCode: row.access_code || row.accessCode || row.qr_code || null,
+                }))
+            };
 			}
 		} catch {}
 
