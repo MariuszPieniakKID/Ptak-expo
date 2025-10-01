@@ -204,17 +204,17 @@ export const getChecklist = async (exhibitionId: number) => {
 			}
 		} catch {}
 
-        // materials (ONLY exhibitor's own uploads for this exhibition, category == 'inne_dokumenty')
+        // materials (ONLY exhibitor's checklist uploads: document_source == 'exhibitor_checklist_materials')
 		try {
 			if (exhibitor?.id) {
-                const r = await fetch(`${config.API_BASE_URL}/api/v1/exhibitor-documents/${encodeURIComponent(String(exhibitor.id))}/${encodeURIComponent(String(exhibitionId))}?selfOnly=1`, { headers: { Authorization: `Bearer ${token}` } });
+                const r = await fetch(`${config.API_BASE_URL}/api/v1/exhibitor-documents/${encodeURIComponent(String(exhibitor.id))}/${encodeURIComponent(String(exhibitionId))}`, { headers: { Authorization: `Bearer ${token}` } });
                 if (r.ok) {
 					const j = await r.json();
 					const docs = Array.isArray(j.documents) ? j.documents : [];
 					ExampleChecklist = {
 						...ExampleChecklist,
                         downloadMaterials: docs
-                            .filter((row: any) => String(row.category) === 'inne_dokumenty')
+                            .filter((row: any) => row.document_source === 'exhibitor_checklist_materials')
                             .map((row: any) => ({
                                 id: row.id,
                                 fileName: row.original_name || row.title || row.file_name,
