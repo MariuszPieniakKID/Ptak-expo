@@ -39,12 +39,12 @@ function ExhibitorInvitations({
   const loadRecipients = useCallback(async () => {
     if (!token || !exhibitionId) { setRecipients([]); return; }
     try {
-      const rows = await listInvitationRecipients(exhibitionId, token);
+      const rows = await listInvitationRecipients(exhibitionId, token, exhibitorId);
       setRecipients(rows);
     } catch {
       setRecipients([]);
     }
-  }, [token, exhibitionId]);
+  }, [token, exhibitionId, exhibitorId]);
 
   useEffect(() => { loadRecipients(); }, [loadRecipients]);
 

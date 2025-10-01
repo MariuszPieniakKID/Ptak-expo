@@ -525,16 +525,37 @@ const listRecipientsByExhibition = async (req, res) => {
         [exhibitionId, exhibitorId]
       );
     } else {
-      // admin or other roles: show all recipients for exhibition (unchanged behavior)
-      rows = await pool.query(
-        `SELECT r.id, r.recipient_email, r.recipient_name, r.sent_at, r.response_status,
-                t.invitation_type, t.title
-         FROM invitation_recipients r
-         JOIN invitation_templates t ON t.id = r.invitation_template_id
-         WHERE t.exhibition_id = $1
-         ORDER BY r.created_at DESC`,
-        [exhibitionId]
-      );
+      // admin or other roles: optionally filter by exhibitorId if provided
+      const exhibitorIdParam = req.query.exhibitorId ? parseInt(req.query.exhibitorId, 10) : null;
+      
+      if (exhibitorIdParam) {
+        // Admin requesting specific exhibitor's recipients
+        rows = await pool.query(
+          `SELECT r.id, r.recipient_email, r.recipient_name, r.sent_at, r.response_status,
+                  t.invitation_type, t.title
+           FROM invitation_recipients r
+           JOIN invitation_templates t ON t.id = r.invitation_template_id
+           WHERE t.exhibition_id = $1
+             AND EXISTS (
+               SELECT 1 FROM exhibitor_people p
+               WHERE p.exhibitor_id = $2 AND p.exhibition_id = $1
+                 AND LOWER(p.email) = LOWER(r.recipient_email)
+             )
+           ORDER BY r.created_at DESC`,
+          [exhibitionId, exhibitorIdParam]
+        );
+      } else {
+        // Admin requesting all recipients for exhibition
+        rows = await pool.query(
+          `SELECT r.id, r.recipient_email, r.recipient_name, r.sent_at, r.response_status,
+                  t.invitation_type, t.title
+           FROM invitation_recipients r
+           JOIN invitation_templates t ON t.id = r.invitation_template_id
+           WHERE t.exhibition_id = $1
+           ORDER BY r.created_at DESC`,
+          [exhibitionId]
+        );
+      }
     }
 
     const data = rows.rows.map((r) => ({

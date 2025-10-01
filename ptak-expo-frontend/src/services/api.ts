@@ -1835,9 +1835,11 @@ export interface InvitationRecipientRow {
 
 export const listInvitationRecipients = async (
   exhibitionId: number,
-  token: string
+  token: string,
+  exhibitorId?: number
 ): Promise<InvitationRecipientRow[]> => {
-  const url = `${config.API_BASE_URL}/api/v1/invitations/${exhibitionId}/recipients`;
+  const query = exhibitorId ? `?exhibitorId=${encodeURIComponent(String(exhibitorId))}` : '';
+  const url = `${config.API_BASE_URL}/api/v1/invitations/${exhibitionId}/recipients${query}`;
   const res = await apiCall(url, { headers: { Authorization: `Bearer ${token}` } });
   const data = await res.json();
   if (!res.ok) {
