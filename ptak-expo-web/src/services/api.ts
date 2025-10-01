@@ -117,6 +117,13 @@ export const brandingAPI = {
     const token = localStorage.getItem('authToken');
     return token ? `${base}?token=${encodeURIComponent(token)}` : base;
   },
+  getForExhibitor: (exhibitorId: number, exhibitionId: number): Promise<AxiosResponse<BrandingFilesResponse>> =>
+    api.get(`/api/v1/exhibitor-branding/${exhibitorId}/${exhibitionId}`),
+  serveExhibitorUrl: (exhibitorId: number, fileName: string): string => {
+    const base = `${config.API_BASE_URL}/api/v1/exhibitor-branding/serve/${encodeURIComponent(String(exhibitorId))}/${encodeURIComponent(fileName)}`;
+    const token = localStorage.getItem('authToken');
+    return token ? `${base}?token=${encodeURIComponent(token)}` : base;
+  },
 };
 
 // Health check

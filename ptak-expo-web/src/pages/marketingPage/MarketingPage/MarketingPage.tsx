@@ -4,8 +4,6 @@ import styles from "./MarketingPage.module.scss";
 import {useAuth} from "../../../contexts/AuthContext";
 import {
   exhibitorsSelfAPI,
-  exhibitorDocumentsAPI,
-  ExhibitorDocument,
   brandingAPI,
 } from "../../../services/api";
 import IconMain from "../../../assets/group-21.png";
@@ -23,21 +21,18 @@ type T_File = {
 };
 
 export const MarketingPage: React.FC = () => {
-  // Start with empty list to avoid clicking placeholder item when fetch fails
-  const [documents, setDocuments] = useState<ExhibitorDocument[]>([]);
   const [isFetchingFileId, setIsFetchingFileId] = useState<number | null>(null);
   const {eventId} = useParams<{eventId: string}>();
   const {token, isAuthenticated} = useAuth();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [exhibitorIdState, setExhibitorIdState] = useState<number | null>(null);
-
-  const otherDocuments = documents.filter((doc) => doc.category === "inne_dokumenty");
+  // For "Pozostałe dokumenty" we will show exhibitor branding docs only (not generic exhibitor-documents uploads)
 
   // Branding files grouped for this exhibition (global)
   const [brandingLogos, setBrandingLogos] = useState<T_File[]>([]);
   const [brandingBanners, setBrandingBanners] = useState<T_File[]>([]);
   const [brandingDocs, setBrandingDocs] = useState<{ id: number; originalName: string; mimeType: string; url: string }[]>([]);
+  const [exhibitorBrandingDocs, setExhibitorBrandingDocs] = useState<{ id: number; originalName: string; mimeType: string; url: string }[]>([]);
 
   useEffect(() => {
     const fetchDocuments = async () => {
@@ -55,7 +50,6 @@ export const MarketingPage: React.FC = () => {
         try {
           const profileResponse = await exhibitorsSelfAPI.getMe();
           exhibitorId = profileResponse.data.data.id;
-          setExhibitorIdState(exhibitorId);
         } catch (e: any) {
           const msg = e?.response?.data?.message || e?.message || '';
           // Ignore missing exhibitor error and proceed with branding-only content
@@ -65,17 +59,9 @@ export const MarketingPage: React.FC = () => {
           }
         }
 
-        if (exhibitorId) {
-          const documentsData = await exhibitorDocumentsAPI.list(
-            exhibitorId,
-            parseInt(eventId)
-          );
-          setDocuments(documentsData);
-        } else {
-          setDocuments([]);
-        }
+        // Skip generic exhibitor-documents for "Pozostałe dokumenty" section
 
-        // Fetch branding files (global per exhibition)
+        // Fetch branding files (global per exhibition) and exhibitor-scoped branding documents
         try {
           const res = await brandingAPI.getGlobal(parseInt(eventId));
           const files = (res.data && (res.data as any).files) || {};
@@ -129,10 +115,35 @@ export const MarketingPage: React.FC = () => {
           setBrandingLogos(logos);
           setBrandingBanners(banners);
           setBrandingDocs(docs);
+
+          // Exhibitor-scoped branding PDFs under 'dokumenty_brandingowe'
+          try {
+            if (exhibitorId) {
+              const exbRes = await brandingAPI.getForExhibitor(exhibitorId, parseInt(eventId));
+              const exbFiles = (exbRes.data && (exbRes.data as any).files) || {};
+              const exbDocs: { id: number; originalName: string; mimeType: string; url: string }[] = [];
+              if (Array.isArray(exbFiles.dokumenty_brandingowe)) {
+                for (const f of exbFiles.dokumenty_brandingowe) {
+                  exbDocs.push({
+                    id: f.id,
+                    originalName: f.originalName || 'dokument.pdf',
+                    mimeType: f.mimeType || 'application/pdf',
+                    url: brandingAPI.serveExhibitorUrl(exhibitorId, f.fileName),
+                  });
+                }
+              }
+              setExhibitorBrandingDocs(exbDocs);
+            } else {
+              setExhibitorBrandingDocs([]);
+            }
+          } catch {
+            setExhibitorBrandingDocs([]);
+          }
         } catch (e) {
           setBrandingLogos([]);
           setBrandingBanners([]);
           setBrandingDocs([]);
+          setExhibitorBrandingDocs([]);
         }
       } catch (err: any) {
         setError(err?.response?.data?.message || err?.message || 'Błąd podczas ładowania treści');
@@ -144,62 +155,7 @@ export const MarketingPage: React.FC = () => {
     fetchDocuments();
   }, [isAuthenticated, token, eventId]);
 
-  // removed old handleDownload (switched to branding + exhibitorDocuments handlers)
-
-  const handleDownloadDocument = async (fileToDownload: ExhibitorDocument) => {
-    if (!token || !eventId) return;
-
-    setIsFetchingFileId(fileToDownload.id);
-
-    try {
-      // Ensure we have exhibitorId (skip download if not available for this account)
-      let exhibitorId = exhibitorIdState;
-      if (!exhibitorId) {
-        try {
-          const profileResponse = await exhibitorsSelfAPI.getMe();
-          exhibitorId = profileResponse.data.data.id;
-          setExhibitorIdState(exhibitorId);
-        } catch {
-          alert('Brak konta wystawcy – pobieranie dokumentu jest niedostępne dla tego konta.');
-          return;
-        }
-      }
-
-      console.log("🔍 Downloading document:", {
-        exhibitorId,
-        eventId: parseInt(eventId),
-        documentId: fileToDownload.id,
-        url: `/api/v1/exhibitor-documents/${exhibitorId}/${parseInt(
-          eventId
-        )}/download/${fileToDownload.id}`,
-      });
-
-      // Download document
-      const response = await exhibitorDocumentsAPI.download(
-        exhibitorId!,
-        parseInt(eventId),
-        fileToDownload.id
-      );
-
-      // Create blob and download
-      const blob = new Blob([response.data], {type: fileToDownload.mimeType});
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = fileToDownload.originalName;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      window.URL.revokeObjectURL(url);
-    } catch (err: any) {
-      alert(
-        "Błąd podczas pobierania dokumentu: " +
-          (err.response?.data?.message || err.message)
-      );
-    }
-
-    setIsFetchingFileId(null);
-  };
+  // removed old generic documents download handler – we now use branding download for exhibitor branding docs
 
   const handleDownloadBranding = async (file: T_File) => {
     try {
@@ -307,27 +263,22 @@ export const MarketingPage: React.FC = () => {
     );
   });
 
-  const mapDocuments = otherDocuments.map((document) => (
-    <div key={document.id}>
+  const mapDocuments = exhibitorBrandingDocs.map((doc) => (
+    <div key={`exb_branding_${doc.id}`}>
       <div className={styles.listRow}>
         <div className={styles.rowLeft}>
           <img alt="pdf ikona" src={IconPdf} height={30} width={23} />
-          <span className={styles.rowText}>{document.title}</span>
+          <span className={styles.rowText}>{doc.originalName}</span>
         </div>
         <div className={styles.actions}>
           <button
             className={styles.downloadBtn}
             aria-label="pobierz"
-            onClick={() => handleDownloadDocument(document)}
+            onClick={() => handleDownloadBranding({ id: doc.id, mimeType: doc.mimeType, originalName: doc.originalName, title: doc.originalName, src: doc.url })}
           >
-            <img
-              alt="pobierz ikona"
-              src={IconDownload}
-              height={29}
-              width={29}
-            />
+            <img alt="pobierz ikona" src={IconDownload} height={29} width={29} />
           </button>
-          {isFetchingFileId === document.id && (
+          {isFetchingFileId === doc.id && (
             <div className={styles.loadingIcon}>
               <img alt="loader ikona" src={IconLoader} height={25} width={14} />
             </div>
@@ -435,12 +386,12 @@ export const MarketingPage: React.FC = () => {
               Pozostałe dokumnty
             </CustomTypography>
           </div>
-          {otherDocuments.length === 0 && brandingDocs.length === 0 && (
+          {exhibitorBrandingDocs.length === 0 && brandingDocs.length === 0 && (
             <div className={styles.noContent}>
               Brak dokumentów do wyświetlenia
             </div>
           )}
-          {otherDocuments.length > 0 && mapDocuments}
+          {exhibitorBrandingDocs.length > 0 && mapDocuments}
           {brandingDocs.length > 0 && mapBrandingDocs}
         </div>
       </main>
