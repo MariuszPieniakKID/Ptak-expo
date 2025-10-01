@@ -109,19 +109,32 @@ export const ChecklistProvider = ({ children, eventId }: {children: ReactNode, e
 				getChecklist(eventId).then(setChecklist);
 			}
 		},
-		removeEvent: (index: number) => {
-			const id = (checklist.events[index] as any)?.id;
-			setChecklist(prev => {
-				const next = [...prev.events];
-				if (index >= 0 && index < next.length) next.splice(index, 1);
-				return { ...prev, events: next };
-			});
-			if (typeof id === 'number') {
-				apiDeleteEvent(id).then(() => getChecklist(eventId)).then(setChecklist);
-			} else {
-				getChecklist(eventId).then(setChecklist);
-			}
-		},
+	removeEvent: (index: number) => {
+		const event = checklist.events[index];
+		const id = (event as any)?.id;
+		console.log('[ChecklistContext] removeEvent called:', { index, event, id, allEvents: checklist.events });
+		setChecklist(prev => {
+			const next = [...prev.events];
+			if (index >= 0 && index < next.length) next.splice(index, 1);
+			return { ...prev, events: next };
+		});
+		if (typeof id === 'number') {
+			console.log('[ChecklistContext] Calling apiDeleteEvent with ID:', id);
+			apiDeleteEvent(id)
+				.then(() => {
+					console.log('[ChecklistContext] Delete successful, refreshing checklist');
+					return getChecklist(eventId);
+				})
+				.then(setChecklist)
+				.catch(err => {
+					console.error('[ChecklistContext] Delete failed:', err);
+					getChecklist(eventId).then(setChecklist);
+				});
+		} else {
+			console.warn('[ChecklistContext] Event ID is not a number, doing full refresh:', id);
+			getChecklist(eventId).then(setChecklist);
+		}
+	},
 		addMaterial: (ci: DownloadMaterial) => { addMaterial(ci).then(() => getChecklist(eventId)).then(setChecklist);},
 		uploadMaterialFile: (file: File) => { addMaterialFile(file, eventId).then(() => getChecklist(eventId)).then(setChecklist);},
 		removeMaterial: (documentId: number) => {

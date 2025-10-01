@@ -173,10 +173,12 @@ export const getChecklist = async (exhibitionId: number) => {
 		// events
 		try {
 			const url = exhibitor?.id ? `${config.API_BASE_URL}/api/v1/trade-events/${exhibitionId}?exhibitorId=${encodeURIComponent(String(exhibitor.id))}` : `${config.API_BASE_URL}/api/v1/trade-events/${exhibitionId}`;
+			console.log('[getChecklist] Fetching events from:', url);
 			const r = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
 			if (r.ok) {
 				const j = await r.json();
 				const list = Array.isArray(j.data) ? j.data : [];
+				console.log('[getChecklist] Raw events from backend:', list);
                 // helper: map backend type string to EventKind enum
                 const toKind = (t: any): EventKind => {
                     const s = String(t || '').toLowerCase();
@@ -188,18 +190,20 @@ export const getChecklist = async (exhibitionId: number) => {
                     return EventKind.PRESENTATION;
                 };
 
-                ExampleChecklist = {
+                const mappedEvents = list.map((row: any): EventInfo => ({
+                    id: row.id,
+                    date: (row.eventDate ?? row.event_date ?? ''),
+					startTime: row.startTime ?? row.start_time ?? '',
+					endTime: row.endTime ?? row.end_time ?? '',
+					name: row.name ?? '',
+					description: row.description ?? '',
+					type: EventType.OPEN,
+                    kind: toKind(row.type)
+				})).sort((a: EventInfo, b: EventInfo) => (a.date + a.startTime).localeCompare(b.date + b.startTime));
+				console.log('[getChecklist] Mapped events:', mappedEvents);
+				ExampleChecklist = {
 					...ExampleChecklist,
-                    events: list.map((row: any): EventInfo => ({
-                        id: row.id,
-                        date: (row.eventDate ?? row.event_date ?? ''),
-						startTime: row.startTime ?? row.start_time ?? '',
-						endTime: row.endTime ?? row.end_time ?? '',
-						name: row.name ?? '',
-						description: row.description ?? '',
-						type: EventType.OPEN,
-                        kind: toKind(row.type)
-					})).sort((a: EventInfo, b: EventInfo) => (a.date + a.startTime).localeCompare(b.date + b.startTime))
+                    events: mappedEvents
 				};
 			}
 		} catch {}
@@ -409,16 +413,24 @@ export const updateEvent = async (eventId: number, event: EventInfo) => {
 export const deleteEvent = async (eventId: number) => {
     const exhibitionId = Number((window as any).currentSelectedExhibitionId) || 0;
     const token = localStorage.getItem('authToken') || '';
+    console.log('[deleteEvent] Attempting to delete event:', { eventId, exhibitionId });
     const resp = await fetch(`${config.API_BASE_URL}/api/v1/trade-events/${exhibitionId}/${encodeURIComponent(String(eventId))}`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` }
     });
+    console.log('[deleteEvent] Response status:', resp.status);
     if (!resp.ok) {
         let msg = 'Nie udało się usunąć wydarzenia';
-        try { const j = await resp.json(); msg = j?.message || msg; } catch {}
+        try { 
+            const j = await resp.json(); 
+            msg = j?.message || msg;
+            console.error('[deleteEvent] Error response:', j);
+        } catch {}
         throw new Error(msg);
     }
-    return resp.json();
+    const result = await resp.json();
+    console.log('[deleteEvent] Success:', result);
+    return result;
 }
 
 export const addMaterial = async (material: DownloadMaterial) => {

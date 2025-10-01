@@ -139,14 +139,20 @@ export const TradeInfoPage: React.FC<T_TradeInfoPage> = ({eventId}) => {
 
   // Map global construction events (Zabudowa targowa - visible for ALL exhibitors)
   // These are events WITHOUT exhibitor_id (global for entire exhibition)
-  const globalConstructionEvents = allEvents.filter(ev => !ev.exhibitor_id || ev.exhibitor_id === null);
+  // IMPORTANT: Filter only events where exhibitor_id is NULL/undefined (not exhibitor-specific events)
+  const globalConstructionEvents = allEvents.filter(ev => {
+    const exId = ev.exhibitor_id;
+    // Only show if exhibitor_id is null or undefined (global events)
+    // Do NOT show events that have a specific exhibitor_id (those are exhibitor's own events from checklist)
+    return exId === null || exId === undefined;
+  });
   
   // Debug log
   console.log('[TradeInfoPage] Global construction events:', {
     allEventsCount: allEvents.length,
     globalConstructionCount: globalConstructionEvents.length,
-    allEvents,
-    globalConstructionEvents,
+    allEvents: allEvents.map(ev => ({ id: ev.id, name: ev.name, exhibitor_id: ev.exhibitor_id, type: ev.type })),
+    globalConstructionEvents: globalConstructionEvents.map(ev => ({ id: ev.id, name: ev.name, exhibitor_id: ev.exhibitor_id, type: ev.type })),
     eventId,
   });
 
