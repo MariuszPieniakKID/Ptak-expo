@@ -240,6 +240,14 @@ export const invitationsAPI = {
     const res = await api.get(`/api/v1/invitations/${exhibitionId}/recipients`);
     const data = res.data as { success?: boolean; data?: any[] };
     return Array.isArray(data?.data) ? data!.data! : [];
+  },
+  getLimit: async (
+    exhibitorId: number,
+    exhibitionId: number
+  ): Promise<number> => {
+    const res = await api.get(`/api/v1/exhibitors/${exhibitorId}/${exhibitionId}/invitation-limit`);
+    const data = res.data as { success?: boolean; data?: { invitationLimit?: number } };
+    return data?.data?.invitationLimit || 50;
   }
 };
 

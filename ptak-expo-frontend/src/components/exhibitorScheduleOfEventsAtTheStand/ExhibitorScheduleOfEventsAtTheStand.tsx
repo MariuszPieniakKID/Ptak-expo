@@ -37,14 +37,14 @@ function ExhibitorScheduleOfEventsAtTheStand({
       try {
         const res = await getTradeEvents(currentExhibitionId, token, exhibitorId);
         // Try to resolve exhibitor catalog logo from branding files for this exhibition
-        // Priority: logotyp (checklist) > logo_kolowe_tlo_kafel (tile) > biale_logo_identyfikator (ID)
+        // Priority: event_logo (exhibitor's event logo) > logo_kolowe_tlo_kafel (tile) > biale_logo_identyfikator (ID)
         let organizerLogoUrl: string | undefined = undefined;
         try {
           if (exhibitorId && currentExhibitionId) {
             const branding = await getBrandingFiles(exhibitorId, currentExhibitionId, token);
             const files = (branding as any).files || {};
             const base = config.API_BASE_URL || '';
-            const pick = files['logotyp']?.fileName || 
+            const pick = files['event_logo']?.fileName || 
                          files['logo_kolowe_tlo_kafel']?.fileName || 
                          files['biale_logo_identyfikator']?.fileName;
             if (pick) {

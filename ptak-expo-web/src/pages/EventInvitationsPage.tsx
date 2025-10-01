@@ -8,6 +8,7 @@ import LeftColumn from '../components/event-left/LeftColumn';
 import { useParams } from 'react-router-dom';
 import { useEffect, useRef, useState } from 'react';
 import { exhibitionsAPI, brandingAPI, invitationsAPI, marketingAPI, BenefitItem, type InvitationTemplate } from '../services/api';
+import api from '../services/api';
 import IconEmail from '../assets/email.png';
 import { getChecklist } from '../services/checkListApi';
 import styles from './EventHomePage.module.scss';
@@ -78,6 +79,18 @@ const EventInvitationsPage = () => {
           const recipients = await invitationsAPI.recipients(idNum);
           setSent(recipients);
         } catch {}
+        
+        // Load invitation limit for this exhibitor
+        try {
+          const meRes = await api.get('/api/v1/exhibitors/me');
+          const exhibitorId = meRes.data?.id;
+          if (exhibitorId) {
+            const limit = await invitationsAPI.getLimit(exhibitorId, idNum);
+            setInvitesLimit(limit);
+          }
+        } catch {
+          setInvitesLimit(50); // Default fallback
+        }
       } catch {
         setData(null);
       }
@@ -155,9 +168,9 @@ const EventInvitationsPage = () => {
     }
   };
 
+  const [invitesLimit, setInvitesLimit] = useState<number>(50);
   const selectedTemplate = templates.find(t => t.id === selectedTemplateId);
   const invitedCount = sent.length;
-  const invitesLimit = 50;
   const vipTemplate = Array.isArray(templates) ? templates.find(t => (t as any).vip_value && String((t as any).vip_value).trim().length > 0) : undefined as any;
   const vipValue: string | undefined = vipTemplate ? String((vipTemplate as any).vip_value) : undefined;
   const openBulk = () => setBulkOpen(true);
