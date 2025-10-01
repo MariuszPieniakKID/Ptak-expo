@@ -28,11 +28,10 @@ function DateCircle({date}: {date: string}) {
 		normalizedDate = new Date().toISOString().slice(0, 10);
 	}
 	
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const parts = normalizedDate.split('-');
-	const [_, m, d] = parts.map(x => +x);
+	const [year, m, d] = parts.map(x => +x);
 	
-	console.log('[DateCircle] Parsed parts:', { parts, m, d });
+	console.log('[DateCircle] Parsed parts:', { parts, year, m, d });
 	
 	const monthStr = months[m - 1] || 'err';
 	const day = (d && !isNaN(d)) ? d.toString() : '?';
