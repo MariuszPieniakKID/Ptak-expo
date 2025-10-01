@@ -83,8 +83,9 @@ const EventInvitationsPage = () => {
         // Load invitation limit for this exhibitor
         try {
           const meRes = await api.get('/api/v1/exhibitors/me');
-          const exhibitorId = meRes.data?.id;
-          console.log('[EventInvitationsPage] Exhibitor ID:', exhibitorId);
+          console.log('[EventInvitationsPage] Full /me response:', meRes.data);
+          const exhibitorId = meRes.data?.data?.id; // Fix: backend returns { success, data: { id } }
+          console.log('[EventInvitationsPage] Exhibitor ID:', exhibitorId, 'Exhibition ID:', idNum);
           if (exhibitorId) {
             const limit = await invitationsAPI.getLimit(exhibitorId, idNum);
             console.log('[EventInvitationsPage] Loaded invitation limit:', limit);
