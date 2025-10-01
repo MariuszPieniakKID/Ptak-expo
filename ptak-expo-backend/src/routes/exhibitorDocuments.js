@@ -113,6 +113,15 @@ router.post('/:exhibitorId/:exhibitionId/upload', verifyToken, upload.single('do
       return res.status(404).json({ success: false, error: 'Wydarzenie nie zostało znalezione' });
     }
 
+    // Resolve uploader user id from users table (token may carry exhibitor.id)
+    let uploaderUserId = null;
+    try {
+      const usr = await db.query('SELECT id FROM users WHERE LOWER(email) = LOWER($1) LIMIT 1', [req.user.email]);
+      uploaderUserId = usr.rows?.[0]?.id || null;
+    } catch (_e) {
+      uploaderUserId = null;
+    }
+
     // Save document info to database
     const result = await db.query(`
       INSERT INTO exhibitor_documents (
@@ -131,7 +140,7 @@ router.post('/:exhibitorId/:exhibitionId/upload', verifyToken, upload.single('do
       file.size,
       file.mimetype,
       category,
-      req.user.id
+      uploaderUserId
     ]);
 
     res.json({

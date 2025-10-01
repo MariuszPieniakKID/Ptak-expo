@@ -71,7 +71,11 @@ export default function MaterialsCard() {
       ))}
       <AddMaterial
         onChangeFile={async (file) => {
-          await uploadMaterialFile(file);
+          try {
+            await uploadMaterialFile(file);
+          } catch (e) {
+            alert('Nie udało się dodać pliku. Spróbuj ponownie lub skontaktuj się z administratorem.');
+          }
         }}
       />
     </ChecklistCard>
