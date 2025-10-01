@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import config from '../../config/config';
 import Menu from '../../components/menu/Menu';
 import AddExhibitorModal from '../../components/addExhibitorModal/AddExhibitorModal';
 import CustomTypography from '../../components/customTypography/CustomTypography';
@@ -33,7 +34,6 @@ import { ReactComponent as LogoutIcon } from '../../assets/log-out.svg';
 import styles from './ExhibitorsPage.module.scss';
 import ExhibitorsPageIcon from '../../assets/mask-group-6@2x.png';
 import { ReactComponent as BackIcon } from '../../assets/back.svg';
-import UserAvatar from '../../assets/7bb764a0137abc7a8142b6438e529133@2x.png';
 import Applause from '../../assets/applause.png';
 import { ReactComponent as UsersIcon } from '../../assets/addIcon.svg';
 import { ReactComponent as ArrowIcon } from '../../assets/arrowUpIcon.svg';
@@ -59,6 +59,11 @@ const ExhibitorsPage: React.FC = () => {
     logout();
     navigate('/login');
   }, [logout, navigate]);
+
+  const buildAvatarUrl = (userId?: number | null): string | undefined => {
+    if (!userId || !token) return undefined;
+    return `${config.API_BASE_URL}/api/v1/users/${userId}/avatar?token=${encodeURIComponent(token)}`;
+  };
 
   const getUserInitials = useCallback((fullName: string): string => {
     const names = fullName.trim().split(' ');
@@ -240,12 +245,17 @@ const ExhibitorsPage: React.FC = () => {
                 <CustomTypography className={styles._backText}> wstecz </CustomTypography>
               </Box>
               <Box className={styles._logedUserInfo}>
-                <Avatar 
-                  src={(user as any)?.avatarUrl || UserAvatar} 
-                  alt={user?.firstName || 'User'} 
-                  className={styles._avatar} 
-                  onClick={()=>console.log("")}
-                />
+                {(() => {
+                  const src = buildAvatarUrl(user?.id);
+                  return (
+                    <Avatar
+                      {...(src ? { src } : {})}
+                      alt={user?.firstName || 'User'}
+                      className={styles._avatar}
+                      onClick={() => console.log("")}
+                    />
+                  );
+                })()}
                 <Box> 
                   <CustomTypography className={styles._welcomeMessageTitle}> Dzień dobry, {user?.firstName || 'Użytkowniku'} 
                   <img

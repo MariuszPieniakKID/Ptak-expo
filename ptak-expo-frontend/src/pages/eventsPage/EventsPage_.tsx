@@ -1,6 +1,7 @@
 import React, { useState, useCallback, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import config from '../../config/config';
 import Menu from '../../components/menu/Menu';
 import CustomTypography from '../../components/customTypography/CustomTypography';
 import CustomButton from '../../components/customButton/CustomButton';
@@ -19,7 +20,6 @@ import { ReactComponent as LogoutIcon } from '../../assets/log-out.svg';
 import styles from './EventsPage_.module.scss';
 import EventsPageIcon from '../../assets/eventIcon.png';
 import { ReactComponent as BackIcon } from '../../assets/back.svg';
-import UserAvatar from '../../assets/7bb764a0137abc7a8142b6438e529133@2x.png';
 import Applause from '../../assets/applause.png';
 import { ReactComponent as UsersIcon } from '../../assets/addIcon.svg';
 import { Exhibition, fetchExhibitions, getBrandingFileUrl, catalogAPI, getBrandingFiles } from '../../services/api';
@@ -45,6 +45,10 @@ const EventsPage_: React.FC = () => {
   const [eventFieldOptions, setEventFieldOptions] = useState<OptionType[]>([{ value: 'all', label: 'Wszystkie' }, ...fallbackFieldOptions.filter(o => o.value !== 'all')]);
   const [tileLogoByEventId, setTileLogoByEventId] = useState<Record<number, string | null>>({});
 
+  const buildAvatarUrl = (userId?: number | null): string | undefined => {
+    if (!userId || !token) return undefined;
+    return `${config.API_BASE_URL}/api/v1/users/${userId}/avatar?token=${encodeURIComponent(token)}`;
+  };
 
   const loadExhibitions = useCallback(async (): Promise<void> => {
      if (!token) {
@@ -210,12 +214,17 @@ const formatDateRange = useCallback((startDate: string, endDate: string): string
                 <CustomTypography className={styles.backText}> wstecz </CustomTypography>
               </Box>
               <Box className={styles._logedUserInfo}>
-                <Avatar 
-                  src={(user as any)?.avatarUrl || UserAvatar} 
-                  alt={user?.firstName || 'User'} 
-                  className={styles._avatar} 
-                  onClick={()=>console.log("")}
-                />
+                {(() => {
+                  const src = buildAvatarUrl(user?.id);
+                  return (
+                    <Avatar
+                      {...(src ? { src } : {})}
+                      alt={user?.firstName || 'User'}
+                      className={styles._avatar}
+                      onClick={() => console.log("")}
+                    />
+                  );
+                })()}
                 <Box> 
                   <CustomTypography className={styles._welcomeMessageTitle}> Dzień dobry, {user?.firstName || 'Użytkowniku'} 
                   <img

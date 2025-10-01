@@ -88,6 +88,7 @@ function TabCard({
             <SingleLine
             key={ev.id}
             time={`${ev.startTime} - ${ev.endTime}`}
+            date={normalizeYmd(ev.eventDate)}
             hall={locationDisplay}
             title={ev.name}
             shortDescription={ev.description || ''}
@@ -171,6 +172,7 @@ function TabCard({
               <SingleLine
                 key={ev.id}
                 time={`${ev.startTime} - ${ev.endTime}`}
+                date={date}
                 hall={locationDisplay}
                 title={ev.name}
                 shortDescription={ev.description || ''}

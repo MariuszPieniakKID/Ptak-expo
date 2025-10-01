@@ -84,11 +84,17 @@ const EventInvitationsPage = () => {
         try {
           const meRes = await api.get('/api/v1/exhibitors/me');
           const exhibitorId = meRes.data?.id;
+          console.log('[EventInvitationsPage] Exhibitor ID:', exhibitorId);
           if (exhibitorId) {
             const limit = await invitationsAPI.getLimit(exhibitorId, idNum);
+            console.log('[EventInvitationsPage] Loaded invitation limit:', limit);
             setInvitesLimit(limit);
+          } else {
+            console.warn('[EventInvitationsPage] No exhibitor ID found, using default limit 50');
+            setInvitesLimit(50);
           }
-        } catch {
+        } catch (error) {
+          console.error('[EventInvitationsPage] Failed to load invitation limit:', error);
           setInvitesLimit(50); // Default fallback
         }
       } catch {

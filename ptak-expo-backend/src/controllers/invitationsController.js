@@ -357,12 +357,26 @@ const sendInvitation = async (req, res) => {
           : [];
         if (ids.length > 0) {
           const q = await client.query(
-            `SELECT id, title, description FROM marketing_materials WHERE exhibition_id = $1 AND id = ANY($2::int[])`,
+            `SELECT id, title, description, file_url FROM marketing_materials WHERE exhibition_id = $1 AND id = ANY($2::int[])`,
             [exhibitionId, ids]
           );
           if (q.rows.length > 0) {
-            const list = q.rows.map((b) => `<li><strong>${b.title}</strong>${b.description ? ' – ' + b.description : ''}</li>`).join('');
-            offersBlock = `<h4>Oferta specjalna:</h4><ul>${list}</ul>`;
+            // Build HTML with images
+            const proto = String(req.headers['x-forwarded-proto'] || (req.secure ? 'https' : 'http'));
+            const host = (req.headers['x-forwarded-host'] || req.get('host') || '').toString();
+            const base = (process.env.PUBLIC_BASE_URL && process.env.PUBLIC_BASE_URL.trim())
+              ? process.env.PUBLIC_BASE_URL.trim().replace(/\/$/, '')
+              : `${proto}://${host}`;
+            
+            const list = q.rows.map((b) => {
+              let imageHtml = '';
+              if (b.file_url) {
+                const imageUrl = `${base}${b.file_url}`;
+                imageHtml = `<img src="${imageUrl}" alt="${b.title}" style="max-width:200px;max-height:150px;margin:8px 0;display:block;border-radius:4px;" />`;
+              }
+              return `<li style="margin-bottom:12px;">${imageHtml}<strong>${b.title}</strong>${b.description ? ' – ' + b.description : ''}</li>`;
+            }).join('');
+            offersBlock = `<h4>Oferta specjalna:</h4><ul style="list-style-type:none;padding:0;">${list}</ul>`;
           }
         }
       } catch {}

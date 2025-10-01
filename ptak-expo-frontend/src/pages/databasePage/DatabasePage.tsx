@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import config from '../../config/config';
 import Menu from '../../components/menu/Menu';
 import CustomTypography from '../../components/customTypography/CustomTypography';
 import CustomButton from '../../components/customButton/CustomButton';
@@ -16,7 +17,6 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import AddIcon from '@mui/icons-material/Add';
 
 import DatabaseIconPng from '../../assets/databaseIcon.png';
-import UserAvatar from '../../assets/7bb764a0137abc7a8142b6438e529133@2x.png';
 import Applause from '../../assets/applause.png';
 
 import styles from '../usersPage/UsersPage.module.scss';
@@ -38,6 +38,11 @@ const DatabasePage: React.FC = () => {
   const navigate = useNavigate();
   const { token, user, logout } = useAuth();
   const isLargeScreen = useMediaQuery('(min-width:600px)');
+
+  const buildAvatarUrl = (userId?: number | null): string | undefined => {
+    if (!userId || !token) return undefined;
+    return `${config.API_BASE_URL}/api/v1/users/${userId}/avatar?token=${encodeURIComponent(token)}`;
+  };
 
   // dictionaries state
   const [openTags, setOpenTags] = useState(false);
@@ -398,7 +403,16 @@ const DatabasePage: React.FC = () => {
                   <CustomTypography className={styles.backText}> wstecz </CustomTypography>
                 </Box>
                 <Box className={styles.logedUserInfo}>
-                  <Avatar src={(user as any)?.avatarUrl || UserAvatar} alt={user?.firstName || 'User'} className={styles.avatar} />
+                  {(() => {
+                    const src = buildAvatarUrl(user?.id);
+                    return (
+                      <Avatar
+                        {...(src ? { src } : {})}
+                        alt={user?.firstName || 'User'}
+                        className={styles.avatar}
+                      />
+                    );
+                  })()}
                   <Box>
                     <CustomTypography className={styles.welcomeMessageTitle}>
                       Dzień dobry, {user?.firstName || 'Użytkowniku'}

@@ -14,11 +14,11 @@ interface DownloadMaterialsProps {
 }
 
 function DownloadMaterials({ documentsList, handleSubmitDocument }: DownloadMaterialsProps) {
-  // Truncate filename to 10 characters max
+  // Truncate filename to 20 characters max
   const truncateFilename = (name: string) => {
     if (!name) return '';
-    if (name.length <= 10) return name;
-    return name.substring(0, 10) + '...';
+    if (name.length <= 20) return name;
+    return name.substring(0, 20) + '...';
   };
 
   return (

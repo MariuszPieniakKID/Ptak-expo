@@ -8,6 +8,7 @@ import ArrowOutwardIcon from '@mui/icons-material/ArrowOutward';
 
 type SingleLineProps = {
   time?: string;
+  date?: string; // Add date prop
   hall?: string;
   title?: string;
   shortDescription?: string;
@@ -18,6 +19,7 @@ type SingleLineProps = {
 
 function SingleLine({
   time = '9:00-17:00',
+  date,
   hall = 'Hala A',
   title = 'Arch day',
   shortDescription = "Wymagany dodatkowy sprzęt",
@@ -43,7 +45,10 @@ function SingleLine({
     <Box className={styles.container}>
       <Box className={`${styles.singleLine} ${isOpen ? styles.open : ''}`}>
         <Box className={styles.inline}>
-          <CustomTypography className={styles.time}>{time}</CustomTypography>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.25 }}>
+            <CustomTypography className={styles.time} sx={{ fontSize: '0.7rem' }}>{time}</CustomTypography>
+            {date && <CustomTypography sx={{ fontSize: '0.55rem', color: '#888' }}>{date}</CustomTypography>}
+          </Box>
           <CustomTypography className={styles.hall}>{hall}</CustomTypography>
         </Box>
         <Box className={styles.titleWithButton}>
