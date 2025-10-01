@@ -93,12 +93,12 @@ function TabCard({
             shortDescription={ev.description || ''}
             link={ev.link || ''}
               rightAction={(
-                <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', minWidth: 0 }}>
+                <Box sx={{ display: 'flex', gap: 1, alignItems: 'flex-end', minWidth: 0, paddingBottom: '4px' }}>
                   {onToggleAgenda && (
                     <CustomButton
                       bgColor={isInAgenda ? "#28a745" : "#6F87F6"}
                       textColor="#fff"
-                      height="24px"
+                      height="26px"
                       width="130px"
                       fontSize="0.65rem"
                       onClick={(e: any) => { e.stopPropagation(); onToggleAgenda(ev); }}
@@ -111,7 +111,7 @@ function TabCard({
                     <CustomButton
                       bgColor="#dc3545"
                       textColor="#fff"
-                      height="24px"
+                      height="26px"
                       width="55px"
                       fontSize="0.7rem"
                       onClick={(e: any) => { e.stopPropagation(); onDeleteEvent(ev.id as number); }}
@@ -176,12 +176,12 @@ function TabCard({
                 shortDescription={ev.description || ''}
                 link={ev.link || ''}
                 rightAction={(
-                  <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', minWidth: 0 }}>
+                  <Box sx={{ display: 'flex', gap: 1, alignItems: 'flex-end', minWidth: 0, paddingBottom: '4px' }}>
                     {onToggleAgenda && (
                       <CustomButton
                         bgColor={isInAgenda ? "#28a745" : "#6F87F6"}
                         textColor="#fff"
-                        height="24px"
+                        height="26px"
                         width="130px"
                         fontSize="0.65rem"
                         onClick={(e: any) => { e.stopPropagation(); onToggleAgenda(ev); }}
@@ -194,7 +194,7 @@ function TabCard({
                       <CustomButton
                         bgColor="#dc3545"
                         textColor="#fff"
-                        height="24px"
+                        height="26px"
                         width="55px"
                         fontSize="0.7rem"
                         onClick={(e: any) => { e.stopPropagation(); onDeleteEvent(ev.id as number); }}
