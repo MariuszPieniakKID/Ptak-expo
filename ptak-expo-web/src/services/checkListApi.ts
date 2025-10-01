@@ -77,7 +77,8 @@ export interface EventInfo {
 	name: string,
 	description: string,
 	type: EventType,
-	kind: EventKind
+	kind: EventKind,
+	isFromAgenda?: boolean  // true if event is from admin agenda, false if exhibitor's own event
 }
 
 
@@ -190,25 +191,40 @@ export const getChecklist = async (exhibitionId: number) => {
                     return EventKind.PRESENTATION;
                 };
 
-                // Filter ONLY events that belong to this exhibitor (exhibitor_id matches)
-                // Exclude global admin events (exhibitor_id === null)
-                const ownEvents = list.filter((row: any) => 
-                    row.exhibitor_id !== null && 
-                    row.exhibitor_id !== undefined && 
-                    row.exhibitor_id === exhibitor?.id
-                );
-                console.log('[getChecklist] Filtered to own events only:', ownEvents);
+                // Filter to show:
+                // 1. Events that belong to this exhibitor (exhibitor_id matches)
+                // 2. Events in agenda (is_in_agenda === true AND exhibitor_id === null)
+                const ownEvents = list.filter((row: any) => {
+                    // Exhibitor's own events
+                    const isOwnEvent = row.exhibitor_id !== null && 
+                                       row.exhibitor_id !== undefined && 
+                                       row.exhibitor_id === exhibitor?.id;
+                    
+                    // Events added to agenda by admin
+                    const isAgendaEvent = row.is_in_agenda === true && 
+                                          (row.exhibitor_id === null || row.exhibitor_id === undefined);
+                    
+                    return isOwnEvent || isAgendaEvent;
+                });
+                console.log('[getChecklist] Filtered events (own + agenda):', ownEvents);
 
-                const mappedEvents = ownEvents.map((row: any): EventInfo => ({
-                    id: row.id,
-                    date: (row.eventDate ?? row.event_date ?? ''),
-					startTime: row.startTime ?? row.start_time ?? '',
-					endTime: row.endTime ?? row.end_time ?? '',
-					name: row.name ?? '',
-					description: row.description ?? '',
-					type: EventType.OPEN,
-                    kind: toKind(row.type)
-				})).sort((a: EventInfo, b: EventInfo) => (a.date + a.startTime).localeCompare(b.date + b.startTime));
+                const mappedEvents = ownEvents.map((row: any): EventInfo => {
+                    // Check if this is an agenda event (is_in_agenda === true AND exhibitor_id === null)
+                    const isAgendaEvent = row.is_in_agenda === true && 
+                                          (row.exhibitor_id === null || row.exhibitor_id === undefined);
+                    
+                    return {
+                        id: row.id,
+                        date: (row.eventDate ?? row.event_date ?? ''),
+                        startTime: row.startTime ?? row.start_time ?? '',
+                        endTime: row.endTime ?? row.end_time ?? '',
+                        name: row.name ?? '',
+                        description: row.description ?? '',
+                        type: EventType.OPEN,
+                        kind: toKind(row.type),
+                        isFromAgenda: isAgendaEvent  // Mark events from agenda
+                    };
+                }).sort((a: EventInfo, b: EventInfo) => (a.date + a.startTime).localeCompare(b.date + b.startTime));
 				console.log('[getChecklist] Mapped events:', mappedEvents);
 				ExampleChecklist = {
 					...ExampleChecklist,

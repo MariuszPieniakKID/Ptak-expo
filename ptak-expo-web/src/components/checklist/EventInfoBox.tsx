@@ -48,22 +48,33 @@ function DateCircle({date}: {date: string}) {
 
 export default function EventInfoBox({event, index, onEdit}: {event: EventInfo, index: number, onEdit: (index: number) => void}) {
     const { removeEvent } = useChecklist();
+    const isAgendaEvent = event.isFromAgenda === true;
+    
     return <Grid container marginY="20px">
-			<Grid size={2} display="flex" flexDirection="column" alignItems="center">
-				<DateCircle date={event.date}/>
-			</Grid> 
-            <Grid size={9.5}>
-				<Chip variant="outlined" color="primary" label={getEventKindString(event.kind)} size="small"/>
-				<Typography fontSize="16px" fontWeight="bold" marginTop="5px">{event.name}</Typography>
-			</Grid> 
-            <Grid size={0.5} display="flex" justifyContent="flex-end" alignItems="flex-start" gap={1}>
-                <IconButton size="small" onClick={() => onEdit(index)} aria-label="Edytuj">
-                    <EditIcon fontSize="small"/>
-                </IconButton>
-                <IconButton size="small" onClick={() => removeEvent(index)} aria-label="Usuń">
-                    <DeleteIcon fontSize="small"/>
-                </IconButton>
-            </Grid>
+		<Grid size={2} display="flex" flexDirection="column" alignItems="center">
+			<DateCircle date={event.date}/>
+		</Grid> 
+            <Grid size={isAgendaEvent ? 10 : 9.5}>
+			<Chip variant="outlined" color="primary" label={getEventKindString(event.kind)} size="small"/>
+			<Typography fontSize="16px" fontWeight="bold" marginTop="5px">{event.name}</Typography>
+			{isAgendaEvent && (
+				<Chip 
+					label="Z agendy" 
+					size="small" 
+					sx={{ ml: 1, backgroundColor: '#6F87F6', color: '#fff', fontSize: '0.7rem' }} 
+				/>
+			)}
+		</Grid> 
+            {!isAgendaEvent && (
+                <Grid size={0.5} display="flex" justifyContent="flex-end" alignItems="flex-start" gap={1}>
+                    <IconButton size="small" onClick={() => onEdit(index)} aria-label="Edytuj">
+                        <EditIcon fontSize="small"/>
+                    </IconButton>
+                    <IconButton size="small" onClick={() => removeEvent(index)} aria-label="Usuń">
+                        <DeleteIcon fontSize="small"/>
+                    </IconButton>
+                </Grid>
+            )}
 			<Grid size={12} height="20px"/>
 			<Grid size={2} display="flex" flexDirection="column" alignItems="center">
 				<Typography fontSize="16px"> {event.startTime} &ndash; {event.endTime} </Typography>
