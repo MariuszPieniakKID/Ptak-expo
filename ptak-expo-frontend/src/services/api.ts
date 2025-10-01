@@ -1459,6 +1459,7 @@ export interface TradeEvent {
   eventSource?: 'official_events' | 'construction';
   event_source?: string; // From backend (snake_case)
   booth_number?: string; // Booth/stand number for exhibitor events
+  is_in_agenda?: boolean; // Whether event should be shown in exhibitor portal
 }
 
 // normalize helpers to keep consistent date/time formats
@@ -1577,6 +1578,30 @@ export const deleteTradeEvent = async (
     throw new Error(data.message || 'Błąd podczas usuwania wydarzenia targowego');
   }
   return data;
+};
+
+export const updateTradeEventAgendaStatus = async (
+  exhibitionId: number,
+  eventId: number,
+  isInAgenda: boolean,
+  token: string
+): Promise<{ success: boolean; data: TradeEvent }> => {
+  const url = `${config.API_BASE_URL}/api/v1/trade-events/${exhibitionId}/${eventId}/agenda`;
+  if (config.DEBUG) console.log('[api] PATCH trade-event agenda url:', url, { isInAgenda });
+  const response = await apiCall(url, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`,
+    },
+    body: JSON.stringify({ isInAgenda }),
+  });
+  const data = await response.json();
+  if (config.DEBUG) console.log('[api] PATCH trade-event agenda response:', data);
+  if (!response.ok) {
+    throw new Error(data.message || 'Błąd podczas aktualizacji statusu agendy');
+  }
+  return { success: true, data: mapTradeEventRow(data.data) };
 };
 
 // ============= EXHIBITOR DOCUMENTS API =============

@@ -694,6 +694,24 @@ const initializeDatabase = async () => {
           CHECK (event_source IN ('official_events', 'construction'));
       END $$;
     `);
+    
+    // Add is_in_agenda column for displaying events in exhibitor portal (migration)
+    await pool.query(`
+      DO $$ 
+      BEGIN
+        -- Add column if it doesn't exist
+        IF NOT EXISTS (
+          SELECT 1 FROM information_schema.columns 
+          WHERE table_name = 'trade_events' AND column_name = 'is_in_agenda'
+        ) THEN
+          ALTER TABLE trade_events ADD COLUMN is_in_agenda BOOLEAN DEFAULT false;
+        END IF;
+        
+        -- Update any NULL values to default
+        UPDATE trade_events SET is_in_agenda = false WHERE is_in_agenda IS NULL;
+      END $$;
+    `);
+    
     await pool.query(`
       CREATE INDEX IF NOT EXISTS idx_trade_events_exhibition_id ON trade_events(exhibition_id)
     `);

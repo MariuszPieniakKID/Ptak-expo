@@ -383,6 +383,7 @@ export interface TradeEventRow {
   type?: string | null;
   link?: string | null;
   event_source?: string | null; // 'official_events' | 'construction'
+  is_in_agenda?: boolean | null; // Whether event should be shown in exhibitor portal
 }
 
 export const tradeEventsAPI = {

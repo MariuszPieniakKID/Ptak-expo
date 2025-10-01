@@ -25,7 +25,7 @@ exports.listByExhibition = async (req, res) => {
       effectiveExhibitorId = me.rows?.[0]?.id || null;
       // Exhibitor should see official events (exhibitor_id IS NULL) and their own
       result = await db.query(
-        `SELECT t.id, t.exhibition_id, t.exhibitor_id, t.name, t.event_date, t.start_time, t.end_time, t.hall, t.organizer, t.description, t.type, t.link, t.event_source,
+        `SELECT t.id, t.exhibition_id, t.exhibitor_id, t.name, t.event_date, t.start_time, t.end_time, t.hall, t.organizer, t.description, t.type, t.link, t.event_source, t.is_in_agenda,
                 ee.stand_number as booth_number
          FROM trade_events t
          LEFT JOIN exhibitor_events ee ON t.exhibitor_id = ee.exhibitor_id AND t.exhibition_id = ee.exhibition_id
@@ -37,7 +37,7 @@ exports.listByExhibition = async (req, res) => {
     } else {
       // Admin/others: allow optional exhibitor filter
       result = await db.query(
-        `SELECT t.id, t.exhibition_id, t.exhibitor_id, t.name, t.event_date, t.start_time, t.end_time, t.hall, t.organizer, t.description, t.type, t.link, t.event_source,
+        `SELECT t.id, t.exhibition_id, t.exhibitor_id, t.name, t.event_date, t.start_time, t.end_time, t.hall, t.organizer, t.description, t.type, t.link, t.event_source, t.is_in_agenda,
                 ee.stand_number as booth_number
          FROM trade_events t
          LEFT JOIN exhibitor_events ee ON t.exhibitor_id = ee.exhibitor_id AND t.exhibition_id = ee.exhibition_id
@@ -258,6 +258,48 @@ exports.update = async (req, res) => {
     return res.status(500).json({ success: false, message: 'Błąd podczas aktualizacji wydarzenia targowego' });
   } finally {
     client.release();
+  }
+};
+
+// Update agenda status (admin only)
+exports.updateAgendaStatus = async (req, res) => {
+  try {
+    const exhibitionId = parseInt(req.params.exhibitionId, 10);
+    const eventId = parseInt(req.params.eventId, 10);
+    const { isInAgenda } = req.body;
+    
+    console.log('🔧 [trade-events] updateAgendaStatus', { exhibitionId, eventId, isInAgenda, user: req.user?.email });
+    
+    if (Number.isNaN(exhibitionId) || Number.isNaN(eventId)) {
+      return res.status(400).json({ success: false, message: 'Invalid parameters' });
+    }
+    
+    if (typeof isInAgenda !== 'boolean') {
+      return res.status(400).json({ success: false, message: 'isInAgenda must be a boolean' });
+    }
+    
+    // Only admin can update agenda status
+    if (req.user?.role !== 'admin') {
+      return res.status(403).json({ success: false, message: 'Brak uprawnień' });
+    }
+    
+    const result = await db.query(
+      `UPDATE trade_events 
+       SET is_in_agenda = $1, updated_at = NOW() 
+       WHERE id = $2 AND exhibition_id = $3 
+       RETURNING *`,
+      [isInAgenda, eventId, exhibitionId]
+    );
+    
+    if (result.rowCount === 0) {
+      return res.status(404).json({ success: false, message: 'Nie znaleziono wydarzenia' });
+    }
+    
+    console.log('✅ [trade-events] agenda status updated', result.rows[0]);
+    return res.json({ success: true, data: result.rows[0] });
+  } catch (error) {
+    console.error('❌ updateAgendaStatus error:', error);
+    return res.status(500).json({ success: false, message: 'Błąd podczas aktualizacji statusu agendy' });
   }
 };
 

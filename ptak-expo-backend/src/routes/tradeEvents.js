@@ -19,6 +19,9 @@ router.put('/:exhibitionId/:eventId', verifyToken, controller.update);
 // Admin: any event; Exhibitor: only own event
 router.delete('/:exhibitionId/:eventId', verifyToken, controller.remove);
 
+// Update agenda status (admin only)
+router.patch('/:exhibitionId/:eventId/agenda', verifyToken, requireAdmin, controller.updateAgendaStatus);
+
 module.exports = router;
 
 

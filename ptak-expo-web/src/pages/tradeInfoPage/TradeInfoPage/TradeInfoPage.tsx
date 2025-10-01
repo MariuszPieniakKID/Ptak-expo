@@ -257,7 +257,9 @@ export const TradeInfoPage: React.FC<T_TradeInfoPage> = ({eventId}) => {
   // by-day plans removed
 
   const mapAllEvents = (() => {
-    const items = (allEvents || []).slice().sort((a, b) => {
+    // Filter to show only events that are in agenda
+    const agendaEvents = (allEvents || []).filter(ev => ev.is_in_agenda === true);
+    const items = agendaEvents.slice().sort((a, b) => {
       const ad = String(a.event_date);
       const bd = String(b.event_date);
       if (ad !== bd) return ad.localeCompare(bd);

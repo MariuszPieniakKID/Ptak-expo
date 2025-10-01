@@ -8,7 +8,7 @@ import { Box } from '@mui/material';
 import { useCallback, useEffect, useState } from 'react';
 import styles from './TradeFairEvents.module.scss';
 
-import { Exhibition, getTradeEvents, TradeEvent, deleteTradeEvent } from '../../../services/api';
+import { Exhibition, getTradeEvents, TradeEvent, deleteTradeEvent, updateTradeEventAgendaStatus } from '../../../services/api';
 import TradeFairEventsContent from './tradeFairEventsContent/TradeFairEventsContent';
 import AccompanyingEvents from './accompanyingEvents/AccompanyingEvents';
 import { useAuth } from '../../../contexts/AuthContext';
@@ -44,18 +44,17 @@ function TradeFairEvents({
       const res = await getTradeEvents(event.id, token);
       console.log('[TradeFairEvents] fetched events count', res.data.length, res.data);
       setTradeEvents(res.data || []);
-      if (!agendaEventIds.size) {
-        const officialIds = (res.data || [])
-          .filter((ev: any) => ev && (ev.exhibitor_id === null || typeof ev.exhibitor_id === 'undefined'))
-          .map((ev: any) => ev.id)
-          .filter((id: any) => typeof id === 'number');
-        setAgendaEventIds(new Set(officialIds));
-      }
+      
+      // Initialize agendaEventIds based on is_in_agenda from backend
+      const agendaIds = (res.data || [])
+        .filter((ev: any) => ev && ev.is_in_agenda === true && typeof ev.id === 'number')
+        .map((ev: any) => ev.id);
+      setAgendaEventIds(new Set(agendaIds));
     } catch (_e: any) {
       console.error('[TradeFairEvents] fetch error', _e);
       // ignore for now; child content handles errors in its own flow
     }
-  }, [event.id, token, agendaEventIds.size]);
+  }, [event.id, token]);
 
   useEffect(() => {
     console.log('[TradeFairEvents] useEffect loadTradeEvents');
@@ -94,22 +93,38 @@ function TradeFairEvents({
     return baseList;
   })();
 
-  const handleToggleAgenda = (ev: TradeEvent) => {
-    if (typeof ev?.id !== 'number') return;
+  const handleToggleAgenda = async (ev: TradeEvent) => {
+    if (!token || typeof ev?.id !== 'number') return;
     const isClosed = String(ev.type || '').toLowerCase().includes('zamk');
     if (isClosed) {
       console.warn('Event is closed, cannot add to agenda');
       return;
     }
-    setAgendaEventIds(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(ev.id as number)) {
-        newSet.delete(ev.id as number); // Remove from agenda
-      } else {
-        newSet.add(ev.id as number); // Add to agenda
-      }
-      return newSet;
-    });
+    
+    const isCurrentlyInAgenda = agendaEventIds.has(ev.id as number);
+    const newAgendaStatus = !isCurrentlyInAgenda;
+    
+    try {
+      // Update backend
+      await updateTradeEventAgendaStatus(event.id, ev.id as number, newAgendaStatus, token);
+      
+      // Update local state
+      setAgendaEventIds(prev => {
+        const newSet = new Set(prev);
+        if (newAgendaStatus) {
+          newSet.add(ev.id as number); // Add to agenda
+        } else {
+          newSet.delete(ev.id as number); // Remove from agenda
+        }
+        return newSet;
+      });
+      
+      // Reload events to get updated is_in_agenda status
+      await loadTradeEvents();
+    } catch (error: any) {
+      console.error('Failed to update agenda status:', error);
+      alert(error.message || 'Nie udało się zaktualizować statusu agendy');
+    }
   };
 
   const handleDeleteEvent = async (eventId: number) => {
