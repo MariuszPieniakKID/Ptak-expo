@@ -19,10 +19,24 @@ const months = [
 	"gru",
 ]
 function DateCircle({date}: {date: string}) {
+	console.log('[DateCircle] Received date:', date);
+	
+	// Ensure date is in YYYY-MM-DD format
+	let normalizedDate = date;
+	if (!date || typeof date !== 'string') {
+		console.warn('[DateCircle] Invalid date:', date);
+		normalizedDate = new Date().toISOString().slice(0, 10);
+	}
+	
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	const [_, m, d] = date.split('-').map(x => +x);
-	const monthStr = months[m - 1];
-	const day = d.toString();
+	const parts = normalizedDate.split('-');
+	const [_, m, d] = parts.map(x => +x);
+	
+	console.log('[DateCircle] Parsed parts:', { parts, m, d });
+	
+	const monthStr = months[m - 1] || 'err';
+	const day = (d && !isNaN(d)) ? d.toString() : '?';
+	
 	return <Box width="40px" height="40px" borderRadius="20px" display="flex" flexDirection="column" alignItems="center" sx={{backgroundColor: "#89F4C9"}}>
 		<Typography component="div" fontSize="20px" margin="-3px 0 0 0" >{day}</Typography>
 		<Typography component="div" margin="-5px 0 0 0" fontSize="12px">{monthStr}</Typography>

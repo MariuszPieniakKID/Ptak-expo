@@ -43,6 +43,7 @@ exports.listByExhibition = async (req, res) => {
         [exhibitionId, effectiveExhibitorId]
       );
     }
+    console.log('📅 [trade-events] Sample event data:', result.rows[0]);
     return res.json({ success: true, data: result.rows });
   } catch (error) {
     console.error('❌ listByExhibition error:', error);
