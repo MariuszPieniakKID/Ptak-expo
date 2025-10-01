@@ -26,18 +26,13 @@ const DocumentsPage: React.FC = () => {
   const [isFetchingFileId, setIsFetchingFileId] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [supervisor, setSupervisor] = useState<any | null>(null);
+  const [assignedExhibitorId, setAssignedExhibitorId] = useState<number | null>(null);
 
-  // Filter documents by category and uploader role (only admin uploads should be visible here)
-  const isAdminUploaded = (doc: ExhibitorDocument) => String(doc.uploadedByRole || '').toLowerCase() === 'admin';
-
-  // Faktury: tylko te dodane przez ADMINA
-  const invoices = documents.filter((doc) => doc.category === 'faktury' && isAdminUploaded(doc));
-
-  // "Dokumenty do pobrania": tylko ADMIN – (umowy + inne_dokumenty)
-  const adminFromExhibitorDocs = documents
-    .filter((doc) => (doc.category === 'umowy' || doc.category === 'inne_dokumenty') && isAdminUploaded(doc))
+  // Kategoryzacja bez filtra po roli – tylko dla tego wystawcy i wydarzenia
+  const invoices = documents.filter((doc) => doc.category === 'faktury');
+  const combinedAdminDocs = documents
+    .filter((doc) => (doc.category === 'umowy' || doc.category === 'inne_dokumenty'))
     .map((doc) => ({ id: doc.id, originalName: doc.originalName, mimeType: doc.mimeType, url: '' }));
-  const combinedAdminDocs = adminFromExhibitorDocs;
 
   // Fetch documents on component mount
   useEffect(() => {
@@ -55,14 +50,15 @@ const DocumentsPage: React.FC = () => {
         const tiRes = await tradeInfoAPI.get(parseInt(eventId));
         const ti: any = (tiRes && (tiRes as any).data && (tiRes as any).data.data) ? (tiRes as any).data.data : null;
         const assignment = ti?.exhibitorAssignment || null;
-        let exhibitorId: number | null = null;
-        if (assignment && typeof assignment.exhibitorId === 'number') {
-          exhibitorId = assignment.exhibitorId;
-        } else {
-          // Fallback to profile
-          const profileResponse = await exhibitorsSelfAPI.getMe();
-          exhibitorId = profileResponse.data.data.id;
+        if (!assignment || typeof assignment.exhibitorId !== 'number') {
+          setAssignedExhibitorId(null);
+          setDocuments([]);
+          setSupervisor(null);
+          setLoading(false);
+          return;
         }
+        const exhibitorId: number = assignment.exhibitorId;
+        setAssignedExhibitorId(exhibitorId);
 
         // Then fetch documents for this exhibitor and event
         const documentsData = exhibitorId ? await exhibitorDocumentsAPI.list(exhibitorId, parseInt(eventId)) : [];
@@ -88,18 +84,14 @@ const DocumentsPage: React.FC = () => {
 
   // Handle document download
   const handleDownload = async (doc: ExhibitorDocument) => {
-    if (!token || !eventId) return;
+    if (!token || !eventId || !assignedExhibitorId) return;
 
     setIsFetchingFileId(doc.id);
 
     try {
-      // Get exhibitor profile to get exhibitorId
-      const profileResponse = await exhibitorsSelfAPI.getMe();
-      const exhibitorId = profileResponse.data.data.id;
-
-      // Download document
+      // Download document dla przypisanego wystawcy
       const response = await exhibitorDocumentsAPI.download(
-        exhibitorId,
+        assignedExhibitorId,
         parseInt(eventId),
         doc.id
       );
@@ -129,10 +121,8 @@ const DocumentsPage: React.FC = () => {
     setIsFetchingFileId(doc.id);
     try {
       // If URL is empty, treat it as exhibitor-documents admin upload and download via protected endpoint
-      if (!doc.url) {
-        const profileResponse = await exhibitorsSelfAPI.getMe();
-        const exhibitorId = profileResponse.data.data.id;
-        const response = await exhibitorDocumentsAPI.download(exhibitorId, parseInt(eventId as string), doc.id);
+      if (!doc.url && assignedExhibitorId && eventId) {
+        const response = await exhibitorDocumentsAPI.download(assignedExhibitorId, parseInt(eventId as string), doc.id);
         const blob = new Blob([response.data], { type: doc.mimeType });
         const url = window.URL.createObjectURL(blob);
         const a = document.createElement('a');

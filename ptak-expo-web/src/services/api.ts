@@ -336,10 +336,7 @@ export const exhibitorDocumentsAPI = {
     exhibitorId: number,
     exhibitionId: number
   ): Promise<ExhibitorDocument[]> => {
-    // Only admin-uploaded documents should be surfaced in the web portal
-    const res = await api.get(`/api/v1/exhibitor-documents/${exhibitorId}/${exhibitionId}`, {
-      params: { adminOnly: 1 }
-    });
+    const res = await api.get(`/api/v1/exhibitor-documents/${exhibitorId}/${exhibitionId}`);
     const data = res.data as { success?: boolean; documents?: any[] };
     const rows = Array.isArray(data?.documents) ? data.documents : [];
     return rows.map((row: any) => ({
