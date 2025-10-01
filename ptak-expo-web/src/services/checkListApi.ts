@@ -514,16 +514,33 @@ export const addMaterialFile = async (file: File, _eventId: number) => {
 		const meRes = await fetch(`${config.API_BASE_URL}/api/v1/exhibitors/me`, { headers: { Authorization: `Bearer ${token}` } });
 		const meJson = await meRes.json();
 		const exhibitorId: number | null = meJson?.data?.id ?? null;
-		if (typeof exhibitorId !== 'number') return;
+		if (typeof exhibitorId !== 'number') {
+			console.error('[addMaterialFile] Failed to get exhibitor ID');
+			throw new Error('Nie udało się pobrać ID wystawcy');
+		}
 		const exhibitionId = Number((window as any).currentSelectedExhibitionId) || 0;
+		if (!exhibitionId) {
+			console.error('[addMaterialFile] No exhibition ID selected');
+			throw new Error('Nie wybrano wydarzenia');
+		}
 		const formData = new FormData();
 		formData.append('document', file);
 		formData.append('title', file.name);
 		formData.append('category', 'inne_dokumenty');
 		formData.append('documentSource', 'exhibitor_checklist_materials');
 		const url = `${config.API_BASE_URL}/api/v1/exhibitor-documents/${encodeURIComponent(String(exhibitorId))}/${encodeURIComponent(String(exhibitionId))}/upload`;
-		await fetch(url, { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: formData, credentials: 'include' });
-	} catch {}
+		console.log('[addMaterialFile] Uploading file:', { fileName: file.name, exhibitorId, exhibitionId });
+		const response = await fetch(url, { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: formData, credentials: 'include' });
+		const data = await response.json();
+		if (!response.ok) {
+			console.error('[addMaterialFile] Upload failed:', data);
+			throw new Error(data.error || data.message || 'Błąd podczas przesyłania pliku');
+		}
+		console.log('[addMaterialFile] Upload successful:', data);
+	} catch (error) {
+		console.error('[addMaterialFile] Error:', error);
+		throw error;
+	}
 }
 
 export const deleteMaterialFile = async (documentId: number) => {
