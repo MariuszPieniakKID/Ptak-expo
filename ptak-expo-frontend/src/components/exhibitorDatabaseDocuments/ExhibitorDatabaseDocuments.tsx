@@ -35,7 +35,8 @@ function ExhibitorDatabaseDocuments({
       }
       try {
         console.log('[ExhibitorDatabaseDocuments] fetching documents...');
-        const docs = await getExhibitorDocuments(exhibitorId, exhibitionId, token);
+        // Only exhibitor self-added documents for this exhibition (match web checklist)
+        const docs = await getExhibitorDocuments(exhibitorId, exhibitionId, token, { selfOnly: true });
         console.log('[ExhibitorDatabaseDocuments] documents fetched:', docs);
         const mapped: DocumentItem[] = docs.map((d) => ({
           documentId: d.id,

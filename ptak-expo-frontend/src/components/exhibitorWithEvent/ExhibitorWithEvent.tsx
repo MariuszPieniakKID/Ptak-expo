@@ -261,7 +261,7 @@ function ExhibitorWithEvent({
         // 5) Fetch exhibitor documents (materials) for this exhibition
         try {
           if (effectiveExId) {
-            const docs = await getExhibitorDocuments(exhibitor.id, effectiveExId, token);
+            const docs = await getExhibitorDocuments(exhibitor.id, effectiveExId, token, { selfOnly: true });
             const list: MaterialItem[] = docs.map(d => ({ documentId: d.id, documentName: d.originalName || d.title || d.fileName }));
             setMaterials(list);
           } else {

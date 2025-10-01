@@ -1595,9 +1595,11 @@ export interface ExhibitorDocument {
 export const getExhibitorDocuments = async (
   exhibitorId: number,
   exhibitionId: number,
-  token: string
+  token: string,
+  opts?: { selfOnly?: boolean }
 ): Promise<ExhibitorDocument[]> => {
-  const url = `${config.API_BASE_URL}/api/v1/exhibitor-documents/${exhibitorId}/${exhibitionId}`;
+  const qs = opts?.selfOnly ? '?selfOnly=1' : '';
+  const url = `${config.API_BASE_URL}/api/v1/exhibitor-documents/${exhibitorId}/${exhibitionId}${qs}`;
   if (config.DEBUG) console.log('[api] GET documents', url);
   const response = await apiCall(url, {
     method: 'GET',
