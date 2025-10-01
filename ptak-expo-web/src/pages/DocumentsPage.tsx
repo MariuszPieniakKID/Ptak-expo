@@ -4,7 +4,6 @@ import styles from "./DocumentsPage.module.scss";
 import CustomTypography from "../components/customTypography/CustomTypography";
 import {useAuth} from "../contexts/AuthContext";
 import {
-  exhibitorsSelfAPI,
   exhibitorDocumentsAPI,
   ExhibitorDocument,
   tradeInfoAPI,
