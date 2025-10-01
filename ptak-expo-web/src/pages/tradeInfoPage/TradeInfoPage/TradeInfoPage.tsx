@@ -137,6 +137,38 @@ export const TradeInfoPage: React.FC<T_TradeInfoPage> = ({eventId}) => {
     }
   );
 
+  // Map exhibitor stand events (Plan wydarzeń na stoisku)
+  const exhibitorId = tradeData?.exhibitorAssignment?.exhibitorId;
+  const exhibitorEvents = allEvents.filter(ev => ev.exhibitor_id === exhibitorId);
+  const mapExhibitorEvents = exhibitorEvents.map((event: any, index: number) => {
+    const eventDate = event.event_date || '';
+    const startTime = event.start_time || '';
+    const endTime = event.end_time || '';
+    
+    return (
+      <div key={`event_${index}`}>
+        <CustomTypography
+          fontSize="13px"
+          fontWeight={500}
+          color="#666A73"
+          className={styles.marketBuildingsItemHeader}
+        >
+          {event.name || 'Wydarzenie na stoisku'}
+        </CustomTypography>
+        <div className={styles.marketBuildingsItemHours}>
+          <div className={styles.marketBuildingsItemHoursFirstHour}>
+            <CustomTypography fontSize="14px" fontWeight={700}>
+              {eventDate}
+            </CustomTypography>
+          </div>
+          <CustomTypography fontSize="14px" fontWeight={700} color="#6F87F6">
+            {startTime} - {endTime}
+          </CustomTypography>
+        </div>
+      </div>
+    );
+  });
+
   const handleDownloadPlan = useCallback(async (spaceId: string, filename: string) => {
     try {
       const exId = Number(eventId);
@@ -383,6 +415,7 @@ export const TradeInfoPage: React.FC<T_TradeInfoPage> = ({eventId}) => {
               </CustomTypography>
               <div className={styles.marketBuildingsContent}>
                 {mapBuildInformations}
+                {mapExhibitorEvents}
                 <div className={styles.marketingBuildingsShowMore}>
                   <CustomTypography fontSize="13px" fontWeight={400}>
                     Zobacz dokumenty
