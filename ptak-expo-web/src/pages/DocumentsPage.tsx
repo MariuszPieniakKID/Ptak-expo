@@ -4,6 +4,7 @@ import styles from "./DocumentsPage.module.scss";
 import CustomTypography from "../components/customTypography/CustomTypography";
 import {useAuth} from "../contexts/AuthContext";
 import {
+  exhibitorsSelfAPI,
   exhibitorDocumentsAPI,
   ExhibitorDocument,
   tradeInfoAPI,
@@ -49,21 +50,30 @@ const DocumentsPage: React.FC = () => {
         const tiRes = await tradeInfoAPI.get(parseInt(eventId));
         const ti: any = (tiRes && (tiRes as any).data && (tiRes as any).data.data) ? (tiRes as any).data.data : null;
         const assignment = ti?.exhibitorAssignment || null;
-        if (!assignment || typeof assignment.exhibitorId !== 'number') {
+        let exhibitorId: number | null = null;
+        if (assignment && typeof assignment.exhibitorId === 'number') {
+          exhibitorId = assignment.exhibitorId;
+        } else {
+          try {
+            const profileResponse = await exhibitorsSelfAPI.getMe();
+            exhibitorId = profileResponse.data.data.id;
+          } catch (_e) {
+            exhibitorId = null;
+          }
+        }
+        if (!exhibitorId) {
           setAssignedExhibitorId(null);
           setDocuments([]);
           setSupervisor(null);
           setLoading(false);
           return;
         }
-        const exhibitorId: number = assignment.exhibitorId;
         setAssignedExhibitorId(exhibitorId);
 
         // Then fetch documents for this exhibitor and event
-        const documentsData = exhibitorId ? await exhibitorDocumentsAPI.list(exhibitorId, parseInt(eventId)) : [];
-        // Dokumenty z exhibitor-documents używamy dalej tylko dla sekcji "Faktury"
+        const documentsData = await exhibitorDocumentsAPI.list(exhibitorId, parseInt(eventId));
         setDocuments(documentsData);
-        const sup = ti?.exhibitorAssignment?.supervisor || null;
+        const sup = assignment ? (ti?.exhibitorAssignment?.supervisor || null) : null;
         setSupervisor(sup);
 
         // Brak brandingu w tym widoku – tylko adminowe pliki z exhibitor-documents
