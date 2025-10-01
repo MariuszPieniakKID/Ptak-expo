@@ -670,8 +670,8 @@ ${invitationData.company_info || ''}`;
                         </Box>
 
                     <Divider className={styles.divider_} />  
-                    {/* Booth Info */}
-                        <Box className={styles.columnInput}>
+                    {/* Booth Info - HIDDEN per user request */}
+                        <Box className={styles.columnInput} sx={{display: 'none'}}>
                             <CustomTypography className={styles.label}>Informacje o stoisku:</CustomTypography>
                             <CustomTextField
                                 label="Informacje o stoisku"
@@ -683,8 +683,8 @@ ${invitationData.company_info || ''}`;
                                 placeholder="Numer Hali"
                             /> 
                         </Box>
-                    {/* Contact Information */}
-                        <Box>
+                    {/* Contact Information - HIDDEN per user request */}
+                        <Box sx={{display: 'none'}}>
                             <Box className={styles.contactSection_}>
                                 <CustomTypography className={styles.label}>Dane kontaktowe:</CustomTypography>
                                 <CustomTextField
@@ -755,10 +755,6 @@ ${invitationData.company_info || ''}`;
                             const b = benefits.find(x=>x.id===id);
                             return b ? `<li><strong>${b.title}</strong>${b.description ? ' – ' + b.description : ''}</li>` : '';
                           }).join('') + '</ul>' : '')}
-                          ${(invitationData.booth_info ? `<p><strong>Informacje o stoisku:</strong> ${invitationData.booth_info}</p>` : '')}
-                          ${(invitationData.contact_person ? `<p><strong>Osoba kontaktowa:</strong> ${invitationData.contact_person}</p>` : '')}
-                          ${(invitationData.contact_email ? `<p><strong>Email:</strong> ${invitationData.contact_email}</p>` : '')}
-                          ${(invitationData.contact_phone ? `<p><strong>Telefon:</strong> ${invitationData.contact_phone}</p>` : '')}
                           ${(invitationData.company_info ? `<p><strong>Informacje o firmie/organizatorze:</strong><br/>${invitationData.company_info.replace(/\n/g,'<br/>')}</p>` : '')}
                           ${(() => {
                             const files = (invitationData.special_offers||[])

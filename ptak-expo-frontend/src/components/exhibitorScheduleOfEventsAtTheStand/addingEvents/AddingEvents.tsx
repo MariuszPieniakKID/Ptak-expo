@@ -273,8 +273,6 @@ const AddingEvents: React.FC<AddingEventsProps> = ({ exhibitionId, exhibitorId, 
               <Box sx={{ background: '#f6f8fa', borderRadius: '8px' }}>
                 <DateCalendar
                   value={formValues.eventDate ? dayjs(formValues.eventDate) : null}
-                  {...(exhibitionRange?.start ? { minDate: dayjs(exhibitionRange.start) } : {})}
-                  {...(exhibitionRange?.end ? { maxDate: dayjs(exhibitionRange.end) } : {})}
                   onChange={(newValue) => {
                     const dateStr = newValue ? newValue.format('YYYY-MM-DD') : '';
                     handleFormValueChange('eventDate')(dateStr);

@@ -404,31 +404,34 @@ const sendInvitation = async (req, res) => {
         ${contactBlock ? `<p style=\"margin-top:8px;color:#555;\">${contactBlock}</p>` : ''}
       </body></html>`;
 
+      // Resolve exhibitorId for current user BEFORE inserting recipient
+      let exhibitorId = null;
+      if (req.user && req.user.role !== 'admin') {
+        // Map by email
+        const me = await client.query('SELECT id FROM exhibitors WHERE email = $1 LIMIT 1', [req.user.email]);
+        exhibitorId = me.rows?.[0]?.id || null;
+        if (!exhibitorId) {
+          const rel = await client.query('SELECT exhibitor_id FROM exhibitor_events WHERE supervisor_user_id = $1 LIMIT 1', [req.user.id]);
+          exhibitorId = rel.rows?.[0]?.exhibitor_id || null;
+        }
+      }
+
       // Insert recipient row first (to keep record even if email fails)
+      // Set exhibitor_id if sent by exhibitor (NULL if sent by admin for test)
       const insRes = await client.query(
         `INSERT INTO invitation_recipients (
-           invitation_template_id, recipient_email, recipient_name, recipient_company, sent_at, response_status
-         ) VALUES ($1, $2, $3, $4, NOW(), 'pending')
+           invitation_template_id, recipient_email, recipient_name, recipient_company, sent_at, response_status, exhibitor_id
+         ) VALUES ($1, $2, $3, $4, NOW(), 'pending', $5)
          RETURNING id, created_at`,
-        [templateId, recipientEmail, recipientName || null, null]
+        [templateId, recipientEmail, recipientName || null, null, exhibitorId]
       );
       const recipientRow = insRes.rows[0];
 
       // Attempt to create e-identifier (exhibitor_people) and generate PDF attachment
       let attachments = undefined;
       try {
-        // Resolve exhibitorId for current user
-        let exhibitorId = null;
-        if (req.user && req.user.role !== 'admin') {
-          // Map by email
-          const me = await client.query('SELECT id FROM exhibitors WHERE email = $1 LIMIT 1', [req.user.email]);
-          exhibitorId = me.rows?.[0]?.id || null;
-          if (!exhibitorId) {
-            const rel = await client.query('SELECT exhibitor_id FROM exhibitor_events WHERE supervisor_user_id = $1 LIMIT 1', [req.user.id]);
-            exhibitorId = rel.rows?.[0]?.exhibitor_id || null;
-          }
-        } else {
-          // Admin may optionally pass exhibitorId in body to attach person under a specific exhibitor
+        // Admin may optionally pass exhibitorId in body to attach person under a specific exhibitor
+        if (!exhibitorId) {
           const bodyExhibitorId = req.body && req.body.exhibitorId ? parseInt(req.body.exhibitorId, 10) : null;
           if (Number.isInteger(bodyExhibitorId)) {
             exhibitorId = bodyExhibitorId;
@@ -510,17 +513,14 @@ const listRecipientsByExhibition = async (req, res) => {
       if (!exhibitorId) {
         return res.json({ success: true, data: [] });
       }
+      // Only count invitations actually sent by THIS exhibitor (not test invitations from admin)
       rows = await pool.query(
         `SELECT r.id, r.recipient_email, r.recipient_name, r.sent_at, r.response_status,
                 t.invitation_type, t.title
          FROM invitation_recipients r
          JOIN invitation_templates t ON t.id = r.invitation_template_id
          WHERE t.exhibition_id = $1
-           AND EXISTS (
-             SELECT 1 FROM exhibitor_people p
-             WHERE p.exhibitor_id = $2 AND p.exhibition_id = $1
-               AND LOWER(p.email) = LOWER(r.recipient_email)
-           )
+           AND r.exhibitor_id = $2
          ORDER BY r.created_at DESC`,
         [exhibitionId, exhibitorId]
       );
@@ -529,18 +529,14 @@ const listRecipientsByExhibition = async (req, res) => {
       const exhibitorIdParam = req.query.exhibitorId ? parseInt(req.query.exhibitorId, 10) : null;
       
       if (exhibitorIdParam) {
-        // Admin requesting specific exhibitor's recipients
+        // Admin requesting specific exhibitor's recipients (only those sent by exhibitor, not test invitations)
         rows = await pool.query(
           `SELECT r.id, r.recipient_email, r.recipient_name, r.sent_at, r.response_status,
                   t.invitation_type, t.title
            FROM invitation_recipients r
            JOIN invitation_templates t ON t.id = r.invitation_template_id
            WHERE t.exhibition_id = $1
-             AND EXISTS (
-               SELECT 1 FROM exhibitor_people p
-               WHERE p.exhibitor_id = $2 AND p.exhibition_id = $1
-                 AND LOWER(p.email) = LOWER(r.recipient_email)
-             )
+             AND r.exhibitor_id = $2
            ORDER BY r.created_at DESC`,
           [exhibitionId, exhibitorIdParam]
         );

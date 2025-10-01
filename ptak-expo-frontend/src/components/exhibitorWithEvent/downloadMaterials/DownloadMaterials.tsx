@@ -14,6 +14,13 @@ interface DownloadMaterialsProps {
 }
 
 function DownloadMaterials({ documentsList, handleSubmitDocument }: DownloadMaterialsProps) {
+  // Truncate filename to 10 characters max
+  const truncateFilename = (name: string) => {
+    if (!name) return '';
+    if (name.length <= 10) return name;
+    return name.substring(0, 10) + '...';
+  };
+
   return (
     <Box className={styles.downloadMaterialcContainer}>
       {documentsList.map((doc) => (
@@ -22,9 +29,10 @@ function DownloadMaterials({ documentsList, handleSubmitDocument }: DownloadMate
           <Box
             className={styles.actionWrapper}
             onClick={() => handleSubmitDocument(doc.documentId)}
+            title={doc.documentName} // Show full name on hover
           >
             <CustomTypography className={styles.documentTitle}>
-              {doc.documentName}
+              {truncateFilename(doc.documentName)}
             </CustomTypography>
           </Box>
         </Box>

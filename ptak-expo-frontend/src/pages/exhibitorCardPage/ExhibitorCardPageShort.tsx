@@ -637,6 +637,7 @@ const ExhibitorCardPage: React.FC = () => {
                             iconPosition="start"
                             label={<span className="tab-label-text">Nagrody Targowe</span>}
                             {...a11yProps(5)}
+                            sx={{ display: 'none' }}
                           />
                   </Tabs>
                 </Box>
