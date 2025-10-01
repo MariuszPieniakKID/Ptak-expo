@@ -68,11 +68,11 @@ function MenuDates({ event, value, handleChange, days }: MenuDatesProps) {
           label="Wszystkie dni"
           aria-label="Wszystkie wydarzenia"
           sx={{
-            minWidth: '50px !important',
-            maxWidth: '50px',
-            minHeight: '30px',
-            padding: '4px 8px',
-            fontSize: '0.65rem',
+            minWidth: '70px !important',
+            maxWidth: '70px',
+            minHeight: '28px',
+            padding: '4px 6px',
+            fontSize: '0.6rem',
             fontWeight: 500,
             backgroundColor: value === 0 ? '#6F87F6' : 'transparent',
             color: value === 0 ? '#fff !important' : '#EEEFF1 !important',

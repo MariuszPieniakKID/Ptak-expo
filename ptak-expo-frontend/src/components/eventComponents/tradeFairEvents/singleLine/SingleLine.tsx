@@ -57,14 +57,14 @@ function SingleLine({
             }
           }}>
             <CustomTypography sx={{ 
-              fontSize: '0.35rem !important', 
+              fontSize: '9px !important', 
               fontWeight: 300,
               color: '#FC8A06'
             }}>
               {time}
             </CustomTypography>
             {date && <CustomTypography sx={{ 
-              fontSize: '0.28rem !important', 
+              fontSize: '7px !important', 
               color: '#FC8A06',
               fontWeight: 300
             }}>
