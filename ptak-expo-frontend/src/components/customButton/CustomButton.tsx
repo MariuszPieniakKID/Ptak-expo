@@ -86,10 +86,10 @@ const CustomButton: React.FC<CustomButtonProps> = ({
           </span>
         )}
         <span style={{ 
-          whiteSpace: 'normal', 
-          wordBreak: 'break-word',
-          textAlign: 'center',
-          lineHeight: 1.2
+          overflow: 'hidden',
+          textOverflow: 'ellipsis',
+          whiteSpace: 'nowrap',
+          textAlign: 'center'
         }}>{children}</span>
       </Box>
     </Button>

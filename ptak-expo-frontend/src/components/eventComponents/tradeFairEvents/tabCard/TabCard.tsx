@@ -93,15 +93,16 @@ function TabCard({
             shortDescription={ev.description || ''}
             link={ev.link || ''}
               rightAction={(
-                <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+                <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', minWidth: 0 }}>
                   {onToggleAgenda && (
                     <CustomButton
                       bgColor={isInAgenda ? "#28a745" : "#6F87F6"}
                       textColor="#fff"
                       height="24px"
-                      width="110px"
-                      fontSize="0.7rem"
+                      width="130px"
+                      fontSize="0.65rem"
                       onClick={(e: any) => { e.stopPropagation(); onToggleAgenda(ev); }}
+                      sx={{ flexShrink: 0 }}
                     >
                       {isInAgenda ? 'Usuń z agendy' : 'Dodaj do agendy'}
                     </CustomButton>
@@ -111,9 +112,10 @@ function TabCard({
                       bgColor="#dc3545"
                       textColor="#fff"
                       height="24px"
-                      width="60px"
+                      width="55px"
                       fontSize="0.7rem"
                       onClick={(e: any) => { e.stopPropagation(); onDeleteEvent(ev.id as number); }}
+                      sx={{ flexShrink: 0 }}
                     >
                       Usuń
                     </CustomButton>
@@ -174,15 +176,16 @@ function TabCard({
                 shortDescription={ev.description || ''}
                 link={ev.link || ''}
                 rightAction={(
-                  <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+                  <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', minWidth: 0 }}>
                     {onToggleAgenda && (
                       <CustomButton
                         bgColor={isInAgenda ? "#28a745" : "#6F87F6"}
                         textColor="#fff"
                         height="24px"
-                        width="110px"
-                        fontSize="0.7rem"
+                        width="130px"
+                        fontSize="0.65rem"
                         onClick={(e: any) => { e.stopPropagation(); onToggleAgenda(ev); }}
+                        sx={{ flexShrink: 0 }}
                       >
                         {isInAgenda ? 'Usuń z agendy' : 'Dodaj do agendy'}
                       </CustomButton>
@@ -192,9 +195,10 @@ function TabCard({
                         bgColor="#dc3545"
                         textColor="#fff"
                         height="24px"
-                        width="60px"
+                        width="55px"
                         fontSize="0.7rem"
                         onClick={(e: any) => { e.stopPropagation(); onDeleteEvent(ev.id as number); }}
+                        sx={{ flexShrink: 0 }}
                       >
                         Usuń
                       </CustomButton>
