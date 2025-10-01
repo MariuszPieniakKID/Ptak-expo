@@ -37,23 +37,30 @@ function ExhibitorScheduleOfEventsAtTheStand({
       try {
         const res = await getTradeEvents(currentExhibitionId, token, exhibitorId);
         // Try to resolve exhibitor catalog logo from branding files for this exhibition
+        // Priority: logotyp (checklist) > logo_kolowe_tlo_kafel (tile) > biale_logo_identyfikator (ID)
         let organizerLogoUrl: string | undefined = undefined;
         try {
           if (exhibitorId && currentExhibitionId) {
             const branding = await getBrandingFiles(exhibitorId, currentExhibitionId, token);
             const files = (branding as any).files || {};
             const base = config.API_BASE_URL || '';
-            const pick = files['logo_kolowe_tlo_kafel']?.fileName || files['biale_logo_identyfikator']?.fileName;
+            const pick = files['logotyp']?.fileName || 
+                         files['logo_kolowe_tlo_kafel']?.fileName || 
+                         files['biale_logo_identyfikator']?.fileName;
             if (pick) {
               organizerLogoUrl = `${base}/api/v1/exhibitor-branding/serve/${exhibitorId}/${encodeURIComponent(pick)}?token=${encodeURIComponent(token)}`;
             }
           }
         } catch {}
 
-        const enriched = res.data.map(ev => ({
-          ...ev,
-          ...(organizerLogoUrl ? { organizerLogoUrl } : {}),
-        }));
+        // Add organizer logo ONLY to events that belong to this exhibitor (not agenda events)
+        const enriched = res.data.map(ev => {
+          const isExhibitorEvent = ev.exhibitor_id === exhibitorId;
+          return {
+            ...ev,
+            ...(isExhibitorEvent && organizerLogoUrl ? { organizerLogoUrl } : {}),
+          };
+        });
         setTradeEvents(enriched);
       } catch (_e) {
         setTradeEvents([]);
