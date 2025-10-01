@@ -195,8 +195,8 @@ const EventInvitationsPage = () => {
             {data && (
               <Box
                 sx={{
-                  flex: '1 1 0%',
-                  minWidth: 0,
+                  flex: '1 1 620px',
+                  minWidth: 520,
                   bgcolor: '#fff',
                   borderRadius: '12px',
                   boxShadow: '0 8px 24px rgba(0,0,0,0.08)',
@@ -350,7 +350,7 @@ const EventInvitationsPage = () => {
             {/* Dark summary box aligned to the right, full height of invitations module */}
             <Box
               sx={{
-                flex: '0 0 340px',
+                flex: '0 0 280px',
                 bgcolor: '#2f2f35',
                 borderRadius: '12px',
                 boxShadow: '0 8px 24px rgba(0,0,0,0.12)',
