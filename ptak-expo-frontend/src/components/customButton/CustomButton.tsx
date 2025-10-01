@@ -85,7 +85,12 @@ const CustomButton: React.FC<CustomButtonProps> = ({
             {icon}
           </span>
         )}
-        <span>{children}</span>
+        <span style={{ 
+          whiteSpace: 'normal', 
+          wordBreak: 'break-word',
+          textAlign: 'center',
+          lineHeight: 1.2
+        }}>{children}</span>
       </Box>
     </Button>
   );
