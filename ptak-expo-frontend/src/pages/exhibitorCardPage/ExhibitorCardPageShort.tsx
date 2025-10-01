@@ -8,6 +8,7 @@ import {
        unassignExhibitorFromEvent,
        resetExhibitorPassword,
 } from '../../services/api';
+import { getAvatarUrl } from '../../services/api';
 import Tabs, { tabsClasses } from '@mui/material/Tabs';
 import { useAuth } from '../../contexts/AuthContext';
 import Menu from '../../components/menu/Menu';
@@ -44,7 +45,6 @@ import { ReactComponent as WastebasketIcon } from '../../assets/wastebasket.svg'
 import { ReactComponent as EditIcon } from '../../assets/editIcon.svg';
 import { ReactComponent as KeyIcon } from '../../assets/keyIcon.svg';
 import { ReactComponent as AddIcon } from '../../assets/addIcon.svg';
-import UserAvatar from '../../assets/7bb764a0137abc7a8142b6438e529133@2x.png';
 import Applause from '../../assets/applause.png';
 import SingleEventCard from '../../components/singleEventCard/SingleEventCard';
 import AddEventToExhibitorModal from '../../components/addEventToExhibitorModal/AddEventToExhibitorModal';
@@ -68,6 +68,10 @@ const ExhibitorCardPage: React.FC = () => {
   const [error, setError] = useState<string>('');
   const navigate = useNavigate();
   const {token, user, logout } = useAuth();
+  const buildAvatarUrl = useCallback((userId?: number | null): string | undefined => {
+    if (!userId || !token) return undefined;
+    return getAvatarUrl(userId, token);
+  }, [token]);
   const [value, setValue] = React.useState(0);
   const [selectedEvent,setSelectedEvent]=useState<number | null>(null)
   const [hasLogo, setHasLogo] = useState<boolean>(false);
@@ -170,6 +174,7 @@ const ExhibitorCardPage: React.FC = () => {
 
   const handleModalClose = useCallback((): void => {
       setIsEventAddToExhibitorn(false);
+      try { (window as any).__prefillExhibitorAssign = null; } catch {}
   }, []);
   const handleEventToExhibitiorAdd = useCallback((): void => {
       setIsEventAddToExhibitorn(false);
@@ -206,7 +211,7 @@ const ExhibitorCardPage: React.FC = () => {
             if (exhibitor && token) {
               const assign = await fetchExhibitorAssignment(exhibitor.id, d.id, token);
               // Store into a temp global to be read by modal via window (simple bridge without refactor)
-              (window as any).__prefillExhibitorAssign = assign?.data || null;
+              (window as any).__prefillExhibitorAssign = assign?.data ? { ...assign.data, exhibitionId: d.id } : { exhibitionId: d.id };
             }
           } catch {}
           setIsEditEventOpen(true);
@@ -324,12 +329,17 @@ const ExhibitorCardPage: React.FC = () => {
                 <CustomTypography className={styles.backText}> wstecz </CustomTypography>
               </Box>
               <Box className={styles.logedUserInfo}>
-                <Avatar 
-                  src={(user as any)?.avatarUrl || UserAvatar} 
-                  alt={user?.firstName || 'User'} 
-                  className={styles.avatar} 
-                  onClick={()=>console.log("")}
-                />
+                {(() => {
+                  const src = buildAvatarUrl(user?.id);
+                  return (
+                    <Avatar
+                      {...(src ? { src } : {})}
+                      alt={user?.firstName || 'User'}
+                      className={styles.avatar}
+                      onClick={() => console.log("")}
+                    />
+                  );
+                })()}
                 <Box> 
                   <CustomTypography className={styles.welcomeMessageTitle}> Dzień dobry, {user?.firstName || 'Użytkowniku'} 
                   <img

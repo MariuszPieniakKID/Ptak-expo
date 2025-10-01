@@ -110,6 +110,10 @@ export const fetchUsers = async (token: string): Promise<User[]> => {
   return data.data.sort((a: User, b: User) => a.fullName.localeCompare(b.fullName));
 };
 
+export const getAvatarUrl = (userId: number, token: string): string => {
+  return `${config.API_BASE_URL}/api/v1/users/${userId}/avatar?token=${encodeURIComponent(token)}`;
+};
+
 export const uploadUserAvatar = async (userId: number, file: File, token: string): Promise<{ success: boolean; data: { id: number; avatarUrl: string } }> => {
   const form = new FormData();
   form.append('avatar', file);
