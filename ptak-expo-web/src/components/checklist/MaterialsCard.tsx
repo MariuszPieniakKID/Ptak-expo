@@ -1,4 +1,5 @@
 import {Box, IconButton, Typography} from "@mui/material";
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import ChecklistCard from "./checklistCard";
 import {useChecklist} from "../../contexts/ChecklistContext";
 import {Add} from "@mui/icons-material";
@@ -33,7 +34,7 @@ function AddMaterial({onChangeFile}: {onChangeFile: (file: File) => void}) {
   );
 }
 export default function MaterialsCard() {
-  const {filled, checklist, uploadMaterialFile} = useChecklist();
+  const {filled, checklist, uploadMaterialFile, removeMaterial} = useChecklist();
 
   return (
     <ChecklistCard
@@ -48,25 +49,28 @@ export default function MaterialsCard() {
     >
       {checklist.downloadMaterials.map((dm) => (
         <Box
-          key={dm.fileUri || dm.fileName}
+          key={((dm as any).id ?? (dm.fileUri || dm.fileName))}
           display="flex"
           flexDirection={"row"}
           alignItems="center"
-          component="a"
-          href={dm.fileUri}
-          target="_blank"
-          rel="noreferrer"
           margin="20px 20px"
           gap="20px"
         >
-          <img src="/assets/pdf-file.svg" alt="" />
-          <Typography
-            fontSize="16px"
-            color="var(--color-darkslategray)"
-            sx={{textDecoration: "none"}}
-          >
-            {dm.fileName}
-          </Typography>
+          <Box component="a" href={dm.fileUri} target="_blank" rel="noreferrer" display="flex" alignItems="center" gap="20px" flex={1}>
+            <img src="/assets/pdf-file.svg" alt="" />
+            <Typography
+              fontSize="16px"
+              color="var(--color-darkslategray)"
+              sx={{textDecoration: "none"}}
+            >
+              {dm.fileName}
+            </Typography>
+          </Box>
+          {(dm as any).id ? (
+            <IconButton aria-label="Usuń" onClick={() => removeMaterial((dm as any).id)} size="small" sx={{ ml: 1 }}>
+              <DeleteOutlineIcon />
+            </IconButton>
+          ) : null}
         </Box>
       ))}
       <AddMaterial

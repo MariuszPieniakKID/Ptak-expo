@@ -1,5 +1,5 @@
 import { createContext, ReactNode, useContext, useEffect, useMemo, useState } from "react";
-import { addElectronicId, addEvent, addMaterial, addMaterialFile, addProduct, Checklist, CompanyInfo, DownloadMaterial, ElectrionicId, EventInfo, getChecklist, ProductInfo, updateCompanyInfo, updateProduct as apiUpdateProduct } from "../services/checkListApi";
+import { addElectronicId, addEvent, addMaterial, addMaterialFile, addProduct, Checklist, CompanyInfo, DownloadMaterial, ElectrionicId, EventInfo, getChecklist, ProductInfo, updateCompanyInfo, updateProduct as apiUpdateProduct, deleteMaterialFile as apiDeleteMaterialFile } from "../services/checkListApi";
 import { deleteProduct as apiDeleteProduct } from "../services/checkListApi";
 import { updateEvent as apiUpdateEvent, deleteEvent as apiDeleteEvent } from "../services/checkListApi";
 
@@ -13,6 +13,7 @@ interface ChecklistContextType {
 	removeEvent: (index: number) => void;
 	addMaterial: (dm: DownloadMaterial) => void;
 	uploadMaterialFile: (file: File) => void;
+	removeMaterial: (documentId: number) => void;
 	addElectronicId: (ei: ElectrionicId) => void;
 	filled: boolean[];
 	companyInfoFilledCount: number;
@@ -123,6 +124,10 @@ export const ChecklistProvider = ({ children, eventId }: {children: ReactNode, e
 		},
 		addMaterial: (ci: DownloadMaterial) => { addMaterial(ci).then(() => getChecklist(eventId)).then(setChecklist);},
 		uploadMaterialFile: (file: File) => { addMaterialFile(file, eventId).then(() => getChecklist(eventId)).then(setChecklist);},
+		removeMaterial: (documentId: number) => {
+			setChecklist(prev => ({ ...prev, downloadMaterials: prev.downloadMaterials.filter(dm => (dm as any).id !== documentId) }));
+			apiDeleteMaterialFile(documentId).then(() => getChecklist(eventId)).then(setChecklist);
+		},
     addElectronicId: (ci: ElectrionicId) => { addElectronicId(ci, eventId).then(() => getChecklist(eventId)).then(setChecklist);},
 		filled,
 		companyInfoFilledCount

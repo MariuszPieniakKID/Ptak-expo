@@ -22,8 +22,9 @@ export interface ProductInfo {
 	tags?: string[]
 }
 export interface DownloadMaterial {
-	fileName: string,
-	fileUri: string
+    id?: number,
+    fileName: string,
+    fileUri: string
 }
 export interface ElectrionicId {
     name: string,
@@ -207,12 +208,13 @@ export const getChecklist = async (exhibitionId: number) => {
 		try {
 			if (exhibitor?.id) {
                 const r = await fetch(`${config.API_BASE_URL}/api/v1/exhibitor-documents/${encodeURIComponent(String(exhibitor.id))}/${encodeURIComponent(String(exhibitionId))}?selfOnly=1`, { headers: { Authorization: `Bearer ${token}` } });
-				if (r.ok) {
+                if (r.ok) {
 					const j = await r.json();
 					const docs = Array.isArray(j.documents) ? j.documents : [];
 					ExampleChecklist = {
 						...ExampleChecklist,
-						downloadMaterials: docs.map((row: any) => ({
+                        downloadMaterials: docs.map((row: any) => ({
+                            id: row.id,
 							fileName: row.original_name || row.title || row.file_name,
 							fileUri: `${config.API_BASE_URL}/api/v1/exhibitor-documents/${encodeURIComponent(String(exhibitor.id))}/${encodeURIComponent(String(exhibitionId))}/download/${encodeURIComponent(String(row.id))}?token=${encodeURIComponent(token)}`
 						})).sort((a: DownloadMaterial, b: DownloadMaterial) => a.fileName.localeCompare(b.fileName))
@@ -518,4 +520,17 @@ export const addMaterialFile = async (file: File, _eventId: number) => {
 		const url = `${config.API_BASE_URL}/api/v1/exhibitor-documents/${encodeURIComponent(String(exhibitorId))}/${encodeURIComponent(String(exhibitionId))}/upload`;
 		await fetch(url, { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: formData, credentials: 'include' });
 	} catch {}
+}
+
+export const deleteMaterialFile = async (documentId: number) => {
+    const token = localStorage.getItem('authToken') || '';
+    try {
+        const meRes = await fetch(`${config.API_BASE_URL}/api/v1/exhibitors/me`, { headers: { Authorization: `Bearer ${token}` } });
+        const meJson = await meRes.json();
+        const exhibitorId: number | null = meJson?.data?.id ?? null;
+        if (typeof exhibitorId !== 'number') return;
+        const exhibitionId = Number((window as any).currentSelectedExhibitionId) || 0;
+        const url = `${config.API_BASE_URL}/api/v1/exhibitor-documents/${encodeURIComponent(String(exhibitorId))}/${encodeURIComponent(String(exhibitionId))}/${encodeURIComponent(String(documentId))}`;
+        await fetch(url, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` }, credentials: 'include' });
+    } catch {}
 }
