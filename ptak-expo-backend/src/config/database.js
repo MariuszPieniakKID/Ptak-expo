@@ -750,14 +750,16 @@ const initializeDatabase = async () => {
 
     // Ensure exhibitor accounts keep 'exhibitor' role, and upgrade only non-exhibitor users to admin
     try {
-      console.log('🔍 Ensuring exhibitor accounts have role exhibitor...');
+      console.log('🔍 Ensuring exhibitor accounts have role exhibitor (without demoting admins)...');
       await pool.query(`
         UPDATE users u
         SET role = 'exhibitor', updated_at = NOW()
         FROM exhibitors e
-        WHERE LOWER(u.email) = LOWER(e.email) AND u.role IS DISTINCT FROM 'exhibitor'
+        WHERE LOWER(u.email) = LOWER(e.email)
+          AND u.role IS DISTINCT FROM 'exhibitor'
+          AND u.role <> 'admin'
       `);
-      console.log('✅ Exhibitor roles ensured.');
+      console.log('✅ Exhibitor roles ensured (admins preserved).');
 
       console.log('🔍 Upgrading non-exhibitor users to admin role...');
       await pool.query(`
