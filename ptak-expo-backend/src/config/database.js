@@ -671,14 +671,27 @@ const initializeDatabase = async () => {
     await pool.query(`
       DO $$ 
       BEGIN
+        -- Add column if it doesn't exist
         IF NOT EXISTS (
           SELECT 1 FROM information_schema.columns 
           WHERE table_name = 'trade_events' AND column_name = 'event_source'
         ) THEN
           ALTER TABLE trade_events ADD COLUMN event_source VARCHAR(50) DEFAULT 'official_events';
-          ALTER TABLE trade_events ADD CONSTRAINT trade_events_event_source_check 
-            CHECK (event_source IN ('official_events', 'construction'));
         END IF;
+        
+        -- Update any NULL values to default
+        UPDATE trade_events SET event_source = 'official_events' WHERE event_source IS NULL;
+        
+        -- Drop old constraint if exists and add new one
+        IF EXISTS (
+          SELECT 1 FROM information_schema.table_constraints 
+          WHERE constraint_name = 'trade_events_event_source_check' AND table_name = 'trade_events'
+        ) THEN
+          ALTER TABLE trade_events DROP CONSTRAINT trade_events_event_source_check;
+        END IF;
+        
+        ALTER TABLE trade_events ADD CONSTRAINT trade_events_event_source_check 
+          CHECK (event_source IN ('official_events', 'construction'));
       END $$;
     `);
     await pool.query(`
