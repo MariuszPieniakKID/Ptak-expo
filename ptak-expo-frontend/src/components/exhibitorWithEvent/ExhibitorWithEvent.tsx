@@ -261,10 +261,11 @@ function ExhibitorWithEvent({
         // 5) Fetch exhibitor documents (materials) for this exhibition
         try {
           if (effectiveExId) {
-            const docs = await getExhibitorDocuments(exhibitor.id, effectiveExId, token, { selfOnly: true });
-            // Show only materials uploaded by exhibitor in checklist: category 'inne_dokumenty'
+            // Fetch all documents and filter to exhibitor-uploaded materials from checklist
+            const docs = await getExhibitorDocuments(exhibitor.id, effectiveExId, token);
+            // Show ONLY materials uploaded by exhibitor in checklist: documentSource == 'exhibitor_checklist_materials'
             const list: MaterialItem[] = docs
-              .filter(d => d.category === 'inne_dokumenty')
+              .filter(d => d.documentSource === 'exhibitor_checklist_materials')
               .map(d => ({ documentId: d.id, documentName: d.originalName || d.title || d.fileName }));
             setMaterials(list);
           } else {

@@ -520,6 +520,7 @@ export const addMaterialFile = async (file: File, _eventId: number) => {
 		formData.append('document', file);
 		formData.append('title', file.name);
 		formData.append('category', 'inne_dokumenty');
+		formData.append('documentSource', 'exhibitor_checklist_materials');
 		const url = `${config.API_BASE_URL}/api/v1/exhibitor-documents/${encodeURIComponent(String(exhibitorId))}/${encodeURIComponent(String(exhibitionId))}/upload`;
 		await fetch(url, { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: formData, credentials: 'include' });
 	} catch {}

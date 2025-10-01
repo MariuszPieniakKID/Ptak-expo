@@ -329,7 +329,7 @@ export interface ExhibitorDocument {
   createdAt: string;
   uploadedBy?: number | null;
   uploadedByRole?: string | null;
-  documentSource?: 'admin_exhibitor_card' | 'exhibitor_self' | 'admin_other';
+  documentSource?: 'admin_exhibitor_card' | 'exhibitor_self' | 'admin_other' | 'exhibitor_checklist_materials';
 }
 
 export const exhibitorDocumentsAPI = {
