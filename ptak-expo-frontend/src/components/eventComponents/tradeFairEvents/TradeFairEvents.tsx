@@ -43,13 +43,16 @@ function TradeFairEvents({
       console.log('[TradeFairEvents] fetching events for exhibition', event.id);
       const res = await getTradeEvents(event.id, token);
       console.log('[TradeFairEvents] fetched events count', res.data.length, res.data);
+      console.log('[TradeFairEvents] Events with is_in_agenda:', res.data.map((ev: any) => ({ id: ev.id, name: ev.name, is_in_agenda: ev.is_in_agenda })));
       setTradeEvents(res.data || []);
       
       // Initialize agendaEventIds based on is_in_agenda from backend
       const agendaIds = (res.data || [])
         .filter((ev: any) => ev && ev.is_in_agenda === true && typeof ev.id === 'number')
         .map((ev: any) => ev.id);
+      console.log('[TradeFairEvents] Filtered agenda IDs:', agendaIds);
       setAgendaEventIds(new Set(agendaIds));
+      console.log('[TradeFairEvents] Set agendaEventIds to:', new Set(agendaIds));
     } catch (_e: any) {
       console.error('[TradeFairEvents] fetch error', _e);
       // ignore for now; child content handles errors in its own flow
