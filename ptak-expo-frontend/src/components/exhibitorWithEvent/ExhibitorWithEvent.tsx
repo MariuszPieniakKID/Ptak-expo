@@ -16,7 +16,7 @@ import productImg from '../../assets/product.png';
 import DownloadMaterials from './downloadMaterials/DownloadMaterials';
 import NotificationsNoneIcon from '@mui/icons-material/NotificationsNone';
 import CustomTypography from '../customTypography/CustomTypography';
-import { Exhibitor, getBrandingFiles, getBrandingFileUrl, getExhibitorDocuments, downloadExhibitorDocument, remindExhibitorToFillCatalog } from '../../services/api';
+import { Exhibitor, getExhibitorDocuments, downloadExhibitorDocument, remindExhibitorToFillCatalog } from '../../services/api';
 import { useAuth } from '../../contexts/AuthContext';
 import config from '../../config/config';
 
@@ -177,58 +177,18 @@ function ExhibitorWithEvent({
           }
         } catch {}
 
-        // 2) Fetch branding files to determine logo filename and URL
-        if (effectiveExId) {
-          try {
-            const filesResp = await getBrandingFiles(exhibitor.id, effectiveExId, token);
-            const files = filesResp.files || {};
-            // Prefer exhibitor-scoped event_logo, else first key containing 'logo', else any
-            const preferredKey = files['event_logo']
-              ? 'event_logo'
-              : Object.keys(files).find(k => k.toLowerCase().includes('logo'))
-                || Object.keys(files)[0];
-            if (preferredKey && files[preferredKey]) {
-              const value: any = files[preferredKey] as any;
-              const file = Array.isArray(value) ? value[0] : value;
-              if (file) {
-                nextLogoFileName = file.originalName || file.fileName;
-                nextLogoUrl = getBrandingFileUrl(exhibitor.id, file.fileName, token);
-              }
-            }
-          } catch {
-            // ignore, will try global fallback below
-          }
-
-          // If exhibitor-scoped logo not found, fall back to global event logo
-          if (!nextLogoUrl) {
-            try {
-              const globalFilesResp = await getBrandingFiles(null, effectiveExId, token);
-              const gfiles = globalFilesResp.files || {};
-              if (gfiles['event_logo']) {
-                const value: any = gfiles['event_logo'] as any;
-                const file = Array.isArray(value) ? value[0] : value;
-                if (file) {
-                  nextLogoFileName = file.originalName || file.fileName;
-                  nextLogoUrl = getBrandingFileUrl(null, file.fileName, token);
-                }
-              }
-            } catch {
-              // ignore, will try catalogue fallback below
-            }
-          }
-        } else {
-          nextLogoFileName = null;
-          nextLogoUrl = null;
-        }
-
-        // 3) Fallback to catalogue stored data URL (base64) if no branding file
-        if (!nextLogoUrl && fallbackCatalogLogoDataUrl) {
-          // Try to infer extension from data URL
+        // 2) Get logo ONLY from catalog (checklist) - do NOT use branding files or global event logo
+        if (fallbackCatalogLogoDataUrl) {
+          // Use logo from catalog (stored as base64 data URL in checklist)
           const match = /^data:(.*?);base64,/.exec(fallbackCatalogLogoDataUrl);
           const mime = match?.[1] || 'image/png';
           const ext = mime.includes('jpeg') ? 'jpg' : (mime.split('/')[1] || 'png');
           nextLogoFileName = `logo.${ext}`;
           nextLogoUrl = fallbackCatalogLogoDataUrl;
+        } else {
+          // No logo in catalog - do not show any logo
+          nextLogoFileName = null;
+          nextLogoUrl = null;
         }
 
         setLogoFileName(nextLogoFileName);
