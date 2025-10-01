@@ -45,9 +45,31 @@ function SingleLine({
     <Box className={styles.container}>
       <Box className={`${styles.singleLine} ${isOpen ? styles.open : ''}`}>
         <Box className={styles.inline}>
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.25 }}>
-            <CustomTypography className={styles.time} sx={{ fontSize: '0.7rem' }}>{time}</CustomTypography>
-            {date && <CustomTypography sx={{ fontSize: '0.55rem', color: '#888' }}>{date}</CustomTypography>}
+          <Box sx={{ 
+            display: 'flex', 
+            flexDirection: 'column', 
+            gap: 0.25,
+            minWidth: '80px',
+            margin: 'auto 0',
+            '@media (max-width: 599px)': {
+              justifyContent: 'flex-start',
+              width: '50%'
+            }
+          }}>
+            <CustomTypography sx={{ 
+              fontSize: '0.7rem !important', 
+              fontWeight: 300,
+              color: '#FC8A06'
+            }}>
+              {time}
+            </CustomTypography>
+            {date && <CustomTypography sx={{ 
+              fontSize: '0.55rem !important', 
+              color: '#888',
+              fontWeight: 300
+            }}>
+              {date}
+            </CustomTypography>}
           </Box>
           <CustomTypography className={styles.hall}>{hall}</CustomTypography>
         </Box>
