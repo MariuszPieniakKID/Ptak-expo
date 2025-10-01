@@ -183,14 +183,31 @@ router.get('/:exhibitorId/:exhibitionId', verifyToken, async (req, res) => {
         return res.status(403).json({ success: false, error: 'Brak uprawnień do przeglądania dokumentów innego wystawcy' });
       }
     }
+    // Optional filter: only documents uploaded by current user (selfOnly=1)
+    let uploaderUserId = null;
+    const selfOnly = String(req.query.selfOnly || '').trim() === '1';
+    if (selfOnly) {
+      try {
+        const usr = await db.query('SELECT id FROM users WHERE LOWER(email) = LOWER($1) LIMIT 1', [req.user.email]);
+        uploaderUserId = usr.rows?.[0]?.id || null;
+      } catch {}
+    }
+
+    const whereClauses = ['exhibitor_id = $1', 'exhibition_id = $2'];
+    const params = [exhibitorId, exhibitionId];
+    if (selfOnly && uploaderUserId) {
+      whereClauses.push(`uploaded_by = $${params.length + 1}`);
+      params.push(uploaderUserId);
+    }
+
     const result = await db.query(`
       SELECT 
         id, title, description, file_name, original_name, file_size, 
         mime_type, category, created_at, updated_at
       FROM exhibitor_documents 
-      WHERE exhibitor_id = $1 AND exhibition_id = $2
+      WHERE ${whereClauses.join(' AND ')}
       ORDER BY category, created_at DESC
-    `, [exhibitorId, exhibitionId]);
+    `, params);
 
     res.json({
       success: true,

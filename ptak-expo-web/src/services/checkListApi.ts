@@ -203,10 +203,10 @@ export const getChecklist = async (exhibitionId: number) => {
 			}
 		} catch {}
 
-		// materials
+        // materials (ONLY exhibitor's own uploads for this exhibition)
 		try {
 			if (exhibitor?.id) {
-				const r = await fetch(`${config.API_BASE_URL}/api/v1/exhibitor-documents/${encodeURIComponent(String(exhibitor.id))}/${encodeURIComponent(String(exhibitionId))}`, { headers: { Authorization: `Bearer ${token}` } });
+                const r = await fetch(`${config.API_BASE_URL}/api/v1/exhibitor-documents/${encodeURIComponent(String(exhibitor.id))}/${encodeURIComponent(String(exhibitionId))}?selfOnly=1`, { headers: { Authorization: `Bearer ${token}` } });
 				if (r.ok) {
 					const j = await r.json();
 					const docs = Array.isArray(j.documents) ? j.documents : [];
