@@ -51,18 +51,23 @@ const DocumentsPage: React.FC = () => {
         setLoading(true);
         setError(null);
 
-        // First get exhibitor profile to get exhibitorId
-        const profileResponse = await exhibitorsSelfAPI.getMe();
-        const exhibitorId = profileResponse.data.data.id;
+        // Fetch trade info first to determine exhibitor assigned to this event
+        const tiRes = await tradeInfoAPI.get(parseInt(eventId));
+        const ti: any = (tiRes && (tiRes as any).data && (tiRes as any).data.data) ? (tiRes as any).data.data : null;
+        const assignment = ti?.exhibitorAssignment || null;
+        let exhibitorId: number | null = null;
+        if (assignment && typeof assignment.exhibitorId === 'number') {
+          exhibitorId = assignment.exhibitorId;
+        } else {
+          // Fallback to profile
+          const profileResponse = await exhibitorsSelfAPI.getMe();
+          exhibitorId = profileResponse.data.data.id;
+        }
 
-        // Then fetch documents for this exhibitor and event, and trade info (for supervisor)
-        const [documentsData, tiRes] = await Promise.all([
-          exhibitorDocumentsAPI.list(exhibitorId, parseInt(eventId)),
-          tradeInfoAPI.get(parseInt(eventId)),
-        ]);
+        // Then fetch documents for this exhibitor and event
+        const documentsData = exhibitorId ? await exhibitorDocumentsAPI.list(exhibitorId, parseInt(eventId)) : [];
         // Dokumenty z exhibitor-documents używamy dalej tylko dla sekcji "Faktury"
         setDocuments(documentsData);
-        const ti: any = (tiRes && (tiRes as any).data && (tiRes as any).data.data) ? (tiRes as any).data.data : null;
         const sup = ti?.exhibitorAssignment?.supervisor || null;
         setSupervisor(sup);
 
