@@ -257,8 +257,13 @@ export const TradeInfoPage: React.FC<T_TradeInfoPage> = ({eventId}) => {
   // by-day plans removed
 
   const mapAllEvents = (() => {
+    console.log('[TradeInfoPage] All events:', allEvents);
+    console.log('[TradeInfoPage] Events with is_in_agenda:', allEvents.map(ev => ({ id: ev.id, name: ev.name, is_in_agenda: ev.is_in_agenda })));
+    
     // Filter to show only events that are in agenda
     const agendaEvents = (allEvents || []).filter(ev => ev.is_in_agenda === true);
+    console.log('[TradeInfoPage] Filtered agenda events:', agendaEvents);
+    
     const items = agendaEvents.slice().sort((a, b) => {
       const ad = String(a.event_date);
       const bd = String(b.event_date);
