@@ -29,7 +29,12 @@ const DocumentsPage: React.FC = () => {
 
   // Filter documents by category
   const invoices = documents.filter((doc) => doc.category === "faktury");
-  // "Dokumenty do pobrania" mają pokazywać TYLKO dokumenty brandingowe dodane przez administratora dla wystawcy
+  // "Dokumenty do pobrania": połączone źródła ADMINA
+  // 1) exhibitor-documents dodane przez ADMINA (umowy + inne_dokumenty z uploadedByRole === 'admin')
+  const adminFromExhibitorDocs = documents.filter(
+    (doc) => (doc.category === 'umowy' || doc.category === 'inne_dokumenty') && (String(doc.uploadedByRole || '').toLowerCase() === 'admin')
+  ).map(doc => ({ id: doc.id, originalName: doc.originalName, mimeType: doc.mimeType, url: '' }));
+  // 2) brandingAPI dla wystawcy (dokumenty_brandingowe)
   const downloadsBranding = exhibitorBrandingDocs;
 
   // Fetch documents on component mount
@@ -134,6 +139,22 @@ const DocumentsPage: React.FC = () => {
   const handleDownloadBranding = async (doc: { id: number; originalName: string; mimeType: string; url: string }) => {
     setIsFetchingFileId(doc.id);
     try {
+      // If URL is empty, treat it as exhibitor-documents admin upload and download via protected endpoint
+      if (!doc.url) {
+        const profileResponse = await exhibitorsSelfAPI.getMe();
+        const exhibitorId = profileResponse.data.data.id;
+        const response = await exhibitorDocumentsAPI.download(exhibitorId, parseInt(eventId as string), doc.id);
+        const blob = new Blob([response.data], { type: doc.mimeType });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = doc.originalName || 'file';
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        window.URL.revokeObjectURL(url);
+        return;
+      }
       const resp = await fetch(doc.url, { credentials: 'include' });
       if (!resp.ok) throw new Error('Błąd serwera');
       const blob = await resp.blob();
@@ -264,14 +285,14 @@ const DocumentsPage: React.FC = () => {
               </CustomTypography>
             </div>
             <div className={styles.list}>
-              {downloadsBranding.length === 0 ? (
+              {(adminFromExhibitorDocs.length + downloadsBranding.length) === 0 ? (
                 <div
                   style={{padding: "12px", color: "#666", fontStyle: "italic"}}
                 >
                   Brak dokumentów do wyświetlenia
                 </div>
               ) : (
-                downloadsBranding.map((document) => (
+                [...adminFromExhibitorDocs, ...downloadsBranding].map((document) => (
                   <div key={`exb_branding_${document.id}`}>
                     <div className={styles.listRow}>
                       <div className={styles.rowLeft}>

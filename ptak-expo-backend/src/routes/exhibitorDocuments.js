@@ -202,11 +202,13 @@ router.get('/:exhibitorId/:exhibitionId', verifyToken, async (req, res) => {
 
     const result = await db.query(`
       SELECT 
-        id, title, description, file_name, original_name, file_size, 
-        mime_type, category, created_at, updated_at
-      FROM exhibitor_documents 
-      WHERE ${whereClauses.join(' AND ')}
-      ORDER BY category, created_at DESC
+        d.id, d.title, d.description, d.file_name, d.original_name, d.file_size, 
+        d.mime_type, d.category, d.created_at, d.updated_at, d.uploaded_by,
+        u.role AS uploaded_by_role
+      FROM exhibitor_documents d
+      LEFT JOIN users u ON u.id = d.uploaded_by
+      WHERE ${whereClauses.map((c,i)=>c.replace(/\$1/g,'$1').replace(/\$2/g,'$2')).join(' AND ')}
+      ORDER BY d.category, d.created_at DESC
     `, params);
 
     res.json({

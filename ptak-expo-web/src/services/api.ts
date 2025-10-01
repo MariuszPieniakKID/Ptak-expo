@@ -327,6 +327,8 @@ export interface ExhibitorDocument {
   mimeType: string;
   category: ExhibitorDocumentCategory;
   createdAt: string;
+  uploadedBy?: number | null;
+  uploadedByRole?: string | null;
 }
 
 export const exhibitorDocumentsAPI = {
@@ -347,6 +349,8 @@ export const exhibitorDocumentsAPI = {
       mimeType: row.mime_type,
       category: row.category,
       createdAt: row.created_at,
+      uploadedBy: row.uploaded_by ?? null,
+      uploadedByRole: row.uploaded_by_role ?? null,
     }));
   },
   download: async (
