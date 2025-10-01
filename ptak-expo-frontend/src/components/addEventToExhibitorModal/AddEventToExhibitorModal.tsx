@@ -75,6 +75,8 @@ const AddEventToExhibitorModal: React.FC<AddEventToExhibitorModalProps> = ({
   });
   const [loading,setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [isEditMode, setIsEditMode] = useState<boolean>(false);
+  const [prefillExhibitionId, setPrefillExhibitionId] = useState<number | null>(null);
   const [formErrors, setFormErrors] = useState<Record<string, string>>({
     selectedExhibitionId: '',
     standNumber: '',
@@ -137,15 +139,23 @@ const AddEventToExhibitorModal: React.FC<AddEventToExhibitorModalProps> = ({
       //const upcomingExhibitions = fetchedExhibitions.filter(exh => new Date(exh.end_date) >= now);
  
       //Lista Wystaw z wykluczeniem wystaw na które jest już zapisany wystawca oraz posortowane po nazwie
-      const upcomingExhibitions = fetchedExhibitions
+      let upcomingExhibitions = fetchedExhibitions
       .filter(exh => {
         const isNotEnded = new Date(exh.end_date) >= now;
         const isNotInExhibitorEvents = !exhibitorEvents?.some(event => event.id === exh.id);
         return isNotEnded && isNotInExhibitorEvents;
       })
       .sort((a, b) => a.name.localeCompare(b.name));
-
-
+      // If editing, ensure currently assigned exhibition is present in options
+      if (isEditMode && prefillExhibitionId) {
+        const alreadyIn = upcomingExhibitions.some(exh => Number(exh.id) === Number(prefillExhibitionId));
+        if (!alreadyIn) {
+          const current = fetchedExhibitions.find(exh => Number(exh.id) === Number(prefillExhibitionId));
+          if (current) {
+            upcomingExhibitions = [current, ...upcomingExhibitions].sort((a, b) => a.name.localeCompare(b.name));
+          }
+        }
+      }
 
       setExhibitions(upcomingExhibitions);
     } catch (err) {
@@ -154,7 +164,7 @@ const AddEventToExhibitorModal: React.FC<AddEventToExhibitorModalProps> = ({
     } finally {
       setLoadingExhibitions(false);
     }
-  }, [token, exhibitorEvents]);
+  }, [token, exhibitorEvents, isEditMode, prefillExhibitionId]);
 
 
   const loadExhibitionSupervisors= useCallback(async () => {
@@ -189,6 +199,17 @@ const AddEventToExhibitorModal: React.FC<AddEventToExhibitorModalProps> = ({
             boothArea: prefill.boothArea ?? '',
             exhibitionSupervisor: prefill.supervisorUserId ? String(prefill.supervisorUserId) : '',
           }));
+          if (prefill.exhibitionId) {
+            setIsEditMode(true);
+            setPrefillExhibitionId(Number(prefill.exhibitionId));
+            setFormEventValues((prev) => ({
+              ...prev,
+              selectedExhibitionId: String(prefill.exhibitionId)
+            }));
+          } else {
+            setIsEditMode(false);
+            setPrefillExhibitionId(null);
+          }
         }
       } catch {}
     }
@@ -328,6 +349,7 @@ const AddEventToExhibitorModal: React.FC<AddEventToExhibitorModalProps> = ({
                   fullWidth
                   error={!!formErrors.selectedExhibitionId}
                   errorMessage={formErrors.selectedExhibitionId}
+                  {...(isEditMode ? { disabled: true } : {})}
                 />
               </Box>
         
@@ -415,7 +437,7 @@ const AddEventToExhibitorModal: React.FC<AddEventToExhibitorModalProps> = ({
                    className={styles.boxToKlik}  
                    onClick={handleSubmit}
                    >
-                    <CustomTypography className={styles.addText}>dodaj</CustomTypography>
+                    <CustomTypography className={styles.addText}>{isEditMode ? 'zapisz' : 'dodaj'}</CustomTypography>
                     <AddCircleButton className={styles.addCircleButton} />
                   </Box>)
                   :<></>
