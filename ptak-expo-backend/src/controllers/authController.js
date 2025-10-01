@@ -71,15 +71,7 @@ const exhibitorLogin = async (req, res) => {
         const user = result.rows[0];
         // User found
         
-        // Sprawdź czy użytkownik ma uprawnienia wystawcy
-        if (user.role !== 'exhibitor') {
-          // Not exhibitor
-          return res.status(403).json({
-            success: false,
-            message: 'Dostęp tylko dla wystawców'
-          });
-        }
-        
+        // Walidacja hasła
         const isPasswordValid = await bcrypt.compare(password, user.password_hash);
         // Password check
 
@@ -90,7 +82,15 @@ const exhibitorLogin = async (req, res) => {
           });
         }
 
-        const token = generateToken(user);
+        // W tym endpointzie logujemy do panelu wystawcy NAWET jeżeli użytkownik ma rolę admin w tabeli users,
+        // pod warunkiem, że istnieje jako wystawca (email w tabeli exhibitors) – to dwa konteksty tego samego maila.
+        const exq = await db.query('SELECT id FROM exhibitors WHERE LOWER(email) = $1 LIMIT 1', [normalizedEmail]);
+        if (exq.rows.length === 0) {
+          return res.status(403).json({ success: false, message: 'Konto nie jest przypisane jako wystawca' });
+        }
+
+        // Generuj token z rolą "exhibitor" niezależnie od roli w users, aby frontend miał właściwe uprawnienia kontekstowe
+        const token = jwt.sign({ id: user.id, email: user.email, role: 'exhibitor' }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRE || '7d' });
         return res.json({
           success: true,
           message: 'Logowanie zakończone pomyślnie',
@@ -99,7 +99,7 @@ const exhibitorLogin = async (req, res) => {
             email: user.email,
             firstName: user.first_name,
             lastName: user.last_name,
-            role: user.role,
+            role: 'exhibitor',
             companyName: user.company_name,
             avatarUrl: user.avatar_url || null
           },
