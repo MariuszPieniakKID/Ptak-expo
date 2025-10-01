@@ -13,6 +13,7 @@ type TabCardProps = {
   days?: string[];
   onAddToAgenda?: ((ev: TradeEvent) => void) | undefined;
   agendaEventIds?: number[] | undefined;
+  onDeleteEvent?: ((eventId: number) => void) | undefined;
 };
 
 
@@ -23,6 +24,7 @@ function TabCard({
   days: daysProp,
   onAddToAgenda,
   agendaEventIds = [],
+  onDeleteEvent,
 }: TabCardProps) {
  
 
@@ -82,18 +84,34 @@ function TabCard({
             title={ev.name}
             shortDescription={ev.description || ''}
             link={ev.link || ''}
-              rightAction={onAddToAgenda ? (
-                <CustomButton
-                  bgColor="#6F87F6"
-                  textColor="#fff"
-                  height="24px"
-                  width="auto"
-                  fontSize="0.75rem"
-                  onClick={(e: any) => { e.stopPropagation(); onAddToAgenda(ev); }}
-                >
-                  {agendaEventIds.includes(ev.id as number) ? 'Dodano' : 'Dodaj'}
-                </CustomButton>
-              ) : undefined}
+              rightAction={(
+                <Box sx={{ display: 'flex', gap: 1 }}>
+                  {onAddToAgenda && (
+                    <CustomButton
+                      bgColor="#6F87F6"
+                      textColor="#fff"
+                      height="24px"
+                      width="auto"
+                      fontSize="0.75rem"
+                      onClick={(e: any) => { e.stopPropagation(); onAddToAgenda(ev); }}
+                    >
+                      {agendaEventIds.includes(ev.id as number) ? 'Dodano' : 'Dodaj'}
+                    </CustomButton>
+                  )}
+                  {onDeleteEvent && typeof ev.id === 'number' && (
+                    <CustomButton
+                      bgColor="#dc3545"
+                      textColor="#fff"
+                      height="24px"
+                      width="auto"
+                      fontSize="0.75rem"
+                      onClick={(e: any) => { e.stopPropagation(); onDeleteEvent(ev.id as number); }}
+                    >
+                      Usuń
+                    </CustomButton>
+                  )}
+                </Box>
+              )}
           />
         ))}
       {tradeEvents.length === 0 && (
@@ -139,18 +157,34 @@ function TabCard({
                 title={ev.name}
                 shortDescription={ev.description || ''}
                 link={ev.link || ''}
-                rightAction={onAddToAgenda ? (
-                  <CustomButton
-                    bgColor="#6F87F6"
-                    textColor="#fff"
-                    height="24px"
-                    width="auto"
-                    fontSize="0.75rem"
-                    onClick={(e: any) => { e.stopPropagation(); onAddToAgenda(ev); }}
-                  >
-                    {agendaEventIds.includes(ev.id as number) ? 'Dodano' : 'Dodaj'}
-                  </CustomButton>
-                ) : undefined}
+                rightAction={(
+                  <Box sx={{ display: 'flex', gap: 1 }}>
+                    {onAddToAgenda && (
+                      <CustomButton
+                        bgColor="#6F87F6"
+                        textColor="#fff"
+                        height="24px"
+                        width="auto"
+                        fontSize="0.75rem"
+                        onClick={(e: any) => { e.stopPropagation(); onAddToAgenda(ev); }}
+                      >
+                        {agendaEventIds.includes(ev.id as number) ? 'Dodano' : 'Dodaj'}
+                      </CustomButton>
+                    )}
+                    {onDeleteEvent && typeof ev.id === 'number' && (
+                      <CustomButton
+                        bgColor="#dc3545"
+                        textColor="#fff"
+                        height="24px"
+                        width="auto"
+                        fontSize="0.75rem"
+                        onClick={(e: any) => { e.stopPropagation(); onDeleteEvent(ev.id as number); }}
+                      >
+                        Usuń
+                      </CustomButton>
+                    )}
+                  </Box>
+                )}
               />
             ))
           )}

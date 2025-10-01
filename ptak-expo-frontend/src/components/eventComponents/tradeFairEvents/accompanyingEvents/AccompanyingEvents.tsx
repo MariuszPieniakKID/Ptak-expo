@@ -13,6 +13,7 @@ interface AccompanyingEventsProps {
   event: Exhibition;
   onAddToAgenda?: (ev: TradeEvent) => void;
   agendaEventIds?: number[];
+  onDeleteEvent?: (eventId: number) => void;
 }
 
 const AccompanyingEvents: React.FC<AccompanyingEventsProps> = ({
@@ -20,6 +21,7 @@ const AccompanyingEvents: React.FC<AccompanyingEventsProps> = ({
   tradeEvents,
   onAddToAgenda,
   agendaEventIds = [],
+  onDeleteEvent,
 }) => {
   const [value, setValue] = React.useState(0);
   const hasAutoSelectedRef = React.useRef(false);
@@ -79,6 +81,7 @@ const AccompanyingEvents: React.FC<AccompanyingEventsProps> = ({
         days={days}
         onAddToAgenda={onAddToAgenda}
         agendaEventIds={agendaEventIds}
+        onDeleteEvent={onDeleteEvent}
         />
     </Box>  
   );

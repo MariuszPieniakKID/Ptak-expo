@@ -8,7 +8,7 @@ import { Box } from '@mui/material';
 import { useCallback, useEffect, useState } from 'react';
 import styles from './TradeFairEvents.module.scss';
 
-import { Exhibition, getTradeEvents, TradeEvent } from '../../../services/api';
+import { Exhibition, getTradeEvents, TradeEvent, deleteTradeEvent } from '../../../services/api';
 import TradeFairEventsContent from './tradeFairEventsContent/TradeFairEventsContent';
 import AccompanyingEvents from './accompanyingEvents/AccompanyingEvents';
 import { useAuth } from '../../../contexts/AuthContext';
@@ -104,6 +104,18 @@ function TradeFairEvents({
     setAgendaEventIds(prev => new Set(prev).add(ev.id as number));
   };
 
+  const handleDeleteEvent = async (eventId: number) => {
+    if (!token) return;
+    if (!window.confirm('Czy na pewno chcesz usunąć to wydarzenie?')) return;
+    try {
+      await deleteTradeEvent(event.id, eventId, token);
+      await loadTradeEvents(); // Reload events after deletion
+    } catch (error: any) {
+      console.error('Failed to delete event:', error);
+      alert(error.message || 'Nie udało się usunąć wydarzenia');
+    }
+  };
+
   const items =[
     {
       id: 1,
@@ -126,6 +138,7 @@ function TradeFairEvents({
         tradeEvents={displayEvents}
         onAddToAgenda={handleAddToAgenda}
         agendaEventIds={Array.from(agendaEventIds)}
+        onDeleteEvent={handleDeleteEvent}
         />
       ),
       style: {
