@@ -262,7 +262,10 @@ function ExhibitorWithEvent({
         try {
           if (effectiveExId) {
             const docs = await getExhibitorDocuments(exhibitor.id, effectiveExId, token, { selfOnly: true });
-            const list: MaterialItem[] = docs.map(d => ({ documentId: d.id, documentName: d.originalName || d.title || d.fileName }));
+            // Show only materials uploaded by exhibitor in checklist: category 'inne_dokumenty'
+            const list: MaterialItem[] = docs
+              .filter(d => d.category === 'inne_dokumenty')
+              .map(d => ({ documentId: d.id, documentName: d.originalName || d.title || d.fileName }));
             setMaterials(list);
           } else {
             setMaterials([]);
