@@ -137,23 +137,23 @@ export const TradeInfoPage: React.FC<T_TradeInfoPage> = ({eventId}) => {
     }
   );
 
-  // Map exhibitor stand events (Plan wydarzeń na stoisku)
-  const exhibitorId = tradeData?.exhibitorAssignment?.exhibitorId;
-  const exhibitorEvents = allEvents.filter(ev => ev.exhibitor_id === exhibitorId);
-  const mapExhibitorEvents = exhibitorEvents.map((event: any, index: number) => {
+  // Map global construction events (Zabudowa targowa - visible for ALL exhibitors)
+  // These are events WITHOUT exhibitor_id (global for entire exhibition)
+  const globalConstructionEvents = allEvents.filter(ev => !ev.exhibitor_id || ev.exhibitor_id === null);
+  const mapGlobalConstructionEvents = globalConstructionEvents.map((event: any, index: number) => {
     const eventDate = event.event_date || '';
     const startTime = event.start_time || '';
     const endTime = event.end_time || '';
     
     return (
-      <div key={`event_${index}`}>
+      <div key={`construction_${index}`}>
         <CustomTypography
           fontSize="13px"
           fontWeight={500}
           color="#666A73"
           className={styles.marketBuildingsItemHeader}
         >
-          {event.name || 'Wydarzenie na stoisku'}
+          {event.name || 'Zabudowa targowa'}
         </CustomTypography>
         <div className={styles.marketBuildingsItemHours}>
           <div className={styles.marketBuildingsItemHoursFirstHour}>
@@ -415,7 +415,7 @@ export const TradeInfoPage: React.FC<T_TradeInfoPage> = ({eventId}) => {
               </CustomTypography>
               <div className={styles.marketBuildingsContent}>
                 {mapBuildInformations}
-                {mapExhibitorEvents}
+                {mapGlobalConstructionEvents}
                 <div className={styles.marketingBuildingsShowMore}>
                   <CustomTypography fontSize="13px" fontWeight={400}>
                     Zobacz dokumenty
