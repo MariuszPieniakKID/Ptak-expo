@@ -662,9 +662,24 @@ const initializeDatabase = async () => {
         description TEXT,
         type VARCHAR(100) NOT NULL,
         link TEXT,
+        event_source VARCHAR(50) DEFAULT 'official_events' CHECK (event_source IN ('official_events', 'construction')),
         created_at TIMESTAMPTZ DEFAULT NOW(),
         updated_at TIMESTAMPTZ DEFAULT NOW()
       )
+    `);
+    // Add event_source column if it doesn't exist (for existing databases)
+    await pool.query(`
+      DO $$ 
+      BEGIN
+        IF NOT EXISTS (
+          SELECT 1 FROM information_schema.columns 
+          WHERE table_name = 'trade_events' AND column_name = 'event_source'
+        ) THEN
+          ALTER TABLE trade_events ADD COLUMN event_source VARCHAR(50) DEFAULT 'official_events';
+          ALTER TABLE trade_events ADD CONSTRAINT trade_events_event_source_check 
+            CHECK (event_source IN ('official_events', 'construction'));
+        END IF;
+      END $$;
     `);
     await pool.query(`
       CREATE INDEX IF NOT EXISTS idx_trade_events_exhibition_id ON trade_events(exhibition_id)

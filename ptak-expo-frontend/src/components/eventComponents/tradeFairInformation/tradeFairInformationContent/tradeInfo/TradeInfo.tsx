@@ -410,6 +410,7 @@ const TradeInfo: React.FC<TradeInfoProps> = ({ exhibitionId }) => {
         startTime: constructionStartTime,
         endTime: constructionEndTime,
         type: constructionType,
+        eventSource: 'construction', // Mark as construction event
       };
       console.log('[TradeInfo] Creating construction event', { exhibitionId, payload });
       const res = await createTradeEvent(exhibitionId, payload, token);

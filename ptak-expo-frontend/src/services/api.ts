@@ -1455,7 +1455,9 @@ export interface TradeEvent {
   description?: string;
   type: string; // e.g. 'Ceremonia otwarcia'
   organizer?: string;
-  link?:string; 
+  link?:string;
+  eventSource?: 'official_events' | 'construction';
+  event_source?: string; // From backend (snake_case)
 }
 
 // normalize helpers to keep consistent date/time formats

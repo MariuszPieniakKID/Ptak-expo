@@ -25,7 +25,7 @@ exports.listByExhibition = async (req, res) => {
       effectiveExhibitorId = me.rows?.[0]?.id || null;
       // Exhibitor should see official events (exhibitor_id IS NULL) and their own
       result = await db.query(
-        `SELECT id, exhibition_id, exhibitor_id, name, event_date, start_time, end_time, hall, organizer, description, type, link
+        `SELECT id, exhibition_id, exhibitor_id, name, event_date, start_time, end_time, hall, organizer, description, type, link, event_source
          FROM trade_events 
          WHERE exhibition_id = $1 
            AND (exhibitor_id IS NULL OR exhibitor_id = $2)
@@ -35,7 +35,7 @@ exports.listByExhibition = async (req, res) => {
     } else {
       // Admin/others: allow optional exhibitor filter
       result = await db.query(
-        `SELECT id, exhibition_id, exhibitor_id, name, event_date, start_time, end_time, hall, organizer, description, type, link
+        `SELECT id, exhibition_id, exhibitor_id, name, event_date, start_time, end_time, hall, organizer, description, type, link, event_source
          FROM trade_events 
          WHERE exhibition_id = $1 
            AND ($2::int IS NULL OR exhibitor_id = $2)
@@ -67,8 +67,9 @@ exports.create = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Invalid exhibitionId' });
     }
 
-    const { name, eventDate, startTime, endTime, hall, description, type, organizer, link } = req.body;
+    const { name, eventDate, startTime, endTime, hall, description, type, organizer, link, eventSource } = req.body;
     let exhibitorId = req.body.exhibitorId ?? req.body.exhibitor_id ?? null;
+    const event_source = eventSource || 'official_events'; // Default to official_events if not specified
     // If exhibitor role, force ownership
     if (req.user?.role === 'exhibitor') {
       const me = await db.query('SELECT id FROM exhibitors WHERE email = $1 LIMIT 1', [req.user.email]);
@@ -103,9 +104,9 @@ exports.create = async (req, res) => {
 
     await client.query('BEGIN');
     const insert = await client.query(
-      `INSERT INTO trade_events (exhibition_id, exhibitor_id, name, event_date, start_time, end_time, hall, organizer, description, type, link)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11) RETURNING *`,
-      [exhibitionId, exhibitorId || null, name, eventDateStr, normStart, normEnd, hall || null, organizer || null, description || null, type, link || null]
+      `INSERT INTO trade_events (exhibition_id, exhibitor_id, name, event_date, start_time, end_time, hall, organizer, description, type, link, event_source)
+       VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) RETURNING *`,
+      [exhibitionId, exhibitorId || null, name, eventDateStr, normStart, normEnd, hall || null, organizer || null, description || null, type, link || null, event_source]
     );
     await client.query('COMMIT');
     // No verbose success log

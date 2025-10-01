@@ -62,6 +62,7 @@ const TradeFairEventsContent: React.FC<TradeFairEventsContentProps> = ({ event, 
       ...newEvent,
       startTime: newEvent.startTime || '09:00',
       endTime: newEvent.endTime || '17:00',
+      eventSource: 'official_events', // Mark as official event
     };
     try {
       if (editingEventId) {

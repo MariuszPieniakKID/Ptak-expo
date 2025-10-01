@@ -382,6 +382,7 @@ export interface TradeEventRow {
   description?: string | null;
   type?: string | null;
   link?: string | null;
+  event_source?: string | null; // 'official_events' | 'construction'
 }
 
 export const tradeEventsAPI = {
