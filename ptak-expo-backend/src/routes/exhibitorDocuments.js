@@ -176,17 +176,32 @@ router.post('/:exhibitorId/:exhibitionId/upload', verifyToken, upload.single('do
 router.get('/:exhibitorId/:exhibitionId', verifyToken, async (req, res) => {
   try {
     const { exhibitorId, exhibitionId } = req.params;
-    // cleaned logs
+
+    // Determine effective exhibitor for non-admin based on email and selected exhibition
+    let effectiveExhibitorId = exhibitorId;
     if (req.user.role !== 'admin') {
-      let selfExhibitorId = null;
-      const meByEmail = await db.query('SELECT id FROM exhibitors WHERE email = $1 LIMIT 1', [req.user.email]);
-      if (meByEmail.rows?.[0]?.id) {
-        selfExhibitorId = meByEmail.rows[0].id;
+      // Prefer exhibitor mapped to this exhibition
+      const byEvent = await db.query(
+        `SELECT e.id
+         FROM exhibitors e
+         JOIN exhibitor_events ee ON ee.exhibitor_id = e.id
+         WHERE LOWER(e.email) = LOWER($1) AND ee.exhibition_id = $2
+         LIMIT 1`,
+        [req.user.email, exhibitionId]
+      );
+      if (byEvent.rows?.[0]?.id) {
+        effectiveExhibitorId = String(byEvent.rows[0].id);
       } else {
-        const rel = await db.query('SELECT exhibitor_id FROM exhibitor_events WHERE supervisor_user_id = $1 LIMIT 1', [req.user.id]);
-        selfExhibitorId = rel.rows?.[0]?.exhibitor_id ?? null;
+        // Fallback: first exhibitor by email
+        const meByEmail = await db.query('SELECT id FROM exhibitors WHERE LOWER(email) = LOWER($1) LIMIT 1', [req.user.email]);
+        if (meByEmail.rows?.[0]?.id) {
+          effectiveExhibitorId = String(meByEmail.rows[0].id);
+        }
       }
-      if (String(selfExhibitorId) !== String(exhibitorId)) {
+
+      // Block access if URL exhibitorId does not match determined exhibitor for safety
+      if (String(effectiveExhibitorId) !== String(exhibitorId)) {
+        // Do not leak whether other exhibitor has docs; respond forbidden
         return res.status(403).json({ success: false, error: 'Brak uprawnień do przeglądania dokumentów innego wystawcy' });
       }
     }
@@ -201,7 +216,7 @@ router.get('/:exhibitorId/:exhibitionId', verifyToken, async (req, res) => {
     }
 
     const whereClauses = ['exhibitor_id = $1', 'exhibition_id = $2'];
-    const params = [exhibitorId, exhibitionId];
+    const params = [effectiveExhibitorId, exhibitionId];
     if (selfOnly && uploaderUserId) {
       whereClauses.push(`uploaded_by = $${params.length + 1}`);
       params.push(uploaderUserId);
