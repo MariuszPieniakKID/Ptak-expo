@@ -1848,3 +1848,41 @@ export const listInvitationRecipients = async (
   const arr = Array.isArray(data?.data) ? data.data : [];
   return arr;
 };
+
+// Get invitation limit for exhibitor-exhibition
+export const getInvitationLimit = async (
+  exhibitorId: number,
+  exhibitionId: number,
+  token: string
+): Promise<number> => {
+  const url = `${config.API_BASE_URL}/api/v1/exhibitors/${exhibitorId}/${exhibitionId}/invitation-limit`;
+  const res = await apiCall(url, { headers: { Authorization: `Bearer ${token}` } });
+  const data = await res.json();
+  if (!res.ok) {
+    throw new Error(data?.message || 'Błąd podczas pobierania limitu zaproszeń');
+  }
+  return data?.data?.invitationLimit || 50;
+};
+
+// Update invitation limit for exhibitor-exhibition (admin only)
+export const updateInvitationLimit = async (
+  exhibitorId: number,
+  exhibitionId: number,
+  invitationLimit: number,
+  token: string
+): Promise<number> => {
+  const url = `${config.API_BASE_URL}/api/v1/exhibitors/${exhibitorId}/${exhibitionId}/invitation-limit`;
+  const res = await apiCall(url, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`
+    },
+    body: JSON.stringify({ invitationLimit })
+  });
+  const data = await res.json();
+  if (!res.ok) {
+    throw new Error(data?.message || 'Błąd podczas aktualizacji limitu zaproszeń');
+  }
+  return data?.data?.invitationLimit || invitationLimit;
+};

@@ -11,7 +11,7 @@ import { Exhibitor } from '../../services/api';
 import TicketType from './ticketType/TicketType';
 import StatusOfSentInvitations from './statusOfSentInvitations/StatusOfSentInvitations';
 import { useAuth } from '../../contexts/AuthContext';
-import { listInvitationRecipients, type InvitationRecipientRow } from '../../services/api';
+import { listInvitationRecipients, getInvitationLimit, updateInvitationLimit, type InvitationRecipientRow } from '../../services/api';
 
 
 
@@ -35,6 +35,7 @@ function ExhibitorInvitations({
 
   const { token } = useAuth();
   const [recipients, setRecipients] = useState<InvitationRecipientRow[]>([]);
+  const [invitationLimit, setInvitationLimit] = useState<number>(50);
 
   const loadRecipients = useCallback(async () => {
     if (!token || !exhibitionId) { setRecipients([]); return; }
@@ -46,7 +47,30 @@ function ExhibitorInvitations({
     }
   }, [token, exhibitionId, exhibitorId]);
 
+  const loadInvitationLimit = useCallback(async () => {
+    if (!token || !exhibitionId || !exhibitorId) { setInvitationLimit(50); return; }
+    try {
+      const limit = await getInvitationLimit(exhibitorId, exhibitionId, token);
+      setInvitationLimit(limit);
+    } catch {
+      setInvitationLimit(50);
+    }
+  }, [token, exhibitionId, exhibitorId]);
+
+  const handleUpdateLimit = async (newLimit: number) => {
+    if (!token || !exhibitionId || !exhibitorId || newLimit < 0) return;
+    try {
+      const updatedLimit = await updateInvitationLimit(exhibitorId, exhibitionId, newLimit, token);
+      setInvitationLimit(updatedLimit);
+    } catch (error: any) {
+      alert(error.message || 'Nie udało się zaktualizować limitu');
+      // Reload to get correct value from server
+      loadInvitationLimit();
+    }
+  };
+
   useEffect(() => { loadRecipients(); }, [loadRecipients]);
+  useEffect(() => { loadInvitationLimit(); }, [loadInvitationLimit]);
 
 
   // Tickets block (static info + dynamic count based on recipients length)
@@ -56,7 +80,7 @@ function ExhibitorInvitations({
     type: "Biznes Priority Pass",
     price: 249,
     numberInvitedguests: invitedCount,
-    invitationLimit: 50
+    invitationLimit: invitationLimit
   }];
 
 
@@ -64,7 +88,60 @@ function ExhibitorInvitations({
     {
       id: 1,
       icon: <EnvelopeOnABlackBackground fontSize="small" />,
-      title: <>Wysłane zaproszenia ({sampleTickets[0].numberInvitedguests}/ <span style={{ color: '#7A7A7A', fontSize: '11px' }}>50</span>)</>,
+      title: <>
+        Wysłane zaproszenia ({invitedCount}/{invitationLimit})
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 1 }}>
+          <Typography sx={{ fontSize: '0.75rem', color: '#7A7A7A' }}>Limit zaproszeń:</Typography>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+            <Box 
+              component="button"
+              onClick={() => handleUpdateLimit(invitationLimit - 1)}
+              disabled={invitationLimit <= 0}
+              sx={{
+                width: '24px',
+                height: '24px',
+                borderRadius: '4px',
+                border: '1px solid #D1D1D1',
+                background: '#fff',
+                cursor: invitationLimit <= 0 ? 'not-allowed' : 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '14px',
+                fontWeight: 600,
+                color: invitationLimit <= 0 ? '#D1D1D1' : '#2E2E38',
+                '&:hover': { background: invitationLimit <= 0 ? '#fff' : '#f5f5f5' }
+              }}
+            >
+              −
+            </Box>
+            <Typography sx={{ fontSize: '0.875rem', fontWeight: 600, minWidth: '30px', textAlign: 'center' }}>
+              {invitationLimit}
+            </Typography>
+            <Box 
+              component="button"
+              onClick={() => handleUpdateLimit(invitationLimit + 1)}
+              sx={{
+                width: '24px',
+                height: '24px',
+                borderRadius: '4px',
+                border: '1px solid #D1D1D1',
+                background: '#fff',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '14px',
+                fontWeight: 600,
+                color: '#2E2E38',
+                '&:hover': { background: '#f5f5f5' }
+              }}
+            >
+              +
+            </Box>
+          </Box>
+        </Box>
+      </>,
       container: <TicketType data={sampleTickets} hideLimitControls />,
       showBadge: true // tu pojawi się zielone kółko
     },

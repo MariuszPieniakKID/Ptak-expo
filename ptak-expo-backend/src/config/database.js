@@ -366,7 +366,18 @@ const initializeDatabase = async () => {
         ) THEN
           ALTER TABLE exhibitor_events ADD COLUMN booth_area NUMERIC(10,2);
         END IF;
+        IF NOT EXISTS (
+          SELECT 1 FROM information_schema.columns
+          WHERE table_name = 'exhibitor_events' AND column_name = 'invitation_limit'
+        ) THEN
+          ALTER TABLE exhibitor_events ADD COLUMN invitation_limit INTEGER DEFAULT 50;
+        END IF;
       END $$;
+    `);
+    
+    // Set default invitation_limit = 50 for existing records
+    await pool.query(`
+      UPDATE exhibitor_events SET invitation_limit = 50 WHERE invitation_limit IS NULL
     `);
 
     console.log('🔍 Creating exhibitor_branding_files table...');

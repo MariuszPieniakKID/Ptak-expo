@@ -1097,6 +1097,75 @@ router.get('/:id', verifyToken, requireAdmin, async (req, res) => {
   }
 });
 
+// PATCH /api/v1/exhibitors/:exhibitorId/:exhibitionId/invitation-limit - update invitation limit (admin only)
+router.patch('/:exhibitorId/:exhibitionId/invitation-limit', verifyToken, requireAdmin, async (req, res) => {
+  try {
+    const exhibitorId = parseInt(req.params.exhibitorId, 10);
+    const exhibitionId = parseInt(req.params.exhibitionId, 10);
+    const { invitationLimit } = req.body;
+    
+    if (isNaN(exhibitorId) || isNaN(exhibitionId)) {
+      return res.status(400).json({ success: false, message: 'Invalid parameters' });
+    }
+    
+    if (typeof invitationLimit !== 'number' || invitationLimit < 0) {
+      return res.status(400).json({ success: false, message: 'Invitation limit must be a non-negative number' });
+    }
+    
+    // Update invitation_limit in exhibitor_events table
+    const result = await db.query(
+      `UPDATE exhibitor_events 
+       SET invitation_limit = $1 
+       WHERE exhibitor_id = $2 AND exhibition_id = $3
+       RETURNING invitation_limit`,
+      [invitationLimit, exhibitorId, exhibitionId]
+    );
+    
+    if (result.rowCount === 0) {
+      return res.status(404).json({ success: false, message: 'Exhibitor-exhibition relationship not found' });
+    }
+    
+    return res.json({ 
+      success: true, 
+      data: { invitationLimit: result.rows[0].invitation_limit },
+      message: 'Invitation limit updated successfully' 
+    });
+  } catch (error) {
+    console.error('Error updating invitation limit:', error);
+    return res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// GET /api/v1/exhibitors/:exhibitorId/:exhibitionId/invitation-limit - get invitation limit
+router.get('/:exhibitorId/:exhibitionId/invitation-limit', verifyToken, requireExhibitorOrAdmin, async (req, res) => {
+  try {
+    const exhibitorId = parseInt(req.params.exhibitorId, 10);
+    const exhibitionId = parseInt(req.params.exhibitionId, 10);
+    
+    if (isNaN(exhibitorId) || isNaN(exhibitionId)) {
+      return res.status(400).json({ success: false, message: 'Invalid parameters' });
+    }
+    
+    const result = await db.query(
+      `SELECT invitation_limit FROM exhibitor_events 
+       WHERE exhibitor_id = $1 AND exhibition_id = $2`,
+      [exhibitorId, exhibitionId]
+    );
+    
+    if (result.rowCount === 0) {
+      return res.json({ success: true, data: { invitationLimit: 50 } }); // Default
+    }
+    
+    return res.json({ 
+      success: true, 
+      data: { invitationLimit: result.rows[0].invitation_limit || 50 } 
+    });
+  } catch (error) {
+    console.error('Error getting invitation limit:', error);
+    return res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
 module.exports = router; 
  
 // POST /api/v1/exhibitors/:id/remind-catalog - wyślij przypomnienie o uzupełnieniu katalogu (admin)
