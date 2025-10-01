@@ -53,7 +53,7 @@ export default function EditEvent({eventNum, onClose} :{eventNum?: number, onClo
         EventKind.TEARDOWN,
     ];
 	return <Grid container spacing={2} component="form">
-		<Grid size={6}>
+		<Grid size={12}>
 			<TextField 
 					label="Nazwa wydarzenia" 
 					value={editedEvent.name} 
@@ -62,40 +62,46 @@ export default function EditEvent({eventNum, onClose} :{eventNum?: number, onClo
 					onChange={e => setEditedEvent({...editedEvent, name: e.target.value})}
 				/>
 			</Grid>
-		<Grid size={6}/>
-		<Grid size={2}>
+		<Grid size={4}>
 			<LocalizationProvider dateAdapter={AdapterDayjs}>
 				<DatePicker 
+					label="Data wydarzenia"
 					value={editedEvent.date ? dayjs(editedEvent.date) : null}
 					onChange={(val:any) => setEditedEvent({...editedEvent, date: val ? val.format('YYYY-MM-DD') : ''})}
-					format={'YYYY-MM-DD'}
+					format="DD.MM.YYYY"
+					slotProps={{
+						textField: {
+							variant: 'standard',
+							fullWidth: true
+						}
+					}}
 				/>
 			</LocalizationProvider>
 		</Grid>
-		<Grid size={2}>
+		<Grid size={4}>
 			<FormControl variant="standard" fullWidth>
-        <InputLabel id="start-time-label">Początek</InputLabel>
+        <InputLabel id="start-time-label">Godzina rozpoczęcia</InputLabel>
         <Select
           labelId="start-time-label"
           id="start-time-select"
           value={editedEvent.startTime}
           onChange={e => setEditedEvent({...editedEvent, startTime: e.target.value})}
-          label="Początek"
+          label="Godzina rozpoczęcia"
         >
 					<MenuItem value="">Wybierz</MenuItem>
 					{times.map(d => <MenuItem value={d} key={d}>{d}</MenuItem>)}
         </Select>
       </FormControl>
 		</Grid>
-		<Grid size={2}>
+		<Grid size={4}>
 			<FormControl variant="standard" fullWidth>
-        <InputLabel id="end-time-label">Koniec</InputLabel>
+        <InputLabel id="end-time-label">Godzina zakończenia</InputLabel>
         <Select
           labelId="end-time-label"
           id="end-time-select"
           value={editedEvent.endTime}
           onChange={e => setEditedEvent({...editedEvent, endTime: e.target.value})}
-          label="Koniec"
+          label="Godzina zakończenia"
         >
 					<MenuItem value="">Wybierz</MenuItem>
 					{times.map(d => <MenuItem value={d} key={d}>{d}</MenuItem>)}
