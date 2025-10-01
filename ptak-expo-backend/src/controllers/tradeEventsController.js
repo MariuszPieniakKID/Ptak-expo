@@ -26,9 +26,9 @@ exports.listByExhibition = async (req, res) => {
       // Exhibitor should see official events (exhibitor_id IS NULL) and their own
       result = await db.query(
         `SELECT t.id, t.exhibition_id, t.exhibitor_id, t.name, t.event_date, t.start_time, t.end_time, t.hall, t.organizer, t.description, t.type, t.link, t.event_source,
-                ea.stand_number as booth_number
+                ee.stand_number as booth_number
          FROM trade_events t
-         LEFT JOIN event_assignments ea ON t.exhibitor_id = ea.exhibitor_id AND t.exhibition_id = ea.exhibition_id
+         LEFT JOIN exhibitor_events ee ON t.exhibitor_id = ee.exhibitor_id AND t.exhibition_id = ee.exhibition_id
          WHERE t.exhibition_id = $1 
            AND (t.exhibitor_id IS NULL OR t.exhibitor_id = $2)
          ORDER BY t.event_date ASC, t.start_time ASC`,
@@ -38,9 +38,9 @@ exports.listByExhibition = async (req, res) => {
       // Admin/others: allow optional exhibitor filter
       result = await db.query(
         `SELECT t.id, t.exhibition_id, t.exhibitor_id, t.name, t.event_date, t.start_time, t.end_time, t.hall, t.organizer, t.description, t.type, t.link, t.event_source,
-                ea.stand_number as booth_number
+                ee.stand_number as booth_number
          FROM trade_events t
-         LEFT JOIN event_assignments ea ON t.exhibitor_id = ea.exhibitor_id AND t.exhibition_id = ea.exhibition_id
+         LEFT JOIN exhibitor_events ee ON t.exhibitor_id = ee.exhibitor_id AND t.exhibition_id = ee.exhibition_id
          WHERE t.exhibition_id = $1 
            AND ($2::int IS NULL OR t.exhibitor_id = $2)
          ORDER BY t.event_date ASC, t.start_time ASC`,
