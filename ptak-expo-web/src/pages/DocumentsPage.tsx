@@ -9,6 +9,7 @@ import {
   ExhibitorDocument,
   tradeInfoAPI,
   userAvatarUrl,
+  brandingAPI,
 } from "../services/api";
 import IconDownload from "../assets/group-914.png";
 import IconPdf from "../assets/pdf.png";
@@ -20,6 +21,7 @@ const DocumentsPage: React.FC = () => {
   const {eventId} = useParams<{eventId: string}>();
   const {token, isAuthenticated} = useAuth();
   const [documents, setDocuments] = useState<ExhibitorDocument[]>([]);
+  const [exhibitorBrandingDocs, setExhibitorBrandingDocs] = useState<{ id: number; originalName: string; mimeType: string; url: string }[]>([]);
   const [loading, setLoading] = useState(true);
   const [isFetchingFileId, setIsFetchingFileId] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -27,9 +29,8 @@ const DocumentsPage: React.FC = () => {
 
   // Filter documents by category
   const invoices = documents.filter((doc) => doc.category === "faktury");
-  const downloads = documents.filter(
-    (doc) => doc.category === "umowy" || doc.category === "inne_dokumenty"
-  );
+  // "Dokumenty do pobrania" mają pokazywać TYLKO dokumenty brandingowe dodane przez administratora dla wystawcy
+  const downloadsBranding = exhibitorBrandingDocs;
 
   // Fetch documents on component mount
   useEffect(() => {
@@ -49,16 +50,34 @@ const DocumentsPage: React.FC = () => {
 
         // Then fetch documents for this exhibitor and event, and trade info (for supervisor)
         const [documentsData, tiRes] = await Promise.all([
-          exhibitorDocumentsAPI.list(
-            exhibitorId,
-            parseInt(eventId)
-          ),
+          exhibitorDocumentsAPI.list(exhibitorId, parseInt(eventId)),
           tradeInfoAPI.get(parseInt(eventId)),
         ]);
+        // Dokumenty z exhibitor-documents używamy dalej tylko dla sekcji "Faktury"
         setDocuments(documentsData);
         const ti: any = (tiRes && (tiRes as any).data && (tiRes as any).data.data) ? (tiRes as any).data.data : null;
         const sup = ti?.exhibitorAssignment?.supervisor || null;
         setSupervisor(sup);
+
+        // Pobierz dokumenty brandingowe wystawcy dla tej wystawy (sekcja "Dokumenty do pobrania")
+        try {
+          const exbRes = await brandingAPI.getForExhibitor(exhibitorId, parseInt(eventId));
+          const exbFiles = (exbRes.data && (exbRes.data as any).files) || {};
+          const exbDocs: { id: number; originalName: string; mimeType: string; url: string }[] = [];
+          if (Array.isArray(exbFiles.dokumenty_brandingowe)) {
+            for (const f of exbFiles.dokumenty_brandingowe) {
+              exbDocs.push({
+                id: f.id,
+                originalName: f.originalName || 'dokument.pdf',
+                mimeType: f.mimeType || 'application/pdf',
+                url: brandingAPI.serveExhibitorUrl(exhibitorId, f.fileName),
+              });
+            }
+          }
+          setExhibitorBrandingDocs(exbDocs);
+        } catch {
+          setExhibitorBrandingDocs([]);
+        }
       } catch (err: any) {
         setError(
           err.response?.data?.message ||
@@ -108,6 +127,27 @@ const DocumentsPage: React.FC = () => {
       );
     }
 
+    setIsFetchingFileId(null);
+  };
+
+  // Download exhibitor branding document
+  const handleDownloadBranding = async (doc: { id: number; originalName: string; mimeType: string; url: string }) => {
+    setIsFetchingFileId(doc.id);
+    try {
+      const resp = await fetch(doc.url, { credentials: 'include' });
+      if (!resp.ok) throw new Error('Błąd serwera');
+      const blob = await resp.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = doc.originalName || 'file';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (err: any) {
+      alert('Błąd podczas pobierania dokumentu: ' + (err?.message || ''));
+    }
     setIsFetchingFileId(null);
   };
 
@@ -224,15 +264,15 @@ const DocumentsPage: React.FC = () => {
               </CustomTypography>
             </div>
             <div className={styles.list}>
-              {downloads.length === 0 ? (
+              {downloadsBranding.length === 0 ? (
                 <div
                   style={{padding: "12px", color: "#666", fontStyle: "italic"}}
                 >
                   Brak dokumentów do wyświetlenia
                 </div>
               ) : (
-                downloads.map((document) => (
-                  <div key={document.id}>
+                downloadsBranding.map((document) => (
+                  <div key={`exb_branding_${document.id}`}>
                     <div className={styles.listRow}>
                       <div className={styles.rowLeft}>
                         <img
@@ -241,13 +281,13 @@ const DocumentsPage: React.FC = () => {
                           height={30}
                           width={23}
                         />
-                        <span className={styles.rowText}>{document.title}</span>
+                        <span className={styles.rowText}>{document.originalName}</span>
                       </div>
                       <div className={styles.actions}>
                         <button
                           className={styles.downloadBtn}
                           aria-label="pobierz"
-                          onClick={() => handleDownload(document)}
+                          onClick={() => handleDownloadBranding(document)}
                         >
                           <img
                             alt="pobierz ikona"
