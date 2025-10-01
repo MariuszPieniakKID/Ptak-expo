@@ -208,6 +208,8 @@ router.get('/:exhibitorId/:exhibitionId', verifyToken, async (req, res) => {
     // Optional filter: only documents uploaded by current user (selfOnly=1)
     let uploaderUserId = null;
     const selfOnly = String(req.query.selfOnly || '').trim() === '1';
+    // Optional filter: only documents uploaded by admins (adminOnly=1)
+    const adminOnly = String(req.query.adminOnly || '').trim() === '1';
     if (selfOnly) {
       try {
         const usr = await db.query('SELECT id FROM users WHERE LOWER(email) = LOWER($1) LIMIT 1', [req.user.email]);
@@ -220,6 +222,10 @@ router.get('/:exhibitorId/:exhibitionId', verifyToken, async (req, res) => {
     if (selfOnly && uploaderUserId) {
       whereClauses.push(`uploaded_by = $${params.length + 1}`);
       params.push(uploaderUserId);
+    }
+    if (adminOnly) {
+      // Ensure we only include rows where the uploader is an admin user
+      whereClauses.push(`EXISTS (SELECT 1 FROM users ux WHERE ux.id = d.uploaded_by AND ux.role = 'admin')`);
     }
 
     const result = await db.query(`
