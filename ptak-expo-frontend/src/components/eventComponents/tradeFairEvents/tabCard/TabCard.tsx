@@ -11,7 +11,7 @@ type TabCardProps = {
   value:number;
   tradeEvents:TradeEvent[];
   days?: string[];
-  onAddToAgenda?: ((ev: TradeEvent) => void) | undefined;
+  onToggleAgenda?: ((ev: TradeEvent) => void) | undefined;
   agendaEventIds?: number[] | undefined;
   onDeleteEvent?: ((eventId: number) => void) | undefined;
 };
@@ -22,7 +22,7 @@ function TabCard({
   value,
   tradeEvents,
   days: daysProp,
-  onAddToAgenda,
+  onToggleAgenda,
   agendaEventIds = [],
   onDeleteEvent,
 }: TabCardProps) {
@@ -76,26 +76,34 @@ function TabCard({
           (a.endTime || '').localeCompare(b.endTime || '') ||
           (a.name || '').localeCompare(b.name || '')
         )
-        .map(ev => (
+        .map(ev => {
+          // Determine hall/booth display: if event has exhibitor_id, show booth number, otherwise show hall
+          const isExhibitorEvent = typeof ev.exhibitor_id === 'number' && ev.exhibitor_id !== null;
+          const locationDisplay = isExhibitorEvent 
+            ? (ev.booth_number || `Stoisko ${ev.exhibitor_id}`) // TODO: fetch actual booth number from exhibitor
+            : (ev.hall || '');
+          const isInAgenda = agendaEventIds.includes(ev.id as number);
+          
+          return (
             <SingleLine
             key={ev.id}
             time={`${ev.startTime} - ${ev.endTime}`}
-            hall={ev.hall || ''}
+            hall={locationDisplay}
             title={ev.name}
             shortDescription={ev.description || ''}
             link={ev.link || ''}
               rightAction={(
                 <Box sx={{ display: 'flex', gap: 1 }}>
-                  {onAddToAgenda && (
+                  {onToggleAgenda && (
                     <CustomButton
-                      bgColor="#6F87F6"
+                      bgColor={isInAgenda ? "#28a745" : "#6F87F6"}
                       textColor="#fff"
                       height="24px"
                       width="auto"
                       fontSize="0.75rem"
-                      onClick={(e: any) => { e.stopPropagation(); onAddToAgenda(ev); }}
+                      onClick={(e: any) => { e.stopPropagation(); onToggleAgenda(ev); }}
                     >
-                      {agendaEventIds.includes(ev.id as number) ? 'Dodano' : 'Dodaj'}
+                      {isInAgenda ? 'Usuń z agendy' : 'Dodaj do agendy'}
                     </CustomButton>
                   )}
                   {onDeleteEvent && typeof ev.id === 'number' && (
@@ -113,7 +121,8 @@ function TabCard({
                 </Box>
               )}
           />
-        ))}
+          );
+        })}
       {tradeEvents.length === 0 && (
         <Box style={{ color: '#EEEFF1', padding: '12px 0' }}>
           Brak wydarzeń
@@ -149,26 +158,33 @@ function TabCard({
               Brak wydarzeń w tym dniu
             </Box>
           ) : (
-            sortedEvents.map(ev => (
+            sortedEvents.map(ev => {
+              const isExhibitorEvent = typeof ev.exhibitor_id === 'number' && ev.exhibitor_id !== null;
+              const locationDisplay = isExhibitorEvent 
+                ? (ev.booth_number || `Stoisko ${ev.exhibitor_id}`) 
+                : (ev.hall || '');
+              const isInAgenda = agendaEventIds.includes(ev.id as number);
+              
+              return (
               <SingleLine
                 key={ev.id}
                 time={`${ev.startTime} - ${ev.endTime}`}
-                hall={ev.hall || ''}
+                hall={locationDisplay}
                 title={ev.name}
                 shortDescription={ev.description || ''}
                 link={ev.link || ''}
                 rightAction={(
                   <Box sx={{ display: 'flex', gap: 1 }}>
-                    {onAddToAgenda && (
+                    {onToggleAgenda && (
                       <CustomButton
-                        bgColor="#6F87F6"
+                        bgColor={isInAgenda ? "#28a745" : "#6F87F6"}
                         textColor="#fff"
                         height="24px"
                         width="auto"
                         fontSize="0.75rem"
-                        onClick={(e: any) => { e.stopPropagation(); onAddToAgenda(ev); }}
+                        onClick={(e: any) => { e.stopPropagation(); onToggleAgenda(ev); }}
                       >
-                        {agendaEventIds.includes(ev.id as number) ? 'Dodano' : 'Dodaj'}
+                        {isInAgenda ? 'Usuń z agendy' : 'Dodaj do agendy'}
                       </CustomButton>
                     )}
                     {onDeleteEvent && typeof ev.id === 'number' && (
@@ -186,7 +202,8 @@ function TabCard({
                   </Box>
                 )}
               />
-            ))
+              );
+            })
           )}
         </Box>
       </CustomTabPanel>

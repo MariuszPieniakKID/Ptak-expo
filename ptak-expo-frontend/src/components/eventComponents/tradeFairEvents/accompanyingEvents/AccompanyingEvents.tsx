@@ -11,7 +11,7 @@ import { getDaysBetweenDates } from "../../../../helpers/function";
 interface AccompanyingEventsProps {
   tradeEvents: TradeEvent[];
   event: Exhibition;
-  onAddToAgenda?: (ev: TradeEvent) => void;
+  onToggleAgenda?: (ev: TradeEvent) => void;
   agendaEventIds?: number[];
   onDeleteEvent?: (eventId: number) => void;
 }
@@ -19,7 +19,7 @@ interface AccompanyingEventsProps {
 const AccompanyingEvents: React.FC<AccompanyingEventsProps> = ({
   event,
   tradeEvents,
-  onAddToAgenda,
+  onToggleAgenda,
   agendaEventIds = [],
   onDeleteEvent,
 }) => {
@@ -79,7 +79,7 @@ const AccompanyingEvents: React.FC<AccompanyingEventsProps> = ({
         event={event} 
         value={value}
         days={days}
-        onAddToAgenda={onAddToAgenda}
+        onToggleAgenda={onToggleAgenda}
         agendaEventIds={agendaEventIds}
         onDeleteEvent={onDeleteEvent}
         />

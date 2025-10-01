@@ -25,21 +25,25 @@ exports.listByExhibition = async (req, res) => {
       effectiveExhibitorId = me.rows?.[0]?.id || null;
       // Exhibitor should see official events (exhibitor_id IS NULL) and their own
       result = await db.query(
-        `SELECT id, exhibition_id, exhibitor_id, name, event_date, start_time, end_time, hall, organizer, description, type, link, event_source
-         FROM trade_events 
-         WHERE exhibition_id = $1 
-           AND (exhibitor_id IS NULL OR exhibitor_id = $2)
-         ORDER BY event_date ASC, start_time ASC`,
+        `SELECT t.id, t.exhibition_id, t.exhibitor_id, t.name, t.event_date, t.start_time, t.end_time, t.hall, t.organizer, t.description, t.type, t.link, t.event_source,
+                ea.stand_number as booth_number
+         FROM trade_events t
+         LEFT JOIN event_assignments ea ON t.exhibitor_id = ea.exhibitor_id AND t.exhibition_id = ea.exhibition_id
+         WHERE t.exhibition_id = $1 
+           AND (t.exhibitor_id IS NULL OR t.exhibitor_id = $2)
+         ORDER BY t.event_date ASC, t.start_time ASC`,
         [exhibitionId, effectiveExhibitorId]
       );
     } else {
       // Admin/others: allow optional exhibitor filter
       result = await db.query(
-        `SELECT id, exhibition_id, exhibitor_id, name, event_date, start_time, end_time, hall, organizer, description, type, link, event_source
-         FROM trade_events 
-         WHERE exhibition_id = $1 
-           AND ($2::int IS NULL OR exhibitor_id = $2)
-         ORDER BY event_date ASC, start_time ASC`,
+        `SELECT t.id, t.exhibition_id, t.exhibitor_id, t.name, t.event_date, t.start_time, t.end_time, t.hall, t.organizer, t.description, t.type, t.link, t.event_source,
+                ea.stand_number as booth_number
+         FROM trade_events t
+         LEFT JOIN event_assignments ea ON t.exhibitor_id = ea.exhibitor_id AND t.exhibition_id = ea.exhibition_id
+         WHERE t.exhibition_id = $1 
+           AND ($2::int IS NULL OR t.exhibitor_id = $2)
+         ORDER BY t.event_date ASC, t.start_time ASC`,
         [exhibitionId, effectiveExhibitorId]
       );
     }

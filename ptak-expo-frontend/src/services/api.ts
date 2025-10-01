@@ -1458,6 +1458,7 @@ export interface TradeEvent {
   link?:string;
   eventSource?: 'official_events' | 'construction';
   event_source?: string; // From backend (snake_case)
+  booth_number?: string; // Booth/stand number for exhibitor events
 }
 
 // normalize helpers to keep consistent date/time formats

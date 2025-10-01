@@ -94,14 +94,22 @@ function TradeFairEvents({
     return baseList;
   })();
 
-  const handleAddToAgenda = (ev: TradeEvent) => {
+  const handleToggleAgenda = (ev: TradeEvent) => {
     if (typeof ev?.id !== 'number') return;
     const isClosed = String(ev.type || '').toLowerCase().includes('zamk');
     if (isClosed) {
       console.warn('Event is closed, cannot add to agenda');
       return;
     }
-    setAgendaEventIds(prev => new Set(prev).add(ev.id as number));
+    setAgendaEventIds(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(ev.id as number)) {
+        newSet.delete(ev.id as number); // Remove from agenda
+      } else {
+        newSet.add(ev.id as number); // Add to agenda
+      }
+      return newSet;
+    });
   };
 
   const handleDeleteEvent = async (eventId: number) => {
@@ -136,7 +144,7 @@ function TradeFairEvents({
         <AccompanyingEvents 
         event={event} 
         tradeEvents={displayEvents}
-        onAddToAgenda={handleAddToAgenda}
+        onToggleAgenda={handleToggleAgenda}
         agendaEventIds={Array.from(agendaEventIds)}
         onDeleteEvent={handleDeleteEvent}
         />
