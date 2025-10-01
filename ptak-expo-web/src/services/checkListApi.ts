@@ -170,7 +170,7 @@ export const getChecklist = async (exhibitionId: number) => {
 		// also set email from exhibitor profile
 		(ExampleChecklist.companyInfo as any).contactEmail = exhibitor?.email ?? (ExampleChecklist.companyInfo as any).contactEmail ?? null;
 
-		// events
+		// events (ONLY exhibitor's own events, NOT global admin events)
 		try {
 			const url = exhibitor?.id ? `${config.API_BASE_URL}/api/v1/trade-events/${exhibitionId}?exhibitorId=${encodeURIComponent(String(exhibitor.id))}` : `${config.API_BASE_URL}/api/v1/trade-events/${exhibitionId}`;
 			console.log('[getChecklist] Fetching events from:', url);
@@ -190,7 +190,16 @@ export const getChecklist = async (exhibitionId: number) => {
                     return EventKind.PRESENTATION;
                 };
 
-                const mappedEvents = list.map((row: any): EventInfo => ({
+                // Filter ONLY events that belong to this exhibitor (exhibitor_id matches)
+                // Exclude global admin events (exhibitor_id === null)
+                const ownEvents = list.filter((row: any) => 
+                    row.exhibitor_id !== null && 
+                    row.exhibitor_id !== undefined && 
+                    row.exhibitor_id === exhibitor?.id
+                );
+                console.log('[getChecklist] Filtered to own events only:', ownEvents);
+
+                const mappedEvents = ownEvents.map((row: any): EventInfo => ({
                     id: row.id,
                     date: (row.eventDate ?? row.event_date ?? ''),
 					startTime: row.startTime ?? row.start_time ?? '',
