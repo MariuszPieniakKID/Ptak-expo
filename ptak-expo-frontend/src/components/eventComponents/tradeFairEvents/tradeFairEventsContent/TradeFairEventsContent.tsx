@@ -109,8 +109,6 @@ const TradeFairEventsContent: React.FC<TradeFairEventsContentProps> = ({ event, 
               <Box sx={{ background: '#f6f8fa', borderRadius: '8px' }}>
                 <DateCalendar
                   value={newEvent.eventDate ? dayjs(newEvent.eventDate) : null}
-                  {...(event?.start_date ? { minDate: dayjs(event.start_date) } : {})}
-                  {...(event?.end_date ? { maxDate: dayjs(event.end_date) } : {})}
                   onChange={(val: any) => {
                     const dateStr = val ? val.format('YYYY-MM-DD') : '';
                     setNewEvent(prev => ({ ...prev, eventDate: dateStr }));
