@@ -94,7 +94,15 @@ function TradeFairEvents({
   })();
 
   const handleToggleAgenda = async (ev: TradeEvent) => {
-    if (!token || typeof ev?.id !== 'number') return;
+    console.log('[handleToggleAgenda] Called with event:', ev);
+    console.log('[handleToggleAgenda] Token exists:', !!token);
+    console.log('[handleToggleAgenda] Event ID:', ev?.id, 'Type:', typeof ev?.id);
+    
+    if (!token || typeof ev?.id !== 'number') {
+      console.warn('[handleToggleAgenda] Aborted - no token or invalid event ID');
+      return;
+    }
+    
     const isClosed = String(ev.type || '').toLowerCase().includes('zamk');
     if (isClosed) {
       console.warn('Event is closed, cannot add to agenda');
@@ -104,9 +112,13 @@ function TradeFairEvents({
     const isCurrentlyInAgenda = agendaEventIds.has(ev.id as number);
     const newAgendaStatus = !isCurrentlyInAgenda;
     
+    console.log('[handleToggleAgenda] Current status:', { isCurrentlyInAgenda, newAgendaStatus });
+    console.log('[handleToggleAgenda] Calling API:', { exhibitionId: event.id, eventId: ev.id, isInAgenda: newAgendaStatus });
+    
     try {
       // Update backend
-      await updateTradeEventAgendaStatus(event.id, ev.id as number, newAgendaStatus, token);
+      const result = await updateTradeEventAgendaStatus(event.id, ev.id as number, newAgendaStatus, token);
+      console.log('[handleToggleAgenda] API response:', result);
       
       // Update local state
       setAgendaEventIds(prev => {
@@ -116,13 +128,17 @@ function TradeFairEvents({
         } else {
           newSet.delete(ev.id as number); // Remove from agenda
         }
+        console.log('[handleToggleAgenda] Updated agendaEventIds:', newSet);
         return newSet;
       });
       
       // Reload events to get updated is_in_agenda status
+      console.log('[handleToggleAgenda] Reloading events...');
       await loadTradeEvents();
+      console.log('[handleToggleAgenda] Success!');
     } catch (error: any) {
-      console.error('Failed to update agenda status:', error);
+      console.error('[handleToggleAgenda] Error:', error);
+      console.error('[handleToggleAgenda] Error details:', { message: error.message, stack: error.stack });
       alert(error.message || 'Nie udało się zaktualizować statusu agendy');
     }
   };
