@@ -8,7 +8,7 @@ import MaterialsCard from "../components/checklist/MaterialsCard";
 import ElectronicIdsCard from "../components/checklist/ElectronicIdsCard";
 import InvitesCard from "../components/checklist/InvitesCard";
 import IconCalendar from "../assets/calendar-check.png";
-import IconMedal from "../assets/medal.png";
+// import IconMedal from "../assets/medal.png";
 
 const ChecklistPage: React.FC = () => {
   var {filled, checklist} = useChecklist();
@@ -85,17 +85,7 @@ const ChecklistPage: React.FC = () => {
                 </div>
               ))}
             </div>
-            <div className={styles.bottomContent}>
-              <img
-                src={IconMedal}
-                alt="ikona medalu"
-                width="auto"
-                height={17}
-              />
-              <div className={styles.bottomHeading}>
-                Zgłoś swój produkt / usługę / projekt do nagrody targowej!
-              </div>
-            </div>
+            {/* Hidden awards promo per request */}
           </div>
           <div className={styles.stylesToCompletedWrapper}>
             <div className={styles.stylesToCompletedText}>Do uzupełnienia:</div>
