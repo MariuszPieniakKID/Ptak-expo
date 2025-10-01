@@ -140,6 +140,16 @@ export const TradeInfoPage: React.FC<T_TradeInfoPage> = ({eventId}) => {
   // Map global construction events (Zabudowa targowa - visible for ALL exhibitors)
   // These are events WITHOUT exhibitor_id (global for entire exhibition)
   const globalConstructionEvents = allEvents.filter(ev => !ev.exhibitor_id || ev.exhibitor_id === null);
+  
+  // Debug log
+  console.log('[TradeInfoPage] Global construction events:', {
+    allEventsCount: allEvents.length,
+    globalConstructionCount: globalConstructionEvents.length,
+    allEvents,
+    globalConstructionEvents,
+    eventId,
+  });
+
   const mapGlobalConstructionEvents = globalConstructionEvents.map((event: any, index: number) => {
     const eventDate = event.event_date || '';
     const startTime = event.start_time || '';
