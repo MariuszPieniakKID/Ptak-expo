@@ -28,11 +28,7 @@ const DocumentsPage: React.FC = () => {
   const [supervisor, setSupervisor] = useState<any | null>(null);
 
   // Filter documents by category and uploader role (only admin uploads should be visible here)
-  const isAdminUploaded = (doc: ExhibitorDocument) => {
-    const role = String(doc.uploadedByRole || '').toLowerCase();
-    // Prefer explicit role, but also treat presence of uploadedBy as admin upload (backend sets it only for admin)
-    return role === 'admin' || (typeof (doc as any).uploadedBy === 'number' && (doc as any).uploadedBy !== null);
-  };
+  const isAdminUploaded = (doc: ExhibitorDocument) => String(doc.uploadedByRole || '').toLowerCase() === 'admin';
 
   // Faktury: tylko te dodane przez ADMINA
   const invoices = documents.filter((doc) => doc.category === 'faktury' && isAdminUploaded(doc));
