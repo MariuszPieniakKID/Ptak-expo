@@ -144,7 +144,15 @@ exports.remove = async (req, res) => {
       );
       if (del.rowCount === 0) {
         console.log('❌ [trade-events] Delete failed - event not found or wrong owner');
-        return res.status(404).json({ success: false, message: 'Nie znaleziono wydarzenia do usunięcia' });
+        const debugInfo = existing.rows[0] ? 
+          `Wydarzenie istnieje ale należy do exhibitor_id=${existing.rows[0].exhibitor_id}, a ty masz id=${myId}` :
+          'Wydarzenie nie istnieje';
+        return res.status(404).json({ 
+          success: false, 
+          message: 'Nie znaleziono wydarzenia do usunięcia',
+          debug: debugInfo,
+          eventData: existing.rows[0] || null
+        });
       }
       console.log('✅ [trade-events] deleted (owner)', del.rows[0]);
       return res.json({ success: true, message: 'Usunięto wydarzenie', data: del.rows[0] });
