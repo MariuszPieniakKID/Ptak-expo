@@ -68,17 +68,21 @@ function MenuDates({ event, value, handleChange, days }: MenuDatesProps) {
           label="Wszystkie dni"
           aria-label="Wszystkie wydarzenia"
           sx={{
-            minWidth: '70px !important',
-            maxWidth: '70px',
+            minWidth: '85px !important',
+            maxWidth: '85px',
             minHeight: '28px',
             padding: '4px 6px',
-            fontSize: '0.6rem',
+            fontSize: '0.55rem',
             fontWeight: 500,
             backgroundColor: value === 0 ? '#6F87F6' : 'transparent',
             color: value === 0 ? '#fff !important' : '#EEEFF1 !important',
             borderRadius: '6px',
             border: '0.5px solid #EEEFF1',
             marginRight: '8px',
+            textTransform: 'none',
+            whiteSpace: 'nowrap',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
             '&:hover': {
               backgroundColor: value === 0 ? '#5a70d9' : 'rgba(111, 135, 246, 0.15)',
             },
