@@ -113,13 +113,20 @@ router.post('/:exhibitorId/:exhibitionId/upload', verifyToken, upload.single('do
       return res.status(404).json({ success: false, error: 'Wydarzenie nie zostało znalezione' });
     }
 
-    // Resolve uploader user id from users table (token may carry exhibitor.id)
+    // Resolve uploader user id for admin context.
+    // For exhibitor uploads we intentionally set NULL to avoid misclassifying uploads.
     let uploaderUserId = null;
-    try {
-      const usr = await db.query('SELECT id FROM users WHERE LOWER(email) = LOWER($1) LIMIT 1', [req.user.email]);
-      uploaderUserId = usr.rows?.[0]?.id || null;
-    } catch (_e) {
-      uploaderUserId = null;
+    if (req.user.role === 'admin') {
+      try {
+        const usr = await db.query('SELECT id FROM users WHERE LOWER(email) = LOWER($1) LIMIT 1', [req.user.email]);
+        uploaderUserId = usr.rows?.[0]?.id || null;
+      } catch (_e) {
+        uploaderUserId = null;
+      }
+      // Fallback: if lookup by email failed, use id from JWT token (admin account)
+      if (!uploaderUserId && req.user && typeof req.user.id !== 'undefined') {
+        uploaderUserId = req.user.id;
+      }
     }
 
     // Save document info to database
