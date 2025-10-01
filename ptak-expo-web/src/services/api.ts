@@ -299,6 +299,13 @@ export const exhibitorsSelfAPI = {
     api.get('/api/v1/exhibitors/me'),
 };
 
+// User avatar (served as img, token via query string)
+export const userAvatarUrl = (userId: number): string => {
+  const token = localStorage.getItem('authToken');
+  const base = `${config.API_BASE_URL}/api/v1/users/${userId}/avatar`;
+  return token ? `${base}?token=${encodeURIComponent(token)}` : base;
+};
+
 // ============= EXHIBITOR DOCUMENTS API (ptak-expo-web) =============
 
 export type ExhibitorDocumentCategory = 'faktury' | 'umowy' | 'inne_dokumenty';

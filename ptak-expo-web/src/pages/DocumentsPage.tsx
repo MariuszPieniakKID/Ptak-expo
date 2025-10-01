@@ -8,6 +8,7 @@ import {
   exhibitorDocumentsAPI,
   ExhibitorDocument,
   tradeInfoAPI,
+  userAvatarUrl,
 } from "../services/api";
 import IconDownload from "../assets/group-914.png";
 import IconPdf from "../assets/pdf.png";
@@ -280,7 +281,16 @@ const DocumentsPage: React.FC = () => {
             Czegoś brakuje? Zadaj nam pytanie:
           </div>
           <div className={styles.contactRow}>
-            <div className={styles.contactAvatar} />
+            <div className={styles.contactAvatar}>
+              {supervisor?.id ? (
+                <img
+                  alt="avatar"
+                  src={userAvatarUrl(supervisor.id)}
+                  style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }}
+                  onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
+                />
+              ) : null}
+            </div>
             <div className={styles.contactMeta}>
               <div className={styles.contactName}>
                 {supervisor ? `${supervisor.firstName || ''} ${supervisor.lastName || ''}`.trim() : '-'}
