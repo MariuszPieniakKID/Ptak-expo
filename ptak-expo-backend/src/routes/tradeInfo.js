@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { saveTradeInfo, getTradeInfo, uploadTradePlan, downloadTradePlan, broadcastTradeMessage } = require('../controllers/tradeInfoController');
+const { saveTradeInfo, getTradeInfo, uploadTradePlan, downloadTradePlan, broadcastTradeMessage, getTradeMessageHistory } = require('../controllers/tradeInfoController');
 const { verifyToken, requireAdmin, requireExhibitorOrAdmin } = require('../middleware/auth');
 const upload = require('../middleware/upload');
 
@@ -15,5 +15,8 @@ router.get('/:exhibitionId/download/:spaceId', verifyToken, requireExhibitorOrAd
 
 // Broadcast trade message to all exhibitors assigned to the exhibition
 router.post('/:exhibitionId/broadcast', verifyToken, requireAdmin, broadcastTradeMessage);
+
+// Get trade message history for exhibition
+router.get('/:exhibitionId/messages', verifyToken, requireAdmin, getTradeMessageHistory);
 
 module.exports = router; 

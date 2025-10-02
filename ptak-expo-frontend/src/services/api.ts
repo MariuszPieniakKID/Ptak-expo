@@ -1957,3 +1957,28 @@ export const deleteTradePlanLink = async (linkId: number, token: string): Promis
     throw new Error(data?.message || 'Błąd podczas usuwania linku');
   }
 };
+
+// Trade Message History
+export interface TradeMessage {
+  id: number;
+  title: string;
+  content: string;
+  type: string;
+  status: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export const getTradeMessageHistory = async (exhibitionId: number, token: string): Promise<TradeMessage[]> => {
+  const res = await fetch(`${config.API_BASE_URL}/api/v1/trade-info/${exhibitionId}/messages`, {
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    }
+  });
+  const data = await res.json();
+  if (!res.ok) {
+    throw new Error(data?.message || 'Błąd podczas pobierania historii wiadomości');
+  }
+  return data?.data || [];
+};

@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Box,  Divider, Alert, CircularProgress } from '@mui/material';
 import styles from './TradeInfo.module.scss';
 import { useAuth } from '../../../../../contexts/AuthContext';
-import { downloadTradePlan, getTradeInfo, saveTradeInfo, TradeInfoData, uploadTradePlan, getTradeEvents, createTradeEvent, deleteTradeEvent, TradeEvent, fetchExhibition, Exhibition } from '../../../../../services/api';
+import { downloadTradePlan, getTradeInfo, saveTradeInfo, TradeInfoData, uploadTradePlan, getTradeEvents, createTradeEvent, deleteTradeEvent, TradeEvent, fetchExhibition, Exhibition, getTradeMessageHistory, TradeMessage } from '../../../../../services/api';
 import CustomTypography from '../../../../customTypography/CustomTypography';
 import CustomField from '../../../../customField/CustomField';
 import CountryPhoneField from '../../../../countryPhoneField/CountryPhoneField';
@@ -96,6 +96,7 @@ const TradeInfo: React.FC<TradeInfoProps> = ({ exhibitionId }) => {
   const [newHallName, setNewHallName] = useState<string>('');
   const [newHallFile, setNewHallFile] = useState<File | null>(null);
   const [tradeMessage, setTradeMessage] = useState<string>('');
+  const [messageHistory, setMessageHistory] = useState<TradeMessage[]>([]);
   
   const [loading, setLoading] = useState<boolean>(true);
   const [/* savingFlag */ , setSaving] = useState<boolean>(false);
@@ -230,6 +231,20 @@ const TradeInfo: React.FC<TradeInfoProps> = ({ exhibitionId }) => {
       } catch {}
     };
     loadRange();
+  }, [exhibitionId, token]);
+
+  // Load message history
+  useEffect(() => {
+    const loadHistory = async () => {
+      if (!exhibitionId || !token) return;
+      try {
+        const history = await getTradeMessageHistory(exhibitionId, token);
+        setMessageHistory(history);
+      } catch (e: any) {
+        console.error('[TradeInfo] Failed to load message history:', e?.message || e);
+      }
+    };
+    loadHistory();
   }, [exhibitionId, token]);
 
   // If date is empty, default to exhibition start date to improve UX
@@ -834,15 +849,18 @@ const TradeInfo: React.FC<TradeInfoProps> = ({ exhibitionId }) => {
                    tradeMessage: message
                  }, token);
 
-                 setTradeMessage(message);
-                 // Broadcast email + log to Aktualności
-                 try {
-                   await api.broadcastTradeMessage(exhibitionId, message, token);
-                 } catch (e: any) {
-                   console.warn('[TradeInfo] broadcast failed:', e?.message || e);
-                 }
-                 setSuccessMessage('Wiadomość zapisana i rozesłana');
-                 setTimeout(() => setSuccessMessage(''), 2500);
+                setTradeMessage(message);
+                // Broadcast email + log to Aktualności
+                try {
+                  await api.broadcastTradeMessage(exhibitionId, message, token);
+                  // Reload message history after successful broadcast
+                  const history = await getTradeMessageHistory(exhibitionId, token);
+                  setMessageHistory(history);
+                } catch (e: any) {
+                  console.warn('[TradeInfo] broadcast failed:', e?.message || e);
+                }
+                setSuccessMessage('Wiadomość zapisana i rozesłana');
+                setTimeout(() => setSuccessMessage(''), 2500);
                } catch (e: any) {
                  setError(e?.message || 'Błąd podczas zapisywania wiadomości');
                }
@@ -852,8 +870,57 @@ const TradeInfo: React.FC<TradeInfoProps> = ({ exhibitionId }) => {
              textAreaBackground={'#f5f5f5'}
           />
         </Box>
+
+        {/* Message History */}
+        {messageHistory.length > 0 && (
+          <Box sx={{ mt: 3 }}>
+            <CustomTypography className={styles.fileListTitle_}>
+              Historia wysłanych wiadomości ({messageHistory.length}):
+            </CustomTypography>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+              {messageHistory.map((msg) => (
+                <Box
+                  key={msg.id}
+                  sx={{
+                    backgroundColor: '#fff',
+                    borderRadius: '8px',
+                    padding: '12px 16px',
+                    border: '1px solid #e0e0e0',
+                  }}
+                >
+                  <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 1 }}>
+                    <CustomTypography sx={{ fontSize: '0.75rem', color: '#666', fontWeight: 300 }}>
+                      {new Date(msg.createdAt).toLocaleString('pl-PL', {
+                        year: 'numeric',
+                        month: '2-digit',
+                        day: '2-digit',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      })}
+                    </CustomTypography>
+                    <Box
+                      sx={{
+                        backgroundColor: '#4caf50',
+                        color: '#fff',
+                        fontSize: '0.7rem',
+                        fontWeight: 500,
+                        padding: '2px 8px',
+                        borderRadius: '4px',
+                      }}
+                    >
+                      {msg.status}
+                    </Box>
+                  </Box>
+                  <CustomTypography sx={{ fontSize: '0.875rem', color: '#333', whiteSpace: 'pre-wrap' }}>
+                    {msg.content}
+                  </CustomTypography>
+                </Box>
+              ))}
+            </Box>
+          </Box>
+        )}
       </Box>
-  </Box>
+    </Box>
   );
 };
 

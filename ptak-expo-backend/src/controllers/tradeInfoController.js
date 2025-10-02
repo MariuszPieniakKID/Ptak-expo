@@ -522,3 +522,39 @@ const broadcastTradeMessage = async (req, res) => {
 };
 
 module.exports.broadcastTradeMessage = broadcastTradeMessage;
+
+// GET trade message history for exhibition
+const getTradeMessageHistory = async (req, res) => {
+  try {
+    const exhibitionId = parseInt(req.params.exhibitionId, 10);
+    if (!Number.isFinite(exhibitionId)) {
+      return res.status(400).json({ success: false, message: 'Nieprawidłowe ID wydarzenia' });
+    }
+
+    const result = await pool.query(
+      `SELECT id, title, content, type, created_at, updated_at
+       FROM communications
+       WHERE exhibition_id = $1 AND type = 'notification' AND title = 'Komunikat targowy'
+       ORDER BY created_at DESC`,
+      [exhibitionId]
+    );
+
+    return res.json({ 
+      success: true, 
+      data: result.rows.map(row => ({
+        id: row.id,
+        title: row.title,
+        content: row.content,
+        type: row.type,
+        status: 'wysłana',
+        createdAt: row.created_at,
+        updatedAt: row.updated_at
+      }))
+    });
+  } catch (error) {
+    console.error('❌ Error getting trade message history:', error);
+    return res.status(500).json({ success: false, message: 'Błąd podczas pobierania historii wiadomości' });
+  }
+};
+
+module.exports.getTradeMessageHistory = getTradeMessageHistory;
