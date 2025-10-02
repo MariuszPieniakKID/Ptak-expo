@@ -1886,3 +1886,74 @@ export const updateInvitationLimit = async (
   }
   return data?.data?.invitationLimit || invitationLimit;
 };
+
+// Trade Plan Links
+export interface TradePlanLink {
+  id: number;
+  exhibition_id: number;
+  title: string;
+  url: string;
+  display_order: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export const listTradePlanLinks = async (exhibitionId: number, token: string): Promise<TradePlanLink[]> => {
+  const res = await fetch(`${config.API_BASE_URL}/api/v1/trade-plan-links/${exhibitionId}`, {
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    }
+  });
+  const data = await res.json();
+  if (!res.ok) {
+    throw new Error(data?.message || 'Błąd podczas pobierania linków');
+  }
+  return data?.data || [];
+};
+
+export const createTradePlanLink = async (exhibitionId: number, title: string, url: string, token: string): Promise<TradePlanLink> => {
+  const res = await fetch(`${config.API_BASE_URL}/api/v1/trade-plan-links/${exhibitionId}`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    },
+    body: JSON.stringify({ title, url })
+  });
+  const data = await res.json();
+  if (!res.ok) {
+    throw new Error(data?.message || 'Błąd podczas tworzenia linku');
+  }
+  return data?.data;
+};
+
+export const updateTradePlanLink = async (linkId: number, title: string, url: string, token: string): Promise<TradePlanLink> => {
+  const res = await fetch(`${config.API_BASE_URL}/api/v1/trade-plan-links/link/${linkId}`, {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    },
+    body: JSON.stringify({ title, url })
+  });
+  const data = await res.json();
+  if (!res.ok) {
+    throw new Error(data?.message || 'Błąd podczas aktualizacji linku');
+  }
+  return data?.data;
+};
+
+export const deleteTradePlanLink = async (linkId: number, token: string): Promise<void> => {
+  const res = await fetch(`${config.API_BASE_URL}/api/v1/trade-plan-links/link/${linkId}`, {
+    method: 'DELETE',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${token}`
+    }
+  });
+  const data = await res.json();
+  if (!res.ok) {
+    throw new Error(data?.message || 'Błąd podczas usuwania linku');
+  }
+};

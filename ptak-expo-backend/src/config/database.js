@@ -498,6 +498,19 @@ const initializeDatabase = async () => {
       )
     `);
 
+    console.log('🔍 Creating trade_plan_links table...');
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS trade_plan_links (
+        id SERIAL PRIMARY KEY,
+        exhibition_id INTEGER REFERENCES exhibitions(id) ON DELETE CASCADE,
+        title VARCHAR(255) NOT NULL,
+        url TEXT NOT NULL,
+        display_order INTEGER DEFAULT 0,
+        created_at TIMESTAMPTZ DEFAULT NOW(),
+        updated_at TIMESTAMPTZ DEFAULT NOW()
+      )
+    `);
+
     // Ensure trade_spaces has required columns (for older DBs)
     try {
       const filePathCol = await pool.query(`
