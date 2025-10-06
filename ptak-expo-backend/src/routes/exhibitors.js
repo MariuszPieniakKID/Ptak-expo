@@ -372,7 +372,9 @@ router.post('/', verifyToken, requireAdmin, async (req, res) => {
       console.log('No exhibitionId provided, skipping assignment');
     }
 
-    // Send welcome email to exhibitor with link to exhibitor panel
+    // TYMCZASOWO WYŁĄCZONE: Send welcome email to exhibitor with link to exhibitor panel
+    // TODO: Włączyć z powrotem gdy będzie potrzebne
+    /* 
     try {
       const { sendWelcomeEmail } = require('../utils/emailService');
       const exhibitorPanelBase = process.env.EXHIBITOR_PANEL_URL || 'https://wystawca.exhibitorlist.eu';
@@ -390,6 +392,8 @@ router.post('/', verifyToken, requireAdmin, async (req, res) => {
     } catch (mailErr) {
       console.warn('⚠️ Could not schedule exhibitor welcome email:', mailErr?.message || mailErr);
     }
+    */
+    console.log('ℹ️  Welcome email DISABLED (temporary) - account created without email notification');
 
     // Format response
     const exhibitor = {
