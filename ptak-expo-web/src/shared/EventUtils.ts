@@ -43,11 +43,21 @@ export function getEidTypeString(type: EidType)
 	switch(type) {
 		case EidType.TECH_WORKER:
 			return "Obsługa techniczna";
+		case EidType.BOOTH_STAFF:
+			return "Obsługa Stoiska";
+		case EidType.EXPERT_SPEAKER:
+			return "Ekspert / Prelegent";
+		case EidType.MARKETING_PR:
+			return "Marketing / PR";
+		case EidType.MANAGEMENT:
+			return "Zarząd / Management";
+		case EidType.RECEPTION:
+			return "Recepcja / Obsługa gości";
 		case EidType.GUEST:
 			return "Gość";
 	}
 }
-export const eidTypes = [EidType.TECH_WORKER, EidType.GUEST]
+export const eidTypes = [EidType.TECH_WORKER, EidType.BOOTH_STAFF, EidType.EXPERT_SPEAKER, EidType.MARKETING_PR, EidType.MANAGEMENT, EidType.RECEPTION, EidType.GUEST]
 
 export const eventTypes = [EventType.OPEN, EventType.CLOSED]
 export const eventKinds = [

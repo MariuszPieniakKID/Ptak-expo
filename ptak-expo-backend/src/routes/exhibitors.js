@@ -153,10 +153,14 @@ router.get('/', verifyToken, requireAdmin, async (req, res) => {
     // Text search across nip, company_name, email and assigned exhibition names
     if (q !== undefined && String(q).trim() !== '') {
       const term = `%${String(q).trim().toLowerCase()}%`;
+      // For NIP search, also normalize by removing spaces and hyphens
+      const nipNormalized = `%${String(q).trim().replace(/[\s-]/g, '')}%`;
       params.push(term);
-      const p = params.length;
+      params.push(nipNormalized);
+      const p = params.length - 1; // term param
+      const pNip = params.length; // normalized NIP param
       where.push(`(
-        lower(e.nip) LIKE $${p} OR
+        REPLACE(REPLACE(lower(e.nip), ' ', ''), '-', '') LIKE $${pNip} OR
         lower(e.company_name) LIKE $${p} OR
         lower(e.email) LIKE $${p} OR
         EXISTS (

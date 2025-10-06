@@ -141,7 +141,6 @@ const EventInvitationsPage = () => {
       const greetingLine = greeting ? `${greeting}${namePart ? ' ' + namePart : ''},` : (namePart ? `${namePart},` : '');
       const contentHtml = (tpl.content || '').trim();
       const companyInfo = (tpl.company_info || '').trim();
-      const contactBlock = [tpl.contact_person, tpl.contact_email, tpl.contact_phone].filter(Boolean).join(' • ');
       // Build special offers block from IDs in tpl.special_offers (comma-separated IDs)
       const offersBlock = (() => {
         const raw = tpl.special_offers;
@@ -164,7 +163,6 @@ const EventInvitationsPage = () => {
         ${tpl.booth_info ? `<p style='margin-top:12px;'><strong>Stoisko:</strong> ${tpl.booth_info}</p>` : ''}
         ${offersBlock}
         ${companyInfo ? `<p style='margin-top:16px;'>${companyInfo.replace(/\n/g, '<br/>')}</p>` : ''}
-        ${contactBlock ? `<p style='margin-top:8px;color:#555;'>${contactBlock}</p>` : ''}
       </body></html>`;
       setEditorHtml(html);
       setPreviewHtml(html);

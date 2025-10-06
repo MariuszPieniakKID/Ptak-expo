@@ -34,6 +34,11 @@ export interface ElectrionicId {
 }
 export enum EidType {
 	TECH_WORKER,
+	BOOTH_STAFF,
+	EXPERT_SPEAKER,
+	MARKETING_PR,
+	MANAGEMENT,
+	RECEPTION,
 	GUEST
 }
 
@@ -335,7 +340,10 @@ export const updateCompanyInfo = async (companyInfo: CompanyInfo) => {
 					: (((companyInfo as any).catalogTags ?? null) as any),
 				brands: Array.isArray((companyInfo as any).brands)
 					? ((companyInfo as any).brands as string[]).map(s => String(s).trim()).filter(Boolean).join(',')
-					: (((companyInfo as any).brands ?? null) as any)
+					: (((companyInfo as any).brands ?? null) as any),
+				industries: Array.isArray((companyInfo as any).industries)
+					? ((companyInfo as any).industries as string[]).map(s => String(s).trim()).filter(Boolean).join(',')
+					: (((companyInfo as any).industries ?? null) as any)
 			})
 		});
 	} catch {}

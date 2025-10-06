@@ -43,16 +43,15 @@ export const ChecklistProvider = ({ children, eventId }: {children: ReactNode, e
 	useEffect(() => { (window as any).currentSelectedExhibitionId = eventId; }, [eventId]);
 	useEffect(() => { getChecklist(eventId).then(setChecklist); }, [eventId]);
 	const companyInfoFilledCount = 
-			(checklist.companyInfo.contactInfo != null ? 1 : 0) +
-			(checklist.companyInfo.description != null ? 1 : 0) +
-			(checklist.companyInfo.logo != null ? 1 : 0) +
-			(checklist.companyInfo.name != null ? 1 : 0) +
-			(checklist.companyInfo.socials != null ? 1 : 0) +
-			(checklist.companyInfo.website != null ? 1 : 0) +
-			((checklist.companyInfo as any).contactEmail != null ? 1 : 0);
+		(checklist.companyInfo.contactInfo != null ? 1 : 0) +
+		(checklist.companyInfo.description != null ? 1 : 0) +
+		(checklist.companyInfo.logo != null ? 1 : 0) +
+		(checklist.companyInfo.name != null ? 1 : 0) +
+		(checklist.companyInfo.socials != null ? 1 : 0) +
+		(checklist.companyInfo.website != null ? 1 : 0);
 	const filled = useMemo(() => {
 		const ret = [] as boolean[];
-		ret.push(companyInfoFilledCount === 7);
+		ret.push(companyInfoFilledCount === 6);
 		ret.push(checklist.products.length > 0);
 		ret.push(checklist.downloadMaterials.length > 0);
 		ret.push(checklist.sentInvitesCount > 0);

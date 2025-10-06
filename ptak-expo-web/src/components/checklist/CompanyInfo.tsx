@@ -380,10 +380,10 @@ export default function CompanyInfo() {
       icon={<img src={`/assets/checklist-step-1.svg`} alt=""></img>}
       title={
         <Typography fontSize={16} color="#2E2E38" fontWeight={700}>
-          Wpis do katalogu targowego ({companyInfoFilledCount}/7)
+          Wpis do katalogu targowego ({companyInfoFilledCount}/6)
         </Typography>
       }
-      checked={companyInfoFilledCount === 7}
+      checked={companyInfoFilledCount === 6}
     >
       <StringEdit
         name="Nazwa firmy"
