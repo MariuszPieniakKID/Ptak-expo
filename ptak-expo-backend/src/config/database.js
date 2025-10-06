@@ -262,9 +262,22 @@ const initializeDatabase = async () => {
         is_read BOOLEAN DEFAULT false,
         exhibition_id INTEGER REFERENCES exhibitions(id),
         user_id INTEGER REFERENCES users(id),
+        created_by INTEGER REFERENCES users(id),
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
+    `);
+    
+    // Ensure created_by column exists for older databases
+    await pool.query(`
+      DO $$ BEGIN
+        IF NOT EXISTS (
+          SELECT 1 FROM information_schema.columns
+          WHERE table_name = 'communications' AND column_name = 'created_by'
+        ) THEN
+          ALTER TABLE communications ADD COLUMN created_by INTEGER REFERENCES users(id);
+        END IF;
+      END $$;
     `);
 
     console.log('🔍 Creating invitations table...');

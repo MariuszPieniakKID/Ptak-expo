@@ -93,13 +93,16 @@ exports.listByExhibition = async (req, res) => {
     } catch {}
 
     // 5) Communications targeted to this exhibition and current user (exhibitor)
+    // TYLKO komunikaty stworzone przez administratorów
     try {
       const cm = await db.pool.query(
-        `SELECT title, content, created_at
-         FROM communications
-         WHERE exhibition_id = $1
-           AND (user_id IS NULL OR user_id = $2)
-         ORDER BY created_at DESC
+        `SELECT c.title, c.content, c.created_at
+         FROM communications c
+         LEFT JOIN users u ON c.created_by = u.id
+         WHERE c.exhibition_id = $1
+           AND (c.user_id IS NULL OR c.user_id = $2)
+           AND (u.role = 'admin' OR c.created_by IS NULL)
+         ORDER BY c.created_at DESC
          LIMIT 100`,
         [exhibitionId, req.user?.id || 0]
       );
