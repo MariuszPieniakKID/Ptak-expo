@@ -323,6 +323,7 @@ router.post('/', verifyToken, requireAdmin, async (req, res) => {
     ]);
 
     // Also create user record for login authentication
+    // FIXED 2025-10-06: Don't override role if user already exists (preserve admin roles)
     try {
       await db.query(
         `INSERT INTO users (email, password_hash, role, first_name, last_name, company_name, phone, status)
@@ -330,7 +331,7 @@ router.post('/', verifyToken, requireAdmin, async (req, res) => {
          ON CONFLICT (email)
          DO UPDATE SET 
            password_hash = EXCLUDED.password_hash,
-           role = 'exhibitor',
+           -- role = 'exhibitor',  -- REMOVED: Don't override existing roles (esp. admin)
            first_name = EXCLUDED.first_name,
            last_name = EXCLUDED.last_name,
            company_name = EXCLUDED.company_name,
@@ -338,7 +339,7 @@ router.post('/', verifyToken, requireAdmin, async (req, res) => {
            status = 'active'`,
         [normalizedEmail, passwordHash, 'exhibitor', contactPerson.split(' ')[0] || contactPerson, contactPerson.split(' ').slice(1).join(' ') || '', companyName, phone, 'active']
       );
-      console.log('✅ User record upserted for exhibitor login');
+      console.log('✅ User record upserted for exhibitor login (role preserved if exists)');
     } catch (userError) {
       console.error('⚠️ Error creating user record (exhibitor can still be created):', userError);
     }
@@ -1221,13 +1222,15 @@ router.post('/:id/reset-password', verifyToken, requireAdmin, async (req, res) =
     const passwordHash = await bcrypt.hash(newPassword, saltRounds);
     await db.query('UPDATE exhibitors SET password_hash = $1, updated_at = NOW() WHERE id = $2', [passwordHash, exhibitorId]);
 
-    // Ensure users table is updated too for login (role exhibitor)
+    // Ensure users table is updated too for login
+    // FIXED 2025-10-06: Don't override role when resetting password (preserve admin roles)
     try {
       await db.query(
         `INSERT INTO users (email, password_hash, role, status)
          VALUES ($1, $2, 'exhibitor', 'active')
          ON CONFLICT (email)
-         DO UPDATE SET password_hash = EXCLUDED.password_hash, role = 'exhibitor', status = 'active'`,
+         DO UPDATE SET password_hash = EXCLUDED.password_hash, status = 'active'
+         -- role removed from UPDATE to preserve existing admin roles`,
         [String(exhibitor.email || '').toLowerCase(), passwordHash]
       );
     } catch (userErr) {

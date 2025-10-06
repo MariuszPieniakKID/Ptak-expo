@@ -843,30 +843,39 @@ const initializeDatabase = async () => {
       ) ON CONFLICT (email) DO NOTHING
     `);
 
-    // Ensure exhibitor accounts keep 'exhibitor' role, and upgrade only non-exhibitor users to admin
-    try {
-      console.log('🔍 Ensuring exhibitor accounts have role exhibitor (without demoting admins)...');
-      await pool.query(`
-        UPDATE users u
-        SET role = 'exhibitor', updated_at = NOW()
-        FROM exhibitors e
-        WHERE LOWER(u.email) = LOWER(e.email)
-          AND u.role IS DISTINCT FROM 'exhibitor'
-          AND u.role <> 'admin'
-      `);
-      console.log('✅ Exhibitor roles ensured (admins preserved).');
-
-      console.log('🔍 Upgrading non-exhibitor users to admin role...');
-      await pool.query(`
-        UPDATE users u
-        SET role = 'admin', updated_at = NOW()
-        WHERE u.role IS DISTINCT FROM 'admin'
-          AND LOWER(u.email) NOT IN (SELECT LOWER(email) FROM exhibitors)
-      `);
-      console.log('✅ Non-exhibitor users upgraded to admin (if any changes were needed).');
-    } catch (e) {
-      console.warn('⚠️ Could not enforce roles for users:', e?.message || e);
-    }
+    // DISABLED: Automatic role enforcement was causing issues with manually set admin roles
+    // This code was automatically changing admin users to exhibitor role on backend restart
+    // if their email existed in exhibitors table. This is wrong because some exhibitors
+    // need admin access (e.g., pieniak@gmail.com, test.admin@ptak-expo.com).
+    //
+    // Roles should be managed manually through the admin panel, not automatically.
+    //
+    // Original problematic code (disabled 2025-10-06):
+    // try {
+    //   console.log('🔍 Ensuring exhibitor accounts have role exhibitor (without demoting admins)...');
+    //   await pool.query(`
+    //     UPDATE users u
+    //     SET role = 'exhibitor', updated_at = NOW()
+    //     FROM exhibitors e
+    //     WHERE LOWER(u.email) = LOWER(e.email)
+    //       AND u.role IS DISTINCT FROM 'exhibitor'
+    //       AND u.role <> 'admin'
+    //   `);
+    //   console.log('✅ Exhibitor roles ensured (admins preserved).');
+    //
+    //   console.log('🔍 Upgrading non-exhibitor users to admin role...');
+    //   await pool.query(`
+    //     UPDATE users u
+    //     SET role = 'admin', updated_at = NOW()
+    //     WHERE u.role IS DISTINCT FROM 'admin'
+    //       AND LOWER(u.email) NOT IN (SELECT LOWER(email) FROM exhibitors)
+    //   `);
+    //   console.log('✅ Non-exhibitor users upgraded to admin (if any changes were needed).');
+    // } catch (e) {
+    //   console.warn('⚠️ Could not enforce roles for users:', e?.message || e);
+    // }
+    
+    console.log('✅ Skipped automatic role enforcement (manually managed through admin panel)');
 
     console.log('🔍 Inserting test users...');
     await pool.query(`
