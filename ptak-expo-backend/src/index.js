@@ -137,6 +137,26 @@ app.options('*', cors());
 app.use(express.json({ limit: '8mb' }));
 app.use(express.urlencoded({ extended: true, limit: '8mb' }));
 
+// Serve uploads directory as static files (with CORS headers for images)
+// This allows direct access to images without authentication
+const fs = require('fs');
+const uploadsBasePath = process.env.UPLOADS_DIR || path.join(__dirname, '../uploads');
+if (fs.existsSync(uploadsBasePath)) {
+  console.log('📁 Serving uploads directory from:', uploadsBasePath);
+  app.use('/uploads', express.static(uploadsBasePath, {
+    maxAge: '1d', // Cache for 1 day
+    setHeaders: (res, filePath) => {
+      // Allow cross-origin access to images
+      res.set('Cross-Origin-Resource-Policy', 'cross-origin');
+      res.set('Access-Control-Allow-Origin', '*');
+      res.set('Cache-Control', 'public, max-age=86400'); // 1 day
+    }
+  }));
+  console.log('✅ Static file serving enabled for /uploads');
+} else {
+  console.warn('⚠️  Uploads directory not found:', uploadsBasePath);
+}
+
 // API Routes
 // Test CORS endpoint
 app.options('/api/v1/auth/*', (req, res) => {

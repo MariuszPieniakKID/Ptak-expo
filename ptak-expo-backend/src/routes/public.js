@@ -431,7 +431,24 @@ router.get('/exhibitions/:exhibitionId/exhibitors/:exhibitorId.json', async (req
     const toUrl = (value) => {
       const s = String(value || '').trim();
       if (!s) return null;
+      
+      // If already full URL, return as-is
       if (/^https?:\/\//i.test(s)) return s;
+      
+      // If base64 data URI (for backwards compatibility, but we should migrate away from this)
+      // Return null to indicate we should handle this differently
+      if (s.startsWith('data:')) {
+        // For now, keep base64 for backwards compatibility
+        // TODO: Eventually we should store these as files and return URLs
+        return s;
+      }
+      
+      // If it's a path starting with 'uploads/', serve via static endpoint
+      if (s.startsWith('uploads/')) {
+        return `${siteLink}/${s}`;
+      }
+      
+      // If it's just a filename, assume it's in branding files
       return `${siteLink}/api/v1/exhibitor-branding/serve/global/${encodeURIComponent(s)}`;
     };
 
