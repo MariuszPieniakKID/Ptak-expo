@@ -131,6 +131,190 @@ router.get('/exhibitions/:exhibitionId/exhibitors', async (req, res) => {
   }
 });
 
+// Public: JSON feed with ALL exhibitors for a given exhibition (extended data)
+// GET /public/exhibitions/:exhibitionId/exhibitors.json
+router.get('/exhibitions/:exhibitionId/exhibitors.json', async (req, res) => {
+  try {
+    const siteLink = req.protocol + '://' + req.get('host');
+    const exhibitionId = parseInt(req.params.exhibitionId, 10);
+    if (!Number.isInteger(exhibitionId)) {
+      return res.status(400).json({ success: false, message: 'Invalid exhibition id' });
+    }
+
+    // Get all exhibitors for this exhibition
+    const rows = await db.query(
+      `WITH assigned AS (
+         SELECT e.id AS exhibitor_id,
+                e.nip,
+                e.address,
+                e.postal_code,
+                e.city,
+                ee.hall_name,
+                ee.stand_number,
+                ee.booth_area
+         FROM exhibitor_events ee
+         JOIN exhibitors e ON e.id = ee.exhibitor_id
+         WHERE ee.exhibition_id = $1
+       ),
+       specific AS (
+         SELECT c.exhibitor_id, c.name, c.logo, c.description, c.contact_info, c.website, c.socials, c.contact_email,
+                c.catalog_tags, c.products, c.brands, c.industries, c.display_name, c.why_visit
+         FROM exhibitor_catalog_entries c
+         WHERE c.exhibition_id = $1
+       ),
+       global AS (
+         SELECT DISTINCT ON (c.exhibitor_id)
+                c.exhibitor_id, c.name, c.logo, c.description, c.contact_info, c.website, c.socials, c.contact_email,
+                c.catalog_tags, c.products, c.brands, c.industries, c.display_name, c.why_visit, c.updated_at
+         FROM exhibitor_catalog_entries c
+         WHERE c.exhibition_id IS NULL
+         ORDER BY c.exhibitor_id, c.updated_at DESC
+       ),
+       base AS (
+         SELECT id AS exhibitor_id, company_name AS name, NULL::text AS logo, NULL::text AS description,
+                contact_person AS contact_info, NULL::text AS website, NULL::text AS socials, email AS contact_email,
+                NULL::text AS catalog_tags, '[]'::jsonb AS products, NULL::text AS brands, NULL::text AS industries,
+                NULL::text AS display_name, NULL::text AS why_visit
+         FROM exhibitors
+       )
+       SELECT a.exhibitor_id,
+              a.nip,
+              a.address,
+              a.postal_code,
+              a.city,
+              a.hall_name,
+              a.stand_number,
+              a.booth_area,
+              COALESCE(s.name, g.name, b.name) AS name,
+              COALESCE(s.logo, g.logo) AS logo,
+              COALESCE(s.description, g.description, b.description) AS description,
+              COALESCE(s.contact_info, g.contact_info, b.contact_info) AS contact_info,
+              COALESCE(s.website, g.website, b.website) AS website,
+              COALESCE(s.socials, g.socials, b.socials) AS socials,
+              COALESCE(s.contact_email, g.contact_email, b.contact_email) AS contact_email,
+              COALESCE(s.catalog_tags, g.catalog_tags, b.catalog_tags) AS catalog_tags,
+              COALESCE(s.products, g.products, b.products) AS products,
+              COALESCE(s.brands, g.brands, b.brands) AS brands,
+              COALESCE(s.industries, g.industries, b.industries) AS industries,
+              COALESCE(s.display_name, g.display_name, b.display_name) AS display_name,
+              COALESCE(s.why_visit, g.why_visit, b.why_visit) AS why_visit
+       FROM assigned a
+       LEFT JOIN specific s ON s.exhibitor_id = a.exhibitor_id
+       LEFT JOIN global g ON g.exhibitor_id = a.exhibitor_id
+       LEFT JOIN base b ON b.exhibitor_id = a.exhibitor_id
+       ORDER BY COALESCE(s.name, g.name, b.name) ASC`,
+      [exhibitionId]
+    );
+
+    const toUrl = (value) => {
+      const s = String(value || '').trim();
+      if (!s) return null;
+      
+      // If already full URL, return as-is
+      if (/^https?:\/\//i.test(s)) return s;
+      
+      // If base64 data URI, return null (should not be used in API)
+      // This is a signal that the data needs to be migrated
+      if (s.startsWith('data:')) {
+        console.warn('[public] Found base64 logo, should be migrated to file storage');
+        return null;
+      }
+      
+      // If it's a path starting with 'uploads/', serve via static endpoint
+      if (s.startsWith('uploads/')) {
+        return `${siteLink}/${s}`;
+      }
+      
+      // If it's just a filename, assume it's in branding files
+      return `${siteLink}/api/v1/exhibitor-branding/serve/global/${encodeURIComponent(s)}`;
+    };
+
+    // Build exhibitors array with full data
+    const exhibitors = await Promise.all(rows.rows.map(async (r) => {
+      // Get events for this exhibitor
+      const eventsRes = await db.query(`
+        SELECT id, exhibition_id, exhibitor_id, name, event_date, start_time, end_time, hall, organizer, description, type, link, created_at, updated_at
+        FROM trade_events
+        WHERE exhibition_id = $1 AND exhibitor_id = $2
+        ORDER BY event_date ASC, start_time ASC
+      `, [exhibitionId, r.exhibitor_id]);
+
+      // Get documents for this exhibitor
+      const docsRes = await db.query(`
+        SELECT id, title, description, file_name, original_name, file_size, mime_type, category, created_at
+        FROM exhibitor_documents
+        WHERE exhibitor_id = $1 AND exhibition_id = $2
+        ORDER BY category, created_at DESC
+      `, [r.exhibitor_id, exhibitionId]);
+
+      // Get people for this exhibitor
+      const peopleRes = await db.query(`
+        SELECT id, full_name, position, email, created_at
+        FROM exhibitor_people
+        WHERE exhibitor_id = $1 AND exhibition_id = $2
+        ORDER BY created_at DESC
+      `, [r.exhibitor_id, exhibitionId]);
+
+      const documents = docsRes.rows.map((d) => ({
+        id: d.id,
+        title: d.title,
+        description: d.description,
+        category: d.category,
+        fileName: d.file_name,
+        originalName: d.original_name,
+        fileSize: d.file_size,
+        mimeType: d.mime_type,
+        createdAt: d.created_at,
+        downloadUrl: `${siteLink}/public/exhibitions/${encodeURIComponent(String(exhibitionId))}/exhibitors/${encodeURIComponent(String(r.exhibitor_id))}/documents/${encodeURIComponent(String(d.id))}/download`
+      }));
+
+      return {
+        exhibitorId: r.exhibitor_id,
+        companyInfo: {
+          name: r.name || null,
+          displayName: r.display_name || null,
+          logoUrl: toUrl(r.logo),
+          description: r.description || null,
+          whyVisit: r.why_visit || null,
+          contactInfo: r.contact_info || null,
+          website: r.website || null,
+          socials: r.socials || null,
+          contactEmail: r.contact_email || null,
+          catalogTags: r.catalog_tags || null,
+          brands: r.brands || null,
+          industries: r.industries || null
+        },
+        exhibitor: {
+          nip: r.nip || null,
+          address: r.address || null,
+          postalCode: r.postal_code || null,
+          city: r.city || null,
+        },
+        stand: {
+          hallName: r.hall_name || null,
+          standNumber: r.stand_number || null,
+          boothArea: r.booth_area === null ? null : Number(r.booth_area),
+        },
+        products: Array.isArray(r.products) ? r.products : (typeof r.products === 'string' ? (() => { try { return JSON.parse(r.products); } catch { return []; } })() : []),
+        events: eventsRes.rows,
+        documents,
+        people: peopleRes.rows
+      };
+    }));
+
+    res.set('Content-Type', 'application/json; charset=utf-8');
+    res.json({ 
+      success: true, 
+      exhibitionId, 
+      count: exhibitors.length,
+      exhibitors 
+    });
+  } catch (error) {
+    console.error('[public] list all exhibitors json error', error);
+    res.status(500).json({ success: false, message: 'Failed to fetch exhibitors JSON feed' });
+  }
+});
+
 // Public: RSS feed of exhibitions ordered by start_date
 router.get('/rss', async (req, res) => {
   try {
@@ -435,12 +619,11 @@ router.get('/exhibitions/:exhibitionId/exhibitors/:exhibitorId.json', async (req
       // If already full URL, return as-is
       if (/^https?:\/\//i.test(s)) return s;
       
-      // If base64 data URI (for backwards compatibility, but we should migrate away from this)
-      // Return null to indicate we should handle this differently
+      // If base64 data URI, return null (should not be used in API)
+      // This is a signal that the data needs to be migrated to file storage
       if (s.startsWith('data:')) {
-        // For now, keep base64 for backwards compatibility
-        // TODO: Eventually we should store these as files and return URLs
-        return s;
+        console.warn('[public] Found base64 logo in single exhibitor endpoint, should be migrated to file storage');
+        return null;
       }
       
       // If it's a path starting with 'uploads/', serve via static endpoint
