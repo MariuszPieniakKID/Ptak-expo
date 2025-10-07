@@ -624,7 +624,7 @@ const initializeDatabase = async () => {
         mime_type VARCHAR(100),
         category VARCHAR(50) NOT NULL CHECK (category IN ('faktury', 'umowy', 'inne_dokumenty')),
         uploaded_by INTEGER REFERENCES users(id),
-        document_source VARCHAR(50) DEFAULT 'exhibitor_self' CHECK (document_source IN ('admin_exhibitor_card', 'exhibitor_self', 'admin_other', 'exhibitor_checklist_materials')),
+        document_source VARCHAR(50) DEFAULT 'exhibitor_self' CHECK (document_source IN ('admin_exhibitor_card', 'exhibitor_self', 'admin_other', 'exhibitor_checklist_materials', 'catalog_images')),
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         UNIQUE(exhibitor_id, exhibition_id, file_name)
@@ -647,10 +647,16 @@ const initializeDatabase = async () => {
       console.log('Note: constraint may not exist yet');
     });
     
+    // Drop old constraint if exists and add new one with catalog_images
+    await pool.query(`
+      ALTER TABLE exhibitor_documents 
+      DROP CONSTRAINT IF EXISTS exhibitor_documents_document_source_check
+    `).catch(() => {});
+    
     await pool.query(`
       ALTER TABLE exhibitor_documents 
       ADD CONSTRAINT exhibitor_documents_document_source_check 
-      CHECK (document_source IN ('admin_exhibitor_card', 'exhibitor_self', 'admin_other', 'exhibitor_checklist_materials'))
+      CHECK (document_source IN ('admin_exhibitor_card', 'exhibitor_self', 'admin_other', 'exhibitor_checklist_materials', 'catalog_images'))
     `).catch(err => {
       console.log('Note: constraint may already exist with new values');
     });
