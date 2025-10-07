@@ -1623,7 +1623,7 @@ export interface ExhibitorDocument {
   createdAt: string;
   uploadedBy?: number | null;
   uploadedByRole?: string | null;
-  documentSource?: 'admin_exhibitor_card' | 'exhibitor_self' | 'admin_other' | 'exhibitor_checklist_materials';
+  documentSource?: 'admin_exhibitor_card' | 'exhibitor_self' | 'admin_other' | 'exhibitor_checklist_materials' | 'catalog_images';
 }
 
 export const getExhibitorDocuments = async (
@@ -1668,7 +1668,7 @@ export const uploadExhibitorDocument = async (
   exhibitionId: number,
   category: ExhibitorDocumentCategory,
   token: string,
-  documentSource: 'admin_exhibitor_card' | 'exhibitor_self' | 'admin_other' | 'exhibitor_checklist_materials' = 'admin_exhibitor_card'
+  documentSource: 'admin_exhibitor_card' | 'exhibitor_self' | 'admin_other' | 'exhibitor_checklist_materials' | 'catalog_images' = 'admin_exhibitor_card'
 ): Promise<{ success: boolean; message: string; document: ExhibitorDocument }> => {
   const formData = new FormData();
   formData.append('document', file);
