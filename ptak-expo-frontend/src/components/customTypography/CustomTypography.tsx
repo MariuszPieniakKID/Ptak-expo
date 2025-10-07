@@ -23,6 +23,7 @@ const CustomTypography: React.FC<CustomTypographyProps> = ({
   color,
   component,
   onClick,
+  sx,
 }) => (
   <Typography
     {...(component && { component })}
@@ -35,6 +36,7 @@ const CustomTypography: React.FC<CustomTypographyProps> = ({
       fontSize: fontSize ? fontSize : '1.125rem',
       fontWeight: fontWeight?fontWeight:600,
       color: color ? color : '#2e2e38',
+      ...sx,
     }}
     onClick={onClick} 
   >
