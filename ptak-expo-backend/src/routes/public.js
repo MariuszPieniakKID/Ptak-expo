@@ -96,7 +96,21 @@ router.get('/exhibitions/:exhibitionId/exhibitors', async (req, res) => {
     const toUrl = (value) => {
       const s = String(value || '').trim();
       if (!s) return null;
+      
+      // If already full URL, return as-is
       if (/^https?:\/\//i.test(s)) return s;
+      
+      // If base64 data URI, return null (should not be used in API)
+      if (s.startsWith('data:')) {
+        console.warn('[public] Found base64 logo, should be migrated to file storage');
+        return null;
+      }
+      
+      // If it's a path starting with 'uploads/', serve via static endpoint
+      if (s.startsWith('uploads/')) {
+        return `${siteLink}/${s}`;
+      }
+      
       // Fallback: serve via public global branding endpoint
       return `${siteLink}/api/v1/exhibitor-branding/serve/global/${encodeURIComponent(s)}`;
     };

@@ -155,6 +155,9 @@ router.post('/:exhibitorId/:exhibitionId/upload', verifyToken, upload.single('do
       finalDocumentSource
     ]);
 
+    // Return relative path from uploads base for catalog images
+    const relativeFilePath = `uploads/exhibitor-documents/${exhibitorId}/${exhibitionId}/${result.rows[0].file_name}`;
+    
     res.json({
       success: true,
       message: 'Dokument został przesłany pomyślnie',
@@ -162,7 +165,7 @@ router.post('/:exhibitorId/:exhibitionId/upload', verifyToken, upload.single('do
         id: result.rows[0].id,
         title: result.rows[0].title,
         description: result.rows[0].description,
-        fileName: result.rows[0].file_name,
+        fileName: relativeFilePath, // Full relative path for catalog use
         originalName: result.rows[0].original_name,
         fileSize: result.rows[0].file_size,
         mimeType: result.rows[0].mime_type,
