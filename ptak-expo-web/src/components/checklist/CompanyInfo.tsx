@@ -190,10 +190,12 @@ function ImageEdit({
   );
   if (!isEdit) {
     // Generate image URL from filename or base64
-    const imageUrl = value 
+    const imageUrl = value
       ? (value.startsWith('data:') || value.startsWith('http') 
           ? value 
-          : `${require('../../config/config').default.API_BASE_URL}/uploads/${value}`)
+          : value.startsWith('uploads/')
+            ? `${require('../../config/config').default.API_BASE_URL}/${value}`
+            : `${require('../../config/config').default.API_BASE_URL}/uploads/${value}`)
       : null;
     
     return (
@@ -252,7 +254,9 @@ function ImageEdit({
       {value && !isUploading && (() => {
         const imageUrl = value.startsWith('data:') || value.startsWith('http') 
           ? value 
-          : `${require('../../config/config').default.API_BASE_URL}/uploads/${value}`;
+          : value.startsWith('uploads/')
+            ? `${require('../../config/config').default.API_BASE_URL}/${value}`
+            : `${require('../../config/config').default.API_BASE_URL}/uploads/${value}`;
         return (
           <Box mt={1}>
             <img

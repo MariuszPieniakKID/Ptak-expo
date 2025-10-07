@@ -128,25 +128,27 @@ export default function EditProduct({productNum, onClose} :{productNum?: number,
 			/>
 		)}
 	/>
-		{editedProduct.img && !isUploading && (() => {
-			const imageUrl = editedProduct.img.startsWith('data:') || editedProduct.img.startsWith('http') 
-				? editedProduct.img 
+	{editedProduct.img && !isUploading && (() => {
+		const imageUrl = editedProduct.img.startsWith('data:') || editedProduct.img.startsWith('http') 
+			? editedProduct.img 
+			: editedProduct.img.startsWith('uploads/') 
+				? `${config.API_BASE_URL}/${editedProduct.img}` 
 				: `${config.API_BASE_URL}/uploads/${editedProduct.img}`;
-			return (
-				<Box sx={{ maxWidth: 240 }}>
-					<Box 
-						component="img" 
-						src={imageUrl} 
-						alt="Zdjęcie produktu" 
-						sx={{ display: 'block', width: '100%', height: 'auto', maxHeight: 180, objectFit: 'contain', borderRadius: 1, border: '1px solid #eee' }}
-						onError={(e: any) => {
-							console.error('Image load error:', imageUrl);
-							e.target.style.display = 'none';
-						}}
-					/>
-				</Box>
-			);
-		})()}
+		return (
+			<Box sx={{ maxWidth: 240 }}>
+				<Box 
+					component="img" 
+					src={imageUrl} 
+					alt="Zdjęcie produktu" 
+					sx={{ display: 'block', width: '100%', height: 'auto', maxHeight: 180, objectFit: 'contain', borderRadius: 1, border: '1px solid #eee' }}
+					onError={(e: any) => {
+						console.error('Image load error:', imageUrl);
+						e.target.style.display = 'none';
+					}}
+				/>
+			</Box>
+		);
+	})()}
 		<Button
 			component="label"
 			fullWidth
