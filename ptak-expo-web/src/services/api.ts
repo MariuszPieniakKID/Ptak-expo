@@ -337,7 +337,7 @@ export interface ExhibitorDocument {
   createdAt: string;
   uploadedBy?: number | null;
   uploadedByRole?: string | null;
-  documentSource?: 'admin_exhibitor_card' | 'exhibitor_self' | 'admin_other' | 'exhibitor_checklist_materials';
+  documentSource?: 'admin_exhibitor_card' | 'exhibitor_self' | 'admin_other' | 'exhibitor_checklist_materials' | 'catalog_images';
 }
 
 export const exhibitorDocumentsAPI = {
@@ -384,7 +384,7 @@ export const exhibitorDocumentsAPI = {
     formData.append('document', file);
     formData.append('title', `${imageType}_${file.name}`);
     formData.append('category', 'inne_dokumenty');
-    formData.append('documentSource', 'exhibitor_checklist_materials');
+    formData.append('documentSource', 'catalog_images');
     
     const res = await api.post(
       `/api/v1/exhibitor-documents/${exhibitorId}/${exhibitionId}/upload`,

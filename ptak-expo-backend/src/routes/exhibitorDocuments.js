@@ -88,7 +88,7 @@ router.post('/:exhibitorId/:exhibitionId/upload', verifyToken, upload.single('do
     }
     
     // Validate document_source
-    const validSources = ['admin_exhibitor_card', 'exhibitor_self', 'admin_other', 'exhibitor_checklist_materials'];
+    const validSources = ['admin_exhibitor_card', 'exhibitor_self', 'admin_other', 'exhibitor_checklist_materials', 'catalog_images'];
     const finalDocumentSource = validSources.includes(documentSource) ? documentSource : 'exhibitor_self';
 
     // Verify exhibitor and exhibition exist and ownership if not admin
