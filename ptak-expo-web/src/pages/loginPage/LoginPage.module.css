@@ -1,5 +1,3 @@
-/* Disabled external Google Fonts to avoid css2 400s */
-
 /* Global CSS Variables */
 :root {
   /* Color */
@@ -266,23 +264,6 @@
 }  */
 
 /* Domyślne style (mobile first) */
-
-/* 
-Dla bardzo małych urządzeń (telefony, <576px) */
-/* @media (max-width: 575.98px) {
-  /* style dla najmniejszych ekranów */
-  /* .web13662 {
-    background: blue;
-  } */
-/* } */
-
-
-
-
-
-
-
-
 @media (max-width: 480px) { 
   .loginContainer {
     position: relative;
@@ -648,7 +629,6 @@ Dla bardzo małych urządzeń (telefony, <576px) */
 }
 
 @media (min-width: 992px) and (max-width: 1199.98px) {
-  /* style dla laptopów */
    .loginContainer {
     position: relative;
     background-color: var(--color-white);
@@ -746,7 +726,6 @@ Dla bardzo małych urządzeń (telefony, <576px) */
 
 
 @media (min-width: 1200px) and (max-width: 1399.98px) {
-  /* style dla laptopów */
    .loginContainer {
     position: relative;
     background-color: var(--color-white);
@@ -843,7 +822,6 @@ Dla bardzo małych urządzeń (telefony, <576px) */
 
 
 @media (min-width: 1400px) {
-   /* style dla laptopów */
    .loginContainer {
     position: relative;
     background-color: var(--color-white);
