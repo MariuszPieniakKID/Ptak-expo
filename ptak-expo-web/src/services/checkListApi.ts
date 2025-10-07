@@ -283,27 +283,41 @@ export const getChecklist = async (exhibitionId: number) => {
 			}
 		} catch {}
 
-		// invitations – recipients list and counts
-		try {
-			const r = await fetch(`${config.API_BASE_URL}/api/v1/invitations/${encodeURIComponent(String(exhibitionId))}/recipients`, { headers: { Authorization: `Bearer ${token}` } });
-			if (r.ok) {
-				const j = await r.json();
-				const recipients = Array.isArray(j.data) ? j.data : [];
-				ExampleChecklist = {
-					...ExampleChecklist,
-					sentInvites: recipients.map((row: any) => ({
-						id: row.id,
-						recipientEmail: row.recipientEmail,
-						recipientName: row.recipientName || null,
-						invitationType: row.invitationType || 'standard',
-						status: row.status || 'wysłane',
-						sentAt: row.sentAt
-					})),
-					sentInvitesCount: recipients.length,
-					availableInvitesCount: Math.max(recipients.length, ExampleChecklist.availableInvitesCount || 0)
-				};
+	// invitations – recipients list and counts
+	try {
+		const r = await fetch(`${config.API_BASE_URL}/api/v1/invitations/${encodeURIComponent(String(exhibitionId))}/recipients`, { headers: { Authorization: `Bearer ${token}` } });
+		if (r.ok) {
+			const j = await r.json();
+			const recipients = Array.isArray(j.data) ? j.data : [];
+			
+			// Get real invitation limit from API
+			let invitationLimit = 50; // default
+			if (exhibitor?.id) {
+				try {
+					const limitUrl = `${config.API_BASE_URL}/api/v1/exhibitors/${encodeURIComponent(String(exhibitor.id))}/${encodeURIComponent(String(exhibitionId))}/invitation-limit`;
+					const limitRes = await fetch(limitUrl, { headers: { Authorization: `Bearer ${token}` } });
+					if (limitRes.ok) {
+						const limitData = await limitRes.json();
+						invitationLimit = limitData?.data?.invitationLimit || 50;
+					}
+				} catch {}
 			}
-		} catch {}
+			
+			ExampleChecklist = {
+				...ExampleChecklist,
+				sentInvites: recipients.map((row: any) => ({
+					id: row.id,
+					recipientEmail: row.recipientEmail,
+					recipientName: row.recipientName || null,
+					invitationType: row.invitationType || 'standard',
+					status: row.status || 'wysłane',
+					sentAt: row.sentAt
+				})),
+				sentInvitesCount: recipients.length,
+				availableInvitesCount: invitationLimit
+			};
+		}
+	} catch {}
 
 		return ExampleChecklist;
 	} catch {
