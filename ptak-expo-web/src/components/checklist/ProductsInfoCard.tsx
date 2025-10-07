@@ -4,6 +4,7 @@ import {useChecklist} from "../../contexts/ChecklistContext";
 import {Add} from "@mui/icons-material";
 import {useState} from "react";
 import EditProduct from "./EditProduct";
+import config from "../../config/config";
 
 export default function ProductsInfo() {
   var {checklist, removeProduct} = useChecklist();
@@ -30,6 +31,16 @@ export default function ProductsInfo() {
               .map((s) => s.trim())
               .filter(Boolean)
           : [];
+        
+        // Generate proper image URL
+        const imageUrl = cp.img
+          ? (cp.img.startsWith('data:') || cp.img.startsWith('http')
+              ? cp.img
+              : cp.img.startsWith('uploads/')
+                ? `${config.API_BASE_URL}/${cp.img}`
+                : `${config.API_BASE_URL}/uploads/${cp.img}`)
+          : '/assets/placeholder-product.png';
+        
         return (
           <Box
             display={"flex"}
@@ -48,7 +59,7 @@ export default function ProductsInfo() {
                 objectPosition: "center",
                 borderRadius: "20px",
               }}
-              src={cp.img}
+              src={imageUrl}
               alt=""
             />
             <Box flex="1 1 auto" minWidth={0}>

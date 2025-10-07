@@ -1,6 +1,7 @@
 import { Box, Typography } from "@mui/material";
 import ChecklistCard from "./checklistCard";
 import { useChecklist } from "../../contexts/ChecklistContext";
+import config from "../../config/config";
 
 export default function ProductsInfo() {
 	var {checklist} = useChecklist();
@@ -14,9 +15,19 @@ export default function ProductsInfo() {
 			const i = checklist.products.indexOf(cp);
 			const raw = (cp as any).tags;
 			const tagsArr = Array.isArray(raw) ? raw : (typeof raw === 'string' ? raw.split(',').map(s => s.trim()).filter(Boolean) : []);
+			
+			// Generate proper image URL
+			const imageUrl = cp.img
+				? (cp.img.startsWith('data:') || cp.img.startsWith('http')
+					? cp.img
+					: cp.img.startsWith('uploads/')
+						? `${config.API_BASE_URL}/${cp.img}`
+						: `${config.API_BASE_URL}/uploads/${cp.img}`)
+				: '/assets/placeholder-product.png'; // fallback image
+			
 			return (
 				<Box display={"flex"} alignItems="center" gap="10px" marginY="16px" width="100%" key={`${cp.name}-${i}`}>
-					<Box component="img"  sx={{ width: 40, height: 40, objectFit: "cover", objectPosition: "center", borderRadius: "20px" }}src={cp.img} alt=""/>
+					<Box component="img"  sx={{ width: 40, height: 40, objectFit: "cover", objectPosition: "center", borderRadius: "20px" }} src={imageUrl} alt=""/>
 					<Box flex="1 1 auto" minWidth={0}>
 						<Typography fontSize={16} fontWeight={"bold"}>{cp.name}</Typography>
 						<Typography fontSize={13} color="rgba(111, 111, 111, 1)" whiteSpace="nowrap" textOverflow="ellipsis" overflow="hidden" >{cp.description}</Typography>
