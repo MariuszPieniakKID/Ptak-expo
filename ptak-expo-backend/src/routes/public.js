@@ -115,28 +115,39 @@ router.get('/exhibitions/:exhibitionId/exhibitors', async (req, res) => {
       return `${siteLink}/api/v1/exhibitor-branding/serve/global/${encodeURIComponent(s)}`;
     };
 
-    const exhibitors = rows.rows.map((r) => ({
-      exhibitor_id: r.exhibitor_id,
-      name: r.name,
-      description: r.description,
-      contact_info: r.contact_info,
-      website: r.website,
-      socials: r.socials,
-      contact_email: r.contact_email,
-      catalog_tags: r.catalog_tags,
-      products: r.products,
-      // Images as URL
-      logoUrl: toUrl(r.logo),
-      // Stand assignment details
-      hallName: r.hall_name || null,
-      standNumber: r.stand_number || null,
-      boothArea: r.booth_area === null ? null : Number(r.booth_area),
-      // Exhibitor company details
-      nip: r.nip || null,
-      address: r.address || null,
-      postalCode: r.postal_code || null,
-      city: r.city || null,
-    }));
+    const exhibitors = rows.rows.map((r) => {
+      // Convert product images to URLs
+      const products = Array.isArray(r.products) 
+        ? r.products.map(p => ({
+            ...p,
+            img: toUrl(p.img)
+          }))
+        : r.products;
+      
+      return {
+        exhibitor_id: r.exhibitor_id,
+        name: r.name,
+        description: r.description,
+        contact_info: r.contact_info,
+        website: r.website,
+        socials: r.socials,
+        contact_email: r.contact_email,
+        catalog_tags: r.catalog_tags,
+        products: products,
+        // Images as URL
+        logoUrl: toUrl(r.logo),
+        logo: toUrl(r.logo), // Also include 'logo' for backward compatibility
+        // Stand assignment details
+        hallName: r.hall_name || null,
+        standNumber: r.stand_number || null,
+        boothArea: r.booth_area === null ? null : Number(r.booth_area),
+        // Exhibitor company details
+        nip: r.nip || null,
+        address: r.address || null,
+        postalCode: r.postal_code || null,
+        city: r.city || null,
+      };
+    });
 
     res.json({ success: true, exhibitionId, exhibitors });
   } catch (error) {
@@ -282,6 +293,13 @@ router.get('/exhibitions/:exhibitionId/exhibitors.json', async (req, res) => {
         downloadUrl: `${siteLink}/public/exhibitions/${encodeURIComponent(String(exhibitionId))}/exhibitors/${encodeURIComponent(String(r.exhibitor_id))}/documents/${encodeURIComponent(String(d.id))}/download`
       }));
 
+      // Convert product images to URLs
+      const rawProducts = Array.isArray(r.products) ? r.products : (typeof r.products === 'string' ? (() => { try { return JSON.parse(r.products); } catch { return []; } })() : []);
+      const products = rawProducts.map(p => ({
+        ...p,
+        img: toUrl(p.img)
+      }));
+      
       return {
         exhibitorId: r.exhibitor_id,
         companyInfo: {
@@ -309,7 +327,7 @@ router.get('/exhibitions/:exhibitionId/exhibitors.json', async (req, res) => {
           standNumber: r.stand_number || null,
           boothArea: r.booth_area === null ? null : Number(r.booth_area),
         },
-        products: Array.isArray(r.products) ? r.products : (typeof r.products === 'string' ? (() => { try { return JSON.parse(r.products); } catch { return []; } })() : []),
+        products: products,
         events: eventsRes.rows,
         documents,
         people: peopleRes.rows
@@ -649,6 +667,13 @@ router.get('/exhibitions/:exhibitionId/exhibitors/:exhibitorId.json', async (req
       return `${siteLink}/api/v1/exhibitor-branding/serve/global/${encodeURIComponent(s)}`;
     };
 
+    // Convert product images to URLs
+    const rawProducts = Array.isArray(company.products) ? company.products : (typeof company.products === 'string' ? (() => { try { return JSON.parse(company.products); } catch { return []; } })() : []);
+    const products = rawProducts.map(p => ({
+      ...p,
+      img: toUrl(p.img)
+    }));
+    
     // Build payload
     const payload = {
       success: true,
@@ -680,7 +705,7 @@ router.get('/exhibitions/:exhibitionId/exhibitors/:exhibitorId.json', async (req
         standNumber: assign.stand_number || null,
         boothArea: assign.booth_area === null ? null : Number(assign.booth_area),
       },
-      products: Array.isArray(company.products) ? company.products : (typeof company.products === 'string' ? (() => { try { return JSON.parse(company.products); } catch { return []; } })() : []),
+      products: products,
       events: eventsRes.rows,
       documents
     };
