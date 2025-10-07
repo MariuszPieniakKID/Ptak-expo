@@ -373,6 +373,37 @@ export const exhibitorDocumentsAPI = {
       { responseType: 'blob' }
     );
   },
+  // Upload catalog image (logo or product image) via exhibitor-documents
+  uploadCatalogImage: async (
+    exhibitorId: number,
+    exhibitionId: number,
+    file: File,
+    imageType: 'logo' | 'product'
+  ): Promise<string> => {
+    const formData = new FormData();
+    formData.append('document', file);
+    formData.append('title', `${imageType}_${file.name}`);
+    formData.append('category', 'inne_dokumenty');
+    formData.append('documentSource', 'exhibitor_checklist_materials');
+    
+    const res = await api.post(
+      `/api/v1/exhibitor-documents/${exhibitorId}/${exhibitionId}/upload`,
+      formData,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      }
+    );
+    
+    const data = res.data as { success?: boolean; document?: { fileName: string } };
+    if (!data.success || !data.document?.fileName) {
+      throw new Error('Upload failed');
+    }
+    
+    // Return file name to be saved in catalog
+    return data.document.fileName;
+  },
 };
 
 // ============= TRADE EVENTS API (ptak-expo-web) =============

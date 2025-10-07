@@ -19,16 +19,47 @@ export default function EditProduct({productNum, onClose} :{productNum?: number,
 	useEffect(() => { 
 		setEditedProduct(product || emptyProduct);
 	}, [product]);
-	const handleFileInput = useCallback((e : React.ChangeEvent<HTMLInputElement>) => {
+	const [isUploading, setIsUploading] = useState(false);
+	const handleFileInput = useCallback(async (e : React.ChangeEvent<HTMLInputElement>) => {
 		if (e.target.files == null) return;
 		const file = e.target.files[0];
 		if (file == null) return;
-		const reader = new FileReader();
-		reader.onload = le => {
-			setEditedProduct({...editedProduct, img: le.target?.result?.toString() || ""}); // set <img src> to file content
-		};
-    reader.readAsDataURL(file);
-
+		
+		setIsUploading(true);
+		try {
+			// Get exhibitor and exhibition IDs
+			const token = localStorage.getItem('authToken') || '';
+			const exhibitionId = Number((window as any).currentSelectedExhibitionId) || 0;
+			
+			const meRes = await fetch(`${config.API_BASE_URL}/api/v1/exhibitors/me`, {
+				headers: { Authorization: `Bearer ${token}` }
+			});
+			const meData = await meRes.json();
+			const exhibitorId = meData?.data?.id;
+			
+			if (!exhibitorId || !exhibitionId) {
+				alert('Nie można pobrać informacji o wystawcy');
+				setIsUploading(false);
+				return;
+			}
+			
+			// Upload file via API
+			const { exhibitorDocumentsAPI } = await import('../../services/api');
+			const fileName = await exhibitorDocumentsAPI.uploadCatalogImage(
+				exhibitorId,
+				exhibitionId,
+				file,
+				'product'
+			);
+			
+			// Save filename (not base64) to product
+			setEditedProduct({...editedProduct, img: fileName});
+		} catch (error) {
+			console.error('Upload error:', error);
+			alert('Błąd podczas przesyłania pliku');
+		} finally {
+			setIsUploading(false);
+		}
 	}, [editedProduct])
 
 	const debouncedFetch = useMemo(() => {
@@ -97,21 +128,37 @@ export default function EditProduct({productNum, onClose} :{productNum?: number,
 			/>
 		)}
 	/>
-		{editedProduct.img && (
-			<Box sx={{ maxWidth: 240 }}>
-				<Box component="img" src={editedProduct.img} alt="Zdjęcie produktu" sx={{ display: 'block', width: '100%', height: 'auto', maxHeight: 180, objectFit: 'contain', borderRadius: 1, border: '1px solid #eee' }} />
-			</Box>
-		)}
+		{editedProduct.img && !isUploading && (() => {
+			const imageUrl = editedProduct.img.startsWith('data:') || editedProduct.img.startsWith('http') 
+				? editedProduct.img 
+				: `${config.API_BASE_URL}/uploads/${editedProduct.img}`;
+			return (
+				<Box sx={{ maxWidth: 240 }}>
+					<Box 
+						component="img" 
+						src={imageUrl} 
+						alt="Zdjęcie produktu" 
+						sx={{ display: 'block', width: '100%', height: 'auto', maxHeight: 180, objectFit: 'contain', borderRadius: 1, border: '1px solid #eee' }}
+						onError={(e: any) => {
+							console.error('Image load error:', imageUrl);
+							e.target.style.display = 'none';
+						}}
+					/>
+				</Box>
+			);
+		})()}
 		<Button
 			component="label"
 			fullWidth
+			disabled={isUploading}
 		>
-			Dodaj zdjęcie produktu
+			{isUploading ? 'Przesyłanie...' : 'Dodaj zdjęcie produktu'}
 			<input
 			onChange={handleFileInput}
 				type="file"
 				hidden
 				accept="image/*"
+				disabled={isUploading}
 			/>
 		</Button>
 		<Button onClick={()=> { 

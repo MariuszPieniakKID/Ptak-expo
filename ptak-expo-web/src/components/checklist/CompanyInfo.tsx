@@ -141,21 +141,61 @@ function ImageEdit({
   multiline?: boolean;
 }) {
   const [isEdit, setIsEdit] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const handleFileInput = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
+    async (e: React.ChangeEvent<HTMLInputElement>) => {
       if (e.target.files == null) return;
       const file = e.target.files[0];
       if (file == null) return;
-      const reader = new FileReader();
-      reader.onload = (le) => {
-        onChange(le.target?.result?.toString() || ""); // set <img src> to file content
+      
+      setIsUploading(true);
+      try {
+        // Get exhibitor ID and exhibition ID from context/storage
+        const token = localStorage.getItem('authToken') || '';
+        const exhibitionId = Number((window as any).currentSelectedExhibitionId) || 0;
+        
+        // Get exhibitor ID
+        const meRes = await fetch(`${require('../../config/config').default.API_BASE_URL}/api/v1/exhibitors/me`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        const meData = await meRes.json();
+        const exhibitorId = meData?.data?.id;
+        
+        if (!exhibitorId || !exhibitionId) {
+          alert('Nie można pobrać informacji o wystawcy');
+          setIsUploading(false);
+          return;
+        }
+        
+        // Upload file via API
+        const { exhibitorDocumentsAPI } = await import('../../services/api');
+        const fileName = await exhibitorDocumentsAPI.uploadCatalogImage(
+          exhibitorId,
+          exhibitionId,
+          file,
+          'logo'
+        );
+        
+        // Save filename (not base64) to catalog
+        onChange(fileName);
         setIsEdit(false);
-      };
-      reader.readAsDataURL(file);
+      } catch (error) {
+        console.error('Upload error:', error);
+        alert('Błąd podczas przesyłania pliku');
+      } finally {
+        setIsUploading(false);
+      }
     },
     [onChange]
   );
   if (!isEdit) {
+    // Generate image URL from filename or base64
+    const imageUrl = value 
+      ? (value.startsWith('data:') || value.startsWith('http') 
+          ? value 
+          : `${require('../../config/config').default.API_BASE_URL}/uploads/${value}`)
+      : null;
+    
     return (
       <Box>
         <DisplayEdit
@@ -163,20 +203,30 @@ function ImageEdit({
           onEdit={() => setIsEdit(true)}
           checked={value != null}
         />
-        {value && (
+        {imageUrl && (
           <Box mt={1} display="flex" alignItems="center" gap={2}>
             <img
-              src={value}
+              src={imageUrl}
               alt="Podgląd logotypu"
               style={{maxHeight: 120, borderRadius: 8}}
+              onError={(e) => {
+                console.error('Image load error:', imageUrl);
+                (e.target as HTMLImageElement).style.display = 'none';
+              }}
             />
             <Button
               variant="outlined"
               size="small"
               onClick={() => setIsEdit(true)}
+              disabled={isUploading}
             >
               Podmień
             </Button>
+          </Box>
+        )}
+        {isUploading && (
+          <Box mt={1}>
+            <Typography variant="body2">Przesyłanie...</Typography>
           </Box>
         )}
       </Box>
@@ -188,25 +238,35 @@ function ImageEdit({
         <Box width="30px" alignItems="center" justifyContent="center">
           {value != null && <GreenCheck />}
         </Box>
-        <Button component="label" fullWidth>
-          Wybierz plik
+        <Button component="label" fullWidth disabled={isUploading}>
+          {isUploading ? 'Przesyłanie...' : 'Wybierz plik'}
           <input
             onChange={handleFileInput}
             type="file"
             hidden
             accept="image/*"
+            disabled={isUploading}
           />
         </Button>
       </Box>
-      {value && (
-        <Box mt={1}>
-          <img
-            src={value}
-            alt="Podgląd logotypu"
-            style={{maxHeight: 120, borderRadius: 8}}
-          />
-        </Box>
-      )}
+      {value && !isUploading && (() => {
+        const imageUrl = value.startsWith('data:') || value.startsWith('http') 
+          ? value 
+          : `${require('../../config/config').default.API_BASE_URL}/uploads/${value}`;
+        return (
+          <Box mt={1}>
+            <img
+              src={imageUrl}
+              alt="Podgląd logotypu"
+              style={{maxHeight: 120, borderRadius: 8}}
+              onError={(e) => {
+                console.error('Image load error:', imageUrl);
+                (e.target as HTMLImageElement).style.display = 'none';
+              }}
+            />
+          </Box>
+        );
+      })()}
     </Box>
   );
 }
