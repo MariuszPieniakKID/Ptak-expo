@@ -4,6 +4,48 @@ const fsSync = require('fs');
 const { v4: uuidv4 } = require('uuid');
 const { pool } = require('../config/database');
 
+// Verify file type by reading magic bytes
+const verifyFileType = async (filePath, expectedExtension) => {
+  try {
+    const buffer = await fs.readFile(filePath);
+    const magicBytes = buffer.slice(0, 12).toString('hex');
+    
+    // File signatures (magic bytes)
+    const signatures = {
+      'png': '89504e47',
+      'jpg': 'ffd8ff',
+      'jpeg': 'ffd8ff',
+      'gif': '474946',
+      'webp': '52494646', // RIFF at start, then WEBP
+      'pdf': '25504446',
+      'svg': '<svg' // SVG is XML, check text content
+    };
+
+    // For SVG, check if file starts with XML/SVG tags
+    if (expectedExtension === 'svg') {
+      const textStart = buffer.slice(0, 100).toString('utf8').toLowerCase();
+      return textStart.includes('<svg') || textStart.includes('<?xml');
+    }
+
+    const signature = signatures[expectedExtension.toLowerCase()];
+    if (!signature) return true; // Unknown type, allow it
+
+    // Special handling for WEBP (RIFF....WEBP)
+    if (expectedExtension.toLowerCase() === 'webp') {
+      const hasRiffHeader = magicBytes.toLowerCase().startsWith('52494646');
+      if (!hasRiffHeader) return false;
+      // Check if bytes 8-11 contain 'WEBP' (in ASCII)
+      const webpSignature = buffer.slice(8, 12).toString('ascii');
+      return webpSignature === 'WEBP';
+    }
+
+    return magicBytes.toLowerCase().startsWith(signature.toLowerCase());
+  } catch (error) {
+    console.error('Error verifying file type:', error);
+    return false;
+  }
+};
+
 // Base directory for uploads; prefer mounted volume, fallback to local path
 const getUploadsBase = () => {
   const preferEnv = process.env.UPLOADS_DIR && process.env.UPLOADS_DIR.trim().length > 0
@@ -87,6 +129,24 @@ const FILE_TYPES = {
   },
   'dokumenty_brandingowe': {
     name: 'Dokumenty brandingowe dla wystawcy',
+    dimensions: null,
+    allowedFormats: ['pdf'],
+    maxSize: 20 * 1024 * 1024 // 20MB
+  },
+  'logo_targowe': {
+    name: 'Logo targowe (checklista)',
+    dimensions: '300x200',
+    allowedFormats: ['png'],
+    maxSize: 50 * 1024 // 50KB
+  },
+  'zdjecie_produktu': {
+    name: 'Zdjęcie produktu (checklista)',
+    dimensions: '1280x960',
+    allowedFormats: ['jpeg', 'jpg'],
+    maxSize: 5 * 1024 * 1024 // 5MB
+  },
+  'materialy_do_pobrania': {
+    name: 'Materiały do pobrania (checklista)',
     dimensions: null,
     allowedFormats: ['pdf'],
     maxSize: 20 * 1024 * 1024 // 20MB
@@ -220,6 +280,18 @@ const uploadBrandingFile = async (req, res) => {
       } else {
         throw renameErr;
       }
+    }
+
+    // Verify file type matches extension (prevent GIF uploaded as WEBP, etc.)
+    const isValidType = await verifyFileType(filePath, fileExtension);
+    if (!isValidType) {
+      // Delete the uploaded file
+      try {
+        await fs.unlink(filePath);
+      } catch (_) {}
+      return res.status(400).json({
+        error: `Niezgodność formatu pliku. Plik nie jest prawidłowym plikiem ${fileExtension.toUpperCase()}.`
+      });
     }
 
     // For large files (PDFs > 5MB), skip storing BLOB in DB to improve performance

@@ -58,7 +58,7 @@ const upload = multer({
     fileSize: 50 * 1024 * 1024, // 50MB limit
   },
   fileFilter: (req, file, cb) => {
-    // Allow common document types
+    // Allow common document types - we'll validate specific requirements after upload
     const allowedTypes = /\.(pdf|doc|docx|xls|xlsx|txt|jpg|jpeg|png|gif)$/i;
     if (allowedTypes.test(file.originalname)) {
       cb(null, true);
@@ -90,6 +90,24 @@ router.post('/:exhibitorId/:exhibitionId/upload', verifyToken, upload.single('do
     // Validate document_source
     const validSources = ['admin_exhibitor_card', 'exhibitor_self', 'admin_other', 'exhibitor_checklist_materials', 'catalog_images'];
     const finalDocumentSource = validSources.includes(documentSource) ? documentSource : 'exhibitor_self';
+    
+    // Additional validation for checklist materials - must be PDF only
+    if (finalDocumentSource === 'exhibitor_checklist_materials' || finalDocumentSource === 'catalog_images') {
+      const isPdf = /\.pdf$/i.test(file.originalname);
+      if (!isPdf) {
+        // Delete the uploaded file since it doesn't meet requirements
+        try {
+          const fs = require('fs').promises;
+          await fs.unlink(file.path);
+        } catch (_e) {
+          console.error('Failed to delete invalid file:', _e);
+        }
+        return res.status(400).json({ 
+          success: false, 
+          error: 'Dla materiałów checklisty dozwolony jest tylko format PDF.' 
+        });
+      }
+    }
 
     // Verify exhibitor and exhibition exist and ownership if not admin
     const exhibitorCheck = await db.query('SELECT id FROM exhibitors WHERE id = $1', [exhibitorId]);

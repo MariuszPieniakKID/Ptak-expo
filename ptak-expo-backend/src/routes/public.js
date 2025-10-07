@@ -3,6 +3,50 @@ const router = express.Router();
 const db = require('../config/database');
 const { verifyToken, requireAdmin } = require('../middleware/auth');
 const { sendEmail } = require('../utils/emailService');
+const path = require('path');
+const fs = require('fs').promises;
+
+// Helper: Convert null values to empty strings and numbers to strings
+const nullToEmptyString = (value) => {
+  if (value === null || value === undefined) return '';
+  if (typeof value === 'number') return String(value);
+  if (typeof value === 'boolean') return String(value);
+  if (typeof value === 'object' && !Array.isArray(value)) {
+    // Recursively handle objects
+    const result = {};
+    for (const key in value) {
+      result[key] = nullToEmptyString(value[key]);
+    }
+    return result;
+  }
+  if (Array.isArray(value)) {
+    return value.map(item => nullToEmptyString(item));
+  }
+  return value;
+};
+
+// Helper: Sanitize entire response object
+const sanitizeResponse = (obj) => {
+  if (obj === null || obj === undefined) return '';
+  if (typeof obj !== 'object') {
+    if (typeof obj === 'number') return String(obj);
+    return obj;
+  }
+  // Handle Date objects - convert to ISO string
+  if (obj instanceof Date) {
+    return obj.toISOString();
+  }
+  if (Array.isArray(obj)) {
+    return obj.map(item => sanitizeResponse(item));
+  }
+  const result = {};
+  for (const key in obj) {
+    if (obj.hasOwnProperty(key)) {
+      result[key] = sanitizeResponse(obj[key]);
+    }
+  }
+  return result;
+};
 
 // Public: list all exhibitions ordered by start_date (JSON)
 router.get('/exhibitions', async (req, res) => {
@@ -12,10 +56,151 @@ router.get('/exhibitions', async (req, res) => {
        FROM exhibitions
        ORDER BY start_date ASC`
     );
-    res.json({ success: true, data: result.rows });
+    const sanitized = sanitizeResponse({ success: true, data: result.rows });
+    res.json(sanitized);
   } catch (error) {
     console.error('[public] list exhibitions error', error);
     res.status(500).json({ success: false, message: 'Failed to fetch exhibitions' });
+  }
+});
+
+// Public: Generate and save JSON file for exhibition
+router.get('/exhibitions/:exhibitionId/feed.json', async (req, res) => {
+  try {
+    const exhibitionId = parseInt(req.params.exhibitionId, 10);
+    if (!Number.isInteger(exhibitionId)) {
+      return res.status(400).json({ success: false, message: 'Invalid exhibition id' });
+    }
+
+    const siteLink = req.protocol + '://' + req.get('host');
+    
+    // Get exhibition details
+    const exhibitionRes = await db.query(
+      `SELECT id, name, description, start_date, end_date, location, status
+       FROM exhibitions WHERE id = $1`,
+      [exhibitionId]
+    );
+    
+    if (exhibitionRes.rows.length === 0) {
+      return res.status(404).json({ success: false, message: 'Exhibition not found' });
+    }
+    
+    const exhibition = exhibitionRes.rows[0];
+    
+    // Get all exhibitors for this exhibition (reuse query from exhibitors.json endpoint)
+    const rows = await db.query(
+      `WITH assigned AS (
+         SELECT e.id AS exhibitor_id,
+                e.nip,
+                e.address,
+                e.postal_code,
+                e.city,
+                ee.hall_name,
+                ee.stand_number,
+                ee.booth_area
+         FROM exhibitor_events ee
+         JOIN exhibitors e ON e.id = ee.exhibitor_id
+         WHERE ee.exhibition_id = $1
+       ),
+       specific AS (
+         SELECT c.exhibitor_id, c.name, c.logo, c.description, c.contact_info, c.website, c.socials, c.contact_email,
+                c.catalog_tags, c.products, c.brands, c.industries, c.display_name, c.why_visit
+         FROM exhibitor_catalog_entries c
+         WHERE c.exhibition_id = $1
+       ),
+       global AS (
+         SELECT DISTINCT ON (c.exhibitor_id)
+                c.exhibitor_id, c.name, c.logo, c.description, c.contact_info, c.website, c.socials, c.contact_email,
+                c.catalog_tags, c.products, c.brands, c.industries, c.display_name, c.why_visit, c.updated_at
+         FROM exhibitor_catalog_entries c
+         WHERE c.exhibition_id IS NULL
+         ORDER BY c.exhibitor_id, c.updated_at DESC
+       ),
+       base AS (
+         SELECT id AS exhibitor_id, company_name AS name, NULL::text AS logo, NULL::text AS description,
+                contact_person AS contact_info, NULL::text AS website, NULL::text AS socials, email AS contact_email,
+                NULL::text AS catalog_tags, '[]'::jsonb AS products, NULL::text AS brands, NULL::text AS industries,
+                NULL::text AS display_name, NULL::text AS why_visit
+         FROM exhibitors
+       )
+       SELECT a.exhibitor_id,
+              a.nip,
+              a.address,
+              a.postal_code,
+              a.city,
+              a.hall_name,
+              a.stand_number,
+              a.booth_area,
+              COALESCE(s.name, g.name, b.name) AS name,
+              COALESCE(s.logo, g.logo) AS logo,
+              COALESCE(s.description, g.description, b.description) AS description,
+              COALESCE(s.contact_info, g.contact_info, b.contact_info) AS contact_info,
+              COALESCE(s.website, g.website, b.website) AS website,
+              COALESCE(s.socials, g.socials, b.socials) AS socials,
+              COALESCE(s.contact_email, g.contact_email, b.contact_email) AS contact_email,
+              COALESCE(s.catalog_tags, g.catalog_tags, b.catalog_tags) AS catalog_tags,
+              COALESCE(s.products, g.products, b.products) AS products,
+              COALESCE(s.brands, g.brands, b.brands) AS brands,
+              COALESCE(s.industries, g.industries, b.industries) AS industries,
+              COALESCE(s.display_name, g.display_name, b.display_name) AS display_name,
+              COALESCE(s.why_visit, g.why_visit, b.why_visit) AS why_visit
+       FROM assigned a
+       LEFT JOIN specific s ON s.exhibitor_id = a.exhibitor_id
+       LEFT JOIN global g ON g.exhibitor_id = a.exhibitor_id
+       LEFT JOIN base b ON b.exhibitor_id = a.exhibitor_id
+       ORDER BY COALESCE(s.name, g.name, b.name) ASC`,
+      [exhibitionId]
+    );
+
+    const toUrl = (value) => {
+      const s = String(value || '').trim();
+      if (!s) return '';
+      if (/^https?:\/\//i.test(s)) return s;
+      if (s.startsWith('data:')) return '';
+      if (s.startsWith('uploads/')) return `${siteLink}/${s}`;
+      return `${siteLink}/api/v1/exhibitor-branding/serve/global/${encodeURIComponent(s)}`;
+    };
+
+    const exhibitors = rows.rows.map((r) => {
+      const rawProducts = Array.isArray(r.products) ? r.products : [];
+      const products = rawProducts.map(p => ({
+        name: p.name || '',
+        description: p.description || '',
+        tags: Array.isArray(p.tags) ? p.tags : [],
+        img: toUrl(p.img)
+      }));
+      
+      return {
+        exhibitorId: String(r.exhibitor_id || ''),
+        name: r.name || '',
+        displayName: r.display_name || '',
+        description: r.description || '',
+        logoUrl: toUrl(r.logo),
+        hallName: r.hall_name || '',
+        standNumber: r.stand_number || '',
+        products: products
+      };
+    });
+
+    const payload = sanitizeResponse({
+      exhibition: {
+        id: String(exhibition.id),
+        name: exhibition.name || '',
+        description: exhibition.description || '',
+        startDate: exhibition.start_date || '',
+        endDate: exhibition.end_date || '',
+        location: exhibition.location || '',
+        status: exhibition.status || ''
+      },
+      exhibitors: exhibitors,
+      generatedAt: new Date().toISOString()
+    });
+
+    res.set('Content-Type', 'application/json; charset=utf-8');
+    res.json(payload);
+  } catch (error) {
+    console.error('[public] exhibition feed.json error', error);
+    res.status(500).json({ success: false, message: 'Failed to generate exhibition feed' });
   }
 });
 
@@ -95,15 +280,15 @@ router.get('/exhibitions/:exhibitionId/exhibitors', async (req, res) => {
     const siteLink = req.protocol + '://' + req.get('host');
     const toUrl = (value) => {
       const s = String(value || '').trim();
-      if (!s) return null;
+      if (!s) return '';
       
       // If already full URL, return as-is
       if (/^https?:\/\//i.test(s)) return s;
       
-      // If base64 data URI, return null (should not be used in API)
+      // If base64 data URI, return empty string (should not be used in API)
       if (s.startsWith('data:')) {
         console.warn('[public] Found base64 logo, should be migrated to file storage');
-        return null;
+        return '';
       }
       
       // If it's a path starting with 'uploads/', serve via static endpoint
@@ -125,31 +310,32 @@ router.get('/exhibitions/:exhibitionId/exhibitors', async (req, res) => {
         : r.products;
       
       return {
-        exhibitor_id: r.exhibitor_id,
-        name: r.name,
-        description: r.description,
-        contact_info: r.contact_info,
-        website: r.website,
-        socials: r.socials,
-        contact_email: r.contact_email,
-        catalog_tags: r.catalog_tags,
+        exhibitor_id: String(r.exhibitor_id || ''),
+        name: r.name || '',
+        description: r.description || '',
+        contact_info: r.contact_info || '',
+        website: r.website || '',
+        socials: r.socials || '',
+        contact_email: r.contact_email || '',
+        catalog_tags: r.catalog_tags || '',
         products: products,
         // Images as URL
         logoUrl: toUrl(r.logo),
         logo: toUrl(r.logo), // Also include 'logo' for backward compatibility
         // Stand assignment details
-        hallName: r.hall_name || null,
-        standNumber: r.stand_number || null,
-        boothArea: r.booth_area === null ? null : Number(r.booth_area),
+        hallName: r.hall_name || '',
+        standNumber: r.stand_number || '',
+        boothArea: r.booth_area === null ? '' : String(r.booth_area),
         // Exhibitor company details
-        nip: r.nip || null,
-        address: r.address || null,
-        postalCode: r.postal_code || null,
-        city: r.city || null,
+        nip: r.nip || '',
+        address: r.address || '',
+        postalCode: r.postal_code || '',
+        city: r.city || '',
       };
     });
 
-    res.json({ success: true, exhibitionId, exhibitors });
+    const sanitized = sanitizeResponse({ success: true, exhibitionId: String(exhibitionId), exhibitors });
+    res.json(sanitized);
   } catch (error) {
     console.error('[public] list exhibitors for exhibition error', error);
     res.status(500).json({ success: false, message: 'Failed to fetch exhibitors' });
@@ -233,16 +419,16 @@ router.get('/exhibitions/:exhibitionId/exhibitors.json', async (req, res) => {
 
     const toUrl = (value) => {
       const s = String(value || '').trim();
-      if (!s) return null;
+      if (!s) return '';
       
       // If already full URL, return as-is
       if (/^https?:\/\//i.test(s)) return s;
       
-      // If base64 data URI, return null (should not be used in API)
+      // If base64 data URI, return empty string (should not be used in API)
       // This is a signal that the data needs to be migrated
       if (s.startsWith('data:')) {
         console.warn('[public] Found base64 logo, should be migrated to file storage');
-        return null;
+        return '';
       }
       
       // If it's a path starting with 'uploads/', serve via static endpoint
@@ -281,66 +467,70 @@ router.get('/exhibitions/:exhibitionId/exhibitors.json', async (req, res) => {
       `, [r.exhibitor_id, exhibitionId]);
 
       const documents = docsRes.rows.map((d) => ({
-        id: d.id,
-        title: d.title,
-        description: d.description,
-        category: d.category,
-        fileName: d.file_name,
-        originalName: d.original_name,
-        fileSize: d.file_size,
-        mimeType: d.mime_type,
-        createdAt: d.created_at,
+        id: String(d.id || ''),
+        title: d.title || '',
+        description: d.description || '',
+        category: d.category || '',
+        fileName: d.file_name || '',
+        originalName: d.original_name || '',
+        fileSize: String(d.file_size || ''),
+        mimeType: d.mime_type || '',
+        createdAt: d.created_at || '',
         downloadUrl: `${siteLink}/public/exhibitions/${encodeURIComponent(String(exhibitionId))}/exhibitors/${encodeURIComponent(String(r.exhibitor_id))}/documents/${encodeURIComponent(String(d.id))}/download`
       }));
 
       // Convert product images to URLs
       const rawProducts = Array.isArray(r.products) ? r.products : (typeof r.products === 'string' ? (() => { try { return JSON.parse(r.products); } catch { return []; } })() : []);
       const products = rawProducts.map(p => ({
-        ...p,
+        name: p.name || '',
+        description: p.description || '',
+        tags: Array.isArray(p.tags) ? p.tags : [],
+        tabList: Array.isArray(p.tabList) ? p.tabList : [],
         img: toUrl(p.img)
       }));
       
       return {
-        exhibitorId: r.exhibitor_id,
+        exhibitorId: String(r.exhibitor_id || ''),
         companyInfo: {
-          name: r.name || null,
-          displayName: r.display_name || null,
+          name: r.name || '',
+          displayName: r.display_name || '',
           logoUrl: toUrl(r.logo),
-          description: r.description || null,
-          whyVisit: r.why_visit || null,
-          contactInfo: r.contact_info || null,
-          website: r.website || null,
-          socials: r.socials || null,
-          contactEmail: r.contact_email || null,
-          catalogTags: r.catalog_tags || null,
-          brands: r.brands || null,
-          industries: r.industries || null
+          description: r.description || '',
+          whyVisit: r.why_visit || '',
+          contactInfo: r.contact_info || '',
+          website: r.website || '',
+          socials: r.socials || '',
+          contactEmail: r.contact_email || '',
+          catalogTags: r.catalog_tags || '',
+          brands: r.brands || '',
+          industries: r.industries || ''
         },
         exhibitor: {
-          nip: r.nip || null,
-          address: r.address || null,
-          postalCode: r.postal_code || null,
-          city: r.city || null,
+          nip: r.nip || '',
+          address: r.address || '',
+          postalCode: r.postal_code || '',
+          city: r.city || '',
         },
         stand: {
-          hallName: r.hall_name || null,
-          standNumber: r.stand_number || null,
-          boothArea: r.booth_area === null ? null : Number(r.booth_area),
+          hallName: r.hall_name || '',
+          standNumber: r.stand_number || '',
+          boothArea: r.booth_area === null ? '' : String(r.booth_area),
         },
         products: products,
-        events: eventsRes.rows,
+        events: eventsRes.rows.map(e => sanitizeResponse(e)),
         documents,
-        people: peopleRes.rows
+        people: peopleRes.rows.map(p => sanitizeResponse(p))
       };
     }));
 
     res.set('Content-Type', 'application/json; charset=utf-8');
-    res.json({ 
+    const sanitized = sanitizeResponse({ 
       success: true, 
-      exhibitionId, 
-      count: exhibitors.length,
+      exhibitionId: String(exhibitionId), 
+      count: String(exhibitors.length),
       exhibitors 
     });
+    res.json(sanitized);
   } catch (error) {
     console.error('[public] list all exhibitors json error', error);
     res.status(500).json({ success: false, message: 'Failed to fetch exhibitors JSON feed' });
@@ -632,30 +822,30 @@ router.get('/exhibitions/:exhibitionId/exhibitors/:exhibitorId.json', async (req
     `, [exhibitorId, exhibitionId]);
 
     const documents = docsRes.rows.map((d) => ({
-      id: d.id,
-      title: d.title,
-      description: d.description,
-      category: d.category,
-      fileName: d.file_name,
-      originalName: d.original_name,
-      fileSize: d.file_size,
-      mimeType: d.mime_type,
-      createdAt: d.created_at,
+      id: String(d.id || ''),
+      title: d.title || '',
+      description: d.description || '',
+      category: d.category || '',
+      fileName: d.file_name || '',
+      originalName: d.original_name || '',
+      fileSize: String(d.file_size || ''),
+      mimeType: d.mime_type || '',
+      createdAt: d.created_at || '',
       downloadUrl: `${siteLink}/public/exhibitions/${encodeURIComponent(String(exhibitionId))}/exhibitors/${encodeURIComponent(String(exhibitorId))}/documents/${encodeURIComponent(String(d.id))}/download`
     }));
 
     const toUrl = (value) => {
       const s = String(value || '').trim();
-      if (!s) return null;
+      if (!s) return '';
       
       // If already full URL, return as-is
       if (/^https?:\/\//i.test(s)) return s;
       
-      // If base64 data URI, return null (should not be used in API)
+      // If base64 data URI, return empty string (should not be used in API)
       // This is a signal that the data needs to be migrated to file storage
       if (s.startsWith('data:')) {
         console.warn('[public] Found base64 logo in single exhibitor endpoint, should be migrated to file storage');
-        return null;
+        return '';
       }
       
       // If it's a path starting with 'uploads/', serve via static endpoint
@@ -670,48 +860,52 @@ router.get('/exhibitions/:exhibitionId/exhibitors/:exhibitorId.json', async (req
     // Convert product images to URLs
     const rawProducts = Array.isArray(company.products) ? company.products : (typeof company.products === 'string' ? (() => { try { return JSON.parse(company.products); } catch { return []; } })() : []);
     const products = rawProducts.map(p => ({
-      ...p,
+      name: p.name || '',
+      description: p.description || '',
+      tags: Array.isArray(p.tags) ? p.tags : [],
+      tabList: Array.isArray(p.tabList) ? p.tabList : [],
       img: toUrl(p.img)
     }));
     
     // Build payload
     const payload = {
       success: true,
-      exhibitionId,
-      exhibitorId,
+      exhibitionId: String(exhibitionId),
+      exhibitorId: String(exhibitorId),
       companyInfo: {
-        name: company.name || null,
-        displayName: company.display_name || null,
+        name: company.name || '',
+        displayName: company.display_name || '',
         // Images as URL
         logoUrl: toUrl(company.logo),
-        description: company.description || null,
-        whyVisit: company.why_visit || null,
-        contactInfo: company.contact_info || null,
-        website: company.website || null,
-        socials: company.socials || null,
-        contactEmail: company.contact_email || null,
-        catalogTags: company.catalog_tags || null,
-        brands: company.brands || null,
-        industries: company.industries || null
+        description: company.description || '',
+        whyVisit: company.why_visit || '',
+        contactInfo: company.contact_info || '',
+        website: company.website || '',
+        socials: company.socials || '',
+        contactEmail: company.contact_email || '',
+        catalogTags: company.catalog_tags || '',
+        brands: company.brands || '',
+        industries: company.industries || ''
       },
       exhibitor: {
-        nip: exhibitorCore.nip || null,
-        address: exhibitorCore.address || null,
-        postalCode: exhibitorCore.postal_code || null,
-        city: exhibitorCore.city || null,
+        nip: exhibitorCore.nip || '',
+        address: exhibitorCore.address || '',
+        postalCode: exhibitorCore.postal_code || '',
+        city: exhibitorCore.city || '',
       },
       stand: {
-        hallName: assign.hall_name || null,
-        standNumber: assign.stand_number || null,
-        boothArea: assign.booth_area === null ? null : Number(assign.booth_area),
+        hallName: assign.hall_name || '',
+        standNumber: assign.stand_number || '',
+        boothArea: assign.booth_area === null ? '' : String(assign.booth_area),
       },
       products: products,
-      events: eventsRes.rows,
+      events: eventsRes.rows.map(e => sanitizeResponse(e)),
       documents
     };
 
     res.set('Content-Type', 'application/json; charset=utf-8');
-    res.json(payload);
+    const sanitized = sanitizeResponse(payload);
+    res.json(sanitized);
   } catch (error) {
     console.error('[public] exhibitor checklist json error', error);
     res.status(500).json({ success: false, message: 'Failed to generate exhibitor JSON feed' });
@@ -915,6 +1109,56 @@ ${items.join('\n')}
   } catch (error) {
     console.error('[public] exhibitor checklist rss error', error);
     res.status(500).send('Failed to generate exhibitor RSS feed');
+  }
+});
+
+// Public download for exhibition documents (no auth required)
+router.get('/exhibitions/:exhibitionId/exhibitors/:exhibitorId/documents/:documentId/download', async (req, res) => {
+  try {
+    const { exhibitorId, exhibitionId, documentId } = req.params;
+    
+    const result = await db.query(`
+      SELECT file_path, original_name, mime_type 
+      FROM exhibitor_documents 
+      WHERE id = $1 AND exhibitor_id = $2 AND exhibition_id = $3
+    `, [documentId, exhibitorId, exhibitionId]);
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ success: false, error: 'Document not found' });
+    }
+
+    const document = result.rows[0];
+    const candidatePaths = [document.file_path];
+    
+    // Try various path combinations
+    if (typeof document.file_path === 'string') {
+      if (document.file_path.startsWith('/data/uploads/')) {
+        const relativeFromRailway = path.relative('/data/uploads', document.file_path);
+        const localFallback = path.join(__dirname, '../../uploads', relativeFromRailway);
+        candidatePaths.push(localFallback);
+      }
+      // Also try relative path from uploads base
+      if (!document.file_path.startsWith('/')) {
+        candidatePaths.push(path.join(__dirname, '../../uploads', document.file_path));
+        candidatePaths.push(path.join(__dirname, '../..', document.file_path));
+      }
+    }
+
+    for (const p of candidatePaths) {
+      try {
+        await fs.access(p);
+        res.setHeader('Content-Disposition', `attachment; filename="${document.original_name || 'document'}"`);
+        res.setHeader('Content-Type', document.mime_type || 'application/octet-stream');
+        return res.sendFile(path.resolve(p));
+      } catch (_e) {
+        // try next candidate
+      }
+    }
+
+    res.status(404).json({ success: false, error: 'File not found on server' });
+  } catch (error) {
+    console.error('[public] download document error', error);
+    res.status(500).json({ success: false, error: 'Failed to download document' });
   }
 });
 
