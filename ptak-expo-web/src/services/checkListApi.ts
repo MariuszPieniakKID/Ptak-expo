@@ -2,6 +2,17 @@ import config from '../config/config';
 import * as QRCode from 'qrcode';
 // Do not import from EventUtils to avoid circular deps
 
+// Define EidType first before using it
+export enum EidType {
+	TECH_WORKER,
+	BOOTH_STAFF,
+	EXPERT_SPEAKER,
+	MARKETING_PR,
+	MANAGEMENT,
+	RECEPTION,
+	GUEST
+}
+
 // Local helper to map EidType to string (avoid circular import from EventUtils)
 function getEidTypeStringLocal(type: EidType): string {
 	switch(type) {
@@ -22,46 +33,6 @@ function getEidTypeStringLocal(type: EidType): string {
 		default:
 			return "Gość";
 	}
-}
-
-export interface CompanyInfo {
-	name: string | null,
-	logo: string | null, //Upload and download support
-	description: string | null,
-	whyVisit?: string | null,
-	contactInfo: string | null,
-	website: string | null,
-	socials: string | null,
-	contactEmail?: string | null,
-	brands?: string | null,
-	industries?: string | null,
-	displayName?: string | null
-}
-export interface ProductInfo {
-	name: string,
-	img: string,
-	description: string,
-	tags?: string[]
-}
-export interface DownloadMaterial {
-    id?: number,
-    fileName: string,
-    fileUri: string
-}
-export interface ElectrionicId {
-    name: string,
-    type: EidType,
-    email: string,
-    accessCode?: string,
-}
-export enum EidType {
-	TECH_WORKER,
-	BOOTH_STAFF,
-	EXPERT_SPEAKER,
-	MARKETING_PR,
-	MANAGEMENT,
-	RECEPTION,
-	GUEST
 }
 
 export enum EventType {
@@ -96,6 +67,38 @@ export function getEventKindString(kind: EventKind): string {
             return 'Prezentacje produktów / marek';
     }
 }
+
+export interface CompanyInfo {
+	name: string | null,
+	logo: string | null, //Upload and download support
+	description: string | null,
+	whyVisit?: string | null,
+	contactInfo: string | null,
+	website: string | null,
+	socials: string | null,
+	contactEmail?: string | null,
+	brands?: string | null,
+	industries?: string | null,
+	displayName?: string | null
+}
+export interface ProductInfo {
+	name: string,
+	img: string,
+	description: string,
+	tags?: string[]
+}
+export interface DownloadMaterial {
+    id?: number,
+    fileName: string,
+    fileUri: string
+}
+export interface ElectrionicId {
+    name: string,
+    type: EidType,
+    email: string,
+    accessCode?: string,
+}
+
 export interface EventInfo {
     id?: number,
     date: string,
