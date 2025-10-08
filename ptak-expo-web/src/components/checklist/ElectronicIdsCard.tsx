@@ -72,7 +72,7 @@ function AddElectronicId() {
           onChange={(e) => setEditedId({...editedId, email: e.target.value})}
         />
         <FormControl variant="standard" fullWidth>
-          <InputLabel id="event-type-label">Określ typ wydarzenia</InputLabel>
+          <InputLabel id="event-type-label">Określ typ uczestnika</InputLabel>
           <Select
             labelId="event-type-label"
             id="event-type-select"
@@ -82,7 +82,7 @@ function AddElectronicId() {
               const safeIdx = Number.isFinite(idx) && idx >= 0 && idx < eidTypes.length ? idx : 0;
               setEditedId({ ...editedId, type: eidTypes[safeIdx] });
             }}
-            label="Określ typ wydarzenia"
+            label="Określ typ uczestnika"
             fullWidth
           >
             {eidTypes.map((d, i) => (

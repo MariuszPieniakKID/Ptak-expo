@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate, useParams } from 'react-router-dom';
 import { exhibitionsAPI } from '../services/api';
+import { getChecklist } from '../services/checkListApi';
+import config from '../config/config';
 import Menu from '../components/Menu';
 import styles from './ExhibitorDashboardPage.module.css';
 
@@ -24,6 +26,7 @@ const ExhibitorDashboardPage: React.FC = () => {
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [catalogLogo, setCatalogLogo] = useState<string | null>(null);
   // const [tradeInfo, setTradeInfo] = useState<TradeInfoData | null>(null);
 
   // Load event data from API
@@ -43,6 +46,23 @@ const ExhibitorDashboardPage: React.FC = () => {
           if (currentEvent) {
             setSelectedEvent(currentEvent);
             console.log('✅ Loaded event:', currentEvent);
+            
+            // Load catalog logo from checklist
+            try {
+              const checklist = await getChecklist(currentEvent.id);
+              const logo = checklist?.companyInfo?.logo;
+              if (logo && typeof logo === 'string' && logo.trim().length > 0) {
+                // Convert relative path to absolute URL
+                let logoUrl = logo;
+                if (!logo.startsWith('http://') && !logo.startsWith('https://') && !logo.startsWith('data:')) {
+                  const path = logo.startsWith('/') ? logo : `/${logo}`;
+                  logoUrl = `${config.API_BASE_URL}${path}`;
+                }
+                setCatalogLogo(logoUrl);
+              }
+            } catch (logoErr) {
+              console.warn('Could not load catalog logo:', logoErr);
+            }
             // Trade info is now loaded on a dedicated route
           } else {
             setError('Nie znaleziono wydarzenia o podanym ID');
@@ -209,15 +229,27 @@ const ExhibitorDashboardPage: React.FC = () => {
         <div className={styles.dashboardInner}>
           <div className={styles.dashboardContent}>
             <div className={styles.bb764a0137abc7a8142b6438e52913Wrapper}>
-              <img
-                className={styles.bb764a0137abc7a8142b6438e52913Icon}
-                alt=""
-                src="/7bb764a0137abc7a8142b6438e529133@2x.png"
-              />
+              {catalogLogo ? (
+                <img
+                  className={styles.bb764a0137abc7a8142b6438e52913Icon}
+                  alt="Logo firmy"
+                  src={catalogLogo}
+                  onError={(e) => {
+                    // Fallback to default avatar on error
+                    (e.target as HTMLImageElement).src = "/7bb764a0137abc7a8142b6438e529133@2x.png";
+                  }}
+                />
+              ) : (
+                <img
+                  className={styles.bb764a0137abc7a8142b6438e52913Icon}
+                  alt=""
+                  src="/7bb764a0137abc7a8142b6438e529133@2x.png"
+                />
+              )}
             </div>
             <div className={styles.dzieDobryMtbModulesParent}>
               <div className={styles.dzieDobryMtb}>
-                Dzień dobry, {user?.firstName || 'MTB Modules'}
+                Dzień dobry, {user?.firstName || user?.companyName || 'Użytkowniku'}
               </div>
               <div className={styles.sprawdCoMoesz}>
                 Sprawdź co możesz dzisiaj zrobić!

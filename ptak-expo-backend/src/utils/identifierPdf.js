@@ -41,7 +41,7 @@ const getUploadsBase = () => {
 };
 
 // Build Identifier PDF buffer (A6) with event branding and QR
-// payload: { personName, personEmail, accessCode? }
+// payload: { personName, personEmail, accessCode?, personType? }
 // exhibitorId: prefer exhibitor-specific header branding if provided
 async function buildIdentifierPdf(client, exhibitionId, payload, exhibitorId) {
   // Fetch minimal event info
@@ -342,10 +342,11 @@ async function buildIdentifierPdf(client, exhibitionId, payload, exhibitorId) {
     doc.fillColor('#000').fontSize(10).text(payload?.personName || '', cardX + 12, y, { width: cardW - 24 });
     y = doc.y + 8;
 
-    // Role
+    // Role/Type
     doc.fillColor('#333').fontSize(9).text('Rola', cardX + 12, y);
     y = doc.y + 4;
-    doc.fillColor('#000').fontSize(10).text('Gość', cardX + 12, y, { width: cardW - 24 });
+    const personType = payload?.personType || 'Gość';
+    doc.fillColor('#000').fontSize(10).text(personType, cardX + 12, y, { width: cardW - 24 });
 
     // Dashed separator
     y = y + 12;

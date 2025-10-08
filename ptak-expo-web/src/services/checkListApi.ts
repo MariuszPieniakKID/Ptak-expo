@@ -2,6 +2,28 @@ import config from '../config/config';
 import * as QRCode from 'qrcode';
 // Do not import from EventUtils to avoid circular deps
 
+// Local helper to map EidType to string (avoid circular import from EventUtils)
+function getEidTypeStringLocal(type: EidType): string {
+	switch(type) {
+		case EidType.TECH_WORKER:
+			return "Obsługa techniczna";
+		case EidType.BOOTH_STAFF:
+			return "Obsługa Stoiska";
+		case EidType.EXPERT_SPEAKER:
+			return "Ekspert / Prelegent";
+		case EidType.MARKETING_PR:
+			return "Marketing / PR";
+		case EidType.MANAGEMENT:
+			return "Zarząd / Management";
+		case EidType.RECEPTION:
+			return "Recepcja / Obsługa gości";
+		case EidType.GUEST:
+			return "Gość";
+		default:
+			return "Gość";
+	}
+}
+
 export interface CompanyInfo {
 	name: string | null,
 	logo: string | null, //Upload and download support
@@ -528,7 +550,7 @@ export const addElectronicId = async (electronicId: ElectrionicId, exhibitionIdF
         // Map type to readable label for admin DB (avoid numeric "0")
         const typeLabel = ((): string => {
             try {
-                return electronicId.type === EidType.TECH_WORKER ? 'Pracownik techniczny' : 'Gość';
+                return getEidTypeStringLocal(electronicId.type);
             } catch { return 'Gość'; }
         })();
 
