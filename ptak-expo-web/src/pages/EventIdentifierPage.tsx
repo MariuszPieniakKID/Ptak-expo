@@ -6,6 +6,7 @@ import { useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { exhibitionsAPI, tradeInfoAPI, brandingAPI, invitationsAPI } from '../services/api';
 import { getChecklist } from '../services/checkListApi';
+import config from '../config/config';
 import styles from './EventHomePage.module.scss';
 
 const formatDate = (iso?: string): string => {
@@ -62,7 +63,18 @@ const EventIdentifierPage = () => {
         try {
           const cl = await getChecklist(idNum);
           const l = cl?.companyInfo?.logo || null;
-          if (l && typeof l === 'string' && l.trim().length > 0) catalogLogoUrl = l;
+          if (l && typeof l === 'string' && l.trim().length > 0) {
+            // Convert relative path to absolute URL
+            if (l.startsWith('http://') || l.startsWith('https://')) {
+              catalogLogoUrl = l;
+            } else if (l.startsWith('data:')) {
+              catalogLogoUrl = l; // base64
+            } else {
+              // Relative path - convert to absolute using API_BASE_URL
+              const path = l.startsWith('/') ? l : `/${l}`;
+              catalogLogoUrl = `${config.API_BASE_URL}${path}`;
+            }
+          }
         } catch {}
 
         // Pick first template with vip_value

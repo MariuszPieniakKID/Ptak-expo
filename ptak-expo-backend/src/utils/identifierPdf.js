@@ -172,17 +172,48 @@ async function buildIdentifierPdf(client, exhibitionId, payload, exhibitorId) {
             // Try file on disk under uploads
             const normalized = logoVal.startsWith('uploads/') ? logoVal.replace(/^uploads\//, '') : logoVal;
             let resolved = path.join(uploadsBase, normalized);
+            
+            // Check if file exists on disk
             if (fs.existsSync(resolved)) {
               footerLogoSource = resolved;
             } else {
-              // As a last resort, try serving via global branding endpoint using filename
-              const fileName = normalized.split('/').pop();
-              if (fileName) {
+              // Try alternative locations for backward compatibility
+              const altPaths = [
+                path.join(uploadsBase, logoVal), // Try original value
+                path.join(uploadsBase, 'exhibitor-documents', normalized), // Try in exhibitor-documents
+              ];
+              
+              for (const altPath of altPaths) {
+                if (fs.existsSync(altPath)) {
+                  footerLogoSource = altPath;
+                  break;
+                }
+              }
+              
+              // If still not found, try fetching via HTTP as absolute URL
+              if (!footerLogoSource && !logoVal.startsWith('/')) {
                 const base = (process.env.PUBLIC_BASE_URL && process.env.PUBLIC_BASE_URL.trim())
                   ? process.env.PUBLIC_BASE_URL.trim().replace(/\/$/, '')
                   : 'http://localhost:3001';
-                const url = `${base}/api/v1/exhibitor-branding/serve/global/${encodeURIComponent(fileName)}`;
-                try { const r = await fetch(url); if (r.ok) footerLogoSource = Buffer.from(await r.arrayBuffer()); } catch {}
+                const absUrl = logoVal.startsWith('uploads/') 
+                  ? `${base}/${logoVal}` 
+                  : `${base}/uploads/${logoVal}`;
+                try { 
+                  const r = await fetch(absUrl); 
+                  if (r.ok) footerLogoSource = Buffer.from(await r.arrayBuffer()); 
+                } catch {}
+              }
+              
+              // Last resort: try global branding endpoint using just filename
+              if (!footerLogoSource) {
+                const fileName = normalized.split('/').pop();
+                if (fileName) {
+                  const base = (process.env.PUBLIC_BASE_URL && process.env.PUBLIC_BASE_URL.trim())
+                    ? process.env.PUBLIC_BASE_URL.trim().replace(/\/$/, '')
+                    : 'http://localhost:3001';
+                  const url = `${base}/api/v1/exhibitor-branding/serve/global/${encodeURIComponent(fileName)}`;
+                  try { const r = await fetch(url); if (r.ok) footerLogoSource = Buffer.from(await r.arrayBuffer()); } catch {}
+                }
               }
             }
           }
