@@ -13,6 +13,7 @@ import IconEmail from '../assets/email.png';
 import { getChecklist } from '../services/checkListApi';
 import styles from './EventHomePage.module.scss';
 import BulkSendModal from '../components/invitations/BulkSendModal';
+import config from '../config/config';
 
 // no date fields in invitations card
 
@@ -56,7 +57,17 @@ const EventInvitationsPage = () => {
         try {
           const cl = await getChecklist(idNum);
           const l = cl?.companyInfo?.logo || null;
-          if (l && typeof l === 'string' && l.trim().length > 0) catalogLogoUrl = l;
+          if (l && typeof l === 'string' && l.trim().length > 0) {
+            if (l.startsWith('http://') || l.startsWith('https://')) {
+              catalogLogoUrl = l;
+            } else if (l.startsWith('data:')) {
+              catalogLogoUrl = l; // base64
+            } else {
+              // Relative path - convert to absolute using API_BASE_URL
+              const path = l.startsWith('/') ? l : `/${l}`;
+              catalogLogoUrl = `${config.API_BASE_URL}${path}`;
+            }
+          }
         } catch {}
 
         setData({
