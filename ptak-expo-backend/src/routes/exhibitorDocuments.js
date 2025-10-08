@@ -92,7 +92,8 @@ router.post('/:exhibitorId/:exhibitionId/upload', verifyToken, upload.single('do
     const finalDocumentSource = validSources.includes(documentSource) ? documentSource : 'exhibitor_self';
     
     // Additional validation for checklist materials - must be PDF only
-    if (finalDocumentSource === 'exhibitor_checklist_materials' || finalDocumentSource === 'catalog_images') {
+    // NOTE: catalog_images is for logo/product images (PNG/JPEG), not for PDF materials
+    if (finalDocumentSource === 'exhibitor_checklist_materials') {
       const isPdf = /\.pdf$/i.test(file.originalname);
       if (!isPdf) {
         // Delete the uploaded file since it doesn't meet requirements
@@ -104,7 +105,7 @@ router.post('/:exhibitorId/:exhibitionId/upload', verifyToken, upload.single('do
         }
         return res.status(400).json({ 
           success: false, 
-          error: 'Dla materiałów checklisty dozwolony jest tylko format PDF.' 
+          error: 'Dla materiałów do pobrania dozwolony jest tylko format PDF.' 
         });
       }
     }
