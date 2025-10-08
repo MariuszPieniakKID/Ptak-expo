@@ -528,7 +528,7 @@ router.post('/me/people', verifyToken, requireExhibitorOrAdmin, async (req, res)
       if (personEmail && exId) {
         const client = await db.pool.connect();
         try {
-          const pdfBuffer = await buildIdentifierPdf(client, exId, { personName: fullName, personEmail, accessCode }, exhibitorId);
+          const pdfBuffer = await buildIdentifierPdf(client, exId, { personName: fullName, personEmail, accessCode, personType: position }, exhibitorId);
           const evInfo = await client.query('SELECT name, start_date, end_date FROM exhibitions WHERE id = $1', [exId]);
           const ev = evInfo.rows[0] || {};
           const subject = `E-identyfikator – ${ev.name || 'Wydarzenie PTAK WARSAW EXPO'}`;

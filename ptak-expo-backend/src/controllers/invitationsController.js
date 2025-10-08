@@ -471,7 +471,7 @@ const sendInvitation = async (req, res) => {
         const pdfBuffer = await buildIdentifierPdf(
           client,
           parseInt(exhibitionId, 10),
-          { personName: personFullName, personEmail: recipientEmail, accessCode: String(recipientRow.id) },
+          { personName: personFullName, personEmail: recipientEmail, accessCode: String(recipientRow.id), personType: 'Gość' },
           exhibitorId || undefined
         );
 
