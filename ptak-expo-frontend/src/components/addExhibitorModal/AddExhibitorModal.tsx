@@ -441,14 +441,14 @@ const AddExhibitorModal: React.FC<AddExhibitorModalProps> = ({
                 <Box className={styles.halfFormRow}>
                     <CustomField
                     type="nip"
-                    label="NIP np.: 106-00-00-062"
+                    label="NIP/VAT np.: 1060000062 (PL) lub DE123456789 (DE)"
                     value={formValues.nip}
                     onChange={handleFormValueChange('nip')}
                     error={!!formErrors.nip}
                     errorMessage={formErrors.nip}
                     fullWidth
                     margin="none"
-                    placeholder="NIP np.: 106-00-00-062"
+                    placeholder="NIP/VAT np.: 1060000062 lub DE123456789"
                     className={styles.input}
                     errorMessageClassName={styles.inputErrorMessage}
                     />

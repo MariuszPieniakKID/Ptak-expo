@@ -1,14 +1,29 @@
 
 export const validateNip = (nip: string): string => {
-  const trimmed = nip.trim().replace(/^PL/i, '').replace(/[\s-]/g, '');
-  if (!trimmed) return 'NIP jest wymagany';
-  if (!/^\d{10}$/.test(trimmed)) return 'NIP musi zawierać dokładnie 10 cyfr.';
-  const weights = [6, 5, 7, 2, 3, 4, 5, 6, 7];
-  let sum = 0;
-  for (let i = 0; i < 9; i++) sum += parseInt(trimmed[i]) * weights[i];
-  const control = sum % 11;
-  if (control === 10 || control !== parseInt(trimmed[9]))
-    return 'NIP jest nieprawidłowy.';
+  const trimmed = nip.trim().replace(/[\s-]/g, '');
+  if (!trimmed) return 'NIP/VAT jest wymagany';
+  
+  // Check if it's a Polish NIP (starts with PL or is 10 digits)
+  const isPolishNip = /^PL\d{10}$/i.test(trimmed) || /^\d{10}$/.test(trimmed);
+  
+  if (isPolishNip) {
+    // Validate Polish NIP with checksum
+    const digits = trimmed.replace(/^PL/i, '');
+    if (!/^\d{10}$/.test(digits)) return 'Polski NIP musi zawierać dokładnie 10 cyfr.';
+    const weights = [6, 5, 7, 2, 3, 4, 5, 6, 7];
+    let sum = 0;
+    for (let i = 0; i < 9; i++) sum += parseInt(digits[i]) * weights[i];
+    const control = sum % 11;
+    if (control === 10 || control !== parseInt(digits[9]))
+      return 'Polski NIP jest nieprawidłowy.';
+    return '';
+  }
+  
+  // Foreign tax number - validate format (alphanumeric, 5-20 characters)
+  if (!/^[A-Z]{2}[A-Z0-9]{3,18}$/i.test(trimmed)) {
+    return 'Zagraniczny numer VAT powinien mieć format: kod kraju (2 litery) + numer (3-18 znaków alfanumerycznych), np. DE123456789';
+  }
+  
   return '';
 };
 

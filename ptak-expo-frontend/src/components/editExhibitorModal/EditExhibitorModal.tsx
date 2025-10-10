@@ -194,14 +194,14 @@ const EditExhibitorModal: React.FC<EditExhibitorModalProps> = ({
                 <Box className={styles.halfFormRow}>
                   <CustomField
                     type="nip"
-                    label="NIP np.: 106-00-00-062"
+                    label="NIP/VAT np.: 1060000062 (PL) lub DE123456789 (DE)"
                     value={exhibitor?.nip || ''}
                     onChange={() => {}}
                     error={false}
                     errorMessage={''}
                     fullWidth
                     margin="none"
-                    placeholder="NIP np.: 106-00-00-062"
+                    placeholder="NIP/VAT np.: 1060000062 lub DE123456789"
                     className={styles.input}
                     errorMessageClassName={styles.inputErrorMessage}
                     inputProps={{ readOnly: true }}
