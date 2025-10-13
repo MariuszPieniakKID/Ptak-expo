@@ -50,9 +50,23 @@ export const validateAddress = (address: string): string => {
 export const validatePostalCode = (postalCode: string): string => {
   const trimmed = postalCode.trim();
   if (!trimmed) return 'Kod pocztowy jest wymagany';
-  const re = /^\d{2}-\d{3}$/;
+  
+  // Allow international postal codes:
+  // - Polish: XX-XXX (e.g., 00-001)
+  // - UK: A9 9AA, A99 9AA, AA9 9AA, AA99 9AA (e.g., SW1A 1AA)
+  // - US/Canada: 12345 or 12345-6789
+  // - Germany: 12345
+  // - France: 12345
+  // - General: alphanumeric with spaces and hyphens, 3-10 characters
+  const re = /^[A-Za-z0-9][A-Za-z0-9\s-]{2,9}[A-Za-z0-9]$/;
+  
   if (!re.test(trimmed))
-    return 'Kod pocztowy powinien mieć format XX-XXX, gdzie X to cyfra';
+    return 'Podaj poprawny kod pocztowy (3-10 znaków: cyfry, litery, spacje, myślniki)';
+  
+  // Additional length validation
+  if (trimmed.length < 3 || trimmed.length > 10)
+    return 'Kod pocztowy musi mieć od 3 do 10 znaków';
+  
   return '';
 };
 
