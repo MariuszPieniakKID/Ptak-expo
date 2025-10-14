@@ -182,6 +182,7 @@ const SingleEventCard: React.FC<SingleEventCardProps> = ({
             <WastebasketIcon
               className={styles.wastebasketIcon}
               onClick={() => setOpenConfirm(true)}
+              title="Usuń przypisanie"
             />
           ) : (
             <Box className={styles.wastebasketIcon} /> 
@@ -228,6 +229,7 @@ const SingleEventCard: React.FC<SingleEventCardProps> = ({
                     className={styles.boxWithHover}
                     onClick={() => setOpenDeleteExhibitionConfirm(true)}
                     style={{ marginLeft: '12px' }}
+                    title="Usuń wystawę"
                   > 
                     <WastebasketIcon className={styles.editEvent}/>
                     <CustomTypography className={styles.editEventText}>usuń</CustomTypography>
