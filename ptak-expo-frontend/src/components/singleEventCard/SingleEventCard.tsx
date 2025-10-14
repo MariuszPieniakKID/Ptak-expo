@@ -179,11 +179,14 @@ const SingleEventCard: React.FC<SingleEventCardProps> = ({
       <Box className={`${styles.eventCardContainer} ${token && eventLogoFileName ? styles.hasLogoCard : ''} ${showEdit ? styles.autoHeight : ''}`}>
         <Box className={styles.deleteIconContainer}>
           {showDelete && handleDeleteEventFromExhibitor && exhibitorId !== undefined ? (
-            <WastebasketIcon
-              className={styles.wastebasketIcon}
+            <Box 
+              style={{ display: 'flex', alignItems: 'center', gap: '4px', cursor: 'pointer' }}
               onClick={() => setOpenConfirm(true)}
               title="Usuń przypisanie"
-            />
+            >
+              <WastebasketIcon className={styles.wastebasketIcon} />
+              <CustomTypography className={styles.editEventText}>usuń przypisanie</CustomTypography>
+            </Box>
           ) : (
             <Box className={styles.wastebasketIcon} /> 
           )}
@@ -232,7 +235,7 @@ const SingleEventCard: React.FC<SingleEventCardProps> = ({
                     title="Usuń wystawę"
                   > 
                     <WastebasketIcon className={styles.editEvent}/>
-                    <CustomTypography className={styles.editEventText}>usuń</CustomTypography>
+                    <CustomTypography className={styles.editEventText}>usuń wystawę</CustomTypography>
                   </Box>
                 </Box>
               </Box>
