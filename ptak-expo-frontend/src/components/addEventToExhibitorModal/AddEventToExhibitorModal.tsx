@@ -360,7 +360,7 @@ const AddEventToExhibitorModal: React.FC<AddEventToExhibitorModalProps> = ({
               <Box className={styles.formRow}>
                 <Box className={styles.halfFormRow}>
                     <CustomField
-                    type="hallName"
+                    type="text"
                     label="Nazwa Hali"
                     value={formEventValues.hallName}
                     onChange={handleFormEventValueChange('hallName')}
@@ -368,9 +368,18 @@ const AddEventToExhibitorModal: React.FC<AddEventToExhibitorModalProps> = ({
                     errorMessage={formErrors.hallName}
                     fullWidth
                     margin="none"
-                    placeholder="Nazwa Hali"
+                    placeholder="Wybierz halę"
                     className={styles.input}
                     errorMessageClassName={styles.inputErrorMessage}
+                    options={[
+                      { value: 'Hala A', label: 'Hala A' },
+                      { value: 'Hala B', label: 'Hala B' },
+                      { value: 'Hala C', label: 'Hala C' },
+                      { value: 'Hala D', label: 'Hala D' },
+                      { value: 'Hala E', label: 'Hala E' },
+                      { value: 'Hala F', label: 'Hala F' }
+                    ]}
+                    forceSelectionFromOptions
                     />
                 </Box>
                 <Box className={styles.halfFormRow}>

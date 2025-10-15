@@ -48,6 +48,19 @@ const sanitizeResponse = (obj) => {
   return result;
 };
 
+// Helper: Parse comma or double-space separated string to array
+const parseTagsToArray = (tagsString) => {
+  if (!tagsString || typeof tagsString !== 'string') return [];
+  
+  // Split by comma or double space, trim, and filter empty strings
+  const tags = tagsString
+    .split(/,|  +/) // Split by comma or 2+ spaces
+    .map(tag => tag.trim())
+    .filter(tag => tag.length > 0);
+  
+  return tags;
+};
+
 // Public: list all exhibitions ordered by start_date (JSON)
 router.get('/exhibitions', async (req, res) => {
   try {
@@ -300,7 +313,15 @@ router.get('/exhibitions/:exhibitionId/exhibitors', async (req, res) => {
       return `${siteLink}/api/v1/exhibitor-branding/serve/global/${encodeURIComponent(s)}`;
     };
 
-    const exhibitors = rows.rows.map((r) => {
+    // Build exhibitors array - need to fetch phone data for each
+    const exhibitorsWithContacts = await Promise.all(rows.rows.map(async (r) => {
+      // Get phone from exhibitors table for contact info
+      const phoneRes = await db.query(
+        'SELECT phone, contact_person FROM exhibitors WHERE id = $1',
+        [r.exhibitor_id]
+      );
+      const phoneData = phoneRes.rows[0] || {};
+      
       // Convert product images to URLs
       const products = Array.isArray(r.products) 
         ? r.products.map(p => ({
@@ -313,11 +334,12 @@ router.get('/exhibitions/:exhibitionId/exhibitors', async (req, res) => {
         exhibitor_id: String(r.exhibitor_id || ''),
         name: r.name || '',
         description: r.description || '',
-        contact_info: r.contact_info || '',
+        contactPerson: r.contact_info || phoneData.contact_person || '',
+        contactPhone: phoneData.phone || '',
+        contactEmail: r.contact_email || '',
         website: r.website || '',
         socials: r.socials || '',
-        contact_email: r.contact_email || '',
-        catalog_tags: r.catalog_tags || '',
+        catalogTags: parseTagsToArray(r.catalog_tags),
         products: products,
         // Images as URL
         logoUrl: toUrl(r.logo),
@@ -332,7 +354,9 @@ router.get('/exhibitions/:exhibitionId/exhibitors', async (req, res) => {
         postalCode: r.postal_code || '',
         city: r.city || '',
       };
-    });
+    }));
+    
+    const exhibitors = exhibitorsWithContacts;
 
     const sanitized = sanitizeResponse({ success: true, exhibitionId: String(exhibitionId), exhibitors });
     res.json(sanitized);
@@ -466,18 +490,22 @@ router.get('/exhibitions/:exhibitionId/exhibitors.json', async (req, res) => {
         ORDER BY created_at DESC
       `, [r.exhibitor_id, exhibitionId]);
 
-      const documents = docsRes.rows.map((d) => ({
-        id: String(d.id || ''),
-        title: d.title || '',
-        description: d.description || '',
-        category: d.category || '',
-        fileName: d.file_name || '',
-        originalName: d.original_name || '',
-        fileSize: String(d.file_size || ''),
-        mimeType: d.mime_type || '',
-        createdAt: d.created_at || '',
-        downloadUrl: `${siteLink}/public/exhibitions/${encodeURIComponent(String(exhibitionId))}/exhibitors/${encodeURIComponent(String(r.exhibitor_id))}/documents/${encodeURIComponent(String(d.id))}/download`
-      }));
+      const documents = docsRes.rows.map((d) => {
+        const fileUrl = `${siteLink}/public/exhibitions/${encodeURIComponent(String(exhibitionId))}/exhibitors/${encodeURIComponent(String(r.exhibitor_id))}/documents/${encodeURIComponent(String(d.id))}/download`;
+        return {
+          id: String(d.id || ''),
+          title: d.title || '',
+          description: d.description || '',
+          category: d.category || '',
+          fileName: d.file_name || '',
+          originalName: d.original_name || '',
+          fileSize: String(d.file_size || ''),
+          mimeType: d.mime_type || '',
+          createdAt: d.created_at || '',
+          fileUrl: fileUrl,
+          downloadUrl: fileUrl // Backward compatibility
+        };
+      });
 
       // Convert product images to URLs
       const rawProducts = Array.isArray(r.products) ? r.products : (typeof r.products === 'string' ? (() => { try { return JSON.parse(r.products); } catch { return []; } })() : []);
@@ -489,6 +517,13 @@ router.get('/exhibitions/:exhibitionId/exhibitors.json', async (req, res) => {
         img: toUrl(p.img)
       }));
       
+      // Get phone from exhibitors table for contact info
+      const phoneRes = await db.query(
+        'SELECT phone, contact_person FROM exhibitors WHERE id = $1',
+        [r.exhibitor_id]
+      );
+      const phoneData = phoneRes.rows[0] || {};
+      
       return {
         exhibitorId: String(r.exhibitor_id || ''),
         companyInfo: {
@@ -497,12 +532,13 @@ router.get('/exhibitions/:exhibitionId/exhibitors.json', async (req, res) => {
           logoUrl: toUrl(r.logo),
           description: r.description || '',
           whyVisit: r.why_visit || '',
-          contactInfo: r.contact_info || '',
+          contactPerson: r.contact_info || phoneData.contact_person || '',
+          contactPhone: phoneData.phone || '',
+          contactEmail: r.contact_email || '',
           website: r.website || '',
           socials: r.socials || '',
-          contactEmail: r.contact_email || '',
-          catalogTags: r.catalog_tags || '',
-          brands: r.brands || '',
+          catalogTags: parseTagsToArray(r.catalog_tags),
+          brands: parseTagsToArray(r.brands),
           industries: r.industries || ''
         },
         exhibitor: {
@@ -821,18 +857,22 @@ router.get('/exhibitions/:exhibitionId/exhibitors/:exhibitorId.json', async (req
       ORDER BY created_at DESC
     `, [exhibitorId, exhibitionId]);
 
-    const documents = docsRes.rows.map((d) => ({
-      id: String(d.id || ''),
-      title: d.title || '',
-      description: d.description || '',
-      category: d.category || '',
-      fileName: d.file_name || '',
-      originalName: d.original_name || '',
-      fileSize: String(d.file_size || ''),
-      mimeType: d.mime_type || '',
-      createdAt: d.created_at || '',
-      downloadUrl: `${siteLink}/public/exhibitions/${encodeURIComponent(String(exhibitionId))}/exhibitors/${encodeURIComponent(String(exhibitorId))}/documents/${encodeURIComponent(String(d.id))}/download`
-    }));
+    const documents = docsRes.rows.map((d) => {
+      const fileUrl = `${siteLink}/public/exhibitions/${encodeURIComponent(String(exhibitionId))}/exhibitors/${encodeURIComponent(String(exhibitorId))}/documents/${encodeURIComponent(String(d.id))}/download`;
+      return {
+        id: String(d.id || ''),
+        title: d.title || '',
+        description: d.description || '',
+        category: d.category || '',
+        fileName: d.file_name || '',
+        originalName: d.original_name || '',
+        fileSize: String(d.file_size || ''),
+        mimeType: d.mime_type || '',
+        createdAt: d.created_at || '',
+        fileUrl: fileUrl,
+        downloadUrl: fileUrl // Backward compatibility
+      };
+    });
 
     const toUrl = (value) => {
       const s = String(value || '').trim();
@@ -867,6 +907,13 @@ router.get('/exhibitions/:exhibitionId/exhibitors/:exhibitorId.json', async (req
       img: toUrl(p.img)
     }));
     
+    // Get phone from exhibitors table for contact info
+    const exhibitorPhone = await db.query(
+      'SELECT phone, contact_person FROM exhibitors WHERE id = $1',
+      [exhibitorId]
+    );
+    const phoneData = exhibitorPhone.rows[0] || {};
+
     // Build payload
     const payload = {
       success: true,
@@ -879,12 +926,13 @@ router.get('/exhibitions/:exhibitionId/exhibitors/:exhibitorId.json', async (req
         logoUrl: toUrl(company.logo),
         description: company.description || '',
         whyVisit: company.why_visit || '',
-        contactInfo: company.contact_info || '',
+        contactPerson: company.contact_info || phoneData.contact_person || '',
+        contactPhone: phoneData.phone || '',
+        contactEmail: company.contact_email || '',
         website: company.website || '',
         socials: company.socials || '',
-        contactEmail: company.contact_email || '',
-        catalogTags: company.catalog_tags || '',
-        brands: company.brands || '',
+        catalogTags: parseTagsToArray(company.catalog_tags),
+        brands: parseTagsToArray(company.brands),
         industries: company.industries || ''
       },
       exhibitor: {
@@ -900,7 +948,8 @@ router.get('/exhibitions/:exhibitionId/exhibitors/:exhibitorId.json', async (req
       },
       products: products,
       events: eventsRes.rows.map(e => sanitizeResponse(e)),
-      documents
+      documents,
+      people: peopleRes.rows.map(p => sanitizeResponse(p))
     };
 
     res.set('Content-Type', 'application/json; charset=utf-8');

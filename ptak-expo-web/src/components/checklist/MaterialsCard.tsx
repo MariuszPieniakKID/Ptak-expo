@@ -11,6 +11,14 @@ function AddMaterial({onChangeFile}: {onChangeFile: (file: File) => void}) {
       if (e.target.files == null) return;
       const file = e.target.files[0];
       if (file == null) return;
+      
+      // Validate file type (PDF only)
+      if (file.type !== 'application/pdf') {
+        alert('Materiały do pobrania muszą być w formacie PDF');
+        e.target.value = '';
+        return;
+      }
+      
       onChangeFile(file);
     },
     [onChangeFile]
@@ -28,7 +36,7 @@ function AddMaterial({onChangeFile}: {onChangeFile: (file: File) => void}) {
         <IconButton component="span">
           <Add />
         </IconButton>{" "}
-        Dodaj pliki do pobrania
+        Dodaj pliki do pobrania (PDF)
       </label>
     </Box>
   );

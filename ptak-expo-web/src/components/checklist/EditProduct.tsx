@@ -25,41 +25,74 @@ export default function EditProduct({productNum, onClose} :{productNum?: number,
 		const file = e.target.files[0];
 		if (file == null) return;
 		
-		setIsUploading(true);
-		try {
-			// Get exhibitor and exhibition IDs
-			const token = localStorage.getItem('authToken') || '';
-			const exhibitionId = Number((window as any).currentSelectedExhibitionId) || 0;
-			
-			const meRes = await fetch(`${config.API_BASE_URL}/api/v1/exhibitors/me`, {
-				headers: { Authorization: `Bearer ${token}` }
-			});
-			const meData = await meRes.json();
-			const exhibitorId = meData?.data?.id;
-			
-			if (!exhibitorId || !exhibitionId) {
-				alert('Nie można pobrać informacji o wystawcy');
-				setIsUploading(false);
-				return;
-			}
-			
-			// Upload file via API
-			const { exhibitorDocumentsAPI } = await import('../../services/api');
-			const fileName = await exhibitorDocumentsAPI.uploadCatalogImage(
-				exhibitorId,
-				exhibitionId,
-				file,
-				'product'
-			);
-			
-			// Save filename (not base64) to product
-			setEditedProduct({...editedProduct, img: fileName});
-		} catch (error) {
-			console.error('Upload error:', error);
-			alert('Błąd podczas przesyłania pliku');
-		} finally {
-			setIsUploading(false);
+		// Validate file type (JPEG only)
+		if (!file.type.match(/^image\/jpeg$/)) {
+			alert('Zdjęcie produktu musi być w formacie JPEG');
+			e.target.value = '';
+			return;
 		}
+		
+		// Validate file size (max 5 MB)
+		const maxSize = 5 * 1024 * 1024; // 5 MB
+		if (file.size > maxSize) {
+			alert('Zdjęcie produktu nie może przekraczać 5 MB');
+			e.target.value = '';
+			return;
+		}
+		
+		// Validate image dimensions (max 1280x960)
+		const img = new Image();
+		const reader = new FileReader();
+		
+		reader.onload = async (event) => {
+			img.src = event.target?.result as string;
+			img.onload = async () => {
+				if (img.width > 1280 || img.height > 960) {
+					alert('Zdjęcie produktu nie może przekraczać wymiarów 1280x960 pikseli');
+					e.target.value = '';
+					return;
+				}
+				
+				// All validations passed, proceed with upload
+				setIsUploading(true);
+				try {
+					// Get exhibitor and exhibition IDs
+					const token = localStorage.getItem('authToken') || '';
+					const exhibitionId = Number((window as any).currentSelectedExhibitionId) || 0;
+					
+					const meRes = await fetch(`${config.API_BASE_URL}/api/v1/exhibitors/me`, {
+						headers: { Authorization: `Bearer ${token}` }
+					});
+					const meData = await meRes.json();
+					const exhibitorId = meData?.data?.id;
+					
+					if (!exhibitorId || !exhibitionId) {
+						alert('Nie można pobrać informacji o wystawcy');
+						setIsUploading(false);
+						return;
+					}
+					
+					// Upload file via API
+					const { exhibitorDocumentsAPI } = await import('../../services/api');
+					const fileName = await exhibitorDocumentsAPI.uploadCatalogImage(
+						exhibitorId,
+						exhibitionId,
+						file,
+						'product'
+					);
+					
+					// Save filename (not base64) to product
+					setEditedProduct({...editedProduct, img: fileName});
+				} catch (error) {
+					console.error('Upload error:', error);
+					alert('Błąd podczas przesyłania pliku');
+				} finally {
+					setIsUploading(false);
+				}
+			};
+		};
+		
+		reader.readAsDataURL(file);
 	}, [editedProduct])
 
 	const debouncedFetch = useMemo(() => {
@@ -154,12 +187,12 @@ export default function EditProduct({productNum, onClose} :{productNum?: number,
 			fullWidth
 			disabled={isUploading}
 		>
-			{isUploading ? 'Przesyłanie...' : 'Dodaj zdjęcie produktu'}
+			{isUploading ? 'Przesyłanie...' : 'Dodaj zdjęcie produktu (JPEG, max 1280x960px, max 5MB)'}
 			<input
 			onChange={handleFileInput}
 				type="file"
 				hidden
-				accept="image/*"
+				accept="image/jpeg"
 				disabled={isUploading}
 			/>
 		</Button>

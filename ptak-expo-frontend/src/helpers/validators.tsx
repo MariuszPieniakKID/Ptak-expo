@@ -3,7 +3,7 @@ export const validateNip = (nip: string): string => {
   const trimmed = nip.trim().replace(/[\s-]/g, '');
   if (!trimmed) return 'NIP/VAT jest wymagany';
   
-  // Check if it's a Polish NIP (starts with PL or is 10 digits)
+  // Check if it's a Polish NIP (starts with PL or is exactly 10 digits)
   const isPolishNip = /^PL\d{10}$/i.test(trimmed) || /^\d{10}$/.test(trimmed);
   
   if (isPolishNip) {
@@ -19,9 +19,14 @@ export const validateNip = (nip: string): string => {
     return '';
   }
   
-  // Foreign tax number - validate format (alphanumeric, 5-20 characters)
-  if (!/^[A-Z]{2}[A-Z0-9]{3,18}$/i.test(trimmed)) {
-    return 'Zagraniczny numer VAT powinien mieć format: kod kraju (2 litery) + numer (3-18 znaków alfanumerycznych), np. DE123456789';
+  // Foreign tax number - validate format:
+  // - With country code: 2 letters + 3-18 alphanumeric chars (e.g., DE123456789)
+  // - Without country code: 5-20 digits (e.g., 12345678901 for German VAT)
+  const hasCountryCode = /^[A-Z]{2}[A-Z0-9]{3,18}$/i.test(trimmed);
+  const isNumericOnly = /^\d{5,20}$/.test(trimmed);
+  
+  if (!hasCountryCode && !isNumericOnly) {
+    return 'Zagraniczny numer VAT powinien mieć format: kod kraju (2 litery) + numer (np. DE123456789) lub same cyfry (5-20 znaków)';
   }
   
   return '';

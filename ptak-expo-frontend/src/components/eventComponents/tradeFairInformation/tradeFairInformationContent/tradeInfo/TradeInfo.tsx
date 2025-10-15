@@ -89,7 +89,7 @@ const TradeInfo: React.FC<TradeInfoProps> = ({ exhibitionId }) => {
   const [exhibitionRange, setExhibitionRange] = useState<{ start: string; end: string } | null>(null);
 
   const [tradeSpaces, setTradeSpaces] = useState<TradeSpace[]>([
-    { id: '1', name: '', hallName: 'HALA A' }
+    { id: '1', name: '', hallName: '' }
   ]);
 
   const [hallEntries, setHallEntries] = useState<HallEntry[]>([]);
@@ -156,7 +156,7 @@ const TradeInfo: React.FC<TradeInfoProps> = ({ exhibitionId }) => {
           })));
           setBuildType(data.buildType);
           setTradeSpaces(data.tradeSpaces.length > 0 ? data.tradeSpaces : [
-            { id: '1', name: '', hallName: 'HALA A' }
+            { id: '1', name: '', hallName: '' }
           ]);
 
           const existingHalls: HallEntry[] = data.tradeSpaces.map(space => ({
@@ -700,15 +700,27 @@ const TradeInfo: React.FC<TradeInfoProps> = ({ exhibitionId }) => {
         <CustomTypography className={styles.subsectionTitle_}>Plan Targów:</CustomTypography>
         <Box className={styles.fairPlnRow}>
           <Box className={styles.fairPlnIn}>
-            <CustomField
-                  type="text"
-                  label="Nazwa Hali"
-                  value={newHallName}
-                  onChange={(e) => setNewHallName(e.target.value)}
-                  size="small"
-                  placeholder="np. HALA A"
-                  fullWidth
-                />
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+              <CustomTypography sx={{ fontSize: '0.875rem', color: '#666', fontWeight: 400 }}>
+                Nazwa Hali
+              </CustomTypography>
+              <CustomSelectMui
+                label=""
+                placeholder="Wybierz halę"
+                value={newHallName}
+                onChange={(value) => setNewHallName(String(value))}
+                options={[
+                  { value: 'Hala A', label: 'Hala A' },
+                  { value: 'Hala B', label: 'Hala B' },
+                  { value: 'Hala C', label: 'Hala C' },
+                  { value: 'Hala D', label: 'Hala D' },
+                  { value: 'Hala E', label: 'Hala E' },
+                  { value: 'Hala F', label: 'Hala F' }
+                ]}
+                size="small"
+                fullWidth
+              />
+            </Box>
           </Box>
           
           <Box className={styles.fairPlnIn} 

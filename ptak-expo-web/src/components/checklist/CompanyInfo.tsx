@@ -148,43 +148,76 @@ function ImageEdit({
       const file = e.target.files[0];
       if (file == null) return;
       
-      setIsUploading(true);
-      try {
-        // Get exhibitor ID and exhibition ID from context/storage
-        const token = localStorage.getItem('authToken') || '';
-        const exhibitionId = Number((window as any).currentSelectedExhibitionId) || 0;
-        
-        // Get exhibitor ID
-        const meRes = await fetch(`${require('../../config/config').default.API_BASE_URL}/api/v1/exhibitors/me`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        const meData = await meRes.json();
-        const exhibitorId = meData?.data?.id;
-        
-        if (!exhibitorId || !exhibitionId) {
-          alert('Nie można pobrać informacji o wystawcy');
-          setIsUploading(false);
-          return;
-        }
-        
-        // Upload file via API
-        const { exhibitorDocumentsAPI } = await import('../../services/api');
-        const fileName = await exhibitorDocumentsAPI.uploadCatalogImage(
-          exhibitorId,
-          exhibitionId,
-          file,
-          'logo'
-        );
-        
-        // Save filename (not base64) to catalog
-        onChange(fileName);
-        setIsEdit(false);
-      } catch (error) {
-        console.error('Upload error:', error);
-        alert('Błąd podczas przesyłania pliku');
-      } finally {
-        setIsUploading(false);
+      // Validate file type (PNG only)
+      if (!file.type.match(/^image\/png$/)) {
+        alert('Logotyp musi być w formacie PNG');
+        e.target.value = '';
+        return;
       }
+      
+      // Validate file size (max 50 KB)
+      const maxSize = 50 * 1024; // 50 KB
+      if (file.size > maxSize) {
+        alert('Logotyp nie może przekraczać 50 KB');
+        e.target.value = '';
+        return;
+      }
+      
+      // Validate image dimensions (300x200)
+      const img = new Image();
+      const reader = new FileReader();
+      
+      reader.onload = async (event) => {
+        img.src = event.target?.result as string;
+        img.onload = async () => {
+          if (img.width !== 300 || img.height !== 200) {
+            alert('Logotyp musi mieć wymiary 300x200 pikseli');
+            e.target.value = '';
+            return;
+          }
+          
+          // All validations passed, proceed with upload
+          setIsUploading(true);
+          try {
+            // Get exhibitor ID and exhibition ID from context/storage
+            const token = localStorage.getItem('authToken') || '';
+            const exhibitionId = Number((window as any).currentSelectedExhibitionId) || 0;
+            
+            // Get exhibitor ID
+            const meRes = await fetch(`${require('../../config/config').default.API_BASE_URL}/api/v1/exhibitors/me`, {
+              headers: { Authorization: `Bearer ${token}` }
+            });
+            const meData = await meRes.json();
+            const exhibitorId = meData?.data?.id;
+            
+            if (!exhibitorId || !exhibitionId) {
+              alert('Nie można pobrać informacji o wystawcy');
+              setIsUploading(false);
+              return;
+            }
+            
+            // Upload file via API
+            const { exhibitorDocumentsAPI } = await import('../../services/api');
+            const fileName = await exhibitorDocumentsAPI.uploadCatalogImage(
+              exhibitorId,
+              exhibitionId,
+              file,
+              'logo'
+            );
+            
+            // Save filename (not base64) to catalog
+            onChange(fileName);
+            setIsEdit(false);
+          } catch (error) {
+            console.error('Upload error:', error);
+            alert('Błąd podczas przesyłania pliku');
+          } finally {
+            setIsUploading(false);
+          }
+        };
+      };
+      
+      reader.readAsDataURL(file);
     },
     [onChange]
   );
@@ -241,12 +274,12 @@ function ImageEdit({
           {value != null && <GreenCheck />}
         </Box>
         <Button component="label" fullWidth disabled={isUploading}>
-          {isUploading ? 'Przesyłanie...' : 'Wybierz plik'}
+          {isUploading ? 'Przesyłanie...' : 'Wybierz logotyp (PNG, 300x200px, max 50KB)'}
           <input
             onChange={handleFileInput}
             type="file"
             hidden
-            accept="image/*"
+            accept="image/png"
             disabled={isUploading}
           />
         </Button>
