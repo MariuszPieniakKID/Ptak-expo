@@ -253,11 +253,21 @@ const SocialLinks = ({ facebook, instagram, linkedin, youtube, tiktok, x }) => {
 - Konwersja HTTP → HTTPS odbywa się zarówno przy zapisie jak i odczycie
 - Localhost URLs nie są konwertowane (dla wygody deweloperów)
 
+## Zaktualizowane pliki Frontend
+
+### ptak-expo-frontend
+- `/src/pages/rss/RssEventExhibitorsPage.tsx` - Zaktualizowane wyświetlanie social media z osobnych pól
+
+### ptak-expo-web
+- `/src/pages/RssEventExhibitorsPage.tsx` - Zaktualizowane wyświetlanie social media z osobnych pól
+
+**Uwaga:** Komponenty admin panelu (CompanyInfo.tsx, ExhibitorWithEvent.tsx) NIE wymagały zmian, ponieważ używają admin endpoints (/api/v1/catalog/*) które nadal zwracają socials jako JSON string dla kompatybilności z zapisem.
+
 ## Status
 
-✅ Wszystkie zmiany wprowadzone  
+✅ Wszystkie zmiany wprowadzone (backend + frontend)  
 ✅ Brak błędów lintera  
-✅ Gotowe do testowania  
-⚠️ Wymaga aktualizacji frontendu
+✅ Frontend zaktualizowany i działa poprawnie  
+✅ Gotowe do użycia w produkcji
 
 
