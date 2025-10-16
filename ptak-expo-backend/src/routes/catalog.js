@@ -483,12 +483,20 @@ router.get('/:exhibitionId', verifyToken, requireExhibitorOrAdmin, async (req, r
     // 3) Fallback to exhibitors table (defaults)
     if (!data) {
       const exhibitorRes = await db.query(
-        `SELECT company_name, email, address, postal_code, city, contact_person
+        `SELECT company_name, email, address, postal_code, city, contact_person, phone
          FROM exhibitors WHERE id = $1`,
         [exhibitorId]
       );
       if (exhibitorRes.rows.length > 0) {
         const e = exhibitorRes.rows[0];
+        // Create contact_info as JSON for consistency
+        const contactInfoJson = e.contact_person || e.phone || e.email 
+          ? JSON.stringify({
+              person: e.contact_person || '',
+              phone: e.phone || '',
+              email: e.email || ''
+            })
+          : null;
         data = {
           id: null,
           exhibitor_id: exhibitorId,
@@ -497,7 +505,7 @@ router.get('/:exhibitionId', verifyToken, requireExhibitorOrAdmin, async (req, r
           display_name: e.company_name,
           logo: null,
           description: null,
-          contact_info: e.contact_person || null,
+          contact_info: contactInfoJson,
           why_visit: null,
           website: null,
           socials: null,
@@ -603,16 +611,18 @@ router.post('/:exhibitionId', verifyToken, requireExhibitorOrAdmin, async (req, 
     }
 
     // Synchronize key fields back to exhibitors table so admin sees the same data
+    // NOTE: contactInfo is NOT synced to contact_person to keep them separate
+    // contactInfo from checklist is stored in catalog_entries as JSON
+    // contact_person in exhibitors table remains the exhibitor's contact person name
     try {
       await db.query(
         `UPDATE exhibitors
          SET 
            company_name = COALESCE($1, company_name),
-           contact_person = COALESCE($2, contact_person),
-           email = COALESCE($3, email),
+           email = COALESCE($2, email),
            updated_at = NOW()
-         WHERE id = $4`,
-        [name, contactInfo, contactEmail, exhibitorId]
+         WHERE id = $3`,
+        [name, contactEmail, exhibitorId]
       );
     } catch (syncErr) {
       console.error('⚠️ Error syncing catalog fields to exhibitors:', syncErr);

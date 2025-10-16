@@ -42,13 +42,30 @@ export const ChecklistProvider = ({ children, eventId }: {children: ReactNode, e
 	const [checklist, setChecklist] = useState<Checklist>(emptyChecklist);
 	useEffect(() => { (window as any).currentSelectedExhibitionId = eventId; }, [eventId]);
 	useEffect(() => { getChecklist(eventId).then(setChecklist); }, [eventId]);
-	const companyInfoFilledCount = 
-		(checklist.companyInfo.contactInfo != null ? 1 : 0) +
-		(checklist.companyInfo.description != null ? 1 : 0) +
-		(checklist.companyInfo.logo != null ? 1 : 0) +
-		(checklist.companyInfo.name != null ? 1 : 0) +
-		(checklist.companyInfo.socials != null ? 1 : 0) +
-		(checklist.companyInfo.website != null ? 1 : 0);
+	const companyInfoFilledCount = (() => {
+		// Check if contactInfo is fully filled (all three fields: person, phone, email)
+		let contactInfoFilled = 0;
+		try {
+			if (checklist.companyInfo.contactInfo) {
+				const contactData = JSON.parse(checklist.companyInfo.contactInfo);
+				if (contactData.person && contactData.phone && contactData.email) {
+					contactInfoFilled = 1;
+				}
+			}
+		} catch {
+			// If contactInfo is not JSON, check if it's a non-empty string (backward compatibility)
+			if (checklist.companyInfo.contactInfo && checklist.companyInfo.contactInfo.trim()) {
+				contactInfoFilled = 1;
+			}
+		}
+		
+		return contactInfoFilled +
+			(checklist.companyInfo.description != null ? 1 : 0) +
+			(checklist.companyInfo.logo != null ? 1 : 0) +
+			(checklist.companyInfo.name != null ? 1 : 0) +
+			(checklist.companyInfo.socials != null ? 1 : 0) +
+			(checklist.companyInfo.website != null ? 1 : 0);
+	})();
 	const filled = useMemo(() => {
 		const ret = [] as boolean[];
 		ret.push(companyInfoFilledCount === 6);

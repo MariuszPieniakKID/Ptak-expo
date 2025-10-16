@@ -48,17 +48,21 @@ const buildItems = (
   products: PresentedProductItem[],
   socials: { facebook: string; instagram: string; linkedIn: string; youTube: string; tiktok: string; x: string },
   materials: MaterialItem[],
-  onDownload: (id: number) => void
+  onDownload: (id: number) => void,
+  catalogContactInfo: { person: string; phone: string; email: string } | null
 ) => {
+  // Use contactInfo from catalog if available, otherwise fall back to exhibitor data
+  const contactData = catalogContactInfo || {
+    person: exhibitor?.contactPerson || '',
+    phone: exhibitor?.phone || '',
+    email: exhibitor?.email || '',
+  };
+  
   const exhibitorsDetails = {
     companyName: exhibitor?.companyName || '',
     logotyp: logoFileName,
     description: description || '',
-    daneKontaktowe: {
-      person: exhibitor?.contactPerson || '',
-      phone: exhibitor?.phone || '',
-      email: exhibitor?.email || '',
-    },
+    daneKontaktowe: contactData,
     website: website || '',
     media: {
       facebook: socials.facebook || '',
@@ -120,6 +124,7 @@ function ExhibitorWithEvent({
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
   const [products, setProducts] = useState<PresentedProductItem[]>([]);
   const [catalogSocials, setCatalogSocials] = useState<{ facebook: string; instagram: string; linkedIn: string; youTube: string; tiktok: string; x: string }>({ facebook: '', instagram: '', linkedIn: '', youTube: '', tiktok: '', x: '' });
+  const [catalogContactInfo, setCatalogContactInfo] = useState<{ person: string; phone: string; email: string } | null>(null);
   const [materials, setMaterials] = useState<MaterialItem[]>([]);
   const [effectiveExhibitionId, setEffectiveExhibitionId] = useState<number | undefined>(undefined);
   const [reminderSent, setReminderSent] = useState<boolean>(false);
@@ -167,11 +172,28 @@ function ExhibitorWithEvent({
                 } catch {
                   setCatalogSocials({ facebook: '', instagram: '', linkedIn: '', youTube: '', tiktok: '', x: '' });
                 }
+                // Contact info mapping (JSON string in data.contact_info)
+                try {
+                  if (data.contact_info) {
+                    const c = JSON.parse(data.contact_info);
+                    setCatalogContactInfo({
+                      person: String(c.person || ''),
+                      phone: String(c.phone || ''),
+                      email: String(c.email || '')
+                    });
+                  } else {
+                    setCatalogContactInfo(null);
+                  }
+                } catch {
+                  // If contactInfo is not JSON, treat it as legacy string data
+                  setCatalogContactInfo(null);
+                }
               } else {
                 setCatalogDescription('');
                 setCatalogWebsite('');
                 fallbackCatalogLogoDataUrl = null;
                 setCatalogSocials({ facebook: '', instagram: '', linkedIn: '', youTube: '', tiktok: '', x: '' });
+                setCatalogContactInfo(null);
               }
             }
           }
@@ -254,7 +276,7 @@ function ExhibitorWithEvent({
     }
   };
 
-  const items = buildItems(exhibitor, catalogDescription, catalogWebsite, logoFileName, logoUrl, products, catalogSocials, materials, handleDownloadMaterial);
+  const items = buildItems(exhibitor, catalogDescription, catalogWebsite, logoFileName, logoUrl, products, catalogSocials, materials, handleDownloadMaterial, catalogContactInfo);
   const [expandedAccordions, setExpandedAccordions] = useState<boolean[]>(Array(items.length).fill(false));
   const [expandedOne, setExpandedOne] = useState<number | false>(false);
 

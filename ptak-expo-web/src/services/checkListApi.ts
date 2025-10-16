@@ -176,6 +176,7 @@ export const getChecklist = async (exhibitionId: number) => {
 							displayName: (d.display_name ?? d.name ?? null) as any,
 							description: d.description ?? null,
 							whyVisit: (d.why_visit ?? null) as any,
+							contactInfo: d.contact_info ?? ExampleChecklist.companyInfo.contactInfo,
 							website: d.website ?? null,
 							logo: d.logo ?? null,
 							socials: (d.socials ?? null) as any

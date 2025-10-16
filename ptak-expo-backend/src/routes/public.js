@@ -402,13 +402,29 @@ router.get('/exhibitions/:exhibitionId/exhibitors', async (req, res) => {
       
       const socials = parseSocials(r.socials);
       
+      // Parse contact_info JSON or use as string (backward compatibility)
+      let contactPerson = phoneData.contact_person || '';
+      let contactPhone = phoneData.phone || '';
+      let contactEmail = r.contact_email || '';
+      try {
+        if (r.contact_info) {
+          const contactData = JSON.parse(r.contact_info);
+          contactPerson = contactData.person || contactPerson;
+          contactPhone = contactData.phone || contactPhone;
+          contactEmail = contactData.email || contactEmail;
+        }
+      } catch {
+        // If contact_info is not JSON, use it as contactPerson string (legacy)
+        contactPerson = r.contact_info || contactPerson;
+      }
+      
       return {
         exhibitor_id: String(r.exhibitor_id || ''),
         name: r.name || '',
         description: r.description || '',
-        contactPerson: r.contact_info || phoneData.contact_person || '',
-        contactPhone: phoneData.phone || '',
-        contactEmail: r.contact_email || '',
+        contactPerson: contactPerson,
+        contactPhone: contactPhone,
+        contactEmail: contactEmail,
         website: ensureHttps(r.website || ''),
         // Social media as separate fields
         facebook: socials.facebook,
@@ -1003,6 +1019,22 @@ router.get('/exhibitions/:exhibitionId/exhibitors/:exhibitorId.json', async (req
     // Build payload
     const socials = parseSocials(company.socials);
     
+    // Parse contact_info JSON or use as string (backward compatibility)
+    let contactPerson = phoneData.contact_person || '';
+    let contactPhone = phoneData.phone || '';
+    let contactEmail = company.contact_email || '';
+    try {
+      if (company.contact_info) {
+        const contactData = JSON.parse(company.contact_info);
+        contactPerson = contactData.person || contactPerson;
+        contactPhone = contactData.phone || contactPhone;
+        contactEmail = contactData.email || contactEmail;
+      }
+    } catch {
+      // If contact_info is not JSON, use it as contactPerson string (legacy)
+      contactPerson = company.contact_info || contactPerson;
+    }
+    
     const payload = {
       success: true,
       exhibitionId: String(exhibitionId),
@@ -1014,9 +1046,9 @@ router.get('/exhibitions/:exhibitionId/exhibitors/:exhibitorId.json', async (req
         logoUrl: toUrl(company.logo),
         description: company.description || '',
         whyVisit: company.why_visit || '',
-        contactPerson: company.contact_info || phoneData.contact_person || '',
-        contactPhone: phoneData.phone || '',
-        contactEmail: company.contact_email || '',
+        contactPerson: contactPerson,
+        contactPhone: contactPhone,
+        contactEmail: contactEmail,
         website: ensureHttps(company.website || ''),
         // Social media as separate fields
         facebook: socials.facebook,
