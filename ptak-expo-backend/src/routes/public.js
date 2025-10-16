@@ -61,6 +61,76 @@ const parseTagsToArray = (tagsString) => {
   return tags;
 };
 
+// Helper: Parse social media JSON to separate fields
+const parseSocials = (socialsData) => {
+  const defaultSocials = {
+    facebook: '',
+    instagram: '',
+    linkedin: '',
+    youtube: '',
+    tiktok: '',
+    x: ''
+  };
+
+  if (!socialsData) return defaultSocials;
+
+  try {
+    // If it's already an object (JSONB from database)
+    if (typeof socialsData === 'object' && !Array.isArray(socialsData)) {
+      return {
+        facebook: String(socialsData.facebook || ''),
+        instagram: String(socialsData.instagram || ''),
+        linkedin: String(socialsData.linkedin || socialsData.linkedIn || ''),
+        youtube: String(socialsData.youtube || socialsData.youTube || ''),
+        tiktok: String(socialsData.tiktok || socialsData.tikTok || ''),
+        x: String(socialsData.x || socialsData.twitter || '')
+      };
+    }
+
+    // If it's a JSON string
+    if (typeof socialsData === 'string') {
+      const parsed = JSON.parse(socialsData);
+      return {
+        facebook: String(parsed.facebook || ''),
+        instagram: String(parsed.instagram || ''),
+        linkedin: String(parsed.linkedin || parsed.linkedIn || ''),
+        youtube: String(parsed.youtube || parsed.youTube || ''),
+        tiktok: String(parsed.tiktok || parsed.tikTok || ''),
+        x: String(parsed.x || parsed.twitter || '')
+      };
+    }
+  } catch (error) {
+    console.warn('[parseSocials] Failed to parse socials data:', error.message);
+  }
+
+  return defaultSocials;
+};
+
+// Helper: Convert HTTP URLs to HTTPS
+const ensureHttps = (url) => {
+  if (!url || typeof url !== 'string') return '';
+  
+  const trimmedUrl = url.trim();
+  if (!trimmedUrl) return '';
+  
+  // Skip localhost and local development URLs
+  if (trimmedUrl.includes('localhost') || trimmedUrl.includes('127.0.0.1')) {
+    return trimmedUrl;
+  }
+  
+  // If URL starts with http:// (but not https://), replace it
+  if (trimmedUrl.match(/^http:\/\//i) && !trimmedUrl.match(/^https:\/\//i)) {
+    return trimmedUrl.replace(/^http:\/\//i, 'https://');
+  }
+  
+  // If no protocol, add https://
+  if (!trimmedUrl.match(/^https?:\/\//i)) {
+    return `https://${trimmedUrl}`;
+  }
+  
+  return trimmedUrl;
+};
+
 // Public: list all exhibitions ordered by start_date (JSON)
 router.get('/exhibitions', async (req, res) => {
   try {
@@ -330,6 +400,8 @@ router.get('/exhibitions/:exhibitionId/exhibitors', async (req, res) => {
           }))
         : r.products;
       
+      const socials = parseSocials(r.socials);
+      
       return {
         exhibitor_id: String(r.exhibitor_id || ''),
         name: r.name || '',
@@ -337,8 +409,14 @@ router.get('/exhibitions/:exhibitionId/exhibitors', async (req, res) => {
         contactPerson: r.contact_info || phoneData.contact_person || '',
         contactPhone: phoneData.phone || '',
         contactEmail: r.contact_email || '',
-        website: r.website || '',
-        socials: r.socials || '',
+        website: ensureHttps(r.website || ''),
+        // Social media as separate fields
+        facebook: socials.facebook,
+        instagram: socials.instagram,
+        linkedin: socials.linkedin,
+        youtube: socials.youtube,
+        tiktok: socials.tiktok,
+        x: socials.x,
         catalogTags: parseTagsToArray(r.catalog_tags),
         products: products,
         // Images as URL
@@ -524,6 +602,8 @@ router.get('/exhibitions/:exhibitionId/exhibitors.json', async (req, res) => {
       );
       const phoneData = phoneRes.rows[0] || {};
       
+      const socials = parseSocials(r.socials);
+      
       return {
         exhibitorId: String(r.exhibitor_id || ''),
         companyInfo: {
@@ -535,8 +615,14 @@ router.get('/exhibitions/:exhibitionId/exhibitors.json', async (req, res) => {
           contactPerson: r.contact_info || phoneData.contact_person || '',
           contactPhone: phoneData.phone || '',
           contactEmail: r.contact_email || '',
-          website: r.website || '',
-          socials: r.socials || '',
+          website: ensureHttps(r.website || ''),
+          // Social media as separate fields
+          facebook: socials.facebook,
+          instagram: socials.instagram,
+          linkedin: socials.linkedin,
+          youtube: socials.youtube,
+          tiktok: socials.tiktok,
+          x: socials.x,
           catalogTags: parseTagsToArray(r.catalog_tags),
           brands: parseTagsToArray(r.brands),
           industries: r.industries || ''
@@ -915,6 +1001,8 @@ router.get('/exhibitions/:exhibitionId/exhibitors/:exhibitorId.json', async (req
     const phoneData = exhibitorPhone.rows[0] || {};
 
     // Build payload
+    const socials = parseSocials(company.socials);
+    
     const payload = {
       success: true,
       exhibitionId: String(exhibitionId),
@@ -929,8 +1017,14 @@ router.get('/exhibitions/:exhibitionId/exhibitors/:exhibitorId.json', async (req
         contactPerson: company.contact_info || phoneData.contact_person || '',
         contactPhone: phoneData.phone || '',
         contactEmail: company.contact_email || '',
-        website: company.website || '',
-        socials: company.socials || '',
+        website: ensureHttps(company.website || ''),
+        // Social media as separate fields
+        facebook: socials.facebook,
+        instagram: socials.instagram,
+        linkedin: socials.linkedin,
+        youtube: socials.youtube,
+        tiktok: socials.tiktok,
+        x: socials.x,
         catalogTags: parseTagsToArray(company.catalog_tags),
         brands: parseTagsToArray(company.brands),
         industries: company.industries || ''
@@ -1042,12 +1136,23 @@ router.get('/exhibitions/:exhibitionId/exhibitors/:exhibitorId.rss', async (req,
     const items = [];
 
     // Company item
+    // Parse socials for better RSS display
+    const socials = parseSocials(company.socials);
+    const socialParts = [];
+    if (socials.facebook) socialParts.push(`Facebook: ${socials.facebook}`);
+    if (socials.instagram) socialParts.push(`Instagram: ${socials.instagram}`);
+    if (socials.linkedin) socialParts.push(`LinkedIn: ${socials.linkedin}`);
+    if (socials.youtube) socialParts.push(`YouTube: ${socials.youtube}`);
+    if (socials.tiktok) socialParts.push(`TikTok: ${socials.tiktok}`);
+    if (socials.x) socialParts.push(`X/Twitter: ${socials.x}`);
+    const socialsFormatted = socialParts.length > 0 ? escapeXml(socialParts.join(', ')) : '';
+    
     const companyDesc = [
       company.description ? `Opis: ${escapeXml(company.description)}` : '',
       company.why_visit ? `Dlaczego warto odwiedzić: ${escapeXml(company.why_visit)}` : '',
       company.contact_info ? `Kontakt: ${escapeXml(company.contact_info)}` : '',
-      company.website ? `Strona: ${escapeXml(company.website)}` : '',
-      company.socials ? `Socials: ${escapeXml(company.socials)}` : '',
+      company.website ? `Strona: ${escapeXml(ensureHttps(company.website))}` : '',
+      socialsFormatted ? `Social Media: ${socialsFormatted}` : '',
       company.contact_email ? `Email: ${escapeXml(company.contact_email)}` : '',
       company.catalog_tags ? `Tagi: ${escapeXml(company.catalog_tags)}` : '',
       company.brands ? `Marki: ${escapeXml(company.brands)}` : '',

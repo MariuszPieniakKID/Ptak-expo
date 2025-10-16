@@ -9,6 +9,31 @@ const getLinkedExhibitorIdByEmail = async (email) => {
   return result.rows.length > 0 ? result.rows[0].id : null;
 };
 
+// Helper: Convert HTTP URLs to HTTPS
+const ensureHttps = (url) => {
+  if (!url || typeof url !== 'string') return url;
+  
+  const trimmedUrl = url.trim();
+  if (!trimmedUrl) return trimmedUrl;
+  
+  // Skip localhost and local development URLs
+  if (trimmedUrl.includes('localhost') || trimmedUrl.includes('127.0.0.1')) {
+    return trimmedUrl;
+  }
+  
+  // If URL starts with http:// (but not https://), replace it
+  if (trimmedUrl.match(/^http:\/\//i) && !trimmedUrl.match(/^https:\/\//i)) {
+    return trimmedUrl.replace(/^http:\/\//i, 'https://');
+  }
+  
+  // If no protocol, add https://
+  if (!trimmedUrl.match(/^https?:\/\//i)) {
+    return `https://${trimmedUrl}`;
+  }
+  
+  return trimmedUrl;
+};
+
 // Suggest catalog tags (optionally filtered by prefix)
 router.get('/tags', verifyToken, requireExhibitorOrAdmin, async (req, res) => {
   try {
@@ -516,6 +541,9 @@ router.post('/:exhibitionId', verifyToken, requireExhibitorOrAdmin, async (req, 
       industries = null
     } = req.body || {};
 
+    // Convert website to HTTPS
+    const websiteHttps = website ? ensureHttps(website) : null;
+
     // Safe upsert without relying on a specific constraint name
     const updateRes = await db.query(
       `UPDATE exhibitor_catalog_entries
@@ -534,7 +562,7 @@ router.post('/:exhibitionId', verifyToken, requireExhibitorOrAdmin, async (req, 
            updated_at = NOW()
        WHERE exhibitor_id = $1 AND exhibition_id IS NULL
        RETURNING id, exhibitor_id, exhibition_id, name, display_name, logo, description, why_visit, contact_info, website, socials, contact_email, catalog_tags, brands, created_at, updated_at`,
-      [exhibitorId, name, displayName, logo, description, whyVisit, contactInfo, website, socials, contactEmail, catalogTags, brands]
+      [exhibitorId, name, displayName, logo, description, whyVisit, contactInfo, websiteHttps, socials, contactEmail, catalogTags, brands]
     );
 
     let result;
@@ -546,7 +574,7 @@ router.post('/:exhibitionId', verifyToken, requireExhibitorOrAdmin, async (req, 
           (exhibitor_id, exhibition_id, name, display_name, logo, description, why_visit, contact_info, website, socials, contact_email, catalog_tags, brands)
         VALUES ($1, NULL, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
         RETURNING id, exhibitor_id, exhibition_id, name, display_name, logo, description, why_visit, contact_info, website, socials, contact_email, catalog_tags, brands, created_at, updated_at`,
-        [exhibitorId, name, displayName, logo, description, whyVisit, contactInfo, website, socials, contactEmail, catalogTags, brands]
+        [exhibitorId, name, displayName, logo, description, whyVisit, contactInfo, websiteHttps, socials, contactEmail, catalogTags, brands]
       );
       result = insertRes;
     }
