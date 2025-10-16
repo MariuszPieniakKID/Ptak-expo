@@ -262,13 +262,15 @@ W razie pytań prosimy o kontakt z administratorem systemu.
 };
 
 // Funkcja wysyłania emaila z resetem hasła
-const sendPasswordResetEmail = async (userEmail, firstName, lastName, newPassword) => {
+const sendPasswordResetEmail = async (userEmail, firstName, lastName, newPassword, customLoginUrl = null) => {
+  // Use custom login URL if provided (e.g., for exhibitor panel), otherwise use default FRONTEND_URL
+  const loginUrl = customLoginUrl || `${process.env.FRONTEND_URL || 'http://localhost:3000'}/login`;
   try {
     if (canUseGraph()) {
       const subject = 'PTAK WARSAW EXPO - Reset hasła';
       const html = `<!DOCTYPE html><html><head><meta charset=\"UTF-8\">`+
       `<style>body{font-family:Arial,sans-serif;line-height:1.6;color:#333}.container{max-width:600px;margin:0 auto;padding:20px}.header{background-color:#c7353c;color:#fff;padding:20px;text-align:center}.content{padding:20px;background-color:#f9f9f9}.credentials{background-color:#fff;padding:15px;border-left:4px solid #c7353c;margin:20px 0}.footer{text-align:center;padding:20px;font-size:12px;color:#666}.button{display:inline-block;padding:12px 24px;background-color:#c7353c;color:#fff;text-decoration:none;border-radius:5px;margin:10px 0}</style>`+
-      `</head><body><div class=\"container\"><div class=\"header\"><h1>Reset hasła - PTAK WARSAW EXPO</h1></div><div class=\"content\"><h2>Dzień dobry ${firstName} ${lastName},</h2><p>Zostało wygenerowane nowe hasło:</p><div class=\"credentials\"><h3>Nowe dane logowania:</h3><p><strong>Email:</strong> ${userEmail}</p><p><strong>Nowe hasło:</strong> <code>${newPassword}</code></p></div><a href=\"${process.env.FRONTEND_URL || 'http://localhost:3000'}/login\" class=\"button\">Zaloguj się do systemu</a></div><div class=\"footer\"><p>© 2024 PTAK WARSAW EXPO. Wszystkie prawa zastrzeżone.</p></div></div></body></html>`;
+      `</head><body><div class=\"container\"><div class=\"header\"><h1>Reset hasła - PTAK WARSAW EXPO</h1></div><div class=\"content\"><h2>Dzień dobry ${firstName} ${lastName},</h2><p>Zostało wygenerowane nowe hasło:</p><div class=\"credentials\"><h3>Nowe dane logowania:</h3><p><strong>Email:</strong> ${userEmail}</p><p><strong>Nowe hasło:</strong> <code>${newPassword}</code></p></div><a href=\"${loginUrl}\" class=\"button\">Zaloguj się do systemu</a></div><div class=\"footer\"><p>© 2024 PTAK WARSAW EXPO. Wszystkie prawa zastrzeżone.</p></div></div></body></html>`;
       const text = `Reset hasła - PTAK WARSAW EXPO\n\nEmail: ${userEmail}\nNowe hasło: ${newPassword}`;
       await sendViaGraph({ to: userEmail, subject, text, html, from: process.env.FROM_EMAIL });
       return { success: true };
@@ -312,7 +314,7 @@ const sendPasswordResetEmail = async (userEmail, firstName, lastName, newPasswor
                     
                     <p><strong>Ważne:</strong> Ze względów bezpieczeństwa zalecamy zmianę hasła po zalogowaniu.</p>
                     
-                    <a href="${process.env.FRONTEND_URL || 'http://localhost:3000'}/login" class="button">Zaloguj się do systemu</a>
+                    <a href="${loginUrl}" class="button">Zaloguj się do systemu</a>
                     
                     <p>Jeśli nie żądali Państwo resetu hasła, prosimy o natychmiastowy kontakt z administratorem.</p>
                 </div>
@@ -336,7 +338,7 @@ Nowe hasło: ${newPassword}
 
 Ze względów bezpieczeństwa zalecamy zmianę hasła po zalogowaniu.
 
-Link do logowania: ${process.env.FRONTEND_URL || 'http://localhost:3000'}/login
+Link do logowania: ${loginUrl}
 
 Jeśli nie żądali Państwo resetu hasła, prosimy o natychmiastowy kontakt z administratorem.
 

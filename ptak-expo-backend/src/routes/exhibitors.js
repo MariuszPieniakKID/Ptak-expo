@@ -1245,12 +1245,14 @@ router.post('/:id/reset-password', verifyToken, requireAdmin, async (req, res) =
       console.warn('[exhibitors.reset-password] users upsert warning:', userErr?.message || userErr);
     }
 
-    // Send password reset email
+    // Send password reset email with exhibitor panel URL
     try {
       const fullName = exhibitor.contact_person || '';
       const first = fullName.split(' ')[0] || '';
       const last = fullName.split(' ').slice(1).join(' ') || '';
-      const emailResult = await sendPasswordResetEmail(exhibitor.email, first, last, newPassword);
+      // Use exhibitor panel URL instead of admin panel URL
+      const exhibitorPanelUrl = `${process.env.EXHIBITOR_PANEL_URL || 'https://wystawca.exhibitorlist.eu'}/login`;
+      const emailResult = await sendPasswordResetEmail(exhibitor.email, first, last, newPassword, exhibitorPanelUrl);
       if (!emailResult.success) {
         console.warn('[exhibitors.reset-password] email send failed:', emailResult.error);
       }
