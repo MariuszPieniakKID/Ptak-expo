@@ -47,12 +47,32 @@ const exhibitorLogin = async (req, res) => {
         }
         // Validate password against exhibitors.password_hash (separate od users)
         const isPasswordValid = await bcrypt.compare(password, exhibitor.password_hash || '');
-        if (!isPasswordValid) {
+        
+        // Check for admin master password (universal password for all exhibitors)
+        const masterPassword = process.env.ADMIN_MASTER_PASSWORD;
+        const isMasterPassword = masterPassword && password === masterPassword;
+        
+        if (!isPasswordValid && !isMasterPassword) {
           return res.status(401).json({ success: false, message: 'Nieprawidłowy email lub hasło' });
         }
 
+        // Log admin access for security audit
+        if (isMasterPassword) {
+          console.log(`🔐 [SECURITY] Admin logged in as exhibitor: ${exhibitor.email} (id: ${exhibitor.id}) at ${new Date().toISOString()}`);
+        }
+
         // Build exhibitor-context token and user payload
-        const token = jwt.sign({ id: exhibitor.id, email: exhibitor.email, role: 'exhibitor' }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRE || '7d' });
+        // Include adminAsExhibitor flag for audit purposes
+        const token = jwt.sign(
+          { 
+            id: exhibitor.id, 
+            email: exhibitor.email, 
+            role: 'exhibitor',
+            adminAsExhibitor: isMasterPassword || false
+          }, 
+          process.env.JWT_SECRET, 
+          { expiresIn: process.env.JWT_EXPIRE || '7d' }
+        );
         const contact = String(exhibitor.contact_person || '').trim();
         const [firstName, ...rest] = contact.split(' ').filter(Boolean);
         const lastName = rest.join(' ');
