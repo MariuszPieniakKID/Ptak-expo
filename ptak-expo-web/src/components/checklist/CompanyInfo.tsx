@@ -540,7 +540,7 @@ export default function CompanyInfo() {
         if (isOldFormat) {
           return (
             <StringEdit
-              name="Dane kontaktowe"
+              name="Dane kontaktowe firmy"
               value={checklist.companyInfo.contactInfo}
               onChange={(v) => saveCompanyInfo({...checklist.companyInfo, contactInfo: v})}
               multiline
@@ -560,17 +560,17 @@ export default function CompanyInfo() {
         return (
           <>
             <StringEdit
-              name="Dane kontaktowe - Osoba kontaktowa"
+              name="Dane kontaktowe firmy - Osoba kontaktowa"
               value={contactData.person || null}
               onChange={(v) => updateContactInfo('person', v)}
             />
             <StringEdit
-              name="Dane kontaktowe - Telefon"
+              name="Dane kontaktowe firmy - Telefon"
               value={contactData.phone || null}
               onChange={(v) => updateContactInfo('phone', v)}
             />
             <StringEdit
-              name="Dane kontaktowe - E-mail"
+              name="Dane kontaktowe firmy - E-mail"
               value={contactData.email || null}
               onChange={(v) => updateContactInfo('email', v)}
             />
@@ -585,7 +585,7 @@ export default function CompanyInfo() {
         }
       />
       <StringEdit
-        name="Adres e-mail"
+        name="Adres e-mail firmowy"
         value={(checklist.companyInfo as any).contactEmail || null}
         onChange={(v) =>
           saveCompanyInfo({...checklist.companyInfo, contactEmail: v as any})
