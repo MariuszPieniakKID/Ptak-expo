@@ -48,11 +48,16 @@ const RssEventExhibitorsPage: React.FC = () => {
             <div>
               <div><strong>Social Media:</strong></div>
               <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-                {ex.socials && typeof ex.socials === 'object' ? (
-                  Object.entries(ex.socials).map(([k, v]) => (
-                    <a key={k} href={String(v)} target="_blank" rel="noreferrer">{k}</a>
-                  ))
-                ) : ('-')}
+                {(() => {
+                  const socials = [];
+                  if (ex.facebook) socials.push(<a key="facebook" href={ex.facebook} target="_blank" rel="noreferrer">Facebook</a>);
+                  if (ex.instagram) socials.push(<a key="instagram" href={ex.instagram} target="_blank" rel="noreferrer">Instagram</a>);
+                  if (ex.linkedin) socials.push(<a key="linkedin" href={ex.linkedin} target="_blank" rel="noreferrer">LinkedIn</a>);
+                  if (ex.youtube) socials.push(<a key="youtube" href={ex.youtube} target="_blank" rel="noreferrer">YouTube</a>);
+                  if (ex.tiktok) socials.push(<a key="tiktok" href={ex.tiktok} target="_blank" rel="noreferrer">TikTok</a>);
+                  if (ex.x) socials.push(<a key="x" href={ex.x} target="_blank" rel="noreferrer">X/Twitter</a>);
+                  return socials.length > 0 ? socials : '-';
+                })()}
               </div>
             </div>
             <div>
