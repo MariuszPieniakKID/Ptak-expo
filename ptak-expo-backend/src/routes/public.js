@@ -155,7 +155,8 @@ router.get('/exhibitions/:exhibitionId/feed.json', async (req, res) => {
       return res.status(400).json({ success: false, message: 'Invalid exhibition id' });
     }
 
-    const siteLink = req.protocol + '://' + req.get('host');
+    // Force HTTPS for all public URLs (even if request came via HTTP proxy)
+    const siteLink = 'https://' + req.get('host');
     
     // Get exhibition details
     const exhibitionRes = await db.query(
@@ -360,7 +361,8 @@ router.get('/exhibitions/:exhibitionId/exhibitors', async (req, res) => {
       [exhibitionId]
     );
 
-    const siteLink = req.protocol + '://' + req.get('host');
+    // Force HTTPS for all public URLs (even if request came via HTTP proxy)
+    const siteLink = 'https://' + req.get('host');
     const toUrl = (value) => {
       const s = String(value || '').trim();
       if (!s) return '';
@@ -464,7 +466,8 @@ router.get('/exhibitions/:exhibitionId/exhibitors', async (req, res) => {
 // GET /public/exhibitions/:exhibitionId/exhibitors.json
 router.get('/exhibitions/:exhibitionId/exhibitors.json', async (req, res) => {
   try {
-    const siteLink = req.protocol + '://' + req.get('host');
+    // Force HTTPS for all public URLs (even if request came via HTTP proxy)
+    const siteLink = 'https://' + req.get('host');
     const exhibitionId = parseInt(req.params.exhibitionId, 10);
     if (!Number.isInteger(exhibitionId)) {
       return res.status(400).json({ success: false, message: 'Invalid exhibition id' });
@@ -585,20 +588,22 @@ router.get('/exhibitions/:exhibitionId/exhibitors.json', async (req, res) => {
       `, [r.exhibitor_id, exhibitionId]);
 
       const documents = docsRes.rows.map((d) => {
-        const fileUrl = `${siteLink}/public/exhibitions/${encodeURIComponent(String(exhibitionId))}/exhibitors/${encodeURIComponent(String(r.exhibitor_id))}/documents/${encodeURIComponent(String(d.id))}/download`;
-        return {
-          id: String(d.id || ''),
-          title: d.title || '',
-          description: d.description || '',
-          category: d.category || '',
-          fileName: d.file_name || '',
-          originalName: d.original_name || '',
-          fileSize: String(d.file_size || ''),
-          mimeType: d.mime_type || '',
-          createdAt: d.created_at || '',
-          fileUrl: fileUrl,
-          downloadUrl: fileUrl // Backward compatibility
-        };
+      const downloadUrl = `${siteLink}/public/exhibitions/${encodeURIComponent(String(exhibitionId))}/exhibitors/${encodeURIComponent(String(r.exhibitor_id))}/documents/${encodeURIComponent(String(d.id))}/download`;
+      const viewUrl = `${siteLink}/public/exhibitions/${encodeURIComponent(String(exhibitionId))}/exhibitors/${encodeURIComponent(String(r.exhibitor_id))}/documents/${encodeURIComponent(String(d.id))}/view`;
+      return {
+        id: String(d.id || ''),
+        title: d.title || '',
+        description: d.description || '',
+        category: d.category || '',
+        fileName: d.file_name || '',
+        originalName: d.original_name || '',
+        fileSize: String(d.file_size || ''),
+        mimeType: d.mime_type || '',
+        createdAt: d.created_at || '',
+        downloadUrl: downloadUrl,
+        viewUrl: viewUrl,
+        fileUrl: downloadUrl // Backward compatibility
+      };
       });
 
       // Convert product images to URLs
@@ -679,7 +684,8 @@ router.get('/exhibitions/:exhibitionId/exhibitors.json', async (req, res) => {
 router.get('/rss', async (req, res) => {
   try {
     const siteTitle = 'PTAK WARSAW EXPO – Wydarzenia';
-    const siteLink = req.protocol + '://' + req.get('host');
+    // Force HTTPS for all public URLs (even if request came via HTTP proxy)
+    const siteLink = 'https://' + req.get('host');
     const siteDescription = 'Aktualny wykaz wydarzeń PTAK WARSAW EXPO';
 
     const eventsRes = await db.query(
@@ -711,7 +717,8 @@ router.get('/rss', async (req, res) => {
 router.get('/rss.json', async (req, res) => {
   try {
     const siteTitle = 'PTAK WARSAW EXPO – Wydarzenia';
-    const siteLink = req.protocol + '://' + req.get('host');
+    // Force HTTPS for all public URLs (even if request came via HTTP proxy)
+    const siteLink = 'https://' + req.get('host');
     const siteDescription = 'Aktualny wykaz wydarzeń PTAK WARSAW EXPO';
 
     const eventsRes = await db.query(
@@ -765,7 +772,8 @@ router.get('/rss.json', async (req, res) => {
 // Public HTML index: browse exhibitions and exhibitors with ready links
 router.get('/', async (req, res) => {
   try {
-    const siteLink = req.protocol + '://' + req.get('host');
+    // Force HTTPS for all public URLs (even if request came via HTTP proxy)
+    const siteLink = 'https://' + req.get('host');
     const exhibitionsRes = await db.query(`
       SELECT id, name, description, start_date, end_date, location, status
       FROM exhibitions
@@ -872,7 +880,8 @@ router.get('/', async (req, res) => {
 // GET /public/exhibitions/:exhibitionId/exhibitors/:exhibitorId.json
 router.get('/exhibitions/:exhibitionId/exhibitors/:exhibitorId.json', async (req, res) => {
   try {
-    const siteLink = req.protocol + '://' + req.get('host');
+    // Force HTTPS for all public URLs (even if request came via HTTP proxy)
+    const siteLink = 'https://' + req.get('host');
     const exhibitionId = parseInt(req.params.exhibitionId, 10);
     const exhibitorId = parseInt(req.params.exhibitorId, 10);
     if (!Number.isInteger(exhibitionId) || !Number.isInteger(exhibitorId)) {
@@ -960,7 +969,8 @@ router.get('/exhibitions/:exhibitionId/exhibitors/:exhibitorId.json', async (req
     `, [exhibitorId, exhibitionId]);
 
     const documents = docsRes.rows.map((d) => {
-      const fileUrl = `${siteLink}/public/exhibitions/${encodeURIComponent(String(exhibitionId))}/exhibitors/${encodeURIComponent(String(exhibitorId))}/documents/${encodeURIComponent(String(d.id))}/download`;
+      const downloadUrl = `${siteLink}/public/exhibitions/${encodeURIComponent(String(exhibitionId))}/exhibitors/${encodeURIComponent(String(exhibitorId))}/documents/${encodeURIComponent(String(d.id))}/download`;
+      const viewUrl = `${siteLink}/public/exhibitions/${encodeURIComponent(String(exhibitionId))}/exhibitors/${encodeURIComponent(String(exhibitorId))}/documents/${encodeURIComponent(String(d.id))}/view`;
       return {
         id: String(d.id || ''),
         title: d.title || '',
@@ -971,8 +981,9 @@ router.get('/exhibitions/:exhibitionId/exhibitors/:exhibitorId.json', async (req
         fileSize: String(d.file_size || ''),
         mimeType: d.mime_type || '',
         createdAt: d.created_at || '',
-        fileUrl: fileUrl,
-        downloadUrl: fileUrl // Backward compatibility
+        downloadUrl: downloadUrl,
+        viewUrl: viewUrl,
+        fileUrl: downloadUrl // Backward compatibility
       };
     });
 
@@ -1092,7 +1103,8 @@ router.get('/exhibitions/:exhibitionId/exhibitors/:exhibitorId.json', async (req
 router.get('/exhibitions/:exhibitionId/exhibitors/:exhibitorId.rss', async (req, res) => {
   try {
     const siteTitle = 'PTAK WARSAW EXPO – Wystawca – Checklista';
-    const siteLink = req.protocol + '://' + req.get('host');
+    // Force HTTPS for all public URLs (even if request came via HTTP proxy)
+    const siteLink = 'https://' + req.get('host');
     const exhibitionId = parseInt(req.params.exhibitionId, 10);
     const exhibitorId = parseInt(req.params.exhibitorId, 10);
     if (!Number.isInteger(exhibitionId) || !Number.isInteger(exhibitorId)) {
@@ -1240,10 +1252,11 @@ router.get('/exhibitions/:exhibitionId/exhibitors/:exhibitorId.rss', async (req,
       );
     });
 
-    // Documents items (include enclosure for download)
+    // Documents items (include enclosure for download and link for viewing)
     docsRes.rows.forEach((d) => {
       const downloadUrl = `${siteLink}/public/exhibitions/${encodeURIComponent(String(exhibitionId))}/exhibitors/${encodeURIComponent(String(exhibitorId))}/documents/${encodeURIComponent(String(d.id))}/download`;
-      const desc = [d.description ? escapeXml(d.description) : '', d.category ? `Kategoria: ${escapeXml(d.category)}` : ''].filter(Boolean).join(' | ');
+      const viewUrl = `${siteLink}/public/exhibitions/${encodeURIComponent(String(exhibitionId))}/exhibitors/${encodeURIComponent(String(exhibitorId))}/documents/${encodeURIComponent(String(d.id))}/view`;
+      const desc = [d.description ? escapeXml(d.description) : '', d.category ? `Kategoria: ${escapeXml(d.category)}` : '', `Podgląd: ${viewUrl}`].filter(Boolean).join(' | ');
       items.push(
         `      <item>
         <title>${escapeXml(d.title || d.original_name || 'Dokument')}</title>
@@ -1295,6 +1308,57 @@ ${items.join('\n')}
   } catch (error) {
     console.error('[public] exhibitor checklist rss error', error);
     res.status(500).send('Failed to generate exhibitor RSS feed');
+  }
+});
+
+// Public view/preview for exhibition documents (no auth required, displays inline)
+router.get('/exhibitions/:exhibitionId/exhibitors/:exhibitorId/documents/:documentId/view', async (req, res) => {
+  try {
+    const { exhibitorId, exhibitionId, documentId } = req.params;
+    
+    const result = await db.query(`
+      SELECT file_path, original_name, mime_type 
+      FROM exhibitor_documents 
+      WHERE id = $1 AND exhibitor_id = $2 AND exhibition_id = $3
+    `, [documentId, exhibitorId, exhibitionId]);
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ success: false, error: 'Document not found' });
+    }
+
+    const document = result.rows[0];
+    const candidatePaths = [document.file_path];
+    
+    // Try various path combinations
+    if (typeof document.file_path === 'string') {
+      if (document.file_path.startsWith('/data/uploads/')) {
+        const relativeFromRailway = path.relative('/data/uploads', document.file_path);
+        const localFallback = path.join(__dirname, '../../uploads', relativeFromRailway);
+        candidatePaths.push(localFallback);
+      }
+      // Also try relative path from uploads base
+      if (!document.file_path.startsWith('/')) {
+        candidatePaths.push(path.join(__dirname, '../../uploads', document.file_path));
+        candidatePaths.push(path.join(__dirname, '../..', document.file_path));
+      }
+    }
+
+    for (const p of candidatePaths) {
+      try {
+        await fs.access(p);
+        // Set Content-Disposition to 'inline' for preview instead of 'attachment' for download
+        res.setHeader('Content-Disposition', `inline; filename="${document.original_name || 'document'}"`);
+        res.setHeader('Content-Type', document.mime_type || 'application/pdf');
+        return res.sendFile(path.resolve(p));
+      } catch (_e) {
+        // try next candidate
+      }
+    }
+
+    res.status(404).json({ success: false, error: 'File not found on server' });
+  } catch (error) {
+    console.error('[public] view document error', error);
+    res.status(500).json({ success: false, error: 'Failed to view document' });
   }
 });
 
