@@ -110,9 +110,17 @@ export const validateContactRole = (role: string): string => {
 
 export const validatePhone = (phone: string): string => {
   if (!phone.trim()) return 'Telefon jest wymagany';
-  const re = /^\+?\d{9,12}$/;
-  if (!re.test(phone))
-    return 'Podaj poprawny numer telefonu (9-12 cyfr, opcjonalnie + na początku)';
+  
+  // Normalize phone number: remove spaces, hyphens, parentheses
+  const normalized = phone.trim().replace(/[\s\-()]/g, '');
+  
+  // Allow international format: + followed by 9-15 digits
+  // Examples: +48123456789, +49151544062116, +1234567890
+  const re = /^\+?\d{9,15}$/;
+  
+  if (!re.test(normalized))
+    return 'Podaj poprawny numer telefonu (9-15 cyfr, dozwolone: +, spacje, myślniki, nawiasy)';
+  
   return '';
 };
 

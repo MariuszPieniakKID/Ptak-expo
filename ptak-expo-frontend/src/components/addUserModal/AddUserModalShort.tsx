@@ -87,9 +87,13 @@ const [apiError, setApiError] = useState('');
       return false;
     }
     
-    const re =  /^\+?\d{9,12}$/;
-    if (!re.test(phone)) {
-      setPhoneError('Podaj poprawny numer telefonu');
+    // Normalize phone number: remove spaces, hyphens, parentheses
+    const normalized = phone.trim().replace(/[\s\-()]/g, '');
+    
+    // Allow international format: + followed by 9-15 digits
+    const re = /^\+?\d{9,15}$/;
+    if (!re.test(normalized)) {
+      setPhoneError('Podaj poprawny numer telefonu (9-15 cyfr, dozwolone: +, spacje, myślniki, nawiasy)');
       return false;
     }
     setPhoneError('');
