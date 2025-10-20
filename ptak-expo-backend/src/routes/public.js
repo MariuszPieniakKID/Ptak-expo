@@ -613,11 +613,12 @@ router.get('/exhibitions/:exhibitionId/exhibitors.json', async (req, res) => {
         ORDER BY event_date ASC, start_time ASC
       `, [exhibitionId, r.exhibitor_id]);
 
-      // Get documents for this exhibitor
+      // Get documents for this exhibitor (exclude catalog_images like logos)
       const docsRes = await db.query(`
         SELECT id, title, description, file_name, original_name, file_size, mime_type, category, created_at
         FROM exhibitor_documents
         WHERE exhibitor_id = $1 AND exhibition_id = $2
+          AND (document_source IS NULL OR document_source != 'catalog_images')
         ORDER BY category, created_at DESC
       `, [r.exhibitor_id, exhibitionId]);
 
@@ -1028,11 +1029,12 @@ router.get('/exhibitions/:exhibitionId/exhibitors/:exhibitorId.json', async (req
       ORDER BY event_date ASC, start_time ASC
     `, [exhibitionId, exhibitorId]);
 
-    // Documents for exhibitor at exhibition with download URLs
+    // Documents for exhibitor at exhibition with download URLs (exclude catalog_images like logos)
     const docsRes = await db.query(`
       SELECT id, title, description, file_name, original_name, file_size, mime_type, category, created_at
       FROM exhibitor_documents
       WHERE exhibitor_id = $1 AND exhibition_id = $2
+        AND (document_source IS NULL OR document_source != 'catalog_images')
       ORDER BY category, created_at DESC
     `, [exhibitorId, exhibitionId]);
 
@@ -1263,6 +1265,7 @@ router.get('/exhibitions/:exhibitionId/exhibitors/:exhibitorId.rss', async (req,
       SELECT id, title, description, file_name, original_name, file_size, mime_type, category, created_at
       FROM exhibitor_documents
       WHERE exhibitor_id = $1 AND exhibition_id = $2
+        AND (document_source IS NULL OR document_source != 'catalog_images')
       ORDER BY category, created_at DESC
     `, [exhibitorId, exhibitionId]);
 
