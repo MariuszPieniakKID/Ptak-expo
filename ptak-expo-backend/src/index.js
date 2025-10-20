@@ -73,10 +73,7 @@ app.use((req, res, next) => {
 // Configure Helmet to allow cross-origin resource embedding (for images/PDFs served from backend)
 app.use(helmet({
   crossOriginResourcePolicy: { policy: 'cross-origin' },
-  crossOriginOpenerPolicy: { policy: 'same-origin-allow-popups' },
-  // Disable frameguard globally to allow PDF iframe embedding in public routes
-  // Individual routes can override this with their own headers
-  frameguard: false
+  crossOriginOpenerPolicy: { policy: 'same-origin-allow-popups' }
 }));
 
 // CORS Configuration using Railway environment variables
