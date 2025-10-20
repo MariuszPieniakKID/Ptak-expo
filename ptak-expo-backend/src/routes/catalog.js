@@ -472,7 +472,7 @@ router.get('/:exhibitionId', verifyToken, requireExhibitorOrAdmin, async (req, r
         contact_email: prefer(data.contact_email, globalData.contact_email),
         catalog_tags: prefer(data.catalog_tags, globalData.catalog_tags),
         brands: prefer(data.brands, globalData.brands),
-        products: Array.isArray(data.products) ? data.products : (Array.isArray(globalData.products) ? globalData.products : []),
+        products: (Array.isArray(data.products) && data.products.length > 0) ? data.products : (Array.isArray(globalData.products) ? globalData.products : []),
         industries: prefer(data.industries, globalData.industries),
         catalog_contact_person: prefer(data.catalog_contact_person, globalData.catalog_contact_person),
         catalog_contact_phone: prefer(data.catalog_contact_phone, globalData.catalog_contact_phone),
