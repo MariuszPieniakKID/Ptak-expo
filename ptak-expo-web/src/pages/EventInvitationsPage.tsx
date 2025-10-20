@@ -162,11 +162,18 @@ const EventInvitationsPage = () => {
           .map((id: number) => benefits.find((b) => b.id === id))
           .filter(Boolean) as BenefitItem[];
         if (items.length === 0) return '';
-        const list = items.map((b) => `<li><strong>${b.title}</strong>${b.description ? ' – ' + b.description : ''}</li>`).join('');
-        return `<h4>Oferta specjalna:</h4><ul>${list}</ul>`;
+        const list = items.map((b) => {
+          let imageHtml = '';
+          if (b.file_url) {
+            const imageUrl = b.file_url.startsWith('http') ? b.file_url : `${config.API_BASE_URL}${b.file_url}`;
+            imageHtml = `<div style='text-align:center;margin:12px 0;'><img src='${imageUrl}' alt='${b.title}' style='max-width:100%;max-height:200px;height:auto;display:inline-block;border-radius:4px;' /></div>`;
+          }
+          return `<li style='margin-bottom:20px;padding:12px;background:#f9f9f9;border-radius:8px;'>${imageHtml}<div style='margin-top:8px;'><strong>${b.title}</strong>${b.description ? '<br/>' + b.description : ''}</div></li>`;
+        }).join('');
+        return `<h4>Oferta specjalna:</h4><ul style='list-style-type:none;padding:0;'>${list}</ul>`;
       })();
 
-      const headerImgHtml = data?.headerImageUrl ? `<div style='height:160px;overflow:hidden;margin-bottom:16px;'><img alt='header' src='${data.headerImageUrl}' style='width:100%;height:100%;object-fit:cover;'/></div>` : '';
+      const headerImgHtml = data?.headerImageUrl ? `<div style='text-align:center;margin-bottom:16px;background:#f5f5f5;padding:20px;'><img alt='header' src='${data.headerImageUrl}' style='max-width:100%;height:auto;display:inline-block;'/></div>` : '';
 
       const html = `<!doctype html><html><head><meta charset='utf-8'/></head><body style='font-family:Arial,sans-serif;color:#333;line-height:1.5;'>${headerImgHtml}
         ${greetingLine ? `<p>${greetingLine}</p>` : ''}

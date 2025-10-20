@@ -751,23 +751,17 @@ ${invitationData.company_info || ''}`;
                         dangerouslySetInnerHTML={{ __html: `
                           <p>${(invitationData.greeting || '').replace(/\n/g,'<br/>')}</p>
                           <p>${(invitationData.content || '').replace(/\n/g,'<br/>')}</p>
-                          ${((invitationData.special_offers||[]).length ? '<h4>Benefity:</h4><ul>' + (invitationData.special_offers||[]).map(id => {
+                          ${((invitationData.special_offers||[]).length ? '<h4>Benefity:</h4><ul style="list-style-type:none;padding:0;">' + (invitationData.special_offers||[]).map(id => {
                             const b = benefits.find(x=>x.id===id);
-                            return b ? `<li><strong>${b.title}</strong>${b.description ? ' – ' + b.description : ''}</li>` : '';
+                            if (!b) return '';
+                            let imageHtml = '';
+                            if (b.file_url) {
+                              const imageUrl = b.file_url.startsWith('http') ? b.file_url : config.API_BASE_URL + b.file_url;
+                              imageHtml = '<div style="text-align:center;margin:12px 0;"><img src="' + imageUrl + '" alt="' + b.title + '" style="max-width:100%;max-height:200px;height:auto;display:inline-block;border-radius:4px;" /></div>';
+                            }
+                            return '<li style="margin-bottom:20px;padding:12px;background:#f9f9f9;border-radius:8px;">' + imageHtml + '<div style="margin-top:8px;"><strong>' + b.title + '</strong>' + (b.description ? '<br/>' + b.description : '') + '</div></li>';
                           }).join('') + '</ul>' : '')}
                           ${(invitationData.company_info ? `<p><strong>Informacje o firmie/organizatorze:</strong><br/>${invitationData.company_info.replace(/\n/g,'<br/>')}</p>` : '')}
-                          ${(() => {
-                            const files = (invitationData.special_offers||[])
-                              .map(id => benefits.find(x=>x.id===id)?.file_url)
-                              .filter((u): u is string => !!u);
-                            if (!files.length) return '';
-                            const list = files.map(u => {
-                              const name = u.split('/').pop() || 'plik';
-                              const href = `${config.API_BASE_URL}${u}`;
-                              return `<li><a href="${href}" target="_blank" rel="noopener noreferrer">${name}</a></li>`;
-                            }).join('');
-                            return `<p><strong>Załączniki:</strong></p><ul>${list}</ul>`;
-                          })()}
                         `}} />
                     </Box>
                   </Box>

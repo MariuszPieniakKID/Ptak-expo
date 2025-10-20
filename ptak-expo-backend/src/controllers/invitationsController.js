@@ -372,9 +372,9 @@ const sendInvitation = async (req, res) => {
               let imageHtml = '';
               if (b.file_url) {
                 const imageUrl = `${base}${b.file_url}`;
-                imageHtml = `<img src="${imageUrl}" alt="${b.title}" style="max-width:200px;max-height:150px;margin:8px 0;display:block;border-radius:4px;" />`;
+                imageHtml = `<div style="text-align:center;margin:12px 0;"><img src="${imageUrl}" alt="${b.title}" style="max-width:100%;max-height:200px;height:auto;display:inline-block;border-radius:4px;" /></div>`;
               }
-              return `<li style="margin-bottom:12px;">${imageHtml}<strong>${b.title}</strong>${b.description ? ' – ' + b.description : ''}</li>`;
+              return `<li style="margin-bottom:20px;padding:12px;background:#f9f9f9;border-radius:8px;">${imageHtml}<div style="margin-top:8px;"><strong>${b.title}</strong>${b.description ? '<br/>' + b.description : ''}</div></li>`;
             }).join('');
             offersBlock = `<h4>Oferta specjalna:</h4><ul style="list-style-type:none;padding:0;">${list}</ul>`;
           }
@@ -407,7 +407,7 @@ const sendInvitation = async (req, res) => {
         }
       } catch {}
 
-      const headerImgHtml = headerImageUrl ? `<div style=\"height:160px;overflow:hidden;margin-bottom:16px;\"><img alt=\"header\" src=\"${headerImageUrl}\" style=\"width:100%;height:100%;object-fit:cover;\"/></div>` : '';
+      const headerImgHtml = headerImageUrl ? `<div style=\"text-align:center;margin-bottom:16px;background:#f5f5f5;padding:20px;\"><img alt=\"header\" src=\"${headerImageUrl}\" style=\"max-width:100%;height:auto;display:inline-block;\"/></div>` : '';
 
       const html = `<!doctype html><html><head><meta charset=\"utf-8\"/></head><body style=\"font-family:Arial,sans-serif;color:#333;line-height:1.5;\">${headerImgHtml}
         ${greetingLine ? `<p>${greetingLine}</p>` : ''}
