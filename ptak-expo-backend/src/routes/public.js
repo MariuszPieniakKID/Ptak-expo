@@ -371,11 +371,11 @@ router.get('/exhibitions/:exhibitionId/exhibitors', async (req, res) => {
                 '{}'::jsonb
               ) AS socials,
               COALESCE(s.contact_email, g.contact_email, b.contact_email) AS contact_email,
-              COALESCE(s.catalog_tags, g.catalog_tags, b.catalog_tags) AS catalog_tags,
-              COALESCE(s.products, g.products, b.products) AS products,
-              COALESCE(s.catalog_contact_person, g.catalog_contact_person, b.catalog_contact_person) AS catalog_contact_person,
-              COALESCE(s.catalog_contact_phone, g.catalog_contact_phone, b.catalog_contact_phone) AS catalog_contact_phone,
-              COALESCE(s.catalog_contact_email, g.catalog_contact_email, b.catalog_contact_email) AS catalog_contact_email
+              COALESCE(s.catalog_tags, g.catalog_tags) AS catalog_tags,
+              COALESCE(s.products, g.products, '[]'::jsonb) AS products,
+              COALESCE(s.catalog_contact_person, g.catalog_contact_person) AS catalog_contact_person,
+              COALESCE(s.catalog_contact_phone, g.catalog_contact_phone) AS catalog_contact_phone,
+              COALESCE(s.catalog_contact_email, g.catalog_contact_email) AS catalog_contact_email
        FROM assigned a
        LEFT JOIN specific s ON s.exhibitor_id = a.exhibitor_id
        LEFT JOIN global g ON g.exhibitor_id = a.exhibitor_id
