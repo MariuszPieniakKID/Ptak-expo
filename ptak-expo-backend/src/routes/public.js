@@ -6,6 +6,13 @@ const { sendEmail } = require('../utils/emailService');
 const path = require('path');
 const fs = require('fs').promises;
 
+// Middleware to allow iframe embedding for document view endpoints
+router.use('/exhibitions/:exhibitionId/exhibitors/:exhibitorId/documents/:documentId/view', (req, res, next) => {
+  // Remove X-Frame-Options header set by helmet to allow iframe embedding
+  res.removeHeader('X-Frame-Options');
+  next();
+});
+
 // Helper: Convert null values to empty strings and numbers to strings
 const nullToEmptyString = (value) => {
   if (value === null || value === undefined) return '';
@@ -1442,6 +1449,14 @@ router.get('/exhibitions/:exhibitionId/exhibitors/:exhibitorId/documents/:docume
         // Set Content-Disposition to 'inline' for preview instead of 'attachment' for download
         res.setHeader('Content-Disposition', `inline; filename="${document.original_name || 'document'}"`);
         res.setHeader('Content-Type', document.mime_type || 'application/pdf');
+        
+        // Allow embedding in iframe by removing X-Frame-Options and setting appropriate CSP
+        res.removeHeader('X-Frame-Options');
+        // Allow iframe embedding from any domain (for external previews)
+        res.setHeader('Content-Security-Policy', "frame-ancestors *");
+        // Prevent MIME type sniffing for security
+        res.setHeader('X-Content-Type-Options', 'nosniff');
+        
         return res.sendFile(path.resolve(p));
       } catch (_e) {
         // try next candidate
