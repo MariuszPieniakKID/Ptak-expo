@@ -434,6 +434,7 @@ router.get('/:exhibitionId', verifyToken, requireExhibitorOrAdmin, async (req, r
     // 1) Try event-specific entry
     let result = await db.query(
       `SELECT id, exhibitor_id, exhibition_id, name, display_name, logo, description, why_visit, contact_info, website, socials, contact_email, products, catalog_tags, brands, industries,
+              catalog_contact_person, catalog_contact_phone, catalog_contact_email,
               created_at, updated_at
        FROM exhibitor_catalog_entries
        WHERE exhibitor_id = $1 AND exhibition_id = $2`,
@@ -444,6 +445,7 @@ router.get('/:exhibitionId', verifyToken, requireExhibitorOrAdmin, async (req, r
     // 2) Read GLOBAL entry (for fallback/merge)
     const globalRes = await db.query(
     `SELECT id, exhibitor_id, exhibition_id, name, display_name, logo, description, why_visit, contact_info, website, socials, contact_email, products, catalog_tags, brands, industries,
+            catalog_contact_person, catalog_contact_phone, catalog_contact_email,
             created_at, updated_at
        FROM exhibitor_catalog_entries
        WHERE exhibitor_id = $1 AND exhibition_id IS NULL
@@ -471,7 +473,10 @@ router.get('/:exhibitionId', verifyToken, requireExhibitorOrAdmin, async (req, r
         catalog_tags: prefer(data.catalog_tags, globalData.catalog_tags),
         brands: prefer(data.brands, globalData.brands),
         products: Array.isArray(data.products) ? data.products : (Array.isArray(globalData.products) ? globalData.products : []),
-        industries: prefer(data.industries, globalData.industries)
+        industries: prefer(data.industries, globalData.industries),
+        catalog_contact_person: prefer(data.catalog_contact_person, globalData.catalog_contact_person),
+        catalog_contact_phone: prefer(data.catalog_contact_phone, globalData.catalog_contact_phone),
+        catalog_contact_email: prefer(data.catalog_contact_email, globalData.catalog_contact_email)
       };
     }
 
@@ -514,6 +519,9 @@ router.get('/:exhibitionId', verifyToken, requireExhibitorOrAdmin, async (req, r
           catalog_tags: null,
           brands: null,
           industries: null,
+          catalog_contact_person: null,
+          catalog_contact_phone: null,
+          catalog_contact_email: null,
           created_at: null,
           updated_at: null
         };
@@ -546,7 +554,10 @@ router.post('/:exhibitionId', verifyToken, requireExhibitorOrAdmin, async (req, 
       contactEmail = null,
       catalogTags = null,
       brands = null,
-      industries = null
+      industries = null,
+      catalogContactPerson = null,
+      catalogContactPhone = null,
+      catalogContactEmail = null
     } = req.body || {};
 
     // Convert website to HTTPS
@@ -567,10 +578,13 @@ router.post('/:exhibitionId', verifyToken, requireExhibitorOrAdmin, async (req, 
            contact_email = $10,
            catalog_tags = $11,
            brands = $12,
+           catalog_contact_person = $13,
+           catalog_contact_phone = $14,
+           catalog_contact_email = $15,
            updated_at = NOW()
        WHERE exhibitor_id = $1 AND exhibition_id IS NULL
-       RETURNING id, exhibitor_id, exhibition_id, name, display_name, logo, description, why_visit, contact_info, website, socials, contact_email, catalog_tags, brands, created_at, updated_at`,
-      [exhibitorId, name, displayName, logo, description, whyVisit, contactInfo, websiteHttps, socials, contactEmail, catalogTags, brands]
+       RETURNING id, exhibitor_id, exhibition_id, name, display_name, logo, description, why_visit, contact_info, website, socials, contact_email, catalog_tags, brands, catalog_contact_person, catalog_contact_phone, catalog_contact_email, created_at, updated_at`,
+      [exhibitorId, name, displayName, logo, description, whyVisit, contactInfo, websiteHttps, socials, contactEmail, catalogTags, brands, catalogContactPerson, catalogContactPhone, catalogContactEmail]
     );
 
     let result;
@@ -579,10 +593,10 @@ router.post('/:exhibitionId', verifyToken, requireExhibitorOrAdmin, async (req, 
     } else {
       const insertRes = await db.query(
         `INSERT INTO exhibitor_catalog_entries 
-          (exhibitor_id, exhibition_id, name, display_name, logo, description, why_visit, contact_info, website, socials, contact_email, catalog_tags, brands)
-        VALUES ($1, NULL, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
-        RETURNING id, exhibitor_id, exhibition_id, name, display_name, logo, description, why_visit, contact_info, website, socials, contact_email, catalog_tags, brands, created_at, updated_at`,
-        [exhibitorId, name, displayName, logo, description, whyVisit, contactInfo, websiteHttps, socials, contactEmail, catalogTags, brands]
+          (exhibitor_id, exhibition_id, name, display_name, logo, description, why_visit, contact_info, website, socials, contact_email, catalog_tags, brands, catalog_contact_person, catalog_contact_phone, catalog_contact_email)
+        VALUES ($1, NULL, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
+        RETURNING id, exhibitor_id, exhibition_id, name, display_name, logo, description, why_visit, contact_info, website, socials, contact_email, catalog_tags, brands, catalog_contact_person, catalog_contact_phone, catalog_contact_email, created_at, updated_at`,
+        [exhibitorId, name, displayName, logo, description, whyVisit, contactInfo, websiteHttps, socials, contactEmail, catalogTags, brands, catalogContactPerson, catalogContactPhone, catalogContactEmail]
       );
       result = insertRes;
     }

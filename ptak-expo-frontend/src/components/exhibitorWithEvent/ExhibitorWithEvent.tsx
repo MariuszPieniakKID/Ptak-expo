@@ -172,21 +172,36 @@ function ExhibitorWithEvent({
                 } catch {
                   setCatalogSocials({ facebook: '', instagram: '', linkedIn: '', youTube: '', tiktok: '', x: '' });
                 }
-                // Contact info mapping (JSON string in data.contact_info)
-                try {
-                  if (data.contact_info) {
-                    const c = JSON.parse(data.contact_info);
-                    setCatalogContactInfo({
-                      person: String(c.person || ''),
-                      phone: String(c.phone || ''),
-                      email: String(c.email || '')
-                    });
-                  } else {
+                // Contact info mapping - use new catalog-specific fields if available
+                // These are the separate fields from checklist (catalog_contact_person, catalog_contact_phone, catalog_contact_email)
+                const catalogPerson = data.catalog_contact_person || null;
+                const catalogPhone = data.catalog_contact_phone || null;
+                const catalogEmail = data.catalog_contact_email || null;
+                
+                if (catalogPerson || catalogPhone || catalogEmail) {
+                  // Use catalog-specific contact fields
+                  setCatalogContactInfo({
+                    person: String(catalogPerson || ''),
+                    phone: String(catalogPhone || ''),
+                    email: String(catalogEmail || '')
+                  });
+                } else {
+                  // Fallback to legacy contact_info JSON (backward compatibility)
+                  try {
+                    if (data.contact_info) {
+                      const c = JSON.parse(data.contact_info);
+                      setCatalogContactInfo({
+                        person: String(c.person || ''),
+                        phone: String(c.phone || ''),
+                        email: String(c.email || '')
+                      });
+                    } else {
+                      setCatalogContactInfo(null);
+                    }
+                  } catch {
+                    // If contactInfo is not JSON, treat it as legacy string data
                     setCatalogContactInfo(null);
                   }
-                } catch {
-                  // If contactInfo is not JSON, treat it as legacy string data
-                  setCatalogContactInfo(null);
                 }
               } else {
                 setCatalogDescription('');

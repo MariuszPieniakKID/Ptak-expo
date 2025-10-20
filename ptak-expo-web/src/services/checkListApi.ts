@@ -79,7 +79,10 @@ export interface CompanyInfo {
 	contactEmail?: string | null,
 	brands?: string | null,
 	industries?: string | null,
-	displayName?: string | null
+	displayName?: string | null,
+	catalogContactPerson?: string | null,
+	catalogContactPhone?: string | null,
+	catalogContactEmail?: string | null
 }
 export interface ProductInfo {
 	name: string,
@@ -179,7 +182,10 @@ export const getChecklist = async (exhibitionId: number) => {
 							contactInfo: d.contact_info ?? ExampleChecklist.companyInfo.contactInfo,
 							website: d.website ?? null,
 							logo: d.logo ?? null,
-							socials: (d.socials ?? null) as any
+							socials: (d.socials ?? null) as any,
+							catalogContactPerson: (d.catalog_contact_person ?? null) as any,
+							catalogContactPhone: (d.catalog_contact_phone ?? null) as any,
+							catalogContactEmail: (d.catalog_contact_email ?? null) as any
 						},
 						products: Array.isArray(d.products) ? d.products
 							.map((p: any) => {
@@ -383,7 +389,10 @@ export const updateCompanyInfo = async (companyInfo: CompanyInfo) => {
 					: (((companyInfo as any).brands ?? null) as any),
 				industries: Array.isArray((companyInfo as any).industries)
 					? ((companyInfo as any).industries as string[]).map(s => String(s).trim()).filter(Boolean).join(',')
-					: (((companyInfo as any).industries ?? null) as any)
+					: (((companyInfo as any).industries ?? null) as any),
+				catalogContactPerson: (companyInfo as any).catalogContactPerson ?? null,
+				catalogContactPhone: (companyInfo as any).catalogContactPhone ?? null,
+				catalogContactEmail: (companyInfo as any).catalogContactEmail ?? null
 			})
 		});
 	} catch {}

@@ -521,62 +521,28 @@ export default function CompanyInfo() {
         }
         multiline
       />
-      {/* Contact Info - check if old format (string) or new format (JSON) */}
-      {(() => {
-        let isOldFormat = false;
-        let contactData = { person: '', phone: '', email: '' };
-        
-        // Try to parse as JSON (new format)
-        try {
-          if (checklist.companyInfo.contactInfo) {
-            contactData = JSON.parse(checklist.companyInfo.contactInfo);
-          }
-        } catch {
-          // It's old format (plain string) - keep it as is, don't convert automatically
-          isOldFormat = true;
+      {/* Catalog Contact Info - separate fields for catalog display only */}
+      <StringEdit
+        name="Osoba kontaktowa (do katalogu)"
+        value={(checklist.companyInfo as any).catalogContactPerson || null}
+        onChange={(v) =>
+          saveCompanyInfo({...(checklist.companyInfo as any), catalogContactPerson: v})
         }
-        
-        // If old format, show single multiline field (preserve old data)
-        if (isOldFormat) {
-          return (
-            <StringEdit
-              name="Dane kontaktowe firmy"
-              value={checklist.companyInfo.contactInfo}
-              onChange={(v) => saveCompanyInfo({...checklist.companyInfo, contactInfo: v})}
-              multiline
-            />
-          );
+      />
+      <StringEdit
+        name="Telefon kontaktowy (do katalogu)"
+        value={(checklist.companyInfo as any).catalogContactPhone || null}
+        onChange={(v) =>
+          saveCompanyInfo({...(checklist.companyInfo as any), catalogContactPhone: v})
         }
-        
-        // New format - show 3 separate fields and save as JSON
-        const updateContactInfo = (field: 'person' | 'phone' | 'email', value: string | null) => {
-          const updated = { ...contactData, [field]: value || '' };
-          saveCompanyInfo({
-            ...checklist.companyInfo,
-            contactInfo: JSON.stringify(updated)
-          });
-        };
-
-        return (
-          <>
-            <StringEdit
-              name="Dane kontaktowe firmy - Osoba kontaktowa"
-              value={contactData.person || null}
-              onChange={(v) => updateContactInfo('person', v)}
-            />
-            <StringEdit
-              name="Dane kontaktowe firmy - Telefon"
-              value={contactData.phone || null}
-              onChange={(v) => updateContactInfo('phone', v)}
-            />
-            <StringEdit
-              name="Dane kontaktowe firmy - E-mail"
-              value={contactData.email || null}
-              onChange={(v) => updateContactInfo('email', v)}
-            />
-          </>
-        );
-      })()}
+      />
+      <StringEdit
+        name="E-mail kontaktowy (do katalogu)"
+        value={(checklist.companyInfo as any).catalogContactEmail || null}
+        onChange={(v) =>
+          saveCompanyInfo({...(checklist.companyInfo as any), catalogContactEmail: v})
+        }
+      />
       <StringEdit
         name="Strona www"
         value={checklist.companyInfo.website}

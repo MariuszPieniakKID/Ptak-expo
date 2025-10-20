@@ -188,14 +188,16 @@ router.get('/exhibitions/:exhibitionId/feed.json', async (req, res) => {
        ),
        specific AS (
          SELECT c.exhibitor_id, c.name, c.logo, c.description, c.contact_info, c.website, c.socials, c.contact_email,
-                c.catalog_tags, c.products, c.brands, c.industries, c.display_name, c.why_visit
+                c.catalog_tags, c.products, c.brands, c.industries, c.display_name, c.why_visit,
+                c.catalog_contact_person, c.catalog_contact_phone, c.catalog_contact_email
          FROM exhibitor_catalog_entries c
          WHERE c.exhibition_id = $1
        ),
        global AS (
          SELECT DISTINCT ON (c.exhibitor_id)
                 c.exhibitor_id, c.name, c.logo, c.description, c.contact_info, c.website, c.socials, c.contact_email,
-                c.catalog_tags, c.products, c.brands, c.industries, c.display_name, c.why_visit, c.updated_at
+                c.catalog_tags, c.products, c.brands, c.industries, c.display_name, c.why_visit, c.updated_at,
+                c.catalog_contact_person, c.catalog_contact_phone, c.catalog_contact_email
          FROM exhibitor_catalog_entries c
          WHERE c.exhibition_id IS NULL
          ORDER BY c.exhibitor_id, c.updated_at DESC
@@ -204,7 +206,8 @@ router.get('/exhibitions/:exhibitionId/feed.json', async (req, res) => {
          SELECT id AS exhibitor_id, company_name AS name, NULL::text AS logo, NULL::text AS description,
                 contact_person AS contact_info, NULL::text AS website, NULL::text AS socials, email AS contact_email,
                 NULL::text AS catalog_tags, '[]'::jsonb AS products, NULL::text AS brands, NULL::text AS industries,
-                NULL::text AS display_name, NULL::text AS why_visit
+                NULL::text AS display_name, NULL::text AS why_visit,
+                NULL::text AS catalog_contact_person, NULL::text AS catalog_contact_phone, NULL::text AS catalog_contact_email
          FROM exhibitors
        )
        SELECT a.exhibitor_id,
@@ -227,7 +230,10 @@ router.get('/exhibitions/:exhibitionId/feed.json', async (req, res) => {
               COALESCE(s.brands, g.brands, b.brands) AS brands,
               COALESCE(s.industries, g.industries, b.industries) AS industries,
               COALESCE(s.display_name, g.display_name, b.display_name) AS display_name,
-              COALESCE(s.why_visit, g.why_visit, b.why_visit) AS why_visit
+              COALESCE(s.why_visit, g.why_visit, b.why_visit) AS why_visit,
+              COALESCE(s.catalog_contact_person, g.catalog_contact_person, b.catalog_contact_person) AS catalog_contact_person,
+              COALESCE(s.catalog_contact_phone, g.catalog_contact_phone, b.catalog_contact_phone) AS catalog_contact_phone,
+              COALESCE(s.catalog_contact_email, g.catalog_contact_email, b.catalog_contact_email) AS catalog_contact_email
        FROM assigned a
        LEFT JOIN specific s ON s.exhibitor_id = a.exhibitor_id
        LEFT JOIN global g ON g.exhibitor_id = a.exhibitor_id
@@ -313,13 +319,15 @@ router.get('/exhibitions/:exhibitionId/exhibitors', async (req, res) => {
          WHERE ee.exhibition_id = $1
        ),
        specific AS (
-         SELECT c.exhibitor_id, c.name, c.logo, c.description, c.contact_info, c.website, c.socials, c.contact_email, c.catalog_tags, c.products
+         SELECT c.exhibitor_id, c.name, c.logo, c.description, c.contact_info, c.website, c.socials, c.contact_email, c.catalog_tags, c.products,
+                c.catalog_contact_person, c.catalog_contact_phone, c.catalog_contact_email
          FROM exhibitor_catalog_entries c
          WHERE c.exhibition_id = $1
        ),
        global AS (
          SELECT DISTINCT ON (c.exhibitor_id)
-                c.exhibitor_id, c.name, c.logo, c.description, c.contact_info, c.website, c.socials, c.contact_email, c.catalog_tags, c.products, c.updated_at
+                c.exhibitor_id, c.name, c.logo, c.description, c.contact_info, c.website, c.socials, c.contact_email, c.catalog_tags, c.products, c.updated_at,
+                c.catalog_contact_person, c.catalog_contact_phone, c.catalog_contact_email
          FROM exhibitor_catalog_entries c
          WHERE c.exhibition_id IS NULL
          ORDER BY c.exhibitor_id, c.updated_at DESC
@@ -327,7 +335,8 @@ router.get('/exhibitions/:exhibitionId/exhibitors', async (req, res) => {
        base AS (
          SELECT id AS exhibitor_id, company_name AS name, NULL::text AS logo, NULL::text AS description,
                 contact_person AS contact_info, NULL::text AS website, NULL::text AS socials, email AS contact_email,
-                NULL::text AS catalog_tags, '[]'::jsonb AS products
+                NULL::text AS catalog_tags, '[]'::jsonb AS products,
+                NULL::text AS catalog_contact_person, NULL::text AS catalog_contact_phone, NULL::text AS catalog_contact_email
          FROM exhibitors
        )
        SELECT a.exhibitor_id,
@@ -352,7 +361,10 @@ router.get('/exhibitions/:exhibitionId/exhibitors', async (req, res) => {
               ) AS socials,
               COALESCE(s.contact_email, g.contact_email, b.contact_email) AS contact_email,
               COALESCE(s.catalog_tags, g.catalog_tags, b.catalog_tags) AS catalog_tags,
-              COALESCE(s.products, g.products, b.products) AS products
+              COALESCE(s.products, g.products, b.products) AS products,
+              COALESCE(s.catalog_contact_person, g.catalog_contact_person, b.catalog_contact_person) AS catalog_contact_person,
+              COALESCE(s.catalog_contact_phone, g.catalog_contact_phone, b.catalog_contact_phone) AS catalog_contact_phone,
+              COALESCE(s.catalog_contact_email, g.catalog_contact_email, b.catalog_contact_email) AS catalog_contact_email
        FROM assigned a
        LEFT JOIN specific s ON s.exhibitor_id = a.exhibitor_id
        LEFT JOIN global g ON g.exhibitor_id = a.exhibitor_id
@@ -404,20 +416,29 @@ router.get('/exhibitions/:exhibitionId/exhibitors', async (req, res) => {
       
       const socials = parseSocials(r.socials);
       
-      // Parse contact_info JSON or use as string (backward compatibility)
+      // Parse contact_info - prefer new catalog-specific fields
       let contactPerson = phoneData.contact_person || '';
       let contactPhone = phoneData.phone || '';
       let contactEmail = r.contact_email || '';
-      try {
-        if (r.contact_info) {
-          const contactData = JSON.parse(r.contact_info);
-          contactPerson = contactData.person || contactPerson;
-          contactPhone = contactData.phone || contactPhone;
-          contactEmail = contactData.email || contactEmail;
+      
+      // First, check for catalog-specific contact fields (new implementation)
+      if (r.catalog_contact_person || r.catalog_contact_phone || r.catalog_contact_email) {
+        contactPerson = r.catalog_contact_person || contactPerson;
+        contactPhone = r.catalog_contact_phone || contactPhone;
+        contactEmail = r.catalog_contact_email || contactEmail;
+      } else {
+        // Fallback to legacy contact_info JSON (backward compatibility)
+        try {
+          if (r.contact_info) {
+            const contactData = JSON.parse(r.contact_info);
+            contactPerson = contactData.person || contactPerson;
+            contactPhone = contactData.phone || contactPhone;
+            contactEmail = contactData.email || contactEmail;
+          }
+        } catch {
+          // If contact_info is not JSON, use it as contactPerson string (legacy)
+          contactPerson = r.contact_info || contactPerson;
         }
-      } catch {
-        // If contact_info is not JSON, use it as contactPerson string (legacy)
-        contactPerson = r.contact_info || contactPerson;
       }
       
       return {
@@ -490,14 +511,16 @@ router.get('/exhibitions/:exhibitionId/exhibitors.json', async (req, res) => {
        ),
        specific AS (
          SELECT c.exhibitor_id, c.name, c.logo, c.description, c.contact_info, c.website, c.socials, c.contact_email,
-                c.catalog_tags, c.products, c.brands, c.industries, c.display_name, c.why_visit
+                c.catalog_tags, c.products, c.brands, c.industries, c.display_name, c.why_visit,
+                c.catalog_contact_person, c.catalog_contact_phone, c.catalog_contact_email
          FROM exhibitor_catalog_entries c
          WHERE c.exhibition_id = $1
        ),
        global AS (
          SELECT DISTINCT ON (c.exhibitor_id)
                 c.exhibitor_id, c.name, c.logo, c.description, c.contact_info, c.website, c.socials, c.contact_email,
-                c.catalog_tags, c.products, c.brands, c.industries, c.display_name, c.why_visit, c.updated_at
+                c.catalog_tags, c.products, c.brands, c.industries, c.display_name, c.why_visit, c.updated_at,
+                c.catalog_contact_person, c.catalog_contact_phone, c.catalog_contact_email
          FROM exhibitor_catalog_entries c
          WHERE c.exhibition_id IS NULL
          ORDER BY c.exhibitor_id, c.updated_at DESC
@@ -506,7 +529,8 @@ router.get('/exhibitions/:exhibitionId/exhibitors.json', async (req, res) => {
          SELECT id AS exhibitor_id, company_name AS name, NULL::text AS logo, NULL::text AS description,
                 contact_person AS contact_info, NULL::text AS website, NULL::text AS socials, email AS contact_email,
                 NULL::text AS catalog_tags, '[]'::jsonb AS products, NULL::text AS brands, NULL::text AS industries,
-                NULL::text AS display_name, NULL::text AS why_visit
+                NULL::text AS display_name, NULL::text AS why_visit,
+                NULL::text AS catalog_contact_person, NULL::text AS catalog_contact_phone, NULL::text AS catalog_contact_email
          FROM exhibitors
        )
        SELECT a.exhibitor_id,
@@ -529,7 +553,10 @@ router.get('/exhibitions/:exhibitionId/exhibitors.json', async (req, res) => {
               COALESCE(s.brands, g.brands, b.brands) AS brands,
               COALESCE(s.industries, g.industries, b.industries) AS industries,
               COALESCE(s.display_name, g.display_name, b.display_name) AS display_name,
-              COALESCE(s.why_visit, g.why_visit, b.why_visit) AS why_visit
+              COALESCE(s.why_visit, g.why_visit, b.why_visit) AS why_visit,
+              COALESCE(s.catalog_contact_person, g.catalog_contact_person, b.catalog_contact_person) AS catalog_contact_person,
+              COALESCE(s.catalog_contact_phone, g.catalog_contact_phone, b.catalog_contact_phone) AS catalog_contact_phone,
+              COALESCE(s.catalog_contact_email, g.catalog_contact_email, b.catalog_contact_email) AS catalog_contact_email
        FROM assigned a
        LEFT JOIN specific s ON s.exhibitor_id = a.exhibitor_id
        LEFT JOIN global g ON g.exhibitor_id = a.exhibitor_id
@@ -625,6 +652,29 @@ router.get('/exhibitions/:exhibitionId/exhibitors.json', async (req, res) => {
       
       const socials = parseSocials(r.socials);
       
+      // Parse contact info - prefer new catalog-specific fields
+      let contactPerson = phoneData.contact_person || '';
+      let contactPhone = phoneData.phone || '';
+      let contactEmail = r.contact_email || '';
+      
+      if (r.catalog_contact_person || r.catalog_contact_phone || r.catalog_contact_email) {
+        contactPerson = r.catalog_contact_person || contactPerson;
+        contactPhone = r.catalog_contact_phone || contactPhone;
+        contactEmail = r.catalog_contact_email || contactEmail;
+      } else {
+        // Fallback to legacy contact_info JSON
+        try {
+          if (r.contact_info) {
+            const contactData = JSON.parse(r.contact_info);
+            contactPerson = contactData.person || contactPerson;
+            contactPhone = contactData.phone || contactPhone;
+            contactEmail = contactData.email || contactEmail;
+          }
+        } catch {
+          contactPerson = r.contact_info || contactPerson;
+        }
+      }
+      
       return {
         exhibitorId: String(r.exhibitor_id || ''),
         companyInfo: {
@@ -633,9 +683,9 @@ router.get('/exhibitions/:exhibitionId/exhibitors.json', async (req, res) => {
           logoUrl: toUrl(r.logo),
           description: r.description || '',
           whyVisit: r.why_visit || '',
-          contactPerson: r.contact_info || phoneData.contact_person || '',
-          contactPhone: phoneData.phone || '',
-          contactEmail: r.contact_email || '',
+          contactPerson: contactPerson,
+          contactPhone: contactPhone,
+          contactEmail: contactEmail,
           website: ensureHttps(r.website || ''),
           // Social media as separate fields
           facebook: socials.facebook,
@@ -892,14 +942,16 @@ router.get('/exhibitions/:exhibitionId/exhibitors/:exhibitorId.json', async (req
     const companyRows = await db.query(`
       WITH specific AS (
         SELECT c.exhibitor_id, c.name, c.logo, c.description, c.contact_info, c.website, c.socials, c.contact_email,
-               c.catalog_tags, c.products, c.brands, c.industries, c.display_name, c.why_visit
+               c.catalog_tags, c.products, c.brands, c.industries, c.display_name, c.why_visit,
+               c.catalog_contact_person, c.catalog_contact_phone, c.catalog_contact_email
         FROM exhibitor_catalog_entries c
         WHERE c.exhibition_id = $1 AND c.exhibitor_id = $2
       ),
       global AS (
         SELECT DISTINCT ON (c.exhibitor_id)
                c.exhibitor_id, c.name, c.logo, c.description, c.contact_info, c.website, c.socials, c.contact_email,
-               c.catalog_tags, c.products, c.brands, c.industries, c.display_name, c.why_visit, c.updated_at
+               c.catalog_tags, c.products, c.brands, c.industries, c.display_name, c.why_visit, c.updated_at,
+               c.catalog_contact_person, c.catalog_contact_phone, c.catalog_contact_email
         FROM exhibitor_catalog_entries c
         WHERE c.exhibition_id IS NULL AND c.exhibitor_id = $2
         ORDER BY c.exhibitor_id, c.updated_at DESC
@@ -908,7 +960,8 @@ router.get('/exhibitions/:exhibitionId/exhibitors/:exhibitorId.json', async (req
         SELECT id AS exhibitor_id, company_name AS name, NULL::text AS logo, NULL::text AS description,
                contact_person AS contact_info, NULL::text AS website, NULL::text AS socials, email AS contact_email,
                NULL::text AS catalog_tags, '[]'::jsonb AS products, NULL::text AS brands, NULL::text AS industries,
-               NULL::text AS display_name, NULL::text AS why_visit
+               NULL::text AS display_name, NULL::text AS why_visit,
+               NULL::text AS catalog_contact_person, NULL::text AS catalog_contact_phone, NULL::text AS catalog_contact_email
         FROM exhibitors WHERE id = $2
       )
       SELECT COALESCE(s.name, g.name, b.name) AS name,
@@ -923,7 +976,10 @@ router.get('/exhibitions/:exhibitionId/exhibitors/:exhibitorId.json', async (req
              COALESCE(s.brands, g.brands, b.brands) AS brands,
              COALESCE(s.industries, g.industries, b.industries) AS industries,
              COALESCE(s.display_name, g.display_name, b.display_name) AS display_name,
-             COALESCE(s.why_visit, g.why_visit, b.why_visit) AS why_visit
+             COALESCE(s.why_visit, g.why_visit, b.why_visit) AS why_visit,
+             COALESCE(s.catalog_contact_person, g.catalog_contact_person, b.catalog_contact_person) AS catalog_contact_person,
+             COALESCE(s.catalog_contact_phone, g.catalog_contact_phone, b.catalog_contact_phone) AS catalog_contact_phone,
+             COALESCE(s.catalog_contact_email, g.catalog_contact_email, b.catalog_contact_email) AS catalog_contact_email
       FROM specific s
       FULL OUTER JOIN global g ON true
       FULL OUTER JOIN base b ON true
@@ -1030,20 +1086,29 @@ router.get('/exhibitions/:exhibitionId/exhibitors/:exhibitorId.json', async (req
     // Build payload
     const socials = parseSocials(company.socials);
     
-    // Parse contact_info JSON or use as string (backward compatibility)
+    // Parse contact_info - prefer new catalog-specific fields
     let contactPerson = phoneData.contact_person || '';
     let contactPhone = phoneData.phone || '';
     let contactEmail = company.contact_email || '';
-    try {
-      if (company.contact_info) {
-        const contactData = JSON.parse(company.contact_info);
-        contactPerson = contactData.person || contactPerson;
-        contactPhone = contactData.phone || contactPhone;
-        contactEmail = contactData.email || contactEmail;
+    
+    // First, check for catalog-specific contact fields (new implementation)
+    if (company.catalog_contact_person || company.catalog_contact_phone || company.catalog_contact_email) {
+      contactPerson = company.catalog_contact_person || contactPerson;
+      contactPhone = company.catalog_contact_phone || contactPhone;
+      contactEmail = company.catalog_contact_email || contactEmail;
+    } else {
+      // Fallback to legacy contact_info JSON (backward compatibility)
+      try {
+        if (company.contact_info) {
+          const contactData = JSON.parse(company.contact_info);
+          contactPerson = contactData.person || contactPerson;
+          contactPhone = contactData.phone || contactPhone;
+          contactEmail = contactData.email || contactEmail;
+        }
+      } catch {
+        // If contact_info is not JSON, use it as contactPerson string (legacy)
+        contactPerson = company.contact_info || contactPerson;
       }
-    } catch {
-      // If contact_info is not JSON, use it as contactPerson string (legacy)
-      contactPerson = company.contact_info || contactPerson;
     }
     
     const payload = {
@@ -1116,14 +1181,16 @@ router.get('/exhibitions/:exhibitionId/exhibitors/:exhibitorId.rss', async (req,
     const companyRows = await db.query(`
       WITH specific AS (
         SELECT c.exhibitor_id, c.name, c.logo, c.description, c.contact_info, c.website, c.socials, c.contact_email,
-               c.catalog_tags, c.products, c.brands, c.industries, c.display_name, c.why_visit
+               c.catalog_tags, c.products, c.brands, c.industries, c.display_name, c.why_visit,
+               c.catalog_contact_person, c.catalog_contact_phone, c.catalog_contact_email
         FROM exhibitor_catalog_entries c
         WHERE c.exhibition_id = $1 AND c.exhibitor_id = $2
       ),
       global AS (
         SELECT DISTINCT ON (c.exhibitor_id)
                c.exhibitor_id, c.name, c.logo, c.description, c.contact_info, c.website, c.socials, c.contact_email,
-               c.catalog_tags, c.products, c.brands, c.industries, c.display_name, c.why_visit, c.updated_at
+               c.catalog_tags, c.products, c.brands, c.industries, c.display_name, c.why_visit, c.updated_at,
+               c.catalog_contact_person, c.catalog_contact_phone, c.catalog_contact_email
         FROM exhibitor_catalog_entries c
         WHERE c.exhibition_id IS NULL AND c.exhibitor_id = $2
         ORDER BY c.exhibitor_id, c.updated_at DESC
@@ -1132,7 +1199,8 @@ router.get('/exhibitions/:exhibitionId/exhibitors/:exhibitorId.rss', async (req,
         SELECT id AS exhibitor_id, company_name AS name, NULL::text AS logo, NULL::text AS description,
                contact_person AS contact_info, NULL::text AS website, NULL::text AS socials, email AS contact_email,
                NULL::text AS catalog_tags, '[]'::jsonb AS products, NULL::text AS brands, NULL::text AS industries,
-               NULL::text AS display_name, NULL::text AS why_visit
+               NULL::text AS display_name, NULL::text AS why_visit,
+               NULL::text AS catalog_contact_person, NULL::text AS catalog_contact_phone, NULL::text AS catalog_contact_email
         FROM exhibitors WHERE id = $2
       )
       SELECT COALESCE(s.name, g.name, b.name) AS name,
@@ -1147,7 +1215,10 @@ router.get('/exhibitions/:exhibitionId/exhibitors/:exhibitorId.rss', async (req,
              COALESCE(s.brands, g.brands, b.brands) AS brands,
              COALESCE(s.industries, g.industries, b.industries) AS industries,
              COALESCE(s.display_name, g.display_name, b.display_name) AS display_name,
-             COALESCE(s.why_visit, g.why_visit, b.why_visit) AS why_visit
+             COALESCE(s.why_visit, g.why_visit, b.why_visit) AS why_visit,
+             COALESCE(s.catalog_contact_person, g.catalog_contact_person, b.catalog_contact_person) AS catalog_contact_person,
+             COALESCE(s.catalog_contact_phone, g.catalog_contact_phone, b.catalog_contact_phone) AS catalog_contact_phone,
+             COALESCE(s.catalog_contact_email, g.catalog_contact_email, b.catalog_contact_email) AS catalog_contact_email
       FROM specific s
       FULL OUTER JOIN global g ON true
       FULL OUTER JOIN base b ON true
@@ -1191,10 +1262,32 @@ router.get('/exhibitions/:exhibitionId/exhibitors/:exhibitorId.rss', async (req,
     if (socials.x) socialParts.push(`X/Twitter: ${socials.x}`);
     const socialsFormatted = socialParts.length > 0 ? escapeXml(socialParts.join(', ')) : '';
     
+    // Build contact info from catalog-specific fields or fallback to legacy
+    let contactInfo = '';
+    if (company.catalog_contact_person || company.catalog_contact_phone || company.catalog_contact_email) {
+      const contactParts = [];
+      if (company.catalog_contact_person) contactParts.push(company.catalog_contact_person);
+      if (company.catalog_contact_phone) contactParts.push(company.catalog_contact_phone);
+      if (company.catalog_contact_email) contactParts.push(company.catalog_contact_email);
+      contactInfo = contactParts.join(', ');
+    } else if (company.contact_info) {
+      // Try to parse JSON, otherwise use as string
+      try {
+        const contactData = JSON.parse(company.contact_info);
+        const contactParts = [];
+        if (contactData.person) contactParts.push(contactData.person);
+        if (contactData.phone) contactParts.push(contactData.phone);
+        if (contactData.email) contactParts.push(contactData.email);
+        contactInfo = contactParts.join(', ');
+      } catch {
+        contactInfo = company.contact_info;
+      }
+    }
+    
     const companyDesc = [
       company.description ? `Opis: ${escapeXml(company.description)}` : '',
       company.why_visit ? `Dlaczego warto odwiedzić: ${escapeXml(company.why_visit)}` : '',
-      company.contact_info ? `Kontakt: ${escapeXml(company.contact_info)}` : '',
+      contactInfo ? `Kontakt: ${escapeXml(contactInfo)}` : '',
       company.website ? `Strona: ${escapeXml(ensureHttps(company.website))}` : '',
       socialsFormatted ? `Social Media: ${socialsFormatted}` : '',
       company.contact_email ? `Email: ${escapeXml(company.contact_email)}` : '',

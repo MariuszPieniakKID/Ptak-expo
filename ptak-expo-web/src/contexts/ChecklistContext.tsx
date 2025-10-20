@@ -43,23 +43,18 @@ export const ChecklistProvider = ({ children, eventId }: {children: ReactNode, e
 	useEffect(() => { (window as any).currentSelectedExhibitionId = eventId; }, [eventId]);
 	useEffect(() => { getChecklist(eventId).then(setChecklist); }, [eventId]);
 	const companyInfoFilledCount = (() => {
-		// Check if contactInfo is fully filled (all three fields: person, phone, email)
-		let contactInfoFilled = 0;
-		try {
-			if (checklist.companyInfo.contactInfo) {
-				const contactData = JSON.parse(checklist.companyInfo.contactInfo);
-				if (contactData.person && contactData.phone && contactData.email) {
-					contactInfoFilled = 1;
-				}
-			}
-		} catch {
-			// If contactInfo is not JSON, check if it's a non-empty string (backward compatibility)
-			if (checklist.companyInfo.contactInfo && checklist.companyInfo.contactInfo.trim()) {
-				contactInfoFilled = 1;
-			}
+		// Check if catalog contact fields are all filled (person, phone, email)
+		let catalogContactFilled = 0;
+		const catalogContactPerson = (checklist.companyInfo as any).catalogContactPerson;
+		const catalogContactPhone = (checklist.companyInfo as any).catalogContactPhone;
+		const catalogContactEmail = (checklist.companyInfo as any).catalogContactEmail;
+		
+		// Count as filled only if all 3 catalog contact fields are filled
+		if (catalogContactPerson && catalogContactPhone && catalogContactEmail) {
+			catalogContactFilled = 1;
 		}
 		
-		return contactInfoFilled +
+		return catalogContactFilled +
 			(checklist.companyInfo.description != null ? 1 : 0) +
 			(checklist.companyInfo.logo != null ? 1 : 0) +
 			(checklist.companyInfo.name != null ? 1 : 0) +
