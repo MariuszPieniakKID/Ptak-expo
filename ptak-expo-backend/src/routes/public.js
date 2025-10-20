@@ -1223,25 +1223,30 @@ router.get('/exhibitions/:exhibitionId/exhibitors/:exhibitorId.rss', async (req,
                NULL::text AS catalog_contact_person, NULL::text AS catalog_contact_phone, NULL::text AS catalog_contact_email
         FROM exhibitors WHERE id = $2
       )
-      SELECT COALESCE(s.name, g.name, b.name) AS name,
-             COALESCE(s.logo, g.logo) AS logo,
-             COALESCE(s.description, g.description, b.description) AS description,
+      SELECT 
+             COALESCE(s.name, g.name, b.name) AS name,
+             CASE 
+               WHEN s.exhibitor_id IS NOT NULL AND s.logo IS NOT NULL THEN s.logo
+               WHEN g.exhibitor_id IS NOT NULL AND g.logo IS NOT NULL THEN g.logo
+               ELSE NULL
+             END AS logo,
+             COALESCE(s.description, g.description) AS description,
              COALESCE(s.contact_info, g.contact_info, b.contact_info) AS contact_info,
-             COALESCE(s.website, g.website, b.website) AS website,
-             COALESCE(s.socials, g.socials, b.socials) AS socials,
+             COALESCE(s.website, g.website) AS website,
+             COALESCE(s.socials, g.socials) AS socials,
              COALESCE(s.contact_email, g.contact_email, b.contact_email) AS contact_email,
-             COALESCE(s.catalog_tags, g.catalog_tags, b.catalog_tags) AS catalog_tags,
-             COALESCE(s.products, g.products, b.products) AS products,
-             COALESCE(s.brands, g.brands, b.brands) AS brands,
-             COALESCE(s.industries, g.industries, b.industries) AS industries,
-             COALESCE(s.display_name, g.display_name, b.display_name) AS display_name,
-             COALESCE(s.why_visit, g.why_visit, b.why_visit) AS why_visit,
-             COALESCE(s.catalog_contact_person, g.catalog_contact_person, b.catalog_contact_person) AS catalog_contact_person,
-             COALESCE(s.catalog_contact_phone, g.catalog_contact_phone, b.catalog_contact_phone) AS catalog_contact_phone,
-             COALESCE(s.catalog_contact_email, g.catalog_contact_email, b.catalog_contact_email) AS catalog_contact_email
-      FROM specific s
-      FULL OUTER JOIN global g ON true
-      FULL OUTER JOIN base b ON true
+             COALESCE(s.catalog_tags, g.catalog_tags) AS catalog_tags,
+             COALESCE(s.products, g.products, '[]'::jsonb) AS products,
+             COALESCE(s.brands, g.brands) AS brands,
+             COALESCE(s.industries, g.industries) AS industries,
+             COALESCE(s.display_name, g.display_name, b.name) AS display_name,
+             COALESCE(s.why_visit, g.why_visit) AS why_visit,
+             COALESCE(s.catalog_contact_person, g.catalog_contact_person) AS catalog_contact_person,
+             COALESCE(s.catalog_contact_phone, g.catalog_contact_phone) AS catalog_contact_phone,
+             COALESCE(s.catalog_contact_email, g.catalog_contact_email) AS catalog_contact_email
+      FROM base b
+      LEFT JOIN global g ON g.exhibitor_id = b.exhibitor_id
+      LEFT JOIN specific s ON s.exhibitor_id = b.exhibitor_id
       LIMIT 1
     `, [exhibitionId, exhibitorId]);
 
