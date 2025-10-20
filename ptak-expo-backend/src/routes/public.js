@@ -410,13 +410,6 @@ router.get('/exhibitions/:exhibitionId/exhibitors', async (req, res) => {
 
     // Build exhibitors array - need to fetch phone data for each
     const exhibitorsWithContacts = await Promise.all(rows.rows.map(async (r) => {
-      // Get phone from exhibitors table for contact info
-      const phoneRes = await db.query(
-        'SELECT phone, contact_person FROM exhibitors WHERE id = $1',
-        [r.exhibitor_id]
-      );
-      const phoneData = phoneRes.rows[0] || {};
-      
       // Convert product images to URLs
       const products = Array.isArray(r.products) 
         ? r.products.map(p => ({
@@ -427,30 +420,10 @@ router.get('/exhibitions/:exhibitionId/exhibitors', async (req, res) => {
       
       const socials = parseSocials(r.socials);
       
-      // Parse contact_info - prefer new catalog-specific fields
-      let contactPerson = phoneData.contact_person || '';
-      let contactPhone = phoneData.phone || '';
-      let contactEmail = r.contact_email || '';
-      
-      // First, check for catalog-specific contact fields (new implementation)
-      if (r.catalog_contact_person || r.catalog_contact_phone || r.catalog_contact_email) {
-        contactPerson = r.catalog_contact_person || contactPerson;
-        contactPhone = r.catalog_contact_phone || contactPhone;
-        contactEmail = r.catalog_contact_email || contactEmail;
-      } else {
-        // Fallback to legacy contact_info JSON (backward compatibility)
-        try {
-          if (r.contact_info) {
-            const contactData = JSON.parse(r.contact_info);
-            contactPerson = contactData.person || contactPerson;
-            contactPhone = contactData.phone || contactPhone;
-            contactEmail = contactData.email || contactEmail;
-          }
-        } catch {
-          // If contact_info is not JSON, use it as contactPerson string (legacy)
-          contactPerson = r.contact_info || contactPerson;
-        }
-      }
+      // Contact info from checklist - these are INDEPENDENT fields (no fallback to exhibitor table data)
+      const contactPerson = r.catalog_contact_person || '';
+      const contactPhone = r.catalog_contact_phone || '';
+      const contactEmail = r.catalog_contact_email || '';
       
       return {
         exhibitor_id: String(r.exhibitor_id || ''),
@@ -659,37 +632,12 @@ router.get('/exhibitions/:exhibitionId/exhibitors.json', async (req, res) => {
         img: toUrl(p.img)
       }));
       
-      // Get phone from exhibitors table for contact info
-      const phoneRes = await db.query(
-        'SELECT phone, contact_person FROM exhibitors WHERE id = $1',
-        [r.exhibitor_id]
-      );
-      const phoneData = phoneRes.rows[0] || {};
-      
       const socials = parseSocials(r.socials);
       
-      // Parse contact info - prefer new catalog-specific fields
-      let contactPerson = phoneData.contact_person || '';
-      let contactPhone = phoneData.phone || '';
-      let contactEmail = r.contact_email || '';
-      
-      if (r.catalog_contact_person || r.catalog_contact_phone || r.catalog_contact_email) {
-        contactPerson = r.catalog_contact_person || contactPerson;
-        contactPhone = r.catalog_contact_phone || contactPhone;
-        contactEmail = r.catalog_contact_email || contactEmail;
-      } else {
-        // Fallback to legacy contact_info JSON
-        try {
-          if (r.contact_info) {
-            const contactData = JSON.parse(r.contact_info);
-            contactPerson = contactData.person || contactPerson;
-            contactPhone = contactData.phone || contactPhone;
-            contactEmail = contactData.email || contactEmail;
-          }
-        } catch {
-          contactPerson = r.contact_info || contactPerson;
-        }
-      }
+      // Contact info from checklist - these are INDEPENDENT fields (no fallback to exhibitor table data)
+      const contactPerson = r.catalog_contact_person || '';
+      const contactPhone = r.catalog_contact_phone || '';
+      const contactEmail = r.catalog_contact_email || '';
       
       return {
         exhibitorId: String(r.exhibitor_id || ''),
@@ -1098,40 +1046,13 @@ router.get('/exhibitions/:exhibitionId/exhibitors/:exhibitorId.json', async (req
       img: toUrl(p.img)
     }));
     
-    // Get phone from exhibitors table for contact info
-    const exhibitorPhone = await db.query(
-      'SELECT phone, contact_person FROM exhibitors WHERE id = $1',
-      [exhibitorId]
-    );
-    const phoneData = exhibitorPhone.rows[0] || {};
-
     // Build payload
     const socials = parseSocials(company.socials);
     
-    // Parse contact_info - prefer new catalog-specific fields
-    let contactPerson = phoneData.contact_person || '';
-    let contactPhone = phoneData.phone || '';
-    let contactEmail = company.contact_email || '';
-    
-    // First, check for catalog-specific contact fields (new implementation)
-    if (company.catalog_contact_person || company.catalog_contact_phone || company.catalog_contact_email) {
-      contactPerson = company.catalog_contact_person || contactPerson;
-      contactPhone = company.catalog_contact_phone || contactPhone;
-      contactEmail = company.catalog_contact_email || contactEmail;
-    } else {
-      // Fallback to legacy contact_info JSON (backward compatibility)
-      try {
-        if (company.contact_info) {
-          const contactData = JSON.parse(company.contact_info);
-          contactPerson = contactData.person || contactPerson;
-          contactPhone = contactData.phone || contactPhone;
-          contactEmail = contactData.email || contactEmail;
-        }
-      } catch {
-        // If contact_info is not JSON, use it as contactPerson string (legacy)
-        contactPerson = company.contact_info || contactPerson;
-      }
-    }
+    // Contact info from checklist - these are INDEPENDENT fields (no fallback to exhibitor table data)
+    const contactPerson = company.catalog_contact_person || '';
+    const contactPhone = company.catalog_contact_phone || '';
+    const contactEmail = company.catalog_contact_email || '';
     
     const payload = {
       success: true,
