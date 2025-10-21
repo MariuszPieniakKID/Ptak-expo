@@ -8,7 +8,9 @@
     "dev": "nodemon src/index.js",
     "build": "echo 'No build step needed for Node.js backend'",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "sync-railway-db": "node sync-railway-db.js"
+    "sync-railway-db": "node sync-railway-db.js",
+    "send-welcome-test": "node send-welcome-emails.js",
+    "send-welcome-all": "node send-welcome-emails.js --all"
   },
   "keywords": [
     "exhibition",

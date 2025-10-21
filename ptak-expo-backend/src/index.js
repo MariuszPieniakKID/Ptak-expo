@@ -32,6 +32,7 @@ const catalogRoutes = require('./routes/catalog');
 const publicRoutes = require('./routes/public');
 const adminRoutes = require('./routes/admin');
 const newsRoutes = require('./routes/news');
+const bulkEmailsRoutes = require('./routes/bulkEmails');
 
 // Swagger UI
 const swaggerUi = require('swagger-ui-express');
@@ -185,6 +186,7 @@ app.use('/api/v1/gus', gusRoutes);
 app.use('/public', publicRoutes);
 app.use('/api/v1/admin', adminRoutes);
 app.use('/api/v1/news', newsRoutes);
+app.use('/api/v1/bulk-emails', bulkEmailsRoutes);
 
 // Serve Swagger UI if spec is available
 if (swaggerDocument) {
