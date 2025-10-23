@@ -550,13 +550,15 @@ export default function CompanyInfo() {
           saveCompanyInfo({...checklist.companyInfo, website: v})
         }
       />
-      <StringEdit
-        name="Adres e-mail firmowy"
-        value={(checklist.companyInfo as any).contactEmail || null}
-        onChange={(v) =>
-          saveCompanyInfo({...checklist.companyInfo, contactEmail: v as any})
-        }
-      />
+      {/* Read-only email field - for login credentials only */}
+      <Box display="flex" alignItems="center">
+        <Box width="30px" alignItems="center" justifyContent="center">
+          {(checklist.companyInfo as any).contactEmail && <GreenCheck />}
+        </Box>
+        <Typography variant="body2">
+          Adres e-mail do logowania: {(checklist.companyInfo as any).contactEmail || ""}
+        </Typography>
+      </Box>
       {!editingCatalogTags && (
         <Box display="flex" alignItems="center">
           <Box width="30px" alignItems="center" justifyContent="center">
