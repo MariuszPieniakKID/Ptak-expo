@@ -19,6 +19,7 @@ import AddIcon from '@mui/icons-material/Add';
 import DatabaseIconPng from '../../assets/databaseIcon.png';
 import Applause from '../../assets/applause.png';
 import InvitationsTab from './InvitationsTab';
+import DictionariesTab from './DictionariesTab';
 
 import styles from '../usersPage/UsersPage.module.scss';
 import { ExhibitorPerson, fetchExhibitorPeople, catalogAPI, CatalogTag, CatalogIndustry, CatalogBrand, CatalogEventField, CatalogBuildType, fetchExhibitors, Exhibitor, fetchExhibitions, Exhibition } from '../../services/api';
@@ -630,73 +631,9 @@ const DatabasePage: React.FC = () => {
                 {/* Tab: Słowniki */}
                 {currentTab === 1 && isAdmin && (
                   <Box>
-                    <CustomTypography sx={{ mb: 3, fontSize: '1.1rem', fontWeight: 500 }}>
-                      Zarządzanie słownikami
-                    </CustomTypography>
-                <Box className={`${styles.dictButtonsRow}`}>
-                  <div className={styles.dictButton}>
-                    <CustomButton
-                      bgColor="#6F87F6"
-                      textColor="#fff"
-                      height="28px"
-                      width="auto"
-                      fontSize="0.75rem"
-                      onClick={openTagsModal}
-                    >
-                      Hashtagi
-                    </CustomButton>
-                  </div>
-                  <div className={styles.dictButton}>
-                    <CustomButton
-                      bgColor="#6F87F6"
-                      textColor="#fff"
-                      height="28px"
-                      width="auto"
-                      fontSize="0.75rem"
-                      onClick={openIndustriesModal}
-                    >
-                      Sektory branżowe
-                    </CustomButton>
-                  </div>
-                  <div className={styles.dictButton}>
-                    <CustomButton
-                      bgColor="#6F87F6"
-                      textColor="#fff"
-                      height="28px"
-                      width="auto"
-                      fontSize="0.75rem"
-                      onClick={openEventFieldsModal}
-                    >
-                      Branże wydarzenia
-                    </CustomButton>
-                  </div>
-                  <div className={styles.dictButton}>
-                    <CustomButton
-                      bgColor="#6F87F6"
-                      textColor="#fff"
-                      height="28px"
-                      width="auto"
-                      fontSize="0.75rem"
-                      onClick={openBuildTypesModal}
-                    >
-                      Typy zabudowy
-                    </CustomButton>
-                  </div>
-                  <div className={styles.dictButton}>
-                    <CustomButton
-                      bgColor="#6F87F6"
-                      textColor="#fff"
-                      height="28px"
-                      width="auto"
-                      fontSize="0.75rem"
-                      onClick={openBrandsModal}
-                    >
-                      Marki
-                    </CustomButton>
-                  </div>
+                    <DictionariesTab />
                   </Box>
-                </Box>
-              )}
+                )}
 
               {/* Tab: Zaproszenia */}
               {currentTab === 2 && (
