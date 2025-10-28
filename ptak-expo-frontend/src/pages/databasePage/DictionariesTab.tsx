@@ -412,7 +412,7 @@ const DictionariesTab: React.FC = () => {
 
   return (
     <Box sx={{ width: '100%' }}>
-      <CustomTypography sx={{ mb: 3, fontSize: '1.1rem', fontWeight: 500 }}>
+      <CustomTypography sx={{ mb: 3, fontSize: '1rem', fontWeight: 400 }}>
         Zarządzanie słownikami
       </CustomTypography>
 
@@ -433,9 +433,9 @@ const DictionariesTab: React.FC = () => {
         <CustomButton
           bgColor={selectedDictionary === 'tags' ? '#5041d0' : '#6F87F6'}
           textColor="#fff"
-          height="36px"
+          height="32px"
           width="auto"
-          fontSize="0.85rem"
+          fontSize="0.75rem"
           onClick={() => setSelectedDictionary('tags')}
         >
           Tagi
@@ -443,9 +443,9 @@ const DictionariesTab: React.FC = () => {
         <CustomButton
           bgColor={selectedDictionary === 'industries' ? '#5041d0' : '#6F87F6'}
           textColor="#fff"
-          height="36px"
+          height="32px"
           width="auto"
-          fontSize="0.85rem"
+          fontSize="0.75rem"
           onClick={() => setSelectedDictionary('industries')}
         >
           Sektory branżowe
@@ -453,9 +453,9 @@ const DictionariesTab: React.FC = () => {
         <CustomButton
           bgColor={selectedDictionary === 'eventFields' ? '#5041d0' : '#6F87F6'}
           textColor="#fff"
-          height="36px"
+          height="32px"
           width="auto"
-          fontSize="0.85rem"
+          fontSize="0.75rem"
           onClick={() => setSelectedDictionary('eventFields')}
         >
           Branże wydarzenia
@@ -463,9 +463,9 @@ const DictionariesTab: React.FC = () => {
         <CustomButton
           bgColor={selectedDictionary === 'buildTypes' ? '#5041d0' : '#6F87F6'}
           textColor="#fff"
-          height="36px"
+          height="32px"
           width="auto"
-          fontSize="0.85rem"
+          fontSize="0.75rem"
           onClick={() => setSelectedDictionary('buildTypes')}
         >
           Typy zabudowy
@@ -473,9 +473,9 @@ const DictionariesTab: React.FC = () => {
         <CustomButton
           bgColor={selectedDictionary === 'brands' ? '#5041d0' : '#6F87F6'}
           textColor="#fff"
-          height="36px"
+          height="32px"
           width="auto"
-          fontSize="0.85rem"
+          fontSize="0.75rem"
           onClick={() => setSelectedDictionary('brands')}
         >
           Marki
@@ -525,16 +525,28 @@ const DictionariesTab: React.FC = () => {
             <Table>
               <TableHead>
                 <TableRow>
-                  <TableCell width="60%">Nazwa</TableCell>
-                  <TableCell width="20%" align="right">Użycia</TableCell>
-                  <TableCell width="20%" align="right">Akcje</TableCell>
+                  <TableCell width="60%">
+                    <CustomTypography fontSize="0.875em" fontWeight={300} color="#7F8D8E">
+                      Nazwa
+                    </CustomTypography>
+                  </TableCell>
+                  <TableCell width="20%" align="right">
+                    <CustomTypography fontSize="0.875em" fontWeight={300} color="#7F8D8E">
+                      Użycia
+                    </CustomTypography>
+                  </TableCell>
+                  <TableCell width="20%" align="right">
+                    <CustomTypography fontSize="0.875em" fontWeight={300} color="#7F8D8E">
+                      Akcje
+                    </CustomTypography>
+                  </TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {paginatedData.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={3} align="center">
-                      <CustomTypography sx={{ py: 2, color: '#999' }}>
+                      <CustomTypography fontSize="0.8125em" fontWeight={400} sx={{ py: 2, color: '#999' }}>
                         {search ? 'Nie znaleziono wyników' : 'Brak elementów'}
                       </CustomTypography>
                     </TableCell>
@@ -555,11 +567,15 @@ const DictionariesTab: React.FC = () => {
                               onChange={(e) => setCurrentEditing({ ...editing, value: e.target.value })}
                             />
                           ) : (
-                            <CustomTypography>{item[itemKey]}</CustomTypography>
+                            <CustomTypography fontSize="0.8125em" fontWeight={400}>
+                              {item[itemKey]}
+                            </CustomTypography>
                           )}
                         </TableCell>
                         <TableCell align="right">
-                          <CustomTypography>{item.usage_count || 0}</CustomTypography>
+                          <CustomTypography fontSize="0.8125em" fontWeight={400}>
+                            {item.usage_count || 0}
+                          </CustomTypography>
                         </TableCell>
                         <TableCell align="right">
                           {isEditing ? (
@@ -626,7 +642,7 @@ const DictionariesTab: React.FC = () => {
 
       {!selectedDictionary && (
         <Box sx={{ textAlign: 'center', py: 8 }}>
-          <CustomTypography sx={{ color: '#999', fontSize: '1.1rem' }}>
+          <CustomTypography fontSize="0.875em" fontWeight={400} sx={{ color: '#999' }}>
             Wybierz słownik do edycji
           </CustomTypography>
         </Box>
