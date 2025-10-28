@@ -403,6 +403,7 @@ const DictionariesTab: React.FC = () => {
     return data.filter((item: any) => 
       item[itemKey]?.toLowerCase().includes(searchLower)
     );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedDictionary, search, tags, industries, eventFields, buildTypes, brands]);
 
   const paginatedData = useMemo(() => {
