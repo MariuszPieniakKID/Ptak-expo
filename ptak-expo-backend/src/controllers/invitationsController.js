@@ -635,6 +635,13 @@ const getAllInvitationsAdmin = async (req, res) => {
       const sortDirection = sortOrder.toLowerCase() === 'asc' ? 'ASC' : 'DESC';
 
       // Main query to fetch all invitations with details
+      // Build ORDER BY clause based on sortColumn
+      let orderByClause = 'r.sent_at';
+      if (sortColumn === 'recipient_email') orderByClause = 'r.recipient_email';
+      else if (sortColumn === 'recipient_name') orderByClause = 'r.recipient_name';
+      else if (sortColumn === 'company_name') orderByClause = 'ex.company_name';
+      else if (sortColumn === 'exhibition_name') orderByClause = 'e.name';
+      
       const query = `
         SELECT 
           r.id,
@@ -662,13 +669,7 @@ const getAllInvitationsAdmin = async (req, res) => {
         LEFT JOIN exhibitions e ON t.exhibition_id = e.id
         LEFT JOIN exhibitors ex ON r.exhibitor_id = ex.id
         ${whereClause}
-        ORDER BY 
-          CASE 
-            WHEN '${sortColumn}' = 'sent_at' THEN r.sent_at
-            WHEN '${sortColumn}' = 'exhibition_name' THEN e.name::text
-            WHEN '${sortColumn}' = 'company_name' THEN ex.company_name::text
-          END ${sortDirection} NULLS LAST,
-          r.id DESC
+        ORDER BY ${orderByClause} ${sortDirection} NULLS LAST, r.id DESC
       `;
 
       const result = await client.query(query, queryParams);
