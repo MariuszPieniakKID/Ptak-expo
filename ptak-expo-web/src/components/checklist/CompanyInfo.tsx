@@ -559,39 +559,39 @@ export default function CompanyInfo() {
           Adres e-mail do logowania: {(checklist.companyInfo as any).contactEmail || ""}
         </Typography>
       </Box>
-      {!editingCatalogTags && (
+      {/* Industries (Sektory branżowe) */}
+      {!editingIndustries && (
         <Box display="flex" alignItems="center">
           <Box width="30px" alignItems="center" justifyContent="center">
-            {currentCatalogTagsArray.length > 0 && <GreenCheck />}
+            {currentIndustriesArray.length > 0 && <GreenCheck />}
           </Box>
           <Box flex={1}>
             <Typography variant="body2">
-              Sektory technologiczne (Wybierz lub stwórz tagi):{" "}
-              {currentCatalogTagsArray.join(", ")}
+              Sektory branżowe: {currentIndustriesArray.join(", ")}
             </Typography>
           </Box>
-          <Button onClick={() => setEditingCatalogTags(true)}>Edytuj</Button>
+          <Button onClick={() => setEditingIndustries(true)}>Edytuj</Button>
         </Box>
       )}
-      {editingCatalogTags && (
+      {editingIndustries && (
         <Box display="flex" alignItems="center" gap={1} width="100%">
           <Box width="30px" alignItems="center" justifyContent="center">
-            {selectedCatalogTags.length > 0 && <GreenCheck />}
+            {selectedIndustries.length > 0 && <GreenCheck />}
           </Box>
           <Autocomplete
             fullWidth
             sx={{flex: 1, minWidth: 0}}
             multiple
             freeSolo
-            options={catalogTagOptions}
-            value={selectedCatalogTags}
-            inputValue={catalogInputValue}
+            options={industryOptions}
+            value={selectedIndustries}
+            inputValue={industriesInputValue}
             onInputChange={(_, q) => {
-              setCatalogInputValue(q);
-              debouncedFetch(q);
+              setIndustriesInputValue(q);
+              debouncedIndustriesFetch(q);
             }}
             onChange={(_, value) =>
-              setSelectedCatalogTags(
+              setSelectedIndustries(
                 (value as string[]).map((v) => String(v).trim()).filter(Boolean)
               )
             }
@@ -609,27 +609,59 @@ export default function CompanyInfo() {
                 {...(params as any)}
                 fullWidth
                 variant="standard"
-                label="Sektory technologiczne (Wybierz lub stwórz tagi)"
+                label="Sektory branżowe"
                 placeholder="zacznij pisać, aby dodać"
               />
             )}
           />
           <Button
-            onClick={() => {
-              // Dołącz także ręcznie wpisane po przecinku (jeszcze nie dodane jako chipy)
-              const manual = String(catalogInputValue || "")
+            onClick={async () => {
+              const manual = String(industriesInputValue || "")
                 .split(",")
                 .map((s) => s.trim())
                 .filter(Boolean);
               const final = Array.from(
-                new Set([...(selectedCatalogTags || []), ...manual])
+                new Set([...(selectedIndustries || []), ...manual])
               );
-              setSelectedCatalogTags(final);
-              setCatalogInputValue("");
-              setEditingCatalogTags(false);
+              setSelectedIndustries(final);
+              setIndustriesInputValue("");
+              setEditingIndustries(false);
+              // Persist event-scoped industries in exhibitor_catalog_entries for current exhibition
+              try {
+                const token = localStorage.getItem("authToken") || "";
+                const exhibitionId =
+                  Number((window as any).currentSelectedExhibitionId) || 0;
+                await fetch(
+                  `${config.API_BASE_URL}/api/v1/catalog/${exhibitionId}`,
+                  {
+                    method: "POST",
+                    headers: {
+                      "Content-Type": "application/json",
+                      Authorization: `Bearer ${token}`,
+                    },
+                    body: JSON.stringify({industries: final.join(",")}),
+                  }
+                );
+              } catch {}
+              // Upsert to global industries dictionary for suggestions
+              try {
+                const token = localStorage.getItem("authToken") || "";
+                await fetch(
+                  `${config.API_BASE_URL}/api/v1/catalog/industries`,
+                  {
+                    method: "POST",
+                    headers: {
+                      "Content-Type": "application/json",
+                      Authorization: `Bearer ${token}`,
+                    },
+                    body: JSON.stringify({industries: final}),
+                  }
+                );
+              } catch {}
+              // Local optimistic update
               saveCompanyInfo({
                 ...(checklist.companyInfo as any),
-                catalogTags: final.join(",") as any,
+                industries: final.join(",") as any,
               });
             }}
           >
@@ -900,39 +932,40 @@ export default function CompanyInfo() {
         );
       })()}
 
-      {/* Industries (Branże) */}
-      {!editingIndustries && (
+      {/* Hashtag (Twoje Hashtag) */}
+      {!editingCatalogTags && (
         <Box display="flex" alignItems="center">
           <Box width="30px" alignItems="center" justifyContent="center">
-            {currentIndustriesArray.length > 0 && <GreenCheck />}
+            {currentCatalogTagsArray.length > 0 && <GreenCheck />}
           </Box>
           <Box flex={1}>
             <Typography variant="body2">
-              Branże (eventowe): {currentIndustriesArray.join(", ")}
+              Twoje Hashtag (Wybierz lub stwórz tagi):{" "}
+              {currentCatalogTagsArray.join(", ")}
             </Typography>
           </Box>
-          <Button onClick={() => setEditingIndustries(true)}>Edytuj</Button>
+          <Button onClick={() => setEditingCatalogTags(true)}>Edytuj</Button>
         </Box>
       )}
-      {editingIndustries && (
+      {editingCatalogTags && (
         <Box display="flex" alignItems="center" gap={1} width="100%">
           <Box width="30px" alignItems="center" justifyContent="center">
-            {selectedIndustries.length > 0 && <GreenCheck />}
+            {selectedCatalogTags.length > 0 && <GreenCheck />}
           </Box>
           <Autocomplete
             fullWidth
             sx={{flex: 1, minWidth: 0}}
             multiple
             freeSolo
-            options={industryOptions}
-            value={selectedIndustries}
-            inputValue={industriesInputValue}
+            options={catalogTagOptions}
+            value={selectedCatalogTags}
+            inputValue={catalogInputValue}
             onInputChange={(_, q) => {
-              setIndustriesInputValue(q);
-              debouncedIndustriesFetch(q);
+              setCatalogInputValue(q);
+              debouncedFetch(q);
             }}
             onChange={(_, value) =>
-              setSelectedIndustries(
+              setSelectedCatalogTags(
                 (value as string[]).map((v) => String(v).trim()).filter(Boolean)
               )
             }
@@ -950,59 +983,27 @@ export default function CompanyInfo() {
                 {...(params as any)}
                 fullWidth
                 variant="standard"
-                label="Branże (eventowe)"
+                label="Twoje Hashtag (Wybierz lub stwórz tagi)"
                 placeholder="zacznij pisać, aby dodać"
               />
             )}
           />
           <Button
-            onClick={async () => {
-              const manual = String(industriesInputValue || "")
+            onClick={() => {
+              // Dołącz także ręcznie wpisane po przecinku (jeszcze nie dodane jako chipy)
+              const manual = String(catalogInputValue || "")
                 .split(",")
                 .map((s) => s.trim())
                 .filter(Boolean);
               const final = Array.from(
-                new Set([...(selectedIndustries || []), ...manual])
+                new Set([...(selectedCatalogTags || []), ...manual])
               );
-              setSelectedIndustries(final);
-              setIndustriesInputValue("");
-              setEditingIndustries(false);
-              // Persist event-scoped industries in exhibitor_catalog_entries for current exhibition
-              try {
-                const token = localStorage.getItem("authToken") || "";
-                const exhibitionId =
-                  Number((window as any).currentSelectedExhibitionId) || 0;
-                await fetch(
-                  `${config.API_BASE_URL}/api/v1/catalog/${exhibitionId}`,
-                  {
-                    method: "POST",
-                    headers: {
-                      "Content-Type": "application/json",
-                      Authorization: `Bearer ${token}`,
-                    },
-                    body: JSON.stringify({industries: final.join(",")}),
-                  }
-                );
-              } catch {}
-              // Upsert to global industries dictionary for suggestions
-              try {
-                const token = localStorage.getItem("authToken") || "";
-                await fetch(
-                  `${config.API_BASE_URL}/api/v1/catalog/industries`,
-                  {
-                    method: "POST",
-                    headers: {
-                      "Content-Type": "application/json",
-                      Authorization: `Bearer ${token}`,
-                    },
-                    body: JSON.stringify({industries: final}),
-                  }
-                );
-              } catch {}
-              // Local optimistic update
+              setSelectedCatalogTags(final);
+              setCatalogInputValue("");
+              setEditingCatalogTags(false);
               saveCompanyInfo({
                 ...(checklist.companyInfo as any),
-                industries: final.join(",") as any,
+                catalogTags: final.join(",") as any,
               });
             }}
           >

@@ -483,7 +483,7 @@ const DatabasePage: React.FC = () => {
                         fontSize="0.75rem"
                         onClick={openTagsModal}
                       >
-                        Tagi
+                        Hashtagi
                       </CustomButton>
                     </div>
                     <div className={styles.dictButton}>
@@ -495,7 +495,7 @@ const DatabasePage: React.FC = () => {
                         fontSize="0.75rem"
                         onClick={openIndustriesModal}
                       >
-                        Branże
+                        Sektory branżowe
                       </CustomButton>
                     </div>
                     <div className={styles.dictButton}>
