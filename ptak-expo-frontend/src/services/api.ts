@@ -154,6 +154,31 @@ export const deleteUser = async (userId: number, token: string): Promise<any> =>
   return response.json();
 };
 
+export const updateUser = async (userId: number, userData: UpdateUserPayload, token: string): Promise<any> => {
+  const url = `${config.API_BASE_URL}/api/v1/users/${userId}`;
+  try {
+    console.log('[api] updateUser →', { url, userId, userData, tokenPresent: !!token });
+    const response = await apiCall(url, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      },
+      body: JSON.stringify(userData),
+    });
+    const data = await response.json();
+    if (!response.ok) {
+      console.error('[api] updateUser error response:', data);
+      throw new Error(data?.message || data?.error || 'Błąd podczas aktualizacji użytkownika');
+    }
+    console.log('[api] updateUser success:', data);
+    return data;
+  } catch (err: any) {
+    console.error('[api] updateUser exception:', err);
+    throw err;
+  }
+};
+
 export const getExhibitorAward = async (
   exhibitorId: number,
   exhibitionId: number,
@@ -238,6 +263,14 @@ export interface AddUserPayloadByAdmin {
   last_name: string;
   email: string;
   phone: string | null;
+}
+
+export interface UpdateUserPayload {
+  first_name?: string;
+  last_name?: string;
+  email?: string;
+  phone?: string | null;
+  password?: string;
 }
 
 

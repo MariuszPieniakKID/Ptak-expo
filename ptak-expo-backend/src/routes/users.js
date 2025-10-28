@@ -417,6 +417,87 @@ router.post('/create-admin', verifyToken, requireAdmin, async (req, res) => {
   }
 });
 
+// PUT /api/v1/users/:id - zaktualizuj dane użytkownika (tylko admin)
+router.put('/:id', verifyToken, requireAdmin, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const {
+      first_name,
+      last_name,
+      email,
+      phone,
+      password
+    } = req.body || {};
+
+    // Check if user exists
+    const existsQuery = await db.query('SELECT id FROM users WHERE id = $1', [id]);
+    if (existsQuery.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        error: 'Użytkownik nie został znaleziony'
+      });
+    }
+
+    // Build dynamic update
+    const fields = [];
+    const values = [];
+    let idx = 1;
+    const pushField = (col, val) => {
+      fields.push(`${col} = $${idx++}`);
+      values.push(val);
+    };
+
+    if (first_name !== undefined) pushField('first_name', first_name);
+    if (last_name !== undefined) pushField('last_name', last_name);
+    if (email !== undefined) pushField('email', email);
+    if (phone !== undefined) pushField('phone', phone);
+
+    // Hash password if provided
+    if (password !== undefined && password.trim() !== '') {
+      const saltRounds = 10;
+      const password_hash = await bcrypt.hash(password, saltRounds);
+      pushField('password_hash', password_hash);
+    }
+
+    pushField('updated_at', new Date());
+
+    if (fields.length === 1) {
+      // Only updated_at, no real changes
+      return res.json({ success: true, message: 'Brak zmian do zapisania' });
+    }
+
+    const query = `UPDATE users SET ${fields.join(', ')} WHERE id = $${idx} RETURNING 
+      id, first_name, last_name, email, phone, avatar_url, created_at, updated_at`;
+    values.push(id);
+
+    const result = await db.query(query, values);
+    const user = result.rows[0];
+
+    res.json({
+      success: true,
+      message: 'Użytkownik zaktualizowany pomyślnie',
+      data: {
+        id: user.id,
+        firstName: user.first_name,
+        lastName: user.last_name,
+        fullName: `${user.first_name} ${user.last_name}`,
+        email: user.email,
+        phone: user.phone || 'Brak numeru',
+        avatarUrl: user.avatar_url || null,
+        createdAt: user.created_at,
+        updatedAt: user.updated_at
+      }
+    });
+  } catch (error) {
+    console.error('Error updating user:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Błąd podczas aktualizacji użytkownika',
+      message: error.message
+    });
+  }
+});
+
 // DELETE /api/v1/users/:id - usuń użytkownika (tylko admin)
 router.delete('/:id', verifyToken, requireAdmin, async (req, res) => {
   const client = await db.pool.connect();

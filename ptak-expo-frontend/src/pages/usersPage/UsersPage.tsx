@@ -5,6 +5,7 @@ import Menu from '../../components/menu/Menu';
 import CustomTypography from '../../components/customTypography/CustomTypography';
 import CustomButton from '../../components/customButton/CustomButton';
 import AddUserModalShort from '../../components/addUserModal/AddUserModalShort';
+import EditUserModal from '../../components/editUserModal/EditUserModal';
 import {
   fetchUsers,
   deleteUser,
@@ -40,6 +41,7 @@ import { ReactComponent as UsersIcon } from '../../assets/addIcon.svg';
 import { ReactComponent as KeyIcon } from '../../assets/keyIcon.svg';
 import { ReactComponent as ArrowUp } from '../../assets/arrowUpIcon.svg';
 import { ReactComponent as WastebasketIcon } from '../../assets/wastebasket.svg';
+import { ReactComponent as EditIcon } from '../../assets/editIcon.svg';
 
 import styles from './UsersPage.module.scss';
 
@@ -48,6 +50,8 @@ const UsersPage: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>('');
   const [isAddUserModalOpen, setIsAddUserModalOpen] = useState<boolean>(false);
+  const [isEditUserModalOpen, setIsEditUserModalOpen] = useState<boolean>(false);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [page, setPage] = useState<number>(0);
   const [rowsPerPage, setRowsPerPage] = useState<number>(5);
   const navigate = useNavigate();
@@ -113,6 +117,20 @@ const UsersPage: React.FC = () => {
       }
     }
   }, [token, logout, navigate]);
+
+  const handleEditUser = useCallback((user: User) => {
+    setSelectedUser(user);
+    setIsEditUserModalOpen(true);
+  }, []);
+
+  const handleEditModalClose = useCallback(() => {
+    setIsEditUserModalOpen(false);
+    setSelectedUser(null);
+  }, []);
+
+  const handleUserUpdated = useCallback(() => {
+    loadUsers();
+  }, [loadUsers]);
   
   const getUserInitials = useCallback((fullName: string): string => {
     const names = fullName.trim().split(' ');
@@ -363,6 +381,24 @@ const UsersPage: React.FC = () => {
                                   alignItems="center" 
                                   gap={1} 
                                   className={styles.actionButtonWithHover}>
+                                    <EditIcon
+                                      onClick={() => handleEditUser(u)}
+                                      className={styles.iconActionButton}
+                                    />
+                                    <CustomTypography
+                                      onClick={() => handleEditUser(u)}
+                                      className={styles.textActionButton}
+                                      sx={{fontSize:'0.8125em !important'}}
+                                    >
+                                      Edytuj
+                                    </CustomTypography>
+                                  </Box>
+
+                                  <Box 
+                                  display="flex" 
+                                  alignItems="center" 
+                                  gap={1} 
+                                  className={styles.actionButtonWithHover}>
                                     <KeyIcon
                                       onClick={() => handleResetPassword(u.id)}
                                       className={styles.iconActionButton}
@@ -424,6 +460,13 @@ const UsersPage: React.FC = () => {
         token={token || ''}
       />
 
+      <EditUserModal
+        isOpen={isEditUserModalOpen}
+        onClose={handleEditModalClose}
+        onUserUpdated={handleUserUpdated}
+        token={token || ''}
+        user={selectedUser}
+      />
 
       <Box className={styles.footer}>
         <CustomTypography className={styles.cc}>
