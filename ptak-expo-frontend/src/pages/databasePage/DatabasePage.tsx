@@ -6,7 +6,7 @@ import Menu from '../../components/menu/Menu';
 import CustomTypography from '../../components/customTypography/CustomTypography';
 import CustomButton from '../../components/customButton/CustomButton';
 import CustomField from '../../components/customField/CustomField';
-import { Box, Container, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Avatar, CircularProgress, Alert, Breadcrumbs, Link, TablePagination, Dialog, DialogTitle, DialogContent, DialogActions, TextField, IconButton } from '@mui/material';
+import { Box, Container, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Avatar, CircularProgress, Alert, Breadcrumbs, Link, TablePagination, Dialog, DialogTitle, DialogContent, DialogActions, TextField, IconButton, Tabs, Tab } from '@mui/material';
 import { useMediaQuery } from '@mui/material';
 
 import { ReactComponent as LogoutIcon } from '../../assets/log-out.svg';
@@ -18,11 +18,13 @@ import AddIcon from '@mui/icons-material/Add';
 
 import DatabaseIconPng from '../../assets/databaseIcon.png';
 import Applause from '../../assets/applause.png';
+import InvitationsTab from './InvitationsTab';
 
 import styles from '../usersPage/UsersPage.module.scss';
 import { ExhibitorPerson, fetchExhibitorPeople, catalogAPI, CatalogTag, CatalogIndustry, CatalogBrand, CatalogEventField, CatalogBuildType, fetchExhibitors, Exhibitor, fetchExhibitions, Exhibition } from '../../services/api';
 
 const DatabasePage: React.FC = () => {
+  const [currentTab, setCurrentTab] = useState<number>(0);
   const [people, setPeople] = useState<ExhibitorPerson[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>('');
@@ -437,6 +439,19 @@ const DatabasePage: React.FC = () => {
                     <CustomTypography className={styles.linkEnd}>Baza danych</CustomTypography>
                   </Breadcrumbs>
                 </Box>
+              </Box>
+              
+              {/* Tabs */}
+              <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
+                <Tabs value={currentTab} onChange={(_e, newValue) => setCurrentTab(newValue)}>
+                  <Tab label="Osoby" />
+                  <Tab label="Słowniki" />
+                  <Tab label="Zaproszenia" />
+                </Tabs>
+              </Box>
+
+              {/* Tab: Osoby */}
+              {currentTab === 0 && (<Box>
               {/* Top-right filters */}
               <Box className={styles.filtersBar}>
                 <CustomField
@@ -472,72 +487,6 @@ const DatabasePage: React.FC = () => {
                   className={styles.searchField}
                 />
               </Box>
-                {isAdmin && (
-                  <Box className={`${styles.dictButtonsRow}`}>
-                    <div className={styles.dictButton}>
-                      <CustomButton
-                        bgColor="#6F87F6"
-                        textColor="#fff"
-                        height="28px"
-                        width="auto"
-                        fontSize="0.75rem"
-                        onClick={openTagsModal}
-                      >
-                        Hashtagi
-                      </CustomButton>
-                    </div>
-                    <div className={styles.dictButton}>
-                      <CustomButton
-                        bgColor="#6F87F6"
-                        textColor="#fff"
-                        height="28px"
-                        width="auto"
-                        fontSize="0.75rem"
-                        onClick={openIndustriesModal}
-                      >
-                        Sektory branżowe
-                      </CustomButton>
-                    </div>
-                    <div className={styles.dictButton}>
-                      <CustomButton
-                        bgColor="#6F87F6"
-                        textColor="#fff"
-                        height="28px"
-                        width="auto"
-                        fontSize="0.75rem"
-                        onClick={openEventFieldsModal}
-                      >
-                        Branże wydarzenia
-                      </CustomButton>
-                    </div>
-                    <div className={styles.dictButton}>
-                      <CustomButton
-                        bgColor="#6F87F6"
-                        textColor="#fff"
-                        height="28px"
-                        width="auto"
-                        fontSize="0.75rem"
-                        onClick={openBuildTypesModal}
-                      >
-                        Typy zabudowy
-                      </CustomButton>
-                    </div>
-                    <div className={styles.dictButton}>
-                      <CustomButton
-                        bgColor="#6F87F6"
-                        textColor="#fff"
-                        height="28px"
-                        width="auto"
-                        fontSize="0.75rem"
-                        onClick={openBrandsModal}
-                      >
-                        Marki
-                      </CustomButton>
-                    </div>
-                  </Box>
-                )}
-              </Box>
-            </Box>
 
             {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
 
@@ -664,6 +613,87 @@ const DatabasePage: React.FC = () => {
                 </>
               </Paper>
             )}
+          </Box>)}
+
+            {/* Tab: Słowniki */}
+            {currentTab === 1 && isAdmin && (
+              <Box sx={{ mt: 2 }}>
+                <CustomTypography sx={{ mb: 3, fontSize: '1.1rem', fontWeight: 500 }}>
+                  Zarządzanie słownikami
+                </CustomTypography>
+                <Box className={`${styles.dictButtonsRow}`}>
+                  <div className={styles.dictButton}>
+                    <CustomButton
+                      bgColor="#6F87F6"
+                      textColor="#fff"
+                      height="28px"
+                      width="auto"
+                      fontSize="0.75rem"
+                      onClick={openTagsModal}
+                    >
+                      Hashtagi
+                    </CustomButton>
+                  </div>
+                  <div className={styles.dictButton}>
+                    <CustomButton
+                      bgColor="#6F87F6"
+                      textColor="#fff"
+                      height="28px"
+                      width="auto"
+                      fontSize="0.75rem"
+                      onClick={openIndustriesModal}
+                    >
+                      Sektory branżowe
+                    </CustomButton>
+                  </div>
+                  <div className={styles.dictButton}>
+                    <CustomButton
+                      bgColor="#6F87F6"
+                      textColor="#fff"
+                      height="28px"
+                      width="auto"
+                      fontSize="0.75rem"
+                      onClick={openEventFieldsModal}
+                    >
+                      Branże wydarzenia
+                    </CustomButton>
+                  </div>
+                  <div className={styles.dictButton}>
+                    <CustomButton
+                      bgColor="#6F87F6"
+                      textColor="#fff"
+                      height="28px"
+                      width="auto"
+                      fontSize="0.75rem"
+                      onClick={openBuildTypesModal}
+                    >
+                      Typy zabudowy
+                    </CustomButton>
+                  </div>
+                  <div className={styles.dictButton}>
+                    <CustomButton
+                      bgColor="#6F87F6"
+                      textColor="#fff"
+                      height="28px"
+                      width="auto"
+                      fontSize="0.75rem"
+                      onClick={openBrandsModal}
+                    >
+                      Marki
+                    </CustomButton>
+                  </div>
+                </Box>
+              </Box>
+            )}
+
+            {/* Tab: Zaproszenia */}
+            {currentTab === 2 && (
+              <Box sx={{ mt: 2 }}>
+                <InvitationsTab />
+              </Box>
+            )}
+            </Box>
+
           </Container>
         </Box>
 
