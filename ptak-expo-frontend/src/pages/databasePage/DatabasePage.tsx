@@ -435,6 +435,7 @@ const DatabasePage: React.FC = () => {
             </Box>
           </Box>
           <Container maxWidth={false} sx={{ maxWidth: '90%' }} className={styles.contentWrapper}>
+            {/* Header - fixed at top */}
             <Box className={styles.tableHeader}>
               <Box className={styles.titleTableContainer}>
                 <Box className={styles.userTitle}>
@@ -448,18 +449,19 @@ const DatabasePage: React.FC = () => {
                   </Breadcrumbs>
                 </Box>
               </Box>
-              
-              {/* Tabs */}
-              <Box ref={tabsRef} sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
-                <Tabs value={currentTab} onChange={(_e, newValue) => setCurrentTab(newValue)}>
-                  <Tab label="Osoby" />
-                  <Tab label="Słowniki" />
-                  <Tab label="Zaproszenia" />
-                </Tabs>
-              </Box>
+            </Box>
 
-              {/* Tab Content Container - unified height to prevent jumping */}
-              <Box sx={{ minHeight: '600px', position: 'relative' }}>
+            {/* Tabs - fixed position, separate from header */}
+            <Box ref={tabsRef} sx={{ borderBottom: 1, borderColor: 'divider', mb: 3, mt: 2 }}>
+              <Tabs value={currentTab} onChange={(_e, newValue) => setCurrentTab(newValue)}>
+                <Tab label="Osoby" />
+                <Tab label="Słowniki" />
+                <Tab label="Zaproszenia" />
+              </Tabs>
+            </Box>
+
+            {/* Tab Content Container */}
+            <Box sx={{ minHeight: '500px' }}>
                 {/* Tab: Osoby */}
                 {currentTab === 0 && (<Box>
               {/* Top-right filters */}
@@ -702,7 +704,6 @@ const DatabasePage: React.FC = () => {
                   <InvitationsTab />
                 </Box>
               )}
-            </Box>
             </Box>
 
           </Container>

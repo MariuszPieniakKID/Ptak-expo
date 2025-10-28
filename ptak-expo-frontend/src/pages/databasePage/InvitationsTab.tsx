@@ -179,86 +179,89 @@ const InvitationsTab: React.FC = () => {
   }, [invitations, page, rowsPerPage]);
 
   return (
-    <Box>
+    <Box sx={{ width: '100%', overflow: 'hidden' }}>
       {/* Summary Statistics */}
-      <Box sx={{ display: 'flex', gap: 2, mb: 3, flexWrap: 'wrap' }}>
-        <Box sx={{ flex: '1 1 200px', minWidth: '200px' }}>
-          <Card>
-            <CardContent>
-              <CustomTypography sx={{ fontSize: '0.9rem', color: '#666' }}>
-                Wszystkie zaproszenia
-              </CustomTypography>
-              <CustomTypography sx={{ fontSize: '2rem', fontWeight: 'bold', color: '#5041d0' }}>
-                {summary.totalInvitations}
-              </CustomTypography>
-            </CardContent>
-          </Card>
-        </Box>
-        <Box sx={{ flex: '1 1 200px', minWidth: '200px' }}>
-          <Card>
-            <CardContent>
-              <CustomTypography sx={{ fontSize: '0.9rem', color: '#666' }}>
-                Wysłane
-              </CustomTypography>
-              <CustomTypography sx={{ fontSize: '2rem', fontWeight: 'bold', color: '#4caf50' }}>
-                {summary.sent}
-              </CustomTypography>
-            </CardContent>
-          </Card>
-        </Box>
-        <Box sx={{ flex: '1 1 200px', minWidth: '200px' }}>
-          <Card>
-            <CardContent>
-              <CustomTypography sx={{ fontSize: '0.9rem', color: '#666' }}>
-                Otwarte
-              </CustomTypography>
-              <CustomTypography sx={{ fontSize: '2rem', fontWeight: 'bold', color: '#ff9800' }}>
-                {summary.opened}
-              </CustomTypography>
-            </CardContent>
-          </Card>
-        </Box>
-        <Box sx={{ flex: '1 1 200px', minWidth: '200px' }}>
-          <Card>
-            <CardContent>
-              <CustomTypography sx={{ fontSize: '0.9rem', color: '#666' }}>
-                Zaakceptowane
-              </CustomTypography>
-              <CustomTypography sx={{ fontSize: '2rem', fontWeight: 'bold', color: '#2196f3' }}>
-                {summary.accepted}
-              </CustomTypography>
-            </CardContent>
-          </Card>
-        </Box>
-        <Box sx={{ flex: '1 1 200px', minWidth: '200px' }}>
-          <Card>
-            <CardContent>
-              <CustomTypography sx={{ fontSize: '0.9rem', color: '#666' }}>
-                Wystawcy
-              </CustomTypography>
-              <CustomTypography sx={{ fontSize: '2rem', fontWeight: 'bold' }}>
-                {summary.uniqueExhibitors}
-              </CustomTypography>
-            </CardContent>
-          </Card>
-        </Box>
-        <Box sx={{ flex: '1 1 200px', minWidth: '200px' }}>
-          <Card>
-            <CardContent>
-              <CustomTypography sx={{ fontSize: '0.9rem', color: '#666' }}>
-                Wydarzenia
-              </CustomTypography>
-              <CustomTypography sx={{ fontSize: '2rem', fontWeight: 'bold' }}>
-                {summary.uniqueExhibitions}
-              </CustomTypography>
-            </CardContent>
-          </Card>
-        </Box>
+      <Box sx={{ 
+        display: 'grid', 
+        gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr', md: 'repeat(3, 1fr)', lg: 'repeat(6, 1fr)' },
+        gap: 2, 
+        mb: 3 
+      }}>
+        <Card>
+          <CardContent sx={{ p: 2, '&:last-child': { pb: 2 } }}>
+            <CustomTypography sx={{ fontSize: '0.85rem', color: '#666' }}>
+              Wszystkie zaproszenia
+            </CustomTypography>
+            <CustomTypography sx={{ fontSize: { xs: '1.5rem', md: '2rem' }, fontWeight: 'bold', color: '#5041d0' }}>
+              {summary.totalInvitations}
+            </CustomTypography>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent sx={{ p: 2, '&:last-child': { pb: 2 } }}>
+            <CustomTypography sx={{ fontSize: '0.85rem', color: '#666' }}>
+              Wysłane
+            </CustomTypography>
+            <CustomTypography sx={{ fontSize: { xs: '1.5rem', md: '2rem' }, fontWeight: 'bold', color: '#4caf50' }}>
+              {summary.sent}
+            </CustomTypography>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent sx={{ p: 2, '&:last-child': { pb: 2 } }}>
+            <CustomTypography sx={{ fontSize: '0.85rem', color: '#666' }}>
+              Otwarte
+            </CustomTypography>
+            <CustomTypography sx={{ fontSize: { xs: '1.5rem', md: '2rem' }, fontWeight: 'bold', color: '#ff9800' }}>
+              {summary.opened}
+            </CustomTypography>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent sx={{ p: 2, '&:last-child': { pb: 2 } }}>
+            <CustomTypography sx={{ fontSize: '0.85rem', color: '#666' }}>
+              Zaakceptowane
+            </CustomTypography>
+            <CustomTypography sx={{ fontSize: { xs: '1.5rem', md: '2rem' }, fontWeight: 'bold', color: '#2196f3' }}>
+              {summary.accepted}
+            </CustomTypography>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent sx={{ p: 2, '&:last-child': { pb: 2 } }}>
+            <CustomTypography sx={{ fontSize: '0.85rem', color: '#666' }}>
+              Wystawcy
+            </CustomTypography>
+            <CustomTypography sx={{ fontSize: { xs: '1.5rem', md: '2rem' }, fontWeight: 'bold' }}>
+              {summary.uniqueExhibitors}
+            </CustomTypography>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardContent sx={{ p: 2, '&:last-child': { pb: 2 } }}>
+            <CustomTypography sx={{ fontSize: '0.85rem', color: '#666' }}>
+              Wydarzenia
+            </CustomTypography>
+            <CustomTypography sx={{ fontSize: { xs: '1.5rem', md: '2rem' }, fontWeight: 'bold' }}>
+              {summary.uniqueExhibitions}
+            </CustomTypography>
+          </CardContent>
+        </Card>
       </Box>
 
       {/* Filters */}
-      <Box sx={{ mb: 3, display: 'flex', gap: 2, flexWrap: 'wrap', alignItems: 'flex-end' }}>
-        <Box sx={{ minWidth: 250 }}>
+      <Box sx={{ 
+        mb: 3, 
+        display: 'flex', 
+        gap: 2, 
+        flexWrap: 'wrap', 
+        alignItems: 'flex-end',
+        '& > *': { 
+          minWidth: { xs: '100%', sm: '200px', md: '150px' },
+          flex: { xs: '1 1 100%', sm: '1 1 auto' }
+        }
+      }}>
+        <Box sx={{ minWidth: { xs: '100%', sm: '250px' } }}>
           <CustomField
             label="Szukaj"
             placeholder="Email, nazwa, firma..."
@@ -268,7 +271,7 @@ const InvitationsTab: React.FC = () => {
           />
         </Box>
 
-        <FormControl sx={{ minWidth: 200 }}>
+        <FormControl>
           <InputLabel>Wydarzenie</InputLabel>
           <Select
             value={selectedExhibitionId}
@@ -284,7 +287,7 @@ const InvitationsTab: React.FC = () => {
           </Select>
         </FormControl>
 
-        <FormControl sx={{ minWidth: 200 }}>
+        <FormControl>
           <InputLabel>Wystawca</InputLabel>
           <Select
             value={selectedExhibitorId}
@@ -300,7 +303,7 @@ const InvitationsTab: React.FC = () => {
           </Select>
         </FormControl>
 
-        <FormControl sx={{ minWidth: 150 }}>
+        <FormControl>
           <InputLabel>Status</InputLabel>
           <Select
             value={selectedStatus}
@@ -320,6 +323,7 @@ const InvitationsTab: React.FC = () => {
           iconPosition="left"
           variant="contained"
           disabled={invitations.length === 0}
+          sx={{ minWidth: { xs: '100%', sm: 'auto' } }}
         >
           Eksportuj CSV
         </CustomButton>
@@ -340,8 +344,8 @@ const InvitationsTab: React.FC = () => {
 
       {!loading && !error && (
         <>
-          <TableContainer component={Paper}>
-            <Table>
+          <TableContainer component={Paper} sx={{ overflowX: 'auto' }}>
+            <Table sx={{ minWidth: { xs: '800px', md: '100%' } }}>
               <TableHead>
                 <TableRow>
                   <TableCell>ID</TableCell>
