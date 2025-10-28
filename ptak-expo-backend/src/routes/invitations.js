@@ -7,7 +7,9 @@ const {
   getInvitationById,
   deleteInvitation,
   sendInvitation,
-  listRecipientsByExhibition
+  listRecipientsByExhibition,
+  getAllInvitationsAdmin,
+  exportInvitationsCSV
 } = require('../controllers/invitationsController');
 
 // Get invitations for specific exhibition (wystawca lub admin)
@@ -33,5 +35,13 @@ router.post('/:exhibitionId/send', verifyToken, requireExhibitorOrAdmin, sendInv
 // List sent recipients for exhibition (wystawca lub admin)
 // GET /api/v1/invitations/:exhibitionId/recipients
 router.get('/:exhibitionId/recipients', verifyToken, requireExhibitorOrAdmin, listRecipientsByExhibition);
+
+// Admin: Get all invitations with filtering and statistics
+// GET /api/v1/invitations/admin/all
+router.get('/admin/all', verifyToken, requireAdmin, getAllInvitationsAdmin);
+
+// Admin: Export invitations to CSV
+// GET /api/v1/invitations/admin/export-csv
+router.get('/admin/export-csv', verifyToken, requireAdmin, exportInvitationsCSV);
 
 module.exports = router; 

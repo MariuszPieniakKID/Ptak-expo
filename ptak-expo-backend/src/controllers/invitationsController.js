@@ -585,5 +585,291 @@ const listRecipientsByExhibition = async (req, res) => {
   }
 };
 
+// GET /api/v1/invitations/admin/all
+// Admin endpoint to fetch all invitations with comprehensive filtering and statistics
+const getAllInvitationsAdmin = async (req, res) => {
+  try {
+    const { exhibitionId, exhibitorId, status, search, sortBy = 'sent_at', sortOrder = 'desc' } = req.query;
+
+    const client = await pool.connect();
+    try {
+      let whereConditions = [];
+      let queryParams = [];
+      let paramIndex = 1;
+
+      // Build WHERE conditions
+      if (exhibitionId) {
+        whereConditions.push(`t.exhibition_id = $${paramIndex}`);
+        queryParams.push(exhibitionId);
+        paramIndex++;
+      }
+
+      if (exhibitorId) {
+        whereConditions.push(`r.exhibitor_id = $${paramIndex}`);
+        queryParams.push(exhibitorId);
+        paramIndex++;
+      }
+
+      if (status) {
+        whereConditions.push(`r.response_status = $${paramIndex}`);
+        queryParams.push(status);
+        paramIndex++;
+      }
+
+      if (search && search.trim()) {
+        whereConditions.push(`(
+          r.recipient_email ILIKE $${paramIndex} OR 
+          r.recipient_name ILIKE $${paramIndex} OR 
+          r.recipient_company ILIKE $${paramIndex} OR
+          ex.company_name ILIKE $${paramIndex}
+        )`);
+        queryParams.push(`%${search.trim()}%`);
+        paramIndex++;
+      }
+
+      const whereClause = whereConditions.length > 0 ? `WHERE ${whereConditions.join(' AND ')}` : '';
+
+      // Validate sortBy to prevent SQL injection
+      const validSortColumns = ['sent_at', 'recipient_email', 'recipient_name', 'company_name', 'exhibition_name'];
+      const sortColumn = validSortColumns.includes(sortBy) ? sortBy : 'sent_at';
+      const sortDirection = sortOrder.toLowerCase() === 'asc' ? 'ASC' : 'DESC';
+
+      // Main query to fetch all invitations with details
+      const query = `
+        SELECT 
+          r.id,
+          r.recipient_email,
+          r.recipient_name,
+          r.recipient_company,
+          r.sent_at,
+          r.opened_at,
+          r.responded_at,
+          r.response_status,
+          r.created_at,
+          t.id as template_id,
+          t.title as template_title,
+          t.invitation_type,
+          e.id as exhibition_id,
+          e.name as exhibition_name,
+          e.start_date as exhibition_start_date,
+          e.end_date as exhibition_end_date,
+          ex.id as exhibitor_id,
+          ex.company_name,
+          ex.email as exhibitor_email,
+          ex.phone as exhibitor_phone
+        FROM invitation_recipients r
+        LEFT JOIN invitation_templates t ON r.invitation_template_id = t.id
+        LEFT JOIN exhibitions e ON t.exhibition_id = e.id
+        LEFT JOIN exhibitors ex ON r.exhibitor_id = ex.id
+        ${whereClause}
+        ORDER BY 
+          CASE 
+            WHEN '${sortColumn}' = 'sent_at' THEN r.sent_at
+            WHEN '${sortColumn}' = 'exhibition_name' THEN e.name::text
+            WHEN '${sortColumn}' = 'company_name' THEN ex.company_name::text
+          END ${sortDirection} NULLS LAST,
+          r.id DESC
+      `;
+
+      const result = await client.query(query, queryParams);
+
+      // Get summary statistics
+      const statsQuery = `
+        SELECT 
+          COUNT(*) as total_invitations,
+          COUNT(CASE WHEN r.sent_at IS NOT NULL THEN 1 END) as sent_count,
+          COUNT(CASE WHEN r.opened_at IS NOT NULL THEN 1 END) as opened_count,
+          COUNT(CASE WHEN r.response_status = 'accepted' THEN 1 END) as accepted_count,
+          COUNT(CASE WHEN r.response_status = 'pending' THEN 1 END) as pending_count,
+          COUNT(DISTINCT r.exhibitor_id) as unique_exhibitors,
+          COUNT(DISTINCT t.exhibition_id) as unique_exhibitions
+        FROM invitation_recipients r
+        LEFT JOIN invitation_templates t ON r.invitation_template_id = t.id
+        LEFT JOIN exhibitors ex ON r.exhibitor_id = ex.id
+        ${whereClause}
+      `;
+
+      const statsResult = await client.query(statsQuery, queryParams);
+      const stats = statsResult.rows[0];
+
+      return res.json({
+        success: true,
+        data: result.rows,
+        summary: {
+          totalInvitations: parseInt(stats.total_invitations) || 0,
+          sent: parseInt(stats.sent_count) || 0,
+          opened: parseInt(stats.opened_count) || 0,
+          accepted: parseInt(stats.accepted_count) || 0,
+          pending: parseInt(stats.pending_count) || 0,
+          uniqueExhibitors: parseInt(stats.unique_exhibitors) || 0,
+          uniqueExhibitions: parseInt(stats.unique_exhibitions) || 0
+        }
+      });
+    } finally {
+      client.release();
+    }
+  } catch (error) {
+    console.error('Error fetching all invitations:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Błąd podczas pobierania zaproszeń',
+      error: error.message
+    });
+  }
+};
+
+// GET /api/v1/invitations/admin/export-csv
+// Export invitations to CSV with same filtering as getAllInvitationsAdmin
+const exportInvitationsCSV = async (req, res) => {
+  try {
+    const { exhibitionId, exhibitorId, status, search } = req.query;
+
+    const client = await pool.connect();
+    try {
+      let whereConditions = [];
+      let queryParams = [];
+      let paramIndex = 1;
+
+      // Build WHERE conditions (same as getAllInvitationsAdmin)
+      if (exhibitionId) {
+        whereConditions.push(`t.exhibition_id = $${paramIndex}`);
+        queryParams.push(exhibitionId);
+        paramIndex++;
+      }
+
+      if (exhibitorId) {
+        whereConditions.push(`r.exhibitor_id = $${paramIndex}`);
+        queryParams.push(exhibitorId);
+        paramIndex++;
+      }
+
+      if (status) {
+        whereConditions.push(`r.response_status = $${paramIndex}`);
+        queryParams.push(status);
+        paramIndex++;
+      }
+
+      if (search && search.trim()) {
+        whereConditions.push(`(
+          r.recipient_email ILIKE $${paramIndex} OR 
+          r.recipient_name ILIKE $${paramIndex} OR 
+          r.recipient_company ILIKE $${paramIndex} OR
+          ex.company_name ILIKE $${paramIndex}
+        )`);
+        queryParams.push(`%${search.trim()}%`);
+        paramIndex++;
+      }
+
+      const whereClause = whereConditions.length > 0 ? `WHERE ${whereConditions.join(' AND ')}` : '';
+
+      const query = `
+        SELECT 
+          r.id,
+          r.recipient_email,
+          r.recipient_name,
+          r.recipient_company,
+          r.sent_at,
+          r.opened_at,
+          r.responded_at,
+          r.response_status,
+          t.title as template_title,
+          t.invitation_type,
+          e.name as exhibition_name,
+          e.start_date as exhibition_start_date,
+          e.end_date as exhibition_end_date,
+          ex.company_name,
+          ex.email as exhibitor_email,
+          ex.phone as exhibitor_phone
+        FROM invitation_recipients r
+        LEFT JOIN invitation_templates t ON r.invitation_template_id = t.id
+        LEFT JOIN exhibitions e ON t.exhibition_id = e.id
+        LEFT JOIN exhibitors ex ON r.exhibitor_id = ex.id
+        ${whereClause}
+        ORDER BY r.sent_at DESC, r.id DESC
+      `;
+
+      const result = await client.query(query, queryParams);
+
+      // Build CSV
+      const headers = [
+        'ID',
+        'Email odbiorcy',
+        'Nazwa odbiorcy',
+        'Firma odbiorcy',
+        'Data wysłania',
+        'Data otwarcia',
+        'Data odpowiedzi',
+        'Status',
+        'Typ zaproszenia',
+        'Tytuł szablonu',
+        'Nazwa wydarzenia',
+        'Data rozpoczęcia',
+        'Data zakończenia',
+        'Firma wystawcy',
+        'Email wystawcy',
+        'Telefon wystawcy'
+      ];
+
+      let csv = headers.join(',') + '\n';
+
+      result.rows.forEach(row => {
+        const formatDate = (date) => date ? new Date(date).toLocaleString('pl-PL') : '';
+        const escapeCSV = (str) => {
+          if (str === null || str === undefined) return '';
+          const stringValue = String(str);
+          if (stringValue.includes(',') || stringValue.includes('"') || stringValue.includes('\n')) {
+            return `"${stringValue.replace(/"/g, '""')}"`;
+          }
+          return stringValue;
+        };
+
+        const values = [
+          escapeCSV(row.id),
+          escapeCSV(row.recipient_email),
+          escapeCSV(row.recipient_name),
+          escapeCSV(row.recipient_company),
+          escapeCSV(formatDate(row.sent_at)),
+          escapeCSV(formatDate(row.opened_at)),
+          escapeCSV(formatDate(row.responded_at)),
+          escapeCSV(row.response_status),
+          escapeCSV(row.invitation_type),
+          escapeCSV(row.template_title),
+          escapeCSV(row.exhibition_name),
+          escapeCSV(formatDate(row.exhibition_start_date)),
+          escapeCSV(formatDate(row.exhibition_end_date)),
+          escapeCSV(row.company_name),
+          escapeCSV(row.exhibitor_email),
+          escapeCSV(row.exhibitor_phone)
+        ];
+
+        csv += values.join(',') + '\n';
+      });
+
+      // Set headers for CSV download
+      const timestamp = new Date().toISOString().split('T')[0];
+      res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+      res.setHeader('Content-Disposition', `attachment; filename="zaproszenia-${timestamp}.csv"`);
+      res.setHeader('Cache-Control', 'no-cache');
+      
+      // Add BOM for proper Excel UTF-8 support
+      res.write('\uFEFF');
+      res.write(csv);
+      res.end();
+
+    } finally {
+      client.release();
+    }
+  } catch (error) {
+    console.error('Error exporting invitations CSV:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Błąd podczas eksportowania zaproszeń do CSV',
+      error: error.message
+    });
+  }
+};
+
 module.exports.sendInvitation = sendInvitation;
 module.exports.listRecipientsByExhibition = listRecipientsByExhibition;
+module.exports.getAllInvitationsAdmin = getAllInvitationsAdmin;
+module.exports.exportInvitationsCSV = exportInvitationsCSV;

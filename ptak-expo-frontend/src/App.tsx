@@ -12,6 +12,7 @@ import ApiDocsPage from './pages/ApiDocsPage';
 import './App.scss';
 import EventsPageAlt from './pages/eventsPage/EventsPage_';
 import DatabasePage from './pages/databasePage/DatabasePage';
+import InvitationsPage from './pages/invitationsPage/InvitationsPage';
 import RssEventsPage from './pages/rss/RssEventsPage';
 import RssEventExhibitorsPage from './pages/rss/RssEventExhibitorsPage';
 
@@ -44,6 +45,13 @@ function App() {
             <Route path="/baza-danych" element={
               <ProtectedRoute requiredRole="admin">
                 <DatabasePage />
+              </ProtectedRoute>
+            } />
+            
+            {/* Protected Invitations page - Admin only */}
+            <Route path="/zaproszenia" element={
+              <ProtectedRoute requiredRole="admin">
+                <InvitationsPage />
               </ProtectedRoute>
             } />
             

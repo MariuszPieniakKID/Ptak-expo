@@ -2015,3 +2015,96 @@ export const getTradeMessageHistory = async (exhibitionId: number, token: string
   }
   return data?.data || [];
 };
+
+// ===== INVITATIONS =====
+export interface InvitationRecipient {
+  id: number;
+  recipient_email: string;
+  recipient_name: string | null;
+  recipient_company: string | null;
+  sent_at: string | null;
+  opened_at: string | null;
+  responded_at: string | null;
+  response_status: string;
+  created_at: string;
+  template_id: number;
+  template_title: string;
+  invitation_type: string;
+  exhibition_id: number;
+  exhibition_name: string;
+  exhibition_start_date: string;
+  exhibition_end_date: string;
+  exhibitor_id: number | null;
+  company_name: string | null;
+  exhibitor_email: string | null;
+  exhibitor_phone: string | null;
+}
+
+export interface InvitationsSummary {
+  totalInvitations: number;
+  sent: number;
+  opened: number;
+  accepted: number;
+  pending: number;
+  uniqueExhibitors: number;
+  uniqueExhibitions: number;
+}
+
+export interface AllInvitationsResponse {
+  success: boolean;
+  data: InvitationRecipient[];
+  summary: InvitationsSummary;
+}
+
+export interface InvitationsFilters {
+  exhibitionId?: string | number;
+  exhibitorId?: string | number;
+  status?: string;
+  search?: string;
+  sortBy?: string;
+  sortOrder?: 'asc' | 'desc';
+}
+
+export const fetchAllInvitations = async (
+  token: string,
+  filters?: InvitationsFilters
+): Promise<AllInvitationsResponse> => {
+  const params = new URLSearchParams();
+  
+  if (filters?.exhibitionId) params.append('exhibitionId', String(filters.exhibitionId));
+  if (filters?.exhibitorId) params.append('exhibitorId', String(filters.exhibitorId));
+  if (filters?.status) params.append('status', filters.status);
+  if (filters?.search) params.append('search', filters.search);
+  if (filters?.sortBy) params.append('sortBy', filters.sortBy);
+  if (filters?.sortOrder) params.append('sortOrder', filters.sortOrder);
+
+  const url = `${config.API_BASE_URL}/api/v1/invitations/admin/all${params.toString() ? '?' + params.toString() : ''}`;
+  
+  const response = await apiCall(url, {
+    headers: { 'Authorization': `Bearer ${token}` },
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json();
+    throw new Error(errorData?.message || 'Błąd podczas pobierania zaproszeń');
+  }
+
+  return await response.json();
+};
+
+export const exportInvitationsCSV = (
+  token: string,
+  filters?: InvitationsFilters
+): void => {
+  const params = new URLSearchParams();
+  
+  if (filters?.exhibitionId) params.append('exhibitionId', String(filters.exhibitionId));
+  if (filters?.exhibitorId) params.append('exhibitorId', String(filters.exhibitorId));
+  if (filters?.status) params.append('status', filters.status);
+  if (filters?.search) params.append('search', filters.search);
+
+  const url = `${config.API_BASE_URL}/api/v1/invitations/admin/export-csv?${params.toString()}&token=${encodeURIComponent(token)}`;
+  
+  // Open in new window to trigger download
+  window.open(url, '_blank');
+};

@@ -8,6 +8,7 @@ import { ReactComponent as UsersIcon } from '../../assets/group-30485.svg';
 import { ReactComponent as EventsIcon } from '../../assets/group-30487.svg';
 import { ReactComponent as ExhibitorsIcon } from '../../assets/group-30486.svg';
 import { ReactComponent as DatabaseIcon } from '../../assets/group-30484.svg';
+import EmailIcon from '@mui/icons-material/Email';
 
 
 
@@ -22,6 +23,7 @@ const navItems = [
   { text: 'Baza wystawców', path: '/wystawcy', icon: <ExhibitorsIcon /> },
   { text: 'Użytkownicy', path: '/uzytkownicy', icon: <UsersIcon /> },
   { text: 'Baza danych', path: '/baza-danych', icon: <DatabaseIcon /> },
+  { text: 'Zaproszenia', path: '/zaproszenia', icon: <EmailIcon /> },
 ];
 
 const CustomNavLinkMobilke: FunctionComponent<{ 
