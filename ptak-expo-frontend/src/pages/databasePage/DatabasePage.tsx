@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 import config from '../../config/config';
@@ -25,6 +25,7 @@ import { ExhibitorPerson, fetchExhibitorPeople, catalogAPI, CatalogTag, CatalogI
 
 const DatabasePage: React.FC = () => {
   const [currentTab, setCurrentTab] = useState<number>(0);
+  const tabsRef = useRef<HTMLDivElement>(null);
   const [people, setPeople] = useState<ExhibitorPerson[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>('');
@@ -40,6 +41,13 @@ const DatabasePage: React.FC = () => {
   const navigate = useNavigate();
   const { token, user, logout } = useAuth();
   const isLargeScreen = useMediaQuery('(min-width:600px)');
+
+  // Scroll to top when tab changes
+  useEffect(() => {
+    if (tabsRef.current) {
+      tabsRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, [currentTab]);
 
   const buildAvatarUrl = (userId?: number | null): string | undefined => {
     if (!userId || !token) return undefined;
@@ -442,7 +450,7 @@ const DatabasePage: React.FC = () => {
               </Box>
               
               {/* Tabs */}
-              <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
+              <Box ref={tabsRef} sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}>
                 <Tabs value={currentTab} onChange={(_e, newValue) => setCurrentTab(newValue)}>
                   <Tab label="Osoby" />
                   <Tab label="Słowniki" />
@@ -450,8 +458,10 @@ const DatabasePage: React.FC = () => {
                 </Tabs>
               </Box>
 
-              {/* Tab: Osoby */}
-              {currentTab === 0 && (<Box>
+              {/* Tab Content Container - unified height to prevent jumping */}
+              <Box sx={{ minHeight: '600px', position: 'relative' }}>
+                {/* Tab: Osoby */}
+                {currentTab === 0 && (<Box>
               {/* Top-right filters */}
               <Box className={styles.filtersBar}>
                 <CustomField
@@ -615,12 +625,12 @@ const DatabasePage: React.FC = () => {
             )}
           </Box>)}
 
-            {/* Tab: Słowniki */}
-            {currentTab === 1 && isAdmin && (
-              <Box sx={{ mt: 2 }}>
-                <CustomTypography sx={{ mb: 3, fontSize: '1.1rem', fontWeight: 500 }}>
-                  Zarządzanie słownikami
-                </CustomTypography>
+                {/* Tab: Słowniki */}
+                {currentTab === 1 && isAdmin && (
+                  <Box>
+                    <CustomTypography sx={{ mb: 3, fontSize: '1.1rem', fontWeight: 500 }}>
+                      Zarządzanie słownikami
+                    </CustomTypography>
                 <Box className={`${styles.dictButtonsRow}`}>
                   <div className={styles.dictButton}>
                     <CustomButton
@@ -682,16 +692,17 @@ const DatabasePage: React.FC = () => {
                       Marki
                     </CustomButton>
                   </div>
+                  </Box>
                 </Box>
-              </Box>
-            )}
+              )}
 
-            {/* Tab: Zaproszenia */}
-            {currentTab === 2 && (
-              <Box sx={{ mt: 2 }}>
-                <InvitationsTab />
-              </Box>
-            )}
+              {/* Tab: Zaproszenia */}
+              {currentTab === 2 && (
+                <Box>
+                  <InvitationsTab />
+                </Box>
+              )}
+            </Box>
             </Box>
 
           </Container>
