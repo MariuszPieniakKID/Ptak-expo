@@ -60,6 +60,7 @@ const DictionariesTab: React.FC = () => {
   // Load all dictionaries
   useEffect(() => {
     loadAllDictionaries();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token]);
 
   const loadAllDictionaries = async () => {
