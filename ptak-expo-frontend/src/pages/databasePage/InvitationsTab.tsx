@@ -60,7 +60,6 @@ const InvitationsTab: React.FC = () => {
   const [search, setSearch] = useState<string>('');
   const [selectedExhibitionId, setSelectedExhibitionId] = useState<string>('');
   const [selectedExhibitorId, setSelectedExhibitorId] = useState<string>('');
-  const [selectedStatus, setSelectedStatus] = useState<string>('');
   
   const [exhibitors, setExhibitors] = useState<Exhibitor[]>([]);
   const [exhibitions, setExhibitions] = useState<Exhibition[]>([]);
@@ -83,7 +82,6 @@ const InvitationsTab: React.FC = () => {
 
       if (selectedExhibitionId) filters.exhibitionId = selectedExhibitionId;
       if (selectedExhibitorId) filters.exhibitorId = selectedExhibitorId;
-      if (selectedStatus) filters.status = selectedStatus;
       if (search && search.trim()) filters.search = search.trim();
 
       const response = await fetchAllInvitations(token, filters);
@@ -95,7 +93,7 @@ const InvitationsTab: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  }, [token, selectedExhibitionId, selectedExhibitorId, selectedStatus, search, sortOrder]);
+  }, [token, selectedExhibitionId, selectedExhibitorId, search, sortOrder]);
 
   useEffect(() => {
     loadInvitations();
@@ -138,7 +136,6 @@ const InvitationsTab: React.FC = () => {
     const filters: InvitationsFilters = {};
     if (selectedExhibitionId) filters.exhibitionId = selectedExhibitionId;
     if (selectedExhibitorId) filters.exhibitorId = selectedExhibitorId;
-    if (selectedStatus) filters.status = selectedStatus;
     if (search && search.trim()) filters.search = search.trim();
 
     exportInvitationsCSV(token, filters);
@@ -155,24 +152,6 @@ const InvitationsTab: React.FC = () => {
     });
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'accepted': return '#4caf50';
-      case 'pending': return '#ff9800';
-      case 'rejected': return '#f44336';
-      default: return '#757575';
-    }
-  };
-
-  const getStatusLabel = (status: string) => {
-    switch (status) {
-      case 'accepted': return 'Zaakceptowane';
-      case 'pending': return 'Oczekujące';
-      case 'rejected': return 'Odrzucone';
-      default: return status;
-    }
-  };
-
   // Paginated data
   const paginatedInvitations = useMemo(() => {
     return invitations.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
@@ -183,20 +162,10 @@ const InvitationsTab: React.FC = () => {
       {/* Summary Statistics */}
       <Box sx={{ 
         display: 'grid', 
-        gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr', md: 'repeat(3, 1fr)', lg: 'repeat(6, 1fr)' },
+        gridTemplateColumns: { xs: '1fr', sm: 'repeat(3, 1fr)' },
         gap: 2, 
         mb: 3 
       }}>
-        <Card>
-          <CardContent sx={{ p: 2, '&:last-child': { pb: 2 } }}>
-            <CustomTypography sx={{ fontSize: '0.85rem', color: '#666' }}>
-              Wszystkie zaproszenia
-            </CustomTypography>
-            <CustomTypography sx={{ fontSize: { xs: '1.5rem', md: '2rem' }, fontWeight: 'bold', color: '#5041d0' }}>
-              {summary.totalInvitations}
-            </CustomTypography>
-          </CardContent>
-        </Card>
         <Card>
           <CardContent sx={{ p: 2, '&:last-child': { pb: 2 } }}>
             <CustomTypography sx={{ fontSize: '0.85rem', color: '#666' }}>
@@ -204,26 +173,6 @@ const InvitationsTab: React.FC = () => {
             </CustomTypography>
             <CustomTypography sx={{ fontSize: { xs: '1.5rem', md: '2rem' }, fontWeight: 'bold', color: '#4caf50' }}>
               {summary.sent}
-            </CustomTypography>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent sx={{ p: 2, '&:last-child': { pb: 2 } }}>
-            <CustomTypography sx={{ fontSize: '0.85rem', color: '#666' }}>
-              Otwarte
-            </CustomTypography>
-            <CustomTypography sx={{ fontSize: { xs: '1.5rem', md: '2rem' }, fontWeight: 'bold', color: '#ff9800' }}>
-              {summary.opened}
-            </CustomTypography>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent sx={{ p: 2, '&:last-child': { pb: 2 } }}>
-            <CustomTypography sx={{ fontSize: '0.85rem', color: '#666' }}>
-              Zaakceptowane
-            </CustomTypography>
-            <CustomTypography sx={{ fontSize: { xs: '1.5rem', md: '2rem' }, fontWeight: 'bold', color: '#2196f3' }}>
-              {summary.accepted}
             </CustomTypography>
           </CardContent>
         </Card>
@@ -303,20 +252,6 @@ const InvitationsTab: React.FC = () => {
           </Select>
         </FormControl>
 
-        <FormControl>
-          <InputLabel>Status</InputLabel>
-          <Select
-            value={selectedStatus}
-            onChange={(e) => setSelectedStatus(e.target.value)}
-            label="Status"
-          >
-            <MenuItem value="">Wszystkie</MenuItem>
-            <MenuItem value="pending">Oczekujące</MenuItem>
-            <MenuItem value="accepted">Zaakceptowane</MenuItem>
-            <MenuItem value="rejected">Odrzucone</MenuItem>
-          </Select>
-        </FormControl>
-
         <CustomButton
           onClick={handleExportCSV}
           icon={<FileDownloadIcon style={{ width: '1.2em', height: '1.2em' }} />}
@@ -369,14 +304,12 @@ const InvitationsTab: React.FC = () => {
                   <TableCell>Wystawca</TableCell>
                   <TableCell>Wydarzenie</TableCell>
                   <TableCell>Szablon</TableCell>
-                  <TableCell>Status</TableCell>
-                  <TableCell>Data otwarcia</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {paginatedInvitations.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={10} align="center">
+                    <TableCell colSpan={8} align="center">
                       <CustomTypography sx={{ py: 4 }}>
                         Brak zaproszeń do wyświetlenia
                       </CustomTypography>
@@ -393,23 +326,6 @@ const InvitationsTab: React.FC = () => {
                       <TableCell>{invitation.company_name || '-'}</TableCell>
                       <TableCell>{invitation.exhibition_name || '-'}</TableCell>
                       <TableCell>{invitation.template_title || '-'}</TableCell>
-                      <TableCell>
-                        <Box
-                          sx={{
-                            display: 'inline-block',
-                            px: 1.5,
-                            py: 0.5,
-                            borderRadius: 1,
-                            backgroundColor: getStatusColor(invitation.response_status) + '20',
-                            color: getStatusColor(invitation.response_status),
-                            fontSize: '0.85rem',
-                            fontWeight: 500
-                          }}
-                        >
-                          {getStatusLabel(invitation.response_status)}
-                        </Box>
-                      </TableCell>
-                      <TableCell>{formatDate(invitation.opened_at)}</TableCell>
                     </TableRow>
                   ))
                 )}
