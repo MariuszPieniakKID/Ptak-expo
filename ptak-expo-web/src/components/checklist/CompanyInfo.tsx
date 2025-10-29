@@ -80,6 +80,25 @@ function DisplayEdit({
     </Box>
   );
 }
+function DisplayOnly({
+  name,
+  value,
+}: {
+  name: string;
+  value: string | null;
+}) {
+  return (
+    <Box display="flex" alignItems="center">
+      <Box width="30px" alignItems="center" justifyContent="center">
+        {value != null && <GreenCheck />}
+      </Box>
+      <Typography fontSize={14} color="#2E2E38">
+        {name}: {value || ""}
+      </Typography>
+    </Box>
+  );
+}
+
 function StringEdit({
   name,
   value,
@@ -482,10 +501,9 @@ export default function CompanyInfo() {
       }
       checked={companyInfoFilledCount === 6}
     >
-      <StringEdit
+      <DisplayOnly
         name="Nazwa firmy"
         value={checklist.companyInfo.name}
-        onChange={(v) => saveCompanyInfo({...checklist.companyInfo, name: v})}
       />
       <StringEdit
         name="Nazwa firmy do wyświetlania"
