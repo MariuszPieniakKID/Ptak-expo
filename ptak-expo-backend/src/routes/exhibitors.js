@@ -135,6 +135,55 @@ router.put('/me', verifyToken, requireExhibitorOrAdmin, async (req, res) => {
   }
 });
 
+// GET /api/v1/exhibitors/me/exhibition/:exhibitionId - get current exhibitor's assignment to exhibition (exhibitor or admin)
+router.get('/me/exhibition/:exhibitionId', verifyToken, requireExhibitorOrAdmin, async (req, res) => {
+  try {
+    const { exhibitionId } = req.params;
+    const email = req.user.email;
+    
+    // Get exhibitor ID
+    const exRes = await db.query('SELECT id FROM exhibitors WHERE email = $1 LIMIT 1', [email]);
+    if (exRes.rows.length === 0) {
+      return res.status(404).json({ success: false, message: 'Wystawca nie został znaleziony' });
+    }
+    const exhibitorId = exRes.rows[0].id;
+    
+    // Get assignment details
+    const asg = await db.query(
+      `SELECT supervisor_user_id, hall_name, stand_number, booth_area
+       FROM exhibitor_events
+       WHERE exhibitor_id = $1 AND exhibition_id = $2 LIMIT 1`,
+      [exhibitorId, exhibitionId]
+    );
+    
+    const row = asg.rows[0];
+    if (!row) {
+      return res.json({ 
+        success: true, 
+        data: { 
+          hallName: '', 
+          standNumber: '', 
+          boothArea: '',
+          supervisorUserId: null 
+        } 
+      });
+    }
+    
+    return res.json({
+      success: true,
+      data: {
+        hallName: row.hall_name ?? '',
+        standNumber: row.stand_number ?? '',
+        boothArea: row.booth_area !== null && row.booth_area !== undefined ? String(row.booth_area) : '',
+        supervisorUserId: row.supervisor_user_id ?? null,
+      }
+    });
+  } catch (e) {
+    console.error('Error fetching exhibitor assignment:', e);
+    return res.status(500).json({ success: false, message: 'Błąd podczas pobierania przypisania' });
+  }
+});
+
 // GET /api/v1/exhibitors - pobierz wszystkich wystawców (tylko admin)
 router.get('/', verifyToken, requireAdmin, async (req, res) => {
   try {

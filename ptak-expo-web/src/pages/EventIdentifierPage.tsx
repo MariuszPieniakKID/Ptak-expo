@@ -27,12 +27,16 @@ const EventIdentifierPage = () => {
       if (!eventId) return;
       try {
         const idNum = Number(eventId);
-        const [evRes, tradeRes, brandingRes, recipients, templates] = await Promise.all([
+        const [evRes, tradeRes, brandingRes, recipients, templates, exhibitorAssignment] = await Promise.all([
           exhibitionsAPI.getById(idNum),
           tradeInfoAPI.get(idNum).catch(() => null),
           brandingAPI.getGlobal(idNum).catch(() => null),
           invitationsAPI.recipients(idNum).catch(() => []),
-          invitationsAPI.list(idNum).catch(() => [])
+          invitationsAPI.list(idNum).catch(() => []),
+          // Fetch exhibitor's hall assignment
+          fetch(`${config.API_BASE_URL}/api/v1/exhibitors/me/exhibition/${idNum}`, {
+            headers: { Authorization: `Bearer ${localStorage.getItem('authToken')}` }
+          }).then(res => res.ok ? res.json() : null).catch(() => null)
         ]);
 
         const e = evRes.data;
@@ -46,8 +50,9 @@ const EventIdentifierPage = () => {
           ? `${exhibitorStart}–${exhibitorEnd}`
           : (visitorStart && visitorEnd) ? `${visitorStart}–${visitorEnd}` : '';
 
-        const hallName = Array.isArray(trade?.tradeSpaces) && trade.tradeSpaces.length > 0
-          ? (trade.tradeSpaces[0]?.hallName || '')
+        // Use exhibitor's actual hall assignment instead of global trade_spaces
+        const hallName = (exhibitorAssignment && exhibitorAssignment.success && exhibitorAssignment.data?.hallName)
+          ? exhibitorAssignment.data.hallName
           : (e.location || '');
 
         // Resolve header image from global branding files
