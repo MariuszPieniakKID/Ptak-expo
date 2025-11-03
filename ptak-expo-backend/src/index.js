@@ -33,6 +33,8 @@ const publicRoutes = require('./routes/public');
 const adminRoutes = require('./routes/admin');
 const newsRoutes = require('./routes/news');
 const bulkEmailsRoutes = require('./routes/bulkEmails');
+const qrVerifyRoutes = require('./routes/qrVerify');
+const qrCodesRoutes = require('./routes/qrCodes');
 
 // Swagger UI
 const swaggerUi = require('swagger-ui-express');
@@ -187,6 +189,8 @@ app.use('/public', publicRoutes);
 app.use('/api/v1/admin', adminRoutes);
 app.use('/api/v1/news', newsRoutes);
 app.use('/api/v1/bulk-emails', bulkEmailsRoutes);
+app.use('/api/v1/qr-verify', qrVerifyRoutes);
+app.use('/api/v1/qr-codes', qrCodesRoutes);
 
 // Serve Swagger UI if spec is available
 if (swaggerDocument) {

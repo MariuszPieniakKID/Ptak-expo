@@ -21,6 +21,7 @@
   "author": "PTAK EXPO Team",
   "license": "ISC",
   "dependencies": {
+    "archiver": "^7.0.1",
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
@@ -32,6 +33,7 @@
     "nodemailer": "^7.0.5",
     "pg": "^8.11.3",
     "pdfkit": "^0.15.0",
+    "qrcode": "^1.5.4",
     "sharp": "^0.33.3",
     "swagger-ui-express": "^5.0.1",
     "uuid": "^11.1.0",

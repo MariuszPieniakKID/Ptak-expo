@@ -457,9 +457,9 @@ router.get('/me/people', verifyToken, requireExhibitorOrAdmin, async (req, res) 
     const exhibitionId = req.query.exhibitionId ? parseInt(req.query.exhibitionId, 10) : null;
     let people;
     if (Number.isInteger(exhibitionId)) {
-      people = await db.query('SELECT id, full_name, position, email, created_at FROM exhibitor_people WHERE exhibitor_id = $1 AND exhibition_id = $2 ORDER BY created_at DESC', [exhibitorId, exhibitionId]);
+      people = await db.query('SELECT id, full_name, position, email, access_code, created_at FROM exhibitor_people WHERE exhibitor_id = $1 AND exhibition_id = $2 ORDER BY created_at DESC', [exhibitorId, exhibitionId]);
     } else {
-      people = await db.query('SELECT id, full_name, position, email, created_at FROM exhibitor_people WHERE exhibitor_id = $1 ORDER BY created_at DESC', [exhibitorId]);
+      people = await db.query('SELECT id, full_name, position, email, access_code, created_at FROM exhibitor_people WHERE exhibitor_id = $1 ORDER BY created_at DESC', [exhibitorId]);
     }
     return res.json({ success: true, data: people.rows });
   } catch (e) {
@@ -518,8 +518,8 @@ router.post('/me/people', verifyToken, requireExhibitorOrAdmin, async (req, res)
       return res.status(400).json({ success: false, message: 'Podane wydarzenie nie istnieje' });
     }
     const ins = await db.query(
-      'INSERT INTO exhibitor_people (exhibitor_id, exhibition_id, full_name, position, email) VALUES ($1, $2, $3, $4, $5) RETURNING id, full_name, position, email, created_at',
-      [exhibitorId, exId, fullName, position || null, personEmail || null]
+      'INSERT INTO exhibitor_people (exhibitor_id, exhibition_id, full_name, position, email, access_code) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id, full_name, position, email, access_code, created_at',
+      [exhibitorId, exId, fullName, position || null, personEmail || null, accessCode || null]
     );
     const saved = ins.rows[0];
 

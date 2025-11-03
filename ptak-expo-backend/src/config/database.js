@@ -809,6 +809,7 @@ const initializeDatabase = async () => {
         full_name VARCHAR(255) NOT NULL,
         position VARCHAR(255),
         email VARCHAR(255),
+        access_code TEXT,
         created_at TIMESTAMPTZ DEFAULT NOW()
       )
     `);
@@ -827,6 +828,23 @@ const initializeDatabase = async () => {
     `);
     await pool.query(`
       CREATE INDEX IF NOT EXISTS idx_exhibitor_people_exhibition_id ON exhibitor_people(exhibition_id)
+    `);
+    
+    // Add access_code column if it doesn't exist (for existing databases)
+    await pool.query(`
+      DO $$ BEGIN
+        IF NOT EXISTS (
+          SELECT 1 FROM information_schema.columns 
+          WHERE table_name = 'exhibitor_people' AND column_name = 'access_code'
+        ) THEN
+          ALTER TABLE exhibitor_people ADD COLUMN access_code TEXT;
+        END IF;
+      END $$;
+    `);
+    
+    // Create index on access_code for fast QR verification lookups
+    await pool.query(`
+      CREATE INDEX IF NOT EXISTS idx_exhibitor_people_access_code ON exhibitor_people(access_code)
     `);
 
     // Awards per exhibitor per exhibition
