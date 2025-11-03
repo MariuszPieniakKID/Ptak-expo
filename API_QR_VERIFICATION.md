@@ -528,17 +528,6 @@ curl -X GET "https://backend-production-df8c.up.railway.app/api/v1/qr-codes/my-c
 
 ---
 
-## Podsumowanie endpointów
-
-| Endpoint | Metoda | Autoryzacja | Opis |
-|----------|--------|-------------|------|
-| `/api/v1/qr-verify/:code` | GET | Nie | Weryfikuje czy kod QR istnieje w systemie |
-| `/api/v1/qr-codes/person/:personId` | GET | Nie | Pobiera kod QR dla osoby (JSON lub PNG) |
-| `/api/v1/qr-codes/exhibition/:exhibitionId` | GET | Nie | Pobiera wszystkie kody z wydarzenia (JSON lub ZIP) |
-| `/api/v1/qr-codes/my-codes` | GET | Tak | Pobiera kody QR zalogowanego wystawcy |
-
----
-
 ## URL API
 
 ### Produkcja
@@ -575,7 +564,138 @@ Kody QR są generowane automatycznie gdy wystawca:
 
 ---
 
+## Pobieranie Identyfikatorów (PDF)
+
+API umożliwia również pobieranie kompletnych identyfikatorów w formacie PDF.
+
+### Endpoint 4: Pobranie identyfikatora PDF dla osoby
+
+**URL:** `GET /api/v1/identifiers/person/:personId`
+
+**Opis:** Pobiera kompletny identyfikator PDF dla konkretnej osoby.
+
+**Parametry URL:**
+- `personId` (number) - ID osoby z tabeli `exhibitor_people`
+
+**Odpowiedź:**
+- Content-Type: `application/pdf`
+- Plik PDF do pobrania
+
+**Przykład:**
+```bash
+curl -X GET "https://backend-production-df8c.up.railway.app/api/v1/identifiers/person/123" -o identyfikator.pdf
+```
+
+```javascript
+// JavaScript - automatyczne pobranie
+const personId = 123;
+const link = document.createElement('a');
+link.href = `https://backend-production-df8c.up.railway.app/api/v1/identifiers/person/${personId}`;
+link.download = `identyfikator-${personId}.pdf`;
+link.click();
+```
+
+---
+
+### Endpoint 5: Pobranie wszystkich identyfikatorów z wydarzenia (ZIP)
+
+**URL:** `GET /api/v1/identifiers/exhibition/:exhibitionId`
+
+**Opis:** Pobiera wszystkie identyfikatory PDF dla danego wydarzenia w archiwum ZIP.
+
+**Parametry URL:**
+- `exhibitionId` (number) - ID wydarzenia
+
+**Parametry query (opcjonalne):**
+- `exhibitorId` (number) - filtrowanie po konkretnym wystawcy
+
+**Odpowiedź:**
+- Content-Type: `application/zip`
+- Archiwum ZIP zawierające wszystkie identyfikatory PDF
+
+**Przykład:**
+```bash
+# Wszystkie identyfikatory z wydarzenia
+curl -X GET "https://backend-production-df8c.up.railway.app/api/v1/identifiers/exhibition/17" -o identyfikatory.zip
+
+# Tylko dla konkretnego wystawcy
+curl -X GET "https://backend-production-df8c.up.railway.app/api/v1/identifiers/exhibition/17?exhibitorId=456" -o identyfikatory-wystawcy.zip
+```
+
+```javascript
+// JavaScript - automatyczne pobranie ZIP
+const exhibitionId = 17;
+const link = document.createElement('a');
+link.href = `https://backend-production-df8c.up.railway.app/api/v1/identifiers/exhibition/${exhibitionId}`;
+link.download = `identyfikatory-wydarzenie-${exhibitionId}.zip`;
+link.click();
+```
+
+---
+
+### Endpoint 6: Pobranie moich identyfikatorów (autoryzacja)
+
+**URL:** `GET /api/v1/identifiers/my-identifiers`
+
+**Opis:** Pobiera wszystkie identyfikatory PDF dla zalogowanego wystawcy w archiwum ZIP.
+
+**Autoryzacja:** Wymagany token JWT w nagłówku `Authorization: Bearer {token}`
+
+**Parametry query (opcjonalne):**
+- `exhibitionId` (number) - filtrowanie po konkretnym wydarzeniu
+
+**Odpowiedź:**
+- Content-Type: `application/zip`
+- Archiwum ZIP z identyfikatorami PDF
+
+**Przykład:**
+```bash
+curl -X GET "https://backend-production-df8c.up.railway.app/api/v1/identifiers/my-identifiers" \
+  -H "Authorization: Bearer YOUR_TOKEN_HERE" \
+  -o moje-identyfikatory.zip
+```
+
+```javascript
+// JavaScript z tokenem
+const token = localStorage.getItem('authToken');
+
+fetch('https://backend-production-df8c.up.railway.app/api/v1/identifiers/my-identifiers', {
+  headers: { 'Authorization': `Bearer ${token}` }
+})
+  .then(res => res.blob())
+  .then(blob => {
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'moje-identyfikatory.zip';
+    a.click();
+  });
+```
+
+---
+
+## Podsumowanie wszystkich endpointów
+
+| Endpoint | Metoda | Autoryzacja | Opis |
+|----------|--------|-------------|------|
+| `/api/v1/qr-verify/:code` | GET | Nie | Weryfikuje czy kod QR istnieje w systemie |
+| `/api/v1/qr-codes/person/:personId` | GET | Nie | Pobiera kod QR dla osoby (JSON lub PNG) |
+| `/api/v1/qr-codes/exhibition/:exhibitionId` | GET | Nie | Pobiera wszystkie kody z wydarzenia (JSON lub ZIP) |
+| `/api/v1/qr-codes/my-codes` | GET | Tak | Pobiera kody QR zalogowanego wystawcy |
+| `/api/v1/identifiers/person/:personId` | GET | Nie | Pobiera identyfikator PDF dla osoby |
+| `/api/v1/identifiers/exhibition/:exhibitionId` | GET | Nie | Pobiera wszystkie identyfikatory z wydarzenia (ZIP) |
+| `/api/v1/identifiers/my-identifiers` | GET | Tak | Pobiera identyfikatory PDF zalogowanego wystawcy (ZIP) |
+
+---
+
 ## Historia zmian
+
+### v1.2 (2025-11-03)
+- ✨ Dodano endpointy do pobierania identyfikatorów PDF
+- GET `/api/v1/identifiers/person/:personId` - pojedynczy identyfikator PDF
+- GET `/api/v1/identifiers/exhibition/:exhibitionId` - wszystkie identyfikatory z wydarzenia (ZIP)
+- GET `/api/v1/identifiers/my-identifiers` - identyfikatory dla zalogowanego wystawcy (ZIP)
+- Identyfikatory zawierają kompletne dane: logo wydarzenia, dane osoby, QR kod, logo firmy
 
 ### v1.1 (2025-11-03)
 - Dodano endpointy do pobierania kodów QR
