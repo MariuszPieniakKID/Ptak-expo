@@ -186,7 +186,7 @@ Wystąpił błąd podczas weryfikacji.
 #### cURL
 
 ```bash
-curl -X GET "https://ptak-expo-backend-production.up.railway.app/api/v1/qr-verify/WARSAW%20INDUSTRY%20WEEK0017w456789123rnd654321789123"
+curl -X GET "https://backend-production-df8c.up.railway.app/api/v1/qr-verify/WARSAW%20INDUSTRY%20WEEK0017w456789123rnd654321789123"
 ```
 
 #### JavaScript (Fetch API)
@@ -195,7 +195,7 @@ curl -X GET "https://ptak-expo-backend-production.up.railway.app/api/v1/qr-verif
 const code = "WARSAW INDUSTRY WEEK0017w456789123rnd654321789123";
 const encodedCode = encodeURIComponent(code);
 
-fetch(`https://ptak-expo-backend-production.up.railway.app/api/v1/qr-verify/${encodedCode}`)
+fetch(`https://backend-production-df8c.up.railway.app/api/v1/qr-verify/${encodedCode}`)
   .then(response => response.json())
   .then(data => {
     if (data.valid) {
@@ -220,7 +220,7 @@ from urllib.parse import quote
 code = "WARSAW INDUSTRY WEEK0017w456789123rnd654321789123"
 encoded_code = quote(code)
 
-response = requests.get(f"https://ptak-expo-backend-production.up.railway.app/api/v1/qr-verify/{encoded_code}")
+response = requests.get(f"https://backend-production-df8c.up.railway.app/api/v1/qr-verify/{encoded_code}")
 data = response.json()
 
 if data.get("valid"):
@@ -248,7 +248,7 @@ public class QRVerifier
     public static async Task<bool> VerifyQRCode(string code)
     {
         var encodedCode = HttpUtility.UrlEncode(code);
-        var url = $"https://ptak-expo-backend-production.up.railway.app/api/v1/qr-verify/{encodedCode}";
+        var url = $"https://backend-production-df8c.up.railway.app/api/v1/qr-verify/{encodedCode}";
 
         try
         {
@@ -287,7 +287,7 @@ import java.nio.charset.StandardCharsets;
 
 public class QRVerifier {
     private final RestTemplate restTemplate = new RestTemplate();
-    private final String apiUrl = "https://ptak-expo-backend-production.up.railway.app/api/v1/qr-verify";
+    private final String apiUrl = "https://backend-production-df8c.up.railway.app/api/v1/qr-verify";
 
     public boolean verifyQRCode(String code) {
         try {
@@ -319,13 +319,13 @@ public class QRVerifier {
 #### cURL
 ```bash
 # Pobranie danych o kodzie QR w formacie JSON
-curl -X GET "https://ptak-expo-backend-production.up.railway.app/api/v1/qr-codes/person/123"
+curl -X GET "https://backend-production-df8c.up.railway.app/api/v1/qr-codes/person/123"
 ```
 
 #### JavaScript
 ```javascript
 // Pobranie kodu QR dla osoby o ID 123
-fetch('https://ptak-expo-backend-production.up.railway.app/api/v1/qr-codes/person/123')
+fetch('https://backend-production-df8c.up.railway.app/api/v1/qr-codes/person/123')
   .then(res => res.json())
   .then(data => {
     console.log('Kod QR:', data.data.accessCode);
@@ -365,7 +365,7 @@ fetch('https://ptak-expo-backend-production.up.railway.app/api/v1/qr-codes/perso
 #### cURL
 ```bash
 # Pobranie obrazu PNG z kodem QR
-curl -X GET "https://ptak-expo-backend-production.up.railway.app/api/v1/qr-codes/person/123?format=image" -o qr-code.png
+curl -X GET "https://backend-production-df8c.up.railway.app/api/v1/qr-codes/person/123?format=image" -o qr-code.png
 ```
 
 #### JavaScript (wyświetlenie obrazu)
@@ -373,14 +373,14 @@ curl -X GET "https://ptak-expo-backend-production.up.railway.app/api/v1/qr-codes
 // Wyświetlenie kodu QR jako obrazu
 const personId = 123;
 const imgElement = document.createElement('img');
-imgElement.src = `https://ptak-expo-backend-production.up.railway.app/api/v1/qr-codes/person/${personId}?format=image`;
+imgElement.src = `https://backend-production-df8c.up.railway.app/api/v1/qr-codes/person/${personId}?format=image`;
 imgElement.alt = 'QR Code';
 document.body.appendChild(imgElement);
 ```
 
 #### HTML (bezpośrednie wyświetlenie)
 ```html
-<img src="https://ptak-expo-backend-production.up.railway.app/api/v1/qr-codes/person/123?format=image" alt="QR Code" width="256" height="256">
+<img src="https://backend-production-df8c.up.railway.app/api/v1/qr-codes/person/123?format=image" alt="QR Code" width="256" height="256">
 ```
 
 ---
@@ -390,13 +390,13 @@ document.body.appendChild(imgElement);
 #### cURL
 ```bash
 # Wszystkie kody QR dla wydarzenia o ID 17
-curl -X GET "https://ptak-expo-backend-production.up.railway.app/api/v1/qr-codes/exhibition/17"
+curl -X GET "https://backend-production-df8c.up.railway.app/api/v1/qr-codes/exhibition/17"
 ```
 
 #### JavaScript
 ```javascript
 // Pobranie wszystkich kodów QR z wydarzenia
-fetch('https://ptak-expo-backend-production.up.railway.app/api/v1/qr-codes/exhibition/17')
+fetch('https://backend-production-df8c.up.railway.app/api/v1/qr-codes/exhibition/17')
   .then(res => res.json())
   .then(data => {
     console.log(`Znaleziono ${data.data.count} kodów QR`);
@@ -445,7 +445,7 @@ fetch('https://ptak-expo-backend-production.up.railway.app/api/v1/qr-codes/exhib
 #### cURL
 ```bash
 # Pobranie wszystkich kodów QR jako ZIP
-curl -X GET "https://ptak-expo-backend-production.up.railway.app/api/v1/qr-codes/exhibition/17?format=zip" -o qr-codes.zip
+curl -X GET "https://backend-production-df8c.up.railway.app/api/v1/qr-codes/exhibition/17?format=zip" -o qr-codes.zip
 ```
 
 #### JavaScript (download w przeglądarce)
@@ -453,7 +453,7 @@ curl -X GET "https://ptak-expo-backend-production.up.railway.app/api/v1/qr-codes
 // Automatyczne pobranie pliku ZIP
 const exhibitionId = 17;
 const link = document.createElement('a');
-link.href = `https://ptak-expo-backend-production.up.railway.app/api/v1/qr-codes/exhibition/${exhibitionId}?format=zip`;
+link.href = `https://backend-production-df8c.up.railway.app/api/v1/qr-codes/exhibition/${exhibitionId}?format=zip`;
 link.download = `qr-codes-exhibition-${exhibitionId}.zip`;
 link.click();
 ```
@@ -463,7 +463,7 @@ link.click();
 import requests
 
 exhibition_id = 17
-url = f"https://ptak-expo-backend-production.up.railway.app/api/v1/qr-codes/exhibition/{exhibition_id}?format=zip"
+url = f"https://backend-production-df8c.up.railway.app/api/v1/qr-codes/exhibition/{exhibition_id}?format=zip"
 
 response = requests.get(url)
 with open(f'qr-codes-{exhibition_id}.zip', 'wb') as f:
@@ -479,7 +479,7 @@ print(f"Pobrano archiwum ZIP z kodami QR")
 #### cURL
 ```bash
 # Pobranie kodów QR tylko dla wystawcy o ID 456
-curl -X GET "https://ptak-expo-backend-production.up.railway.app/api/v1/qr-codes/exhibition/17?exhibitorId=456"
+curl -X GET "https://backend-production-df8c.up.railway.app/api/v1/qr-codes/exhibition/17?exhibitorId=456"
 ```
 
 #### JavaScript
@@ -488,7 +488,7 @@ curl -X GET "https://ptak-expo-backend-production.up.railway.app/api/v1/qr-codes
 const exhibitionId = 17;
 const exhibitorId = 456;
 
-fetch(`https://ptak-expo-backend-production.up.railway.app/api/v1/qr-codes/exhibition/${exhibitionId}?exhibitorId=${exhibitorId}`)
+fetch(`https://backend-production-df8c.up.railway.app/api/v1/qr-codes/exhibition/${exhibitionId}?exhibitorId=${exhibitorId}`)
   .then(res => res.json())
   .then(data => {
     console.log(`Znaleziono ${data.data.count} kodów dla wystawcy`);
@@ -504,7 +504,7 @@ fetch(`https://ptak-expo-backend-production.up.railway.app/api/v1/qr-codes/exhib
 // Wymagane: token autoryzacji
 const token = 'your-auth-token-here';
 
-fetch('https://ptak-expo-backend-production.up.railway.app/api/v1/qr-codes/my-codes', {
+fetch('https://backend-production-df8c.up.railway.app/api/v1/qr-codes/my-codes', {
   headers: {
     'Authorization': `Bearer ${token}`
   }
@@ -522,7 +522,7 @@ fetch('https://ptak-expo-backend-production.up.railway.app/api/v1/qr-codes/my-co
 #### cURL
 ```bash
 # Z tokenem autoryzacji
-curl -X GET "https://ptak-expo-backend-production.up.railway.app/api/v1/qr-codes/my-codes" \
+curl -X GET "https://backend-production-df8c.up.railway.app/api/v1/qr-codes/my-codes" \
   -H "Authorization: Bearer YOUR_TOKEN_HERE"
 ```
 
@@ -543,7 +543,7 @@ curl -X GET "https://ptak-expo-backend-production.up.railway.app/api/v1/qr-codes
 
 ### Produkcja
 ```
-https://ptak-expo-backend-production.up.railway.app/api/v1/
+https://backend-production-df8c.up.railway.app/api/v1/
 ```
 
 ### Development (lokalne)
