@@ -59,6 +59,7 @@ const getPersonQRCode = async (req, res) => {
     // Return as image PNG
     if (format === 'image') {
       try {
+        console.log('[qrCodesController] Generating QR for access_code:', person.access_code);
         const qrImage = await QRCode.toBuffer(person.access_code, {
           type: 'png',
           width: 512,
@@ -66,14 +67,17 @@ const getPersonQRCode = async (req, res) => {
           errorCorrectionLevel: 'M'
         });
         
+        console.log('[qrCodesController] QR image generated successfully, size:', qrImage.length);
         res.setHeader('Content-Type', 'image/png');
         res.setHeader('Content-Disposition', `inline; filename="qr-${person.id}-${person.full_name.replace(/\s+/g, '-')}.png"`);
         return res.send(qrImage);
       } catch (qrError) {
         console.error('[qrCodesController] Error generating QR image:', qrError);
+        console.error('[qrCodesController] Error stack:', qrError.stack);
         return res.status(500).json({
           success: false,
-          message: 'Błąd podczas generowania obrazu QR'
+          message: 'Błąd podczas generowania obrazu QR',
+          error: qrError.message
         });
       }
     }
