@@ -608,6 +608,16 @@ const initializeDatabase = async () => {
       ALTER TABLE invitation_recipients
       ADD COLUMN IF NOT EXISTS exhibition_id INTEGER REFERENCES exhibitions(id) ON DELETE CASCADE
     `);
+    
+    // Add access_code column for QR code verification from invitations (fuzzy matching fix)
+    console.log('🔍 Ensuring invitation_recipients has access_code column...');
+    await pool.query(`
+      ALTER TABLE invitation_recipients
+      ADD COLUMN IF NOT EXISTS access_code VARCHAR(255)
+    `);
+    await pool.query(`
+      CREATE INDEX IF NOT EXISTS idx_invitation_recipients_access_code ON invitation_recipients(access_code)
+    `);
 
     console.log('🔍 Creating exhibitor_documents table...');
     await pool.query(`
