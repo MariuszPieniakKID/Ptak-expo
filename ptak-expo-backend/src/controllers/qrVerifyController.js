@@ -241,7 +241,9 @@ const verifyQRCode = async (req, res) => {
 /**
  * Try to extract fixed parts from QR code for fuzzy matching
  * Works for ALL exhibitions - dynamically extracts exhibition_id and exhibitor_id
- * Format: [Exhibition Name][ExhibitionID 4 digits][w + ExhibitorID 3 digits][EntryID][rnd+random][EntryID]
+ * Format: [Exhibition Name][ExhibitionID 4 digits][w + ExhibitorID 3-4 digits][EntryID][rnd+random][EntryID]
+ * 
+ * BACKWARD COMPATIBLE: Supports both old (3-digit) and new (4-digit) exhibitor ID formats
  */
 function tryFuzzyMatch(code) {
   try {
@@ -250,9 +252,8 @@ function tryFuzzyMatch(code) {
       return { canMatch: false };
     }
     
-    // Find first occurrence of 4 consecutive digits followed by 'w' and 3-4 more digits
-    // This pattern identifies: [ExhibitionID 4 digits][w][ExhibitorID 3-4 digits]
-    // Note: ExhibitorID can be 3 or 4 digits due to padStart not truncating large IDs
+    // Try to match pattern: [ExhibitionID 4 digits][w][ExhibitorID 3-4 digits]
+    // This supports both old format (3 digits) and new format (4 digits)
     const pattern = /(\d{4})w(\d{3,4})/;
     const match = code.match(pattern);
     
@@ -276,15 +277,17 @@ function tryFuzzyMatch(code) {
       return { canMatch: false };
     }
     
+    const digits = exhibitorIdStr.length;
     console.log('[fuzzyMatch] ✅ Code matches QR pattern');
     console.log('[fuzzyMatch] Exhibition:', exhibitionName, '(ID:', exhibitionId + ')');
-    console.log('[fuzzyMatch] Exhibitor ID:', exhibitorId);
+    console.log('[fuzzyMatch] Exhibitor ID:', exhibitorId, `(${digits} digits - ${digits === 3 ? 'OLD' : 'NEW'} format)`);
     
     return {
       canMatch: true,
       exhibitionId: exhibitionId,
       exhibitorId: exhibitorId > 0 ? exhibitorId : null,
-      exhibitionName: exhibitionName
+      exhibitionName: exhibitionName,
+      format: digits === 3 ? 'legacy' : 'new'
     };
     
   } catch (err) {

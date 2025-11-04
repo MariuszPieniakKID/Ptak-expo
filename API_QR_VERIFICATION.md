@@ -115,7 +115,8 @@ WARSAW INDUSTRY WEEK0017w123456789123rnd654321456789123
 Gdzie:
 - `WARSAW INDUSTRY WEEK` - pełna nazwa wystawy
 - `0017` - ID wystawy (4 cyfry z dopełnieniem zerami)
-- `w123` - ID wystawcy z prefiksem "w" (3 cyfry z dopełnieniem zerami)
+- `w123` - ID wystawcy z prefiksem "w" (4 cyfry z dopełnieniem zerami) - **NOWY FORMAT od 2025-11-04**
+  - *Stare kody używają 3 cyfr (nadal obsługiwane dla backward compatibility)*
 - `456789123` - unikalny identyfikator wpisu (9 cyfr)
 - `rnd654321` - losowy sufiks bezpieczeństwa (prefix "rnd" + 6 cyfr)
 - `456789123` - powtórzony identyfikator wpisu (weryfikacja)

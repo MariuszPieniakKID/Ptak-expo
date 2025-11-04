@@ -54,10 +54,11 @@ async function regenerateAccessCodes() {
           continue;
         }
 
-        // Generate access_code using the same algorithm as everywhere else
+        // Generate access_code using the same algorithm as everywhere else (NOW 4 DIGITS!)
         const eventCode = String(exhibitionName).replace(/\s+/g, ' ').trim();
         const eventIdPadded = String(exhibitionId).padStart(4, '0').slice(-4);
-        const exhibitorIdPadded = 'w' + String(exhibitorId || 0).padStart(3, '0').slice(-3);
+        // Changed to 4 digits for no collisions (backward compatible with 3-digit codes)
+        const exhibitorIdPadded = 'w' + String(exhibitorId || 0).padStart(4, '0').slice(-4);
         
         // Generate unique EntryID
         const entryId = (() => {
