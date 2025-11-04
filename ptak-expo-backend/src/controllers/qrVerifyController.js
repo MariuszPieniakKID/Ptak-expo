@@ -250,9 +250,10 @@ function tryFuzzyMatch(code) {
       return { canMatch: false };
     }
     
-    // Find first occurrence of 4 consecutive digits followed by 'w' and 3 more digits
-    // This pattern identifies: [ExhibitionID 4 digits][w][ExhibitorID 3 digits]
-    const pattern = /(\d{4})w(\d{3})/;
+    // Find first occurrence of 4 consecutive digits followed by 'w' and 3-4 more digits
+    // This pattern identifies: [ExhibitionID 4 digits][w][ExhibitorID 3-4 digits]
+    // Note: ExhibitorID can be 3 or 4 digits due to padStart not truncating large IDs
+    const pattern = /(\d{4})w(\d{3,4})/;
     const match = code.match(pattern);
     
     if (!match) {
@@ -261,7 +262,7 @@ function tryFuzzyMatch(code) {
     }
     
     const exhibitionIdStr = match[1]; // First 4 digits
-    const exhibitorIdStr = match[2];  // 3 digits after 'w'
+    const exhibitorIdStr = match[2];  // 3-4 digits after 'w'
     
     const exhibitionId = parseInt(exhibitionIdStr, 10);
     const exhibitorId = parseInt(exhibitorIdStr, 10);
