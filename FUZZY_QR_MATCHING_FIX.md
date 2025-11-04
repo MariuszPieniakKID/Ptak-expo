@@ -1,7 +1,8 @@
-# 🎯 Fix: Fuzzy QR Matching dla wystawy 17
+# 🎯 Fix: Fuzzy QR Matching dla WSZYSTKICH wystaw
 
 **Data:** 2025-11-04  
-**Problem:** 143 kody QR z wysłanych zaproszeń nie działały na bramkach  
+**Zakres:** Wszystkie wystawy w systemie (nie tylko wystawa 17)  
+**Problem:** Kody QR z wysłanych zaproszeń nie działały na bramkach  
 **Rozwiązanie:** Inteligentne dopasowanie kodów ignorujące losowe części
 
 ---
@@ -52,11 +53,12 @@ Kod: WARSAW INDUSTRY WEEK 0017 w137 [losowe] rnd [losowe] [losowe]
 
 ### Bezpieczeństwo:
 
-✅ Działa **TYLKO dla wystawy 17** (WARSAW INDUSTRY WEEK)  
-✅ Wymaga **dokładnego** `exhibitor_id` w kodzie  
+✅ Działa dla **WSZYSTKICH wystaw** w systemie  
+✅ Wymaga **dokładnego** `exhibitor_id` i `exhibition_id` w kodzie  
 ✅ Jeśli jest **1 zaproszenie** → używa go  
 ✅ Jeśli jest **wiele zaproszeń** → używa najnowszego (sent_at DESC)  
-✅ **Przy pierwszym skanowaniu** kod jest zapisywany → kolejne działają normalnie
+✅ **Przy pierwszym skanowaniu** kod jest zapisywany → kolejne działają normalnie  
+✅ Uniwersalny parser - automatycznie wykrywa ID wystawy z kodu QR
 
 ---
 
@@ -98,29 +100,49 @@ if (result.rows.length === 0) {
 }
 ```
 
-**Parsowanie kodu:**
+**Parsowanie kodu (uniwersalne dla wszystkich wystaw):**
 ```javascript
 function tryFuzzyMatch(code) {
-  // 1. Sprawdź prefix wystawy
-  if (!code.startsWith('WARSAW INDUSTRY WEEK')) {
+  // 1. Sprawdź czy kod zawiera "rnd" (marker formatu)
+  if (!code.includes('rnd')) {
     return { canMatch: false };
   }
   
-  // 2. Sprawdź exhibition ID
-  if (!afterName.startsWith('0017')) {
+  // 2. Znajdź pattern: 4 cyfry + 'w' + 3 cyfry
+  const pattern = /(\d{4})w(\d{3})/;
+  const match = code.match(pattern);
+  
+  if (!match) {
     return { canMatch: false };
   }
   
-  // 3. Wyciągnij exhibitor ID (w + 3 cyfry)
-  const exhibitorIdMatch = afterExId.match(/^w(\d{3})/);
+  // 3. Wyciągnij exhibition_id i exhibitor_id
+  const exhibitionId = parseInt(match[1], 10);  // Pierwsze 4 cyfry
+  const exhibitorId = parseInt(match[2], 10);   // 3 cyfry po 'w'
+  
+  // 4. Wyciągnij nazwę wystawy (wszystko przed ID)
+  const exhibitionIdIndex = code.indexOf(match[1] + 'w');
+  const exhibitionName = code.substring(0, exhibitionIdIndex).trim();
   
   return {
     canMatch: true,
-    exhibitionId: 17,
-    exhibitorId: parseInt(exhibitorIdMatch[1], 10),
-    exhibitionName: 'WARSAW INDUSTRY WEEK'
+    exhibitionId: exhibitionId,
+    exhibitorId: exhibitorId,
+    exhibitionName: exhibitionName
   };
 }
+```
+
+**Przykład działania:**
+```javascript
+// Wystawa 17:
+"WARSAW INDUSTRY WEEK0017w137..." → exhibition_id=17, exhibitor_id=137
+
+// Wystawa 25:
+"AUTOMATION EXPO0025w042..." → exhibition_id=25, exhibitor_id=42
+
+// Wystawa 3:
+"MEDTECH FAIR0003w512..." → exhibition_id=3, exhibitor_id=512
 ```
 
 #### 2. Migracja bazy danych
@@ -195,32 +217,78 @@ git push origin main
 
 ### Ograniczenia:
 
-1. **Działa TYLKO dla wystawy 17** - inne wystawy wymagają normalnych kodów
-2. **Wymaga exhibitor_id** - kody bez wystawcy nie zadziałają
-3. **Jeden kod = jedna osoba** - nie można użyć 2 różnych kodów dla tej samej osoby
-4. **Kolejność ma znaczenie** - kto pierwszy zeskanuje, ten zajmuje miejsce w bazie
+1. **Wymaga exhibitor_id** - kody bez wystawcy nie zadziałają
+2. **Jeden kod = jedna osoba** - nie można użyć 2 różnych kodów dla tej samej osoby
+3. **Kolejność ma znaczenie** - kto pierwszy zeskanuje, ten zajmuje miejsce w bazie
+4. **Wymaga poprawnego formatu** - kod musi zawierać pattern `[4cyfry]w[3cyfry]` i `rnd`
 
 ### Kiedy NIE zadziała?
 
-❌ Kod dla innej wystawy (nie 17)  
 ❌ Kod bez `exhibitor_id` (zaproszenia bez wystawcy)  
 ❌ Wszystkie zaproszenia dla wystawcy już mają przypisane kody  
-❌ Kod nie pasuje do wzorca (zły format)
+❌ Kod nie pasuje do wzorca (zły format, brak "rnd", brak pattern ID)  
+❌ Wystawa nie istnieje w bazie danych
 
 ---
 
-## 📈 Statystyki
+## 📈 Statystyki i diagnostyka
+
+### Skrypt diagnostyczny dla wszystkich wystaw
+
+Dodany został skrypt `check-all-exhibitions-invitations.js` który sprawdza wszystkie wystawy:
+
+```bash
+cd ptak-expo-backend
+node check-all-exhibitions-invitations.js
+```
+
+**Przykładowy output:**
+```
+╔═══════════════════════════════════════════════════════════════╗
+║  Sprawdzanie zaproszeń bez access_code - WSZYSTKIE WYSTAWY  ║
+╚═══════════════════════════════════════════════════════════════╝
+
+Znaleziono 5 wystaw w systemie.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📊 Wystawa ID: 17
+📝 Nazwa: WARSAW INDUSTRY WEEK
+📅 Data: 2025-03-11 → 2025-03-15
+🚦 Status: active
+
+   Zaproszenia:
+   ✅ Z access_code:        0 (0%)
+   ❌ Bez access_code:    143 (100%)
+   📊 Razem:              143
+
+   ⚠️  143 zaproszeń może mieć problem z weryfikacją QR!
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+╔═══════════════════════════════════════════════════════════════╗
+║                    PODSUMOWANIE GLOBALNE                      ║
+╚═══════════════════════════════════════════════════════════════╝
+
+   ✅ Zaproszenia z kodem:         0
+   ❌ Zaproszenia bez kodu:      143
+   📊 Wszystkich zaproszeń:      143
+
+   🎯 Fuzzy matching automatycznie obsłuży 143 kodów!
+   💡 Przy pierwszym skanowaniu kody zostaną zapisane do bazy.
+```
 
 ### Przed fixem:
 - 🔴 171 nieudanych prób wejścia
-- 🔴 143 zaproszeń bez `access_code` w bazie
+- 🔴 143 zaproszeń bez `access_code` w bazie (tylko wystawa 17)
 - ❌ Kody z PDF nie działały
+- ⚠️ Problem mógł dotyczyć także innych wystaw
 
 ### Po fixie:
 - ✅ Przy pierwszym skanowaniu kod jest zapisywany
 - ✅ Kolejne skanowania działają normalnie
 - ✅ Nie trzeba ponownie wysyłać zaproszeń
 - ✅ 100% zgodność między PDF a bazą danych
+- ✅ Działa dla WSZYSTKICH wystaw automatycznie
 
 ---
 

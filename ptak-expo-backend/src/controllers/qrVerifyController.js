@@ -72,20 +72,22 @@ const verifyQRCode = async (req, res) => {
       `, [code.trim()]);
     }
 
-    // If code not found in either table, try FUZZY MATCHING for exhibition 17 ONLY
+    // If code not found in either table, try FUZZY MATCHING for ALL exhibitions
     if (result.rows.length === 0) {
-      console.log('[qrVerifyController] Trying fuzzy matching for exhibition 17...');
+      console.log('[qrVerifyController] Code not found in database, trying fuzzy matching...');
       
       // Extract fixed parts from the scanned code
       const fuzzyMatch = tryFuzzyMatch(code.trim());
       
       if (fuzzyMatch.canMatch) {
-        // Search for invitation_recipients without access_code for exhibition 17
+        console.log(`[qrVerifyController] Fuzzy matching for exhibition ${fuzzyMatch.exhibitionId}, exhibitor ${fuzzyMatch.exhibitorId}`);
+        
+        // Search for invitation_recipients without access_code
         // Match PRECISELY by: exhibition_id + exhibitor_id
         // Only if there's EXACTLY ONE match (to avoid wrong person)
         
-        if (!fuzzyMatch.exhibitorId) {
-          console.log('[qrVerifyController] ⚠️  Cannot fuzzy match - no exhibitor ID in code');
+        if (!fuzzyMatch.exhibitorId || !fuzzyMatch.exhibitionId) {
+          console.log('[qrVerifyController] ⚠️  Cannot fuzzy match - missing exhibition or exhibitor ID in code');
           return res.status(404).json({
             success: false,
             valid: false,
@@ -104,8 +106,8 @@ const verifyQRCode = async (req, res) => {
             e.id as exhibitor_id,
             e.company_name,
             e.nip,
-            17 as exhibition_id,
-            'WARSAW INDUSTRY WEEK' as exhibition_name,
+            ex.id as exhibition_id,
+            ex.name as exhibition_name,
             ex.start_date,
             ex.end_date,
             ex.location,
@@ -114,14 +116,14 @@ const verifyQRCode = async (req, res) => {
             r.sent_at
           FROM invitation_recipients r
           LEFT JOIN exhibitors e ON r.exhibitor_id = e.id
-          LEFT JOIN exhibitions ex ON ex.id = 17
-          WHERE r.exhibition_id = 17
-            AND r.exhibitor_id = $1
+          LEFT JOIN exhibitions ex ON ex.id = r.exhibition_id
+          WHERE r.exhibition_id = $1
+            AND r.exhibitor_id = $2
             AND r.access_code IS NULL
           ORDER BY r.sent_at DESC
         `;
         
-        const fuzzyResult = await db.query(fuzzyQuery, [fuzzyMatch.exhibitorId]);
+        const fuzzyResult = await db.query(fuzzyQuery, [fuzzyMatch.exhibitionId, fuzzyMatch.exhibitorId]);
         
         if (fuzzyResult.rows.length === 0) {
           console.log(`[qrVerifyController] ⚠️  No invitations found for exhibitor ${fuzzyMatch.exhibitorId} without access_code`);
@@ -238,50 +240,50 @@ const verifyQRCode = async (req, res) => {
 
 /**
  * Try to extract fixed parts from QR code for fuzzy matching
- * Only works for exhibition 17 (WARSAW INDUSTRY WEEK)
+ * Works for ALL exhibitions - dynamically extracts exhibition_id and exhibitor_id
+ * Format: [Exhibition Name][ExhibitionID 4 digits][w + ExhibitorID 3 digits][EntryID][rnd+random][EntryID]
  */
 function tryFuzzyMatch(code) {
   try {
-    // Must start with exhibition name
-    if (!code.startsWith('WARSAW INDUSTRY WEEK')) {
-      return { canMatch: false };
-    }
-    
-    // Extract parts
-    const afterName = code.substring('WARSAW INDUSTRY WEEK'.length);
-    
-    // Check if has exhibition ID 0017
-    if (!afterName.startsWith('0017')) {
-      return { canMatch: false };
-    }
-    
-    // Extract exhibitor ID (w + 3 digits)
-    const afterExId = afterName.substring(4); // Skip "0017"
-    if (!afterExId.startsWith('w')) {
-      return { canMatch: false };
-    }
-    
-    // Get exhibitor ID part (w + next 3 digits)
-    const exhibitorIdMatch = afterExId.match(/^w(\d{3})/);
-    if (!exhibitorIdMatch) {
-      return { canMatch: false };
-    }
-    
-    const exhibitorIdNum = parseInt(exhibitorIdMatch[1], 10);
-    
-    // Check if code contains "rnd" (marker for random part)
+    // Check if code contains "rnd" (marker for random part - validates it's our QR format)
     if (!code.includes('rnd')) {
       return { canMatch: false };
     }
     
-    console.log('[fuzzyMatch] Code matches exhibition 17 pattern');
-    console.log('[fuzzyMatch] Extracted exhibitor ID:', exhibitorIdNum);
+    // Find first occurrence of 4 consecutive digits followed by 'w' and 3 more digits
+    // This pattern identifies: [ExhibitionID 4 digits][w][ExhibitorID 3 digits]
+    const pattern = /(\d{4})w(\d{3})/;
+    const match = code.match(pattern);
+    
+    if (!match) {
+      console.log('[fuzzyMatch] Could not find exhibition/exhibitor ID pattern in code');
+      return { canMatch: false };
+    }
+    
+    const exhibitionIdStr = match[1]; // First 4 digits
+    const exhibitorIdStr = match[2];  // 3 digits after 'w'
+    
+    const exhibitionId = parseInt(exhibitionIdStr, 10);
+    const exhibitorId = parseInt(exhibitorIdStr, 10);
+    
+    // Extract exhibition name (everything before the exhibition ID)
+    const exhibitionIdIndex = code.indexOf(exhibitionIdStr + 'w');
+    const exhibitionName = code.substring(0, exhibitionIdIndex).trim();
+    
+    if (!exhibitionName || exhibitionId <= 0) {
+      console.log('[fuzzyMatch] Invalid exhibition data extracted');
+      return { canMatch: false };
+    }
+    
+    console.log('[fuzzyMatch] ✅ Code matches QR pattern');
+    console.log('[fuzzyMatch] Exhibition:', exhibitionName, '(ID:', exhibitionId + ')');
+    console.log('[fuzzyMatch] Exhibitor ID:', exhibitorId);
     
     return {
       canMatch: true,
-      exhibitionId: 17,
-      exhibitorId: exhibitorIdNum > 0 ? exhibitorIdNum : null,
-      exhibitionName: 'WARSAW INDUSTRY WEEK'
+      exhibitionId: exhibitionId,
+      exhibitorId: exhibitorId > 0 ? exhibitorId : null,
+      exhibitionName: exhibitionName
     };
     
   } catch (err) {
