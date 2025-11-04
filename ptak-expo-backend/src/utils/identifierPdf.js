@@ -269,10 +269,27 @@ async function buildIdentifierPdf(client, exhibitionId, payload, exhibitorId) {
     }
   };
 
-  // Prepare QR image buffer (use accessCode if provided, otherwise exhibition id)
+  // Prepare QR image buffer (use accessCode if provided, otherwise generate proper one)
   let qrBuffer = null;
   try {
-    const qrData = payload && payload.accessCode ? String(payload.accessCode) : String(ev.id);
+    let qrData = payload && payload.accessCode ? String(payload.accessCode) : null;
+    
+    // If no accessCode provided, generate proper one according to QR algorithm
+    // Format: [Exhibition Name][Exhibition ID (4 digits)][Exhibitor ID with "w" (4 digits)][Entry ID (9 digits)][rnd + 6 digits][Entry ID repeated]
+    if (!qrData) {
+      const eventCode = String(ev.name || '').replace(/\s+/g, ' ').trim();
+      const eventIdPadded = String(ev.id).padStart(4, '0');
+      const exhibitorIdPadded = 'w' + String(exhibitorId || 0).padStart(3, '0');
+      const entryId = (() => {
+        const ts = Date.now().toString().slice(-6);
+        const rnd = Math.floor(Math.random() * 1_000_000).toString().padStart(6, '0');
+        return ts.slice(0,3) + rnd.slice(0,3) + ts.slice(3);
+      })();
+      const rndSuffix = 'rnd' + Math.floor(Math.random() * 1_000_000).toString().padStart(6, '0');
+      qrData = `${eventCode}${eventIdPadded}${exhibitorIdPadded}${entryId}${rndSuffix}${entryId}`;
+      console.log('[identifierPdf] Generated accessCode (no accessCode provided):', qrData);
+    }
+    
     // Request high-resolution QR (for crisp print at ~300 DPI when scaled down)
     const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=600x600&data=${encodeURIComponent(qrData)}`;
     const resp = await fetch(qrUrl);

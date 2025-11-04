@@ -441,6 +441,26 @@ const sendInvitation = async (req, res) => {
       );
       const recipientRow = insRes.rows[0];
 
+      // Generate proper accessCode according to QR algorithm
+      // Format: [Exhibition Name][Exhibition ID (4 digits)][Exhibitor ID with "w" (4 digits)][Entry ID (9 digits)][rnd + 6 digits][Entry ID repeated]
+      let generatedAccessCode = null;
+      try {
+        const eventCode = String(tpl.exhibition_name || '').replace(/\s+/g, ' ').trim();
+        const eventIdPadded = String(exhibitionId).padStart(4, '0');
+        const exhibitorIdPadded = 'w' + String(exhibitorId || 0).padStart(3, '0');
+        const entryId = (() => {
+          const ts = Date.now().toString().slice(-6);
+          const rnd = Math.floor(Math.random() * 1_000_000).toString().padStart(6, '0');
+          return ts.slice(0,3) + rnd.slice(0,3) + ts.slice(3);
+        })();
+        const rndSuffix = 'rnd' + Math.floor(Math.random() * 1_000_000).toString().padStart(6, '0');
+        generatedAccessCode = `${eventCode}${eventIdPadded}${exhibitorIdPadded}${entryId}${rndSuffix}${entryId}`;
+        console.log('[sendInvitation] Generated accessCode:', generatedAccessCode);
+      } catch (e) {
+        console.warn('[sendInvitation] Failed to generate accessCode, using fallback:', e?.message);
+        generatedAccessCode = `INVITE${exhibitionId}${recipientRow.id}${Date.now()}`;
+      }
+
       // Attempt to create e-identifier (exhibitor_people) and generate PDF attachment
       let attachments = undefined;
       try {
@@ -458,9 +478,9 @@ const sendInvitation = async (req, res) => {
           // Ensure exhibitor_people table exists (ignore error if not)
           try {
             await client.query(
-              `INSERT INTO exhibitor_people (exhibitor_id, exhibition_id, full_name, position, email)
-               VALUES ($1, $2, $3, $4, $5)`,
-              [exhibitorId, parseInt(exhibitionId, 10), personFullName, 'Gość', recipientEmail]
+              `INSERT INTO exhibitor_people (exhibitor_id, exhibition_id, full_name, position, email, access_code)
+               VALUES ($1, $2, $3, $4, $5, $6)`,
+              [exhibitorId, parseInt(exhibitionId, 10), personFullName, 'Gość', recipientEmail, generatedAccessCode]
             );
           } catch (e) {
             console.warn('[sendInvitation] exhibitor_people insert failed:', e?.message || e);
@@ -471,7 +491,7 @@ const sendInvitation = async (req, res) => {
         const pdfBuffer = await buildIdentifierPdf(
           client,
           parseInt(exhibitionId, 10),
-          { personName: personFullName, personEmail: recipientEmail, accessCode: String(recipientRow.id), personType: 'Gość' },
+          { personName: personFullName, personEmail: recipientEmail, accessCode: generatedAccessCode, personType: 'Gość' },
           exhibitorId || undefined
         );
 
