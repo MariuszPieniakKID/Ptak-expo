@@ -36,6 +36,7 @@ const bulkEmailsRoutes = require('./routes/bulkEmails');
 const qrVerifyRoutes = require('./routes/qrVerify');
 const qrCodesRoutes = require('./routes/qrCodes');
 const identifiersRoutes = require('./routes/identifiers');
+const diagnosticsRoutes = require('./routes/diagnostics');
 
 // Swagger UI
 const swaggerUi = require('swagger-ui-express');
@@ -193,6 +194,7 @@ app.use('/api/v1/bulk-emails', bulkEmailsRoutes);
 app.use('/api/v1/qr-verify', qrVerifyRoutes);
 app.use('/api/v1/qr-codes', qrCodesRoutes);
 app.use('/api/v1/identifiers', identifiersRoutes);
+app.use('/api/v1/diagnostics', diagnosticsRoutes);
 
 // Serve Swagger UI if spec is available
 if (swaggerDocument) {
