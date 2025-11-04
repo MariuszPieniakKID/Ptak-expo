@@ -191,5 +191,115 @@ router.get('/exhibitor/:exhibitorId', async (req, res) => {
   }
 });
 
+/**
+ * TEMPORARY DIAGNOSTIC ENDPOINT
+ * POST /api/v1/diagnostics/regenerate-access-codes
+ * Generate missing access_code for all exhibitor_people records
+ */
+router.post('/regenerate-access-codes', async (req, res) => {
+  try {
+    console.log('[diagnostics] Starting access_code regeneration...');
+
+    // Find all records without access_code
+    const missingCodes = await db.query(`
+      SELECT 
+        p.id,
+        p.exhibitor_id,
+        p.exhibition_id,
+        p.full_name,
+        e.company_name,
+        ex.name as exhibition_name
+      FROM exhibitor_people p
+      LEFT JOIN exhibitors e ON p.exhibitor_id = e.id
+      LEFT JOIN exhibitions ex ON p.exhibition_id = ex.id
+      WHERE p.access_code IS NULL
+      ORDER BY p.exhibition_id, p.exhibitor_id, p.id
+    `);
+
+    console.log(`[diagnostics] Found ${missingCodes.rows.length} records without access_code`);
+
+    if (missingCodes.rows.length === 0) {
+      return res.json({
+        success: true,
+        message: 'All records already have access_code',
+        updated: 0,
+        errors: 0
+      });
+    }
+
+    let updated = 0;
+    let errors = 0;
+    const results = [];
+
+    for (const person of missingCodes.rows) {
+      try {
+        const exhibitionId = person.exhibition_id;
+        const exhibitorId = person.exhibitor_id;
+        const exhibitionName = person.exhibition_name || '';
+
+        if (!exhibitionId) {
+          console.warn(`[diagnostics] Skipping ID ${person.id}: no exhibition_id`);
+          errors++;
+          continue;
+        }
+
+        // Generate access_code using the same algorithm
+        const eventCode = String(exhibitionName).replace(/\s+/g, ' ').trim();
+        const eventIdPadded = String(exhibitionId).padStart(4, '0').slice(-4);
+        const exhibitorIdPadded = 'w' + String(exhibitorId || 0).padStart(3, '0').slice(-3);
+        
+        const entryId = (() => {
+          const ts = Date.now().toString().slice(-6);
+          const rnd = Math.floor(Math.random() * 1_000_000).toString().padStart(6, '0');
+          return ts.slice(0, 3) + rnd.slice(0, 3) + ts.slice(3);
+        })();
+        
+        const rndSuffix = 'rnd' + Math.floor(Math.random() * 1_000_000).toString().padStart(6, '0');
+        const generatedAccessCode = `${eventCode}${eventIdPadded}${exhibitorIdPadded}${entryId}${rndSuffix}${entryId}`;
+
+        // Update the record
+        await db.query(
+          `UPDATE exhibitor_people SET access_code = $1 WHERE id = $2`,
+          [generatedAccessCode, person.id]
+        );
+
+        updated++;
+        results.push({
+          id: person.id,
+          full_name: person.full_name,
+          exhibition_name: exhibitionName,
+          company_name: person.company_name,
+          access_code: generatedAccessCode
+        });
+
+        console.log(`[diagnostics] ✅ Generated code for ${person.full_name} (ID: ${person.id})`);
+
+      } catch (e) {
+        console.error(`[diagnostics] Error for record ${person.id}:`, e?.message || e);
+        errors++;
+      }
+    }
+
+    console.log(`[diagnostics] Regeneration complete: ${updated} updated, ${errors} errors`);
+
+    res.json({
+      success: true,
+      message: `Successfully generated ${updated} access codes`,
+      updated,
+      errors,
+      total: missingCodes.rows.length,
+      results: results.slice(0, 10) // Return first 10 as sample
+    });
+
+  } catch (error) {
+    console.error('[diagnostics] Error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to regenerate access codes',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+});
+
 module.exports = router;
 
