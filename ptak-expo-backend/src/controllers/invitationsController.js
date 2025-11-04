@@ -430,14 +430,23 @@ const sendInvitation = async (req, res) => {
         }
       }
 
+      // Admin may pass exhibitorId in body to override automatic detection
+      if (!exhibitorId && req.body.exhibitorId) {
+        const bodyExhibitorId = parseInt(req.body.exhibitorId, 10);
+        if (Number.isInteger(bodyExhibitorId)) {
+          exhibitorId = bodyExhibitorId;
+        }
+      }
+
       // Insert recipient row first (to keep record even if email fails)
       // Set exhibitor_id if sent by exhibitor (NULL if sent by admin for test)
+      // Note: We'll update with access_code after generating it
       const insRes = await client.query(
         `INSERT INTO invitation_recipients (
-           invitation_template_id, recipient_email, recipient_name, recipient_company, sent_at, response_status, exhibitor_id
-         ) VALUES ($1, $2, $3, $4, NOW(), 'pending', $5)
+           invitation_template_id, recipient_email, recipient_name, recipient_company, sent_at, response_status, exhibitor_id, exhibition_id
+         ) VALUES ($1, $2, $3, $4, NOW(), 'pending', $5, $6)
          RETURNING id, created_at`,
-        [templateId, recipientEmail, recipientName || null, null, exhibitorId]
+        [templateId, recipientEmail, recipientName || null, null, exhibitorId, parseInt(exhibitionId, 10)]
       );
       const recipientRow = insRes.rows[0];
 
@@ -461,19 +470,23 @@ const sendInvitation = async (req, res) => {
         generatedAccessCode = `INVITE${exhibitionId}${recipientRow.id}${Date.now()}`;
       }
 
+      // Update invitation_recipients with generated access_code
+      try {
+        await client.query(
+          `UPDATE invitation_recipients SET access_code = $1 WHERE id = $2`,
+          [generatedAccessCode, recipientRow.id]
+        );
+        console.log('[sendInvitation] Saved access_code to invitation_recipients:', recipientRow.id);
+      } catch (e) {
+        console.error('[sendInvitation] Failed to save access_code to invitation_recipients:', e?.message || e);
+      }
+
       // Attempt to create e-identifier (exhibitor_people) and generate PDF attachment
       let attachments = undefined;
       try {
-        // Admin may optionally pass exhibitorId in body to attach person under a specific exhibitor
-        if (!exhibitorId) {
-          const bodyExhibitorId = req.body && req.body.exhibitorId ? parseInt(req.body.exhibitorId, 10) : null;
-          if (Number.isInteger(bodyExhibitorId)) {
-            exhibitorId = bodyExhibitorId;
-          }
-        }
-
         const personFullName = (recipientName && String(recipientName).trim()) || String(recipientEmail).split('@')[0];
 
+        // ALWAYS save to exhibitor_people if we have exhibitorId (ensures QR verification works from both tables)
         if (exhibitorId) {
           // Ensure exhibitor_people table exists (ignore error if not)
           try {
@@ -482,8 +495,9 @@ const sendInvitation = async (req, res) => {
                VALUES ($1, $2, $3, $4, $5, $6)`,
               [exhibitorId, parseInt(exhibitionId, 10), personFullName, 'Gość', recipientEmail, generatedAccessCode]
             );
+            console.log('[sendInvitation] Also saved to exhibitor_people for exhibitor:', exhibitorId);
           } catch (e) {
-            console.warn('[sendInvitation] exhibitor_people insert failed:', e?.message || e);
+            console.warn('[sendInvitation] exhibitor_people insert failed (not critical):', e?.message || e);
           }
         }
 

@@ -151,7 +151,8 @@ const getExhibitionQRCodes = async (req, res) => {
 
     const exhibition = exResult.rows[0];
 
-    // Build query with optional exhibitor filter
+    // Build query to get codes from BOTH exhibitor_people and invitation_recipients
+    // Using UNION to combine both sources
     let query = `
       SELECT 
         p.id,
@@ -162,7 +163,8 @@ const getExhibitionQRCodes = async (req, res) => {
         p.created_at,
         e.id as exhibitor_id,
         e.company_name,
-        e.nip
+        e.nip,
+        'exhibitor_people' as source
       FROM exhibitor_people p
       LEFT JOIN exhibitors e ON p.exhibitor_id = e.id
       WHERE p.exhibition_id = $1
@@ -176,7 +178,32 @@ const getExhibitionQRCodes = async (req, res) => {
       params.push(exhibitorIdFilter);
     }
     
-    query += ' ORDER BY e.company_name, p.full_name';
+    // Add UNION to include invitation_recipients
+    query += `
+      UNION ALL
+      SELECT 
+        r.id,
+        r.recipient_name as full_name,
+        'Gość (zaproszenie)' as position,
+        r.recipient_email as email,
+        r.access_code,
+        r.created_at,
+        e.id as exhibitor_id,
+        e.company_name,
+        e.nip,
+        'invitation' as source
+      FROM invitation_recipients r
+      LEFT JOIN exhibitors e ON r.exhibitor_id = e.id
+      WHERE r.exhibition_id = $1
+        AND r.access_code IS NOT NULL
+    `;
+    
+    // Add exhibitor filter for invitations too if specified
+    if (exhibitorIdFilter && Number.isInteger(exhibitorIdFilter)) {
+      query += ` AND r.exhibitor_id = $${params.length}`;
+    }
+    
+    query += ' ORDER BY company_name, full_name';
 
     const result = await db.query(query, params);
 

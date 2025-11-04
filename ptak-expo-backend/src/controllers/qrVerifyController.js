@@ -17,8 +17,9 @@ const verifyQRCode = async (req, res) => {
       });
     }
 
-    // Search for the access code in exhibitor_people table
-    const result = await db.query(`
+    // Search for the access code in BOTH exhibitor_people and invitation_recipients tables
+    // First try exhibitor_people
+    let result = await db.query(`
       SELECT 
         p.id,
         p.full_name,
@@ -34,7 +35,8 @@ const verifyQRCode = async (req, res) => {
         ex.start_date,
         ex.end_date,
         ex.location,
-        ex.status as exhibition_status
+        ex.status as exhibition_status,
+        'exhibitor_people' as source
       FROM exhibitor_people p
       LEFT JOIN exhibitors e ON p.exhibitor_id = e.id
       LEFT JOIN exhibitions ex ON p.exhibition_id = ex.id
@@ -42,7 +44,35 @@ const verifyQRCode = async (req, res) => {
       LIMIT 1
     `, [code.trim()]);
 
-    // If code not found
+    // If not found in exhibitor_people, try invitation_recipients
+    if (result.rows.length === 0) {
+      result = await db.query(`
+        SELECT 
+          r.id,
+          r.recipient_name as full_name,
+          'Gość' as position,
+          r.recipient_email as email,
+          r.access_code,
+          r.created_at,
+          e.id as exhibitor_id,
+          e.company_name,
+          e.nip,
+          ex.id as exhibition_id,
+          ex.name as exhibition_name,
+          ex.start_date,
+          ex.end_date,
+          ex.location,
+          ex.status as exhibition_status,
+          'invitation' as source
+        FROM invitation_recipients r
+        LEFT JOIN exhibitors e ON r.exhibitor_id = e.id
+        LEFT JOIN exhibitions ex ON r.exhibition_id = ex.id
+        WHERE r.access_code = $1
+        LIMIT 1
+      `, [code.trim()]);
+    }
+
+    // If code not found in either table
     if (result.rows.length === 0) {
       return res.status(404).json({
         success: false,
@@ -52,6 +82,7 @@ const verifyQRCode = async (req, res) => {
     }
 
     const person = result.rows[0];
+    console.log(`[qrVerifyController] QR code verified from source: ${person.source}`);
 
     // Format dates for better readability
     const formatDate = (dateStr) => {
