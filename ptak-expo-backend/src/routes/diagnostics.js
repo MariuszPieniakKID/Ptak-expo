@@ -96,5 +96,100 @@ router.get('/invitations/exhibition/:exhibitionId', async (req, res) => {
   }
 });
 
+/**
+ * TEMPORARY DIAGNOSTIC ENDPOINT
+ * GET /api/v1/diagnostics/exhibitor/:exhibitorId
+ * Check if exhibitor exists and has data for exhibition
+ */
+router.get('/exhibitor/:exhibitorId', async (req, res) => {
+  try {
+    const { exhibitorId } = req.params;
+
+    // Check if exhibitor exists
+    const exhibitor = await db.query(`
+      SELECT id, company_name, nip, email, status, created_at
+      FROM exhibitors
+      WHERE id = $1
+    `, [exhibitorId]);
+
+    if (exhibitor.rows.length === 0) {
+      return res.json({
+        success: true,
+        exists: false,
+        exhibitor_id: parseInt(exhibitorId, 10),
+        message: 'Exhibitor not found'
+      });
+    }
+
+    // Get exhibitions this exhibitor is registered for
+    const exhibitions = await db.query(`
+      SELECT 
+        ex.id,
+        ex.name,
+        ex.start_date,
+        ex.end_date,
+        ex.status,
+        ee.hall_name,
+        ee.stand_number
+      FROM exhibitor_events ee
+      JOIN exhibitions ex ON ee.exhibition_id = ex.id
+      WHERE ee.exhibitor_id = $1
+      ORDER BY ex.start_date DESC
+    `, [exhibitorId]);
+
+    // Get QR codes (exhibitor_people) for this exhibitor
+    const qrCodes = await db.query(`
+      SELECT 
+        p.id,
+        p.full_name,
+        p.position,
+        p.email,
+        p.access_code,
+        p.exhibition_id,
+        ex.name as exhibition_name,
+        p.created_at
+      FROM exhibitor_people p
+      LEFT JOIN exhibitions ex ON p.exhibition_id = ex.id
+      WHERE p.exhibitor_id = $1
+      ORDER BY p.created_at DESC
+    `, [exhibitorId]);
+
+    // Get invitations for this exhibitor
+    const invitations = await db.query(`
+      SELECT 
+        r.id,
+        r.recipient_name,
+        r.recipient_email,
+        r.access_code,
+        r.exhibition_id,
+        ex.name as exhibition_name,
+        r.sent_at
+      FROM invitation_recipients r
+      LEFT JOIN exhibitions ex ON r.exhibition_id = ex.id
+      WHERE r.exhibitor_id = $1
+      ORDER BY r.sent_at DESC
+    `, [exhibitorId]);
+
+    res.json({
+      success: true,
+      exists: true,
+      exhibitor: exhibitor.rows[0],
+      exhibitions: exhibitions.rows,
+      qr_codes_count: qrCodes.rows.length,
+      qr_codes: qrCodes.rows,
+      invitations_count: invitations.rows.length,
+      invitations: invitations.rows
+    });
+
+  } catch (error) {
+    console.error('[diagnostics] Error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch exhibitor diagnostics',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+});
+
 module.exports = router;
 
