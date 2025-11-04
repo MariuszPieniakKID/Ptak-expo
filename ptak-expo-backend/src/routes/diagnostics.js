@@ -302,5 +302,81 @@ router.post('/regenerate-access-codes', async (req, res) => {
   }
 });
 
+/**
+ * TEMPORARY TEST ENDPOINT
+ * GET /api/v1/diagnostics/test-qr-format/:exhibitorId/:exhibitionId
+ * Test how QR code would look with new 4-digit format
+ */
+router.get('/test-qr-format/:exhibitorId/:exhibitionId', async (req, res) => {
+  try {
+    const { exhibitorId, exhibitionId } = req.params;
+
+    // Get exhibition name
+    const exhibition = await db.query(`
+      SELECT name FROM exhibitions WHERE id = $1
+    `, [exhibitionId]);
+
+    if (exhibition.rows.length === 0) {
+      return res.json({
+        success: false,
+        message: 'Exhibition not found'
+      });
+    }
+
+    const exhibitionName = exhibition.rows[0].name;
+
+    // Generate code with NEW 4-digit format
+    const eventCode = String(exhibitionName).replace(/\s+/g, ' ').trim();
+    const eventIdPadded = String(exhibitionId).padStart(4, '0').slice(-4);
+    const exhibitorIdPadded = 'w' + String(exhibitorId).padStart(4, '0').slice(-4);
+    
+    const entryId = (() => {
+      const ts = Date.now().toString().slice(-6);
+      const rnd = Math.floor(Math.random() * 1_000_000).toString().padStart(6, '0');
+      return ts.slice(0, 3) + rnd.slice(0, 3) + ts.slice(3);
+    })();
+    
+    const rndSuffix = 'rnd' + Math.floor(Math.random() * 1_000_000).toString().padStart(6, '0');
+    const newCode = `${eventCode}${eventIdPadded}${exhibitorIdPadded}${entryId}${rndSuffix}${entryId}`;
+
+    // Generate code with OLD 3-digit format for comparison
+    const exhibitorIdPaddedOld = 'w' + String(exhibitorId).padStart(3, '0').slice(-3);
+    const oldCode = `${eventCode}${eventIdPadded}${exhibitorIdPaddedOld}${entryId}${rndSuffix}${entryId}`;
+
+    res.json({
+      success: true,
+      exhibitor_id: parseInt(exhibitorId, 10),
+      exhibition_id: parseInt(exhibitionId, 10),
+      exhibition_name: exhibitionName,
+      new_format: {
+        code: newCode,
+        pattern: exhibitorIdPadded,
+        digits: 4,
+        description: 'NEW format (2025-11-04+) - no collisions!'
+      },
+      old_format: {
+        code: oldCode,
+        pattern: exhibitorIdPaddedOld,
+        digits: 3,
+        description: 'OLD format (legacy) - still supported'
+      },
+      comparison: {
+        exhibitor_id_full: exhibitorId,
+        new_pattern: exhibitorIdPadded,
+        old_pattern: exhibitorIdPaddedOld,
+        difference: `New format uses last ${exhibitorIdPadded.length - 1} digits, old used last ${exhibitorIdPaddedOld.length - 1} digits`
+      }
+    });
+
+  } catch (error) {
+    console.error('[diagnostics] Error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to generate test codes',
+      error: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
+  }
+});
+
 module.exports = router;
 
