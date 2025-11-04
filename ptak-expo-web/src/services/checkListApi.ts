@@ -544,8 +544,8 @@ export const addElectronicId = async (electronicId: ElectrionicId, exhibitionIdF
 
         // Build event code (FULL exhibition name), 0000 event id (padded), w000 exhibitor id (padded), entry_id (unique), rndXXXX, entry_id again
         const eventCode = String(exhibitionName || '').replace(/\s+/g, ' ').trim();
-        const eventIdPadded = String(exhibitionId).padStart(4, '0');
-        const exhibitorIdPadded = 'w' + String(typeof exhibitorId === 'number' ? exhibitorId : 0).padStart(3, '0');
+        const eventIdPadded = String(exhibitionId).padStart(4, '0').slice(-4);
+        const exhibitorIdPadded = 'w' + String(typeof exhibitorId === 'number' ? exhibitorId : 0).padStart(3, '0').slice(-3);
         const entryId = (() => {
             const ts = Date.now().toString().slice(-6);
             const rnd = Math.floor(Math.random() * 1_000_000).toString().padStart(6, '0');

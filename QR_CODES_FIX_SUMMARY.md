@@ -173,6 +173,41 @@ Aby przetestować:
 
 ---
 
+## 🐛 Naprawa 2 - Obsługa dużych ID (2025-11-04)
+
+### Problem
+Kody QR były niepoprawne gdy `exhibitorId` > 999 lub `exhibitionId` > 9999:
+- `.padStart()` tylko dodaje zera, **NIE UCINA** nadmiarowych cyfr
+- Przykład: `exhibitorId = 1726` → `w1726` (5 znaków zamiast 4)
+
+### Rozwiązanie
+Dodano `.slice(-N)` po `.padStart()` aby zawsze brać tylko ostatnie N cyfr:
+
+```javascript
+// ❌ Przed - błędne dla dużych ID
+const eventIdPadded = String(exhibitionId).padStart(4, '0');         // 99999 → "99999" (5 cyfr!)
+const exhibitorIdPadded = 'w' + String(exhibitorId).padStart(3, '0'); // 1726 → "w1726" (5 znaków!)
+
+// ✅ Po - zawsze poprawna długość
+const eventIdPadded = String(exhibitionId).padStart(4, '0').slice(-4);      // 99999 → "9999" (4 cyfry ✅)
+const exhibitorIdPadded = 'w' + String(exhibitorId).padStart(3, '0').slice(-3); // 1726 → "w726" (4 znaki ✅)
+```
+
+### Pliki naprawione
+1. `/ptak-expo-web/src/services/checkListApi.ts` - linia 547-548
+2. `/ptak-expo-backend/src/controllers/invitationsController.js` - linia 449-450
+3. `/ptak-expo-backend/src/utils/identifierPdf.js` - linia 281-282
+
+### Testy
+```
+✅ exhibitorId=1726  → w726 (poprawne)
+✅ exhibitorId=172   → w172 (poprawne)
+✅ exhibitorId=12345 → w345 (poprawne, ostatnie 3 cyfry)
+✅ exhibitorId=5     → w005 (poprawne, wypełnione zerami)
+```
+
+---
+
 **Data naprawy:** 2025-11-04
 **Naprawione przez:** AI Assistant (Claude Sonnet 4.5)
 

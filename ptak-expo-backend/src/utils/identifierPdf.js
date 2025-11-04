@@ -278,8 +278,8 @@ async function buildIdentifierPdf(client, exhibitionId, payload, exhibitorId) {
     // Format: [Exhibition Name][Exhibition ID (4 digits)][Exhibitor ID with "w" (4 digits)][Entry ID (9 digits)][rnd + 6 digits][Entry ID repeated]
     if (!qrData) {
       const eventCode = String(ev.name || '').replace(/\s+/g, ' ').trim();
-      const eventIdPadded = String(ev.id).padStart(4, '0');
-      const exhibitorIdPadded = 'w' + String(exhibitorId || 0).padStart(3, '0');
+      const eventIdPadded = String(ev.id).padStart(4, '0').slice(-4);
+      const exhibitorIdPadded = 'w' + String(exhibitorId || 0).padStart(3, '0').slice(-3);
       const entryId = (() => {
         const ts = Date.now().toString().slice(-6);
         const rnd = Math.floor(Math.random() * 1_000_000).toString().padStart(6, '0');
