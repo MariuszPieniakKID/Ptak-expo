@@ -28,6 +28,8 @@ import {
   Alert,
   Breadcrumbs,
   Link,
+  TextField,
+  InputAdornment,
 } from '@mui/material';
 
 import { useMediaQuery } from '@mui/material';
@@ -42,6 +44,8 @@ import { ReactComponent as KeyIcon } from '../../assets/keyIcon.svg';
 import { ReactComponent as ArrowUp } from '../../assets/arrowUpIcon.svg';
 import { ReactComponent as WastebasketIcon } from '../../assets/wastebasket.svg';
 import { ReactComponent as EditIcon } from '../../assets/editIcon.svg';
+import SearchIcon from '@mui/icons-material/Search';
+import ClearIcon from '@mui/icons-material/Clear';
 
 import styles from './UsersPage.module.scss';
 
@@ -54,6 +58,7 @@ const UsersPage: React.FC = () => {
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [page, setPage] = useState<number>(0);
   const [rowsPerPage, setRowsPerPage] = useState<number>(5);
+  const [searchQuery, setSearchQuery] = useState<string>('');
   const navigate = useNavigate();
   const { token, user, logout } = useAuth();
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc' | null>(null);
@@ -158,17 +163,30 @@ const UsersPage: React.FC = () => {
     loadUsers();
   }, [loadUsers]);
 
-  const sortedUsers = React.useMemo(() => {
-  if (!sortOrder) return users;
-  return [...users].sort((a, b) => {
-    const nameA = a.fullName.toLowerCase();
-    const nameB = b.fullName.toLowerCase();
+  const filteredUsers = React.useMemo(() => {
+    if (!searchQuery.trim()) return users;
+    
+    const query = searchQuery.toLowerCase().trim();
+    return users.filter(u => {
+      const fullName = u.fullName.toLowerCase();
+      const email = u.email.toLowerCase();
+      const phone = (u.phone || '').toLowerCase();
+      
+      return fullName.includes(query) || email.includes(query) || phone.includes(query);
+    });
+  }, [users, searchQuery]);
 
-    if (nameA < nameB) return sortOrder === 'asc' ? -1 : 1;
-    if (nameA > nameB) return sortOrder === 'asc' ? 1 : -1;
-    return 0;
-  });
-}, [users, sortOrder]);
+  const sortedUsers = React.useMemo(() => {
+    if (!sortOrder) return filteredUsers;
+    return [...filteredUsers].sort((a, b) => {
+      const nameA = a.fullName.toLowerCase();
+      const nameB = b.fullName.toLowerCase();
+
+      if (nameA < nameB) return sortOrder === 'asc' ? -1 : 1;
+      if (nameA > nameB) return sortOrder === 'asc' ? 1 : -1;
+      return 0;
+    });
+  }, [filteredUsers, sortOrder]);
 
   const paginatedUsers = sortedUsers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
 
@@ -272,7 +290,48 @@ const UsersPage: React.FC = () => {
             </Box>
           </Box>
 
-          
+          <Box className={styles.searchContainer}>
+            <TextField
+              fullWidth
+              variant="outlined"
+              placeholder="Wyszukaj po nazwisku, e-mailu lub telefonie..."
+              value={searchQuery}
+              onChange={(e) => {
+                setSearchQuery(e.target.value);
+                setPage(0); // Reset to first page when searching
+              }}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchIcon sx={{ color: '#7F8D8E' }} />
+                  </InputAdornment>
+                ),
+                endAdornment: searchQuery && (
+                  <InputAdornment position="end">
+                    <ClearIcon
+                      sx={{ color: '#7F8D8E', cursor: 'pointer' }}
+                      onClick={() => setSearchQuery('')}
+                    />
+                  </InputAdornment>
+                ),
+              }}
+              sx={{
+                backgroundColor: '#fff',
+                borderRadius: '8px',
+                '& .MuiOutlinedInput-root': {
+                  '& fieldset': {
+                    borderColor: '#D7D9DD',
+                  },
+                  '&:hover fieldset': {
+                    borderColor: '#89F4C9',
+                  },
+                  '&.Mui-focused fieldset': {
+                    borderColor: '#89F4C9',
+                  },
+                },
+              }}
+            />
+          </Box>
 
                 {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
 
@@ -430,7 +489,7 @@ const UsersPage: React.FC = () => {
                         className={styles.paginationStyle}
                         rowsPerPageOptions={[5, 10, 25]}
                         component="div"
-                        count={users.length}
+                        count={sortedUsers.length}
                         rowsPerPage={rowsPerPage}
                         page={page}
                         onPageChange={handleChangePage}

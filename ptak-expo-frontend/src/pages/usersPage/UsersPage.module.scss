@@ -79,6 +79,14 @@
   }
 }
 
+.searchContainer {
+  padding: 0 1.5em 1.5em 1.5em;
+  
+  @include for-phone-only {
+    padding: 0 1em 1em 1em;
+  }
+}
+
 .tableContainer { 
   overflow: hidden;
   box-shadow: none !important;
