@@ -1,5 +1,6 @@
 [build]
 builder = "NIXPACKS"
+watchPatterns = ["ptak-expo-web/**"]
 
 [deploy]
 startCommand = "npx serve -s build -l $PORT"
