@@ -156,7 +156,6 @@ const ForgotPasswordModal: React.FC<ForgotPasswordModalProps> = ({
             placeholder="adres@mail.com"
             fullWidth
             margin="normal"
-            disabled={loading}
           />
         </DialogContent>
         
