@@ -466,7 +466,7 @@ const exhibitorForgotPassword = async (req, res) => {
     // Use FRONTEND_WEB_URL for exhibitor panel login link
     const loginUrl = process.env.FRONTEND_WEB_URL 
       ? `${process.env.FRONTEND_WEB_URL}/login`
-      : 'https://app.warsawexpo.eu/login';
+      : 'https://wystawca.exhibitorlist.eu/login';
     
     const emailResult = await sendPasswordResetEmail(
       exhibitor.email,
