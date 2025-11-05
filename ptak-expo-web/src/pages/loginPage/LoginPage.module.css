@@ -969,6 +969,15 @@
   .remindMePassword:hover {
   color: var(--color-blue);
  }
+  .contactInfo {
+      margin: auto;
+      text-align: center;
+      font-size: 11px;
+      color: var(--color-darkgray);
+      font-family: var(--font-open-sans);
+      padding-top: 12px;
+      line-height: 1.4;
+  }
  .blueoverlay {
   position: absolute;
   top: 0; left: 0; right: 0; bottom: 0;

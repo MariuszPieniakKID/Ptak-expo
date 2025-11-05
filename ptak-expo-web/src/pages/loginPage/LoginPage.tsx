@@ -135,6 +135,9 @@ const LoginPage: React.FC = () => {
                 {loading ? 'Logowanie...' : 'Zaloguj się'}
               </button>}
             <div className={styles.remindMePassword}>Przypomnij hasło</div>
+            <div className={styles.contactInfo}>
+              W razie pytań, prosimy o kontakt mailowo: appSupport@warsawexpo.eu
+            </div>
           </div>
         </form>
       </div>  
