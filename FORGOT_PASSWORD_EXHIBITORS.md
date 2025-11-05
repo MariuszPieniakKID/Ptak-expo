@@ -295,7 +295,7 @@ const db = require('./src/config/database');
 | Tabela DB | `users` | `exhibitors` |
 | Kolumny | `first_name`, `last_name` | `contact_person`, `company_name` |
 | Link w emailu | FRONTEND_URL (panel admina) | FRONTEND_WEB_URL (panel wystawców) |
-| Domyślny URL | http://localhost:3000 | https://app.warsawexpo.eu |
+| Domyślny URL | http://localhost:3000 | https://wystawca.exhibitorlist.eu |
 | Role | `admin` | `exhibitor` |
 
 ## 🌐 Zmienne środowiskowe Railway
