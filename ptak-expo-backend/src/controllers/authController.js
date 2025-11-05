@@ -383,10 +383,129 @@ const forgotPassword = async (req, res) => {
   }
 };
 
+// Forgot password endpoint for exhibitors - generates new password and sends via email
+const exhibitorForgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    // Validate input
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email jest wymagany'
+      });
+    }
+
+    const normalizedEmail = email.trim().toLowerCase();
+
+    // Check if exhibitor exists in database
+    let result;
+    try {
+      result = await db.query(
+        'SELECT id, email, contact_person, company_name, status FROM exhibitors WHERE LOWER(email) = $1',
+        [normalizedEmail]
+      );
+    } catch (dbError) {
+      console.error('Database error during exhibitor password reset:', dbError);
+      return res.status(500).json({
+        success: false,
+        message: 'Błąd bazy danych'
+      });
+    }
+
+    // For security reasons, always return the same message
+    // This prevents email enumeration attacks
+    if (result.rows.length === 0) {
+      return res.json({
+        success: true,
+        message: 'Jeśli adres email istnieje w systemie, nowe hasło zostało wysłane'
+      });
+    }
+
+    const exhibitor = result.rows[0];
+
+    // Check if account is active
+    if (exhibitor.status && exhibitor.status !== 'active') {
+      return res.json({
+        success: true,
+        message: 'Jeśli adres email istnieje w systemie, nowe hasło zostało wysłane'
+      });
+    }
+
+    // Generate new random password (12 characters: letters, numbers, special chars)
+    const newPassword = Math.random().toString(36).slice(-8) + 
+                       Math.random().toString(36).slice(-4).toUpperCase() + 
+                       Math.floor(Math.random() * 10);
+
+    // Hash the new password
+    const saltRounds = 10;
+    const newPasswordHash = await bcrypt.hash(newPassword, saltRounds);
+
+    // Update password in database
+    try {
+      await db.query(
+        'UPDATE exhibitors SET password_hash = $1 WHERE id = $2',
+        [newPasswordHash, exhibitor.id]
+      );
+    } catch (updateError) {
+      console.error('Error updating exhibitor password:', updateError);
+      return res.status(500).json({
+        success: false,
+        message: 'Błąd podczas aktualizacji hasła'
+      });
+    }
+
+    // Send email with new password
+    const { sendPasswordResetEmail } = require('../utils/emailService');
+    
+    // Parse exhibitor name from contact_person or use company_name
+    const contact = String(exhibitor.contact_person || '').trim();
+    const [firstName, ...rest] = contact.split(' ').filter(Boolean);
+    const lastName = rest.join(' ');
+    
+    // Use FRONTEND_WEB_URL for exhibitor panel login link
+    const loginUrl = process.env.FRONTEND_WEB_URL 
+      ? `${process.env.FRONTEND_WEB_URL}/login`
+      : 'https://app.warsawexpo.eu/login';
+    
+    const emailResult = await sendPasswordResetEmail(
+      exhibitor.email,
+      firstName || exhibitor.company_name || 'Wystawca',
+      lastName || '',
+      newPassword,
+      loginUrl
+    );
+
+    if (!emailResult.success) {
+      console.error('Failed to send exhibitor password reset email:', emailResult.error);
+      // Password was already changed in DB, so we inform user
+      return res.json({
+        success: true,
+        message: 'Hasło zostało zresetowane, ale wystąpił problem z wysłaniem emaila. Skontaktuj się z administratorem.'
+      });
+    }
+
+    console.log(`✅ Exhibitor password reset successful for: ${exhibitor.email} (ID: ${exhibitor.id})`);
+
+    return res.json({
+      success: true,
+      message: 'Nowe hasło zostało wysłane na podany adres email'
+    });
+
+  } catch (error) {
+    console.error('Exhibitor forgot password error:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Błąd serwera podczas resetowania hasła'
+    });
+  }
+};
+
 module.exports = {
   login,
   exhibitorLogin,
   verifyToken,
   logout,
-  forgotPassword
+  forgotPassword,
+  exhibitorForgotPassword
 }; 

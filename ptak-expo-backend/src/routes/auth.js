@@ -1,5 +1,5 @@
 const express = require('express');
-const { login, exhibitorLogin, verifyToken, logout, forgotPassword } = require('../controllers/authController');
+const { login, exhibitorLogin, verifyToken, logout, forgotPassword, exhibitorForgotPassword } = require('../controllers/authController');
 
 const router = express.Router();
 
@@ -15,8 +15,11 @@ router.get('/verify', verifyToken);
 // Logout route
 router.post('/logout', logout);
 
-// Forgot password route (password reset via email)
+// Forgot password route (password reset via email for admins)
 router.post('/forgot-password', forgotPassword);
+
+// Forgot password route for exhibitors (password reset via email)
+router.post('/exhibitor-forgot-password', exhibitorForgotPassword);
 
 // Test route to check if auth routes are working
 router.get('/test', (req, res) => {

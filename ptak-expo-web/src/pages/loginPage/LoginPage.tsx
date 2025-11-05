@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback, memo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import ForgotPasswordModal from '../../components/forgotPasswordModal/ForgotPasswordModal';
 import styles from './LoginPage.module.css';
 
 const LoginPage: React.FC = () => {
@@ -11,6 +12,7 @@ const LoginPage: React.FC = () => {
    const [error, setError] = useState('');
    const [emailError, setEmailError] = useState('');
    const [passwordError, setPasswordError] = useState('');
+   const [isForgotPasswordModalOpen, setIsForgotPasswordModalOpen] = useState(false);
    const navigate = useNavigate();
    const { login, isAuthenticated } = useAuth();
 
@@ -134,13 +136,23 @@ const LoginPage: React.FC = () => {
                 >
                 {loading ? 'Logowanie...' : 'Zaloguj się'}
               </button>}
-            <div className={styles.remindMePassword}>Przypomnij hasło</div>
+            <div 
+              className={styles.remindMePassword}
+              onClick={() => setIsForgotPasswordModalOpen(true)}
+              style={{ cursor: 'pointer' }}
+            >
+              Przypomnij hasło
+            </div>
             <div className={styles.contactInfo}>
               W razie pytań, prosimy o kontakt mailowo: appSupport@warsawexpo.eu
             </div>
           </div>
         </form>
-      </div>  
+      </div>
+      <ForgotPasswordModal
+        isOpen={isForgotPasswordModalOpen}
+        onClose={() => setIsForgotPasswordModalOpen(false)}
+      />
     </div>
   );
 };
