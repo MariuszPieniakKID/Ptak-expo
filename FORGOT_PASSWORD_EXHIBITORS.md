@@ -26,7 +26,7 @@ router.post('/exhibitor-forgot-password', exhibitorForgotPassword);
 - Używa `sendPasswordResetEmail()` z `src/utils/emailService.js`
 - Wspiera SMTP i Microsoft Graph API
 - Profesjonalny szablon HTML emaila
-- Link prowadzi do `process.env.FRONTEND_WEB_URL/login` lub `https://app.warsawexpo.eu/login`
+- Link prowadzi do `process.env.FRONTEND_WEB_URL/login` lub `https://wystawca.exhibitorlist.eu/login`
 
 ### Frontend (ptak-expo-web)
 
