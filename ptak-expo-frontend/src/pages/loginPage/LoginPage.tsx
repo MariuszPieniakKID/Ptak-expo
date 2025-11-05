@@ -7,6 +7,7 @@ import CustomTypography from '../../components/customTypography/CustomTypography
 import CustomField from '../../components/customField/CustomField';
 import CustomButton from '../../components/customButton/CustomButton';
 import CustomLink from '../../components/customLink/CustomLink';
+import ForgotPasswordModal from '../../components/forgotPasswordModal/ForgotPasswordModal';
 
 
 const LoginPage: React.FC = () => {
@@ -16,6 +17,7 @@ const LoginPage: React.FC = () => {
   const [error, setError] = useState('');
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
+  const [isForgotPasswordModalOpen, setIsForgotPasswordModalOpen] = useState(false);
   const navigate = useNavigate();
   const { login, isAuthenticated } = useAuth();
 
@@ -156,6 +158,10 @@ const LoginPage: React.FC = () => {
             )}
             <CustomLink
               href="#"
+              onClick={(e: React.MouseEvent<HTMLAnchorElement>) => {
+                e.preventDefault();
+                setIsForgotPasswordModalOpen(true);
+              }}
               className={styles.remindMePassword}
               fontWeight={300}
               fontSize={'0.79'}
@@ -167,6 +173,10 @@ const LoginPage: React.FC = () => {
       </Box>
       </div>
     </div>
+    <ForgotPasswordModal
+      isOpen={isForgotPasswordModalOpen}
+      onClose={() => setIsForgotPasswordModalOpen(false)}
+    />
     <div className={styles.filtr}>
       <div className={styles.filtrGray}/>
       <div className={styles.filtrBlue}/>
