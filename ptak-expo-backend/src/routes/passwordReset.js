@@ -339,7 +339,7 @@ router.get('/bioexpo-globalfood/preview', verifyToken, requireAdmin, async (req,
     const exhibitionResult = await db.query(`
       SELECT id, name, start_date, end_date, status
       FROM exhibitions
-      WHERE UPPER(name) LIKE '%BIOEXPO%' 
+      WHERE UPPER(name) LIKE '%BIO%EXPO%' 
          OR UPPER(name) LIKE '%GLOBALFOOD%' 
          OR UPPER(name) LIKE '%GLOBAL FOOD%'
       ORDER BY name, start_date DESC
@@ -417,7 +417,7 @@ router.post('/bioexpo-globalfood/send-test', verifyToken, requireAdmin, async (r
     const exhibitionResult = await db.query(`
       SELECT id, name
       FROM exhibitions
-      WHERE UPPER(name) LIKE '%BIOEXPO%' 
+      WHERE UPPER(name) LIKE '%BIO%EXPO%' 
          OR UPPER(name) LIKE '%GLOBALFOOD%' 
          OR UPPER(name) LIKE '%GLOBAL FOOD%'
       ORDER BY name, start_date DESC
@@ -526,7 +526,7 @@ router.post('/bioexpo-globalfood/send-all', verifyToken, requireAdmin, async (re
     const exhibitionResult = await db.query(`
       SELECT id, name
       FROM exhibitions
-      WHERE UPPER(name) LIKE '%BIOEXPO%' 
+      WHERE UPPER(name) LIKE '%BIO%EXPO%' 
          OR UPPER(name) LIKE '%GLOBALFOOD%' 
          OR UPPER(name) LIKE '%GLOBAL FOOD%'
       ORDER BY name, start_date DESC
@@ -632,6 +632,321 @@ router.post('/bioexpo-globalfood/send-all', verifyToken, requireAdmin, async (re
       success: true,
       message: 'Password reset process completed',
       exhibitions: exhibitionNames,
+      summary: {
+        total: exhibitors.length,
+        successful: results.success.length,
+        failed: results.failed.length
+      },
+      results: results
+    });
+    
+  } catch (error) {
+    console.error('Error sending password resets:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Error sending password resets',
+      error: error.message
+    });
+  }
+});
+
+// ============================================================================
+// BIO EXPO ONLY - Password Reset Endpoints
+// ============================================================================
+
+// GET /api/v1/password-reset/bioexpo/preview
+// Preview exhibitors that would receive password reset for BIO EXPO only
+router.get('/bioexpo/preview', verifyToken, requireAdmin, async (req, res) => {
+  try {
+    console.log('📋 Previewing BIO EXPO exhibitors...');
+    
+    // Find BIO EXPO
+    const exhibitionResult = await db.query(`
+      SELECT id, name, start_date, end_date, status
+      FROM exhibitions
+      WHERE UPPER(name) LIKE '%BIO%EXPO%'
+      ORDER BY start_date DESC
+      LIMIT 1
+    `);
+    
+    if (exhibitionResult.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'BIO EXPO exhibition not found'
+      });
+    }
+    
+    const exhibition = exhibitionResult.rows[0];
+    
+    // Get exhibitors for BIO EXPO
+    const exhibitorsResult = await db.query(`
+      SELECT DISTINCT
+        e.id,
+        e.email,
+        e.company_name,
+        e.contact_person,
+        e.status
+      FROM exhibitors e
+      INNER JOIN exhibitor_events ee ON e.id = ee.exhibitor_id
+      WHERE ee.exhibition_id = $1
+        AND e.email IS NOT NULL
+        AND e.email != ''
+      ORDER BY e.company_name
+    `, [exhibition.id]);
+    
+    const hasPieniak = exhibitorsResult.rows.some(
+      e => e.email.toLowerCase() === 'pieniak@gmail.com'
+    );
+    
+    return res.json({
+      success: true,
+      exhibition: {
+        id: exhibition.id,
+        name: exhibition.name,
+        startDate: exhibition.start_date,
+        endDate: exhibition.end_date,
+        status: exhibition.status
+      },
+      exhibitors: exhibitorsResult.rows,
+      totalCount: exhibitorsResult.rows.length,
+      verification: {
+        pieniakFound: hasPieniak,
+        message: hasPieniak 
+          ? '✅ pieniak@gmail.com is on the list' 
+          : '⚠️ pieniak@gmail.com NOT found'
+      }
+    });
+    
+  } catch (error) {
+    console.error('Error previewing exhibitors:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Error fetching exhibitors',
+      error: error.message
+    });
+  }
+});
+
+// POST /api/v1/password-reset/bioexpo/send-test
+// Send password reset to pieniak@gmail.com only (test) for BIO EXPO
+router.post('/bioexpo/send-test', verifyToken, requireAdmin, async (req, res) => {
+  try {
+    console.log('🧪 TEST: Sending password reset to pieniak@gmail.com for BIO EXPO...');
+    
+    // Find BIO EXPO
+    const exhibitionResult = await db.query(`
+      SELECT id, name
+      FROM exhibitions
+      WHERE UPPER(name) LIKE '%BIO%EXPO%'
+      ORDER BY start_date DESC
+      LIMIT 1
+    `);
+    
+    if (exhibitionResult.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'BIO EXPO exhibition not found'
+      });
+    }
+    
+    const exhibition = exhibitionResult.rows[0];
+    
+    // Get pieniak@gmail.com exhibitor
+    const exhibitorResult = await db.query(`
+      SELECT DISTINCT
+        e.id,
+        e.email,
+        e.company_name,
+        e.contact_person,
+        e.status
+      FROM exhibitors e
+      INNER JOIN exhibitor_events ee ON e.id = ee.exhibitor_id
+      WHERE ee.exhibition_id = $1
+        AND LOWER(e.email) = 'pieniak@gmail.com'
+    `, [exhibition.id]);
+    
+    if (exhibitorResult.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'pieniak@gmail.com not found in BIO EXPO exhibitors'
+      });
+    }
+    
+    const exhibitor = exhibitorResult.rows[0];
+    
+    // Generate new password
+    const { newPassword, passwordHash } = await generateAndHashPassword();
+    
+    // Update password in database
+    await db.query(
+      'UPDATE exhibitors SET password_hash = $1 WHERE id = $2',
+      [passwordHash, exhibitor.id]
+    );
+    
+    // Parse exhibitor name
+    const contact = String(exhibitor.contact_person || '').trim();
+    const [firstName, ...rest] = contact.split(' ').filter(Boolean);
+    const lastName = rest.join(' ');
+    
+    // Send email
+    const loginUrl = process.env.FRONTEND_WEB_URL 
+      ? `${process.env.FRONTEND_WEB_URL}/login`
+      : 'https://wystawca.exhibitorlist.eu/login';
+    
+    const emailResult = await sendPasswordResetEmail(
+      exhibitor.email,
+      firstName || exhibitor.company_name || 'Wystawca',
+      lastName || '',
+      newPassword,
+      loginUrl
+    );
+    
+    if (!emailResult.success) {
+      return res.status(500).json({
+        success: false,
+        message: 'Password updated but email failed to send',
+        error: emailResult.error,
+        exhibitor: {
+          email: exhibitor.email,
+          companyName: exhibitor.company_name
+        }
+      });
+    }
+    
+    console.log(`✅ TEST: Password reset sent to ${exhibitor.email}`);
+    
+    return res.json({
+      success: true,
+      message: 'Test password reset sent successfully',
+      exhibitor: {
+        email: exhibitor.email,
+        companyName: exhibitor.company_name
+      }
+    });
+    
+  } catch (error) {
+    console.error('Error sending test password reset:', error);
+    return res.status(500).json({
+      success: false,
+      message: 'Error sending test password reset',
+      error: error.message
+    });
+  }
+});
+
+// POST /api/v1/password-reset/bioexpo/send-all
+// Send password reset to ALL BIO EXPO exhibitors
+router.post('/bioexpo/send-all', verifyToken, requireAdmin, async (req, res) => {
+  try {
+    console.log('🚀 SENDING password reset to ALL BIO EXPO exhibitors...');
+    
+    // Find BIO EXPO
+    const exhibitionResult = await db.query(`
+      SELECT id, name
+      FROM exhibitions
+      WHERE UPPER(name) LIKE '%BIO%EXPO%'
+      ORDER BY start_date DESC
+      LIMIT 1
+    `);
+    
+    if (exhibitionResult.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'BIO EXPO exhibition not found'
+      });
+    }
+    
+    const exhibition = exhibitionResult.rows[0];
+    
+    console.log(`Target exhibition: ${exhibition.name}`);
+    
+    // Get all exhibitors
+    const exhibitorsResult = await db.query(`
+      SELECT DISTINCT
+        e.id,
+        e.email,
+        e.company_name,
+        e.contact_person,
+        e.status
+      FROM exhibitors e
+      INNER JOIN exhibitor_events ee ON e.id = ee.exhibitor_id
+      WHERE ee.exhibition_id = $1
+        AND e.email IS NOT NULL
+        AND e.email != ''
+      ORDER BY e.company_name
+    `, [exhibition.id]);
+    
+    const exhibitors = exhibitorsResult.rows;
+    const results = {
+      success: [],
+      failed: []
+    };
+    
+    console.log(`Processing ${exhibitors.length} exhibitors from ${exhibition.name}...`);
+    
+    for (const exhibitor of exhibitors) {
+      try {
+        // Generate new password
+        const { newPassword, passwordHash } = await generateAndHashPassword();
+        
+        // Update password in database
+        await db.query(
+          'UPDATE exhibitors SET password_hash = $1 WHERE id = $2',
+          [passwordHash, exhibitor.id]
+        );
+        
+        // Parse exhibitor name
+        const contact = String(exhibitor.contact_person || '').trim();
+        const [firstName, ...rest] = contact.split(' ').filter(Boolean);
+        const lastName = rest.join(' ');
+        
+        // Send email
+        const loginUrl = process.env.FRONTEND_WEB_URL 
+          ? `${process.env.FRONTEND_WEB_URL}/login`
+          : 'https://wystawca.exhibitorlist.eu/login';
+        
+        const emailResult = await sendPasswordResetEmail(
+          exhibitor.email,
+          firstName || exhibitor.company_name || 'Wystawca',
+          lastName || '',
+          newPassword,
+          loginUrl
+        );
+        
+        if (emailResult.success) {
+          console.log(`✅ Sent to: ${exhibitor.email}`);
+          results.success.push({
+            email: exhibitor.email,
+            companyName: exhibitor.company_name
+          });
+        } else {
+          console.log(`❌ Failed: ${exhibitor.email}`);
+          results.failed.push({
+            email: exhibitor.email,
+            companyName: exhibitor.company_name,
+            error: emailResult.error
+          });
+        }
+        
+        // Wait 500ms between emails to avoid rate limiting
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
+      } catch (error) {
+        console.error(`Error processing ${exhibitor.email}:`, error);
+        results.failed.push({
+          email: exhibitor.email,
+          companyName: exhibitor.company_name,
+          error: error.message
+        });
+      }
+    }
+    
+    console.log(`\n✅ DONE: ${results.success.length} success, ${results.failed.length} failed`);
+    
+    return res.json({
+      success: true,
+      message: 'Password reset process completed',
+      exhibition: exhibition.name,
       summary: {
         total: exhibitors.length,
         successful: results.success.length,
