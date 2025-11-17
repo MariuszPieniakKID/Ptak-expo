@@ -19,7 +19,6 @@ import {
   Typography,
   Chip
 } from '@mui/material';
-import CustomTypography from '../../components/customTypography/CustomTypography';
 import config from '../../config/config';
 
 interface Exhibition {
@@ -198,9 +197,9 @@ const MailingTab: React.FC<MailingTabProps> = ({ token }) => {
 
   return (
     <Box sx={{ p: 3 }}>
-      <CustomTypography variant="h5" gutterBottom>
+      <Typography variant="h5" gutterBottom>
         Mailing - Wysyłka emaili powitalnych
-      </CustomTypography>
+      </Typography>
 
       <Box sx={{ mb: 3 }}>
         <Alert severity="info" sx={{ mb: 2 }}>
