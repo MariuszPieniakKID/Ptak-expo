@@ -57,22 +57,42 @@ products: (Array.isArray(data.products) && data.products.length > 0) ? data.prod
 **Po:**
 ```javascript
 catalog_tags: data.catalog_tags,
-products: (Array.isArray(data.products) && data.products.length > 0) ? data.products : [],
+products: (Array.isArray(data.products) && data.products.length > 0) ? data.products : (Array.isArray(globalData.products) ? globalData.products : []),
 ```
 
+**UWAGA:** Dla `catalog_tags` usunięto fallback (zgodnie z wymaganiem), ale dla `products` **POZOSTAWIONO fallback** w panelu wystawcy, aby wystawcy mogli widzieć swoje produkty podczas edycji. W publicznych feedach (`public.js`) produkty **NIE mają fallback** - każde wydarzenie ma oddzielne produkty.
+
 ## Zachowanie Systemu Po Zmianach
+
+### W Panelu Wystawcy (Edycja)
+Wystawcy widzą swoje dane z fallback do globalnych, aby móc je edytować:
+- ✅ Produkty są widoczne (fallback do global)
+- ❌ Hashtagi NIE są widoczne (bez fallback, osobne dla każdego wydarzenia)
+
+### W Publicznych Feedach (JSON/RSS/Strona WWW)
+Każde wydarzenie ma oddzielne dane:
+- ❌ Produkty NIE zaciągają się z globalnych (osobne dla każdego wydarzenia)
+- ❌ Hashtagi NIE zaciągają się z globalnych (osobne dla każdego wydarzenia)
 
 ### Scenariusz 1: Wystawca dodany do pierwszego wydarzenia
 - Wszystkie pola są puste (lub zaciągają się z danych podstawowych wystawcy)
 - Wystawca wypełnia wszystkie dane, w tym hashtagi i produkty
+- W panelu: widzi swoje produkty
+- W publicznych feedach: produkty są widoczne dla tego wydarzenia
 
 ### Scenariusz 2: Wystawca dodany do drugiego wydarzenia
-**Dane zaciągające się z globalnych:**
+**W panelu wystawcy (widoczne dzięki fallback):**
+- Nazwa firmy, logo, opis, dane kontaktowe, strona WWW, brandy, social media, **produkty**
+
+**W panelu wystawcy (NIE widoczne, osobne dla wydarzenia):**
+- Hashtagi
+
+**W publicznych feedach (widoczne dla wydarzenia):**
 - Nazwa firmy, logo, opis, dane kontaktowe, strona WWW, brandy, social media
 
-**Dane NIE zaciągające się (puste dla nowego wydarzenia):**
-- Hashtagi - wystawca musi dodać osobno dla każdego wydarzenia
-- Prezentowane produkty - wystawca musi dodać osobno dla każdego wydarzenia
+**W publicznych feedach (NIE widoczne, osobne dla wydarzenia):**
+- Hashtagi
+- Prezentowane produkty
 
 ## Testowanie
 1. Dodaj wystawcę do pierwszego wydarzenia
