@@ -44,9 +44,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const isAuthenticated = !!user && !!token;
 
   const verifyToken = async (): Promise<boolean> => {
-    if (!token) {
-      return false;
-    }
+    if (!token) return false;
 
     try {
       const response = await fetch(`${API_BASE_URL}/api/v1/auth/verify`, {
@@ -58,19 +56,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       });
 
       const data = await response.json();
-      
-      if (response.ok && data.success) {
-        return true;
-      } else {
-        return false;
-      }
+      return response.ok && data.success;
     } catch (error) {
-      console.error('Token verification error:', error);
       return false;
     }
   };
 
-  // Initialize auth state from localStorage
   useEffect(() => {
     const initAuth = async () => {
       try {

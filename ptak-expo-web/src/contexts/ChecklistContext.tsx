@@ -40,10 +40,13 @@ const emptyChecklist: Checklist = {
 
 export const ChecklistProvider = ({ children, eventId }: {children: ReactNode, eventId: number}) => {
 	const [checklist, setChecklist] = useState<Checklist>(emptyChecklist);
-	useEffect(() => { (window as any).currentSelectedExhibitionId = eventId; }, [eventId]);
-	useEffect(() => { getChecklist(eventId).then(setChecklist); }, [eventId]);
+	useEffect(() => { 
+		(window as any).currentSelectedExhibitionId = eventId; 
+	}, [eventId]);
+	useEffect(() => { 
+		getChecklist(eventId).then(setChecklist); 
+	}, [eventId]);
 	const companyInfoFilledCount = (() => {
-		// Check if catalog contact fields are all filled (person, phone, email)
 		let catalogContactFilled = 0;
 		const catalogContactPerson = (checklist.companyInfo as any).catalogContactPerson;
 		const catalogContactPhone = (checklist.companyInfo as any).catalogContactPhone;

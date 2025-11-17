@@ -52,7 +52,6 @@ const AddUserModal: React.FC<AddUserModalProps> = ({
   const [loading, setLoading] = useState(false);
   const [apiError, setApiError] = useState('');
 
-  // Reset form when modal opens/closes
   useEffect(() => {
     if (isOpen) {
       setFormData({ 
@@ -114,8 +113,6 @@ const AddUserModal: React.FC<AddUserModalProps> = ({
       ...prev,
       [name]: type === 'checkbox' ? checked : value,
     }));
-    console.log("Hello");
-  
   };
 
 
@@ -137,22 +134,18 @@ const AddUserModal: React.FC<AddUserModalProps> = ({
     };
 
     try {
-      console.log('[AddUserModal] submit payload:', { ...payload, password: payload.password ? '***' : undefined });
       const res = await addUser(payload, token);
-      console.log('[AddUserModal] API response:', res);
-      // If avatar selected, upload it
       const newUserId = res?.data?.id;
       if (avatarFile && newUserId) {
         try {
           await uploadUserAvatar(newUserId, avatarFile, token);
         } catch (upErr: any) {
-          console.warn('Avatar upload failed:', upErr?.message || upErr);
+          console.log('Avatar upload failed, but user created');
         }
       }
       onUserAdded();
       onClose();
     } catch (err: any) {
-      console.error('[AddUserModal] API error:', err);
       setApiError(err.message || 'Wystąpił nieznany błąd.');
     } finally {
       setLoading(false);
@@ -242,43 +235,6 @@ const AddUserModal: React.FC<AddUserModalProps> = ({
                     </Box>
 
             </Box>
-            {/* <Box
-              sx={{
-                width: '100%',
-                height: '2px',
-                backgroundColor:'#6F87F6',
-                borderRadius: '3px',
-                mb: 2, // margines dolny pod linią
-                }}
-              />
-          {/* Tekst pod linią */}
-            {/* <CustomTypography className={styles.additionalInfo}> 
-            * Na podany e-mail użytkownik otrzyma hasło i dane dostępowe do aplikacji
-          </CustomTypography> */} 
- 
-
-                {/* <Box sx={{ display: 'flex', gap: 2 }}>
-                    <TextField
-                        name="email"
-                        label="Adres E-mail"
-                        type="email"
-                        value={formData.email}
-                        onChange={handleInputChange}
-                        error={!!errors.email}
-                        helperText={errors.email}
-                        fullWidth
-                        required
-                        disabled={loading}
-                    />
-                    <TextField
-                        name="phone"
-                        label="Telefon"
-                        value={formData.phone}
-                        onChange={handleInputChange}
-                        fullWidth
-                        disabled={loading}
-                    />
-                </Box> */}
                 <TextField
                     name="password"
                     label="Hasło"

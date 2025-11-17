@@ -91,12 +91,12 @@ const UsersPage: React.FC = () => {
     loadUsers();
   }, [loadUsers]);
 
-  const handleLogout = useCallback(() => {
+  const handleLogout = () => {
     logout();
     navigate('/login');
-  }, [logout, navigate]);
+  };
 
-  const handleDeleteUser = useCallback(async (userId: number, userName: string): Promise<void> => {
+  const handleDeleteUser = async (userId: number, userName: string) => {
     if (!token) return;
     if (window.confirm(`Czy na pewno chcesz usunąć użytkownika "${userName}"?`)) {
       try {
@@ -106,9 +106,9 @@ const UsersPage: React.FC = () => {
         setError(err.message || 'Błąd podczas usuwania użytkownika');
       }
     }
-  }, [token]);
+  };
 
-  const handleResetPassword = useCallback(async (userId: number): Promise<void> => {
+  const handleResetPassword = async (userId: number) => {
     if (!token) return;
     try {
       const res = await resetUserPassword(userId, token);
@@ -121,47 +121,47 @@ const UsersPage: React.FC = () => {
         navigate('/login');
       }
     }
-  }, [token, logout, navigate]);
+  };
 
-  const handleEditUser = useCallback((user: User) => {
+  const handleEditUser = (user: User) => {
     setSelectedUser(user);
     setIsEditUserModalOpen(true);
-  }, []);
+  };
 
-  const handleEditModalClose = useCallback(() => {
+  const handleEditModalClose = () => {
     setIsEditUserModalOpen(false);
     setSelectedUser(null);
-  }, []);
+  };
 
-  const handleUserUpdated = useCallback(() => {
+  const handleUserUpdated = () => {
     loadUsers();
-  }, [loadUsers]);
+  };
   
-  const getUserInitials = useCallback((fullName: string): string => {
+  const getUserInitials = (fullName: string) => {
     const names = fullName.trim().split(' ');
     if (names.length >= 2) {
       return `${names[0].charAt(0)}${names[names.length - 1].charAt(0)}`.toUpperCase();
     }
     return fullName.charAt(0).toUpperCase();
-  }, []);
+  };
 
-  const handleChangePage = useCallback((_event: unknown, newPage: number): void => {
+  const handleChangePage = (_event: unknown, newPage: number) => {
     setPage(newPage);
-  }, []);
+  };
 
-  const handleChangeRowsPerPage = useCallback((event: React.ChangeEvent<HTMLInputElement>): void => {
+  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
     setRowsPerPage(parseInt(event.target.value, 10));
     setPage(0);
-  }, []);
+  };
 
-  const handleModalClose = useCallback((): void => {
+  const handleModalClose = () => {
     setIsAddUserModalOpen(false);
-  }, []);
+  };
 
-  const handleUserAdded = useCallback((): void => {
+  const handleUserAdded = () => {
     setIsAddUserModalOpen(false);
     loadUsers();
-  }, [loadUsers]);
+  };
 
   const filteredUsers = React.useMemo(() => {
     if (!searchQuery.trim()) return users;
@@ -171,7 +171,7 @@ const UsersPage: React.FC = () => {
       const fullName = u.fullName.toLowerCase();
       const email = u.email.toLowerCase();
       const phone = (u.phone || '').toLowerCase();
-      
+      // TODO: add search by role
       return fullName.includes(query) || email.includes(query) || phone.includes(query);
     });
   }, [users, searchQuery]);
@@ -190,13 +190,12 @@ const UsersPage: React.FC = () => {
 
   const paginatedUsers = sortedUsers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
 
-  // Helper: build absolute served avatar URL via backend (includes token for auth)
   const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
-  const buildAvatarUrl = useCallback((userId?: number | null): string | undefined => {
+  const buildAvatarUrl = (userId?: number | null) => {
     if (!userId || !token) return undefined;
     const t = encodeURIComponent(token);
     return `${API_BASE_URL}/api/v1/users/${userId}/avatar?token=${t}`;
-  }, [API_BASE_URL, token]);
+  };
 
 
   return (

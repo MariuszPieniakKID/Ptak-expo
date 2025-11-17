@@ -1,11 +1,7 @@
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-  Navigate,
-} from "react-router-dom";
-import {AuthProvider} from "./contexts/AuthContext";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { AuthProvider } from "./contexts/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
+import "./global.scss";
 import LoginPage from "./pages/loginPage/LoginPage";
 import DashboardPage from "./pages/DashboardPage";
 import EventHomePage from "./pages/EventHomePage";
@@ -13,10 +9,9 @@ import EventNewsPage from "./pages/EventNewsPage";
 import EventIdentifierPage from "./pages/EventIdentifierPage";
 import EventInvitationsPage from "./pages/EventInvitationsPage";
 import TradeInfoRoutePage from "./pages/tradeInfoPage/TradeInfoRoutePage";
+import ChecklistRoutePage from "./pages/ChecklistRoutePage";
 import DocumentsRoutePage from "./pages/DocumentsRoutePage";
 import MarketingRoutePage from "./pages/marketingPage/MarketingRoutePage";
-import ChecklistRoutePage from "./pages/ChecklistRoutePage";
-import "./global.scss";
 import RssEventsPage from "./pages/RssEventsPage";
 import RssEventExhibitorsPage from "./pages/RssEventExhibitorsPage";
 
@@ -26,13 +21,9 @@ function App() {
       <Router>
         <div className="App">
           <Routes>
-            {/* Default route - redirect to dashboard if authenticated, login if not */}
             <Route path="/" element={<Navigate to="/dashboard" replace />} />
-
-            {/* Login page */}
             <Route path="/login" element={<LoginPage />} />
 
-            {/* Protected Dashboard page - All authenticated users */}
             <Route
               path="/dashboard"
               element={
@@ -41,8 +32,6 @@ function App() {
                 </ProtectedRoute>
               }
             />
-
-            {/* Protected Exhibitor Dashboard page - All authenticated users */}
             <Route
               path="/event/:eventId"
               element={
@@ -83,7 +72,6 @@ function App() {
                 </ProtectedRoute>
               }
             />
-            {/* Protected Trade Info page */}
             <Route
               path="/event/:eventId/trade-info"
               element={
@@ -92,7 +80,6 @@ function App() {
                 </ProtectedRoute>
               }
             />
-            {/* Protected Checklist page */}
             <Route
               path="/event/:eventId/checklist"
               element={
@@ -101,7 +88,6 @@ function App() {
                 </ProtectedRoute>
               }
             />
-            {/* Protected Documents page */}
             <Route
               path="/event/:eventId/documents"
               element={
@@ -119,14 +105,14 @@ function App() {
               }
             />
 
-            {/* Catch all - redirect to login */}
-            <Route path="*" element={<Navigate to="/login" replace />} />
-            {/* Public RSS routes (no auth) */}
+            {/* RSS pages - public */}
             <Route path="/rss" element={<RssEventsPage />} />
             <Route
               path="/rss/event/:exhibitionId"
               element={<RssEventExhibitorsPage />}
             />
+            
+            <Route path="*" element={<Navigate to="/login" replace />} />
           </Routes>
         </div>
       </Router>

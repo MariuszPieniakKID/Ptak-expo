@@ -1,18 +1,15 @@
 import React, { FunctionComponent} from 'react';
 import { NavLink, useNavigate, useResolvedPath, useMatch } from 'react-router-dom';
-import { AppBar, Toolbar, Button, Box, IconButton} from '@mui/material';
+import { AppBar, Toolbar, Button, Box, IconButton, useMediaQuery } from '@mui/material';
 import AccountCircle from '@mui/icons-material/AccountCircle';
 import styles from './Menu.module.scss';
-
 import Logo from '../../assets/group-257@3x.png';
 import { ReactComponent as HomeIcon } from '../../assets/group-5.svg';
 import { ReactComponent as UsersIcon } from '../../assets/group-30485.svg';
 import { ReactComponent as EventsIcon } from '../../assets/group-30487.svg';
 import { ReactComponent as ExhibitorsIcon } from '../../assets/group-30486.svg';
 import { ReactComponent as DatabaseIcon } from '../../assets/group-30484.svg';
-
 import MenuMobile from '../menu_mobile/Menu_mobile';
-import { useMediaQuery } from '@mui/material';
 
 
 export type MenuType = {

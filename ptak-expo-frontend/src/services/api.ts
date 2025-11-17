@@ -71,32 +71,17 @@ export interface Exhibition {
   status: string;
   created_at: string;
   updated_at: string;
-  trade?:'Dom'|'Budownictwo'|'Inne';//TODOO
+  trade?:'Dom'|'Budownictwo'|'Inne'; // TODO: przenieść to do enum
   event_logo_file_name?: string | null;
 }
 
-const apiCall = async (url: string, options: RequestInit, retries = 3): Promise<Response> => {
-  for (let i = 0; i < retries; i++) {
-    try {
-      // Add credentials: 'include' to all requests for CORS
-      const requestOptions = {
-        ...options,
-        credentials: 'include' as RequestCredentials
-      };
-      
-      const response = await fetch(url, requestOptions);
-      if (response.status === 401) {
-        // Handle unauthorized access globally if needed, e.g., by dispatching a logout event
-        // For now, let the caller handle it.
-      }
-      return response;
-    } catch (error) {
-      if (i === retries - 1) throw error;
-      if (config.DEBUG) console.log(`🔄 Retry ${i + 1}/${retries} for ${options.method || 'GET'} ${url}`);
-      await new Promise(resolve => setTimeout(resolve, 1000 * Math.pow(2, i))); // Exponential backoff
-    }
-  }
-  throw new Error('All API call retries failed');
+const apiCall = async (url: string, options: RequestInit): Promise<Response> => {
+  const requestOptions = {
+    ...options,
+    credentials: 'include' as RequestCredentials
+  };
+  
+  return fetch(url, requestOptions);
 };
 
 export const fetchUsers = async (token: string): Promise<User[]> => {
@@ -157,7 +142,6 @@ export const deleteUser = async (userId: number, token: string): Promise<any> =>
 export const updateUser = async (userId: number, userData: UpdateUserPayload, token: string): Promise<any> => {
   const url = `${config.API_BASE_URL}/api/v1/users/${userId}`;
   try {
-    console.log('[api] updateUser →', { url, userId, userData, tokenPresent: !!token });
     const response = await apiCall(url, {
       method: 'PUT',
       headers: {
@@ -168,13 +152,10 @@ export const updateUser = async (userId: number, userData: UpdateUserPayload, to
     });
     const data = await response.json();
     if (!response.ok) {
-      console.error('[api] updateUser error response:', data);
       throw new Error(data?.message || data?.error || 'Błąd podczas aktualizacji użytkownika');
     }
-    console.log('[api] updateUser success:', data);
     return data;
   } catch (err: any) {
-    console.error('[api] updateUser exception:', err);
     throw err;
   }
 };
@@ -849,7 +830,7 @@ export const uploadBrandingFile = async (
   formData.append('exhibitionId', exhibitionId.toString());
   formData.append('fileType', fileType);
 
-  console.log('📤 FormData contents:', {
+  if (config.DEBUG) console.log('FormData contents:', {
     file: file.name,
     exhibitorId: exhibitorId !== null ? exhibitorId.toString() : 'null (global event file)',
     exhibitionId: exhibitionId.toString(),
@@ -880,7 +861,7 @@ export const uploadBrandingFile = async (
   }
 
   const result = await response.json();
-  console.log('✅ Upload successful:', result);
+  if (config.DEBUG) console.log('Upload successful');
   return result;
 };
 
@@ -1405,7 +1386,7 @@ export const uploadTradePlan = async (
   formData.append('tradePlan', file);
   formData.append('spaceId', spaceId);
 
-  console.log('📤 Uploading trade plan:', {
+  if (config.DEBUG) console.log('Uploading trade plan:', {
     file: file.name,
     exhibitionId,
     spaceId,
@@ -1434,7 +1415,7 @@ export const uploadTradePlan = async (
   }
 
   const result = await response.json();
-  console.log('✅ Trade plan upload successful:', result);
+  if (config.DEBUG) console.log('Trade plan upload successful');
   return result;
 };
 
@@ -1443,7 +1424,7 @@ export const downloadTradePlan = async (
   spaceId: string,
   token: string
 ): Promise<Blob> => {
-  console.log('📥 Downloading trade plan:', {
+  if (config.DEBUG) console.log('Downloading trade plan:', {
     exhibitionId,
     spaceId,
     url: `${config.API_BASE_URL}/api/v1/trade-info/${exhibitionId}/download/${spaceId}`
@@ -1470,7 +1451,7 @@ export const downloadTradePlan = async (
   }
 
   const blob = await response.blob();
-  console.log('✅ Trade plan download successful');
+  if (config.DEBUG) console.log('Trade plan download successful');
   return blob;
 }; 
 
@@ -1533,18 +1514,18 @@ export const getTradeEvents = async (
 ): Promise<{ success: boolean; data: TradeEvent[] }> => {
   const query = exhibitorId ? `?exhibitorId=${encodeURIComponent(String(exhibitorId))}` : '';
   const url = `${config.API_BASE_URL}/api/v1/trade-events/${exhibitionId}${query}`;
-  if (config.DEBUG) console.log('[api] GET trade-events url:', url);
+  if (config.DEBUG) console.log('GET trade-events url:', url);
   const response = await apiCall(url, {
     method: 'GET',
     headers: { 'Authorization': `Bearer ${token}` },
   });
   const data = await response.json();
-  if (config.DEBUG) console.log('[api] GET trade-events raw:', data);
+  if (config.DEBUG) console.log('GET trade-events raw:', data);
   if (!response.ok) {
     throw new Error(data.message || 'Błąd podczas pobierania wydarzeń targowych');
   }
   const list = Array.isArray(data.data) ? data.data.map(mapTradeEventRow) : [];
-  if (config.DEBUG) console.log('[api] GET trade-events mapped:', list);
+  if (config.DEBUG) console.log('GET trade-events mapped:', list);
   return { success: true, data: list };
 };
 
@@ -1554,7 +1535,7 @@ export const createTradeEvent = async (
   token: string
 ): Promise<{ success: boolean; data: TradeEvent }> => {
   const url = `${config.API_BASE_URL}/api/v1/trade-events/${exhibitionId}`;
-  if (config.DEBUG) console.log('[api] POST trade-event payload:', event);
+  if (config.DEBUG) console.log('POST trade-event payload:', event);
   const response = await apiCall(url, {
     method: 'POST',
     headers: {
@@ -1564,7 +1545,7 @@ export const createTradeEvent = async (
     body: JSON.stringify(event),
   });
   const data = await response.json();
-  if (config.DEBUG) console.log('[api] POST trade-event response:', data);
+  if (config.DEBUG) console.log('POST trade-event response:', data);
   if (!response.ok) {
     throw new Error(data.message || 'Błąd podczas zapisywania wydarzenia targowego');
   }
@@ -1578,7 +1559,7 @@ export const updateTradeEvent = async (
   token: string
 ): Promise<{ success: boolean; data: TradeEvent }> => {
   const url = `${config.API_BASE_URL}/api/v1/trade-events/${exhibitionId}/${eventId}`;
-  if (config.DEBUG) console.log('[api] PUT trade-event payload:', { eventId, event });
+  if (config.DEBUG) console.log('PUT trade-event payload:', { eventId, event });
   const response = await apiCall(url, {
     method: 'PUT',
     headers: {
@@ -1588,7 +1569,7 @@ export const updateTradeEvent = async (
     body: JSON.stringify(event),
   });
   const data = await response.json();
-  if (config.DEBUG) console.log('[api] PUT trade-event response:', data);
+  if (config.DEBUG) console.log('PUT trade-event response:', data);
   if (!response.ok) {
     throw new Error(data.message || 'Błąd podczas aktualizacji wydarzenia targowego');
   }
@@ -1601,7 +1582,7 @@ export const deleteTradeEvent = async (
   token: string
 ): Promise<{ success: boolean; message: string }> => {
   const url = `${config.API_BASE_URL}/api/v1/trade-events/${exhibitionId}/${eventId}`;
-  if (config.DEBUG) console.log('[api] DELETE trade-event url:', url);
+  if (config.DEBUG) console.log('DELETE trade-event url:', url);
   const response = await apiCall(url , {
     method: 'DELETE',
     headers: {
@@ -1609,7 +1590,7 @@ export const deleteTradeEvent = async (
     },
   });
   const data = await response.json();
-  if (config.DEBUG) console.log('[api] DELETE trade-event response:', data);
+  if (config.DEBUG) console.log('DELETE trade-event response:', data);
   if (!response.ok) {
     throw new Error(data.message || 'Błąd podczas usuwania wydarzenia targowego');
   }
@@ -1623,7 +1604,7 @@ export const updateTradeEventAgendaStatus = async (
   token: string
 ): Promise<{ success: boolean; data: TradeEvent }> => {
   const url = `${config.API_BASE_URL}/api/v1/trade-events/${exhibitionId}/${eventId}/agenda`;
-  if (config.DEBUG) console.log('[api] PATCH trade-event agenda url:', url, { isInAgenda });
+  if (config.DEBUG) console.log('PATCH trade-event agenda url:', url);
   const response = await apiCall(url, {
     method: 'PATCH',
     headers: {
@@ -1633,7 +1614,7 @@ export const updateTradeEventAgendaStatus = async (
     body: JSON.stringify({ isInAgenda }),
   });
   const data = await response.json();
-  if (config.DEBUG) console.log('[api] PATCH trade-event agenda response:', data);
+  if (config.DEBUG) console.log('PATCH trade-event agenda response:', data);
   if (!response.ok) {
     throw new Error(data.message || 'Błąd podczas aktualizacji statusu agendy');
   }
@@ -1667,7 +1648,7 @@ export const getExhibitorDocuments = async (
 ): Promise<ExhibitorDocument[]> => {
   const qs = opts?.selfOnly ? '?selfOnly=1' : '';
   const url = `${config.API_BASE_URL}/api/v1/exhibitor-documents/${exhibitorId}/${exhibitionId}${qs}`;
-  if (config.DEBUG) console.log('[api] GET documents', url);
+  if (config.DEBUG) console.log('GET documents', url);
   const response = await apiCall(url, {
     method: 'GET',
     headers: {
@@ -1709,7 +1690,7 @@ export const uploadExhibitorDocument = async (
   formData.append('category', category);
   formData.append('documentSource', documentSource);
   const url = `${config.API_BASE_URL}/api/v1/exhibitor-documents/${exhibitorId}/${exhibitionId}/upload`;
-  if (config.DEBUG) console.log('[api] POST upload document', { url, file: file.name, exhibitorId, exhibitionId, category, documentSource });
+  if (config.DEBUG) console.log('POST upload document', { file: file.name });
   const response = await fetch(url, {
     method: 'POST',
     headers: {
@@ -1746,7 +1727,7 @@ export const deleteExhibitorDocument = async (
   token: string
 ): Promise<{ success: boolean; message: string }> => {
   const url = `${config.API_BASE_URL}/api/v1/exhibitor-documents/${exhibitorId}/${exhibitionId}/${documentId}`;
-  if (config.DEBUG) console.log('[api] DELETE document', url);
+  if (config.DEBUG) console.log('DELETE document', url);
   const response = await apiCall(url, {
     method: 'DELETE',
     headers: {
@@ -1768,7 +1749,7 @@ export const downloadExhibitorDocument = async (
   token: string
 ): Promise<void> => {
   const url = `${config.API_BASE_URL}/api/v1/exhibitor-documents/${exhibitorId}/${exhibitionId}/download/${documentId}`;
-  if (config.DEBUG) console.log('[api] DOWNLOAD document', { url, exhibitorId, exhibitionId, documentId, filename });
+  if (config.DEBUG) console.log('DOWNLOAD document', filename);
 
   const response = await fetch(url, {
     method: 'GET',

@@ -3,11 +3,9 @@ export const validateNip = (nip: string): string => {
   const trimmed = nip.trim().replace(/[\s-]/g, '');
   if (!trimmed) return 'NIP/VAT jest wymagany';
   
-  // Check if it's a Polish NIP (starts with PL or is exactly 10 digits)
   const isPolishNip = /^PL\d{10}$/i.test(trimmed) || /^\d{10}$/.test(trimmed);
   
   if (isPolishNip) {
-    // Validate Polish NIP with checksum
     const digits = trimmed.replace(/^PL/i, '');
     if (!/^\d{10}$/.test(digits)) return 'Polski NIP musi zawierać dokładnie 10 cyfr.';
     const weights = [6, 5, 7, 2, 3, 4, 5, 6, 7];
@@ -19,14 +17,11 @@ export const validateNip = (nip: string): string => {
     return '';
   }
   
-  // Foreign tax number - validate format:
-  // - With country code: 2 letters + 3-18 alphanumeric chars (e.g., DE123456789)
-  // - Without country code: 5-20 digits (e.g., 12345678901 for German VAT)
   const hasCountryCode = /^[A-Z]{2}[A-Z0-9]{3,18}$/i.test(trimmed);
   const isNumericOnly = /^\d{5,20}$/.test(trimmed);
   
   if (!hasCountryCode && !isNumericOnly) {
-    return 'Zagraniczny numer VAT powinien mieć format: kod kraju (2 litery) + numer (np. DE123456789) lub same cyfry (5-20 znaków)';
+    return 'Zagraniczny numer VAT powinien mieć format: kod kraju + numer (np. DE123456789)';
   }
   
   return '';
@@ -56,21 +51,10 @@ export const validatePostalCode = (postalCode: string): string => {
   const trimmed = postalCode.trim();
   if (!trimmed) return 'Kod pocztowy jest wymagany';
   
-  // Allow international postal codes:
-  // - Polish: XX-XXX (e.g., 00-001)
-  // - UK: A9 9AA, A99 9AA, AA9 9AA, AA99 9AA (e.g., SW1A 1AA)
-  // - US/Canada: 12345 or 12345-6789
-  // - Germany: 12345
-  // - France: 12345
-  // - General: alphanumeric with spaces and hyphens, 3-10 characters
   const re = /^[A-Za-z0-9][A-Za-z0-9\s-]{2,9}[A-Za-z0-9]$/;
   
-  if (!re.test(trimmed))
-    return 'Podaj poprawny kod pocztowy (3-10 znaków: cyfry, litery, spacje, myślniki)';
-  
-  // Additional length validation
-  if (trimmed.length < 3 || trimmed.length > 10)
-    return 'Kod pocztowy musi mieć od 3 do 10 znaków';
+  if (!re.test(trimmed) || trimmed.length < 3 || trimmed.length > 10)
+    return 'Podaj poprawny kod pocztowy';
   
   return '';
 };
@@ -111,15 +95,11 @@ export const validateContactRole = (role: string): string => {
 export const validatePhone = (phone: string): string => {
   if (!phone.trim()) return 'Telefon jest wymagany';
   
-  // Normalize phone number: remove spaces, hyphens, parentheses
   const normalized = phone.trim().replace(/[\s\-()]/g, '');
-  
-  // Allow international format: + followed by 9-15 digits
-  // Examples: +48123456789, +49151544062116, +1234567890
   const re = /^\+?\d{9,15}$/;
   
   if (!re.test(normalized))
-    return 'Podaj poprawny numer telefonu (9-15 cyfr, dozwolone: +, spacje, myślniki, nawiasy)';
+    return 'Podaj poprawny numer telefonu';
   
   return '';
 };
@@ -132,10 +112,9 @@ export const validateEmail = (email: string): string => {
 };
 export  const validateStandNumber = (standNumber: string): string => {
   if (!standNumber.trim()) return 'Numer stoiska jest wymagany';
-  // Allow letters, digits, spaces and common separators like dot, comma, hyphen and slash (max. 8 chars)
   const re = /^[A-Za-zĄĆĘŁŃÓŚŹŻąćęłńóśźż0-9\s.,\-/]{1,8}$/;
   if (!re.test(standNumber))
-    return 'Numer stoiska może zawierać litery, cyfry, spacje oraz znaki: . , - / (max. 8 znaków)';
+    return 'Nieprawidłowy numer stoiska';
   return '';
 };
 
@@ -152,14 +131,12 @@ export const validateEventName = (eventName: string): string => {
   const trimmed = eventName.trim();
 
   if (!trimmed) return 'Nazwa wydarzenia jest wymagana';
-  if (trimmed.length < 3) return 'Nazwa wydarzenia musi zawierać co najmniej 3 znaki';
-  if (trimmed.length > 100) return 'Nazwa wydarzenia może zawierać maksymalnie 100 znaków';
+  if (trimmed.length < 3 || trimmed.length > 100) return 'Nazwa musi mieć 3-100 znaków';
 
-  // Dozwolone: litery PL/ENG, cyfry, spacje oraz . , - / & ( )
   const re = /^[A-Za-zĄĆĘŁŃÓŚŹŻąćęłńóśźż0-9\s.,\-/&()]+$/;
 
   if (!re.test(trimmed))
-    return 'Nazwa wydarzenia może zawierać tylko litery, cyfry, spacje oraz znaki: . , - / & ( )';
+    return 'Nieprawidłowe znaki w nazwie';
 
   return '';
 };
@@ -167,9 +144,8 @@ export const validateEventName = (eventName: string): string => {
 export const validateBoothArea = (area: string): string => {
   const trimmed = area.trim();
   if (!trimmed) return 'Metraż stoiska jest wymagany';
-  // allow decimals with dot or comma, convert later
-  const re = /^\d{1,5}([.,]\d{1,2})?$/; // up to 99999.99 m2
-  if (!re.test(trimmed)) return 'Podaj poprawną wartość (np. 12,5) maks. 2 miejsca po przecinku';
+  const re = /^\d{1,5}([.,]\d{1,2})?$/;
+  if (!re.test(trimmed)) return 'Podaj poprawną wartość (np. 12,5)';
   const normalized = parseFloat(trimmed.replace(',', '.'));
   if (Number.isNaN(normalized) || normalized <= 0) return 'Metraż musi być większy od 0';
   return '';

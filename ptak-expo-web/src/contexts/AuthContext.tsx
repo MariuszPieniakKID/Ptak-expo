@@ -42,9 +42,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const isAuthenticated = !!user && !!token;
 
   const verifyToken = async (): Promise<boolean> => {
-    if (!token) {
-      return false;
-    }
+    if (!token) return false;
 
     try {
       const response = await fetch(`${config.API_BASE_URL}/api/v1/auth/verify`, {
@@ -55,19 +53,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       });
 
       const data = await response.json();
-      
-      if (response.ok && data.success) {
-        return true;
-      } else {
-        return false;
-      }
+      return response.ok && data.success;
     } catch (error) {
-      console.error('Token verification error:', error);
       return false;
     }
   };
 
-  // Initialize auth state from localStorage
   useEffect(() => {
     const initAuth = async () => {
       try {
@@ -77,13 +68,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         if (storedToken && storedUser) {
           setToken(storedToken);
           setUser(JSON.parse(storedUser));
-          
-          // Skip token verification to prevent infinite redirect loop
-          // Token will be validated on actual API calls
-          console.log('Auth restored from localStorage, skipping token verification to prevent redirect loop');
         }
       } catch (error) {
-        console.error('Error initializing auth:', error);
         localStorage.removeItem('authToken');
         localStorage.removeItem('authUser');
         setToken(null);

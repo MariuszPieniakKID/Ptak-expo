@@ -70,7 +70,7 @@ export function getEventKindString(kind: EventKind): string {
 
 export interface CompanyInfo {
 	name: string | null,
-	logo: string | null, //Upload and download support
+	logo: string | null,
 	description: string | null,
 	whyVisit?: string | null,
 	contactInfo: string | null,
@@ -111,7 +111,7 @@ export interface EventInfo {
 	description: string,
 	type: EventType,
 	kind: EventKind,
-	isFromAgenda?: boolean  // true if event is from admin agenda, false if exhibitor's own event
+	isFromAgenda?: boolean
 }
 
 
@@ -205,18 +205,15 @@ export const getChecklist = async (exhibitionId: number) => {
 			}
 		} catch {}
 
-		// also set email from exhibitor profile
 		(ExampleChecklist.companyInfo as any).contactEmail = exhibitor?.email ?? (ExampleChecklist.companyInfo as any).contactEmail ?? null;
 
-		// events (ONLY exhibitor's own events, NOT global admin events)
+		// TODO: refactor event filtering logic
 		try {
 			const url = exhibitor?.id ? `${config.API_BASE_URL}/api/v1/trade-events/${exhibitionId}?exhibitorId=${encodeURIComponent(String(exhibitor.id))}` : `${config.API_BASE_URL}/api/v1/trade-events/${exhibitionId}`;
-			console.log('[getChecklist] Fetching events from:', url);
 			const r = await fetch(url, { headers: { Authorization: `Bearer ${token}` } });
 			if (r.ok) {
 				const j = await r.json();
 				const list = Array.isArray(j.data) ? j.data : [];
-				console.log('[getChecklist] Raw events from backend:', list);
                 // helper: map backend type string to EventKind enum
                 const toKind = (t: any): EventKind => {
                     const s = String(t || '').toLowerCase();
@@ -243,7 +240,6 @@ export const getChecklist = async (exhibitionId: number) => {
                     
                     return isOwnEvent || isAgendaEvent;
                 });
-                console.log('[getChecklist] Filtered events (own + agenda):', ownEvents);
 
                 const mappedEvents = ownEvents.map((row: any): EventInfo => {
                     // Check if this is an agenda event (is_in_agenda === true AND exhibitor_id === null)
@@ -262,7 +258,6 @@ export const getChecklist = async (exhibitionId: number) => {
                         isFromAgenda: isAgendaEvent  // Mark events from agenda
                     };
                 }).sort((a: EventInfo, b: EventInfo) => (a.date + a.startTime).localeCompare(b.date + b.startTime));
-				console.log('[getChecklist] Mapped events:', mappedEvents);
 				ExampleChecklist = {
 					...ExampleChecklist,
                     events: mappedEvents
@@ -495,24 +490,19 @@ export const updateEvent = async (eventId: number, event: EventInfo) => {
 export const deleteEvent = async (eventId: number) => {
     const exhibitionId = Number((window as any).currentSelectedExhibitionId) || 0;
     const token = localStorage.getItem('authToken') || '';
-    console.log('[deleteEvent] Attempting to delete event:', { eventId, exhibitionId });
     const resp = await fetch(`${config.API_BASE_URL}/api/v1/trade-events/${exhibitionId}/${encodeURIComponent(String(eventId))}`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` }
     });
-    console.log('[deleteEvent] Response status:', resp.status);
     if (!resp.ok) {
         let msg = 'Nie udało się usunąć wydarzenia';
         try { 
             const j = await resp.json(); 
             msg = j?.message || msg;
-            console.error('[deleteEvent] Error response:', j);
         } catch {}
         throw new Error(msg);
     }
-    const result = await resp.json();
-    console.log('[deleteEvent] Success:', result);
-    return result;
+    return resp.json();
 }
 
 export const addMaterial = async (material: DownloadMaterial) => {
@@ -610,12 +600,10 @@ export const addMaterialFile = async (file: File, _eventId: number) => {
 		const meJson = await meRes.json();
 		const exhibitorId: number | null = meJson?.data?.id ?? null;
 		if (typeof exhibitorId !== 'number') {
-			console.error('[addMaterialFile] Failed to get exhibitor ID');
 			throw new Error('Nie udało się pobrać ID wystawcy');
 		}
 		const exhibitionId = Number((window as any).currentSelectedExhibitionId) || 0;
 		if (!exhibitionId) {
-			console.error('[addMaterialFile] No exhibition ID selected');
 			throw new Error('Nie wybrano wydarzenia');
 		}
 		const formData = new FormData();
@@ -624,16 +612,12 @@ export const addMaterialFile = async (file: File, _eventId: number) => {
 		formData.append('category', 'inne_dokumenty');
 		formData.append('documentSource', 'exhibitor_checklist_materials');
 		const url = `${config.API_BASE_URL}/api/v1/exhibitor-documents/${encodeURIComponent(String(exhibitorId))}/${encodeURIComponent(String(exhibitionId))}/upload`;
-		console.log('[addMaterialFile] Uploading file:', { fileName: file.name, exhibitorId, exhibitionId });
 		const response = await fetch(url, { method: 'POST', headers: { Authorization: `Bearer ${token}` }, body: formData, credentials: 'include' });
 		const data = await response.json();
 		if (!response.ok) {
-			console.error('[addMaterialFile] Upload failed:', data);
 			throw new Error(data.error || data.message || 'Błąd podczas przesyłania pliku');
 		}
-		console.log('[addMaterialFile] Upload successful:', data);
 	} catch (error) {
-		console.error('[addMaterialFile] Error:', error);
 		throw error;
 	}
 }

@@ -43,11 +43,8 @@ api.interceptors.response.use(
   },
   (error: any) => {
     if (error.response?.status === 401) {
-      // Token expired or invalid - clear auth data with correct keys
       localStorage.removeItem('authToken');
       localStorage.removeItem('authUser');
-      // Use React Router navigation instead of hard redirect to prevent loops
-      console.log('401 Unauthorized - token expired or invalid');
     }
     return Promise.reject(error);
   }
