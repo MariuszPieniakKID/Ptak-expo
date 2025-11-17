@@ -1,6 +1,5 @@
 import React, { MouseEventHandler, ReactNode } from 'react';
 import Typography from '@mui/material/Typography';
-import styles from './CustomTypography.module.scss';
 import { SxProps, Theme } from '@mui/material';
 
 interface CustomTypographyProps {
