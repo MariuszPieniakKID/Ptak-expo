@@ -192,6 +192,8 @@ router.get('/exhibitions/:exhibitionId/feed.json', async (req, res) => {
          FROM exhibitor_events ee
          JOIN exhibitors e ON e.id = ee.exhibitor_id
          WHERE ee.exhibition_id = $1
+           AND e.nip != '8212421851'
+           AND e.company_name NOT LIKE '%Mariusz Pieniak%'
        ),
        specific AS (
          SELECT c.exhibitor_id, c.name, c.logo, c.description, c.contact_info, c.website, c.socials, c.contact_email,
@@ -328,6 +330,8 @@ router.get('/exhibitions/:exhibitionId/exhibitors', async (req, res) => {
          FROM exhibitor_events ee
          JOIN exhibitors e ON e.id = ee.exhibitor_id
          WHERE ee.exhibition_id = $1
+           AND e.nip != '8212421851'
+           AND e.company_name NOT LIKE '%Mariusz Pieniak%'
        ),
        specific AS (
          SELECT c.exhibitor_id, c.name, c.logo, c.description, c.contact_info, c.website, c.socials, c.contact_email, c.catalog_tags, c.products,
@@ -492,6 +496,8 @@ router.get('/exhibitions/:exhibitionId/exhibitors.json', async (req, res) => {
          FROM exhibitor_events ee
          JOIN exhibitors e ON e.id = ee.exhibitor_id
          WHERE ee.exhibition_id = $1
+           AND e.nip != '8212421851'
+           AND e.company_name NOT LIKE '%Mariusz Pieniak%'
        ),
        specific AS (
          SELECT c.exhibitor_id, c.name, c.logo, c.description, c.contact_info, c.website, c.socials, c.contact_email,
@@ -803,6 +809,8 @@ router.get('/', async (req, res) => {
           FROM exhibitor_events ee
           JOIN exhibitors e ON e.id = ee.exhibitor_id
           WHERE ee.exhibition_id = $1
+            AND e.nip != '8212421851'
+            AND e.company_name NOT LIKE '%Mariusz Pieniak%'
         ),
         specific AS (
           SELECT c.exhibitor_id, c.name, c.display_name, c.updated_at
@@ -900,6 +908,15 @@ router.get('/exhibitions/:exhibitionId/exhibitors/:exhibitorId.json', async (req
     const exhibitorId = parseInt(req.params.exhibitorId, 10);
     if (!Number.isInteger(exhibitionId) || !Number.isInteger(exhibitorId)) {
       return res.status(400).json({ success: false, message: 'Invalid exhibitionId or exhibitorId' });
+    }
+
+    // Check if this is a test exhibitor (should be excluded from public feeds)
+    const testCheck = await db.query(
+      `SELECT id FROM exhibitors WHERE id = $1 AND (nip = '8212421851' OR company_name LIKE '%Mariusz Pieniak%')`,
+      [exhibitorId]
+    );
+    if (testCheck.rows.length > 0) {
+      return res.status(404).json({ success: false, message: 'Exhibitor not found' });
     }
 
     // Company/catalog entry – prefer specific (per exhibition), fallback to global, fallback to base exhibitor
@@ -1117,6 +1134,15 @@ router.get('/exhibitions/:exhibitionId/exhibitors/:exhibitorId.rss', async (req,
     const exhibitorId = parseInt(req.params.exhibitorId, 10);
     if (!Number.isInteger(exhibitionId) || !Number.isInteger(exhibitorId)) {
       return res.status(400).send('Invalid exhibitionId or exhibitorId');
+    }
+
+    // Check if this is a test exhibitor (should be excluded from public feeds)
+    const testCheck = await db.query(
+      `SELECT id FROM exhibitors WHERE id = $1 AND (nip = '8212421851' OR company_name LIKE '%Mariusz Pieniak%')`,
+      [exhibitorId]
+    );
+    if (testCheck.rows.length > 0) {
+      return res.status(404).send('Exhibitor not found');
     }
 
     // Fetch JSON payload from the handler above (reuse logic indirectly)
