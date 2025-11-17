@@ -472,7 +472,7 @@ router.get('/:exhibitionId', verifyToken, requireExhibitorOrAdmin, async (req, r
         contact_email: prefer(data.contact_email, globalData.contact_email),
         catalog_tags: data.catalog_tags,
         brands: prefer(data.brands, globalData.brands),
-        products: (Array.isArray(data.products) && data.products.length > 0) ? data.products : (Array.isArray(globalData.products) ? globalData.products : []),
+        products: (Array.isArray(data.products) && data.products.length > 0) ? data.products : [],
         industries: prefer(data.industries, globalData.industries),
         catalog_contact_person: prefer(data.catalog_contact_person, globalData.catalog_contact_person),
         catalog_contact_phone: prefer(data.catalog_contact_phone, globalData.catalog_contact_phone),
@@ -708,11 +708,17 @@ router.get('/admin/:exhibitorId/products', verifyToken, requireAdmin, async (req
   }
 });
 
-// Exhibitor: append product to GLOBAL products list
+// Exhibitor: append product to event-specific products list
 router.post('/:exhibitionId/products', verifyToken, requireExhibitorOrAdmin, async (req, res) => {
   try {
     const exhibitorId = await getLinkedExhibitorIdByEmail(req.user.email);
     if (!exhibitorId) return res.status(400).json({ success: false, message: 'Exhibitor not linked to user' });
+    
+    const exhibitionId = parseInt(req.params.exhibitionId, 10);
+    if (!Number.isInteger(exhibitionId)) {
+      return res.status(400).json({ success: false, message: 'Invalid exhibition ID' });
+    }
+
     const { name, img, description, tabList, tags } = req.body || {};
     if (!name) return res.status(400).json({ success: false, message: 'Missing product name' });
 
@@ -728,9 +734,9 @@ router.post('/:exhibitionId/products', verifyToken, requireExhibitorOrAdmin, asy
            )
          ),
              updated_at = NOW()
-       WHERE exhibitor_id = $1 AND exhibition_id IS NULL
+       WHERE exhibitor_id = $1 AND exhibition_id = $7
        RETURNING products`,
-      [exhibitorId, name, img || null, description || '', Array.isArray(tabList) ? JSON.stringify(tabList) : null, Array.isArray(tags) ? JSON.stringify(tags) : JSON.stringify([])]
+      [exhibitorId, name, img || null, description || '', Array.isArray(tabList) ? JSON.stringify(tabList) : null, Array.isArray(tags) ? JSON.stringify(tags) : JSON.stringify([]), exhibitionId]
     );
 
     if (upd.rows.length > 0) {
@@ -748,7 +754,7 @@ router.post('/:exhibitionId/products', verifyToken, requireExhibitorOrAdmin, asy
 
     const ins = await db.query(
       `INSERT INTO exhibitor_catalog_entries (exhibitor_id, exhibition_id, products)
-       VALUES ($1, NULL, jsonb_build_array(
+       VALUES ($1, $7, jsonb_build_array(
          jsonb_build_object(
            'name', $2::text,
            'img', $3::text,
@@ -758,7 +764,7 @@ router.post('/:exhibitionId/products', verifyToken, requireExhibitorOrAdmin, asy
          )
        ))
        RETURNING products`,
-      [exhibitorId, name, img || null, description || '', Array.isArray(tabList) ? JSON.stringify(tabList) : null, Array.isArray(tags) ? JSON.stringify(tags) : JSON.stringify([])]
+      [exhibitorId, name, img || null, description || '', Array.isArray(tabList) ? JSON.stringify(tabList) : null, Array.isArray(tags) ? JSON.stringify(tags) : JSON.stringify([]), exhibitionId]
     );
     if (Array.isArray(tags)) {
       for (const tag of Array.from(new Set(tags.map(t => String(t || '').trim()).filter(Boolean)))) {
@@ -776,11 +782,17 @@ router.post('/:exhibitionId/products', verifyToken, requireExhibitorOrAdmin, asy
   }
 });
 
-// Exhibitor: update product at index in GLOBAL products list
+// Exhibitor: update product at index in event-specific products list
 router.put('/:exhibitionId/products/:index', verifyToken, requireExhibitorOrAdmin, async (req, res) => {
   try {
     const exhibitorId = await getLinkedExhibitorIdByEmail(req.user.email);
     if (!exhibitorId) return res.status(400).json({ success: false, message: 'Exhibitor not linked to user' });
+    
+    const exhibitionId = parseInt(req.params.exhibitionId, 10);
+    if (!Number.isInteger(exhibitionId)) {
+      return res.status(400).json({ success: false, message: 'Invalid exhibition ID' });
+    }
+
     const idx = parseInt(req.params.index, 10);
     if (!Number.isInteger(idx) || idx < 0) return res.status(400).json({ success: false, message: 'Invalid product index' });
 
@@ -788,8 +800,8 @@ router.put('/:exhibitionId/products/:index', verifyToken, requireExhibitorOrAdmi
     if (!name) return res.status(400).json({ success: false, message: 'Missing product name' });
 
     const cur = await db.query(
-      `SELECT products FROM exhibitor_catalog_entries WHERE exhibitor_id = $1 AND exhibition_id IS NULL ORDER BY updated_at DESC LIMIT 1`,
-      [exhibitorId]
+      `SELECT products FROM exhibitor_catalog_entries WHERE exhibitor_id = $1 AND exhibition_id = $2 ORDER BY updated_at DESC LIMIT 1`,
+      [exhibitorId, exhibitionId]
     );
     const list = Array.isArray(cur.rows?.[0]?.products) ? cur.rows[0].products : [];
     if (idx >= list.length) return res.status(404).json({ success: false, message: 'Product index out of range' });
@@ -807,9 +819,9 @@ router.put('/:exhibitionId/products/:index', verifyToken, requireExhibitorOrAdmi
       `UPDATE exhibitor_catalog_entries
          SET products = $2::jsonb,
              updated_at = NOW()
-       WHERE exhibitor_id = $1 AND exhibition_id IS NULL
+       WHERE exhibitor_id = $1 AND exhibition_id = $3
        RETURNING products`,
-      [exhibitorId, JSON.stringify(next)]
+      [exhibitorId, JSON.stringify(next), exhibitionId]
     );
 
     if (Array.isArray(tags)) {
@@ -829,17 +841,23 @@ router.put('/:exhibitionId/products/:index', verifyToken, requireExhibitorOrAdmi
   }
 });
 
-// Exhibitor: delete product at index in GLOBAL products list
+// Exhibitor: delete product at index in event-specific products list
 router.delete('/:exhibitionId/products/:index', verifyToken, requireExhibitorOrAdmin, async (req, res) => {
   try {
     const exhibitorId = await getLinkedExhibitorIdByEmail(req.user.email);
     if (!exhibitorId) return res.status(400).json({ success: false, message: 'Exhibitor not linked to user' });
+    
+    const exhibitionId = parseInt(req.params.exhibitionId, 10);
+    if (!Number.isInteger(exhibitionId)) {
+      return res.status(400).json({ success: false, message: 'Invalid exhibition ID' });
+    }
+
     const idx = parseInt(req.params.index, 10);
     if (!Number.isInteger(idx) || idx < 0) return res.status(400).json({ success: false, message: 'Invalid product index' });
 
     const cur = await db.query(
-      `SELECT products FROM exhibitor_catalog_entries WHERE exhibitor_id = $1 AND exhibition_id IS NULL ORDER BY updated_at DESC LIMIT 1`,
-      [exhibitorId]
+      `SELECT products FROM exhibitor_catalog_entries WHERE exhibitor_id = $1 AND exhibition_id = $2 ORDER BY updated_at DESC LIMIT 1`,
+      [exhibitorId, exhibitionId]
     );
     const list = Array.isArray(cur.rows?.[0]?.products) ? cur.rows[0].products : [];
     if (idx >= list.length) return res.status(404).json({ success: false, message: 'Product index out of range' });
@@ -850,9 +868,9 @@ router.delete('/:exhibitionId/products/:index', verifyToken, requireExhibitorOrA
       `UPDATE exhibitor_catalog_entries
          SET products = $2::jsonb,
              updated_at = NOW()
-       WHERE exhibitor_id = $1 AND exhibition_id IS NULL
+       WHERE exhibitor_id = $1 AND exhibition_id = $3
        RETURNING products`,
-      [exhibitorId, JSON.stringify(next)]
+      [exhibitorId, JSON.stringify(next), exhibitionId]
     );
 
     return res.json({ success: true, message: 'Product deleted', data: upd.rows[0].products });
