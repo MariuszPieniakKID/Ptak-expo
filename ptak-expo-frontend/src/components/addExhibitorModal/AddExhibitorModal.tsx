@@ -18,7 +18,7 @@ import {
   validateBoothArea,
 } from '../../helpers/validators';
 
-import { Box, CircularProgress, Dialog, DialogTitle, IconButton, Typography } from '@mui/material';
+import { Box, CircularProgress, Dialog, DialogTitle, IconButton, Typography, FormControlLabel, Checkbox } from '@mui/material';
 import { ReactComponent as CheckIcon } from '../../assets/checkIcon.svg';
 import { ReactComponent as CloseIcon } from '../../assets/closeIcon.svg';
 import ExhibitorsPageIcon from '../../assets/mask-group-6@2x.png';
@@ -84,6 +84,7 @@ const AddExhibitorModal: React.FC<AddExhibitorModalProps> = ({
     phone: '',
     email: '',
     password: '',
+    sendEmail: false,
   });
 
   const [formEventValues, setFormEventValues] = useState<EventProps>({
@@ -156,6 +157,7 @@ const AddExhibitorModal: React.FC<AddExhibitorModalProps> = ({
       phone: '',
       email: '',
       password: '',
+      sendEmail: false,
     });
     setFormEventValues({
       selectedExhibitionId: '',
@@ -716,9 +718,23 @@ const AddExhibitorModal: React.FC<AddExhibitorModalProps> = ({
                 <Typography color="error" sx={{ mt: 1 }}>{error}</Typography>
               ) : null}
 
+              {/* Send email checkbox */}
+              <Box sx={{ mb: 2 }}>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={formValues.sendEmail || false}
+                      onChange={(e) => setFormValues({ ...formValues, sendEmail: e.target.checked })}
+                      color="primary"
+                    />
+                  }
+                  label="Wyślij email z danymi logowania do wystawcy"
+                />
+              </Box>
+
               <Box className={styles.formRowFooterWithAction}>
                 <CustomTypography className={styles.additionalInfo}>
-                  * Na podany e-mail użytkownik otrzyma hasło i dane dostępowe do aplikacji
+                  * Jeśli zaznaczysz powyższą opcję, na podany e-mail użytkownik otrzyma hasło i dane dostępowe do aplikacji
                 </CustomTypography>
                 <Box 
                   className={styles.boxToKlik}

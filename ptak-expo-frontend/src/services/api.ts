@@ -386,6 +386,7 @@ export interface AddExhibitorPayload {
   standNumber?: string | null;
   boothArea?: number | null;
   exhibitionSupervisor?: number | null;
+  sendEmail?: boolean;
 }
 
 export const addExhibitor = async (exhibitorData: AddExhibitorPayload, token: string): Promise<any> => {

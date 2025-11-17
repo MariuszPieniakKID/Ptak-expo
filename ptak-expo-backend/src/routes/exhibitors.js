@@ -443,28 +443,30 @@ router.post('/', verifyToken, requireAdmin, async (req, res) => {
       console.log('No exhibitionId provided, skipping assignment');
     }
 
-    // TYMCZASOWO WYŁĄCZONE: Send welcome email to exhibitor with link to exhibitor panel
-    // TODO: Włączyć z powrotem gdy będzie potrzebne
-    /* 
-    try {
-      const { sendWelcomeEmail } = require('../utils/emailService');
-      const exhibitorPanelBase = process.env.EXHIBITOR_PANEL_URL || 'https://wystawca.exhibitorlist.eu';
-      // For exhibitor we always treat password as provided (not tymczasowe)
-      sendWelcomeEmail(
-        normalizedEmail,
-        contactPerson.split(' ')[0] || contactPerson,
-        contactPerson.split(' ').slice(1).join(' ') || '',
-        password,
-        false,
-        exhibitorPanelBase
-      )
-        .then((r) => console.log('✅ Exhibitor welcome email queued/sent:', email, r?.success))
-        .catch((e) => console.warn('⚠️ Exhibitor welcome email error:', e?.message || e));
-    } catch (mailErr) {
-      console.warn('⚠️ Could not schedule exhibitor welcome email:', mailErr?.message || mailErr);
+    // Send welcome email to exhibitor if requested
+    const sendEmail = req.body.sendEmail === true;
+    if (sendEmail) {
+      try {
+        const { sendWelcomeEmail } = require('../utils/emailService');
+        const exhibitorPanelBase = process.env.EXHIBITOR_PANEL_URL || 'https://wystawca.exhibitorlist.eu';
+        // For exhibitor we always treat password as provided (not tymczasowe)
+        sendWelcomeEmail(
+          normalizedEmail,
+          contactPerson.split(' ')[0] || contactPerson,
+          contactPerson.split(' ').slice(1).join(' ') || '',
+          password,
+          false,
+          exhibitorPanelBase
+        )
+          .then((r) => console.log('✅ Exhibitor welcome email queued/sent:', email, r?.success))
+          .catch((e) => console.warn('⚠️ Exhibitor welcome email error:', e?.message || e));
+        console.log('ℹ️  Welcome email SCHEDULED for:', normalizedEmail);
+      } catch (mailErr) {
+        console.warn('⚠️ Could not schedule exhibitor welcome email:', mailErr?.message || mailErr);
+      }
+    } else {
+      console.log('ℹ️  Welcome email NOT requested - account created without email notification');
     }
-    */
-    console.log('ℹ️  Welcome email DISABLED (temporary) - account created without email notification');
 
     // Format response
     const exhibitor = {
