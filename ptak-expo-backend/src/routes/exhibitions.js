@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const db = require('../config/database');
 const { verifyToken, requireAdmin, requireExhibitorOrAdmin } = require('../middleware/auth');
+const { logActivity } = require('../utils/activityLogger');
 
 // GET /api/exhibitions/user-events - Pobierz wydarzenia zalogowanego wystawcy (user z role=exhibitor)
 router.get('/user-events', verifyToken, requireExhibitorOrAdmin, async (req, res) => {
@@ -213,6 +214,18 @@ router.post('/', verifyToken, requireAdmin, async (req, res) => {
     `, [name, description, start_date, end_date, location, req.body.website || null, status]);
     
     console.log('New exhibition created with ID:', result.rows[0].id);
+    
+    // Logowanie aktywności
+    await logActivity({
+      userId: req.user.id,
+      userEmail: req.user.email,
+      action: 'create',
+      entityType: 'event',
+      entityId: result.rows[0].id,
+      entityName: name,
+      details: `Utworzono wydarzenie: ${name} (${start_date} - ${end_date})`
+    });
+    
     res.status(201).json(result.rows[0]);
   } catch (error) {
     console.error('Error creating exhibition:', error);
@@ -246,6 +259,18 @@ router.put('/:id', verifyToken, requireAdmin, async (req, res) => {
     }
     
     console.log('Exhibition updated:', result.rows[0].id);
+    
+    // Logowanie aktywności
+    await logActivity({
+      userId: req.user.id,
+      userEmail: req.user.email,
+      action: 'update',
+      entityType: 'event',
+      entityId: result.rows[0].id,
+      entityName: result.rows[0].name,
+      details: `Zaktualizowano wydarzenie: ${result.rows[0].name}`
+    });
+    
     res.json(result.rows[0]);
   } catch (error) {
     console.error('Error updating exhibition:', error);
@@ -422,6 +447,17 @@ router.delete('/:id', verifyToken, requireAdmin, async (req, res) => {
     await client.query('COMMIT');
     
     console.log(`✅ Complete deletion of exhibition ${id} (${exhibition.name}) finished successfully`);
+    
+    // Logowanie aktywności
+    await logActivity({
+      userId: req.user.id,
+      userEmail: req.user.email,
+      action: 'delete',
+      entityType: 'event',
+      entityId: parseInt(id),
+      entityName: exhibition.name,
+      details: `Usunięto wydarzenie: ${exhibition.name}`
+    });
     
     res.json({ 
       success: true,

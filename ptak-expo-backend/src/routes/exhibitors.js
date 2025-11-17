@@ -7,6 +7,7 @@ const bcrypt = require('bcryptjs');
 const { sendEmail } = require('../utils/emailService');
 const { sendPasswordResetEmail } = require('../utils/emailService');
 const { buildIdentifierPdf } = require('../utils/identifierPdf');
+const { logActivity } = require('../utils/activityLogger');
 
 // Helper: resolve uploads base similar to branding controller
 const getUploadsBaseForRead = () => {
@@ -417,6 +418,23 @@ router.post('/', verifyToken, requireAdmin, async (req, res) => {
         );
         console.log('Assignment result:', assignResult.rowCount, 'rows affected');
         console.log('Exhibitor assigned to exhibition:', exhibitionId);
+        
+        // Logowanie przypisania wystawcy do wydarzenia
+        try {
+          const exhibitionResult = await db.query('SELECT name FROM exhibitions WHERE id = $1', [exhibitionId]);
+          const exhibitionName = exhibitionResult.rows[0]?.name || 'Nieznane wydarzenie';
+          await logActivity({
+            userId: req.user.id,
+            userEmail: req.user.email,
+            action: 'assign',
+            entityType: 'exhibitor',
+            entityId: newExhibitor.id,
+            entityName: companyName,
+            details: `Przypisano wystawcę ${companyName} do wydarzenia: ${exhibitionName}`
+          });
+        } catch (logErr) {
+          console.warn('Error logging exhibitor assignment:', logErr);
+        }
       } catch (assignError) {
         console.error('Error assigning exhibitor to exhibition:', assignError);
         // Don't fail the entire operation if assignment fails
@@ -463,6 +481,17 @@ router.post('/', verifyToken, requireAdmin, async (req, res) => {
       status: newExhibitor.status,
       createdAt: newExhibitor.created_at
     };
+
+    // Logowanie aktywności
+    await logActivity({
+      userId: req.user.id,
+      userEmail: req.user.email,
+      action: 'create',
+      entityType: 'exhibitor',
+      entityId: newExhibitor.id,
+      entityName: companyName,
+      details: `Utworzono wystawcę: ${companyName} (NIP: ${nip})`
+    });
 
     res.status(201).json(exhibitor);
   } catch (error) {

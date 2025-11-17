@@ -1,0 +1,188 @@
+Data,Nazwa Taska,Informacje szczegółowe na temat zmiany,Ilość godzin
+2025-11-17,Separacja hashtagów i produktów między wydarzeniami,"Usunięto zaciąganie hashtagów (catalog_tags) i prezentowanych produktów z globalnych danych przy dodawaniu wystawcy do drugiego wydarzenia. Zmiany w 5 endpointach public.js i catalog.js. Każde wydarzenie ma teraz osobne hashtagi i produkty.",4
+2025-11-14,System wysyłki email powitalnych do wystawców,Dodano endpoint do masowego wysyłania emaili powitalnych do wystawców przypisanych do wybranego wydarzenia z instrukcjami logowania.,3
+2025-11-07,System resetowania haseł dla BIO EXPO i GlobalFood,"Dodano osobne endpointy do resetowania haseł dla wystawców wydarzeń BIO EXPO i GlobalFood, analogicznie do FOOD TECH EXPO.",4
+2025-11-06,Masowe resetowanie haseł dla FOOD TECH EXPO,"Implementacja API endpoint do masowego resetowania haseł dla wszystkich wystawców przypisanych do FOOD TECH EXPO, z wysyłką emaili z nowymi hasłami.",5
+2025-11-05,Funkcjonalność przypomnienia hasła dla wystawców,"Pełna implementacja systemu przypomnienia hasła dla wystawców w ptak-expo-web: frontend (modal, walidacja), backend (endpoint reset-password), wysyłka emaili, dokumentacja. Poprawiono URL panelu wystawców we wszystkich miejscach.",8
+2025-11-05,Wyszukiwarka użytkowników w panelu admin,"Dodano wyszukiwarkę po nazwisku, e-mailu i telefonie w sekcji Użytkownicy panelu administracyjnego. Filtry działają w czasie rzeczywistym.",3
+2025-11-05,Automatyczne wykrywanie zmian w ptak-expo-web,Dodano watchPatterns do railway.toml dla automatycznego wykrywania zmian i redeploymentu aplikacji ptak-expo-web.,1
+2025-11-04,Upgrade kodów QR do 4-cyfrowych ID wystawców,"System QR kodów zmodyfikowany do obsługi 4-cyfrowych ID wystawców (kompatybilny wstecz z 3-cyfrowymi). Fuzzy matching dla wszystkich wydarzeń, diagnostyka, auto-migracja bazy danych. Naprawiono 143 brakujące kody dostępu.",16
+2025-11-03,API endpointy do pobierania e-identyfikatorów PDF,"Dodano endpointy do pobierania pojedynczych e-identyfikatorów PDF oraz pobierania masowego (batch) jako ZIP. Rozszerzona dokumentacja API. Debugging generowania obrazów QR.",8
+2025-11-03,Weryfikacja i pobieranie kodów QR,"API do weryfikacji kodów QR zaproszeń, pobierania danych na podstawie QR, logging dla debugowania generowania obrazów QR.",6
+2025-10-29,Blokada edycji pola 'Nazwa firmy' w checkliście,Pole 'Nazwa firmy' w checkliście targowej jest teraz tylko do odczytu (nieedytowalne).,1
+2025-10-28,Przeprojektowanie słowników w panelu admin,"Kompletne przeprojektowanie UI słowników: inline edycja zamiast pop-upów, lista z paginacją, dopasowanie czcionek, usunięcie nieużywanych funkcji.",8
+2025-10-28,Panel administracyjny zaproszeń,"Dodano pełny panel administracyjny do zarządzania zaproszeniami z listą, edycją, filtrowaniem. Przeniesiono do zakładki Baza Danych. Naprawiono routing, UX (stałe menu zakładek, responsywność, błędy 500).",10
+2025-10-28,Funkcjonalność edycji użytkowników,"Dodano przycisk Edytuj w tabeli użytkowników, modal edycji z możliwością zmiany wszystkich danych włącznie z hasłem.",4
+2025-10-28,Zmiana nazw pól w checkliście,"'Sektory technologiczne' → 'Twoje Hashtag', 'Branże (eventowe)' → 'Sektory branżowe', zamiana kolejności pól.",2
+2025-10-23,Blokada edycji emaila w checkliście targowej,Zmiana etykiety i blokada edycji pola email w checkliście targowej (ptak-expo-web).,1
+2025-10-21,System masowej wysyłki emaili powitalnych,"Dodano system do masowej wysyłki emaili powitalnych do wystawców z instrukcjami logowania, danymi dostępowymi.",6
+2025-10-20,Naprawa systemu katalogów wystawców,"Seria krytycznych poprawek: naprawiono mieszanie danych między wystawcami, fallback produktów, logo w documents, pola kontaktowe checklisty (całkowicie niezależne od starych danych), queries JSON bezpieczne.",12
+2025-10-20,Wsparcie PDF w iframe i oddzielne pola kontaktowe,Umożliwienie wyświetlania PDF w iframe. Dodanie oddzielnych pól kontaktowych dla checklisty targowej (oddzielne od danych osoby kontaktowej wystawcy).,4
+2025-10-17,Walidacja numerów międzynarodowych i HTTPS,"Poprawka walidacji numeru telefonu dla numerów międzynarodowych. Wymuszenie HTTPS dla wszystkich linków w API, dodano endpoint do podglądu dokumentów.",5
+2025-10-16,Uniwersalne hasło admina do logowania na konta wystawców,"Implementacja uniwersalnego hasła administratora umożliwiającego logowanie na dowolne konto wystawcy w celach diagnostycznych i wsparcia. Dokumentacja bezpieczeństwa.",6
+2025-10-16,Rozdzielenie danych kontaktowych checklisty,"Rozdzielenie danych kontaktowych z checklisty od danych osoby kontaktowej wystawcy. Każde pole ma teraz osobne źródło i logikę.",6
+2025-10-16,Social media jako osobne pola + konwersja HTTP na HTTPS,"Przeprojektowanie systemu social media: osobne pola dla każdej platformy (Facebook, Instagram, LinkedIn, YouTube, TikTok, X/Twitter). Automatyczna konwersja HTTP na HTTPS. Frontend i backend.",10
+2025-10-15,Poprawki UI i walidacji,"Seria poprawek: walidacja NIP, JSON API, nazwy hal, walidacja plików, poprawki UI.",6
+2025-10-14,Tooltips dla przycisków usuwania w kartach wydarzeń,Dodano tooltips wyjaśniające różnicę między 'Usuń przypisanie' a 'Usuń wystawę' dla przycisków delete.,2
+2025-10-13,Wsparcie międzynarodowe dla telefonów i kodów pocztowych,Dodano obsługę międzynarodowych numerów telefonów z wyborem kraju oraz zagranicznych kodów pocztowych.,8
+2025-10-10,Obsługa zagranicznych numerów VAT,Dodano obsługę zagranicznych numerów VAT przy dodawaniu wystawców (nie tylko polskie NIP).,4
+2025-10-08,Seria poprawek ptak-expo-web,"Naprawiono 4 problemy: kolejność definicji typów, przekazywanie typu uczestnika do PDF, URL logo w zaproszeniach, walidacja plików dla catalog_images.",6
+2025-10-07,Naprawa systemu obrazów produktów,"Kompletna naprawa obsługi obrazów produktów: konwersja base64 na upload plików, poprawne URL w API, obrazy w checkliście, catalog_images w schemacie DB, serwowanie z poprawnej ścieżki.",12
+2025-10-07,Endpoint JSON dla wszystkich wystawców + dokumentacja API,Dodano publiczny endpoint JSON ze wszystkimi wystawcami dla danego wydarzenia + dokumentacja API.,4
+2025-10-07,Naprawa liczenia limitu zaproszeń,"Poprawka liczenia limitu zaproszeń w checkliście - pobieranie rzeczywistego limitu z API zamiast liczby wysłanych zaproszeń.",2
+2025-10-06,Seria 6 poprawek checklisty i systemu,"Naprawa licznika checklisty 6/6, wyświetlania industries, typów e-ID, stopki zaproszeń, wyszukiwania NIP, formatowania daty/godziny wydarzeń.",8
+2025-10-06,Filtrowanie wiadomości dla wystawców,Filtrowanie wiadomości aby pokazywać wystawcom tylko komunikaty utworzone przez adminów.,2
+2025-10-02,Historia wiadomości w informacjach targowych,Dodano wyświetlanie historii wiadomości w sekcji informacji targowych.,3
+2025-10-02,Backend dla linków do planów targowych,Dodano backend obsługujący funkcjonalność linków do planów targowych.,4
+2025-10-02,Optymalizacja wydajności uploadowania dokumentów brandingowych,Optymalizacja wydajności procesu uploadowania dokumentów brandingowych.,3
+2025-10-02,Poprawki UI wydarzeń targowych,"Seria poprawek: przycisk 'Wszystkie dni', rozmiary fontów, kolory, wyświetlanie dat/godzin.",4
+2025-10-01,System limitów zaproszeń,"Dodano kompletny system zarządzania limitami zaproszeń dla wystawców: backend, frontend, UI, walidacja.",8
+2025-10-01,System agend wydarzeń dla wystawców,"Dodano filtrowanie agend wydarzeń targowych, przełączanie wydarzeń w agendzie, wyświetlanie logo wystawcy, logi debugowania.",10
+2025-10-01,Poprawki kalendarza wydarzeń oficjalnych,"Usunięto ograniczenia dat z kalendarza wydarzeń oficjalnych, poprawki UI, alignment przycisków.",4
+2025-10-01,System wydarzeń targowych - CRUD,"Dodano pole event_source do rozróżniania źródła utworzenia wydarzenia, funkcjonalność usuwania, filtrowanie wydarzeń wystawcy, debugowanie.",8
+2025-10-01,Poprawa formularzy wydarzeń,Ulepszenie layoutu i stylowania formularzy wydarzeń targowych.,2
+2025-10-01,Naprawa filtrowania wydarzeń zabudowy targowej,"Filtrowanie globalnych wydarzeń zabudowy targowej, logi debugowania, poprawki formatowania dat.",6
+2025-10-01,System dokumentów wystawcy,"Kompletny refaktoring systemu dokumentów: oznaczanie źródła (document_source), filtrowanie dokumentów dla portalu, separacja dokumentów admin vs wystawca, obsługa kategorii.",16
+2025-10-01,System materiałów marketingowych w checkliście,"Skracanie długich nazw plików, wyświetlanie w checkliście po uploadzie, możliwość usuwania własnych materiałów.",6
+2025-10-01,Logo wystawcy tylko z checklisty katalogu,Logo wystawcy teraz pobierane TYLKO z checklisty (katalog) zamiast z wielu źródeł.,2
+2025-09-30,Deployment i konfiguracja Railway,"Guard bazy danych w dev, gate initializeDatabase, konfiguracja portów, .dockerignore dla przyspieszenia buildów.",4
+2025-09-30,System brandingu wydarzeń,"Dodano pola brandingu: logo_kolowe_tlo_kafel (logo na kafel), mailing_header_800x300, event_logo. Renderowanie w różnych miejscach aplikacji (dashboard, tiles, emaile).",10
+2025-09-30,System avatarów użytkowników,"Dodano upload i wyświetlanie avatarów użytkowników: backend (endpointy), frontend (API, UI), wyświetlanie w różnych miejscach aplikacji.",8
+2025-09-30,Selektor kraju dla telefonów + E.164,Dodano selektor kraju dla numerów telefonów z formatowaniem E.164.,6
+2025-09-30,System broadcast wiadomości do wystawców,Endpoint i UI administratora do wysyłania wiadomości broadcast do wszystkich wystawców z logowaniem do Aktualności.,5
+2025-09-30,Kalendarz wydarzeń po polsku + walidacja daty,Lokalizacja kalendarza wydarzeń na polski + inline walidacja daty (komunikaty, min/max range).,4
+2025-09-30,System wiadomości dla nagrody targowych,Persystencja wielu wiadomości od admina per wystawca+wydarzenie. Frontend lista i dodawanie.,6
+2025-09-30,Dynamiczne ładowanie e-identyfikatorów,"Ładowanie e-identyfikatorów wystawcy dla wybranego wydarzenia z backendu, dynamiczny licznik.",4
+2025-09-30,Dynamiczne liczenie wysłanych zaproszeń,"Pobieranie listy wysłanych zaproszeń dla wydarzenia i renderowanie w ExhibitorInvitations, ukrycie kontrolek limitu.",6
+2025-09-30,Wysyłka dokumentów wystawcy emailem z logowaniem,System wysyłania dokumentu wystawcy emailem z logowaniem do wiadomości. Poprawki edytora tekstu.,5
+2025-09-29,System masowej wysyłki zaproszeń CSV,"Dodano flow masowej wysyłki zaproszeń z pliku CSV: modal, parsowanie, progress, przycisk pobierania wzoru CSV.",10
+2025-09-29,Linkowanie kafelków wydarzeń,Dodano linki z kafelków wydarzeń do odpowiednich sekcji (Materiały marketingowe, Generator zaproszeń).,2
+2025-09-29,Transakcyjne usuwanie użytkowników,Transakcyjne usuwanie użytkowników z czyszczeniem FK aby uniknąć błędów 500.,3
+2025-09-29,Zarządzanie rolami użytkowników,"Poprawki zarządzania rolami: zachowanie roli 'exhibitor', upgrade tylko dla non-exhibitors, wymuszenie roli admin przy dodawaniu użytkownika z Users page.",6
+2025-09-26,Rozwiązanie konfliktów merge NEW-8,"Merge brancha NEW-8: rozwiązanie konfliktów w Menu, ElectronicIdsCard, InvitesCard, ChecklistPage. Zachowanie QR + stylingu.",4
+2025-09-25,System generowania PDF e-identyfikatorów,"Kompletny refaktoring generowania PDF e-identyfikatorów: polska czcionka (glify), embedding obrazów (header/footer), loga branżowe, fallbacki, unified builder. Auto-generowanie e-ID przy wysyłce zaproszenia.",16
+2025-09-24,System słowników dla pól wydarzeń,"Edytowalne słowniki dla pól wydarzeń i typów zabudowy, dynamiczne selecty, modalne Database, endpointy API.",12
+2025-09-24,WYSIWYG preview zaproszeń,"Inline WYSIWYG-like edytowalny preview zaproszeń, minimal toolbar, branding header w preview+email, mapowanie benefitów.",10
+2025-09-24,System kodów dostępu i QR dla e-identyfikatorów,"Generowanie i przechowywanie accessCode dla e-identyfikatorów, QR code render i download, persystencja QR jako Data URL, upload QR PNG jako dokument.",12
+2025-09-24,System wiadomości event-scoped,"Dodano feed wiadomości dla wydarzenia (branding/trade info/events) i podpięcie EventNewsPage do backendu.",6
+2025-09-23,Pole VIP value w zaproszeniach,Dodano pole vip_value w formularz zaproszeń: frontend + backend (DB ensure + controller).,3
+2025-09-23,Integracja UI NEW-7 i NEW-6,Integracja nowych UI (News, TradeInfoPage, wiring tradeEventsAPI). Zastosowanie NEW-6 UI updates.,6
+2025-09-23,Publiczne feedy JSON i RSS,"Dodano publiczne feedy JSON i RSS dla wystawców, ?pretty=1 dla czytelności, strona index listująca wydarzenia i wystawców.",8
+2025-09-23,Elektroniczne ID w feedach wystawców,Dodanie elektronicznych ID do feedów wystawców (JSON & RSS).,3
+2025-09-11,Autouzupełnianie danych wystawcy z NIP (GUS),"Implementacja autouzupełniania danych wystawcy z NIP przez API GUS: backend route, wire add/edit modals, obsługa błędów.",10
+2025-09-10,Scopowanie katalogów do bieżącego wystawcy,Poprawka aby dane companyInfo katalogów były scopowane do bieżącego wystawcy (bez carryover między użytkownikami).,3
+2025-09-10,Pole 'Dlaczego warto odwiedzić' (why_visit),"Dodano pole why_visit: merge global into event GET, web UI + API support.",4
+2025-09-10,Usuwanie prezentowanych produktów,Dodano możliwość usuwania prezentowanych produktów (UI + API + backend).,3
+2025-09-10,System social media i brandów,"Social media UX (TikTok/X), brands/displayName, integracja katalogów, backend brands endpoints.",8
+2025-09-08,System RSS i publicznych listingów,"Dodano /public/rss i listing wystawców, web/admin RSS pages, checklisty: save tags, edycja produktu on-click z thumbnail preview, backend PUT update product by index.",12
+2025-09-08,System tagów z autocomplete,"Autocomplete + chip UI dla tagów, persist catalog_tags, API sugestii, optimistic updates, poszerzenie inputów.",8
+2025-09-07,Konfiguracja CORS i API_BASE_URL,"CORS: echo Origin + allow credentials/methods/headers, short-circuit OPTIONS. Production API_BASE_URL z Railway env var.",4
+2025-09-07,System załączników w zaproszeniach,"Invitations: edycja prefill, załączniki jako linki do pobrania. Benefits: CRUD routes+controller, lista UI font fixes. Backend invitation detail query. Register marketing-materials routes.",10
+2025-09-06,Poprawki trade plan,"Kontrolki usuwania dla pustych wpisów, prevent duplicate uploads, diagnostyka, prevent dropdown expanding container.",6
+2025-09-04,System planu targowego (trade plan),"Display originalname po uploadzie, autosave flow, upload + delete UI, robust filename handling, rozwiązanie konfliktów merge.",8
+2025-09-04,Oficjalne wydarzenia targowe,"Lista pod 'Wybierz dzień targów', normalizacja dat/czasów, widoczność, sortowanie po godzinie, logi debug.",6
+2025-09-04,System wydarzeń zabudowy targowej,"Refaktoring wydarzeń zabudowy: autosave + immediate save, hide manual buttons, fix API field names, remove localStorage merge, clean logs.",8
+2025-09-04,Merge frontend-admin-panel-cd-events-details,"Integracja UI frontend-admin-panel-cd-events-details zachowując funkcjonalność. Rozwiązanie konfliktów w action component, events content, styles, mockData.",6
+2025-09-04,Walidacja dat timezone-safe dla trade-events,Robust toDateOnly handling Date + string variants + timezone-safe validation dla event_date.,4
+2025-09-04,Logowanie trade-info i trade-events,Dodano granular frontend logs + backend logs aby debugować problemy na Railway z datami i czasami.,3
+2025-09-03,Rebuild sekcji wydarzeń zabudowy targowej,"TradeFairEvents: scroll to edit form, rebuild construction events (type+date+time), load+list via trade-events API, date/time display fixes.",10
+2025-09-03,Multi-file branding dokumenty,"Enable multi-file 'dokumenty_brandingowe': DB partial unique indexes, backend cleanup, frontend render full PDF list, clickable names.",6
+2025-09-02,System edycji wydarzeń z listy,"Enable edit-from-list to prefill AddingEvents form, editing flow logs, prefill normalization, backend update logs.",6
+2025-09-02,Persist buildType + czas normalizacji,"Trade-info: persist buildType value, fix time normalization, UI autosave, trade events tweaks.",4
+2025-09-01,System słowników catalog_tags,"Dodano catalog_tags dictionary, API endpoints, web autocomplete dla product tags.",6
+2025-09-01,Global catalog tags + products tags pipeline,"Dodano global catalog tags, products tags pipeline i rendering, fix duplicate keys, checklist persistence improvements.",6
+2025-09-01,Reintegracja checklisty API do backendu,"Web: reintegracja checklist API do backendu, persist e-IDs, materials, fix email, key warnings.",8
+2025-09-01,Merge feature/lista-targowa,Merge origin/feature/lista-targowa do main: preferowanie feature branch przy konfliktach.,4
+2025-09-01,ElectronicIdsCard UI + exhibitor people per event,"Web: ElectronicIdsCard UI contrast, add exhibitor people per event. Backend: exhibitor_people table + endpoints.",8
+2025-09-01,Email walidacja i E-IDs,Dodano walidację email i E-IDs w checkliście.,4
+2025-08-31,Event logo upload + caretaker,"Frontend: event logo upload + caretaker. Backend: branding endpoints + event_logo exposure. DB: supervisor_user_id w exhibitor_events.",8
+2025-08-31,Trade events dla admin + walidacja,"Web: show trade events dla admin (no exhibitor), fix add-event validation. Frontend: add-event form defaults, exhibition date-range validation. Backend: fix exhibitorDocuments try/catch.",6
+2025-08-31,Poprawki trade events,"Dodano domyślne start/end times dla trade events aby uniknąć błędów 400. Usunięto unused _saving state.",2
+2025-08-29,Persistent uploads via UPLOADS_DIR,"Backend: support persistent uploads via UPLOADS_DIR dla branding + exhibitor documents (Railway volume). Fix EXDEV on Railway.",6
+2025-08-29,Checklist components + EventLayout,"Web: enable 'Informacje targowe', rename home tile, fix imports, responsiveness, checklist components, materials add/display/download.",10
+2025-08-29,Catalog products JSONB + integracja,"Catalog: products JSONB, web/frontend integration, logo preview, API fixes, log cleanup.",8
+2025-08-29,Exhibitor self GET/PUT + routing order,Fix exhibitors /me routing order. Add exhibitor self GET/PUT. Clean duplicate routes. Fix web SVG attributes.,4
+2025-08-28,Merge feature/lista-targowa - materials,"Merge feature/lista-targowa: add checklist components, materials functionality, date handling fixes.",6
+2025-08-28,Product add + event display w checkliście,"Product add do checklisty, display events, fix select behavior, chip size, sort API mock.",6
+2025-08-28,Checklist components + fix positioning,"Add checklist components, fix EventLayout positioning, green checkmarks, initial company edit.",8
+2025-08-27,Extract tabs do osobnych komponentów,"Frontend: extract Push Notifications, Trade Fair Events, Invitations, Trade Fair Information tabs do osobnych komponentów. Wire do EventDetailPage.",8
+2025-08-27,Branding tab component,Extract Branding tab do BrandingContent component + SCSS. Wire do EventDetailPage.,3
+2025-08-26,Event layout adjustments + trade-events scope,"Web: event layout adjustments (inner scale, offset, margin). Trade-events: scope by exhibitor, add delete endpoint, immediate append on create.",6
+2025-08-26,Checklist assets + event logo upload,"Web: checklist assets, identifier header. Frontend: event logo upload + caretaker. Backend: branding endpoints. DB: supervisor_user_id w exhibitor_events.",8
+2025-08-26,Unify left column + exhibitor-event unassign,"Web: unify left column across event pages, news width/padding, EventHome real data, Identifier real API data, documents green bg, exhibitor-event unassign endpoint + wiring.",8
+2025-08-25,Merge frontend-admin-panel-cd,"Merge origin/frontend-admin-panel-cd: resolve conflicts ExhibitorCardPageShort, ExhibitorTradeFairAwards, AddEventToExhibitorModal.",4
+2025-08-25,Add News i Identifier views 1:1,"Web: add News i Identifier views 1:1 z Figma, align layout/theme, menu updates.",6
+2025-08-25,Event home UI alignment,"Web: align event home UI z ptak-web (AvatarBanner, PlannedEventCard, ChecklistProgressCard, EventHomeMenu).",6
+2025-08-25,EventHomePage + EventLayout + routing,"Web: add EventHomePage + EventLayout, update menu, login redirect, route Home to /event/:id/home.",4
+2025-08-22,Add event-home + event-news + event-identifier pages,Dodano nowe strony: event-home, event-news, event-identifier.,4
+2025-08-21,Add event do wystawcy + merge updates,"Merge updates z origin/frontend-admin-panel-cd. Dodano funkcjonalność przypisywania wydarzenia do wystawcy.",8
+2025-08-20,OpenAPI Swagger dokumentacja,"Dodano Swagger UI do backendu (/api-docs), API docs page w frontendzie, rozszerzona OpenAPI spec pokrywająca auth, users, exhibitors, exhibitions, documents, trade-info, trade-events, branding.",12
+2025-08-20,Exhibitor documents upload/list/delete per event,"Wire exhibitor documents upload/list/delete per event. Fix Social Media checkmark, add download, resolve hydration issues, detailed logs, type fixes.",10
+2025-08-19,Merge frontend-admin_panel_exhibitors_view_with_events,Merge frontend-admin_panel_exhibitors_view_with_events. Fix CI build errors (react-hooks deps, unused state/prop, regex escaping).,4
+2025-08-13,Baza wydarzeń layout + RWD,"Frontend: Baza wydarzeń (Web 1366-22) layout + RWD. Web: Portal dokumentów 1:1, checklist 4b poprawki i routing.",8
+2025-08-12,Checklist Dashboard layout z Figma,"Web: apply Figma Dashboard Checklisty Targowej-2 layout (left sidebar + main content), wire route i menu.",6
+2025-08-12,Trade events working flow,"Trade-events: working local flow (create+list), BE logging, FE refresh+errors, reduce dev console noise. Add BE routes+DB+validation, FE form+list+API, date-range validation.",12
+2025-08-12,Instant branding preview + CI fixes,"Frontend: instant branding preview po upload/delete. Fix react-hooks/exhaustive-deps CI eslint. Fix TS6133 unused params.",4
+2025-08-12,Exhibitor card view w web,"Frontend(web): exhibitor card view imported i wired, dynamic exhibitor data w catalog entry, fix assets, trade-info wrapper reverted.",6
+2025-08-11,TradeInfo page aligned to Locofy,"Web: TradeInfo page aligned do Locofy layout, dynamic event header, halls mapping, fix permissions GET trade-info.",6
+2025-08-11,Menu alignment frontend i web,"Fix web menu: remove sticky background, match frontend static AppBar, centered toolbar. Web: use new Menu component across Dashboard.",4
+2025-08-11,Trade-info UPSERT + validation,"Fix trade-info: use UPSERT, replace related build_days/spaces atomically. Add input validation, defaults, error logging. Normalize time fields HH:MM:SS.",8
+2025-08-11,CORS i CORP dla branding + auto-save hall plan,"Fix branding: allow cross-origin resource embedding, dynamic CORS. Trade-info: auto-save hall plan on add. Helmet: CORP cross-origin.",4
+2025-08-08,Fix SVG duplicates + add icons,"Fix SVG file extensions: remove .svg.svg duplicates. Add correct .svg files. Add 6 new icons.",3
+2025-08-07,Connected endpoints ExhibitorCardPage,"Connected endpoints do nowego ExhibitorCardPage: event assignment, password reset functionality. Backup before merge.",6
+2025-08-06,Nowy design AddExhibitor modal,Dodano nowy design AddExhibitor modal z task_supplier_base. Fix ESLint dla Railway deployment (useCallback w CustomField).,4
+2025-08-06,Global event branding files system,Implementacja globalnego systemu plików brandingowych dla wydarzeń.,6
+2025-08-05,Dynamic event display dla wystawców w web,"Implementacja dynamicznego wyświetlania wydarzeń dla wystawców w web dashboard. Fix CSS positioning event boxes.",6
+2025-08-05,Role-based authentication dla admin i exhibitor,Implementacja role-based authentication dla paneli admin i exhibitor.,8
+2025-08-05,Pole hasła w formularzu dodawania wystawców,Dodano pole hasła do formularza dodawania wystawców.,2
+2025-08-05,Document upload functionality dla wystawców,"Document upload functionality dla wystawców. Fix foreign key constraint w exhibitor_branding_files, fix exhibitor lookup.",6
+2025-08-05,Przepisanie ExhibitorCardPage na nowy design,"Przepisanie ExhibitorCardPage i EventDetailsPage na nowy design z grafika/wystawcy1. Usunięcie przycisków kategorii. Fix React Hooks.",8
+2025-08-04,Przypisywanie wystawcy do wydarzenia,"Dodanie funkcjonalności przypisywania wystawcy do wydarzenia. Fix ESLint w AssignEventModal.",6
+2025-08-04,Zabezpieczenie systemu + usuwanie wydarzeń,"Zabezpieczenie systemu i dodanie funkcji usuwania wydarzeń. Fix wyświetlania prawdziwych danych wydarzenia.",4
+2025-07-30,Apply changes z init-admin-panel branch,Zastosowanie zmian z brancha init-admin-panel. Fix missing dependencies w useCallback AddUserModalShort.,4
+2025-07-29,Podstrona Zaproszenia w Baza wydarzeń,Dodano podstronę Zaproszenia w Baza wydarzeń. Fix ESLint errors w komponencie Invitations (loadInvitationData).,6
+2025-07-28,File upload system dla exhibitor branding,"Implementacja file upload system dla exhibitor branding. Add uploads folder do .gitignore. Resolve ESLint warning dla Railway build.",8
+2025-07-25,Replace EventDetailPage branding z Locofy.ai design,Replace EventDetailPage branding section z Locofy.ai design fields.,4
+2025-07-25,Unified layout framework,"Apply unified layout framework do Events, Exhibitors, Users pages. Fix event details navigation, page jumping/flickering, ExhibitorCardPage.",8
+2025-07-24,Init home page admin panel,Inicjalizacja home page panelu administracyjnego.,4
+2025-07-18,EventDetailsPage - szczegółowy widok wydarzeń,Dodano EventDetailsPage - nowy szczegółowy widok dla wydarzeń wystawienniczych.,6
+2025-07-18,Karta wystawcy + najbliższe wydarzenia,Dodano kartę wystawcy i poprawiono wyświetlanie najbliższych wydarzeń.,4
+2025-07-17,Ujednolicenie pozycjonowania Menu,Ujednolicenie pozycjonowania Menu na wszystkich stronach i naprawa funkcjonalności AddEventModal.,3
+2025-07-17,Przeprojektowanie popup 'dodaj wydarzenie',"Przeprojektowanie popup 'dodaj wydarzenie' na styl Material-UI podobny do popup 'dodaj wystawcę'. Zmiana tła na szare.",4
+2025-07-17,Zmiana układu dashboardu z 3+1 na 2+2,Zmiana układu dashboardu z 3+1 na 2+2 elementy w rzędzie.,2
+2025-07-17,Funkcjonalność wydarzeń i przypisywania wystawców,Dodano funkcjonalność wydarzeń i przypisywania wystawców.,6
+2025-07-17,Complete exhibitors functionality,Dodano kompletną funkcjonalność wystawców.,8
+2025-07-17,Update frontend: TypeScript + SCSS + Custom Components,"Frontend refactor: Migracja do TypeScript + SCSS + Custom Components. Login page admin.",12
+2025-07-15,Frontend refactor: Material-UI i SCSS,Frontend refactor: Migracja do Material-UI i SCSS.,10
+2025-07-14,Railway deployment + mobile testing,"Add react-native-vector-icons dependency. Expo Snack configuration. Fix Railway PORT. Final testing instructions QR. Update mobile testing instructions Railway. Add comprehensive mobile testing instructions.",12
+2025-07-14,Fix mobile login i assets,"Fix login error handling, background-image path, asset loading. Update backend URL Railway df8c. Improve error message display.",8
+2025-07-14,Nowy design dashboard,"Implement nowy dashboard design: events, calendar, user greeting, modernize UI.",8
+2025-07-14,Delete user functionality,"Add delete user functionality z confirmation dialog i red delete button. DELETE endpoint z admin protection.",4
+2025-07-14,Fix POST /users endpoint,"Fix POST /users endpoint: use password z formu zamiast random. Improve AddUserModal: remove placeholder, add spacing, password field, admin checkbox.",4
+2025-07-14,Auto-logout dla non-admin users,"Add auto-logout po 5 sekundach dla non-admin users w Admin Front z countdown. Remove admin role requirement z User Front dashboard.",3
+2025-07-14,Update Railway configuration,"Update Railway configuration z new backend URL i environment variables. Fix AuthContext login parameter mismatch.",3
+2025-07-14,CORS dla Railway frontend,Fix CORS configuration do support ptak-expo-web Railway URL i status column handling.,2
+2025-07-14,Simplified dashboard page,Simplified dashboard page - only logout button na białym tle.,2
+2025-07-14,Update ptak-expo-web design dla wystawców,"Update ptak-expo-web design dla wystawców. Make identical do ptak-expo-frontend. Fix .gitignore, CSS image path, npm ci dependency conflicts, Railway deployment issues.",10
+2025-07-14,Fix Railway deployment backend,Fix Railway deployment issue: Add build script do backend.,2
+2025-07-14,CORS dla obu frontend ports,Fix backend CORS do support obu frontend ports.,1
+2025-07-14,Implement login page z custom branding,Implement login page z custom branding dla ptak-expo-web.,4
+2025-07-14,Fix Railway login - remove status column,"Fix Railway login: remove status column dependency. Add extensive debug logging do auth controller. Add test.admin@ptak-expo.com user.",4
+2025-07-14,Merge updated login page design,Merge: Updated login page design i adjusted menu width. Fix ESLint build errors. Fix auth controller database query.,6
+2025-07-11,HOTFIX Railway configuration,HOTFIX: Revert do working Railway configuration. Fix Railway SPA routing. Fix CSS chunk loading issue.,4
+2025-07-11,Frontend refactoring - performance,"Frontend refactoring: Performance optimization i code improvements. Update frontend dashboard pages i web app configuration.",6
+2025-07-10,Stronicowanie użytkowników + dokumentacja,"Dodano stronicowanie użytkowników i poprawiono layout. Dodano kompletną instrukcję dla Frontend Developer. Naprawa layoutu dashboardu zgodnie z oryginalnym designem.",8
+2025-07-10,Endpoint dla tworzenia admin users,"Add endpoint dla creating admin users z password i role. Fix create-admin endpoint: remove status column.",3
+2025-07-10,Fix Railway frontend deployment,"Fix Railway frontend deployment: use PORT z env zamiast hardcoded 3000. Fix Railway deployment: async database init, connection timeout, improved health check.",4
+2025-07-10,Fix ESLint warnings,"Fix ESLint warnings: move fetchUsers do useCallback, inside useEffect. Add extensive logging dla Railway debugging.",3
+2025-07-10,Add ptak-expo-frontend,"Add ptak-expo-frontend: React TypeScript frontend dla Railway deployment. Fix frontend deployment: Update package-lock.json. Remove problematic railway.toml.backup.",6
+2025-07-10,Railway deployment - Clean backend API,Railway deployment: Clean backend API z admin security.,4
+2025-07-09,Strona użytkowników z globalnym menu,Dodano stronę użytkowników z globalnym menu.,4
+2025-07-09,Complete login i dashboard system,Implement complete login i dashboard system z session management.,8
+2025-06-23,Fix Railway port + git structure,"Fix Railway port configuration. Fix ESLint error w AuthContext. Fix git structure: Remove spec i docs folders, integrate frontend i mobile jako normal directories.",6
+2025-06-23,Database structure documentation + Railway config,Add detailed database structure documentation i Railway config.,4
+2025-06-23,Complete mobile app structure + authentication,Add complete mobile app structure i authentication system. Update submodules: frontend .env configuration.,8
+2025-06-23,Fix Express version conflict,Fix Express version conflict i backend errors.,2
+2025-06-23,Railway configuration + dokumentacja,Fix Railway configuration i add documentation. Configure database i GitHub setup.,4
+2025-06-23,Initial commit: PTAK EXPO system,Initial commit: PTAK EXPO - Complete exhibition management system.,12
+

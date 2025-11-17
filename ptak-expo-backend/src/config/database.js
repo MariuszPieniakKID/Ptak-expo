@@ -1071,6 +1071,27 @@ const initializeDatabase = async () => {
     } catch (e) {
       console.error('❌ Error ensuring exhibitor_catalog_entries/products:', e);
     }
+
+    // Activity logs table for tracking user actions
+    console.log('🔍 Creating activity_logs table...');
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS activity_logs (
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+        user_email VARCHAR(255),
+        action VARCHAR(50) NOT NULL,
+        entity_type VARCHAR(50) NOT NULL,
+        entity_id INTEGER,
+        entity_name VARCHAR(500),
+        details TEXT,
+        created_at TIMESTAMPTZ DEFAULT NOW()
+      )
+    `);
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_activity_logs_created_at ON activity_logs(created_at DESC)`);
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_activity_logs_user_id ON activity_logs(user_id)`);
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_activity_logs_entity ON activity_logs(entity_type, entity_id)`);
+    console.log('✅ Activity logs table created/verified');
+
   } catch (error) {
     console.error('❌ Error initializing database:', error);
     console.error('❌ Database error details:', error.message);
