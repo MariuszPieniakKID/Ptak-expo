@@ -248,6 +248,7 @@ const AddExhibitorModal: React.FC<AddExhibitorModalProps> = ({
       if (value.length < 6) return 'Hasło musi mieć co najmniej 6 znaków';
       return '';
     },
+    sendEmail: () => '', // Checkbox doesn't need validation
     selectedExhibitionId: value => validateSelection(value, eventOptions),
     standNumber: validateStandNumber,
     hallName: validateHallName,
