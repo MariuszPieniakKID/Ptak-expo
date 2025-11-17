@@ -89,7 +89,7 @@ const LogsTab: React.FC<LogsTabProps> = ({ token }) => {
     loadLogs();
   }, [loadLogs]);
 
-  const handleChangePage = (event: unknown, newPage: number) => {
+  const handleChangePage = (_event: unknown, newPage: number) => {
     setPage(newPage);
   };
 
