@@ -18,6 +18,7 @@ import Applause from '../../assets/applause.png';
 import InvitationsTab from './InvitationsTab';
 import DictionariesTab from './DictionariesTab';
 import LogsTab from './LogsTab';
+import MailingTab from './MailingTab';
 
 import styles from '../usersPage/UsersPage.module.scss';
 import { ExhibitorPerson, fetchExhibitorPeople, fetchExhibitors, Exhibitor, fetchExhibitions, Exhibition } from '../../services/api';
@@ -235,6 +236,7 @@ const DatabasePage: React.FC = () => {
                 <Tab label="Słowniki" />
                 <Tab label="Zaproszenia" />
                 <Tab label="Logi" />
+                <Tab label="Mailing" />
               </Tabs>
             </Box>
 
@@ -423,6 +425,13 @@ const DatabasePage: React.FC = () => {
               {currentTab === 3 && token && (
                 <Box>
                   <LogsTab token={token} />
+                </Box>
+              )}
+
+              {/* Tab: Mailing */}
+              {currentTab === 4 && token && (
+                <Box>
+                  <MailingTab token={token} />
                 </Box>
               )}
             </Box>
