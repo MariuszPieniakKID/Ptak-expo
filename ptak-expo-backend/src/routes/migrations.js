@@ -281,5 +281,55 @@ router.post('/industries-to-events', verifyToken, requireAdmin, async (req, res)
   }
 });
 
+// GET /api/v1/migrations/check-industries-status
+// Sprawdź status industries - ile w GLOBAL vs event-specific
+router.get('/check-industries-status', verifyToken, requireAdmin, async (req, res) => {
+  try {
+    // Industries w GLOBAL
+    const globalIndustries = await db.query(`
+      SELECT COUNT(*) as count
+      FROM exhibitor_catalog_entries
+      WHERE exhibition_id IS NULL 
+        AND industries IS NOT NULL 
+        AND industries != ''
+    `);
+
+    // Industries w event-specific
+    const eventIndustries = await db.query(`
+      SELECT COUNT(*) as count
+      FROM exhibitor_catalog_entries
+      WHERE exhibition_id IS NOT NULL 
+        AND industries IS NOT NULL 
+        AND industries != ''
+    `);
+
+    // Wystawcy z industries w GLOBAL którzy mają przypisane wystawy
+    const globalWithExhibitions = await db.query(`
+      SELECT COUNT(DISTINCT c.exhibitor_id) as count
+      FROM exhibitor_catalog_entries c
+      INNER JOIN exhibitor_events ee ON c.exhibitor_id = ee.exhibitor_id
+      WHERE c.exhibition_id IS NULL 
+        AND c.industries IS NOT NULL 
+        AND c.industries != ''
+    `);
+
+    return res.json({
+      success: true,
+      data: {
+        globalIndustries: parseInt(globalIndustries.rows[0].count),
+        eventSpecificIndustries: parseInt(eventIndustries.rows[0].count),
+        globalIndustriesWithExhibitions: parseInt(globalWithExhibitions.rows[0].count),
+        needsMigration: parseInt(globalWithExhibitions.rows[0].count) > 0
+      }
+    });
+  } catch (error) {
+    console.error('Error checking industries status:', error);
+    return res.status(500).json({
+      success: false,
+      error: error.message
+    });
+  }
+});
+
 module.exports = router;
 
