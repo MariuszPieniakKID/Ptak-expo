@@ -473,7 +473,7 @@ router.get('/:exhibitionId', verifyToken, requireExhibitorOrAdmin, async (req, r
         catalog_tags: data.catalog_tags,
         brands: prefer(data.brands, globalData.brands),
         products: (Array.isArray(data.products) && data.products.length > 0) ? data.products : [],
-        industries: prefer(data.industries, globalData.industries),
+        industries: data.industries,
         catalog_contact_person: prefer(data.catalog_contact_person, globalData.catalog_contact_person),
         catalog_contact_phone: prefer(data.catalog_contact_phone, globalData.catalog_contact_phone),
         catalog_contact_email: prefer(data.catalog_contact_email, globalData.catalog_contact_email)
