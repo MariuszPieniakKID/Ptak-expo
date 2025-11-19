@@ -281,6 +281,7 @@ router.get('/exhibitions/:exhibitionId/feed.json', async (req, res) => {
         logoUrl: toUrl(r.logo),
         hallName: r.hall_name || '',
         standNumber: r.stand_number || '',
+        industries: r.industries || '',
         products: products
       };
     });
