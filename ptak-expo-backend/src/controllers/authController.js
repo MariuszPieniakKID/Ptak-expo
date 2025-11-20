@@ -2,6 +2,7 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const db = require('../config/database');
+const { getNearestExhibitionForExhibitor, getDefaultExhibitionName } = require('../utils/exhibitorHelpers');
 
 // Generate JWT token
 const generateToken = (user) => {
@@ -468,12 +469,17 @@ const exhibitorForgotPassword = async (req, res) => {
       ? `${process.env.FRONTEND_WEB_URL}/login`
       : 'https://wystawca.exhibitorlist.eu/login';
     
+    // Pobierz najbliższą wystawę dla wystawcy
+    const exhibition = await getNearestExhibitionForExhibitor(exhibitor.id);
+    const exhibitionName = exhibition ? exhibition.name : getDefaultExhibitionName();
+    
     const emailResult = await sendPasswordResetEmail(
       exhibitor.email,
       firstName || exhibitor.company_name || 'Wystawca',
       lastName || '',
       newPassword,
-      loginUrl
+      loginUrl,
+      exhibitionName
     );
 
     if (!emailResult.success) {

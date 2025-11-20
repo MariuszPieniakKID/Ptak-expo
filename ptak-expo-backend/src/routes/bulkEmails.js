@@ -3,6 +3,7 @@ const router = express.Router();
 const db = require('../config/database');
 const { verifyToken, requireAdmin } = require('../middleware/auth');
 const bcrypt = require('bcryptjs');
+const { getNearestExhibitionForExhibitor, getDefaultExhibitionName } = require('../utils/exhibitorHelpers');
 
 // Funkcja do generowania silnego hasła
 const generatePassword = () => {
@@ -21,8 +22,11 @@ const generatePassword = () => {
 };
 
 // Funkcja do wysyłania emaila z instrukcją
-const sendWelcomeEmailWithInstructions = async (userEmail, firstName, lastName, password, loginUrl) => {
+const sendWelcomeEmailWithInstructions = async (userEmail, firstName, lastName, password, loginUrl, exhibitionName = null) => {
   const instructionsUrl = 'https://industryweek.pl/wp-content/uploads/2025/10/Instrukcja-do-aplikacji.pdf';
+  
+  // Użyj podanej nazwy wystawy lub domyślnej
+  const eventName = exhibitionName || process.env.DEFAULT_EXHIBITION_NAME || 'WARSAW INDUSTRY WEEK';
   
   const canUseGraph = () => (
     !!process.env.AZURE_TENANT_ID && 
@@ -31,7 +35,7 @@ const sendWelcomeEmailWithInstructions = async (userEmail, firstName, lastName, 
     !!(process.env.SMTP_USER || process.env.GRAPH_SENDER)
   );
 
-  const subject = 'Dostęp do portalu wystawcy WARSAW INDUSTRY WEEK - Dane logowania';
+  const subject = `Dostęp do portalu wystawcy ${eventName} - Dane logowania`;
   
   const html = `
     <!DOCTYPE html>
@@ -53,11 +57,11 @@ const sendWelcomeEmailWithInstructions = async (userEmail, firstName, lastName, 
     <body>
         <div class="container">
             <div class="header">
-                <h1>Portal Wystawcy WARSAW INDUSTRY WEEK</h1>
+                <h1>Portal Wystawcy ${eventName}</h1>
             </div>
             <div class="content">
                 <h2>Dzień dobry ${firstName} ${lastName},</h2>
-                <p>Przesyłamy Państwu dane dostępowe do portalu wystawcy <strong>WARSAW INDUSTRY WEEK</strong>.</p>
+                <p>Przesyłamy Państwu dane dostępowe do portalu wystawcy <strong>${eventName}</strong>.</p>
                 
                 <div class="credentials">
                     <h3>Dane logowania:</h3>
@@ -97,11 +101,11 @@ const sendWelcomeEmailWithInstructions = async (userEmail, firstName, lastName, 
     </html>`;
 
   const text = `
-Portal Wystawcy WARSAW INDUSTRY WEEK - Dane logowania
+Portal Wystawcy ${eventName} - Dane logowania
 
 Dzień dobry ${firstName} ${lastName},
 
-Przesyłamy Państwu dane dostępowe do portalu wystawcy WARSAW INDUSTRY WEEK.
+Przesyłamy Państwu dane dostępowe do portalu wystawcy ${eventName}.
 
 Dane logowania:
 Email: ${userEmail}
@@ -270,14 +274,19 @@ router.post('/send-welcome-test', verifyToken, requireAdmin, async (req, res) =>
     const lastName = exhibitor.contact_person.split(' ').slice(1).join(' ') || '';
     const loginUrl = process.env.EXHIBITOR_PANEL_URL || 'https://wystawca.exhibitorlist.eu';
     
-    console.log(`📧 Wysyłam email do ${exhibitor.email}...`);
+    // Pobierz najbliższą wystawę dla wystawcy
+    const exhibition = await getNearestExhibitionForExhibitor(exhibitor.id);
+    const exhibitionName = exhibition ? exhibition.name : getDefaultExhibitionName();
+    
+    console.log(`📧 Wysyłam email do ${exhibitor.email} (wystawa: ${exhibitionName})...`);
     
     const emailResult = await sendWelcomeEmailWithInstructions(
       exhibitor.email,
       firstName,
       lastName,
       newPassword,
-      loginUrl
+      loginUrl,
+      exhibitionName
     );
     
     if (emailResult.success) {
@@ -365,12 +374,17 @@ router.post('/send-welcome-all', verifyToken, requireAdmin, async (req, res) => 
         const firstName = exhibitor.contact_person.split(' ')[0] || exhibitor.contact_person;
         const lastName = exhibitor.contact_person.split(' ').slice(1).join(' ') || '';
         
+        // Pobierz najbliższą wystawę dla wystawcy
+        const exhibition = await getNearestExhibitionForExhibitor(exhibitor.id);
+        const exhibitionName = exhibition ? exhibition.name : getDefaultExhibitionName();
+        
         const emailResult = await sendWelcomeEmailWithInstructions(
           exhibitor.email,
           firstName,
           lastName,
           newPassword,
-          loginUrl
+          loginUrl,
+          exhibitionName
         );
         
         if (emailResult.success) {
@@ -535,12 +549,14 @@ router.post('/send-welcome-by-exhibition', verifyToken, requireAdmin, async (req
         const firstName = exhibitor.contact_person.split(' ')[0] || exhibitor.contact_person;
         const lastName = exhibitor.contact_person.split(' ').slice(1).join(' ') || '';
         
+        // Użyj nazwy wystawy z kontekstu (exhibition.name)
         const emailResult = await sendWelcomeEmailWithInstructions(
           exhibitor.email,
           firstName,
           lastName,
           newPassword,
-          loginUrl
+          loginUrl,
+          exhibition.name
         );
         
         if (emailResult.success) {

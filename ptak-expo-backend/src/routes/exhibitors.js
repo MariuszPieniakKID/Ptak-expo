@@ -6,6 +6,7 @@ const { requireExhibitorOrAdmin } = require('../middleware/auth');
 const bcrypt = require('bcryptjs');
 const { sendEmail } = require('../utils/emailService');
 const { sendPasswordResetEmail } = require('../utils/emailService');
+const { getNearestExhibitionForExhibitor, getDefaultExhibitionName } = require('../utils/exhibitorHelpers');
 const { buildIdentifierPdf } = require('../utils/identifierPdf');
 const { logActivity } = require('../utils/activityLogger');
 
@@ -449,6 +450,19 @@ router.post('/', verifyToken, requireAdmin, async (req, res) => {
       try {
         const { sendWelcomeEmail } = require('../utils/emailService');
         const exhibitorPanelBase = process.env.EXHIBITOR_PANEL_URL || 'https://wystawca.exhibitorlist.eu';
+        
+        // Pobierz nazwę wystawy jeśli przypisano do wystawy
+        let exhibitionName = null;
+        if (exhibitionId) {
+          const exhibitionResult = await db.query('SELECT name FROM exhibitions WHERE id = $1', [exhibitionId]);
+          exhibitionName = exhibitionResult.rows[0]?.name || null;
+        }
+        // Jeśli nie ma wystawy, pobierz najbliższą dla wystawcy
+        if (!exhibitionName) {
+          const exhibition = await getNearestExhibitionForExhibitor(newExhibitor.id);
+          exhibitionName = exhibition ? exhibition.name : getDefaultExhibitionName();
+        }
+        
         // For exhibitor we always treat password as provided (not tymczasowe)
         sendWelcomeEmail(
           normalizedEmail,
@@ -456,7 +470,8 @@ router.post('/', verifyToken, requireAdmin, async (req, res) => {
           contactPerson.split(' ').slice(1).join(' ') || '',
           password,
           false,
-          exhibitorPanelBase
+          exhibitorPanelBase,
+          exhibitionName
         )
           .then((r) => console.log('✅ Exhibitor welcome email queued/sent:', email, r?.success))
           .catch((e) => console.warn('⚠️ Exhibitor welcome email error:', e?.message || e));
@@ -1332,7 +1347,12 @@ router.post('/:id/reset-password', verifyToken, requireAdmin, async (req, res) =
       const last = fullName.split(' ').slice(1).join(' ') || '';
       // Use exhibitor panel URL instead of admin panel URL
       const exhibitorPanelUrl = `${process.env.EXHIBITOR_PANEL_URL || 'https://wystawca.exhibitorlist.eu'}/login`;
-      const emailResult = await sendPasswordResetEmail(exhibitor.email, first, last, newPassword, exhibitorPanelUrl);
+      
+      // Pobierz najbliższą wystawę dla wystawcy
+      const exhibition = await getNearestExhibitionForExhibitor(exhibitorId);
+      const exhibitionName = exhibition ? exhibition.name : getDefaultExhibitionName();
+      
+      const emailResult = await sendPasswordResetEmail(exhibitor.email, first, last, newPassword, exhibitorPanelUrl, exhibitionName);
       if (!emailResult.success) {
         console.warn('[exhibitors.reset-password] email send failed:', emailResult.error);
       }
