@@ -4,6 +4,46 @@ const fs = require('fs');
 let sharp;
 try { sharp = require('sharp'); } catch (_) { sharp = null; }
 
+/**
+ * Generate a short event code (4-5 characters, no spaces) from exhibition name
+ * Examples:
+ *   "WARSAW INDUSTRY WEEK" -> "WARIW"
+ *   "Food Tech 2025" -> "FT25"
+ *   "SolarEnergy Expo" -> "SEEXP"
+ */
+function generateEventShortCode(exhibitionName) {
+    if (!exhibitionName || String(exhibitionName).trim().length === 0) return 'EVNT';
+    
+    const cleaned = String(exhibitionName).trim().toUpperCase();
+    
+    // Extract all capital letters and digits
+    const capitals = cleaned.replace(/[^A-Z0-9]/g, '');
+    
+    // If we have 4-5 chars already, use them
+    if (capitals.length >= 4 && capitals.length <= 5) {
+        return capitals.slice(0, 5);
+    }
+    
+    // If too long, take first letter of each word
+    if (capitals.length > 5) {
+        const words = cleaned.split(/\s+/);
+        if (words.length >= 2) {
+            // Take first letter of each word
+            const acronym = words.map(w => w[0]).filter(c => /[A-Z0-9]/.test(c)).join('');
+            if (acronym.length >= 4) {
+                return acronym.slice(0, 5);
+            }
+            // If acronym too short, add more letters from first word
+            return (acronym + capitals).slice(0, 5);
+        }
+        // Single long word - take first 5 chars
+        return capitals.slice(0, 5);
+    }
+    
+    // If too short (1-3 chars), pad with first letters from name
+    return (capitals + cleaned.replace(/\s+/g, '').slice(0, 5)).slice(0, 5).padEnd(4, 'X');
+}
+
 // Resolve a font buffer that supports Polish glyphs
 let cachedFontBuffer = null;
 async function resolveFontBuffer() {
@@ -275,9 +315,9 @@ async function buildIdentifierPdf(client, exhibitionId, payload, exhibitorId) {
     let qrData = payload && payload.accessCode ? String(payload.accessCode) : null;
     
     // If no accessCode provided, generate proper one according to QR algorithm
-    // Format: [Exhibition Name][Exhibition ID (4 digits)][Exhibitor ID with "w" (4 digits)][Entry ID (9 digits)][rnd + 6 digits][Entry ID repeated]
+    // Format: [Short Exhibition Code 4-5 chars][Exhibition ID (4 digits)][Exhibitor ID with "w" (4 digits)][Entry ID (9 digits)][rnd + 6 digits][Entry ID repeated]
     if (!qrData) {
-      const eventCode = String(ev.name || '').replace(/\s+/g, ' ').trim();
+      const eventCode = generateEventShortCode(ev.name || '');
       const eventIdPadded = String(ev.id).padStart(4, '0').slice(-4);
       // Changed to 4 digits for no collisions (backward compatible with 3-digit codes)
       const exhibitorIdPadded = 'w' + String(exhibitorId || 0).padStart(4, '0').slice(-4);

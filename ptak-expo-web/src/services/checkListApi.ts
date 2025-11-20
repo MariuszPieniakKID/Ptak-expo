@@ -510,6 +510,46 @@ export const addMaterial = async (material: DownloadMaterial) => {
 		(a, b) =>(a.fileName).localeCompare(b.fileName)
 )};
 }
+/**
+ * Generate a short event code (4-5 characters, no spaces) from exhibition name
+ * Examples:
+ *   "WARSAW INDUSTRY WEEK" -> "WARIW"
+ *   "Food Tech 2025" -> "FT25"
+ *   "SolarEnergy Expo" -> "SEEXP"
+ */
+function generateEventShortCode(exhibitionName: string): string {
+    if (!exhibitionName || exhibitionName.trim().length === 0) return 'EVNT';
+    
+    const cleaned = exhibitionName.trim().toUpperCase();
+    
+    // Extract all capital letters and digits
+    const capitals = cleaned.replace(/[^A-Z0-9]/g, '');
+    
+    // If we have 4-5 chars already, use them
+    if (capitals.length >= 4 && capitals.length <= 5) {
+        return capitals.slice(0, 5);
+    }
+    
+    // If too long, take first letter of each word
+    if (capitals.length > 5) {
+        const words = cleaned.split(/\s+/);
+        if (words.length >= 2) {
+            // Take first letter of each word
+            const acronym = words.map(w => w[0]).filter(c => /[A-Z0-9]/.test(c)).join('');
+            if (acronym.length >= 4) {
+                return acronym.slice(0, 5);
+            }
+            // If acronym too short, add more letters from first word
+            return (acronym + capitals).slice(0, 5);
+        }
+        // Single long word - take first 5 chars
+        return capitals.slice(0, 5);
+    }
+    
+    // If too short (1-3 chars), pad with first letters from name
+    return (capitals + cleaned.replace(/\s+/g, '').slice(0, 5)).slice(0, 5).padEnd(4, 'X');
+}
+
 export const addElectronicId = async (electronicId: ElectrionicId, exhibitionIdFromArg?: number) => {
     const exhibitionId = typeof exhibitionIdFromArg === 'number' && exhibitionIdFromArg > 0
         ? exhibitionIdFromArg
@@ -532,8 +572,8 @@ export const addElectronicId = async (electronicId: ElectrionicId, exhibitionIdF
             }
         } catch {}
 
-        // Build event code (FULL exhibition name), 0000 event id (padded), w000 exhibitor id (padded), entry_id (unique), rndXXXX, entry_id again
-        const eventCode = String(exhibitionName || '').replace(/\s+/g, ' ').trim();
+        // Build event code (4-5 char SHORT code without spaces), 0000 event id (padded), w000 exhibitor id (padded), entry_id (unique), rndXXXX, entry_id again
+        const eventCode = generateEventShortCode(String(exhibitionName || ''));
     const eventIdPadded = String(exhibitionId).padStart(4, '0').slice(-4);
     // Changed to 4 digits for no collisions (backward compatible with 3-digit codes)
     const exhibitorIdPadded = 'w' + String(typeof exhibitorId === 'number' ? exhibitorId : 0).padStart(4, '0').slice(-4);

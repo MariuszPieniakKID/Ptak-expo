@@ -14,11 +14,39 @@ const isDryRun = process.argv.includes('--dry-run');
 const exhibitionIdArg = process.argv.find(arg => arg.startsWith('--exhibition-id='));
 const targetExhibitionId = exhibitionIdArg ? parseInt(exhibitionIdArg.split('=')[1], 10) : null;
 
-// Generate access code using the correct algorithm
+/**
+ * Generate a short event code (4-5 characters, no spaces) from exhibition name
+ */
+function generateEventShortCode(exhibitionName) {
+    if (!exhibitionName || String(exhibitionName).trim().length === 0) return 'EVNT';
+    
+    const cleaned = String(exhibitionName).trim().toUpperCase();
+    const capitals = cleaned.replace(/[^A-Z0-9]/g, '');
+    
+    if (capitals.length >= 4 && capitals.length <= 5) {
+        return capitals.slice(0, 5);
+    }
+    
+    if (capitals.length > 5) {
+        const words = cleaned.split(/\s+/);
+        if (words.length >= 2) {
+            const acronym = words.map(w => w[0]).filter(c => /[A-Z0-9]/.test(c)).join('');
+            if (acronym.length >= 4) {
+                return acronym.slice(0, 5);
+            }
+            return (acronym + capitals).slice(0, 5);
+        }
+        return capitals.slice(0, 5);
+    }
+    
+    return (capitals + cleaned.replace(/\s+/g, '').slice(0, 5)).slice(0, 5).padEnd(4, 'X');
+}
+
+// Generate access code using the correct algorithm (v2.0 with SHORT CODE + 4-digit exhibitor ID)
 function generateAccessCode(exhibitionName, exhibitionId, exhibitorId) {
-  const eventCode = String(exhibitionName || '').replace(/\s+/g, ' ').trim();
+  const eventCode = generateEventShortCode(exhibitionName || '');
   const eventIdPadded = String(exhibitionId).padStart(4, '0').slice(-4);
-  const exhibitorIdPadded = 'w' + String(exhibitorId || 0).padStart(3, '0').slice(-3);
+  const exhibitorIdPadded = 'w' + String(exhibitorId || 0).padStart(4, '0').slice(-4);
   
   const entryId = (() => {
     const ts = Date.now().toString().slice(-6);

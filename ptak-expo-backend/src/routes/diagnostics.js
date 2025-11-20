@@ -3,6 +3,34 @@ const router = express.Router();
 const db = require('../config/database');
 
 /**
+ * Generate a short event code (4-5 characters, no spaces) from exhibition name
+ */
+function generateEventShortCode(exhibitionName) {
+    if (!exhibitionName || String(exhibitionName).trim().length === 0) return 'EVNT';
+    
+    const cleaned = String(exhibitionName).trim().toUpperCase();
+    const capitals = cleaned.replace(/[^A-Z0-9]/g, '');
+    
+    if (capitals.length >= 4 && capitals.length <= 5) {
+        return capitals.slice(0, 5);
+    }
+    
+    if (capitals.length > 5) {
+        const words = cleaned.split(/\s+/);
+        if (words.length >= 2) {
+            const acronym = words.map(w => w[0]).filter(c => /[A-Z0-9]/.test(c)).join('');
+            if (acronym.length >= 4) {
+                return acronym.slice(0, 5);
+            }
+            return (acronym + capitals).slice(0, 5);
+        }
+        return capitals.slice(0, 5);
+    }
+    
+    return (capitals + cleaned.replace(/\s+/g, '').slice(0, 5)).slice(0, 5).padEnd(4, 'X');
+}
+
+/**
  * TEMPORARY DIAGNOSTIC ENDPOINT
  * GET /api/v1/diagnostics/invitations/exhibition/:exhibitionId
  * Check invitation_recipients state for debugging
@@ -243,8 +271,8 @@ router.post('/regenerate-access-codes', async (req, res) => {
           continue;
         }
 
-        // Generate access_code using the same algorithm (NOW 4 DIGITS!)
-        const eventCode = String(exhibitionName).replace(/\s+/g, ' ').trim();
+        // Generate access_code using the same algorithm (NOW 4 DIGITS! + SHORT CODE v2.0)
+        const eventCode = generateEventShortCode(exhibitionName);
         const eventIdPadded = String(exhibitionId).padStart(4, '0').slice(-4);
         // Changed to 4 digits for no collisions (backward compatible with 3-digit codes)
         const exhibitorIdPadded = 'w' + String(exhibitorId || 0).padStart(4, '0').slice(-4);
@@ -325,8 +353,8 @@ router.get('/test-qr-format/:exhibitorId/:exhibitionId', async (req, res) => {
 
     const exhibitionName = exhibition.rows[0].name;
 
-    // Generate code with NEW 4-digit format
-    const eventCode = String(exhibitionName).replace(/\s+/g, ' ').trim();
+    // Generate code with NEW 4-digit format + SHORT CODE v2.0
+    const eventCode = generateEventShortCode(exhibitionName);
     const eventIdPadded = String(exhibitionId).padStart(4, '0').slice(-4);
     const exhibitorIdPadded = 'w' + String(exhibitorId).padStart(4, '0').slice(-4);
     

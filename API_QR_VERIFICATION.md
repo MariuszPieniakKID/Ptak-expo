@@ -104,22 +104,30 @@ API umożliwia:
 Kod QR składa się z następujących elementów:
 
 ```
-[Nazwa Wystawy][ID Wystawy][ID Wystawcy][EntryID][RndSuffix][EntryID]
+[Skrót Nazwy][ID Wystawy][ID Wystawcy][EntryID][RndSuffix][EntryID]
 ```
 
 ### Przykład rzeczywistego kodu:
 ```
-WARSAW INDUSTRY WEEK0017w123456789123rnd654321456789123
+WARIW0017w1606456789123rnd654321456789123
 ```
 
 Gdzie:
-- `WARSAW INDUSTRY WEEK` - pełna nazwa wystawy
+- `WARIW` - **skrót nazwy wystawy (4-5 znaków, bez spacji)** - **NOWY FORMAT od 2024-11-20**
+  - Generowany automatycznie z pełnej nazwy (np. "WARSAW INDUSTRY WEEK" → "WARIW")
+  - *Stare kody z pełną nazwą nadal obsługiwane (backward compatibility)*
 - `0017` - ID wystawy (4 cyfry z dopełnieniem zerami)
-- `w123` - ID wystawcy z prefiksem "w" (4 cyfry z dopełnieniem zerami) - **NOWY FORMAT od 2025-11-04**
+- `w1606` - ID wystawcy z prefiksem "w" (4 cyfry z dopełnieniem zerami) - **FORMAT od 2025-11-04**
   - *Stare kody używają 3 cyfr (nadal obsługiwane dla backward compatibility)*
 - `456789123` - unikalny identyfikator wpisu (9 cyfr)
 - `rnd654321` - losowy sufiks bezpieczeństwa (prefix "rnd" + 6 cyfr)
 - `456789123` - powtórzony identyfikator wpisu (weryfikacja)
+
+### Więcej przykładów:
+- `FT250023w0456123789456rnd654321123789456` - Food Tech 2025
+- `SEEXP0005w0089987654321rnd111222987654321` - SolarEnergy Expo
+
+**📖 Szczegółowa dokumentacja formatu:** Zobacz [QR_CODE_FORMAT.md](./QR_CODE_FORMAT.md)
 
 ---
 
@@ -155,7 +163,7 @@ Kod QR jest poprawny i został znaleziony w systemie.
       "location": "Warszawa",
       "status": "active"
     },
-    "accessCode": "WARSAW INDUSTRY WEEK0017w456789123rnd654321789123",
+    "accessCode": "WARIW0017w1606456789123rnd654321456789123",
     "verifiedAt": "2025-10-30T12:15:30.000Z"
   }
 }
@@ -209,13 +217,13 @@ Poniżej znajdziesz praktyczne przykłady użycia API w różnych językach prog
 #### cURL
 
 ```bash
-curl -X GET "https://backend-production-df8c.up.railway.app/api/v1/qr-verify/WARSAW%20INDUSTRY%20WEEK0017w456789123rnd654321789123"
+curl -X GET "https://backend-production-df8c.up.railway.app/api/v1/qr-verify/WARIW0017w1606456789123rnd654321456789123"
 ```
 
 #### JavaScript (Fetch API)
 
 ```javascript
-const code = "WARSAW INDUSTRY WEEK0017w456789123rnd654321789123";
+const code = "WARIW0017w1606456789123rnd654321456789123";
 const encodedCode = encodeURIComponent(code);
 
 fetch(`https://backend-production-df8c.up.railway.app/api/v1/qr-verify/${encodedCode}`)
@@ -240,7 +248,7 @@ fetch(`https://backend-production-df8c.up.railway.app/api/v1/qr-verify/${encoded
 import requests
 from urllib.parse import quote
 
-code = "WARSAW INDUSTRY WEEK0017w456789123rnd654321789123"
+code = "WARIW0017w1606456789123rnd654321456789123"
 encoded_code = quote(code)
 
 response = requests.get(f"https://backend-production-df8c.up.railway.app/api/v1/qr-verify/{encoded_code}")
@@ -366,7 +374,7 @@ fetch('https://backend-production-df8c.up.railway.app/api/v1/qr-codes/person/123
     "fullName": "Jan Kowalski",
     "position": "Wystawca",
     "email": "jan.kowalski@firma.pl",
-    "accessCode": "WARSAW INDUSTRY WEEK0017w456789123rnd654321789123",
+    "accessCode": "WARIW0017w1606456789123rnd654321456789123",
     "exhibitor": {
       "id": 456,
       "companyName": "ABC Electronics Sp. z o.o."
@@ -446,7 +454,7 @@ fetch('https://backend-production-df8c.up.railway.app/api/v1/qr-codes/exhibition
         "fullName": "Jan Kowalski",
         "position": "Wystawca",
         "email": "jan.kowalski@firma.pl",
-        "accessCode": "WARSAW INDUSTRY WEEK0017w456789123rnd654321789123",
+        "accessCode": "WARIW0017w1606456789123rnd654321456789123",
         "exhibitor": {
           "id": 456,
           "companyName": "ABC Electronics Sp. z o.o.",
@@ -803,6 +811,14 @@ fetch('https://backend-production-df8c.up.railway.app/api/v1/identifiers/my-iden
 ---
 
 ## Historia zmian
+
+### v2.0 (2024-11-20) - Nowy format kodów QR
+- 🔄 **BREAKING CHANGE (z backward compatibility):** Zmiana formatu kodów QR
+- ✨ Skrócona nazwa wystawy: zamiast pełnej nazwy (np. "WARSAW INDUSTRY WEEK") używany jest skrót 4-5 znaków (np. "WARIW")
+- 📏 Kody QR są teraz o 40-50% krótsze (z ~50-60 znaków do ~30-35 znaków)
+- ✅ Zachowana pełna kompatybilność wsteczna - stare kody nadal działają (fuzzy matching)
+- 📖 Nowa dokumentacja: [QR_CODE_FORMAT.md](./QR_CODE_FORMAT.md) z pełnym opisem algorytmu
+- 🔧 Zaktualizowano wszystkie przykłady kodu w dokumentacji
 
 ### v1.2 (2025-11-03) - Identyfikatory PDF
 - ✨ **Nowe funkcje:** Dodano endpointy do pobierania identyfikatorów PDF
