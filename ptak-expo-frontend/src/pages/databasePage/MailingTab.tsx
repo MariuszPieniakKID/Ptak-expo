@@ -104,8 +104,9 @@ const MailingTab: React.FC<MailingTabProps> = ({ token }) => {
     setLoading(true);
     setError('');
     try {
+      // Używamy endpointu publicznego, który rzeczywiście istnieje
       const response = await fetch(
-        `${config.API_BASE_URL}/api/v1/exhibitions/${exhibitionId}/exhibitors`,
+        `${config.API_BASE_URL}/public/exhibitions/${exhibitionId}/exhibitors`,
         {
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -118,7 +119,19 @@ const MailingTab: React.FC<MailingTabProps> = ({ token }) => {
       }
 
       const data = await response.json();
-      setExhibitors(data);
+      // Endpoint zwraca { success: true, exhibitionId: "...", exhibitors: [...] }
+      // Musimy wyciągnąć tablicę exhibitors z odpowiedzi
+      const exhibitorsList = Array.isArray(data.exhibitors) ? data.exhibitors : [];
+      
+      // Mapujemy na format oczekiwany przez komponent (z nazwami pól z backendu)
+      const mappedExhibitors: Exhibitor[] = exhibitorsList.map((ex: any) => ({
+        id: parseInt(ex.exhibitor_id || ex.id),
+        company_name: ex.name || '',
+        email: ex.contactEmail || ex.email || '',
+        contact_person: ex.contactPerson || ex.contact_person || '',
+      }));
+      
+      setExhibitors(mappedExhibitors);
     } catch (err: any) {
       setError(err.message || 'Błąd podczas pobierania wystawców');
       setExhibitors([]);
