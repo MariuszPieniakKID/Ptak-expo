@@ -1,10 +1,26 @@
 openapi: 3.0.3
 info:
   title: PTAK EXPO Backend API
-  version: 1.0.0
-  description: REST API for exhibitor and exhibition management
+  version: 2.0.0
+  description: |
+    REST API for exhibitor and exhibition management
+    
+    Features:
+    - Authentication & Authorization (JWT)
+    - Exhibitors management
+    - Exhibitions management
+    - QR codes generation and verification
+    - PDF identifiers generation
+    - Bulk email sending
+    - Public catalog API
+    - RSS feeds
+    
+    Updated: 2024-11-25
 servers:
+  - url: https://backend-production-df8c.up.railway.app
+    description: Production server (Railway)
   - url: http://localhost:3001
+    description: Local development server
 paths:
   /api/v1/auth/exhibitor-login:
     post:
@@ -652,6 +668,394 @@ paths:
       security: [ { bearerAuth: [] } ]
       responses:
         '200': { description: Types }
+  
+  # QR Verify endpoints
+  /api/v1/qr-verify/{code}:
+    get:
+      summary: Verify QR code
+      tags: [QR]
+      description: Verify access code and return person/exhibitor/exhibition info. No auth required.
+      parameters:
+        - in: path
+          name: code
+          required: true
+          schema: { type: string }
+          description: Access code to verify
+      responses:
+        '200':
+          description: Valid QR code
+        '404':
+          description: Code not found
+        '400':
+          description: Invalid input
+  
+  # QR Codes endpoints
+  /api/v1/qr-codes/person/{personId}:
+    get:
+      summary: Get QR code for person
+      tags: [QR]
+      description: Get QR code as JSON or PNG image
+      parameters:
+        - in: path
+          name: personId
+          required: true
+          schema: { type: integer }
+        - in: query
+          name: format
+          required: false
+          schema: { type: string, enum: [json, image], default: json }
+      responses:
+        '200':
+          description: QR code data or image
+        '404':
+          description: Person not found
+  
+  /api/v1/qr-codes/exhibition/{exhibitionId}:
+    get:
+      summary: Get all QR codes for exhibition
+      tags: [QR]
+      description: Get all QR codes as JSON or ZIP archive
+      parameters:
+        - in: path
+          name: exhibitionId
+          required: true
+          schema: { type: integer }
+        - in: query
+          name: format
+          required: false
+          schema: { type: string, enum: [json, zip], default: json }
+        - in: query
+          name: exhibitorId
+          required: false
+          schema: { type: integer }
+          description: Filter by exhibitor
+      responses:
+        '200':
+          description: QR codes data or ZIP file
+  
+  /api/v1/qr-codes/my-codes:
+    get:
+      summary: Get my QR codes (exhibitor)
+      tags: [QR]
+      security: [ { bearerAuth: [] } ]
+      parameters:
+        - in: query
+          name: exhibitionId
+          required: false
+          schema: { type: integer }
+      responses:
+        '200':
+          description: List of QR codes
+  
+  # Identifiers endpoints
+  /api/v1/identifiers/person/{personId}:
+    get:
+      summary: Get identifier PDF for person
+      tags: [Identifiers]
+      description: Download identifier PDF with QR code, branding, person info
+      parameters:
+        - in: path
+          name: personId
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: PDF file
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+  
+  /api/v1/identifiers/exhibition/{exhibitionId}:
+    get:
+      summary: Get all identifiers for exhibition as ZIP
+      tags: [Identifiers]
+      parameters:
+        - in: path
+          name: exhibitionId
+          required: true
+          schema: { type: integer }
+        - in: query
+          name: exhibitorId
+          required: false
+          schema: { type: integer }
+      responses:
+        '200':
+          description: ZIP archive with PDF files
+  
+  /api/v1/identifiers/my-identifiers:
+    get:
+      summary: Get my identifiers (exhibitor)
+      tags: [Identifiers]
+      security: [ { bearerAuth: [] } ]
+      parameters:
+        - in: query
+          name: exhibitionId
+          required: false
+          schema: { type: integer }
+      responses:
+        '200':
+          description: ZIP archive with PDF files
+  
+  # Bulk Emails endpoints
+  /api/v1/bulk-emails/send-welcome-by-exhibition:
+    post:
+      summary: Send welcome emails to exhibitors by exhibition (admin)
+      tags: [BulkEmails]
+      security: [ { bearerAuth: [] } ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                exhibitionId: { type: integer }
+      responses:
+        '200':
+          description: Emails sent
+  
+  /api/v1/bulk-emails/send-welcome-test:
+    post:
+      summary: Send test welcome email (admin)
+      tags: [BulkEmails]
+      security: [ { bearerAuth: [] } ]
+      responses:
+        '200':
+          description: Test email sent
+  
+  # Password Reset endpoints
+  /api/v1/password-reset/food-tech/preview:
+    get:
+      summary: Preview exhibitors for Food Tech password reset (admin)
+      tags: [PasswordReset]
+      security: [ { bearerAuth: [] } ]
+      responses:
+        '200':
+          description: List of exhibitors
+  
+  /api/v1/password-reset/food-tech/send-test:
+    post:
+      summary: Send test password reset for Food Tech (admin)
+      tags: [PasswordReset]
+      security: [ { bearerAuth: [] } ]
+      responses:
+        '200':
+          description: Test sent
+  
+  /api/v1/password-reset/food-tech/send-all:
+    post:
+      summary: Send password reset to all Food Tech exhibitors (admin)
+      tags: [PasswordReset]
+      security: [ { bearerAuth: [] } ]
+      responses:
+        '200':
+          description: Emails sent
+  
+  # News endpoints
+  /api/v1/news:
+    get:
+      summary: List news
+      tags: [News]
+      responses:
+        '200':
+          description: List of news
+    post:
+      summary: Create news (admin)
+      tags: [News]
+      security: [ { bearerAuth: [] } ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title: { type: string }
+                content: { type: string }
+                exhibitionId: { type: integer }
+      responses:
+        '201':
+          description: Created
+  
+  /api/v1/news/{id}:
+    get:
+      summary: Get news by ID
+      tags: [News]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: News item
+    put:
+      summary: Update news (admin)
+      tags: [News]
+      security: [ { bearerAuth: [] } ]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Updated
+    delete:
+      summary: Delete news (admin)
+      tags: [News]
+      security: [ { bearerAuth: [] } ]
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Deleted
+  
+  # Admin endpoints
+  /api/v1/admin/stats:
+    get:
+      summary: Get dashboard statistics (admin)
+      tags: [Admin]
+      security: [ { bearerAuth: [] } ]
+      responses:
+        '200':
+          description: Statistics
+  
+  # Activity Logs endpoints
+  /api/v1/activity-logs:
+    get:
+      summary: Get activity logs (admin)
+      tags: [ActivityLogs]
+      security: [ { bearerAuth: [] } ]
+      parameters:
+        - in: query
+          name: page
+          schema: { type: integer, default: 1 }
+        - in: query
+          name: limit
+          schema: { type: integer, default: 50 }
+        - in: query
+          name: action
+          schema: { type: string }
+        - in: query
+          name: entityType
+          schema: { type: string }
+      responses:
+        '200':
+          description: Activity logs
+  
+  # Diagnostics endpoints
+  /api/v1/diagnostics/invitations/exhibition/{exhibitionId}:
+    get:
+      summary: Get invitation diagnostics (admin)
+      tags: [Diagnostics]
+      security: [ { bearerAuth: [] } ]
+      parameters:
+        - in: path
+          name: exhibitionId
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Diagnostics data
+  
+  # Migrations endpoints
+  /api/v1/migrations/run:
+    post:
+      summary: Run database migrations (admin)
+      tags: [Migrations]
+      security: [ { bearerAuth: [] } ]
+      responses:
+        '200':
+          description: Migrations completed
+  
+  # Public endpoints (no auth required)
+  /public/exhibitions:
+    get:
+      summary: List all exhibitions (public)
+      tags: [Public]
+      responses:
+        '200':
+          description: List of exhibitions
+  
+  /public/exhibitions/{exhibitionId}/exhibitors:
+    get:
+      summary: List exhibitors for exhibition (public)
+      tags: [Public]
+      description: Get all exhibitors assigned to exhibition with catalog data
+      parameters:
+        - in: path
+          name: exhibitionId
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: List of exhibitors with catalog data
+  
+  /public/exhibitions/{exhibitionId}/exhibitors.json:
+    get:
+      summary: Exhibition exhibitors feed (JSON, public)
+      tags: [Public]
+      parameters:
+        - in: path
+          name: exhibitionId
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: JSON feed with all exhibitors
+  
+  /public/exhibitions/{exhibitionId}/exhibitors/{exhibitorId}.json:
+    get:
+      summary: Single exhibitor feed (JSON, public)
+      tags: [Public]
+      parameters:
+        - in: path
+          name: exhibitionId
+          required: true
+          schema: { type: integer }
+        - in: path
+          name: exhibitorId
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: JSON feed with exhibitor checklist data
+  
+  /public/exhibitions/{exhibitionId}/exhibitors/{exhibitorId}.rss:
+    get:
+      summary: Single exhibitor feed (RSS, public)
+      tags: [Public]
+      parameters:
+        - in: path
+          name: exhibitionId
+          required: true
+          schema: { type: integer }
+        - in: path
+          name: exhibitorId
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: RSS feed
+          content:
+            application/rss+xml:
+              schema:
+                type: string
+  
+  /public/rss:
+    get:
+      summary: Global RSS feed (public)
+      tags: [Public]
+      responses:
+        '200':
+          description: RSS feed with all exhibitions and exhibitors
+  
 components:
   securitySchemes:
     bearerAuth:
