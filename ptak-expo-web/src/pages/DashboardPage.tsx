@@ -127,10 +127,14 @@ const DashboardPage: React.FC = () => {
         <div className={styles.headerPadding} />
         <div className={styles.headerContainer}>
           <img className={styles.dashboardInner} alt="" src={groupLogo} />
+          <button className={styles.logoutButtonMobile} onClick={handleLogout}>
+            <div className={styles.logoutLogo} />
+          </button>
         </div>
         <div className={styles.headerPadding}>
           {/* Logout button */}
           <button className={styles.logoutButton} onClick={handleLogout}>
+            <div className={styles.logoutLogo} />
             <span>Wyloguj</span>
           </button>
         </div>
@@ -225,109 +229,23 @@ const DashboardPage: React.FC = () => {
                         }}
                       />
                       <div className={styles.internationalTradeFairForBParent}>
-                        <div className={styles.internationalTradeFair}>
-                          {event.name}
-                        </div>
                         <div className={styles.div}>
                           {formatDateRange(event.startDate, event.endDate)}
                         </div>
+                        <div className={styles.internationalTradeFair}>
+                          {event.name}
+                        </div>
                       </div>
                     </div>
                     <div className={styles.eventBottom}>
-                      <div className={styles.eventReadinessBar}>
-                        <b className={styles.b}>{completion}%</b>
+                      <div className={styles.eventReadinessContainer}>
+                        <div className={styles.eventReadinessText}>
+                          Gotowość:
+                        </div>
+                        <div className={styles.eventReadinessBar}>
+                          <b className={styles.b}>{completion}%</b>
+                        </div>
                       </div>
-                      <div className={styles.eventReadinessText}>Gotowość:</div>
-                      <div
-                        className={styles.wybierz}
-                        onClick={() => handleEventSelect(event.id)}
-                      >
-                        wybierz
-                      </div>
-                    </div>
-                  </div>
-                  <div key={event.id} className={styles.eventElement}>
-                    <img
-                      className={styles.image29Icon}
-                      alt={event.name}
-                      src={logoSrc}
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).src = "/image-29@2x.png";
-                      }}
-                    />
-                    <div className={styles.internationalTradeFairForBParent}>
-                      <div className={styles.internationalTradeFair}>
-                        {event.name}
-                      </div>
-                      <div className={styles.div}>
-                        {formatDateRange(event.startDate, event.endDate)}
-                      </div>
-                    </div>
-                    <div className={styles.eventBottom}>
-                      <div className={styles.eventReadinessBar}>
-                        <b className={styles.b}>{completion}%</b>
-                      </div>
-                      <div className={styles.eventReadinessText}>Gotowość:</div>
-                      <div
-                        className={styles.wybierz}
-                        onClick={() => handleEventSelect(event.id)}
-                      >
-                        wybierz
-                      </div>
-                    </div>
-                  </div>
-                  <div key={event.id} className={styles.eventElement}>
-                    <img
-                      className={styles.image29Icon}
-                      alt={event.name}
-                      src={logoSrc}
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).src = "/image-29@2x.png";
-                      }}
-                    />
-                    <div className={styles.internationalTradeFairForBParent}>
-                      <div className={styles.internationalTradeFair}>
-                        {event.name}
-                      </div>
-                      <div className={styles.div}>
-                        {formatDateRange(event.startDate, event.endDate)}
-                      </div>
-                    </div>
-                    <div className={styles.eventBottom}>
-                      <div className={styles.eventReadinessBar}>
-                        <b className={styles.b}>{completion}%</b>
-                      </div>
-                      <div className={styles.eventReadinessText}>Gotowość:</div>
-                      <div
-                        className={styles.wybierz}
-                        onClick={() => handleEventSelect(event.id)}
-                      >
-                        wybierz
-                      </div>
-                    </div>
-                  </div>
-                  <div key={event.id} className={styles.eventElement}>
-                    <img
-                      className={styles.image29Icon}
-                      alt={event.name}
-                      src={logoSrc}
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).src = "/image-29@2x.png";
-                      }}
-                    />
-                    <div className={styles.internationalTradeFairForBParent}>
-                      <div className={styles.internationalTradeFair}>
-                        {event.name}
-                      </div>
-                      <div className={styles.div}>
-                        {formatDateRange(event.startDate, event.endDate)}
-                      </div>
-                    </div>
-                    <div className={styles.eventBottom}>
-                      <div className={styles.eventReadinessBar}>
-                        <b className={styles.b}>{completion}%</b>
-                      </div>
-                      <div className={styles.eventReadinessText}>Gotowość:</div>
                       <div
                         className={styles.wybierz}
                         onClick={() => handleEventSelect(event.id)}
