@@ -1,12 +1,12 @@
-@import './styles/variables';
-@import './styles/mixins';
+@import "./styles/variables";
+@import "./styles/mixins";
 
 /* Disabled external Google Fonts to avoid css2 400s */
 
 body {
   margin: 0;
   line-height: normal;
-  font-family: $font-open-sans;
+  font-family: $font-roc-grotesk;
   color: $color-darkslategray;
   background-color: $color-whitesmoke;
 }

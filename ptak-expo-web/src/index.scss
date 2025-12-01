@@ -1,8 +1,9 @@
-@import './styles/variables';
-@import './styles/mixins';
+@import "./styles/variables";
+@import "./styles/mixins";
 
 * {
   box-sizing: border-box;
+  font-family: "RocGrotesk";
 }
 
 body {
@@ -16,5 +17,9 @@ body {
 }
 
 code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+  font-family: source-code-pro, Menlo, Monaco, Consolas, "RocGrotesk", monospace;
+}
+@font-face {
+  font-family: "RocGrotesk";
+  src: url("./fonts/rocgrotesk.otf") format("opentype");
 }

@@ -1,45 +1,59 @@
+.header {
+  display: flex;
+  height: 97px;
+  margin-top: 60px;
+  width: 100%;
+}
+.headerContainer {
+  background-color: #fff;
+  width: 78%;
+  border-radius: 20px;
+  padding: 18px 45px;
+}
+.headerPadding {
+  width: 11%;
+}
+
 .image35Icon {
-  top: -1378.31px;
-  height: 2367.6px;
+  top: -200%;
+  height: 300%;
   object-fit: cover;
   mix-blend-mode: luminosity;
 }
+
 .image35Icon,
 .dashboardChild,
 .dashboardItem {
-  position: absolute;
+  position: fixed;
   left: 0;
-  width: 1366px;
+  z-index: -2;
+  width: 100%;
 }
+
 .dashboardChild {
-  top: -59px;
-  background: linear-gradient(
-    180deg,
-    var(--color-dodgerblue),
-    rgba(111, 135, 246, 0)
-  );
-  height: 827px;
+  background: linear-gradient(180deg, #6f87f6, rgba(111, 135, 246, 0));
+  height: 100%;
   transform: rotate(180deg);
   mix-blend-mode: overlay;
 }
+
 .dashboardItem {
-  top: -80px;
   background: linear-gradient(
     180deg,
     #eceef0,
     #eceef0 53.2%,
     rgba(255, 255, 255, 0)
   );
-  height: 754px;
+  top: -200%;
+  height: 300%;
 }
+
 .dashboardInner {
-  position: absolute;
-  top: 71px;
-  left: 648px;
-  width: 71px;
-  height: 67px;
+  width: 63px;
+  height: 60px;
   object-fit: cover;
 }
+
 .twojeZaplanowaneWydarzenia {
   position: absolute;
   top: 262px;
@@ -79,16 +93,19 @@
 }
 .kontakt {
   position: absolute;
-  bottom: 48px;
-  left: 531px;
+  bottom: 24px;
+  margin-top: 48px;
+  margin-bottom: 24px;
+  left: 0;
+  right: 0;
   font-size: var(--font-size-11);
   color: var(--color-dimgray);
   white-space: pre-wrap;
+  text-align: center;
+  overflow: scroll;
 }
 .div,
 .internationalTradeFair {
-  position: absolute;
-  left: 0;
   font-weight: 500;
   display: inline-block;
 }
@@ -99,20 +116,13 @@
 }
 .div {
   width: calc(100% - 2px);
-  top: 0;
   color: var(--color-dodgerblue);
 }
 .internationalTradeFairForBParent {
-  position: absolute;
-  top: calc(50% - 49px);
-  right: 0;
   width: 208px;
   height: 75px;
 }
 .wybierz {
-  position: absolute;
-  top: calc(50% + 57px);
-  left: calc(50% + 95.5px);
   font-size: 13px;
   text-decoration: underline;
   letter-spacing: 0.33px;
@@ -120,11 +130,9 @@
   cursor: pointer;
 }
 .image29Icon {
-  position: absolute;
-  top: calc(50% - 49px);
-  left: 20px;
-  width: 97px;
-  height: 55px;
+  width: 87px;
+  height: 77px;
+  margin-right: 10px;
   object-fit: cover;
 }
 .groupContainer {
@@ -139,15 +147,7 @@
   border: 1px solid var(--color-white);
   box-sizing: border-box;
 }
-.b,
-.groupContainer,
-.wrapper {
-  position: absolute;
-}
-.b {
-  bottom: 2px;
-  left: calc(50% - 13px);
-}
+
 .wrapper {
   bottom: 15px;
   left: 20px;
@@ -233,53 +233,33 @@
   height: 170px;
 }
 .dzieDobryUser {
-  position: absolute;
-  top: 3.5px;
-  right: 25.75px;
   font-weight: 500;
   -webkit-text-stroke: 1px transparent;
 }
 .bb764a0137abc7a8142b6438e52913Icon {
-  position: absolute;
-  height: 100%;
-  top: 0;
-  bottom: 0;
-  left: 0;
   border-radius: 50%;
-  max-height: 100%;
   width: 35px;
+  height: 35px;
   object-fit: cover;
+  margin-right: 12px;
 }
 .sprawdCoMoesz {
-  position: absolute;
-  bottom: 0;
-  left: calc(50% - 90.35px);
   font-size: var(--font-size-11);
   font-family: var(--font-open-sans);
   color: var(--color-dimgray);
 }
 .groupChild {
-  position: absolute;
-  top: 1.74px;
-  right: -0.05px;
   width: 18.3px;
   height: 18.3px;
   object-fit: cover;
 }
 .dzieDobryUserParent {
-  position: absolute;
-  top: 89px;
-  left: 146px;
-  width: 274.7px;
-  height: 35px;
+  display: flex;
   font-size: var(--font-size-16);
 }
 
 /* Logout button */
 .logoutButton {
-  position: absolute;
-  top: 54px;
-  right: 50px;
   background: none;
   border: none;
   font-size: var(--font-size-12);
@@ -288,7 +268,12 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  height: 97px;
+  width: 100%;
   font-weight: 500;
+  padding-top: 16px;
+  justify-content: center;
+  background: url(../assets/logout.svg) no-repeat 50% 30%;
 }
 
 .logoutButton:hover {
@@ -299,14 +284,60 @@
   width: 16px;
   height: 16px;
 }
+.dashboardContainer {
+  height: 100%;
+  width: 78%;
+  margin-top: 37px;
+  margin-left: auto;
+  margin-right: auto;
+}
 
-.dashboard {
-  position: relative;
-  background-color: var(--color-white);
-  width: 100%;
-  height: 768px;
-  text-align: left;
-  font-size: var(--font-size-14);
-  color: var(--color-darkslategray);
-  font-family: var(--font-roc-grotesk);
-} 
+.eventsContainer {
+  margin-top: 70px;
+  padding-left: 40px;
+  padding-right: 40px;
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.eventElement {
+  background-color: #f5f6f7;
+  border-radius: 20px;
+  border: 1px solid #fff;
+  height: 207px;
+  padding: 20px;
+  display: flex;
+  flex: 3;
+  flex-grow: 1;
+  flex-basis: calc((100% - (2 * 20px)) / 3);
+  max-width: calc((100% - (2 * 20px)) / 3);
+  flex-direction: column;
+}
+
+.eventBottom {
+  display: flex;
+  align-items: end;
+}
+
+.eventTop {
+  display: flex;
+  align-items: start;
+}
+.eventReadinessText {
+  font-family: "Open Sans";
+  color: #a7a7a7;
+  font-size: 11px;
+}
+
+@media (max-width: 1536px) {
+  .eventElement {
+    max-width: calc((100% - (2 * 20px)) / 2);
+  }
+}
+
+@media (max-width: 1024px) {
+  .eventElement {
+    max-width: 100%;
+  }
+}
