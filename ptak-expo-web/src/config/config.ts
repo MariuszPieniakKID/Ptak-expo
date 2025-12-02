@@ -9,29 +9,34 @@ interface AppConfig {
 }
 
 // Detect environment
-const isProduction = process.env.NODE_ENV === 'production';
-const isRailway = !!(process.env.REACT_APP_RAILWAY_ENVIRONMENT || 
-                     window.location.hostname.includes('railway.app') || 
-                     window.location.hostname.includes('up.railway.app'));
+const isProduction = process.env.NODE_ENV === "production";
+const isRailway = !!(
+  process.env.REACT_APP_RAILWAY_ENVIRONMENT ||
+  window.location.hostname.includes("railway.app") ||
+  window.location.hostname.includes("up.railway.app")
+);
 
 // Default configuration
 const defaultConfig: AppConfig = {
-  API_BASE_URL: 'http://localhost:3001',
-  NODE_ENV: process.env.NODE_ENV || 'development',
+  API_BASE_URL: "https://backend-production-df8c.up.railway.app",
+  NODE_ENV: process.env.NODE_ENV,
   DEBUG: !isProduction,
-  ENABLE_LOGGING: !isProduction
+  ENABLE_LOGGING: !isProduction,
 };
 
 // Production/Railway configuration
 const productionConfig: AppConfig = {
   ...defaultConfig,
-  API_BASE_URL: process.env.REACT_APP_API_URL || 'https://backend-production-df8c.up.railway.app',
+  API_BASE_URL:
+    process.env.REACT_APP_API_URL ||
+    "https://backend-production-df8c.up.railway.app",
   DEBUG: false,
-  ENABLE_LOGGING: false
+  ENABLE_LOGGING: false,
 };
 
 // Select config based on environment
-const config: AppConfig = isProduction || isRailway ? productionConfig : defaultConfig;
+const config: AppConfig =
+  isProduction || isRailway ? productionConfig : defaultConfig;
 
 // Override with environment variables if provided
 if (process.env.REACT_APP_API_URL) {
@@ -40,22 +45,22 @@ if (process.env.REACT_APP_API_URL) {
 
 // Runtime override (useful on Railway): allow setting window.API_BASE_URL without rebuild
 try {
-  const w = (typeof window !== 'undefined') ? (window as any) : undefined;
-  if (w && typeof w.API_BASE_URL === 'string' && w.API_BASE_URL.trim()) {
+  const w = typeof window !== "undefined" ? (window as any) : undefined;
+  if (w && typeof w.API_BASE_URL === "string" && w.API_BASE_URL.trim()) {
     config.API_BASE_URL = w.API_BASE_URL.trim();
   }
 } catch {}
 
 // Debug logging
 if (config.DEBUG && false) {
-  console.log('🔧 Config loaded:', {
+  console.log("🔧 Config loaded:", {
     NODE_ENV: config.NODE_ENV,
     API_BASE_URL: config.API_BASE_URL,
     DEBUG: config.DEBUG,
     isProduction,
     isRailway,
-    hostname: window.location.hostname
+    hostname: window.location.hostname,
   });
 }
 
-export default config; 
+export default config;
