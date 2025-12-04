@@ -192,7 +192,7 @@ const Menu: FunctionComponent<MenuType> = ({
                 </Box>
                 {menuItems
                   .filter((_) =>
-                    !isMainPage ? _.key != "logout" : _.key == "logout"
+                    !isMainPage ? _.key !== "logout" : _.key === "logout"
                   )
                   .map((item, index) => {
                     const disabled = isDisabled(item.key);
@@ -254,7 +254,7 @@ const Menu: FunctionComponent<MenuType> = ({
                 >
                   <List>
                     {menuItems
-                      .filter((_) => (!isMainPage ? _ : _.key == "logout"))
+                      .filter((_) => (!isMainPage ? _ : _.key === "logout"))
                       .map((item, index) => {
                         const disabled = isDisabled(item.key);
                         return (
