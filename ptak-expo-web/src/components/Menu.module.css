@@ -77,7 +77,7 @@
 }
 
 .navButton::before {
-  content: '';
+  content: "";
   position: absolute;
   left: 50%;
   top: 0;
@@ -170,13 +170,17 @@
   font-size: 12px;
 }
 
+.hamburgerIcon {
+  margin-left: auto;
+}
+
 /* Responsive design */
 @media screen and (max-width: 1200px) {
   .navLinks {
     gap: 1.75em;
     padding-right: 0.5em;
   }
-  
+
   .toolbar {
     width: 85%;
   }
@@ -187,7 +191,7 @@
     gap: 0.75em;
     padding-right: 0;
   }
-  
+
   .toolbar {
     width: 90%;
   }
@@ -198,7 +202,7 @@
     gap: 0.5em;
     padding-right: 0;
   }
-  
+
   .buttonText {
     font-size: 11px;
     text-wrap: nowrap;
@@ -207,19 +211,19 @@
     width: 70px;
     text-align: center;
   }
-  
+
   .navLogo {
     width: 4em;
   }
-  
+
   .logo {
     padding-left: 0;
   }
-  
+
   .navLinks {
     width: calc(100% - 4em);
   }
-  
+
   .toolbar {
     width: 95%;
   }

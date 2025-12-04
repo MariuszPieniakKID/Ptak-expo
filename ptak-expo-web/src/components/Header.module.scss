@@ -1,7 +1,33 @@
+.header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  padding: 6rem;
+  padding-left: 0;
+  padding-right: 0;
+  padding-top: 2rem;
+  display: flex;
+  @media (max-width: 600px) {
+    padding: 0;
+    gap: 1rem;
+  }
+  @media (max-width: 1280px) {
+    padding-left: 0;
+    padding-right: 0;
+    gap: 1rem;
+  }
+}
 .appbar {
   background: transparent !important;
   box-shadow: none !important;
   padding: 0.5rem 1rem;
+  width: 82% !important;
+
+  @media (max-width: 1280px) {
+    width: 100% !important;
+  }
 }
 
 .toolbar {
@@ -11,6 +37,17 @@
   justify-content: space-between;
   align-items: center;
   padding: 0.5rem;
+  padding-left: 45px !important;
+  padding-right: 45px !important;
+  height: 97px;
+
+  @media (max-width: 1280px) {
+    padding-left: 24px;
+    padding-right: 24px;
+  }
+}
+.menuIconContainer .hamburgerIcon {
+  margin-left: auto;
 }
 
 .logo {
@@ -31,6 +68,15 @@
   flex-grow: 1;
   justify-content: center;
   align-items: center;
+  &:has(.logoutIconMenu) .logo {
+    margin-right: auto;
+  }
+  &:has(:not(.logoutIconMenu)) .navItem:nth-of-type(2) {
+    margin-left: auto;
+  }
+  &:has(:not(.logoutIconMenu)) .navItem:last-child {
+    margin-right: auto;
+  }
 }
 
 .navItem {
@@ -65,7 +111,7 @@
   color: #5a6ec8;
 
   &::before {
-    content: '';
+    content: "";
     position: absolute;
     top: 0;
     left: 0;
@@ -79,5 +125,68 @@
 .menuIconContainer {
   display: flex;
   flex-direction: row;
+  @media (max-width: 1280px) {
+    width: 100%;
+  }
 }
 
+/* Logout button */
+.logoutButton {
+  border: none;
+  font-size: var(--font-size-12);
+  color: var(--color-gray-200);
+  cursor: pointer;
+  align-items: center;
+  gap: 8px;
+  height: 97px;
+  width: 100%;
+  font-weight: 500;
+  justify-content: center;
+  background-color: transparent;
+}
+
+.logoutLogo {
+  mask-image: url(../assets/logout.svg);
+  width: 20px;
+  height: 22px;
+  background-color: #2b2b2d;
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: 11px;
+  margin-top: 12px;
+}
+
+.logoutButtonMobile .logoutLogo {
+  margin-bottom: 0;
+}
+
+.logoutButton:hover {
+  color: var(--color-firebrick);
+}
+.logoutButton:hover .logoutLogo {
+  background-color: var(--color-firebrick);
+}
+
+.logoutIcon {
+  width: 16px;
+  height: 16px;
+}
+.logoutIconMenu {
+  width: 22px;
+  height: 20px;
+}
+.navItem:has(.logoutIconMenu) {
+  display: none;
+  @media (max-width: 1280px) {
+    display: block;
+  }
+}
+
+.headerLeft,
+.headerRight {
+  width: 14%;
+
+  @media (max-width: 1280px) {
+    display: none;
+  }
+}

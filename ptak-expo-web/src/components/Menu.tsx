@@ -1,5 +1,5 @@
-import {FunctionComponent, useMemo, useState} from "react";
-import {useNavigate, useLocation, useParams} from "react-router-dom";
+import { FunctionComponent, useMemo, useState } from "react";
+import { useNavigate, useLocation, useParams } from "react-router-dom";
 import {
   AppBar,
   Toolbar,
@@ -23,14 +23,17 @@ import FingerprintIcon from "@mui/icons-material/Fingerprint";
 import IconMarketing from "../assets/group-842.png";
 import IconEmails from "../assets/emails-border.png";
 import IconDocuments from "../assets/documents.png";
+import { ReactComponent as LogoutIcon } from "../assets/logout.svg";
 import IconBell from "../assets/bell.png";
 import IconNews from "../assets/news.png";
 import IconCalendar from "../assets/calendar-check-gray.png";
+import { useAuth } from "../contexts/AuthContext";
 
 export type MenuType = {
   className?: string;
   onMenuClick?: (page: string) => void;
   onLogout?: () => void;
+  isMainPage?: boolean;
 };
 
 type NavItem = {
@@ -129,12 +132,26 @@ const navItems: NavItem[] = [
     key: "info",
     getUrl: (id) => `/event/${id}/trade-info`,
   },
+  {
+    label: "Wyloguj",
+    customIcon: (
+      <div className={styles.customIconMenuImage}>
+        <LogoutIcon className={styles.logoutIconMenu} />
+      </div>
+    ),
+    key: "logout",
+    getUrl: () => `/logout`,
+  },
 ];
 
-const Menu: FunctionComponent<MenuType> = ({className = "", onLogout}) => {
+const Menu: FunctionComponent<MenuType> = ({
+  className = "",
+  isMainPage = false,
+}) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const params = useParams<{eventId: string}>();
+  const { logout } = useAuth();
+  const params = useParams<{ eventId: string }>();
   const isDrawer = useMediaQuery("(max-width:1280px)");
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -145,7 +162,7 @@ const Menu: FunctionComponent<MenuType> = ({className = "", onLogout}) => {
     const base = `/event/${eventId}`;
     const home = `${base}/home`;
     return menuItems.findIndex((item) => {
-      const target = item.getUrl(eventId);
+      const target = item.getUrl ? item.getUrl(eventId) : "";
       if (item.key === "home") {
         return location.pathname === base || location.pathname.startsWith(home);
       }
@@ -155,103 +172,125 @@ const Menu: FunctionComponent<MenuType> = ({className = "", onLogout}) => {
 
   const handleDrawerToggle = () => setMobileOpen((v) => !v);
 
+  const handleLogout = () => {
+    logout();
+  };
   return (
-    <AppBar position="static" className={`${styles.appbar} ${className}`}>
-      <Toolbar className={styles.toolbar}>
-        {!isDrawer && (
-          <Box className={styles.navItems}>
-            <Box className={styles.logo}>
-              <img
-                src={Logo}
-                alt="Logo"
-                onClick={() => navigate("/dashboard")}
-              />
-            </Box>
-            {menuItems.map((item, index) => {
-              const disabled = isDisabled(item.key);
-              return (
-                <Box
-                  key={item.key}
-                  className={`${styles.navItem} ${
-                    index === activeIndex ? styles.active : ""
-                  }`}
-                  onClick={
-                    !disabled ? () => navigate(item.getUrl(eventId)) : undefined
-                  }
-                  aria-disabled={disabled || undefined}
-                  sx={{
-                    cursor: disabled ? "default" : "pointer",
-                    opacity: disabled ? 0.6 : undefined,
-                  }}
-                >
-                  {item.icon && item.icon}
-                  {item.customIcon && item.customIcon}
-                  <Typography
-                    variant="caption"
-                    textAlign={"center"}
-                    fontSize={{lg: "10px", xl: "13px"}}
-                  >
-                    {item.label}
-                  </Typography>
+    <>
+      <Box className={styles.header}>
+        <div className={styles.headerLeft}></div>
+        <AppBar position="static" className={`${styles.appbar} ${className}`}>
+          <Toolbar className={styles.toolbar}>
+            {!isDrawer && (
+              <Box className={styles.navItems}>
+                <Box className={styles.logo}>
+                  <img
+                    src={Logo}
+                    alt="Logo"
+                    onClick={() => navigate("/dashboard")}
+                  />
                 </Box>
-              );
-            })}
-          </Box>
-        )}
-
-        {isDrawer && (
-          <>
-            <Box className={styles.menuIconContainer}>
-              <Box className={styles.logo}>
-                <img
-                  src={Logo}
-                  alt="Logo"
-                  onClick={() => navigate("/dashboard")}
-                />
-              </Box>
-              <IconButton onClick={handleDrawerToggle}>
-                <MenuIcon />
-              </IconButton>
-            </Box>
-            <Drawer
-              anchor="left"
-              open={mobileOpen}
-              onClose={handleDrawerToggle}
-            >
-              <List>
-                {menuItems.map((item, index) => {
-                  const disabled = isDisabled(item.key);
-                  return (
-                    <ListItem key={item.key} disablePadding>
-                      <ListItemButton
-                        selected={activeIndex === index}
+                {menuItems
+                  .filter((_) =>
+                    !isMainPage ? _.key != "logout" : _.key == "logout"
+                  )
+                  .map((item, index) => {
+                    const disabled = isDisabled(item.key);
+                    return (
+                      <Box
+                        key={item.key}
+                        className={`${styles.navItem} ${
+                          index === activeIndex ? styles.active : ""
+                        }`}
                         onClick={
                           !disabled
-                            ? () => navigate(item.getUrl(eventId))
+                            ? item.key === "logout"
+                              ? () => handleLogout()
+                              : () => navigate(item.getUrl(eventId))
                             : undefined
                         }
-                        disabled={disabled}
+                        aria-disabled={disabled || undefined}
+                        sx={{
+                          cursor: disabled ? "default" : "pointer",
+                          opacity: disabled ? 0.6 : undefined,
+                        }}
                       >
-                        <ListItemIcon>{item.icon}</ListItemIcon>
-                        <ListItemText primary={item.label} />
-                      </ListItemButton>
-                    </ListItem>
-                  );
-                })}
-              </List>
-            </Drawer>
-          </>
-        )}
+                        {item.icon && item.icon}
+                        {item.customIcon && item.customIcon}
+                        <Typography
+                          variant="caption"
+                          textAlign={"center"}
+                          fontSize={{ lg: "10px", xl: "13px" }}
+                        >
+                          {item.label}
+                        </Typography>
+                      </Box>
+                    );
+                  })}
+              </Box>
+            )}
 
-        <Box>
-          {onLogout && (
-            <button className={styles.logoutButton} onClick={onLogout}>
-              <span className={styles.logoutText}>Wyloguj</span>
-            </button>
-          )}
-        </Box>
-      </Toolbar>
-    </AppBar>
+            {isDrawer && (
+              <>
+                <Box className={styles.menuIconContainer}>
+                  <Box className={styles.logo}>
+                    <img
+                      src={Logo}
+                      alt="Logo"
+                      onClick={() => navigate("/dashboard")}
+                    />
+                  </Box>
+                  <IconButton
+                    onClick={handleDrawerToggle}
+                    className={styles.hamburgerIcon}
+                  >
+                    <MenuIcon />
+                  </IconButton>
+                </Box>
+                <Drawer
+                  anchor="left"
+                  open={mobileOpen}
+                  onClose={handleDrawerToggle}
+                >
+                  <List>
+                    {menuItems
+                      .filter((_) => (!isMainPage ? _ : _.key == "logout"))
+                      .map((item, index) => {
+                        const disabled = isDisabled(item.key);
+                        return (
+                          <ListItem key={item.key} disablePadding>
+                            <ListItemButton
+                              selected={activeIndex === index}
+                              onClick={
+                                !disabled
+                                  ? () => navigate(item.getUrl(eventId))
+                                  : undefined
+                              }
+                              disabled={disabled}
+                            >
+                              <ListItemIcon>
+                                {item.customIcon ?? item.icon}
+                              </ListItemIcon>
+                              <ListItemText primary={item.label} />
+                            </ListItemButton>
+                          </ListItem>
+                        );
+                      })}
+                  </List>
+                </Drawer>
+              </>
+            )}
+          </Toolbar>
+        </AppBar>
+
+        <div className={styles.headerRight}>
+          <button className={styles.logoutButton} onClick={handleLogout}>
+            <div className={styles.logoutLogo} />
+            <span>Wyloguj</span>
+          </button>
+        </div>
+      </Box>
+    </>
   );
 };
 

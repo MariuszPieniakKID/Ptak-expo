@@ -3,7 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { exhibitionsAPI, brandingAPI } from "../services/api";
 import styles from "./DashboardPage.module.css";
-import groupLogo from "../assets/group-257@3x.png";
+// import groupLogo from "../assets/group-257@3x.png";
+import Menu from "../components/Menu";
 
 interface Event {
   id: number;
@@ -16,7 +17,7 @@ interface Event {
 }
 
 const DashboardPage: React.FC = () => {
-  const { logout, user } = useAuth();
+  const { user } = useAuth();
   const navigate = useNavigate();
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
@@ -84,10 +85,6 @@ const DashboardPage: React.FC = () => {
     loadTileLogos();
   }, [events]);
 
-  const handleLogout = () => {
-    logout();
-  };
-
   const handleEventSelect = (eventId: number) => {
     // Navigate to the event home view for this event
     navigate(`/event/${eventId}/home`);
@@ -123,7 +120,7 @@ const DashboardPage: React.FC = () => {
         <div className={styles.dashboardChild} />
         <div className={styles.dashboardItem} />
       </div>
-      <div className={styles.header}>
+      {/* <div className={styles.header}>
         <div className={styles.headerPadding} />
         <div className={styles.headerContainer}>
           <img className={styles.dashboardInner} alt="" src={groupLogo} />
@@ -132,13 +129,13 @@ const DashboardPage: React.FC = () => {
           </button>
         </div>
         <div className={styles.headerPadding}>
-          {/* Logout button */}
           <button className={styles.logoutButton} onClick={handleLogout}>
             <div className={styles.logoutLogo} />
             <span>Wyloguj</span>
           </button>
         </div>
-      </div>
+      </div> */}
+      <Menu isMainPage />
       <div className={styles.dashboardContainer}>
         {/* User greeting */}
         <div className={styles.dzieDobryUserParent}>
@@ -243,7 +240,7 @@ const DashboardPage: React.FC = () => {
                           Gotowość:
                         </div>
                         <div className={styles.eventReadinessBar}>
-                          <b className={styles.b}>{completion}%</b>
+                          <span className={styles.b}>{completion}%</span>
                         </div>
                       </div>
                       <div
@@ -277,9 +274,9 @@ const DashboardPage: React.FC = () => {
         </div>
       </div>
 
-      {/* <div className={styles.kontakt}>
+      <div className={styles.kontakt}>
         Kontakt • Polityka prywatności • www.warsawexpo.eu
-      </div> */}
+      </div>
     </div>
   );
 };
