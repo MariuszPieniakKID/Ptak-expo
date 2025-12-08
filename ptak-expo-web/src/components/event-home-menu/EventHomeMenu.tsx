@@ -39,7 +39,10 @@ const EventHomeMenu: React.FC<Props> = ({ id }) => {
     },
   ];
   return (
-    <Box sx={{ mt: 4 }} className={styles.container}>
+    <Box
+      sx={{ mt: 4 }}
+      className={`${styles.container} ${styles.eventHomeContainer}`}
+    >
       <Grid container spacing={3}>
         {menu.map((tile) => {
           const Icon = tile.icon;

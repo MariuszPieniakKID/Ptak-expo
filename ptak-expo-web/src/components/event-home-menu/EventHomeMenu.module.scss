@@ -31,3 +31,9 @@
     }
   }
 }
+.eventHomeContainer {
+  margin-top: 83px !important;
+  @media (max-width: 1280px) {
+    margin-top: 18px !important;
+  }
+}

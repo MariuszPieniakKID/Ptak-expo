@@ -1,7 +1,8 @@
-import {ReactNode} from "react";
-import {Accordion, AccordionDetails, AccordionSummary} from "@mui/material";
-import {ExpandMore} from "@mui/icons-material";
-import {ApplyGreenCheck} from "./ApplyGreenCheck";
+import { ReactNode } from "react";
+import { Accordion, AccordionDetails, AccordionSummary } from "@mui/material";
+import { ExpandMore } from "@mui/icons-material";
+import { ApplyGreenCheck } from "./ApplyGreenCheck";
+import styles from "../../pages/ChecklistPage.module.scss";
 
 export default function ChecklistCard({
   children,
@@ -18,6 +19,7 @@ export default function ChecklistCard({
 }) {
   return (
     <Accordion
+      className={styles.accordion}
       sx={{
         backgroundColor: secondaryBackground ? "#F5F6F7" : "white",
         borderRadius: "20px",
@@ -29,7 +31,10 @@ export default function ChecklistCard({
       <AccordionSummary
         slotProps={{
           content: {
-            sx: {alignItems: "center", gap: "10px"},
+            sx: {
+              alignItems: "center",
+              gap: "10px",
+            },
           },
         }}
         sx={{}}

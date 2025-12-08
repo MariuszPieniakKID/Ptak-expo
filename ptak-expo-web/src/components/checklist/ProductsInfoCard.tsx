@@ -1,13 +1,14 @@
-import {Box, IconButton, Typography} from "@mui/material";
+import { Box, IconButton, Typography } from "@mui/material";
 import ChecklistCard from "./checklistCard";
-import {useChecklist} from "../../contexts/ChecklistContext";
-import {Add} from "@mui/icons-material";
-import {useState} from "react";
+import { useChecklist } from "../../contexts/ChecklistContext";
+import { Add } from "@mui/icons-material";
+import { useState } from "react";
 import EditProduct from "./EditProduct";
 import config from "../../config/config";
+import styles from "../../pages/ChecklistPage.module.scss";
 
 export default function ProductsInfo() {
-  var {checklist, removeProduct} = useChecklist();
+  var { checklist, removeProduct } = useChecklist();
   var [showAdd, setShowAdd] = useState(false);
   const [editIndex, setEditIndex] = useState<number | null>(null);
   return (
@@ -31,16 +32,16 @@ export default function ProductsInfo() {
               .map((s) => s.trim())
               .filter(Boolean)
           : [];
-        
+
         // Generate proper image URL
         const imageUrl = cp.img
-          ? (cp.img.startsWith('data:') || cp.img.startsWith('http')
-              ? cp.img
-              : cp.img.startsWith('uploads/')
-                ? `${config.API_BASE_URL}/${cp.img}`
-                : `${config.API_BASE_URL}/uploads/${cp.img}`)
-          : '/assets/placeholder-product.png';
-        
+          ? cp.img.startsWith("data:") || cp.img.startsWith("http")
+            ? cp.img
+            : cp.img.startsWith("uploads/")
+            ? `${config.API_BASE_URL}/${cp.img}`
+            : `${config.API_BASE_URL}/uploads/${cp.img}`
+          : "/assets/placeholder-product.png";
+
         return (
           <Box
             display={"flex"}
@@ -67,7 +68,7 @@ export default function ProductsInfo() {
                 fontSize={16}
                 fontWeight={"bold"}
                 onClick={() => setEditIndex(i)}
-                sx={{cursor: "pointer"}}
+                sx={{ cursor: "pointer" }}
               >
                 {cp.name}
               </Typography>
@@ -78,7 +79,7 @@ export default function ProductsInfo() {
                 textOverflow="ellipsis"
                 overflow="hidden"
                 onClick={() => setEditIndex(i)}
-                sx={{cursor: "pointer"}}
+                sx={{ cursor: "pointer" }}
               >
                 {cp.description}
               </Typography>
@@ -107,10 +108,13 @@ export default function ProductsInfo() {
       })}
       {!showAdd && (
         <>
-          <IconButton onClick={() => setShowAdd(true)}>
-            <Add />
-          </IconButton>{" "}
-          Dodaj produkt
+          <IconButton
+            className={styles.addProductButton}
+            onClick={() => setShowAdd(true)}
+          >
+            <Add className={styles.addProductButtonIcon} />
+          </IconButton>
+          <span className={styles.addProductText}>dodaj produkt</span>
         </>
       )}
       {showAdd && (

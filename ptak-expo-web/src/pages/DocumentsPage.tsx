@@ -1,8 +1,8 @@
-import React, {useState, useEffect} from "react";
-import {useParams} from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
 import styles from "./DocumentsPage.module.scss";
 import CustomTypography from "../components/customTypography/CustomTypography";
-import {useAuth} from "../contexts/AuthContext";
+import { useAuth } from "../contexts/AuthContext";
 import {
   exhibitorsSelfAPI,
   exhibitorDocumentsAPI,
@@ -17,8 +17,8 @@ import IconMain from "../assets/group-20.png";
 import IconLoader from "../assets/loader.png";
 
 const DocumentsPage: React.FC = () => {
-  const {eventId} = useParams<{eventId: string}>();
-  const {token, isAuthenticated} = useAuth();
+  const { eventId } = useParams<{ eventId: string }>();
+  const { token, isAuthenticated } = useAuth();
   const [documents, setDocuments] = useState<ExhibitorDocument[]>([]);
   // Branding docs not used in this view now
   // Only admin-uploaded exhibitor-documents are shown in downloads
@@ -26,14 +26,28 @@ const DocumentsPage: React.FC = () => {
   const [isFetchingFileId, setIsFetchingFileId] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [supervisor, setSupervisor] = useState<any | null>(null);
-  const [assignedExhibitorId, setAssignedExhibitorId] = useState<number | null>(null);
+  const [assignedExhibitorId, setAssignedExhibitorId] = useState<number | null>(
+    null
+  );
 
   // Pokaż TYLKO pliki dodane w zakładce "Dokumenty" w karcie wystawcy (admin_exhibitor_card)
-  const isFromExhibitorCard = (doc: ExhibitorDocument) => doc.documentSource === 'admin_exhibitor_card';
-  const invoices = documents.filter((doc) => doc.category === 'faktury' && isFromExhibitorCard(doc));
+  const isFromExhibitorCard = (doc: ExhibitorDocument) =>
+    doc.documentSource === "admin_exhibitor_card";
+  const invoices = documents.filter(
+    (doc) => doc.category === "faktury" && isFromExhibitorCard(doc)
+  );
   const combinedAdminDocs = documents
-    .filter((doc) => (doc.category === 'umowy' || doc.category === 'inne_dokumenty') && isFromExhibitorCard(doc))
-    .map((doc) => ({ id: doc.id, originalName: doc.originalName, mimeType: doc.mimeType, url: '' }));
+    .filter(
+      (doc) =>
+        (doc.category === "umowy" || doc.category === "inne_dokumenty") &&
+        isFromExhibitorCard(doc)
+    )
+    .map((doc) => ({
+      id: doc.id,
+      originalName: doc.originalName,
+      mimeType: doc.mimeType,
+      url: "",
+    }));
 
   // Fetch documents on component mount
   useEffect(() => {
@@ -49,10 +63,13 @@ const DocumentsPage: React.FC = () => {
 
         // Fetch trade info first to determine exhibitor assigned to this event
         const tiRes = await tradeInfoAPI.get(parseInt(eventId));
-        const ti: any = (tiRes && (tiRes as any).data && (tiRes as any).data.data) ? (tiRes as any).data.data : null;
+        const ti: any =
+          tiRes && (tiRes as any).data && (tiRes as any).data.data
+            ? (tiRes as any).data.data
+            : null;
         const assignment = ti?.exhibitorAssignment || null;
         let exhibitorId: number | null = null;
-        if (assignment && typeof assignment.exhibitorId === 'number') {
+        if (assignment && typeof assignment.exhibitorId === "number") {
           exhibitorId = assignment.exhibitorId;
         } else {
           try {
@@ -72,9 +89,14 @@ const DocumentsPage: React.FC = () => {
         setAssignedExhibitorId(exhibitorId);
 
         // Then fetch documents for this exhibitor and event
-        const documentsData = await exhibitorDocumentsAPI.list(exhibitorId, parseInt(eventId));
+        const documentsData = await exhibitorDocumentsAPI.list(
+          exhibitorId,
+          parseInt(eventId)
+        );
         setDocuments(documentsData);
-        const sup = assignment ? (ti?.exhibitorAssignment?.supervisor || null) : null;
+        const sup = assignment
+          ? ti?.exhibitorAssignment?.supervisor || null
+          : null;
         setSupervisor(sup);
 
         // Brak brandingu w tym widoku – tylko adminowe pliki z exhibitor-documents
@@ -107,7 +129,7 @@ const DocumentsPage: React.FC = () => {
       );
 
       // Create blob and download
-      const blob = new Blob([response.data], {type: doc.mimeType});
+      const blob = new Blob([response.data], { type: doc.mimeType });
       const url = window.URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
@@ -127,36 +149,45 @@ const DocumentsPage: React.FC = () => {
   };
 
   // Download exhibitor branding document
-  const handleDownloadBranding = async (doc: { id: number; originalName: string; mimeType: string; url: string }) => {
+  const handleDownloadBranding = async (doc: {
+    id: number;
+    originalName: string;
+    mimeType: string;
+    url: string;
+  }) => {
     setIsFetchingFileId(doc.id);
     try {
       // If URL is empty, treat it as exhibitor-documents admin upload and download via protected endpoint
       if (!doc.url && assignedExhibitorId && eventId) {
-        const response = await exhibitorDocumentsAPI.download(assignedExhibitorId, parseInt(eventId as string), doc.id);
+        const response = await exhibitorDocumentsAPI.download(
+          assignedExhibitorId,
+          parseInt(eventId as string),
+          doc.id
+        );
         const blob = new Blob([response.data], { type: doc.mimeType });
         const url = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
+        const a = document.createElement("a");
         a.href = url;
-        a.download = doc.originalName || 'file';
+        a.download = doc.originalName || "file";
         document.body.appendChild(a);
         a.click();
         a.remove();
         window.URL.revokeObjectURL(url);
         return;
       }
-      const resp = await fetch(doc.url, { credentials: 'include' });
-      if (!resp.ok) throw new Error('Błąd serwera');
+      const resp = await fetch(doc.url, { credentials: "include" });
+      if (!resp.ok) throw new Error("Błąd serwera");
       const blob = await resp.blob();
       const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
+      const a = document.createElement("a");
       a.href = url;
-      a.download = doc.originalName || 'file';
+      a.download = doc.originalName || "file";
       document.body.appendChild(a);
       a.click();
       a.remove();
       window.URL.revokeObjectURL(url);
     } catch (err: any) {
-      alert('Błąd podczas pobierania dokumentu: ' + (err?.message || ''));
+      alert("Błąd podczas pobierania dokumentu: " + (err?.message || ""));
     }
     setIsFetchingFileId(null);
   };
@@ -171,7 +202,7 @@ const DocumentsPage: React.FC = () => {
               <div className={styles.headerTitle}>Portal dokumentów</div>
             </div>
           </div>
-          <div style={{padding: "20px", textAlign: "center"}}>
+          <div style={{ padding: "20px", textAlign: "center" }}>
             Ładowanie dokumentów...
           </div>
         </main>
@@ -189,7 +220,7 @@ const DocumentsPage: React.FC = () => {
               <div className={styles.headerTitle}>Portal dokumentów</div>
             </div>
           </div>
-          <div style={{padding: "20px", color: "red"}}>Błąd: {error}</div>
+          <div style={{ padding: "20px", color: "red" }}>Błąd: {error}</div>
         </main>
       </div>
     );
@@ -208,14 +239,18 @@ const DocumentsPage: React.FC = () => {
         <div className={styles.sectionWrapper}>
           <section className={styles.sectionInvoices}>
             <div className={styles.sectionHeaderRow}>
-              <CustomTypography fontSize="1rem" fontWeight={600}>
+              <CustomTypography fontSize="16px" fontWeight={600}>
                 Faktury
               </CustomTypography>
             </div>
             <div className={styles.list}>
               {invoices.length === 0 ? (
                 <div
-                  style={{padding: "12px", color: "#666", fontStyle: "italic"}}
+                  style={{
+                    padding: "12px",
+                    color: "#666",
+                    fontStyle: "italic",
+                  }}
                 >
                   Brak faktur do wyświetlenia
                 </div>
@@ -269,14 +304,18 @@ const DocumentsPage: React.FC = () => {
 
           <section className={styles.sectionGray}>
             <div className={styles.sectionHeaderRow}>
-              <CustomTypography fontSize="1rem" fontWeight={600}>
+              <CustomTypography fontSize="16px" fontWeight={600}>
                 Dokumenty do pobrania
               </CustomTypography>
             </div>
             <div className={styles.list}>
               {combinedAdminDocs.length === 0 ? (
                 <div
-                  style={{padding: "12px", color: "#666", fontStyle: "italic"}}
+                  style={{
+                    padding: "12px",
+                    color: "#666",
+                    fontStyle: "italic",
+                  }}
                 >
                   Brak dokumentów do wyświetlenia
                 </div>
@@ -291,7 +330,9 @@ const DocumentsPage: React.FC = () => {
                           height={30}
                           width={23}
                         />
-                        <span className={styles.rowText}>{document.originalName}</span>
+                        <span className={styles.rowText}>
+                          {document.originalName}
+                        </span>
                       </div>
                       <div className={styles.actions}>
                         <button
@@ -336,20 +377,32 @@ const DocumentsPage: React.FC = () => {
                 <img
                   alt="avatar"
                   src={userAvatarUrl(supervisor.id)}
-                  style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }}
-                  onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
+                  style={{
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "cover",
+                    borderRadius: "50%",
+                  }}
+                  onError={(e) => {
+                    (e.currentTarget as HTMLImageElement).style.display =
+                      "none";
+                  }}
                 />
               ) : null}
             </div>
             <div className={styles.contactMeta}>
               <div className={styles.contactName}>
-                {supervisor ? `${supervisor.firstName || ''} ${supervisor.lastName || ''}`.trim() : '-'}
+                {supervisor
+                  ? `${supervisor.firstName || ""} ${
+                      supervisor.lastName || ""
+                    }`.trim()
+                  : "-"}
               </div>
               <div className={styles.contactPhone}>
-                {supervisor?.phone || '-'}
+                {supervisor?.phone || "-"}
               </div>
               <div className={styles.contactMail}>
-                {supervisor?.email || '-'}
+                {supervisor?.email || "-"}
               </div>
             </div>
           </div>

@@ -9,8 +9,8 @@ import {
   Typography,
 } from "@mui/material";
 import ChecklistCard from "./checklistCard";
-import {ReactNode, useCallback, useEffect, useMemo, useState} from "react";
-import {useChecklist} from "../../contexts/ChecklistContext";
+import { ReactNode, useCallback, useEffect, useMemo, useState } from "react";
+import { useChecklist } from "../../contexts/ChecklistContext";
 import GreenCheck from "./GreenCheck";
 import config from "../../config/config";
 import FacebookIcon from "@mui/icons-material/Facebook";
@@ -20,22 +20,14 @@ import LinkedInIcon from "@mui/icons-material/LinkedIn";
 import MusicNoteIcon from "@mui/icons-material/MusicNote";
 import YouTubeIcon from "@mui/icons-material/YouTube";
 
-function DisplayEdit({
-  text,
-  onEdit,
-  checked,
-}: {
-  text: ReactNode;
-  onEdit: () => void;
-  checked?: boolean;
-}) {
+function EditIcon(onEdit: () => void) {
   return (
-    <Box display="flex" alignItems="center">
-      <Box width="30px" alignItems="center" justifyContent="center">
-        {checked && <GreenCheck />}
-      </Box>
-      {text}
-      <IconButton color="secondary" onClick={onEdit} sx={{marginLeft: "auto"}}>
+    <>
+      <IconButton
+        color="secondary"
+        onClick={onEdit}
+        sx={{ marginLeft: "auto" }}
+      >
         <SvgIcon>
           <svg
             width="29"
@@ -77,16 +69,30 @@ function DisplayEdit({
           </svg>
         </SvgIcon>
       </IconButton>
+    </>
+  );
+}
+
+function DisplayEdit({
+  text,
+  onEdit,
+  checked,
+}: {
+  text: ReactNode;
+  onEdit: () => void;
+  checked?: boolean;
+}) {
+  return (
+    <Box display="flex" alignItems="center">
+      <Box width="30px" alignItems="center" justifyContent="center">
+        {checked && <GreenCheck />}
+      </Box>
+      {text}
+      {EditIcon(onEdit)}
     </Box>
   );
 }
-function DisplayOnly({
-  name,
-  value,
-}: {
-  name: string;
-  value: string | null;
-}) {
+function DisplayOnly({ name, value }: { name: string; value: string | null }) {
   return (
     <Box display="flex" alignItems="center">
       <Box width="30px" alignItems="center" justifyContent="center">
@@ -130,7 +136,7 @@ function StringEdit({
       <TextField
         variant="standard"
         label={name}
-        InputLabelProps={{shrink: true}}
+        InputLabelProps={{ shrink: true }}
         value={editText}
         onChange={(e) => {
           setEditText(e.target.value);
@@ -166,76 +172,84 @@ function ImageEdit({
       if (e.target.files == null) return;
       const file = e.target.files[0];
       if (file == null) return;
-      
+
       // Validate file type (PNG only)
       if (!file.type.match(/^image\/png$/)) {
-        alert('Logotyp musi być w formacie PNG');
-        e.target.value = '';
+        alert("Logotyp musi być w formacie PNG");
+        e.target.value = "";
         return;
       }
-      
+
       // Validate file size (max 50 KB)
       const maxSize = 50 * 1024; // 50 KB
       if (file.size > maxSize) {
-        alert('Logotyp nie może przekraczać 50 KB');
-        e.target.value = '';
+        alert("Logotyp nie może przekraczać 50 KB");
+        e.target.value = "";
         return;
       }
-      
+
       // Validate image dimensions (300x200)
       const img = new Image();
       const reader = new FileReader();
-      
+
       reader.onload = async (event) => {
         img.src = event.target?.result as string;
         img.onload = async () => {
           if (img.width !== 300 || img.height !== 200) {
-            alert('Logotyp musi mieć wymiary 300x200 pikseli');
-            e.target.value = '';
+            alert("Logotyp musi mieć wymiary 300x200 pikseli");
+            e.target.value = "";
             return;
           }
-          
+
           // All validations passed, proceed with upload
           setIsUploading(true);
           try {
             // Get exhibitor ID and exhibition ID from context/storage
-            const token = localStorage.getItem('authToken') || '';
-            const exhibitionId = Number((window as any).currentSelectedExhibitionId) || 0;
-            
+            const token = localStorage.getItem("authToken") || "";
+            const exhibitionId =
+              Number((window as any).currentSelectedExhibitionId) || 0;
+
             // Get exhibitor ID
-            const meRes = await fetch(`${require('../../config/config').default.API_BASE_URL}/api/v1/exhibitors/me`, {
-              headers: { Authorization: `Bearer ${token}` }
-            });
+            const meRes = await fetch(
+              `${
+                require("../../config/config").default.API_BASE_URL
+              }/api/v1/exhibitors/me`,
+              {
+                headers: { Authorization: `Bearer ${token}` },
+              }
+            );
             const meData = await meRes.json();
             const exhibitorId = meData?.data?.id;
-            
+
             if (!exhibitorId || !exhibitionId) {
-              alert('Nie można pobrać informacji o wystawcy');
+              alert("Nie można pobrać informacji o wystawcy");
               setIsUploading(false);
               return;
             }
-            
+
             // Upload file via API
-            const { exhibitorDocumentsAPI } = await import('../../services/api');
+            const { exhibitorDocumentsAPI } = await import(
+              "../../services/api"
+            );
             const fileName = await exhibitorDocumentsAPI.uploadCatalogImage(
               exhibitorId,
               exhibitionId,
               file,
-              'logo'
+              "logo"
             );
-            
+
             // Save filename (not base64) to catalog
             onChange(fileName);
             setIsEdit(false);
           } catch (error) {
-            console.error('Upload error:', error);
-            alert('Błąd podczas przesyłania pliku');
+            console.error("Upload error:", error);
+            alert("Błąd podczas przesyłania pliku");
           } finally {
             setIsUploading(false);
           }
         };
       };
-      
+
       reader.readAsDataURL(file);
     },
     [onChange]
@@ -243,13 +257,15 @@ function ImageEdit({
   if (!isEdit) {
     // Generate image URL from filename or base64
     const imageUrl = value
-      ? (value.startsWith('data:') || value.startsWith('http') 
-          ? value 
-          : value.startsWith('uploads/')
-            ? `${require('../../config/config').default.API_BASE_URL}/${value}`
-            : `${require('../../config/config').default.API_BASE_URL}/uploads/${value}`)
+      ? value.startsWith("data:") || value.startsWith("http")
+        ? value
+        : value.startsWith("uploads/")
+        ? `${require("../../config/config").default.API_BASE_URL}/${value}`
+        : `${
+            require("../../config/config").default.API_BASE_URL
+          }/uploads/${value}`
       : null;
-    
+
     return (
       <Box>
         <DisplayEdit
@@ -262,10 +278,10 @@ function ImageEdit({
             <img
               src={imageUrl}
               alt="Podgląd logotypu"
-              style={{maxHeight: 120, borderRadius: 8}}
+              style={{ maxHeight: 120, borderRadius: 8 }}
               onError={(e) => {
-                console.error('Image load error:', imageUrl);
-                (e.target as HTMLImageElement).style.display = 'none';
+                console.error("Image load error:", imageUrl);
+                (e.target as HTMLImageElement).style.display = "none";
               }}
             />
             <Button
@@ -293,7 +309,9 @@ function ImageEdit({
           {value != null && <GreenCheck />}
         </Box>
         <Button component="label" fullWidth disabled={isUploading}>
-          {isUploading ? 'Przesyłanie...' : 'Wybierz logotyp (PNG, 300x200px, max 50KB)'}
+          {isUploading
+            ? "Przesyłanie..."
+            : "Wybierz logotyp (PNG, 300x200px, max 50KB)"}
           <input
             onChange={handleFileInput}
             type="file"
@@ -303,26 +321,33 @@ function ImageEdit({
           />
         </Button>
       </Box>
-      {value && !isUploading && (() => {
-        const imageUrl = value.startsWith('data:') || value.startsWith('http') 
-          ? value 
-          : value.startsWith('uploads/')
-            ? `${require('../../config/config').default.API_BASE_URL}/${value}`
-            : `${require('../../config/config').default.API_BASE_URL}/uploads/${value}`;
-        return (
-          <Box mt={1}>
-            <img
-              src={imageUrl}
-              alt="Podgląd logotypu"
-              style={{maxHeight: 120, borderRadius: 8}}
-              onError={(e) => {
-                console.error('Image load error:', imageUrl);
-                (e.target as HTMLImageElement).style.display = 'none';
-              }}
-            />
-          </Box>
-        );
-      })()}
+      {value &&
+        !isUploading &&
+        (() => {
+          const imageUrl =
+            value.startsWith("data:") || value.startsWith("http")
+              ? value
+              : value.startsWith("uploads/")
+              ? `${
+                  require("../../config/config").default.API_BASE_URL
+                }/${value}`
+              : `${
+                  require("../../config/config").default.API_BASE_URL
+                }/uploads/${value}`;
+          return (
+            <Box mt={1}>
+              <img
+                src={imageUrl}
+                alt="Podgląd logotypu"
+                style={{ maxHeight: 120, borderRadius: 8 }}
+                onError={(e) => {
+                  console.error("Image load error:", imageUrl);
+                  (e.target as HTMLImageElement).style.display = "none";
+                }}
+              />
+            </Box>
+          );
+        })()}
     </Box>
   );
 }
@@ -335,7 +360,7 @@ function ImageEdit({
 }*/
 
 export default function CompanyInfo() {
-  var {checklist, saveCompanyInfo, companyInfoFilledCount} = useChecklist();
+  var { checklist, saveCompanyInfo, companyInfoFilledCount } = useChecklist();
   const [catalogTagOptions, setCatalogTagOptions] = useState<string[]>([]);
   const [editingCatalogTags, setEditingCatalogTags] = useState(false);
   const [catalogInputValue, setCatalogInputValue] = useState<string>("");
@@ -366,7 +391,7 @@ export default function CompanyInfo() {
             ? `${base}/api/v1/catalog/tags?query=${encodeURIComponent(q)}`
             : `${base}/api/v1/catalog/tags`;
           const res = await fetch(url, {
-            headers: {Authorization: `Bearer ${token}`},
+            headers: { Authorization: `Bearer ${token}` },
           });
           if (res.ok) {
             const j = await res.json();
@@ -412,7 +437,7 @@ export default function CompanyInfo() {
             ? `${base}/api/v1/catalog/brands?query=${encodeURIComponent(q)}`
             : `${base}/api/v1/catalog/brands`;
           const res = await fetch(url, {
-            headers: {Authorization: `Bearer ${token}`},
+            headers: { Authorization: `Bearer ${token}` },
           });
           if (res.ok) {
             const j = await res.json();
@@ -462,7 +487,7 @@ export default function CompanyInfo() {
             ? `${base}/api/v1/catalog/industries?query=${encodeURIComponent(q)}`
             : `${base}/api/v1/catalog/industries`;
           const res = await fetch(url, {
-            headers: {Authorization: `Bearer ${token}`},
+            headers: { Authorization: `Bearer ${token}` },
           });
           if (res.ok) {
             const j = await res.json();
@@ -501,10 +526,7 @@ export default function CompanyInfo() {
       }
       checked={companyInfoFilledCount === 6}
     >
-      <DisplayOnly
-        name="Nazwa firmy"
-        value={checklist.companyInfo.name}
-      />
+      <DisplayOnly name="Nazwa firmy" value={checklist.companyInfo.name} />
       <StringEdit
         name="Nazwa firmy do wyświetlania"
         value={
@@ -512,19 +534,19 @@ export default function CompanyInfo() {
           checklist.companyInfo.name
         }
         onChange={(v) =>
-          saveCompanyInfo({...(checklist.companyInfo as any), displayName: v})
+          saveCompanyInfo({ ...(checklist.companyInfo as any), displayName: v })
         }
       />
       <ImageEdit
         name="Logotyp"
         value={checklist.companyInfo.logo}
-        onChange={(v) => saveCompanyInfo({...checklist.companyInfo, logo: v})}
+        onChange={(v) => saveCompanyInfo({ ...checklist.companyInfo, logo: v })}
       />
       <StringEdit
         name="Opis"
         value={checklist.companyInfo.description}
         onChange={(v) =>
-          saveCompanyInfo({...checklist.companyInfo, description: v})
+          saveCompanyInfo({ ...checklist.companyInfo, description: v })
         }
         multiline
       />
@@ -544,28 +566,37 @@ export default function CompanyInfo() {
         name="Osoba kontaktowa (do katalogu)"
         value={(checklist.companyInfo as any).catalogContactPerson || null}
         onChange={(v) =>
-          saveCompanyInfo({...(checklist.companyInfo as any), catalogContactPerson: v})
+          saveCompanyInfo({
+            ...(checklist.companyInfo as any),
+            catalogContactPerson: v,
+          })
         }
       />
       <StringEdit
         name="Telefon kontaktowy (do katalogu)"
         value={(checklist.companyInfo as any).catalogContactPhone || null}
         onChange={(v) =>
-          saveCompanyInfo({...(checklist.companyInfo as any), catalogContactPhone: v})
+          saveCompanyInfo({
+            ...(checklist.companyInfo as any),
+            catalogContactPhone: v,
+          })
         }
       />
       <StringEdit
         name="E-mail kontaktowy (do katalogu)"
         value={(checklist.companyInfo as any).catalogContactEmail || null}
         onChange={(v) =>
-          saveCompanyInfo({...(checklist.companyInfo as any), catalogContactEmail: v})
+          saveCompanyInfo({
+            ...(checklist.companyInfo as any),
+            catalogContactEmail: v,
+          })
         }
       />
       <StringEdit
         name="Strona www"
         value={checklist.companyInfo.website}
         onChange={(v) =>
-          saveCompanyInfo({...checklist.companyInfo, website: v})
+          saveCompanyInfo({ ...checklist.companyInfo, website: v })
         }
       />
       {/* Read-only email field - for login credentials only */}
@@ -574,7 +605,8 @@ export default function CompanyInfo() {
           {(checklist.companyInfo as any).contactEmail && <GreenCheck />}
         </Box>
         <Typography variant="body2">
-          Adres e-mail do logowania: {(checklist.companyInfo as any).contactEmail || ""}
+          Adres e-mail do logowania:{" "}
+          {(checklist.companyInfo as any).contactEmail || ""}
         </Typography>
       </Box>
       {/* Industries (Sektory branżowe) */}
@@ -588,7 +620,7 @@ export default function CompanyInfo() {
               Sektory branżowe: {currentIndustriesArray.join(", ")}
             </Typography>
           </Box>
-          <Button onClick={() => setEditingIndustries(true)}>Edytuj</Button>
+          {EditIcon(() => setEditingIndustries(true))}
         </Box>
       )}
       {editingIndustries && (
@@ -598,7 +630,7 @@ export default function CompanyInfo() {
           </Box>
           <Autocomplete
             fullWidth
-            sx={{flex: 1, minWidth: 0}}
+            sx={{ flex: 1, minWidth: 0 }}
             multiple
             freeSolo
             options={industryOptions}
@@ -618,7 +650,7 @@ export default function CompanyInfo() {
                 <Chip
                   variant="outlined"
                   label={option}
-                  {...getTagProps({index})}
+                  {...getTagProps({ index })}
                 />
               ))
             }
@@ -657,7 +689,7 @@ export default function CompanyInfo() {
                       "Content-Type": "application/json",
                       Authorization: `Bearer ${token}`,
                     },
-                    body: JSON.stringify({industries: final.join(",")}),
+                    body: JSON.stringify({ industries: final.join(",") }),
                   }
                 );
               } catch {}
@@ -672,7 +704,7 @@ export default function CompanyInfo() {
                       "Content-Type": "application/json",
                       Authorization: `Bearer ${token}`,
                     },
-                    body: JSON.stringify({industries: final}),
+                    body: JSON.stringify({ industries: final }),
                   }
                 );
               } catch {}
@@ -698,7 +730,7 @@ export default function CompanyInfo() {
               Brandy: {currentBrandsArray.join(", ")}
             </Typography>
           </Box>
-          <Button onClick={() => setEditingBrands(true)}>Edytuj</Button>
+          {EditIcon(() => setEditingBrands(true))}
         </Box>
       )}
       {editingBrands && (
@@ -708,7 +740,7 @@ export default function CompanyInfo() {
           </Box>
           <Autocomplete
             fullWidth
-            sx={{flex: 1, minWidth: 0}}
+            sx={{ flex: 1, minWidth: 0 }}
             multiple
             freeSolo
             options={brandOptions}
@@ -728,7 +760,7 @@ export default function CompanyInfo() {
                 <Chip
                   variant="outlined"
                   label={option}
-                  {...getTagProps({index})}
+                  {...getTagProps({ index })}
                 />
               ))
             }
@@ -769,7 +801,7 @@ export default function CompanyInfo() {
       {(() => {
         const persistKey = (key: string) => {
           const raw = String(socialsDraft[key] || "").trim();
-          const next = {...(socialsDraft || {})} as any;
+          const next = { ...(socialsDraft || {}) } as any;
           if (raw) next[key] = raw;
           else delete next[key];
           saveCompanyInfo({
@@ -816,7 +848,7 @@ export default function CompanyInfo() {
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label={key}
-                style={{color: "inherit"}}
+                style={{ color: "inherit" }}
               >
                 <Icon fontSize="small" />
               </a>
@@ -859,7 +891,10 @@ export default function CompanyInfo() {
                   variant="standard"
                   value={socialsDraft.facebook || ""}
                   onChange={(e) =>
-                    setSocialsDraft({...socialsDraft, facebook: e.target.value})
+                    setSocialsDraft({
+                      ...socialsDraft,
+                      facebook: e.target.value,
+                    })
                   }
                   placeholder="https://facebook.com/..."
                 />
@@ -892,7 +927,10 @@ export default function CompanyInfo() {
                   variant="standard"
                   value={socialsDraft.youtube || ""}
                   onChange={(e) =>
-                    setSocialsDraft({...socialsDraft, youtube: e.target.value})
+                    setSocialsDraft({
+                      ...socialsDraft,
+                      youtube: e.target.value,
+                    })
                   }
                   placeholder="https://youtube.com/@..."
                 />
@@ -907,7 +945,7 @@ export default function CompanyInfo() {
                   variant="standard"
                   value={socialsDraft.x || ""}
                   onChange={(e) =>
-                    setSocialsDraft({...socialsDraft, x: e.target.value})
+                    setSocialsDraft({ ...socialsDraft, x: e.target.value })
                   }
                   placeholder="https://x.com/..."
                 />
@@ -922,7 +960,7 @@ export default function CompanyInfo() {
                   variant="standard"
                   value={socialsDraft.tiktok || ""}
                   onChange={(e) =>
-                    setSocialsDraft({...socialsDraft, tiktok: e.target.value})
+                    setSocialsDraft({ ...socialsDraft, tiktok: e.target.value })
                   }
                   placeholder="https://tiktok.com/@..."
                 />
@@ -937,7 +975,10 @@ export default function CompanyInfo() {
                   variant="standard"
                   value={socialsDraft.linkedin || ""}
                   onChange={(e) =>
-                    setSocialsDraft({...socialsDraft, linkedin: e.target.value})
+                    setSocialsDraft({
+                      ...socialsDraft,
+                      linkedin: e.target.value,
+                    })
                   }
                   placeholder="https://linkedin.com/company/..."
                 />
@@ -962,7 +1003,7 @@ export default function CompanyInfo() {
               {currentCatalogTagsArray.join(", ")}
             </Typography>
           </Box>
-          <Button onClick={() => setEditingCatalogTags(true)}>Edytuj</Button>
+          {EditIcon(() => setEditingCatalogTags(true))}
         </Box>
       )}
       {editingCatalogTags && (
@@ -972,7 +1013,7 @@ export default function CompanyInfo() {
           </Box>
           <Autocomplete
             fullWidth
-            sx={{flex: 1, minWidth: 0}}
+            sx={{ flex: 1, minWidth: 0 }}
             multiple
             freeSolo
             options={catalogTagOptions}
@@ -992,7 +1033,7 @@ export default function CompanyInfo() {
                 <Chip
                   variant="outlined"
                   label={option}
-                  {...getTagProps({index})}
+                  {...getTagProps({ index })}
                 />
               ))
             }

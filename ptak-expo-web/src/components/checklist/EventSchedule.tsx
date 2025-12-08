@@ -1,13 +1,14 @@
-import {IconButton, Typography} from "@mui/material";
-import {useChecklist} from "../../contexts/ChecklistContext";
+import { IconButton, Typography } from "@mui/material";
+import { useChecklist } from "../../contexts/ChecklistContext";
 import ChecklistCard from "./checklistCard";
 import AddEvent from "./EditEvent";
-import {useState} from "react";
-import {Add} from "@mui/icons-material";
+import { useState } from "react";
+import { Add } from "@mui/icons-material";
 import EventInfoBox from "./EventInfoBox";
+import styles from "../../pages/ChecklistPage.module.scss";
 
 export default function EventSchedule() {
-  const {filled, checklist} = useChecklist();
+  const { filled, checklist } = useChecklist();
   var [showAdd, setShowAdd] = useState(false);
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   return (
@@ -32,10 +33,13 @@ export default function EventSchedule() {
 
       {!showAdd && editingIndex === null && (
         <>
-          <IconButton onClick={() => setShowAdd(true)}>
-            <Add />
-          </IconButton>{" "}
-          Dodaj wydarzenie
+          <IconButton
+            className={styles.addProductButton}
+            onClick={() => setShowAdd(true)}
+          >
+            <Add className={styles.addProductButtonIcon} />
+          </IconButton>
+          <span className={styles.addProductText}>dodaj wydarzenie</span>
         </>
       )}
       {showAdd && (

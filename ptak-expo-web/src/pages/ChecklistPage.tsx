@@ -1,28 +1,29 @@
 import styles from "./ChecklistPage.module.scss";
 import ProductsInfo from "../components/checklist/ProductsInfoCard";
 import CompanyInfo from "../components/checklist/CompanyInfo";
-import {useChecklist} from "../contexts/ChecklistContext";
-import {ApplyGreenCheck} from "../components/checklist/ApplyGreenCheck";
+import { useChecklist } from "../contexts/ChecklistContext";
+import { ApplyGreenCheck } from "../components/checklist/ApplyGreenCheck";
 import EventSchedule from "../components/checklist/EventSchedule";
 import MaterialsCard from "../components/checklist/MaterialsCard";
 import ElectronicIdsCard from "../components/checklist/ElectronicIdsCard";
 import InvitesCard from "../components/checklist/InvitesCard";
 import IconCalendar from "../assets/calendar-check.png";
-// import IconMedal from "../assets/medal.png";
 
 const ChecklistPage: React.FC = () => {
-  var {filled, checklist} = useChecklist();
+  var { filled, checklist } = useChecklist();
   const daysRemaining = (() => {
     try {
       const now = new Date();
       const dates = Array.isArray(checklist?.events)
         ? checklist.events
-            .map((e: any) => new Date(`${e.date}T${(e.startTime || '00:00')}`))
+            .map((e: any) => new Date(`${e.date}T${e.startTime || "00:00"}`))
             .filter((d: Date) => !isNaN(d.getTime()))
         : [];
       if (dates.length === 0) return null;
       const future = dates.filter((d) => d >= now);
-      const target = (future.length ? future : dates).sort((a, b) => a.getTime() - b.getTime())[0];
+      const target = (future.length ? future : dates).sort(
+        (a, b) => a.getTime() - b.getTime()
+      )[0];
       const ms = target.getTime() - now.getTime();
       const days = Math.ceil(ms / (1000 * 60 * 60 * 24));
       return days < 0 ? 0 : days;

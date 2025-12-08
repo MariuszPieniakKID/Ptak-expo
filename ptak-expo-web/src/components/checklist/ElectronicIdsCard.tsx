@@ -15,10 +15,11 @@ import {
   Typography,
 } from "@mui/material";
 import ChecklistCard from "./checklistCard";
-import {useChecklist} from "../../contexts/ChecklistContext";
-import {EidType, ElectrionicId} from "../../services/checkListApi";
-import {useState} from "react";
-import {eidTypes, getEidTypeString} from "../../shared/EventUtils";
+import styles from "../../pages/ChecklistPage.module.scss";
+import { useChecklist } from "../../contexts/ChecklistContext";
+import { EidType, ElectrionicId } from "../../services/checkListApi";
+import { useState } from "react";
+import { eidTypes, getEidTypeString } from "../../shared/EventUtils";
 const boxSx = {
   backgroundColor: "#fff",
   padding: "40px",
@@ -34,7 +35,7 @@ const boxSx = {
   overflow: "hidden",
 };
 export const blackTheme = createTheme({
-  palette: {mode: "light"},
+  palette: { mode: "light" },
 });
 const emptyId: ElectrionicId = {
   email: "",
@@ -43,7 +44,7 @@ const emptyId: ElectrionicId = {
 };
 
 function AddElectronicId() {
-  const {addElectronicId} = useChecklist();
+  const { addElectronicId } = useChecklist();
   const [editedId, setEditedId] = useState(emptyId);
   const isValidEmail =
     editedId.email === "" ||
@@ -60,7 +61,7 @@ function AddElectronicId() {
           variant="standard"
           fullWidth
           value={editedId.name}
-          onChange={(e) => setEditedId({...editedId, name: e.target.value})}
+          onChange={(e) => setEditedId({ ...editedId, name: e.target.value })}
         />
         <TextField
           label="Email"
@@ -69,7 +70,7 @@ function AddElectronicId() {
           error={!isValidEmail}
           helperText={!isValidEmail && "To nie jest poprawny adres e-mail"}
           value={editedId.email}
-          onChange={(e) => setEditedId({...editedId, email: e.target.value})}
+          onChange={(e) => setEditedId({ ...editedId, email: e.target.value })}
         />
         <FormControl variant="standard" fullWidth>
           <InputLabel id="event-type-label">Określ typ uczestnika</InputLabel>
@@ -79,7 +80,10 @@ function AddElectronicId() {
             value={String(eidTypes.indexOf(editedId.type))}
             onChange={(e) => {
               const idx = parseInt(String(e.target.value), 10);
-              const safeIdx = Number.isFinite(idx) && idx >= 0 && idx < eidTypes.length ? idx : 0;
+              const safeIdx =
+                Number.isFinite(idx) && idx >= 0 && idx < eidTypes.length
+                  ? idx
+                  : 0;
               setEditedId({ ...editedId, type: eidTypes[safeIdx] });
             }}
             label="Określ typ uczestnika"
@@ -109,10 +113,12 @@ function AddElectronicId() {
 }
 
 export default function ElectronicIdsCard() {
-  const {filled, checklist} = useChecklist();
+  const { filled, checklist } = useChecklist();
   const getQrUrl = (text?: string | null, size: number = 96) => {
     if (!text) return "";
-    return `https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&data=${encodeURIComponent(text)}`;
+    return `https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&data=${encodeURIComponent(
+      text
+    )}`;
   };
 
   return (
@@ -132,21 +138,39 @@ export default function ElectronicIdsCard() {
             <TableRow key={`${eid.email}-${i}`}>
               <TableCell>{i + 1}</TableCell>
               <TableCell>{eid.name}</TableCell>
-              <TableCell>{eid.email}</TableCell>
+              <TableCell className={styles.tableBreakWord}>
+                {eid.email}
+              </TableCell>
               <TableCell>{getEidTypeString(eid.type)}</TableCell>
               <TableCell>
                 {eid.accessCode ? (
                   <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                    <Typography fontSize={10} sx={{ whiteSpace: "nowrap" }}>{eid.accessCode}</Typography>
+                    <Typography
+                      fontSize={10}
+                      sx={{ whiteSpace: "nowrap" }}
+                      className={styles.tableBreakWord}
+                    >
+                      {eid.accessCode}
+                    </Typography>
                   </Box>
                 ) : null}
               </TableCell>
               <TableCell>
                 {eid.accessCode ? (
                   <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                    <img src={getQrUrl(eid.accessCode, 96)} alt="QR" width={48} height={48} />
-                    <a href={getQrUrl(eid.accessCode, 512)} download={`eid-${i + 1}.png`}>
-                      <Button size="small" variant="outlined">Pobierz QR</Button>
+                    <img
+                      src={getQrUrl(eid.accessCode, 96)}
+                      alt="QR"
+                      width={48}
+                      height={48}
+                    />
+                    <a
+                      href={getQrUrl(eid.accessCode, 512)}
+                      download={`eid-${i + 1}.png`}
+                    >
+                      <Button size="small" variant="outlined">
+                        Pobierz QR
+                      </Button>
                     </a>
                   </Box>
                 ) : null}

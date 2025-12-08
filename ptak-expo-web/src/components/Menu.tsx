@@ -18,10 +18,9 @@ import styles from "./Header.module.scss";
 import Logo from "../assets/group-257@3x.png";
 import MenuIcon from "@mui/icons-material/Menu";
 import HomeIcon from "@mui/icons-material/Home";
-import FingerprintIcon from "@mui/icons-material/Fingerprint";
-// import InfoIcon from "@mui/icons-material/Info";
 import IconMarketing from "../assets/group-842.png";
 import IconEmails from "../assets/emails-border.png";
+import IconIdentity from "../assets/identity-icon.png";
 import IconDocuments from "../assets/documents.png";
 import { ReactComponent as LogoutIcon } from "../assets/logout.svg";
 import IconBell from "../assets/bell.png";
@@ -42,6 +41,7 @@ type NavItem = {
   getUrl: (eventId: string) => string;
   key: string;
   customIcon?: React.ReactNode;
+  activeColor: "activeBlue" | "activeRed" | "activeGreen";
 };
 
 const navItems: NavItem[] = [
@@ -49,6 +49,7 @@ const navItems: NavItem[] = [
     label: "Home",
     icon: <HomeIcon />,
     key: "home",
+    activeColor: "activeRed",
     getUrl: (id) => `/event/${id}/home`,
   },
   {
@@ -59,13 +60,8 @@ const navItems: NavItem[] = [
       </div>
     ),
     key: "news",
+    activeColor: "activeRed",
     getUrl: (id) => `/event/${id}/news`,
-  },
-  {
-    label: "E-Identyfikator",
-    icon: <FingerprintIcon />,
-    key: "identifier",
-    getUrl: (id) => `/event/${id}/identifier`,
   },
   {
     label: "Checklista targowa",
@@ -79,11 +75,29 @@ const navItems: NavItem[] = [
         />
       </div>
     ),
+    activeColor: "activeRed",
     key: "checklist",
     getUrl: (id) => `/event/${id}/checklist`,
   },
   {
+    label: "E-Identyfikator",
+    customIcon: (
+      <div className={styles.customIconMenuImage}>
+        <img
+          src={IconIdentity}
+          alt="ikona aktualności"
+          width="auto"
+          height={22}
+        />
+      </div>
+    ),
+    activeColor: "activeBlue",
+    key: "identifier",
+    getUrl: (id) => `/event/${id}/identifier`,
+  },
+  {
     label: "Portal dokumentów",
+    activeColor: "activeGreen",
     customIcon: (
       <div className={styles.customIconMenuImage}>
         <img
@@ -104,6 +118,7 @@ const navItems: NavItem[] = [
         <img src={IconMarketing} alt="ikona marketing" width={26} height={19} />
       </div>
     ),
+    activeColor: "activeBlue",
     key: "marketing",
     getUrl: (id) => `/event/${id}/marketing`,
   },
@@ -114,6 +129,7 @@ const navItems: NavItem[] = [
         <img src={IconEmails} alt="ikona zaproszenia" width={26} height={19} />
       </div>
     ),
+    activeColor: "activeBlue",
     key: "invitations",
     getUrl: (id) => `/event/${id}/invitations`,
   },
@@ -129,11 +145,13 @@ const navItems: NavItem[] = [
         />
       </div>
     ),
+    activeColor: "activeBlue",
     key: "info",
     getUrl: (id) => `/event/${id}/trade-info`,
   },
   {
     label: "Wyloguj",
+    activeColor: "activeBlue",
     customIcon: (
       <div className={styles.customIconMenuImage}>
         <LogoutIcon className={styles.logoutIconMenu} />
@@ -175,6 +193,14 @@ const Menu: FunctionComponent<MenuType> = ({
   const handleLogout = () => {
     logout();
   };
+
+  const getMenuItemActiveClass = (item: NavItem) => {
+    if (item.activeColor === "activeBlue") return styles.activeBlue;
+    else if (item.activeColor === "activeGreen") return styles.activeGreen;
+    else if (item.activeColor === "activeRed") return styles.activeRed;
+    return null;
+  };
+
   return (
     <>
       <Box className={styles.header}>
@@ -200,7 +226,9 @@ const Menu: FunctionComponent<MenuType> = ({
                       <Box
                         key={item.key}
                         className={`${styles.navItem} ${
-                          index === activeIndex ? styles.active : ""
+                          index === activeIndex
+                            ? styles.active + " " + getMenuItemActiveClass(item)
+                            : ""
                         }`}
                         onClick={
                           !disabled

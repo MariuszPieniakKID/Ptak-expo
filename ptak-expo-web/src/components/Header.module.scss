@@ -36,10 +36,11 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   justify-content: space-between;
   align-items: center;
-  padding: 0.5rem;
   padding-left: 45px !important;
   padding-right: 45px !important;
   height: 97px;
+  padding-top: 0px;
+  padding-bottom: 0;
 
   @media (max-width: 1280px) {
     padding-left: 24px;
@@ -64,7 +65,8 @@
 
 .navItems {
   display: flex;
-  gap: 2rem;
+  gap: 4px;
+  height: 100%;
   flex-grow: 1;
   justify-content: center;
   align-items: center;
@@ -89,6 +91,7 @@
   color: #555;
   position: relative;
   transition: color 0.3s;
+  height: 100%;
 
   &:hover {
     color: #5a6ec8;
@@ -108,8 +111,6 @@
 }
 
 .active {
-  color: #5a6ec8;
-
   &::before {
     content: "";
     position: absolute;
@@ -188,5 +189,24 @@
 
   @media (max-width: 1280px) {
     display: none;
+  }
+}
+.activeBlue {
+  color: #5a6ec8;
+
+  &::before {
+    background-color: #5a6ec8;
+  }
+}
+.activeRed {
+  color: #c7353c;
+
+  &::before {
+    background-color: #c7353c;
+  }
+}
+.activeGreen {
+  &::before {
+    background-color: #89f4c9;
   }
 }
