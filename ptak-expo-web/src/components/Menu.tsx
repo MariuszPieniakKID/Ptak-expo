@@ -123,17 +123,6 @@ const navItems: NavItem[] = [
     getUrl: (id) => `/event/${id}/marketing`,
   },
   {
-    label: "Zaproszenia",
-    customIcon: (
-      <div className={styles.customIconMenuImage}>
-        <img src={IconEmails} alt="ikona zaproszenia" width={26} height={19} />
-      </div>
-    ),
-    activeColor: "activeBlue",
-    key: "invitations",
-    getUrl: (id) => `/event/${id}/invitations`,
-  },
-  {
     label: "Informacje targowe",
     customIcon: (
       <div className={styles.customIconMenuImage}>
@@ -148,6 +137,17 @@ const navItems: NavItem[] = [
     activeColor: "activeBlue",
     key: "info",
     getUrl: (id) => `/event/${id}/trade-info`,
+  },
+  {
+    label: "Zaproszenia",
+    customIcon: (
+      <div className={styles.customIconMenuImage}>
+        <img src={IconEmails} alt="ikona zaproszenia" width={26} height={19} />
+      </div>
+    ),
+    activeColor: "activeBlue",
+    key: "invitations",
+    getUrl: (id) => `/event/${id}/invitations`,
   },
   {
     label: "Wyloguj",
