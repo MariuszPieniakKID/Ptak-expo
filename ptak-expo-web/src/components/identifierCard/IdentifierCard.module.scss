@@ -1,18 +1,12 @@
 .layout {
   display: grid;
-  grid-template-columns: 556px 1fr;
   min-height: calc(100vh - 0px);
-}
-
-.main {
-  padding: 24px 32px;
 }
 
 .mainHeader {
   border-radius: 20px;
   padding-left: 20px;
   padding-right: 20px;
-  padding-top: 72px;
   padding-bottom: 30px;
 }
 

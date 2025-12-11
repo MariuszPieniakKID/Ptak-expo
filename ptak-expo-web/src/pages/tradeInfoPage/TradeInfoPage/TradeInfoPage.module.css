@@ -1,18 +1,12 @@
 .layout {
   display: grid;
-  grid-template-columns: 556px 1fr;
   min-height: calc(100vh - 0px);
-}
-
-.main {
-  padding: 24px 32px;
 }
 
 .mainHeader {
   border-radius: 20px;
   padding-left: 20px;
   padding-right: 20px;
-  padding-top: 40px;
   padding-bottom: 30px;
 }
 
@@ -40,7 +34,7 @@
 }
 
 .contentDark {
-  padding: 28px 12px;
+  padding: 30px 33px;
   background: #2b2b2d;
   border-radius: 20px;
   border: 1px solid #4d4c4f;
@@ -206,8 +200,8 @@
   gap: 24px;
   flex-wrap: wrap;
   width: 100%;
-  padding-top: 40px;
-  padding-bottom: 58px;
+  padding-top: 20px;
+  padding-bottom: 40px;
 }
 
 .planCard {
@@ -366,4 +360,12 @@
   width: 100%;
   border: none;
   border-radius: 10px;
+}
+.contentDarkHeader {
+  padding-left: 0;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #6f6f6f;
+}
+.accompanyingEvents {
+  padding-bottom: 20px;
 }

@@ -1,10 +1,10 @@
-import React, {useEffect, useState} from "react";
-import {useParams} from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 import EventLayout from "../../components/eventLayout/EventLayout";
 import LeftColumn from "../../components/event-left/LeftColumn";
-import {TradeInfoPage} from "./TradeInfoPage/TradeInfoPage";
-import {tradeInfoAPI, exhibitionsAPI} from "../../services/api";
-import {Box} from "@mui/material";
+import { TradeInfoPage } from "./TradeInfoPage/TradeInfoPage";
+import { tradeInfoAPI, exhibitionsAPI } from "../../services/api";
+import { Box } from "@mui/material";
 
 interface TradeInfoData {
   tradeHours: {
@@ -13,7 +13,7 @@ interface TradeInfoData {
     visitorStart: string;
     visitorEnd: string;
   };
-  contactInfo: {guestService: string; security: string};
+  contactInfo: { guestService: string; security: string };
   buildDays: Array<{
     id: string;
     date: string;
@@ -32,7 +32,7 @@ interface TradeInfoData {
 }
 
 const TradeInfoRoutePage: React.FC = () => {
-  const {eventId} = useParams();
+  const { eventId } = useParams();
   const [tradeInfo, setTradeInfo] = useState<TradeInfoData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -96,17 +96,17 @@ const TradeInfoRoutePage: React.FC = () => {
       left={<LeftColumn eventId={eventId || "0"} isDarkBg />}
       right={
         loading ? (
-          <div style={{padding: 24}}>Ładowanie…</div>
+          <div style={{ padding: 24 }}>Ładowanie…</div>
         ) : error ? (
-          <div style={{padding: 24, color: "#dc3545"}}>{error}</div>
+          <div style={{ padding: 24, color: "#dc3545" }}>{error}</div>
         ) : (
-          <Box sx={{paddingTop: "2rem"}}>
+          <Box sx={{ width: "100%" }}>
             <TradeInfoPage
               tradeInfo={tradeInfo}
               eventName={eventName}
               eventDateRange={eventDateRange}
               {...(daysUntilEvent !== null && daysUntilEvent !== undefined
-                ? {daysUntilEvent}
+                ? { daysUntilEvent }
                 : {})}
               eventId={eventId}
               onDownloadPlan={(spaceId, filename) => {

@@ -10,18 +10,24 @@ export default function ChecklistCard({
   icon,
   checked,
   secondaryBackground,
+  blackBackground,
 }: {
   children: ReactNode;
   title: ReactNode;
   icon: ReactNode;
   checked: boolean;
   secondaryBackground?: boolean;
+  blackBackground?: boolean;
 }) {
   return (
     <Accordion
       className={styles.accordion}
       sx={{
-        backgroundColor: secondaryBackground ? "#F5F6F7" : "white",
+        backgroundColor: blackBackground
+          ? "#2B2B2D"
+          : secondaryBackground
+          ? "#F5F6F7"
+          : "white",
         borderRadius: "20px",
         "&:before": {
           display: "none",
@@ -29,6 +35,7 @@ export default function ChecklistCard({
       }}
     >
       <AccordionSummary
+        className={blackBackground ? "accordionBlack" : ""}
         slotProps={{
           content: {
             sx: {

@@ -1,10 +1,10 @@
-import React, {ReactNode} from "react";
-import {Typography, Box} from "@mui/material";
+import React, { ReactNode } from "react";
+import { Typography, Box } from "@mui/material";
 import styles from "./News.module.scss";
 import dayjs from "dayjs";
 import relativeTime from "dayjs/plugin/relativeTime";
 import "dayjs/locale/pl";
-import {RenderSection} from "./RenderSection";
+import { RenderSection } from "./RenderSection";
 
 dayjs.extend(relativeTime);
 dayjs.locale("pl");
@@ -22,7 +22,7 @@ interface NewsProps {
   news: NewsItem[];
 }
 
-const News: React.FC<NewsProps> = ({news}) => {
+const News: React.FC<NewsProps> = ({ news }) => {
   const today = dayjs();
   const newNotifications = news.filter((n) =>
     dayjs(n.date).isSame(today, "day")
@@ -33,7 +33,7 @@ const News: React.FC<NewsProps> = ({news}) => {
 
   return (
     <Box className={styles.container}>
-      <Typography variant="h5" className={styles.header} pb={2}>
+      <Typography variant="h5" className={styles.header} pb={2} pl="20px">
         Aktualności
       </Typography>
       {newNotifications.length > 0 && (

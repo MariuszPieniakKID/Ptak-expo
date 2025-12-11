@@ -23,6 +23,17 @@ code {
 .Mui-expanded {
   margin-bottom: 0px !important;
 }
+
+.MuiAccordion-heading:has(.accordionBlack):has(.Mui-expanded)
+  .MuiAccordionSummary-root {
+  padding-bottom: 20px !important;
+  border-bottom: 1px solid #d7d9dd;
+}
+
+.MuiAccordion-heading:has(.accordionBlack) .MuiSvgIcon-root {
+  fill: #d7d9dd;
+}
+
 // @font-face {
 //   font-family: "RocGrotesk";
 //   src: url("./fonts/rocgrotesk.otf") format("opentype");
