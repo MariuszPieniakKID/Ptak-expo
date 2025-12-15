@@ -8,11 +8,13 @@ import ChecklistProgressCard from '../components/checklist-progress-card/Checkli
 import EventHomeMenu from '../components/event-home-menu/EventHomeMenu';
 import { useEffect, useState } from 'react';
 import { exhibitionsAPI, brandingAPI } from '../services/api';
+import { useEventReadiness } from '../hooks/useEventReadiness';
 
 const EventHomePage = () => {
   const { eventId } = useParams();
   const navigate = useNavigate();
   const [event, setEvent] = useState<{ id: string; title: string; dateFrom: string; dateTo: string; readiness: number; logoUrl: string; daysLeft: number } | null>(null);
+  const { readiness } = useEventReadiness(eventId ? Number(eventId) : null);
 
   const formatDate = (iso: string | undefined): string => {
     if (!iso) return '';
@@ -62,7 +64,7 @@ const EventHomePage = () => {
           title: e.name,
           dateFrom: formatDate(e.start_date || e.startDate),
           dateTo: formatDate(e.end_date || e.endDate),
-          readiness: 0,
+          readiness,
           logoUrl,
           daysLeft: calcDaysLeft(e.start_date || e.startDate),
         });
@@ -72,6 +74,13 @@ const EventHomePage = () => {
     };
     load();
   }, [eventId]);
+
+  // Update readiness when it changes
+  useEffect(() => {
+    if (event) {
+      setEvent(prev => prev ? { ...prev, readiness } : null);
+    }
+  }, [readiness]);
 
   return (
     <EventLayout
@@ -84,6 +93,7 @@ const EventHomePage = () => {
               <ChecklistProgressCard
                 daysLeft={event.daysLeft}
                 onChecklistClick={() => navigate(`/event/${event.id}/checklist`)}
+                readiness={event.readiness}
               />
             </>
           )}
