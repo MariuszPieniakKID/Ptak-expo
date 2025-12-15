@@ -5,6 +5,7 @@ import AvatarBanner from '../avatar-banner/AvatarBanner';
 import PlannedEventCard from '../planned-event-card/PlannedEventCard';
 import ChecklistProgressCard from '../checklist-progress-card/ChecklistProgressCard';
 import { exhibitionsAPI, brandingAPI } from '../../services/api';
+import { useEventReadiness } from '../../hooks/useEventReadiness';
 import styles from '../../pages/EventHomePage.module.scss';
 
 type EventView = {
@@ -25,6 +26,7 @@ interface LeftColumnProps {
 const LeftColumn: React.FC<LeftColumnProps> = ({ eventId, isDarkBg = false }) => {
   const navigate = useNavigate();
   const [event, setEvent] = useState<EventView | null>(null);
+  const { readiness } = useEventReadiness(eventId ? Number(eventId) : null);
 
   const formatDate = (iso?: string): string => {
     if (!iso) return '';
@@ -84,6 +86,13 @@ const LeftColumn: React.FC<LeftColumnProps> = ({ eventId, isDarkBg = false }) =>
     load();
   }, [eventId]);
 
+  // Update readiness when it changes
+  useEffect(() => {
+    if (event && event.readiness !== readiness) {
+      setEvent(prev => prev ? { ...prev, readiness } : null);
+    }
+  }, [readiness, event]);
+
   return (
     <Box className={styles.leftContainer}>
       <AvatarBanner isWhite={isDarkBg}/>
@@ -94,6 +103,7 @@ const LeftColumn: React.FC<LeftColumnProps> = ({ eventId, isDarkBg = false }) =>
           <ChecklistProgressCard
             daysLeft={event.daysLeft}
             onChecklistClick={() => navigate(`/event/${event.id}/checklist`)}
+            readiness={event.readiness}
           />
         </>
       )}

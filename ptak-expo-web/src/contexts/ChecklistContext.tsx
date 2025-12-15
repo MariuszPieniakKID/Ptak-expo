@@ -18,6 +18,7 @@ interface ChecklistContextType {
 	filled: boolean[];
 	companyInfoFilledCount: number;
 	updateProduct: (index: number, pi: ProductInfo) => void;
+	readinessPercent: number;
 }
 const ChecklistContext = createContext<ChecklistContextType | null>(null);
 
@@ -157,7 +158,8 @@ export const ChecklistProvider = ({ children, eventId }: {children: ReactNode, e
 		},
     addElectronicId: (ci: ElectrionicId) => { addElectronicId(ci, eventId).then(() => getChecklist(eventId)).then(setChecklist);},
 		filled,
-		companyInfoFilledCount
+		companyInfoFilledCount,
+		readinessPercent: Math.round((filled.filter(Boolean).length / filled.length) * 100)
 	}
 	return <ChecklistContext.Provider value={value}>{children}</ChecklistContext.Provider>
 }

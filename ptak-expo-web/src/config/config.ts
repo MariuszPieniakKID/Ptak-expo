@@ -18,8 +18,8 @@ const isRailway = !!(
 
 // Default configuration
 const defaultConfig: AppConfig = {
-  API_BASE_URL: "https://backend-production-df8c.up.railway.app",
-  NODE_ENV: process.env.NODE_ENV,
+  API_BASE_URL: "http://localhost:3001",
+  NODE_ENV: process.env.NODE_ENV || 'development',
   DEBUG: !isProduction,
   ENABLE_LOGGING: !isProduction,
 };

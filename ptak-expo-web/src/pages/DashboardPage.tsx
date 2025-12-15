@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { exhibitionsAPI, brandingAPI } from "../services/api";
+import { getChecklist } from "../services/checkListApi";
 import styles from "./DashboardPage.module.css";
 // import groupLogo from "../assets/group-257@3x.png";
 import Menu from "../components/Menu";
@@ -24,6 +25,9 @@ const DashboardPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [tileLogoByEventId, setTileLogoByEventId] = useState<
     Record<number, string | null>
+  >({});
+  const [readinessByEventId, setReadinessByEventId] = useState<
+    Record<number, number>
   >({});
 
   // Load exhibitor events on component mount
@@ -85,6 +89,58 @@ const DashboardPage: React.FC = () => {
     loadTileLogos();
   }, [events]);
 
+  // Load readiness for all events
+  useEffect(() => {
+    const loadReadiness = async () => {
+      if (!events || events.length === 0) return;
+      try {
+        const entries = await Promise.all(
+          events.map(async (ev) => {
+            try {
+              const checklist = await getChecklist(ev.id);
+              
+              // Calculate filled steps (same logic as useEventReadiness)
+              const catalogContactPerson = (checklist.companyInfo as any).catalogContactPerson;
+              const catalogContactPhone = (checklist.companyInfo as any).catalogContactPhone;
+              const catalogContactEmail = (checklist.companyInfo as any).catalogContactEmail;
+              let catalogContactFilled = 0;
+              if (catalogContactPerson && catalogContactPhone && catalogContactEmail) {
+                catalogContactFilled = 1;
+              }
+              
+              const companyInfoFilledCount = catalogContactFilled +
+                (checklist.companyInfo.description != null ? 1 : 0) +
+                (checklist.companyInfo.logo != null ? 1 : 0) +
+                (checklist.companyInfo.name != null ? 1 : 0) +
+                (checklist.companyInfo.socials != null ? 1 : 0) +
+                (checklist.companyInfo.website != null ? 1 : 0);
+
+              const filled = [
+                companyInfoFilledCount === 6,
+                checklist.products.length > 0,
+                checklist.downloadMaterials.length > 0,
+                checklist.sentInvitesCount > 0,
+                checklist.events.length > 0,
+                checklist.electrionicIds.length > 0
+              ];
+
+              const percent = Math.round((filled.filter(Boolean).length / filled.length) * 100);
+              return [ev.id, percent] as [number, number];
+            } catch {
+              return [ev.id, 0] as [number, number];
+            }
+          })
+        );
+        const m: Record<number, number> = {};
+        for (const [k, v] of entries) m[k] = v;
+        setReadinessByEventId(m);
+      } catch {
+        // ignore
+      }
+    };
+    loadReadiness();
+  }, [events]);
+
   const handleEventSelect = (eventId: number) => {
     // Navigate to the event home view for this event
     navigate(`/event/${eventId}/home`);
@@ -106,11 +162,9 @@ const DashboardPage: React.FC = () => {
     return `${formatDate(start)}-${formatDate(end)}`;
   };
 
-  // Get completion percentage (mock for now)
+  // Get completion percentage from loaded readiness
   const getCompletionPercentage = (event: Event) => {
-    // Mock completion based on event id for demo
-    const completions = [65, 45, 21];
-    return completions[event.id % 3] || 50;
+    return readinessByEventId[event.id] || 0;
   };
 
   return (
