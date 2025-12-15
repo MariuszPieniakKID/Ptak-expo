@@ -75,7 +75,7 @@ const LeftColumn: React.FC<LeftColumnProps> = ({ eventId, isDarkBg = false }) =>
           title: e.name,
           dateFrom: formatDate(e.start_date || e.startDate),
           dateTo: formatDate(e.end_date || e.endDate),
-          readiness,
+          readiness: 0,
           logoUrl,
           daysLeft: calcDaysLeft(e.start_date || e.startDate),
         });
