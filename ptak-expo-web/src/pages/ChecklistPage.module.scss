@@ -11,6 +11,7 @@
 
 .pageRoot {
   display: flex;
+  width: 100%;
   min-height: calc(100vh - 80px);
 }
 .mainArea {
@@ -994,11 +995,10 @@
 }
 
 .addProductButton {
-  margin-right: 16px;
   width: 28px;
   height: 28px;
   border-radius: 20px;
-  border: 1px solid #2e2e38;
+  border: 1px solid #2e2e38 !important;
 }
 
 .addProductButtonIcon {
@@ -1008,9 +1008,11 @@
 }
 
 .addProductText {
+  padding-left: 16px !important;
   text-decoration: underline;
   font-size: 13px;
   font-weight: 400;
+  cursor: pointer;
 }
 
 .accordion {
@@ -1023,4 +1025,78 @@
 
 .accordionBlack {
   padding-bottom: 20px;
+}
+
+.productErrorMessage {
+  color: #bb1821;
+  font-size: 11px;
+  font-weight: 100;
+  text-align: center;
+}
+
+.invitationCount {
+  color: #fff !important;
+  font-size: 24px !important;
+  margin-top: auto !important;
+  line-height: 100% !important;
+  margin-left: auto !important;
+}
+.invitationLimit {
+  color: #6f6f6f !important;
+  font-size: 9px !important;
+  margin-top: auto !important;
+  margin-right: auto !important;
+}
+.invitationText {
+  color: #fff !important;
+  font-size: 11px !important;
+  width: 100% !important;
+  line-height: 100% !important;
+  margin-bottom: auto;
+}
+
+.invitationTextContainer {
+  display: flex;
+  gap: 40px;
+}
+
+.cardDarkOtherContentButton {
+  border: none;
+  background-color: #fc8a06;
+  width: 100%;
+  padding: 12px 24px;
+  color: white;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: bold;
+  margin: 20px 0;
+  display: flex;
+  justify-content: center;
+}
+
+.inviteButtonIcon {
+  margin-right: 15px;
+}
+.inputBlackBackground label,
+.selectBlackBackground label {
+  color: #fff;
+}
+
+.selectBlackBackground div::before,
+.inputBlackBackground div::before {
+  border-bottom-color: #6f6f6f;
+}
+.selectBlackBackground svg {
+  fill: #fff;
+}
+
+.eIDheaderBox {
+  background-color: #fff;
+  width: 28%;
+  margin-left: auto;
+  margin-right: auto;
+  display: block;
+  height: 20px;
+  border-radius: 24px;
+  margin-bottom: 30px;
 }

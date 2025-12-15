@@ -20,8 +20,9 @@ import { useChecklist } from "../../contexts/ChecklistContext";
 import { EidType, ElectrionicId } from "../../services/checkListApi";
 import { useState } from "react";
 import { eidTypes, getEidTypeString } from "../../shared/EventUtils";
+import eIDiconButton from "../../assets/eIDiconButton.png";
 const boxSx = {
-  backgroundColor: "#fff",
+  backgroundColor: "#2E2E38",
   padding: "40px",
   margin: "0px -16px",
   borderRadius: "20px",
@@ -33,6 +34,13 @@ const boxSx = {
   position: "relative",
   zIndex: 1,
   overflow: "hidden",
+  width: "70%",
+  marginLeft: "auto",
+  marginRight: "auto",
+  marginTop: "32px",
+  marginBottom: "32px",
+  boxShadow: "0px 25px 25px 0px #242E5A66",
+  paddingTop: "20px",
 };
 export const blackTheme = createTheme({
   palette: { mode: "light" },
@@ -54,29 +62,39 @@ function AddElectronicId() {
   return (
     <ThemeProvider theme={blackTheme}>
       <Box sx={boxSx}>
+        <Box className={styles.eIDheaderBox} />
         {/* Usunięto grafikę/logo z formularza e-identyfikatorów */}
-        <Typography> E-Identyfikator </Typography>
+        <Typography style={{ color: "#fff" }}>E-Identyfikator </Typography>
         <TextField
           label="Imię nazwisko gościa"
           variant="standard"
+          className={styles.inputBlackBackground}
+          style={{ color: "#fff" }}
           fullWidth
           value={editedId.name}
           onChange={(e) => setEditedId({ ...editedId, name: e.target.value })}
         />
         <TextField
           label="Email"
+          style={{ color: "#fff" }}
           variant="standard"
           fullWidth
+          className={styles.inputBlackBackground}
           error={!isValidEmail}
           helperText={!isValidEmail && "To nie jest poprawny adres e-mail"}
           value={editedId.email}
           onChange={(e) => setEditedId({ ...editedId, email: e.target.value })}
         />
-        <FormControl variant="standard" fullWidth>
+        <FormControl
+          variant="standard"
+          fullWidth
+          className={styles.selectBlackBackground}
+        >
           <InputLabel id="event-type-label">Określ typ uczestnika</InputLabel>
           <Select
             labelId="event-type-label"
             id="event-type-select"
+            style={{ color: "#fff" }}
             value={String(eidTypes.indexOf(editedId.type))}
             onChange={(e) => {
               const idx = parseInt(String(e.target.value), 10);
@@ -99,12 +117,27 @@ function AddElectronicId() {
         <Button
           variant="contained"
           fullWidth
+          style={{
+            backgroundColor: "#FC8A06",
+            color: "#FFFFFF",
+            height: "38px",
+            fontSize: "14px",
+            textTransform: "none",
+            marginTop: "15px",
+          }}
           disabled={!isValid}
           onClick={() => {
             addElectronicId(editedId);
             setEditedId(emptyId);
           }}
         >
+          <img
+            src={eIDiconButton}
+            className={styles.inviteButtonIcon}
+            alt="ikona zaproszenia"
+            width={26}
+            height={19}
+          />
           Generuj i wyślij
         </Button>
       </Box>

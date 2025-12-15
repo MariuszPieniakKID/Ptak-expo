@@ -23,6 +23,7 @@ import styles from "./EventHomePage.module.scss";
 import BulkSendModal from "../components/invitations/BulkSendModal";
 import config from "../config/config";
 import CustomTypography from "../components/customTypography/CustomTypography";
+import InvitationProgress from "../components/chart/InvitationProgress";
 
 // no date fields in invitations card
 
@@ -351,24 +352,10 @@ const EventInvitationsPage = () => {
                       margin: "auto",
                     }}
                   >
-                    <Box
-                      sx={{
-                        display: "flex",
-                        color: "#fff",
-                        marginTop: "auto",
-                      }}
-                    >
-                      <CustomTypography className={styles.invitationCount}>
-                        {invitedCount}
-                      </CustomTypography>
-                      <CustomTypography className={styles.invitationLimit}>
-                        /{invitesLimit}
-                      </CustomTypography>
-                    </Box>
-
-                    <CustomTypography className={styles.invitationText}>
-                      Zaproszeń
-                    </CustomTypography>
+                    <InvitationProgress
+                      invites={invitedCount}
+                      limit={invitesLimit}
+                    />
                   </Box>
                   <Box
                     sx={{

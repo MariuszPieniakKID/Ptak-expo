@@ -114,7 +114,12 @@ export default function ProductsInfo() {
           >
             <Add className={styles.addProductButtonIcon} />
           </IconButton>
-          <span className={styles.addProductText}>dodaj produkt</span>
+          <span
+            className={styles.addProductText}
+            onClick={() => setShowAdd(true)}
+          >
+            dodaj produkt
+          </span>
         </>
       )}
       {showAdd && (
