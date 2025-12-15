@@ -312,8 +312,12 @@ const Menu: FunctionComponent<MenuType> = ({
         </AppBar>
 
         <div className={styles.headerRight}>
-          <button className={styles.logoutButton} onClick={handleLogout}>
-            <div className={styles.logoutLogo} />
+          <button
+            className={styles.logoutButton}
+            id="logout-button"
+            onClick={handleLogout}
+          >
+            <LogoutIcon className={styles.logoutLogo} />
             <span>Wyloguj</span>
           </button>
         </div>

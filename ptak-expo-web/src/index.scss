@@ -34,6 +34,22 @@ code {
   fill: #d7d9dd;
 }
 
+body:has(#black-background) #logout-button {
+  color: #fff;
+}
+body:has(#black-background) #logout-button:hover {
+  color: var(--color-firebrick);
+}
+body:has(#black-background) #logout-button svg {
+  filter: brightness(0) saturate(100%) invert(98%) sepia(2%) saturate(0%)
+    hue-rotate(221deg) brightness(104%) contrast(103%);
+}
+body:has(#black-background) #logout-button:hover svg {
+  background-color: none;
+  filter: brightness(0) saturate(100%) invert(30%) sepia(57%) saturate(2035%)
+    hue-rotate(330deg) brightness(83%) contrast(95%);
+}
+
 // @font-face {
 //   font-family: "RocGrotesk";
 //   src: url("./fonts/rocgrotesk.otf") format("opentype");

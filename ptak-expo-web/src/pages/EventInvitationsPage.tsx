@@ -753,6 +753,7 @@ const EventInvitationsPage = () => {
               closeBulk();
             }}
           />
+          <div id="black-background" />
         </Box>
       }
       colorRight="#2E2E38"
