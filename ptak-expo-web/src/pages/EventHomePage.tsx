@@ -77,10 +77,10 @@ const EventHomePage = () => {
 
   // Update readiness when it changes
   useEffect(() => {
-    if (event) {
+    if (event && event.readiness !== readiness) {
       setEvent(prev => prev ? { ...prev, readiness } : null);
     }
-  }, [readiness]);
+  }, [readiness, event]);
 
   return (
     <EventLayout
