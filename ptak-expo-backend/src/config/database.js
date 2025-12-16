@@ -91,29 +91,14 @@ const pool = new Pool({
   max: 30, // Increased maximum connections
   min: 2,  // Keep 2 connections ready
   allowExitOnIdle: true, // Allow process to exit if all clients idle
-  statement_timeout: 30000, // 30 seconds query timeout
 });
 
 console.log('🔍 Database pool created');
+console.log('📊 Pool config: max=30, min=2, connectionTimeout=10s, idleTimeout=60s');
 
 // Pool monitoring and error handling
-pool.on('connect', (client) => {
+pool.on('connect', () => {
   console.log('💾 Connected to PostgreSQL database');
-  // Log pool stats
-  const poolStats = {
-    total: pool.totalCount,
-    idle: pool.idleCount,
-    waiting: pool.waitingCount
-  };
-  console.log('📊 Pool stats:', poolStats);
-});
-
-pool.on('acquire', (client) => {
-  console.log('🔓 Client acquired from pool (total:', pool.totalCount, 'idle:', pool.idleCount, 'waiting:', pool.waitingCount, ')');
-});
-
-pool.on('remove', (client) => {
-  console.log('🗑️ Client removed from pool (total:', pool.totalCount, 'idle:', pool.idleCount, ')');
 });
 
 pool.on('error', (err, client) => {
