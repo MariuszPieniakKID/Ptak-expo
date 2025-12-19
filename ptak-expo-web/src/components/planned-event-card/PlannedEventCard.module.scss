@@ -1,5 +1,4 @@
 .card {
-  height: 12.6rem;
   padding: 0.6rem;
   width: 100%;
 }
@@ -11,8 +10,8 @@
 }
 .boxLink {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  align-items: right;
+  justify-content: end;
   gap: 8px;
 }
 .date {

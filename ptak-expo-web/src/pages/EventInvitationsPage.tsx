@@ -627,7 +627,7 @@ const EventInvitationsPage = () => {
                       mb: "8px",
                     }}
                   >
-                    Biznes Priority Pass
+                    Business Priority Pass
                   </Box>
                   {vipValue && vipValue.trim().length > 0 && (
                     <Box
@@ -652,7 +652,7 @@ const EventInvitationsPage = () => {
                     }}
                   >
                     Każda osoba, którą zaprosisz przez generator w aplikacji,
-                    otrzyma imienny Biznes Priority Pass o wartości {vipValue}{" "}
+                    otrzyma imienny Business Priority Pass o wartości {vipValue}{" "}
                     PLN, obejmujący:
                   </Box>
                 </Box>

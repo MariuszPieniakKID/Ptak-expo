@@ -72,7 +72,7 @@ export default function InvitesCard() {
                   mb: "8px",
                 }}
               >
-                Biznes Priority Pass
+                Business Priority Pass
               </Box>
               <Box
                 sx={{

@@ -1,4 +1,4 @@
-import { IconButton, Typography } from "@mui/material";
+import { Box, IconButton, Typography } from "@mui/material";
 import { useChecklist } from "../../contexts/ChecklistContext";
 import ChecklistCard from "./checklistCard";
 import AddEvent from "./EditEvent";
@@ -32,7 +32,7 @@ export default function EventSchedule() {
       ))}
 
       {!showAdd && editingIndex === null && (
-        <>
+        <Box display="flex" marginTop={"20px"}>
           <IconButton
             className={styles.addProductButton}
             onClick={() => setShowAdd(true)}
@@ -40,7 +40,7 @@ export default function EventSchedule() {
             <Add className={styles.addProductButtonIcon} />
           </IconButton>
           <span className={styles.addProductText}>dodaj wydarzenie</span>
-        </>
+        </Box>
       )}
       {showAdd && (
         <AddEvent

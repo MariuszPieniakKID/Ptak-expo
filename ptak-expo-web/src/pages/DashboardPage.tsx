@@ -98,17 +98,25 @@ const DashboardPage: React.FC = () => {
           events.map(async (ev) => {
             try {
               const checklist = await getChecklist(ev.id);
-              
+
               // Calculate filled steps (same logic as useEventReadiness)
-              const catalogContactPerson = (checklist.companyInfo as any).catalogContactPerson;
-              const catalogContactPhone = (checklist.companyInfo as any).catalogContactPhone;
-              const catalogContactEmail = (checklist.companyInfo as any).catalogContactEmail;
+              const catalogContactPerson = (checklist.companyInfo as any)
+                .catalogContactPerson;
+              const catalogContactPhone = (checklist.companyInfo as any)
+                .catalogContactPhone;
+              const catalogContactEmail = (checklist.companyInfo as any)
+                .catalogContactEmail;
               let catalogContactFilled = 0;
-              if (catalogContactPerson && catalogContactPhone && catalogContactEmail) {
+              if (
+                catalogContactPerson &&
+                catalogContactPhone &&
+                catalogContactEmail
+              ) {
                 catalogContactFilled = 1;
               }
-              
-              const companyInfoFilledCount = catalogContactFilled +
+
+              const companyInfoFilledCount =
+                catalogContactFilled +
                 (checklist.companyInfo.description != null ? 1 : 0) +
                 (checklist.companyInfo.logo != null ? 1 : 0) +
                 (checklist.companyInfo.name != null ? 1 : 0) +
@@ -121,10 +129,12 @@ const DashboardPage: React.FC = () => {
                 checklist.downloadMaterials.length > 0,
                 checklist.sentInvitesCount > 0,
                 checklist.events.length > 0,
-                checklist.electrionicIds.length > 0
+                checklist.electrionicIds.length > 0,
               ];
 
-              const percent = Math.round((filled.filter(Boolean).length / filled.length) * 100);
+              const percent = Math.round(
+                (filled.filter(Boolean).length / filled.length) * 100
+              );
               return [ev.id, percent] as [number, number];
             } catch {
               return [ev.id, 0] as [number, number];
@@ -169,11 +179,6 @@ const DashboardPage: React.FC = () => {
 
   return (
     <div className={styles.dashboard}>
-      <div className={styles.dashboardBackground}>
-        <img className={styles.image35Icon} alt="" src="/image-35@2x.png" />
-        <div className={styles.dashboardChild} />
-        <div className={styles.dashboardItem} />
-      </div>
       {/* <div className={styles.header}>
         <div className={styles.headerPadding} />
         <div className={styles.headerContainer}>

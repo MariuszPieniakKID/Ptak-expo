@@ -19,7 +19,7 @@ const isRailway = !!(
 // Default configuration
 const defaultConfig: AppConfig = {
   API_BASE_URL: "http://localhost:3001",
-  NODE_ENV: process.env.NODE_ENV || 'development',
+  NODE_ENV: process.env.NODE_ENV || "development",
   DEBUG: !isProduction,
   ENABLE_LOGGING: !isProduction,
 };

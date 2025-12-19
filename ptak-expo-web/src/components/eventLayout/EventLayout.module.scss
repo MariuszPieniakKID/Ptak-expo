@@ -11,6 +11,9 @@
     padding-top: 189px !important;
     padding-right: 17% !important;
     padding-left: 40px !important;
+    padding-bottom: 40px !important;
+    max-height: 100vh !important;
+    overflow: scroll !important;
     @media (max-width: 1280px) {
       padding: 1rem !important;
       padding-top: 10rem !important;
@@ -22,9 +25,9 @@
     }
   }
 
-  .rightBackground {
-    @include m.background(light);
-  }
+  // .rightBackground {
+  //   @include m.background(light);
+  // }
 
   .left {
     min-height: 100vh;
@@ -33,11 +36,15 @@
     padding-left: 23.5%;
     padding-top: 190px;
     padding-right: 40px;
+    padding-bottom: 40px !important;
+    max-height: 100vh;
+    overflow: scroll;
     @media (max-width: 1280px) {
       padding: 1rem;
       padding-top: 10rem;
       gap: 1rem;
     }
+    z-index: 1;
   }
 }
 .MuiIconButton-sizeMedium {

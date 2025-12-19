@@ -125,7 +125,12 @@ export const TradeInfoPage: React.FC<T_TradeInfoPage> = ({ eventId }) => {
               {generatedDate.date}
             </CustomTypography>
           </div>
-          <CustomTypography fontSize="14px" fontWeight={700} color="#6F87F6">
+          <CustomTypography
+            className={styles.tradeInfoHours}
+            fontSize="14px"
+            fontWeight={700}
+            color="#6F87F6"
+          >
             {generatedDate.hours}
           </CustomTypography>
         </div>
@@ -202,7 +207,12 @@ export const TradeInfoPage: React.FC<T_TradeInfoPage> = ({ eventId }) => {
                 {eventDate}
               </CustomTypography>
             </div>
-            <CustomTypography fontSize="14px" fontWeight={700} color="#6F87F6">
+            <CustomTypography
+              fontSize="14px"
+              fontWeight={700}
+              color="#6F87F6"
+              className={styles.tradeInfoHours}
+            >
               {startTime} - {endTime}
             </CustomTypography>
           </div>

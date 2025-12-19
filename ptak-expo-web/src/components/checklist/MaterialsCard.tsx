@@ -34,12 +34,14 @@ function AddMaterial({ onChangeFile }: { onChangeFile: (file: File) => void }) {
         id="file-input"
       />
       <label htmlFor="file-input">
-        <IconButton component="span" className={styles.addProductButton}>
-          <Add className={styles.addProductButtonIcon} />
-        </IconButton>
-        <span className={styles.addProductText}>
-          dodaj pliki do pobrania (PDF)
-        </span>
+        <Box display="flex" marginTop={"20px"}>
+          <IconButton component="span" className={styles.addProductButton}>
+            <Add className={styles.addProductButtonIcon} />
+          </IconButton>
+          <span className={styles.addProductText}>
+            dodaj pliki do pobrania (PDF)
+          </span>
+        </Box>
       </label>
     </Box>
   );

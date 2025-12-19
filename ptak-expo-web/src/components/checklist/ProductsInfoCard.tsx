@@ -47,9 +47,10 @@ export default function ProductsInfo() {
             display={"flex"}
             alignItems="center"
             gap="10px"
-            marginY="16px"
+            paddingY="16px"
             width="100%"
             key={`${cp.name}-${i}`}
+            borderBottom={"1px solid #D7D9DD"}
           >
             <Box
               component="img"
@@ -107,7 +108,7 @@ export default function ProductsInfo() {
         );
       })}
       {!showAdd && (
-        <>
+        <Box display="flex" marginTop={"20px"}>
           <IconButton
             className={styles.addProductButton}
             onClick={() => setShowAdd(true)}
@@ -120,7 +121,7 @@ export default function ProductsInfo() {
           >
             dodaj produkt
           </span>
-        </>
+        </Box>
       )}
       {showAdd && (
         <EditProduct

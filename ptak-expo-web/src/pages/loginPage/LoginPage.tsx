@@ -79,14 +79,6 @@ const LoginPage: React.FC = () => {
 
   return (
     <div className={styles.loginContainer}>
-      <img
-        className={styles.image35Icon}
-        alt=""
-        src="/assets/image-35@2x.png"
-      />
-      <div className={styles.web13662Child} />
-      <div className={styles.web13662Item} />
-      <div className={styles.web13662Inner} />
       <div className={styles.loginDataContainer}>
         <div className={styles.title}>
           <p>Panel wystawcy</p>

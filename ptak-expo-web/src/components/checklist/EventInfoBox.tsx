@@ -80,7 +80,7 @@ export default function EventInfoBox({
   const isAgendaEvent = event.isFromAgenda === true;
 
   return (
-    <Grid container marginY="20px">
+    <Grid container marginY="20px" borderBottom={"1px solid #D7D9DD"}>
       <Grid
         size={2}
         display="flex"

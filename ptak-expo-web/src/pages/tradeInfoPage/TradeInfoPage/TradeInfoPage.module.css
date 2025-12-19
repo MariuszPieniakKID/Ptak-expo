@@ -89,6 +89,7 @@
 
 .marketBuildingsItemHoursFirstHour {
   width: 80px;
+  margin-right: 4px;
 }
 
 .marketingBuildingsShowMore {
@@ -368,4 +369,8 @@
 }
 .accompanyingEvents {
   padding-bottom: 20px;
+}
+
+.tradeInfoHours {
+  margin-left: 4px;
 }

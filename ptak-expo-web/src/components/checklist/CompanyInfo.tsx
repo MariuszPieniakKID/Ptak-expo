@@ -83,7 +83,7 @@ function DisplayEdit({
   checked?: boolean;
 }) {
   return (
-    <Box display="flex" alignItems="center">
+    <Box display="flex" alignItems="center" fontFamily="roc-grotesk">
       <Box width="30px" alignItems="center" justifyContent="center">
         {checked && <GreenCheck />}
       </Box>
@@ -98,8 +98,11 @@ function DisplayOnly({ name, value }: { name: string; value: string | null }) {
       <Box width="30px" alignItems="center" justifyContent="center">
         {value != null && <GreenCheck />}
       </Box>
-      <Typography fontSize={14} color="#2E2E38">
-        {name}: {value || ""}
+      <Typography fontSize={13} fontFamily="roc-grotesk">
+        <Box display={"inline"} color="#A7A7A7">
+          {name}:{" "}
+        </Box>
+        {value || ""}
       </Typography>
     </Box>
   );
@@ -122,7 +125,12 @@ function StringEdit({
   if (!isEdit) {
     return (
       <DisplayEdit
-        text={name + ": " + (value || "")}
+        text={
+          <>
+            <Box color="#A7A7A7">{name}: </Box>
+            {value || ""}
+          </>
+        }
         onEdit={() => setIsEdit(true)}
         checked={value != null}
       />
@@ -269,7 +277,7 @@ function ImageEdit({
     return (
       <Box>
         <DisplayEdit
-          text={name}
+          text={<Box color="#A7A7A7">{name}</Box>}
           onEdit={() => setIsEdit(true)}
           checked={value != null}
         />
@@ -526,98 +534,136 @@ export default function CompanyInfo() {
       }
       checked={companyInfoFilledCount === 6}
     >
-      <DisplayOnly name="Nazwa firmy" value={checklist.companyInfo.name} />
-      <StringEdit
-        name="Nazwa firmy do wyświetlania"
-        value={
-          (checklist.companyInfo as any).displayName ||
-          checklist.companyInfo.name
-        }
-        onChange={(v) =>
-          saveCompanyInfo({ ...(checklist.companyInfo as any), displayName: v })
-        }
-      />
-      <ImageEdit
-        name="Logotyp"
-        value={checklist.companyInfo.logo}
-        onChange={(v) => saveCompanyInfo({ ...checklist.companyInfo, logo: v })}
-      />
-      <StringEdit
-        name="Opis"
-        value={checklist.companyInfo.description}
-        onChange={(v) =>
-          saveCompanyInfo({ ...checklist.companyInfo, description: v })
-        }
-        multiline
-      />
-      <StringEdit
-        name="Dlaczego warto odwiedzić nasze stoisko?"
-        value={(checklist.companyInfo as any).whyVisit ?? null}
-        onChange={(v) =>
-          saveCompanyInfo({
-            ...(checklist.companyInfo as any),
-            whyVisit: v as any,
-          })
-        }
-        multiline
-      />
+      <Box borderBottom={"1px solid #D7D9DD"} marginBottom={"4px"}>
+        <DisplayOnly name="Nazwa firmy" value={checklist.companyInfo.name} />
+      </Box>
+      <Box borderBottom={"1px solid #D7D9DD"} marginBottom={"4px"}>
+        <StringEdit
+          name="Nazwa firmy do wyświetlania"
+          value={
+            (checklist.companyInfo as any).displayName ||
+            checklist.companyInfo.name
+          }
+          onChange={(v) =>
+            saveCompanyInfo({
+              ...(checklist.companyInfo as any),
+              displayName: v,
+            })
+          }
+        />
+      </Box>
+      <Box borderBottom={"1px solid #D7D9DD"} marginBottom={"4px"}>
+        <ImageEdit
+          name="Logotyp"
+          value={checklist.companyInfo.logo}
+          onChange={(v) =>
+            saveCompanyInfo({ ...checklist.companyInfo, logo: v })
+          }
+        />
+      </Box>
+      <Box borderBottom={"1px solid #D7D9DD"} marginBottom={"4px"}>
+        <StringEdit
+          name="Opis"
+          value={checklist.companyInfo.description}
+          onChange={(v) =>
+            saveCompanyInfo({ ...checklist.companyInfo, description: v })
+          }
+          multiline
+        />
+      </Box>
+      <Box borderBottom={"1px solid #D7D9DD"} marginBottom={"4px"}>
+        <StringEdit
+          name="Dlaczego warto odwiedzić nasze stoisko?"
+          value={(checklist.companyInfo as any).whyVisit ?? null}
+          onChange={(v) =>
+            saveCompanyInfo({
+              ...(checklist.companyInfo as any),
+              whyVisit: v as any,
+            })
+          }
+          multiline
+        />
+      </Box>
       {/* Catalog Contact Info - separate fields for catalog display only */}
-      <StringEdit
-        name="Osoba kontaktowa (do katalogu)"
-        value={(checklist.companyInfo as any).catalogContactPerson || null}
-        onChange={(v) =>
-          saveCompanyInfo({
-            ...(checklist.companyInfo as any),
-            catalogContactPerson: v,
-          })
-        }
-      />
-      <StringEdit
-        name="Telefon kontaktowy (do katalogu)"
-        value={(checklist.companyInfo as any).catalogContactPhone || null}
-        onChange={(v) =>
-          saveCompanyInfo({
-            ...(checklist.companyInfo as any),
-            catalogContactPhone: v,
-          })
-        }
-      />
-      <StringEdit
-        name="E-mail kontaktowy (do katalogu)"
-        value={(checklist.companyInfo as any).catalogContactEmail || null}
-        onChange={(v) =>
-          saveCompanyInfo({
-            ...(checklist.companyInfo as any),
-            catalogContactEmail: v,
-          })
-        }
-      />
-      <StringEdit
-        name="Strona www"
-        value={checklist.companyInfo.website}
-        onChange={(v) =>
-          saveCompanyInfo({ ...checklist.companyInfo, website: v })
-        }
-      />
+      <Box borderBottom={"1px solid #D7D9DD"} marginBottom={"4px"}>
+        <StringEdit
+          name="Osoba kontaktowa (do katalogu)"
+          value={(checklist.companyInfo as any).catalogContactPerson || null}
+          onChange={(v) =>
+            saveCompanyInfo({
+              ...(checklist.companyInfo as any),
+              catalogContactPerson: v,
+            })
+          }
+        />
+      </Box>
+      <Box borderBottom={"1px solid #D7D9DD"} marginBottom={"4px"}>
+        <StringEdit
+          name="Telefon kontaktowy (do katalogu)"
+          value={(checklist.companyInfo as any).catalogContactPhone || null}
+          onChange={(v) =>
+            saveCompanyInfo({
+              ...(checklist.companyInfo as any),
+              catalogContactPhone: v,
+            })
+          }
+        />
+      </Box>
+      <Box borderBottom={"1px solid #D7D9DD"} marginBottom={"4px"}>
+        <StringEdit
+          name="E-mail kontaktowy (do katalogu)"
+          value={(checklist.companyInfo as any).catalogContactEmail || null}
+          onChange={(v) =>
+            saveCompanyInfo({
+              ...(checklist.companyInfo as any),
+              catalogContactEmail: v,
+            })
+          }
+        />
+      </Box>
+      <Box borderBottom={"1px solid #D7D9DD"} marginBottom={"4px"}>
+        <StringEdit
+          name="Strona www"
+          value={checklist.companyInfo.website}
+          onChange={(v) =>
+            saveCompanyInfo({ ...checklist.companyInfo, website: v })
+          }
+        />
+      </Box>
       {/* Read-only email field - for login credentials only */}
-      <Box display="flex" alignItems="center">
+      <Box
+        display="flex"
+        alignItems="center"
+        borderBottom={"1px solid #D7D9DD"}
+        marginBottom={"4px"}
+      >
         <Box width="30px" alignItems="center" justifyContent="center">
           {(checklist.companyInfo as any).contactEmail && <GreenCheck />}
         </Box>
-        <Typography variant="body2">
-          Adres e-mail do logowania:{" "}
+        <Typography variant="body2" fontFamily="roc-grotesk">
+          <Box color="#A7A7A7" display="inline">
+            Adres e-mail do logowania:{" "}
+          </Box>
           {(checklist.companyInfo as any).contactEmail || ""}
         </Typography>
       </Box>
       {/* Industries (Sektory branżowe) */}
       {!editingIndustries && (
-        <Box display="flex" alignItems="center">
+        <Box
+          display="flex"
+          alignItems="center"
+          borderBottom={"1px solid #D7D9DD"}
+          marginBottom={"4px"}
+        >
           <Box width="30px" alignItems="center" justifyContent="center">
             {currentIndustriesArray.length > 0 && <GreenCheck />}
           </Box>
           <Box flex={1}>
-            <Typography variant="body2">
-              Sektory branżowe: {currentIndustriesArray.join(", ")}
+            <Typography variant="body2" fontFamily="roc-grotesk">
+              <Box color="#A7A7A7" display="inline">
+                Sektory branżowe:{" "}
+              </Box>
+              {currentIndustriesArray.join(", ")}
             </Typography>
           </Box>
           {EditIcon(() => setEditingIndustries(true))}
@@ -721,13 +767,21 @@ export default function CompanyInfo() {
       )}
       {/* Brands (Brandy) */}
       {!editingBrands && (
-        <Box display="flex" alignItems="center">
+        <Box
+          display="flex"
+          alignItems="center"
+          borderBottom={"1px solid #D7D9DD"}
+          marginBottom={"4px"}
+        >
           <Box width="30px" alignItems="center" justifyContent="center">
             {currentBrandsArray.length > 0 && <GreenCheck />}
           </Box>
           <Box flex={1}>
-            <Typography variant="body2">
-              Brandy: {currentBrandsArray.join(", ")}
+            <Typography variant="body2" fontFamily="roc-grotesk">
+              <Box color="#A7A7A7" display="inline">
+                Brandy:{" "}
+              </Box>
+              {currentBrandsArray.join(", ")}
             </Typography>
           </Box>
           {EditIcon(() => setEditingBrands(true))}
@@ -856,9 +910,17 @@ export default function CompanyInfo() {
           );
         };
         return (
-          <Box>
+          <Box borderBottom={"1px solid #D7D9DD"} marginBottom={"4px"}>
             <DisplayEdit
-              text={<Typography variant="body2">Social media</Typography>}
+              text={
+                <Typography
+                  variant="body2"
+                  color="#A7A7A7"
+                  fontFamily="roc-grotesk"
+                >
+                  Social media
+                </Typography>
+              }
               onEdit={() => setEditingSocials((v) => !v)}
               checked={hasAny}
             />
@@ -993,13 +1055,19 @@ export default function CompanyInfo() {
 
       {/* Hashtag (Twoje Hashtag) */}
       {!editingCatalogTags && (
-        <Box display="flex" alignItems="center">
+        <Box
+          display="flex"
+          alignItems="center"
+          borderBottom={"1px solid #D7D9DD"}
+        >
           <Box width="30px" alignItems="center" justifyContent="center">
             {currentCatalogTagsArray.length > 0 && <GreenCheck />}
           </Box>
           <Box flex={1}>
-            <Typography variant="body2">
-              Twoje Hashtag (Wybierz lub stwórz tagi):{" "}
+            <Typography variant="body2" fontFamily="roc-grotesk">
+              <Box color="#A7A7A7" display="inline">
+                Twoje Hashtag (Wybierz lub stwórz tagi):{" "}
+              </Box>
               {currentCatalogTagsArray.join(", ")}
             </Typography>
           </Box>

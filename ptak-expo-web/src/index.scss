@@ -1,9 +1,10 @@
+@use "./styles/mixins" as m;
 @import "./styles/variables";
 @import "./styles/mixins";
 
 * {
   box-sizing: border-box;
-  font-family: "RocGrotesk";
+  font-family: "roc-grotesk" !important;
 }
 
 body {
@@ -14,10 +15,22 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   line-height: 1.6;
+  overflow: hidden;
+  background: url(http://localhost:3000/static/media/background.172bb68459c9ebcd6e49.png)
+    no-repeat center bottom;
+  background-position-x: center;
+  background-position-y: bottom;
+  background-attachment: scroll;
+  background-size: auto;
+  background-size: cover;
+  background-attachment: fixed;
+  background-position: center calc(100% + 240px);
+  @include m.background(light);
 }
 
 code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, "RocGrotesk", monospace;
+  font-family: source-code-pro, Menlo, Monaco, Consolas, "roc-grotesk",
+    monospace;
 }
 
 .Mui-expanded {
