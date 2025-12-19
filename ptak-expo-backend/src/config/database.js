@@ -86,21 +86,35 @@ try {
 const pool = new Pool({
   connectionString: databaseUrl,
   ssl: sslOption,
-  connectionTimeoutMillis: 30000, // 30 seconds timeout
-  idleTimeoutMillis: 30000,
-  max: 20, // Maximum number of connections
-  min: 0,  // Avoid eager connections on startup
+  connectionTimeoutMillis: 10000, // 10 seconds to acquire connection
+  idleTimeoutMillis: 60000, // 60 seconds idle before closing
+  max: 30, // Increased maximum connections
+  min: 2,  // Keep 2 connections ready
+  allowExitOnIdle: true, // Allow process to exit if all clients idle
 });
 
 console.log('🔍 Database pool created');
+console.log('📊 Pool config: max=30, min=2, connectionTimeout=10s, idleTimeout=60s');
 
-// Test database connection
+// Pool monitoring and error handling
 pool.on('connect', () => {
   console.log('💾 Connected to PostgreSQL database');
 });
 
-pool.on('error', (err) => {
-  console.error('💥 Database connection error:', err);
+pool.on('error', (err, client) => {
+  console.error('💥 Unexpected database pool error:', err);
+  console.error('💥 Pool state - total:', pool.totalCount, 'idle:', pool.idleCount, 'waiting:', pool.waitingCount);
+});
+
+// Graceful shutdown
+process.on('SIGTERM', async () => {
+  console.log('🔄 SIGTERM received, closing database pool...');
+  try {
+    await pool.end();
+    console.log('✅ Database pool closed gracefully');
+  } catch (err) {
+    console.error('❌ Error closing database pool:', err);
+  }
 });
 
 // Initialize database tables
