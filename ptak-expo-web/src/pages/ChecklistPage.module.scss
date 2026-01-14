@@ -1102,3 +1102,9 @@
   border-radius: 24px;
   margin-bottom: 30px;
 }
+
+.eIdBox {
+  @media (max-width: 900px) {
+    width: 90% !important;
+  }
+}

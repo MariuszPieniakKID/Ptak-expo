@@ -61,7 +61,7 @@ function AddElectronicId() {
     editedId.name && editedId.email && editedId.type >= 0 && isValidEmail;
   return (
     <ThemeProvider theme={blackTheme}>
-      <Box sx={boxSx}>
+      <Box sx={boxSx} className={styles.eIdBox}>
         <Box className={styles.eIDheaderBox} />
         {/* Usunięto grafikę/logo z formularza e-identyfikatorów */}
         <Typography style={{ color: "#fff" }}>E-Identyfikator </Typography>

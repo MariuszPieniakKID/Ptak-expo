@@ -21,7 +21,10 @@
     }
 
     @media (max-width: 900px) {
-      padding-top: 24px !important;
+      padding-top: 0 !important;
+      overflow: hidden !important;
+      min-height: unset !important;
+      max-height: unset !important;
     }
   }
 
@@ -45,6 +48,12 @@
       gap: 1rem;
     }
     z-index: 1;
+
+    @media (max-width: 900px) {
+      overflow: hidden !important;
+      min-height: unset !important;
+      max-height: unset !important;
+    }
   }
 }
 .MuiIconButton-sizeMedium {
