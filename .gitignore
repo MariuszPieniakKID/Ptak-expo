@@ -76,4 +76,8 @@ backend.log
 ptak-expo-backend/backend.log 
 
 # Extracted developer setup
-developer-setup/
+developer-setup/.backup-old-railway/
+
+# Local backups of old Railway project (DB dumps, uploads)
+.backup-old-railway/
+.backup-new-railway/

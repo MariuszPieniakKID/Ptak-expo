@@ -98,9 +98,19 @@ const allowedOrigins = [
   ...extraOrigins,
   'https://frontend-production-fb96.up.railway.app',
   'https://ptak-expo-production.up.railway.app',
-  // Admin front domain
+  // Legacy admin front domain
   'https://admin-front-production-7c59.up.railway.app',
+  // New custom domains (exhibitorlist.warsawexpo.eu)
+  'https://wystawca.exhibitorlist.warsawexpo.eu',
+  'https://admin.exhibitorlist.warsawexpo.eu',
+  'https://exhibitorlist.warsawexpo.eu',
 ].filter(Boolean);
+
+// Suffixes accepted as "trusted custom domains" for the project
+const allowedHostnameSuffixes = [
+  'exhibitorlist.eu',
+  'exhibitorlist.warsawexpo.eu',
+];
 
 console.log('🔍 CORS allowed origins:', allowedOrigins);
 
@@ -114,14 +124,14 @@ app.use(cors({
     if (allowedOrigins.includes(origin)) {
       return callback(null, true);
     }
-    // Allow new custom domains under exhibitorlist.eu regardless of exact subdomain
+    // Allow new custom domains under our trusted suffixes (exact suffix match)
     try {
       const hostname = new URL(origin).hostname;
-      if (hostname.endsWith('exhibitorlist.eu')) {
+      if (allowedHostnameSuffixes.some((suffix) => hostname === suffix || hostname.endsWith('.' + suffix))) {
         return callback(null, true);
       }
     } catch (e) {
-      if (origin.includes('exhibitorlist.eu')) {
+      if (allowedHostnameSuffixes.some((suffix) => origin.includes(suffix))) {
         return callback(null, true);
       }
     }

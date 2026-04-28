@@ -29,7 +29,7 @@ const productionConfig: AppConfig = {
   ...defaultConfig,
   API_BASE_URL:
     process.env.REACT_APP_API_URL ||
-    "https://backend-production-df8c.up.railway.app",
+    "https://backend-production-e57c.up.railway.app",
   DEBUG: false,
   ENABLE_LOGGING: false,
 };

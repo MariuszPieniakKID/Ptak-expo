@@ -26,7 +26,7 @@ const defaultConfig: AppConfig = {
 const productionConfig: AppConfig = {
   ...defaultConfig,
   // In production, always prefer REACT_APP_API_URL; default to Backend public domain
-  API_BASE_URL: process.env.REACT_APP_API_URL || 'https://backend-production-df8c.up.railway.app',
+  API_BASE_URL: process.env.REACT_APP_API_URL || 'https://backend-production-e57c.up.railway.app',
   DEBUG: false,
   ENABLE_LOGGING: false
 };
