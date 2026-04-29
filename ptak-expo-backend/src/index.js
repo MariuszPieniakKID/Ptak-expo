@@ -250,6 +250,17 @@ app.get('/api/v1/_export-uploads', (req, res) => {
   req.on('close', () => tar.kill());
 });
 
+// Temporary disk check endpoint for migration monitoring
+app.get('/api/v1/_disk-check', (req, res) => {
+  const secret = process.env.UPLOADS_IMPORT_SECRET;
+  if (!secret || req.query.secret !== secret) return res.status(401).json({ error: 'Unauthorized' });
+  const { exec } = require('child_process');
+  const uploadsDir = process.env.UPLOADS_DIR || '/data/uploads';
+  exec(`df -h /data && echo "---" && du -sh ${uploadsDir}/* 2>/dev/null | sort -rh | head -10 && echo "---total:" && du -sh ${uploadsDir} 2>/dev/null`, (err, stdout) => {
+    res.json({ output: stdout, error: err?.message });
+  });
+});
+
 // Temporary migration import endpoint – receives tar.gz body and extracts to UPLOADS_DIR/subdir
 // Protected by UPLOADS_IMPORT_SECRET env var; remove this env var after migration
 app.put('/api/v1/_import-uploads', (req, res) => {
