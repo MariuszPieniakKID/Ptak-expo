@@ -23,7 +23,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 
 // CONFIGURATION
-const BASE_URL = 'https://backend-production-df8c.up.railway.app/api/v1';
+const BASE_URL = 'https://backend-production-e57c.up.railway.app/api/v1';
 const { width, height } = Dimensions.get('window');
 
 // API SERVICE

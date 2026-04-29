@@ -6,7 +6,7 @@ RED='\033[0;31m'
 YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
-BACKEND_URL="https://backend-production-df8c.up.railway.app"
+BACKEND_URL="https://backend-production-e57c.up.railway.app"
 
 echo -e "${YELLOW}🔐 Logowanie jako admin...${NC}"
 

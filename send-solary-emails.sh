@@ -7,7 +7,7 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
-BACKEND_URL="https://backend-production-df8c.up.railway.app"
+BACKEND_URL="https://backend-production-e57c.up.railway.app"
 
 echo -e "${BLUE}═══════════════════════════════════════════════════════${NC}"
 echo -e "${BLUE}  SOLARY - Wysyłka maili do wystawców${NC}"

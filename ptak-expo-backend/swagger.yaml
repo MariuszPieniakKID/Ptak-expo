@@ -17,7 +17,7 @@ info:
     
     Updated: 2024-11-25
 servers:
-  - url: https://backend-production-df8c.up.railway.app
+  - url: https://backend-production-e57c.up.railway.app
     description: Production server (Railway)
   - url: http://localhost:3001
     description: Local development server

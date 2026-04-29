@@ -11,7 +11,7 @@ fi
 
 ADMIN_EMAIL=$1
 ADMIN_PASSWORD=$2
-BACKEND_URL="https://backend-production-df8c.up.railway.app"
+BACKEND_URL="https://backend-production-e57c.up.railway.app"
 
 echo "🔐 Logowanie..."
 

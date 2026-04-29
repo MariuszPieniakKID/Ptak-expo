@@ -3,7 +3,7 @@
 # Wysyłka testowa maila do pieniak@gmail.com
 # Ten sam format co był wysyłany do SOLAR
 
-BACKEND_URL="https://backend-production-df8c.up.railway.app"
+BACKEND_URL="https://backend-production-e57c.up.railway.app"
 
 echo "🔐 Logowanie jako admin..."
 read -p "Email admina: " ADMIN_EMAIL

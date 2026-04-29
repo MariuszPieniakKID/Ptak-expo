@@ -51,7 +51,7 @@ async function checkImages() {
         console.log(\`  Path: \${file.file_path}\`);
         console.log(\`  MIME: \${file.mime_type}\`);
         console.log(\`  Created: \${new Date(file.created_at).toLocaleString('pl-PL')}\`);
-        console.log(\`  URL: https://backend-production-df8c.up.railway.app/api/v1/exhibitor-branding/\${file.exhibitor_id || 'global'}/\${file.file_name}\`);
+        console.log(\`  URL: https://backend-production-e57c.up.railway.app/api/v1/exhibitor-branding/\${file.exhibitor_id || 'global'}/\${file.file_name}\`);
       });
     }
 

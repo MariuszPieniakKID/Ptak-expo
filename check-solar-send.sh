@@ -1,6 +1,6 @@
 #!/bin/bash
 
-BACKEND_URL="https://backend-production-df8c.up.railway.app"
+BACKEND_URL="https://backend-production-e57c.up.railway.app"
 
 echo "🔐 Logowanie..."
 TOKEN=$(curl -s -X POST "${BACKEND_URL}/api/v1/auth/login" \

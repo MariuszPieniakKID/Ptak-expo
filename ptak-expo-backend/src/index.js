@@ -96,11 +96,11 @@ const allowedOrigins = [
   'http://localhost:3002',
   'http://localhost:3003',
   ...extraOrigins,
-  'https://frontend-production-fb96.up.railway.app',
-  'https://ptak-expo-production.up.railway.app',
-  // Legacy admin front domain
-  'https://admin-front-production-7c59.up.railway.app',
-  // New custom domains (exhibitorlist.warsawexpo.eu)
+  // Active Railway service domains
+  'https://user-front-production-cca3.up.railway.app',
+  'https://admin-front-production-5d5b.up.railway.app',
+  'https://backend-production-e57c.up.railway.app',
+  // Custom domains
   'https://wystawca.exhibitorlist.warsawexpo.eu',
   'https://admin.exhibitorlist.warsawexpo.eu',
   'https://exhibitorlist.warsawexpo.eu',
