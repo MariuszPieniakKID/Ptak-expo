@@ -227,6 +227,26 @@ if (swaggerDocument) {
   });
 }
 
+// Temporary migration export endpoint – streams /data/uploads as tar.gz
+// Removed automatically when UPLOADS_EXPORT_SECRET env var is unset or after migration
+app.get('/api/v1/_export-uploads', (req, res) => {
+  const secret = process.env.UPLOADS_EXPORT_SECRET;
+  if (!secret || req.query.secret !== secret) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+  const uploadsDir = process.env.UPLOADS_DIR || '/data/uploads';
+  const { spawn } = require('child_process');
+  res.setHeader('Content-Type', 'application/x-tar');
+  res.setHeader('Content-Disposition', 'attachment; filename="uploads.tar"');
+  const tar = spawn('tar', ['-cf', '-', '-C', uploadsDir, '.']);
+  tar.stdout.pipe(res);
+  tar.stderr.on('data', (d) => console.error('[export-uploads] tar stderr:', d.toString()));
+  tar.on('close', (code) => {
+    if (code !== 0) console.error('[export-uploads] tar exited with code', code);
+  });
+  req.on('close', () => tar.kill());
+});
+
 // Health check endpoints
 app.get('/', (req, res) => {
   res.json({ 
