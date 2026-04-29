@@ -464,10 +464,10 @@ const exhibitorForgotPassword = async (req, res) => {
     const [firstName, ...rest] = contact.split(' ').filter(Boolean);
     const lastName = rest.join(' ');
     
-    // Use FRONTEND_WEB_URL for exhibitor panel login link
-    const loginUrl = process.env.FRONTEND_WEB_URL 
-      ? `${process.env.FRONTEND_WEB_URL}/login`
-      : 'https://wystawca.exhibitorlist.eu/login';
+    // Use EXHIBITOR_LOGIN_URL for exhibitor panel login link
+    const loginUrl = process.env.EXHIBITOR_LOGIN_URL
+      || (process.env.FRONTEND_WEB_URL ? `${process.env.FRONTEND_WEB_URL}/login` : null)
+      || 'https://wystawca.exhibitorlist.warsawexpo.eu/login';
     
     // Pobierz najbliższą wystawę dla wystawcy
     const exhibition = await getNearestExhibitionForExhibitor(exhibitor.id);

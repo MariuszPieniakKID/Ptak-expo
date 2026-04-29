@@ -152,9 +152,9 @@ router.post('/food-tech/send-test', verifyToken, requireAdmin, async (req, res) 
     const lastName = rest.join(' ');
     
     // Send email
-    const loginUrl = process.env.FRONTEND_WEB_URL 
-      ? `${process.env.FRONTEND_WEB_URL}/login`
-      : 'https://wystawca.exhibitorlist.eu/login';
+    const loginUrl = process.env.EXHIBITOR_LOGIN_URL
+        || (process.env.FRONTEND_WEB_URL ? `${process.env.FRONTEND_WEB_URL}/login` : null)
+        || 'https://wystawca.exhibitorlist.warsawexpo.eu/login';
     
     const emailResult = await sendPasswordResetEmail(
       exhibitor.email,
@@ -262,9 +262,9 @@ router.post('/food-tech/send-all', verifyToken, requireAdmin, async (req, res) =
         const lastName = rest.join(' ');
         
         // Send email
-        const loginUrl = process.env.FRONTEND_WEB_URL 
-          ? `${process.env.FRONTEND_WEB_URL}/login`
-          : 'https://wystawca.exhibitorlist.eu/login';
+        const loginUrl = process.env.EXHIBITOR_LOGIN_URL
+          || (process.env.FRONTEND_WEB_URL ? `${process.env.FRONTEND_WEB_URL}/login` : null)
+          || 'https://wystawca.exhibitorlist.warsawexpo.eu/login';
         
         const emailResult = await sendPasswordResetEmail(
           exhibitor.email,
@@ -471,9 +471,9 @@ router.post('/bioexpo-globalfood/send-test', verifyToken, requireAdmin, async (r
     const lastName = rest.join(' ');
     
     // Send email
-    const loginUrl = process.env.FRONTEND_WEB_URL 
-      ? `${process.env.FRONTEND_WEB_URL}/login`
-      : 'https://wystawca.exhibitorlist.eu/login';
+    const loginUrl = process.env.EXHIBITOR_LOGIN_URL
+        || (process.env.FRONTEND_WEB_URL ? `${process.env.FRONTEND_WEB_URL}/login` : null)
+        || 'https://wystawca.exhibitorlist.warsawexpo.eu/login';
     
     const emailResult = await sendPasswordResetEmail(
       exhibitor.email,
@@ -586,9 +586,9 @@ router.post('/bioexpo-globalfood/send-all', verifyToken, requireAdmin, async (re
         const lastName = rest.join(' ');
         
         // Send email
-        const loginUrl = process.env.FRONTEND_WEB_URL 
-          ? `${process.env.FRONTEND_WEB_URL}/login`
-          : 'https://wystawca.exhibitorlist.eu/login';
+        const loginUrl = process.env.EXHIBITOR_LOGIN_URL
+            || (process.env.FRONTEND_WEB_URL ? `${process.env.FRONTEND_WEB_URL}/login` : null)
+            || 'https://wystawca.exhibitorlist.warsawexpo.eu/login';
         
         const emailResult = await sendPasswordResetEmail(
           exhibitor.email,
@@ -789,9 +789,9 @@ router.post('/bioexpo/send-test', verifyToken, requireAdmin, async (req, res) =>
     const lastName = rest.join(' ');
     
     // Send email
-    const loginUrl = process.env.FRONTEND_WEB_URL 
-      ? `${process.env.FRONTEND_WEB_URL}/login`
-      : 'https://wystawca.exhibitorlist.eu/login';
+    const loginUrl = process.env.EXHIBITOR_LOGIN_URL
+        || (process.env.FRONTEND_WEB_URL ? `${process.env.FRONTEND_WEB_URL}/login` : null)
+        || 'https://wystawca.exhibitorlist.warsawexpo.eu/login';
     
     const emailResult = await sendPasswordResetEmail(
       exhibitor.email,
@@ -901,9 +901,9 @@ router.post('/bioexpo/send-all', verifyToken, requireAdmin, async (req, res) => 
         const lastName = rest.join(' ');
         
         // Send email
-        const loginUrl = process.env.FRONTEND_WEB_URL 
-          ? `${process.env.FRONTEND_WEB_URL}/login`
-          : 'https://wystawca.exhibitorlist.eu/login';
+        const loginUrl = process.env.EXHIBITOR_LOGIN_URL
+            || (process.env.FRONTEND_WEB_URL ? `${process.env.FRONTEND_WEB_URL}/login` : null)
+            || 'https://wystawca.exhibitorlist.warsawexpo.eu/login';
         
         const emailResult = await sendPasswordResetEmail(
           exhibitor.email,
