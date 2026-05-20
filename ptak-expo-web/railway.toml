@@ -1,6 +1,6 @@
 [build]
 builder = "NIXPACKS"
-buildCommand = "npm ci && npm run build"
+buildCommand = "npm run build"
 watchPatterns = ["ptak-expo-web/**"]
 
 [deploy]
