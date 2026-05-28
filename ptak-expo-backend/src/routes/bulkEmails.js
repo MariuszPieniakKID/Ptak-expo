@@ -272,7 +272,7 @@ router.post('/send-welcome-test', verifyToken, requireAdmin, async (req, res) =>
     // Przygotuj dane do wysłania emaila
     const firstName = exhibitor.contact_person.split(' ')[0] || exhibitor.contact_person;
     const lastName = exhibitor.contact_person.split(' ').slice(1).join(' ') || '';
-    const loginUrl = process.env.EXHIBITOR_PANEL_URL || 'https://wystawca.exhibitorlist.eu';
+    const loginUrl = process.env.EXHIBITOR_PANEL_URL || 'https://wystawca.exhibitorlist.warsawexpo.eu';
     
     // Pobierz najbliższą wystawę dla wystawcy
     const exhibition = await getNearestExhibitionForExhibitor(exhibitor.id);
@@ -335,7 +335,7 @@ router.post('/send-welcome-all', verifyToken, requireAdmin, async (req, res) => 
     
     console.log(`✅ Znaleziono ${result.rows.length} aktywnych wystawców`);
     
-    const loginUrl = process.env.EXHIBITOR_PANEL_URL || 'https://wystawca.exhibitorlist.eu';
+    const loginUrl = process.env.EXHIBITOR_PANEL_URL || 'https://wystawca.exhibitorlist.warsawexpo.eu';
     
     let successCount = 0;
     let failCount = 0;
@@ -510,7 +510,7 @@ router.post('/send-welcome-by-exhibition', verifyToken, requireAdmin, async (req
     
     console.log(`✅ Znaleziono ${result.rows.length} wystawców przypisanych do wystawy "${exhibition.name}"`);
     
-    const loginUrl = process.env.EXHIBITOR_PANEL_URL || 'https://wystawca.exhibitorlist.eu';
+    const loginUrl = process.env.EXHIBITOR_PANEL_URL || 'https://wystawca.exhibitorlist.warsawexpo.eu';
     
     let successCount = 0;
     let failCount = 0;

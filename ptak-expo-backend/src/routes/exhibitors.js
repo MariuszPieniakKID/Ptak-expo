@@ -449,7 +449,7 @@ router.post('/', verifyToken, requireAdmin, async (req, res) => {
     if (sendEmail) {
       try {
         const { sendWelcomeEmail } = require('../utils/emailService');
-        const exhibitorPanelBase = process.env.EXHIBITOR_PANEL_URL || 'https://wystawca.exhibitorlist.eu';
+        const exhibitorPanelBase = process.env.EXHIBITOR_PANEL_URL || 'https://wystawca.exhibitorlist.warsawexpo.eu';
         
         // Pobierz nazwę wystawy jeśli przypisano do wystawy
         let exhibitionName = null;
@@ -1282,7 +1282,7 @@ router.post('/:id/remind-catalog', verifyToken, requireAdmin, async (req, res) =
     }
     const exhibitor = exhibitorRes.rows[0];
 
-    const panelUrl = process.env.EXHIBITOR_PANEL_URL || 'https://wystawca.exhibitorlist.eu';
+    const panelUrl = process.env.EXHIBITOR_PANEL_URL || 'https://wystawca.exhibitorlist.warsawexpo.eu';
     const subject = 'PTAK EXPO – Przypomnienie o uzupełnieniu katalogu';
     const plain = `Dzień dobry ${exhibitor.contact_person || ''},\n\nPrzypominamy o uzupełnieniu wpisu do katalogu wystawcy.\n\nProsimy zalogować się do panelu wystawcy: ${panelUrl}\n\nPozdrawiamy,\nZespół PTAK EXPO`;
     const html = `<!doctype html><html><head><meta charset="utf-8"/><style>body{font-family:Arial,sans-serif;color:#333} .btn{display:inline-block;background:#c7353c;color:#fff;padding:10px 18px;border-radius:6px;text-decoration:none}</style></head><body><p>Dzień dobry ${exhibitor.contact_person || ''},</p><p>Przypominamy o uzupełnieniu wpisu do katalogu wystawcy.</p><p><a class="btn" href="${panelUrl}" target="_blank" rel="noopener">Przejdź do panelu wystawcy</a></p><p>Jeśli link nie działa, skopiuj URL: ${panelUrl}</p><p>Pozdrawiamy,<br/>Zespół PTAK EXPO</p></body></html>`;
@@ -1346,7 +1346,7 @@ router.post('/:id/reset-password', verifyToken, requireAdmin, async (req, res) =
       const first = fullName.split(' ')[0] || '';
       const last = fullName.split(' ').slice(1).join(' ') || '';
       // Use exhibitor panel URL instead of admin panel URL
-      const exhibitorPanelUrl = `${process.env.EXHIBITOR_PANEL_URL || 'https://wystawca.exhibitorlist.eu'}/login`;
+      const exhibitorPanelUrl = `${process.env.EXHIBITOR_PANEL_URL || 'https://wystawca.exhibitorlist.warsawexpo.eu'}/login`;
       
       // Pobierz najbliższą wystawę dla wystawcy
       const exhibition = await getNearestExhibitionForExhibitor(exhibitorId);
