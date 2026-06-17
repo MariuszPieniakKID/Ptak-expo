@@ -36,6 +36,8 @@ router.get('/user-events', verifyToken, requireExhibitorOrAdmin, async (req, res
           e.location,
           e.website,
           e.status,
+          e.invitations_enabled,
+          ee.invitations_enabled AS exhibitor_invitations_enabled,
           e.created_at,
           e.updated_at,
           (
@@ -68,6 +70,7 @@ router.get('/user-events', verifyToken, requireExhibitorOrAdmin, async (req, res
           e.location,
           e.website,
           e.status,
+          e.invitations_enabled,
           e.created_at,
           e.updated_at,
           (
@@ -97,6 +100,8 @@ router.get('/user-events', verifyToken, requireExhibitorOrAdmin, async (req, res
       location: event.location,
       website: event.website,
       status: event.status,
+      invitations_enabled: event.invitations_enabled !== false,
+      exhibitor_invitations_enabled: event.exhibitor_invitations_enabled !== false,
       createdAt: event.created_at,
       updatedAt: event.updated_at,
       event_logo_file_name: event.event_logo_file_name || null
@@ -132,6 +137,7 @@ router.get('/', async (req, res) => {
         e.end_date,
         e.location,
         e.status,
+        e.invitations_enabled,
         e.created_at,
         e.updated_at,
         (
@@ -172,6 +178,7 @@ router.get('/:id', async (req, res) => {
         e.end_date,
         e.location,
         e.status,
+        e.invitations_enabled,
         e.created_at,
         e.updated_at,
         (
@@ -202,16 +209,17 @@ router.get('/:id', async (req, res) => {
 router.post('/', verifyToken, requireAdmin, async (req, res) => {
   try {
     const { name, description, start_date, end_date, location, status = 'planned' } = req.body;
+    const invitationsEnabled = req.body.invitations_enabled === undefined ? true : req.body.invitations_enabled === true;
     
     if (!name || !start_date || !end_date) {
       return res.status(400).json({ error: 'Name, start_date and end_date are required' });
     }
     
     const result = await db.query(`
-      INSERT INTO exhibitions (name, description, start_date, end_date, location, website, status)
-      VALUES ($1, $2, $3, $4, $5, $6, $7)
+      INSERT INTO exhibitions (name, description, start_date, end_date, location, website, status, invitations_enabled)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
       RETURNING *
-    `, [name, description, start_date, end_date, location, req.body.website || null, status]);
+    `, [name, description, start_date, end_date, location, req.body.website || null, status, invitationsEnabled]);
     
     console.log('New exhibition created with ID:', result.rows[0].id);
     
@@ -238,6 +246,7 @@ router.put('/:id', verifyToken, requireAdmin, async (req, res) => {
   try {
     const { id } = req.params;
     const { name, description, start_date, end_date, location, website, status } = req.body;
+    const invitationsEnabled = typeof req.body.invitations_enabled === 'boolean' ? req.body.invitations_enabled : null;
     
     const result = await db.query(`
       UPDATE exhibitions 
@@ -249,10 +258,11 @@ router.put('/:id', verifyToken, requireAdmin, async (req, res) => {
         location = COALESCE($5, location),
         website = COALESCE($6, website),
         status = COALESCE($7, status),
+        invitations_enabled = COALESCE($8, invitations_enabled),
         updated_at = CURRENT_TIMESTAMP
-      WHERE id = $8
+      WHERE id = $9
       RETURNING *
-    `, [name, description, start_date, end_date, location, website, status, id]);
+    `, [name, description, start_date, end_date, location, website, status, invitationsEnabled, id]);
     
     if (result.rows.length === 0) {
       return res.status(404).json({ error: 'Exhibition not found' });

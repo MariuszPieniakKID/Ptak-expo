@@ -1251,21 +1251,62 @@ router.get('/:exhibitorId/:exhibitionId/invitation-limit', verifyToken, requireE
     }
     
     const result = await db.query(
-      `SELECT invitation_limit FROM exhibitor_events 
+      `SELECT invitation_limit, invitations_enabled FROM exhibitor_events 
        WHERE exhibitor_id = $1 AND exhibition_id = $2`,
       [exhibitorId, exhibitionId]
     );
     
     if (result.rowCount === 0) {
-      return res.json({ success: true, data: { invitationLimit: 50 } }); // Default
+      return res.json({ success: true, data: { invitationLimit: 50, invitationsEnabled: true } }); // Default
     }
     
     return res.json({ 
       success: true, 
-      data: { invitationLimit: result.rows[0].invitation_limit || 50 } 
+      data: { 
+        invitationLimit: result.rows[0].invitation_limit || 50,
+        invitationsEnabled: result.rows[0].invitations_enabled !== false
+      } 
     });
   } catch (error) {
     console.error('Error getting invitation limit:', error);
+    return res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// PATCH /api/v1/exhibitors/:exhibitorId/:exhibitionId/invitations-enabled - toggle invitations for one exhibitor (admin only)
+router.patch('/:exhibitorId/:exhibitionId/invitations-enabled', verifyToken, requireAdmin, async (req, res) => {
+  try {
+    const exhibitorId = parseInt(req.params.exhibitorId, 10);
+    const exhibitionId = parseInt(req.params.exhibitionId, 10);
+    const { invitationsEnabled } = req.body;
+
+    if (isNaN(exhibitorId) || isNaN(exhibitionId)) {
+      return res.status(400).json({ success: false, message: 'Invalid parameters' });
+    }
+
+    if (typeof invitationsEnabled !== 'boolean') {
+      return res.status(400).json({ success: false, message: 'invitationsEnabled must be a boolean' });
+    }
+
+    const result = await db.query(
+      `UPDATE exhibitor_events 
+       SET invitations_enabled = $1 
+       WHERE exhibitor_id = $2 AND exhibition_id = $3
+       RETURNING invitations_enabled`,
+      [invitationsEnabled, exhibitorId, exhibitionId]
+    );
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({ success: false, message: 'Exhibitor-exhibition relationship not found' });
+    }
+
+    return res.json({
+      success: true,
+      data: { invitationsEnabled: result.rows[0].invitations_enabled !== false },
+      message: 'Invitations toggle updated successfully'
+    });
+  } catch (error) {
+    console.error('Error updating exhibitor invitations toggle:', error);
     return res.status(500).json({ success: false, message: 'Server error' });
   }
 });

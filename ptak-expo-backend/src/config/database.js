@@ -234,6 +234,15 @@ const initializeDatabase = async () => {
       END $$;
     `);
 
+    // Event-level toggle: allow/block exhibitors from sending invitations for this exhibition
+    await pool.query(`
+      ALTER TABLE exhibitions
+      ADD COLUMN IF NOT EXISTS invitations_enabled BOOLEAN DEFAULT true
+    `);
+    await pool.query(`
+      UPDATE exhibitions SET invitations_enabled = true WHERE invitations_enabled IS NULL
+    `);
+
     console.log('🔍 Creating documents table...');
     await pool.query(`
       CREATE TABLE IF NOT EXISTS documents (
@@ -405,6 +414,15 @@ const initializeDatabase = async () => {
     // Set default invitation_limit = 50 for existing records
     await pool.query(`
       UPDATE exhibitor_events SET invitation_limit = 50 WHERE invitation_limit IS NULL
+    `);
+
+    // Per-exhibitor toggle: allow/block this specific exhibitor from sending invitations for an event
+    await pool.query(`
+      ALTER TABLE exhibitor_events
+      ADD COLUMN IF NOT EXISTS invitations_enabled BOOLEAN DEFAULT true
+    `);
+    await pool.query(`
+      UPDATE exhibitor_events SET invitations_enabled = true WHERE invitations_enabled IS NULL
     `);
 
     console.log('🔍 Creating exhibitor_branding_files table...');

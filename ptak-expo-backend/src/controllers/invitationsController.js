@@ -478,6 +478,37 @@ const sendInvitation = async (req, res) => {
         }
       }
 
+      // Enforce invitation blocking (admins bypass so they can still send test invitations)
+      if (req.user && req.user.role !== 'admin') {
+        // Event-level block: applies to all exhibitors of this exhibition
+        const evFlag = await client.query(
+          'SELECT invitations_enabled FROM exhibitions WHERE id = $1',
+          [exhibitionId]
+        );
+        if (evFlag.rows.length > 0 && evFlag.rows[0].invitations_enabled === false) {
+          return res.status(403).json({
+            success: false,
+            code: 'INVITATIONS_DISABLED_EVENT',
+            message: 'Wysyłanie zaproszeń dla tego wydarzenia zostało wyłączone przez organizatora.'
+          });
+        }
+
+        // Per-exhibitor block: applies only to this exhibitor for this exhibition
+        if (exhibitorId) {
+          const exFlag = await client.query(
+            'SELECT invitations_enabled FROM exhibitor_events WHERE exhibitor_id = $1 AND exhibition_id = $2',
+            [exhibitorId, exhibitionId]
+          );
+          if (exFlag.rows.length > 0 && exFlag.rows[0].invitations_enabled === false) {
+            return res.status(403).json({
+              success: false,
+              code: 'INVITATIONS_DISABLED_EXHIBITOR',
+              message: 'Wysyłanie zaproszeń dla Twojego konta zostało wyłączone przez organizatora.'
+            });
+          }
+        }
+      }
+
       // Insert recipient row first (to keep record even if email fails)
       // Set exhibitor_id if sent by exhibitor (NULL if sent by admin for test)
       // Note: We'll update with access_code after generating it

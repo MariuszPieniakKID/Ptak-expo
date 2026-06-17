@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import CustomField from '../customField/CustomField';
 import CustomTypography from '../customTypography/CustomTypography';
 import { AddExhibitionPayload, Exhibition, updateExhibition, uploadBrandingFile, getBrandingFileUrl, catalogAPI } from '../../services/api';
-import { Box, CircularProgress, Dialog, DialogTitle, IconButton, Typography } from '@mui/material';
+import { Box, Checkbox, CircularProgress, Dialog, DialogTitle, FormControlLabel, IconButton, Typography } from '@mui/material';
 import { ReactComponent as CloseIcon } from '../../assets/closeIcon.svg';
 import EventsPageIcon from '../../assets/eventIcon.png';
 import styles from './AddEventModal_.module.scss';
@@ -27,6 +27,7 @@ const EditEventModal_: React.FC<EditEventModalProps> = ({ isOpen, onClose, event
     location: '',
     status: 'planned',
     field: 'all',
+    invitations_enabled: true,
   });
   const [loading, setLoading] = useState(false);
   const [, setError] = useState<string | null>(null);
@@ -45,6 +46,7 @@ const EditEventModal_: React.FC<EditEventModalProps> = ({ isOpen, onClose, event
         location: event.location || '',
         status: event.status,
         field: (event as any).field || 'all',
+        invitations_enabled: event.invitations_enabled !== false,
       });
       setEventLogoFile(null);
       // reset preview (no dependency on logoPreview to avoid CI warning)
@@ -287,6 +289,23 @@ const EditEventModal_: React.FC<EditEventModalProps> = ({ isOpen, onClose, event
                   )}
                 </Box>
               </Box>
+              <Box className={styles.singleFormRow}>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={formData.invitations_enabled !== false}
+                      onChange={(e) => setFormData(prev => ({ ...prev, invitations_enabled: e.target.checked }))}
+                      sx={{ color: '#9ca3af', '&.Mui-checked': { color: '#6F87F6' } }}
+                    />
+                  }
+                  label={
+                    <CustomTypography className={styles.textInModal} sx={{ margin: 0 }}>
+                      Zaproszenia dostępne dla wystawców
+                    </CustomTypography>
+                  }
+                />
+              </Box>
+
               <Box className={styles.singleFormRow}>
                 <Box 
                   className={styles.boxToKlik}

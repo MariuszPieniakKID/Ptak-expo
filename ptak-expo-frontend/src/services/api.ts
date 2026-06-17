@@ -69,6 +69,7 @@ export interface Exhibition {
   end_date: string;
   location?: string;
   status: string;
+  invitations_enabled?: boolean;
   created_at: string;
   updated_at: string;
   trade?:'Dom'|'Budownictwo'|'Inne'; // TODO: przenieść to do enum
@@ -723,6 +724,7 @@ export interface AddExhibitionPayload {
   location?: string;
   status?: string;
   field?:string; //LISTA ZAMKNIETA?
+  invitations_enabled?: boolean;
 }
 
 export const addExhibition = async (exhibitionData: AddExhibitionPayload, token: string): Promise<Exhibition> => {
@@ -1900,6 +1902,44 @@ export const updateInvitationLimit = async (
     throw new Error(data?.message || 'Błąd podczas aktualizacji limitu zaproszeń');
   }
   return data?.data?.invitationLimit || invitationLimit;
+};
+
+// Get whether invitations are enabled for a specific exhibitor-exhibition pair
+export const getExhibitorInvitationsEnabled = async (
+  exhibitorId: number,
+  exhibitionId: number,
+  token: string
+): Promise<boolean> => {
+  const url = `${config.API_BASE_URL}/api/v1/exhibitors/${exhibitorId}/${exhibitionId}/invitation-limit`;
+  const res = await apiCall(url, { headers: { Authorization: `Bearer ${token}` } });
+  const data = await res.json();
+  if (!res.ok) {
+    throw new Error(data?.message || 'Błąd podczas pobierania ustawień zaproszeń');
+  }
+  return data?.data?.invitationsEnabled !== false;
+};
+
+// Toggle invitations for a specific exhibitor-exhibition pair (admin only)
+export const updateExhibitorInvitationsEnabled = async (
+  exhibitorId: number,
+  exhibitionId: number,
+  invitationsEnabled: boolean,
+  token: string
+): Promise<boolean> => {
+  const url = `${config.API_BASE_URL}/api/v1/exhibitors/${exhibitorId}/${exhibitionId}/invitations-enabled`;
+  const res = await apiCall(url, {
+    method: 'PATCH',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${token}`
+    },
+    body: JSON.stringify({ invitationsEnabled })
+  });
+  const data = await res.json();
+  if (!res.ok) {
+    throw new Error(data?.message || 'Błąd podczas aktualizacji ustawień zaproszeń');
+  }
+  return data?.data?.invitationsEnabled !== false;
 };
 
 // Trade Plan Links

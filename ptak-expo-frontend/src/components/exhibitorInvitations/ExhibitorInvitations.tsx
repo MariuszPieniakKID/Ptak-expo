@@ -4,14 +4,14 @@ import AccordionDetails from '@mui/material/AccordionDetails';
 import Typography from '@mui/material/Typography';
 import { ReactComponent as EnvelopeOnABlackBackground } from '../../assets/envelopeOnABlackBackground.svg';
 import { ReactComponent as GreenCircle } from '../../assets/greenCircleWithChecked.svg';
-import { Box } from '@mui/material';
+import { Box, Checkbox, FormControlLabel } from '@mui/material';
 import { useCallback, useEffect, useState } from 'react';
 import styles from './ExhibitorInvitations.module.scss';
 import { Exhibitor } from '../../services/api';
 import TicketType from './ticketType/TicketType';
 import StatusOfSentInvitations from './statusOfSentInvitations/StatusOfSentInvitations';
 import { useAuth } from '../../contexts/AuthContext';
-import { listInvitationRecipients, getInvitationLimit, updateInvitationLimit, type InvitationRecipientRow } from '../../services/api';
+import { listInvitationRecipients, getInvitationLimit, updateInvitationLimit, getExhibitorInvitationsEnabled, updateExhibitorInvitationsEnabled, type InvitationRecipientRow } from '../../services/api';
 
 
 
@@ -36,6 +36,7 @@ function ExhibitorInvitations({
   const { token } = useAuth();
   const [recipients, setRecipients] = useState<InvitationRecipientRow[]>([]);
   const [invitationLimit, setInvitationLimit] = useState<number>(50);
+  const [invitationsEnabled, setInvitationsEnabled] = useState<boolean>(true);
 
   const loadRecipients = useCallback(async () => {
     if (!token || !exhibitionId) { setRecipients([]); return; }
@@ -57,6 +58,16 @@ function ExhibitorInvitations({
     }
   }, [token, exhibitionId, exhibitorId]);
 
+  const loadInvitationsEnabled = useCallback(async () => {
+    if (!token || !exhibitionId || !exhibitorId) { setInvitationsEnabled(true); return; }
+    try {
+      const enabled = await getExhibitorInvitationsEnabled(exhibitorId, exhibitionId, token);
+      setInvitationsEnabled(enabled);
+    } catch {
+      setInvitationsEnabled(true);
+    }
+  }, [token, exhibitionId, exhibitorId]);
+
   const handleUpdateLimit = async (newLimit: number) => {
     if (!token || !exhibitionId || !exhibitorId || newLimit < 0) return;
     try {
@@ -69,8 +80,22 @@ function ExhibitorInvitations({
     }
   };
 
+  const handleToggleInvitationsEnabled = async (enabled: boolean) => {
+    if (!token || !exhibitionId || !exhibitorId) return;
+    // Optimistic update
+    setInvitationsEnabled(enabled);
+    try {
+      const updated = await updateExhibitorInvitationsEnabled(exhibitorId, exhibitionId, enabled, token);
+      setInvitationsEnabled(updated);
+    } catch (error: any) {
+      alert(error.message || 'Nie udało się zmienić ustawienia zaproszeń');
+      loadInvitationsEnabled();
+    }
+  };
+
   useEffect(() => { loadRecipients(); }, [loadRecipients]);
   useEffect(() => { loadInvitationLimit(); }, [loadInvitationLimit]);
+  useEffect(() => { loadInvitationsEnabled(); }, [loadInvitationsEnabled]);
 
 
   // Tickets block (static info + dynamic count based on recipients length)
@@ -140,6 +165,23 @@ function ExhibitorInvitations({
               +
             </Box>
           </Box>
+        </Box>
+        <Box sx={{ mt: 1 }}>
+          <FormControlLabel
+            control={
+              <Checkbox
+                size="small"
+                checked={invitationsEnabled}
+                onChange={(e) => handleToggleInvitationsEnabled(e.target.checked)}
+                sx={{ color: '#9ca3af', '&.Mui-checked': { color: '#6F87F6' }, py: 0.25 }}
+              />
+            }
+            label={
+              <Typography sx={{ fontSize: '0.75rem', color: '#C7C7C7' }}>
+                Wystawca może wysyłać zaproszenia
+              </Typography>
+            }
+          />
         </Box>
       </>,
       container: <TicketType data={sampleTickets} hideLimitControls />,

@@ -245,6 +245,14 @@ export const invitationsAPI = {
     const res = await api.get(`/api/v1/exhibitors/${exhibitorId}/${exhibitionId}/invitation-limit`);
     const data = res.data as { success?: boolean; data?: { invitationLimit?: number } };
     return data?.data?.invitationLimit || 50;
+  },
+  getEnabled: async (
+    exhibitorId: number,
+    exhibitionId: number
+  ): Promise<boolean> => {
+    const res = await api.get(`/api/v1/exhibitors/${exhibitorId}/${exhibitionId}/invitation-limit`);
+    const data = res.data as { success?: boolean; data?: { invitationsEnabled?: boolean } };
+    return data?.data?.invitationsEnabled !== false;
   }
 };
 

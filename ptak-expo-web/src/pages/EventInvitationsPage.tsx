@@ -46,6 +46,8 @@ const EventInvitationsPage = () => {
     }>
   >([]);
   const [isSending, setIsSending] = useState(false);
+  const [invitationsBlocked, setInvitationsBlocked] = useState<boolean>(false);
+  const [blockMessage, setBlockMessage] = useState<string>("");
   const [bulkOpen, setBulkOpen] = useState<boolean>(false);
   const [previewHtml, setPreviewHtml] = useState<string>("");
   const [showPreview, setShowPreview] = useState<boolean>(false);
@@ -68,6 +70,14 @@ const EventInvitationsPage = () => {
 
         const e = evRes.data;
         // trade info not used in invitations card for now
+
+        // Event-level invitations block (applies to all exhibitors of this event)
+        if (e && e.invitations_enabled === false) {
+          setInvitationsBlocked(true);
+          setBlockMessage(
+            "Wysyłanie zaproszeń dla tego wydarzenia zostało wyłączone przez organizatora."
+          );
+        }
 
         // Resolve header image for invitations (right side) and catalog logo (left side)
         let headerImageUrl = "/assets/background.png";
@@ -134,6 +144,16 @@ const EventInvitationsPage = () => {
               limit
             );
             setInvitesLimit(limit);
+            // Per-exhibitor invitations block
+            try {
+              const enabled = await invitationsAPI.getEnabled(exhibitorId, idNum);
+              if (!enabled) {
+                setInvitationsBlocked(true);
+                setBlockMessage(
+                  "Wysyłanie zaproszeń dla Twojego konta zostało wyłączone przez organizatora."
+                );
+              }
+            } catch {}
           } else {
             console.warn(
               "[EventInvitationsPage] No exhibitor ID found, using default limit 50"
@@ -156,6 +176,10 @@ const EventInvitationsPage = () => {
 
   const handleSend = async () => {
     if (!eventId || !selectedTemplateId) return;
+    if (invitationsBlocked) {
+      alert(blockMessage || "Wysyłanie zaproszeń zostało wyłączone przez organizatora.");
+      return;
+    }
     setIsSending(true);
     try {
       const idNum = Number(eventId);
@@ -174,8 +198,15 @@ const EventInvitationsPage = () => {
         setGuestName("");
         setGuestEmail("");
       }
-    } catch (e) {
-      // noop, error shown in console by axios interceptor if needed
+    } catch (e: any) {
+      // Backend blocks sending when invitations are disabled (403)
+      if (e?.response?.status === 403) {
+        const msg = e?.response?.data?.message || "Wysyłanie zaproszeń zostało wyłączone przez organizatora.";
+        setInvitationsBlocked(true);
+        setBlockMessage(msg);
+        alert(msg);
+      }
+      // other errors shown in console by axios interceptor if needed
     } finally {
       setIsSending(false);
     }
@@ -585,12 +616,31 @@ const EventInvitationsPage = () => {
                         </Box>
                       )}
 
+                      {invitationsBlocked && (
+                        <Box
+                          sx={{
+                            mt: 1.5,
+                            p: 1.5,
+                            borderRadius: 1,
+                            border: "1px solid #f1b0b7",
+                            bgcolor: "#fdecea",
+                            color: "#8a1f29",
+                            fontSize: "13px",
+                            lineHeight: 1.4,
+                          }}
+                        >
+                          {blockMessage ||
+                            "Wysyłanie zaproszeń zostało wyłączone przez organizatora."}
+                        </Box>
+                      )}
+
                       <Button
                         variant="contained"
                         fullWidth
                         sx={{ mt: 1 }}
                         onClick={handleSend}
                         disabled={
+                          invitationsBlocked ||
                           isSending ||
                           !guestName.trim() ||
                           !guestEmail.trim() ||
@@ -606,7 +656,7 @@ const EventInvitationsPage = () => {
                         sx={{ mt: 1 }}
                         color="secondary"
                         onClick={openBulk}
-                        disabled={!selectedTemplateId}
+                        disabled={invitationsBlocked || !selectedTemplateId}
                       >
                         Wyślij masowo
                       </Button>
