@@ -74,6 +74,7 @@ const MailingTab: React.FC<MailingTabProps> = ({ token }) => {
   const [sending, setSending] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
   const [sendResult, setSendResult] = useState<SendResult | null>(null);
+  const [progress, setProgress] = useState<{ processed: number; total: number } | null>(null);
 
   // Pobierz listę wystaw
   const fetchExhibitions = useCallback(async () => {
@@ -176,8 +177,10 @@ const MailingTab: React.FC<MailingTabProps> = ({ token }) => {
     setSending(true);
     setError('');
     setSendResult(null);
+    setProgress(null);
 
     try {
+      // 1) Startujemy wysyłkę w tle - backend natychmiast zwraca jobId (bez timeoutu 502)
       const response = await fetch(
         `${config.API_BASE_URL}/api/v1/bulk-emails/send-welcome-by-exhibition`,
         {
@@ -198,11 +201,51 @@ const MailingTab: React.FC<MailingTabProps> = ({ token }) => {
         throw new Error(result.message || 'Błąd podczas wysyłania emaili');
       }
 
-      setSendResult(result);
+      const jobId: string = result.jobId;
+      const total: number = result.data?.total || exhibitors.length;
+      setProgress({ processed: 0, total });
+
+      // 2) Odpytujemy o postęp co 3s, aż zadanie się zakończy
+      const poll = async (): Promise<void> => {
+        await new Promise((r) => setTimeout(r, 3000));
+
+        const statusResp = await fetch(
+          `${config.API_BASE_URL}/api/v1/bulk-emails/send-welcome-status/${jobId}`,
+          { headers: { 'Authorization': `Bearer ${token}` } }
+        );
+
+        if (!statusResp.ok) {
+          throw new Error('Utracono kontakt z zadaniem wysyłki (spróbuj odświeżyć)');
+        }
+
+        const statusData = await statusResp.json();
+        setProgress({
+          processed: statusData.data?.processed || 0,
+          total: statusData.data?.total || total,
+        });
+
+        if (statusData.status === 'running') {
+          return poll();
+        }
+
+        if (statusData.status === 'error') {
+          throw new Error(statusData.error || 'Błąd podczas wysyłania emaili w tle');
+        }
+
+        // completed
+        setSendResult({
+          success: true,
+          message: statusData.message || 'Wysyłka zakończona',
+          data: statusData.data,
+        });
+      };
+
+      await poll();
     } catch (err: any) {
       setError(err.message || 'Błąd podczas wysyłania emaili');
     } finally {
       setSending(false);
+      setProgress(null);
     }
   };
 
@@ -274,9 +317,18 @@ const MailingTab: React.FC<MailingTabProps> = ({ token }) => {
             {sending && (
               <Box sx={{ mb: 2 }}>
                 <Typography variant="body2" gutterBottom>
-                  Wysyłanie emaili w toku... Proszę czekać.
+                  {progress
+                    ? `Wysyłanie emaili w toku... ${progress.processed}/${progress.total}. Nie zamykaj tej strony.`
+                    : 'Rozpoczynanie wysyłki... Proszę czekać.'}
                 </Typography>
-                <LinearProgress />
+                {progress && progress.total > 0 ? (
+                  <LinearProgress
+                    variant="determinate"
+                    value={Math.round((progress.processed / progress.total) * 100)}
+                  />
+                ) : (
+                  <LinearProgress />
+                )}
               </Box>
             )}
 
