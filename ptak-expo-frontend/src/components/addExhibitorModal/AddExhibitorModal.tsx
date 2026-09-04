@@ -203,9 +203,9 @@ const AddExhibitorModal: React.FC<AddExhibitorModalProps> = ({
 
   const loadExhibitionSupervisors= useCallback(async () => {
     setLoadingExhibitionSupervisors(true);
-    //TODOO sprawdzić czy to faktycznie USER?
     try {
-      const fetchedExhibitionSupervisors = await fetchUsers(token);
+      // Opiekunem wystawy może być wyłącznie pracownik (konto z rolą admin)
+      const fetchedExhibitionSupervisors = await fetchUsers(token, 'admin');
 
       setExhibitionSupervisors(fetchedExhibitionSupervisors);
     } catch (err) {

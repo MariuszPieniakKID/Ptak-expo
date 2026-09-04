@@ -171,7 +171,8 @@ const AddEventToExhibitorModal: React.FC<AddEventToExhibitorModalProps> = ({
     setLoadingExhibitionSupervisors(true);
 
     try {
-      const fetchedExhibitionSupervisors = await fetchUsers(token);
+      // Opiekunem wystawy może być wyłącznie pracownik (konto z rolą admin)
+      const fetchedExhibitionSupervisors = await fetchUsers(token, 'admin');
 
       setExhibitionSupervisors(fetchedExhibitionSupervisors);
     } catch (err) {

@@ -93,7 +93,16 @@ router.get('/:id/avatar', verifyToken, async (req, res) => {
 router.get('/', verifyToken, requireAdmin, async (req, res) => {
   try {
     console.log('Fetching users from database...');
-    
+
+    // Opcjonalny filtr po roli, np. ?role=admin (używane m.in. do listy opiekunów wystaw)
+    const roleFilter = typeof req.query.role === 'string' ? req.query.role.trim().toLowerCase() : '';
+    const params = [];
+    let whereClause = '';
+    if (roleFilter) {
+      params.push(roleFilter);
+      whereClause = `WHERE LOWER(role) = $${params.length}`;
+    }
+
     const query = `
       SELECT 
         id,
@@ -101,16 +110,18 @@ router.get('/', verifyToken, requireAdmin, async (req, res) => {
         last_name,
         email,
         phone,
+        role,
         avatar_url,
         created_at,
         updated_at
       FROM users 
+      ${whereClause}
       ORDER BY last_name, first_name
     `;
     
-    const result = await db.query(query);
+    const result = await db.query(query, params);
     
-    console.log(`Found ${result.rows.length} users`);
+    console.log(`Found ${result.rows.length} users${roleFilter ? ` (role=${roleFilter})` : ''}`);
     
     // Format the response
     const users = result.rows.map(user => ({
@@ -120,6 +131,7 @@ router.get('/', verifyToken, requireAdmin, async (req, res) => {
       fullName: `${user.first_name} ${user.last_name}`,
       email: user.email,
       phone: user.phone || 'Brak numeru',
+      role: user.role,
       avatarUrl: user.avatar_url || null,
       createdAt: user.created_at,
       updatedAt: user.updated_at

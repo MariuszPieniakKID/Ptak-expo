@@ -7,6 +7,7 @@ export interface User {
   fullName: string;
   email: string;
   phone?: string;
+  role?: string;
   avatarUrl?: string | null;
 }
 
@@ -85,8 +86,9 @@ const apiCall = async (url: string, options: RequestInit): Promise<Response> => 
   return fetch(url, requestOptions);
 };
 
-export const fetchUsers = async (token: string): Promise<User[]> => {
-  const response = await apiCall(`${config.API_BASE_URL}/api/v1/users`, {
+export const fetchUsers = async (token: string, role?: string): Promise<User[]> => {
+  const query = role ? `?role=${encodeURIComponent(role)}` : '';
+  const response = await apiCall(`${config.API_BASE_URL}/api/v1/users${query}`, {
     headers: { 'Authorization': `Bearer ${token}` },
   });
   if (!response.ok) {
