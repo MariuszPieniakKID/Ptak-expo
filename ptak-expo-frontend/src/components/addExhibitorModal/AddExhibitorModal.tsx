@@ -437,7 +437,11 @@ const AddExhibitorModal: React.FC<AddExhibitorModalProps> = ({
             </IconButton>
           </DialogTitle>
 
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit} autoComplete="off">
+            {/* Ukryte pola-wabiki: przechwytują autouzupełnianie przeglądarki,
+                aby nie wypełniała pól e-mail/hasło zapisanym loginem administratora */}
+            <input type="text" name="username" autoComplete="username" style={{ display: 'none' }} tabIndex={-1} aria-hidden="true" />
+            <input type="password" name="password" autoComplete="current-password" style={{ display: 'none' }} tabIndex={-1} aria-hidden="true" />
             <Box className={styles.inputWrapper}>
               {/* pola formValues */}
               <Box className={styles.formRow}>
@@ -569,8 +573,9 @@ const AddExhibitorModal: React.FC<AddExhibitorModalProps> = ({
                 </Box>
               </Box>
 
+              {/* Telefon w osobnym, pełnym wierszu – więcej miejsca na numer */}
               <Box className={styles.formRow}>
-                <Box className={styles.halfFormRow}>
+                <Box className={styles.singleFormRow} sx={{ width: '100%' }}>
                   <CountryPhoneField
                     value={formValues.phone}
                     onChange={(v) => handleFormValueChange('phone')({ target: { value: v } } as any)}
@@ -581,10 +586,14 @@ const AddExhibitorModal: React.FC<AddExhibitorModalProps> = ({
                     className={styles.input}
                   />
                 </Box>
+              </Box>
+
+              <Box className={styles.formRow}>
                 <Box className={styles.halfFormRow}>
                     <CustomField
                     type="email"
                     label="Adres E-mail*"
+                    name="exhibitor-email-field"
                     value={formValues.email}
                     onChange={handleFormValueChange('email')}
                     error={!!formErrors.email}
@@ -594,12 +603,14 @@ const AddExhibitorModal: React.FC<AddExhibitorModalProps> = ({
                     placeholder="Adres E-mail*"
                     className={styles.input}
                     errorMessageClassName={styles.inputErrorMessage}
+                    inputProps={{ autoComplete: 'off' }}
                     />
                 </Box>
                 <Box className={styles.halfFormRow}>
                     <CustomField
                     type="password"
                     label="Hasło*"
+                    name="exhibitor-password-field"
                     value={formValues.password}
                     onChange={handleFormValueChange('password')}
                     error={!!formErrors.password}
@@ -609,6 +620,7 @@ const AddExhibitorModal: React.FC<AddExhibitorModalProps> = ({
                     placeholder="Hasło*"
                     className={styles.input}
                     errorMessageClassName={styles.inputErrorMessage}
+                    inputProps={{ autoComplete: 'new-password' }}
                     />
                 </Box>
               </Box>

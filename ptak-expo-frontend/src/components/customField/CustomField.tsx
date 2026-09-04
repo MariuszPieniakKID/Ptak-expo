@@ -247,6 +247,7 @@ const CustomField: FC<CustomFieldProps> = ({
         inputRef={inputRef}
         label=""
         variant="outlined"
+        {...(name ? { name } : {})}
         type={isPasswordField ? (showPassword ? 'text' : 'password') : type}
         value={displayValue as string}
         onChange={handleChange}
@@ -262,7 +263,9 @@ const CustomField: FC<CustomFieldProps> = ({
         {...(multiline ? { rows } : {})}
         inputProps={{
           ...inputProps,  // tu przekazujemy inputProps z zewnątrz (min, max itd.)
-          autoComplete: 'off', // np. autoComplete ustawiamy lub nadpisujemy z inputProps
+          // Domyślnie 'off', ale pozwalamy nadpisać z zewnątrz (np. 'new-password',
+          // aby zablokować podpowiadanie zapisanego loginu przez przeglądarkę)
+          autoComplete: inputProps?.autoComplete ?? 'off',
           readOnly: forceSelectionFromOptions && hasOptions,
         }}
         InputProps={{
