@@ -63,6 +63,10 @@ export const authAPI = {
   // Logout
   logout: (): Promise<AxiosResponse<ApiResponse>> => 
     api.post('/api/v1/auth/logout'),
+
+  // Change password (logged-in exhibitor)
+  changePassword: (currentPassword: string, newPassword: string): Promise<AxiosResponse<ApiResponse>> =>
+    api.post('/api/v1/auth/exhibitor-change-password', { currentPassword, newPassword }),
   
   // Test endpoint
   test: (): Promise<AxiosResponse<ApiResponse>> => 

@@ -6,6 +6,7 @@ import { getChecklist } from "../services/checkListApi";
 import styles from "./DashboardPage.module.css";
 // import groupLogo from "../assets/group-257@3x.png";
 import Menu from "../components/Menu";
+import ChangePasswordModal from "../components/changePasswordModal/ChangePasswordModal";
 
 interface Event {
   id: number;
@@ -29,6 +30,7 @@ const DashboardPage: React.FC = () => {
   const [readinessByEventId, setReadinessByEventId] = useState<
     Record<number, number>
   >({});
+  const [isChangePasswordOpen, setIsChangePasswordOpen] = useState(false);
 
   // Load exhibitor events on component mount
   useEffect(() => {
@@ -210,6 +212,25 @@ const DashboardPage: React.FC = () => {
             <div className={styles.sprawdCoMoesz}>
               Sprawdź co możesz dzisiaj zrobić!
             </div>
+            <button
+              type="button"
+              onClick={() => setIsChangePasswordOpen(true)}
+              style={{
+                marginTop: "8px",
+                alignSelf: "flex-start",
+                background: "transparent",
+                border: "1px solid #6F87F6",
+                color: "#6F87F6",
+                borderRadius: "16px",
+                padding: "6px 16px",
+                fontSize: "13px",
+                fontWeight: 500,
+                cursor: "pointer",
+                fontFamily: "inherit",
+              }}
+            >
+              Zmień hasło
+            </button>
           </div>
           <img className={styles.groupChild} alt="" src="/group-27@2x.png" />
         </div>
@@ -336,6 +357,11 @@ const DashboardPage: React.FC = () => {
       <div className={styles.kontakt}>
         Kontakt • Polityka prywatności • www.warsawexpo.eu
       </div>
+
+      <ChangePasswordModal
+        isOpen={isChangePasswordOpen}
+        onClose={() => setIsChangePasswordOpen(false)}
+      />
     </div>
   );
 };

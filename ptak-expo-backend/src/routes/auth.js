@@ -1,5 +1,6 @@
 const express = require('express');
-const { login, exhibitorLogin, verifyToken, logout, forgotPassword, exhibitorForgotPassword } = require('../controllers/authController');
+const { login, exhibitorLogin, verifyToken, logout, forgotPassword, exhibitorForgotPassword, exhibitorChangePassword } = require('../controllers/authController');
+const { verifyToken: requireAuth } = require('../middleware/auth');
 
 const router = express.Router();
 
@@ -20,6 +21,9 @@ router.post('/forgot-password', forgotPassword);
 
 // Forgot password route for exhibitors (password reset via email)
 router.post('/exhibitor-forgot-password', exhibitorForgotPassword);
+
+// Change password route for logged-in exhibitors (ptak-expo-web)
+router.post('/exhibitor-change-password', requireAuth, exhibitorChangePassword);
 
 // Test route to check if auth routes are working
 router.get('/test', (req, res) => {

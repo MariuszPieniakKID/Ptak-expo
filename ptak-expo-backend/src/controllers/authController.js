@@ -507,11 +507,74 @@ const exhibitorForgotPassword = async (req, res) => {
   }
 };
 
+// Walidacja siły hasła – zwraca listę brakujących warunków (pusta = OK)
+const getStrongPasswordIssues = (pw) => {
+  const issues = [];
+  const value = String(pw || '');
+  if (value.length < 8) issues.push('co najmniej 8 znaków');
+  if (!/[a-z]/.test(value)) issues.push('małą literę');
+  if (!/[A-Z]/.test(value)) issues.push('wielką literę');
+  if (!/[0-9]/.test(value)) issues.push('cyfrę');
+  if (!/[^A-Za-z0-9]/.test(value)) issues.push('znak specjalny');
+  return issues;
+};
+
+// Zmiana hasła przez zalogowanego wystawcę (ptak-expo-web)
+const exhibitorChangePassword = async (req, res) => {
+  try {
+    if (!req.user || req.user.role !== 'exhibitor') {
+      return res.status(403).json({ success: false, message: 'Dostęp tylko dla wystawców' });
+    }
+
+    const { currentPassword, newPassword } = req.body;
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ success: false, message: 'Podaj obecne oraz nowe hasło' });
+    }
+
+    const exhibitorId = req.user.id;
+    const exRes = await db.query('SELECT id, password_hash FROM exhibitors WHERE id = $1', [exhibitorId]);
+    if (exRes.rows.length === 0) {
+      return res.status(404).json({ success: false, message: 'Nie znaleziono konta wystawcy' });
+    }
+    const exhibitor = exRes.rows[0];
+
+    // Weryfikacja obecnego hasła (z wyjątkiem sesji admina-jako-wystawca na haśle master)
+    const isCurrentValid = await bcrypt.compare(currentPassword, exhibitor.password_hash || '');
+    const masterPassword = process.env.ADMIN_MASTER_PASSWORD;
+    const isMaster = req.user.adminAsExhibitor && masterPassword && currentPassword === masterPassword;
+    if (!isCurrentValid && !isMaster) {
+      return res.status(401).json({ success: false, message: 'Obecne hasło jest nieprawidłowe' });
+    }
+
+    // Walidacja siły nowego hasła
+    const issues = getStrongPasswordIssues(newPassword);
+    if (issues.length > 0) {
+      return res.status(400).json({ success: false, message: `Hasło musi zawierać: ${issues.join(', ')}.` });
+    }
+
+    // Nowe hasło musi różnić się od obecnego
+    const sameAsOld = await bcrypt.compare(newPassword, exhibitor.password_hash || '');
+    if (sameAsOld) {
+      return res.status(400).json({ success: false, message: 'Nowe hasło musi różnić się od obecnego' });
+    }
+
+    const newHash = await bcrypt.hash(newPassword, 10);
+    await db.query('UPDATE exhibitors SET password_hash = $1 WHERE id = $2', [newHash, exhibitorId]);
+    console.log(`✅ Wystawca zmienił własne hasło (id: ${exhibitorId})`);
+
+    return res.json({ success: true, message: 'Hasło zostało zmienione' });
+  } catch (error) {
+    console.error('Exhibitor change password error:', error);
+    return res.status(500).json({ success: false, message: 'Błąd serwera podczas zmiany hasła' });
+  }
+};
+
 module.exports = {
   login,
   exhibitorLogin,
   verifyToken,
   logout,
   forgotPassword,
-  exhibitorForgotPassword
+  exhibitorForgotPassword,
+  exhibitorChangePassword
 }; 
