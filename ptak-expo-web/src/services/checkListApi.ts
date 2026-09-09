@@ -35,6 +35,42 @@ function getEidTypeStringLocal(type: EidType): string {
 	}
 }
 
+const allEidTypes: EidType[] = [
+	EidType.TECH_WORKER,
+	EidType.BOOTH_STAFF,
+	EidType.EXPERT_SPEAKER,
+	EidType.MARKETING_PR,
+	EidType.MANAGEMENT,
+	EidType.RECEPTION,
+	EidType.GUEST
+];
+
+const normalizeEidLabel = (value: string): string => value
+	.toLowerCase()
+	.replace(/\s*\/\s*/g, '/')
+	.replace(/\s+/g, ' ')
+	.trim();
+
+// Typ uczestnika trafia do bazy jako etykieta (pole `position`), więc przy odczycie
+// odwzorowujemy ją 1:1. Dopasowanie po fragmencie tekstu sprowadzało każdą funkcję
+// do "Obsługa techniczna" albo "Gość".
+export function parseEidTypeFromPosition(position: unknown): EidType {
+	const raw = normalizeEidLabel(String(position ?? ''));
+	if (!raw) return EidType.GUEST;
+
+	const exact = allEidTypes.find(t => normalizeEidLabel(getEidTypeStringLocal(t)) === raw);
+	if (exact !== undefined) return exact;
+
+	// Starsze wpisy zawierają dowolny tekst stanowiska – od najbardziej szczegółowego
+	if (raw.includes('technicz')) return EidType.TECH_WORKER;
+	if (raw.includes('stoisk')) return EidType.BOOTH_STAFF;
+	if (raw.includes('recepcj')) return EidType.RECEPTION;
+	if (raw.includes('prelegent') || raw.includes('ekspert')) return EidType.EXPERT_SPEAKER;
+	if (raw.includes('marketing')) return EidType.MARKETING_PR;
+	if (raw.includes('zarząd') || raw.includes('zarzad') || raw.includes('management')) return EidType.MANAGEMENT;
+	return EidType.GUEST;
+}
+
 export enum EventType {
 	OPEN,
 	CLOSED
@@ -293,17 +329,12 @@ export const getChecklist = async (exhibitionId: number) => {
 			if (r.ok) {
 				const j = await r.json();
 				const list = Array.isArray(j.data) ? j.data : [];
-            const inferType = (pos: any): EidType => {
-                const s = String(pos || '').toLowerCase();
-                if (s.includes('tech') || s.includes('technicz') || s.includes('obsług')) return EidType.TECH_WORKER;
-                return EidType.GUEST;
-            };
             ExampleChecklist = {
                 ...ExampleChecklist,
                 electrionicIds: list.map((row: any) => ({
                     name: row.full_name,
                     email: row.email,
-                    type: inferType((row.position ?? row.person_position) as any),
+                    type: parseEidTypeFromPosition(row.position ?? row.person_position),
                     accessCode: row.access_code || row.accessCode || row.qr_code || null,
                 }))
             };
