@@ -5,8 +5,30 @@ const { verifyToken, requireAdmin, requireExhibitorOrAdmin } = require('../middl
 
 // Resolve exhibitor_id by user email
 const getLinkedExhibitorIdByEmail = async (email) => {
-  const result = await db.query('SELECT id FROM exhibitors WHERE email = $1', [email]);
+  const result = await db.query('SELECT id FROM exhibitors WHERE LOWER(email) = LOWER($1)', [email]);
   return result.rows.length > 0 ? result.rows[0].id : null;
+};
+
+// Token wystawcy zawiera jego id – używamy go zamiast adresu e-mail.
+// Wyszukiwanie po e-mailu potrafiło wskazać cudze konto, gdy adres został
+// przepięty między wystawcami; zostaje tylko jako awaryjny fallback.
+const resolveExhibitorId = async (req) => {
+  if (req.user && req.user.role === 'exhibitor') {
+    const tokenId = parseInt(req.user.id, 10);
+    if (Number.isInteger(tokenId)) {
+      const byId = await db.query('SELECT id FROM exhibitors WHERE id = $1', [tokenId]);
+      if (byId.rows.length > 0) return byId.rows[0].id;
+    }
+  }
+  return getLinkedExhibitorIdByEmail(req.user && req.user.email);
+};
+
+const isExhibitorAssignedToExhibition = async (exhibitorId, exhibitionId) => {
+  const result = await db.query(
+    'SELECT 1 FROM exhibitor_events WHERE exhibitor_id = $1 AND exhibition_id = $2 LIMIT 1',
+    [exhibitorId, exhibitionId]
+  );
+  return result.rows.length > 0;
 };
 
 // Helper: Convert HTTP URLs to HTTPS
@@ -423,7 +445,7 @@ router.get('/:exhibitionId', verifyToken, requireExhibitorOrAdmin, async (req, r
     let exhibitorId = null;
 
     if (req.user.role === 'exhibitor') {
-      exhibitorId = await getLinkedExhibitorIdByEmail(req.user.email);
+      exhibitorId = await resolveExhibitorId(req);
       if (!exhibitorId) return res.json({ success: true, data: null });
     } else {
       exhibitorId = req.query.exhibitorId ? parseInt(req.query.exhibitorId, 10) : null;
@@ -539,8 +561,22 @@ router.get('/:exhibitionId', verifyToken, requireExhibitorOrAdmin, async (req, r
 router.post('/:exhibitionId', verifyToken, requireExhibitorOrAdmin, async (req, res) => {
   try {
     // Store as GLOBAL entry regardless of the route param to keep one source of truth
-    const exhibitorId = await getLinkedExhibitorIdByEmail(req.user.email);
+    const exhibitorId = await resolveExhibitorId(req);
     if (!exhibitorId) return res.status(400).json({ success: false, message: 'Exhibitor not linked to user' });
+
+    // Zapis dotyczy wpisu globalnego, więc błędny kontekst wydarzenia zatruwałby
+    // wszystkie targi wystawcy – odrzucamy zapis dla nieprzypisanego wydarzenia.
+    const requestedExhibitionId = parseInt(req.params.exhibitionId, 10);
+    if (Number.isInteger(requestedExhibitionId)) {
+      const assigned = await isExhibitorAssignedToExhibition(exhibitorId, requestedExhibitionId);
+      if (!assigned) {
+        console.warn(`⛔ Odrzucono zapis katalogu: wystawca ${exhibitorId} nie jest przypisany do wydarzenia ${requestedExhibitionId}`);
+        return res.status(403).json({
+          success: false,
+          message: 'Wystawca nie jest przypisany do tego wydarzenia'
+        });
+      }
+    }
 
     const {
       name = null,
@@ -711,7 +747,7 @@ router.get('/admin/:exhibitorId/products', verifyToken, requireAdmin, async (req
 // Exhibitor: append product to event-specific products list
 router.post('/:exhibitionId/products', verifyToken, requireExhibitorOrAdmin, async (req, res) => {
   try {
-    const exhibitorId = await getLinkedExhibitorIdByEmail(req.user.email);
+    const exhibitorId = await resolveExhibitorId(req);
     if (!exhibitorId) return res.status(400).json({ success: false, message: 'Exhibitor not linked to user' });
     
     const exhibitionId = parseInt(req.params.exhibitionId, 10);
@@ -785,7 +821,7 @@ router.post('/:exhibitionId/products', verifyToken, requireExhibitorOrAdmin, asy
 // Exhibitor: update product at index in event-specific products list
 router.put('/:exhibitionId/products/:index', verifyToken, requireExhibitorOrAdmin, async (req, res) => {
   try {
-    const exhibitorId = await getLinkedExhibitorIdByEmail(req.user.email);
+    const exhibitorId = await resolveExhibitorId(req);
     if (!exhibitorId) return res.status(400).json({ success: false, message: 'Exhibitor not linked to user' });
     
     const exhibitionId = parseInt(req.params.exhibitionId, 10);
@@ -844,7 +880,7 @@ router.put('/:exhibitionId/products/:index', verifyToken, requireExhibitorOrAdmi
 // Exhibitor: delete product at index in event-specific products list
 router.delete('/:exhibitionId/products/:index', verifyToken, requireExhibitorOrAdmin, async (req, res) => {
   try {
-    const exhibitorId = await getLinkedExhibitorIdByEmail(req.user.email);
+    const exhibitorId = await resolveExhibitorId(req);
     if (!exhibitorId) return res.status(400).json({ success: false, message: 'Exhibitor not linked to user' });
     
     const exhibitionId = parseInt(req.params.exhibitionId, 10);
