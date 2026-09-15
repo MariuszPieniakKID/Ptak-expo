@@ -165,7 +165,9 @@ const CountryPhoneField: React.FC<CountryPhoneFieldProps> = ({
 
   return (
     <Box className={className} sx={{ display: 'flex', gap: 1 }}>
-      <Box sx={{ minWidth: 180 }}>
+      {/* W wąskiej kolumnie wybór kraju musi ustąpić miejsca numerowi – przy sztywnych
+          180px na numer zostawało ok. 100px i dłuższe numery były ucięte. */}
+      <Box sx={{ flex: '0 1 180px', minWidth: 132 }}>
         <CustomSelect
           placeholder={'+48 Polska'}
           value={countryCode}
@@ -174,7 +176,7 @@ const CountryPhoneField: React.FC<CountryPhoneFieldProps> = ({
           fullWidth
         />
       </Box>
-      <Box sx={{ flex: 1 }}>
+      <Box sx={{ flex: '1 1 auto', minWidth: 140 }}>
         <CustomField
           type="tel"
           label={label ?? ''}

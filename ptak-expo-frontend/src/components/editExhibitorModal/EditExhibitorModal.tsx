@@ -322,7 +322,7 @@ const EditExhibitorModal: React.FC<EditExhibitorModalProps> = ({
               </Box>
 
               <Box className={styles.formRow}>
-                <Box className={styles.halfFormRow}>
+                <Box className={styles.singleFormRow} sx={{ width: '100%' }}>
                   <CountryPhoneField
                     value={formValues.phone || ''}
                     onChange={(v) => handleChange('phone')({ target: { value: v } } as any)}
@@ -333,6 +333,9 @@ const EditExhibitorModal: React.FC<EditExhibitorModalProps> = ({
                     className={styles.input}
                   />
                 </Box>
+              </Box>
+
+              <Box className={styles.formRow}>
                 <Box className={styles.halfFormRow}>
                   <CustomField
                     type="email"
