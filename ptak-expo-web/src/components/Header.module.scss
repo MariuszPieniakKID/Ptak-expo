@@ -9,6 +9,10 @@
   padding-right: 0;
   padding-top: 2rem;
   display: flex;
+  // Pudełko nagłówka jest znacznie wyższe niż sam pasek (puste dolne wypełnienie),
+  // a leżąc na z-index 10 przechwytywało kliknięcia w treść pod nim. Przezroczysta
+  // część musi przepuszczać zdarzenia – elementy paska włączają je z powrotem.
+  pointer-events: none;
   @media (max-width: 600px) {
     padding: 0;
     gap: 1rem;
@@ -24,6 +28,7 @@
   box-shadow: none !important;
   padding: 0.5rem 1rem;
   width: 82% !important;
+  pointer-events: auto;
 
   @media (max-width: 1280px) {
     width: 100% !important;
@@ -137,6 +142,7 @@
   font-size: var(--font-size-12);
   color: var(--color-gray-200);
   cursor: pointer;
+  pointer-events: auto;
   align-items: center;
   gap: 8px;
   height: 97px;
