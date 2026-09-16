@@ -80,6 +80,14 @@ function AddElectronicId() {
           variant="standard"
           fullWidth
           className={styles.inputBlackBackground}
+          // Domyślna czerwień błędu jest za ciemna na tle karty (#2E2E38)
+          sx={{
+            "& .MuiFormLabel-root.Mui-error": { color: "#ff8a80" },
+            "& .MuiFormHelperText-root.Mui-error": { color: "#ff8a80" },
+            "& .MuiInput-underline.Mui-error:after": {
+              borderBottomColor: "#ff8a80",
+            },
+          }}
           error={!isValidEmail}
           helperText={!isValidEmail && "To nie jest poprawny adres e-mail"}
           value={editedId.email}

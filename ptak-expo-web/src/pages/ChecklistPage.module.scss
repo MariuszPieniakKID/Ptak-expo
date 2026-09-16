@@ -1084,6 +1084,20 @@
   color: #fff;
 }
 
+// Formularz stoi na ciemnej karcie, ale jego motyw MUI liczy kolory tekstu jak dla
+// jasnego tła – bez tego wpisywane wartości i wybrany typ uczestnika wychodzą czarne.
+.inputBlackBackground input,
+.inputBlackBackground textarea,
+.selectBlackBackground div[role="combobox"] {
+  color: #fff;
+}
+
+.inputBlackBackground input::placeholder,
+.inputBlackBackground textarea::placeholder {
+  color: #a7a7a7;
+  opacity: 1;
+}
+
 .selectBlackBackground div::before,
 .inputBlackBackground div::before {
   border-bottom-color: #6f6f6f;
