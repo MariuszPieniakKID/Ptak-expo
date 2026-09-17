@@ -153,9 +153,22 @@ const DashboardPage: React.FC = () => {
     loadReadiness();
   }, [events]);
 
-  const handleEventSelect = (eventId: number) => {
+  const handleEventSelect = (eventId: number, participationId?: number) => {
     // Navigate to the event home view for this event
-    navigate(`/event/${eventId}/home`);
+    // Firma z kilkoma stoiskami na tym samym wydarzeniu wchodzi w konkretne stoisko.
+    const stoisko = participationId ? `?stoisko=${participationId}` : '';
+    navigate(`/event/${eventId}/home${stoisko}`);
+  };
+
+  // Gdy to samo wydarzenie występuje kilka razy (kilka stoisk firmy), kafelki muszą
+  // dać się rozróżnić: halą i numerem, a gdy ich nie ma – kolejnością.
+  const standLabel = (event: any): string | null => {
+    const sameEvent = events.filter((e: any) => e.id === event.id);
+    if (sameEvent.length < 2) return null;
+    const opis = [event.hall_name, event.stand_number].filter(Boolean).join(' / ');
+    if (opis) return `Stoisko: ${opis}`;
+    const kolejnosc = sameEvent.findIndex((e: any) => e.participation_id === event.participation_id) + 1;
+    return `Stoisko ${kolejnosc} z ${sameEvent.length}`;
   };
 
   // Format date for display
@@ -294,7 +307,10 @@ const DashboardPage: React.FC = () => {
 
               return (
                 <>
-                  <div key={event.id} className={styles.eventElement}>
+                  <div
+                    key={(event as any).participation_id ?? event.id}
+                    className={styles.eventElement}
+                  >
                     <div className={styles.eventTop}>
                       <img
                         className={styles.image29Icon}
@@ -312,6 +328,9 @@ const DashboardPage: React.FC = () => {
                         <div className={styles.internationalTradeFair}>
                           {event.name}
                         </div>
+                        {standLabel(event) ? (
+                          <div className={styles.div}>{standLabel(event)}</div>
+                        ) : null}
                       </div>
                     </div>
                     <div className={styles.eventBottom}>
@@ -325,7 +344,12 @@ const DashboardPage: React.FC = () => {
                       </div>
                       <div
                         className={styles.wybierz}
-                        onClick={() => handleEventSelect(event.id)}
+                        onClick={() =>
+                          handleEventSelect(
+                            event.id,
+                            (event as any).participation_id
+                          )
+                        }
                       >
                         wybierz
                       </div>

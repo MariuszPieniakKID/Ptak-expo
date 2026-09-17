@@ -1,5 +1,22 @@
 import config from '../config/config';
 import * as QRCode from 'qrcode';
+
+// Wybrane stoisko wystawcy (gdy firma ma więcej niż jedno stoisko na tym samym
+// wydarzeniu). Ustawiane przez ChecklistContext na podstawie adresu URL.
+const selectedParticipationId = (): number => Number((window as any).currentSelectedParticipationId) || 0;
+
+// Dopisek do adresu zapytania z wybranym stoiskiem.
+const participationQuery = (prefix: '?' | '&' = '?'): string => {
+	const id = selectedParticipationId();
+	return id ? `${prefix}participationId=${id}` : '';
+};
+
+// Pole do wysyłki w treści żądania.
+const participationField = (): { participationId?: number } => {
+	const id = selectedParticipationId();
+	return id ? { participationId: id } : {};
+};
+
 // Do not import from EventUtils to avoid circular deps
 
 // Define EidType first before using it
@@ -202,7 +219,7 @@ export const getChecklist = async (exhibitionId: number) => {
 
 		// catalog
 		try {
-			const r = await fetch(`${config.API_BASE_URL}/api/v1/catalog/${exhibitionId}`, { headers: { Authorization: `Bearer ${token}` } });
+			const r = await fetch(`${config.API_BASE_URL}/api/v1/catalog/${exhibitionId}${participationQuery()}`, { headers: { Authorization: `Bearer ${token}` } });
 			if (r.ok) {
 				const j = await r.json();
 				const d = j?.data;
@@ -398,6 +415,7 @@ export const updateCompanyInfo = async (companyInfo: CompanyInfo) => {
 	try {
 		await fetch(`${config.API_BASE_URL}/api/v1/catalog/${exhibitionId}`, {
 			method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify({
+				...participationField(),
 				name: companyInfo.name ?? null,
 				displayName: (companyInfo as any).displayName ?? null,
 				logo: companyInfo.logo ?? null,
@@ -429,6 +447,7 @@ export const addProduct = async (productInfo: ProductInfo) => {
 	const token = localStorage.getItem('authToken') || '';
 	try {
 		await fetch(`${config.API_BASE_URL}/api/v1/catalog/${exhibitionId}/products`, { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify({
+			...participationField(),
 			name: productInfo.name,
 			img: productInfo.img,
 			description: productInfo.description,
@@ -448,6 +467,7 @@ export const updateProduct = async (index: number, productInfo: ProductInfo) => 
 		method: 'PUT',
 		headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
 		body: JSON.stringify({
+			...participationField(),
 			name: productInfo.name,
 			img: productInfo.img,
 			description: productInfo.description,
@@ -459,7 +479,7 @@ export const updateProduct = async (index: number, productInfo: ProductInfo) => 
 export const deleteProduct = async (index: number) => {
   const exhibitionId = Number((window as any).currentSelectedExhibitionId) || 0;
   const token = localStorage.getItem('authToken') || '';
-  await fetch(`${config.API_BASE_URL}/api/v1/catalog/${exhibitionId}/products/${encodeURIComponent(String(index))}`, {
+  await fetch(`${config.API_BASE_URL}/api/v1/catalog/${exhibitionId}/products/${encodeURIComponent(String(index))}${participationQuery()}`, {
     method: 'DELETE',
     headers: { Authorization: `Bearer ${token}` },
   });

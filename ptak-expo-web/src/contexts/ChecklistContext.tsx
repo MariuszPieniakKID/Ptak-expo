@@ -41,12 +41,29 @@ const emptyChecklist: Checklist = {
 
 export const ChecklistProvider = ({ children, eventId }: {children: ReactNode, eventId: number}) => {
 	const [checklist, setChecklist] = useState<Checklist>(emptyChecklist);
+	// Wybrane stoisko: firma z dwoma stoiskami na tym samym wydarzeniu wchodzi w konkretne
+	// z adresu (?stoisko=), a checklista zapisuje dane tylko tego stoiska.
+	// Wybór pamiętamy per wydarzenie, bo linki w menu nie przenoszą parametru z adresu.
+	const participationId = (() => {
+		const pamiec = `wybraneStoisko:${eventId}`;
+		try {
+			const zAdresu = new URLSearchParams(window.location.search).get('stoisko');
+			if (zAdresu) {
+				sessionStorage.setItem(pamiec, zAdresu);
+				return Number(zAdresu);
+			}
+			return Number(sessionStorage.getItem(pamiec)) || 0;
+		} catch {
+			return 0;
+		}
+	})();
 	useEffect(() => { 
 		(window as any).currentSelectedExhibitionId = eventId; 
-	}, [eventId]);
+		(window as any).currentSelectedParticipationId = participationId;
+	}, [eventId, participationId]);
 	useEffect(() => { 
 		getChecklist(eventId).then(setChecklist); 
-	}, [eventId]);
+	}, [eventId, participationId]);
 	const companyInfoFilledCount = (() => {
 		let catalogContactFilled = 0;
 		const catalogContactPerson = (checklist.companyInfo as any).catalogContactPerson;
