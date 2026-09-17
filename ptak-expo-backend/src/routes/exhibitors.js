@@ -695,7 +695,12 @@ router.put('/:id', verifyToken, requireAdmin, async (req, res) => {
     // Poprawianie NIP-u na istniejącym koncie – dotąd trzeba było zakładać konto od nowa.
     // Duplikat jest dozwolony, ale tylko przy świadomej zgodzie administratora.
     const normalizedNip = newNip === undefined ? undefined : String(newNip).trim();
-    if (normalizedNip !== undefined && normalizedNip !== exists.rows[0].nip) {
+    // O zmianie NIP-u decydują same cyfry. Zapisane wartości bywają z myślnikami i spacjami,
+    // więc porównanie napisów uznawałoby zwykły zapis (np. telefonu) za zmianę NIP-u
+    // i potrafiło odrzucić go jako duplikat.
+    const nipZmieniony = normalizedNip !== undefined
+      && tylkoCyfry(normalizedNip) !== tylkoCyfry(exists.rows[0].nip);
+    if (nipZmieniony) {
       if (!normalizedNip) {
         return res.status(400).json({ error: 'Invalid NIP', message: 'NIP nie może być pusty' });
       }
