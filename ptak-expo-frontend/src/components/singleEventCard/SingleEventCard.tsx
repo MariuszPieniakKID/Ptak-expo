@@ -20,8 +20,12 @@ interface SingleEventCardProps {
   title: string;
   start_date: string;
   end_date: string;
-  handleSelectEvent?: (id: number) => void;
-  handleDeleteEventFromExhibitor?: (id: number, exhibitorId: number) => void;
+  // Stoisko: gdy firma ma więcej niż jedno stoisko na tym wydarzeniu, kafelki różnią się
+  // halą i numerem, a operacje muszą dotyczyć konkretnego stoiska.
+  participationId?: number | undefined;
+  standLabel?: string | undefined;
+  handleSelectEvent?: (id: number, participationId?: number) => void;
+  handleDeleteEventFromExhibitor?: (id: number, exhibitorId: number, participationId?: number) => void;
   iconId: number;
   event_readiness?: number;
   showDelete?: boolean;   
@@ -37,6 +41,8 @@ const SingleEventCard: React.FC<SingleEventCardProps> = ({
   start_date,
   end_date,
   exhibitorId,
+  participationId,
+  standLabel,
   iconId,
   event_readiness = 0, // domyślnie brak postępu
   handleSelectEvent,
@@ -95,7 +101,7 @@ const SingleEventCard: React.FC<SingleEventCardProps> = ({
 
   const handleConfirmDelete = () => {
     if (handleDeleteEventFromExhibitor && exhibitorId !== undefined) {
-      handleDeleteEventFromExhibitor(id, exhibitorId);
+      handleDeleteEventFromExhibitor(id, exhibitorId, participationId);
     }
     setOpenConfirm(false);
   };
@@ -205,6 +211,7 @@ const SingleEventCard: React.FC<SingleEventCardProps> = ({
           <Box className={styles.eventInfo}>
             <Box className={styles.dateInfo}>{formatDateRange(start_date, end_date)}</Box>
             <Box className={styles.eventTitle}>{title || ""}</Box>
+            {standLabel ? <Box className={styles.dateInfo}>{standLabel}</Box> : null}
           </Box>
         </Box>
 
@@ -221,7 +228,7 @@ const SingleEventCard: React.FC<SingleEventCardProps> = ({
                   <Box 
                     className={styles.boxWithHover}
                     onClick={() => {
-                      const evt = new CustomEvent('open-edit-event-modal', { detail: { id, title, start_date, end_date } });
+                      const evt = new CustomEvent('open-edit-event-modal', { detail: { id, title, start_date, end_date, participationId } });
                       window.dispatchEvent(evt);
                     }}
                   > 

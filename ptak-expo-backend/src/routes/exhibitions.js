@@ -38,6 +38,12 @@ router.get('/user-events', verifyToken, requireExhibitorOrAdmin, async (req, res
           e.status,
           e.invitations_enabled,
           ee.invitations_enabled AS exhibitor_invitations_enabled,
+          -- Jedno wydarzenie może wystąpić kilka razy, gdy firma ma więcej niż jedno
+          -- stoisko – panel rozróżnia je po stoisku, hali i numerze.
+          ee.id AS participation_id,
+          ee.hall_name,
+          ee.stand_number,
+          ee.booth_area,
           e.created_at,
           e.updated_at,
           (
@@ -52,7 +58,7 @@ router.get('/user-events', verifyToken, requireExhibitorOrAdmin, async (req, res
         FROM exhibitions e
         INNER JOIN exhibitor_events ee ON e.id = ee.exhibition_id
         WHERE ee.exhibitor_id = $1
-        ORDER BY e.start_date ASC
+        ORDER BY e.start_date ASC, ee.id ASC
       `, [exhibitorId]);
       
       console.log(`Found ${result.rows.length} assigned events for exhibitor ${exhibitorId}`);

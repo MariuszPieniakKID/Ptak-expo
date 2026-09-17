@@ -19,6 +19,9 @@ interface AddEventToExhibitorModalProps {
   exhibitorId:number;
   companyName:string;
   exhibitorEvents?: ExhibitorEvent[] | undefined;
+  // 'additionalStand' – kolejne stoisko na wydarzeniu, na którym wystawca już jest
+  // (firma kupiła więcej niż jedno stoisko na tych samych targach).
+  mode?: 'add' | 'additionalStand';
 }
 
 interface EventProps {
@@ -64,6 +67,7 @@ const AddEventToExhibitorModal: React.FC<AddEventToExhibitorModalProps> = ({
   exhibitorId,
   companyName,
   exhibitorEvents=undefined,
+  mode = 'add',
 }) => {
 
   const [formEventValues, setFormEventValues] = useState<EventProps>({
@@ -77,6 +81,8 @@ const AddEventToExhibitorModal: React.FC<AddEventToExhibitorModalProps> = ({
   const [error, setError] = useState('');
   const [isEditMode, setIsEditMode] = useState<boolean>(false);
   const [prefillExhibitionId, setPrefillExhibitionId] = useState<number | null>(null);
+  const [prefillParticipationId, setPrefillParticipationId] = useState<number | null>(null);
+  const isAdditionalStandMode = mode === 'additionalStand';
   const [formErrors, setFormErrors] = useState<Record<string, string>>({
     selectedExhibitionId: '',
     standNumber: '',
@@ -139,11 +145,15 @@ const AddEventToExhibitorModal: React.FC<AddEventToExhibitorModalProps> = ({
       //const upcomingExhibitions = fetchedExhibitions.filter(exh => new Date(exh.end_date) >= now);
  
       //Lista Wystaw z wykluczeniem wystaw na które jest już zapisany wystawca oraz posortowane po nazwie
+      // Dodając kolejne stoisko wybieramy spośród wydarzeń, na których wystawca już jest.
+      // W zwykłym trybie odwrotnie – te wydarzenia są ukryte, żeby nie dublować przypisania.
       let upcomingExhibitions = fetchedExhibitions
       .filter(exh => {
         const isNotEnded = new Date(exh.end_date) >= now;
-        const isNotInExhibitorEvents = !exhibitorEvents?.some(event => event.id === exh.id);
-        return isNotEnded && isNotInExhibitorEvents;
+        const isInExhibitorEvents = !!exhibitorEvents?.some(event => event.id === exh.id);
+        return isAdditionalStandMode
+          ? isInExhibitorEvents
+          : isNotEnded && !isInExhibitorEvents;
       })
       .sort((a, b) => a.name.localeCompare(b.name));
       // If editing, ensure currently assigned exhibition is present in options
@@ -164,7 +174,7 @@ const AddEventToExhibitorModal: React.FC<AddEventToExhibitorModalProps> = ({
     } finally {
       setLoadingExhibitions(false);
     }
-  }, [token, exhibitorEvents, isEditMode, prefillExhibitionId]);
+  }, [token, exhibitorEvents, isEditMode, prefillExhibitionId, isAdditionalStandMode]);
 
 
   const loadExhibitionSupervisors= useCallback(async () => {
@@ -200,6 +210,7 @@ const AddEventToExhibitorModal: React.FC<AddEventToExhibitorModalProps> = ({
             boothArea: prefill.boothArea ?? '',
             exhibitionSupervisor: prefill.supervisorUserId ? String(prefill.supervisorUserId) : '',
           }));
+          setPrefillParticipationId(prefill.participationId ? Number(prefill.participationId) : null);
           if (prefill.exhibitionId) {
             setIsEditMode(true);
             setPrefillExhibitionId(Number(prefill.exhibitionId));
@@ -272,6 +283,10 @@ const AddEventToExhibitorModal: React.FC<AddEventToExhibitorModalProps> = ({
           eventAddedToExhibitor.hallName ?? null,
           eventAddedToExhibitor.standNumber ?? null,
           eventAddedToExhibitor.boothArea ?? null,
+          {
+            participationId: isEditMode ? prefillParticipationId : null,
+            additionalStand: isAdditionalStandMode,
+          },
         );
 
         resetForm();
@@ -293,7 +308,10 @@ const AddEventToExhibitorModal: React.FC<AddEventToExhibitorModalProps> = ({
         companyName,
         onClose,
         onEventToExhibitiorAdd,
-        token
+        token,
+        isEditMode,
+        prefillParticipationId,
+        isAdditionalStandMode
     ]
   );
 
@@ -317,6 +335,12 @@ const AddEventToExhibitorModal: React.FC<AddEventToExhibitorModalProps> = ({
               <Typography variant="h6" className={styles.modalTitle}>
                 Wystawcy
               </Typography>
+              {isAdditionalStandMode ? (
+                <Typography variant="body2">
+                  Dodaj kolejne stoisko na wydarzeniu, w którym wystawca już bierze udział.
+                  Dane katalogowe zostaną skopiowane i będzie można je edytować osobno.
+                </Typography>
+              ) : null}
             </Box>
             <IconButton 
             onClick={handleClose} 

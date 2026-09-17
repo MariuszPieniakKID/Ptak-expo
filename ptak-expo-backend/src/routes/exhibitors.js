@@ -1036,11 +1036,18 @@ router.delete('/:id/assign-event/:exhibitionId', verifyToken, requireAdmin, asyn
       });
     }
 
-    // Usuń przypisanie (odłączenie)
-    const deleteResult = await db.query(
-      'DELETE FROM exhibitor_events WHERE exhibitor_id = $1 AND exhibition_id = $2',
-      [id, exhibitionId]
-    );
+    // Usuń przypisanie (odłączenie). Gdy wystawca ma kilka stoisk na tym wydarzeniu,
+    // `participationId` wskazuje, które usunąć – bez niego zabralibyśmy wszystkie.
+    const requestedParticipationId = parseInt(req.query.participationId, 10);
+    const deleteResult = Number.isInteger(requestedParticipationId)
+      ? await db.query(
+          'DELETE FROM exhibitor_events WHERE id = $1 AND exhibitor_id = $2 AND exhibition_id = $3',
+          [requestedParticipationId, id, exhibitionId]
+        )
+      : await db.query(
+          'DELETE FROM exhibitor_events WHERE exhibitor_id = $1 AND exhibition_id = $2',
+          [id, exhibitionId]
+        );
 
     const exhibitor = exhibitorCheck.rows[0];
     const exhibition = exhibitionCheck.rows[0];
@@ -1210,8 +1217,16 @@ router.get('/:id', verifyToken, requireAdmin, async (req, res) => {
               'start_date', ex.start_date,
               'end_date', ex.end_date,
               'location', ex.location,
-              'status', ex.status
+              'status', ex.status,
+              -- Dane stoiska: wystawca może mieć kilka stoisk na tym samym wydarzeniu,
+              -- więc panel dostaje osobny wpis dla każdego, z jego halą i numerem.
+              'participationId', ee.id,
+              'hallName', ee.hall_name,
+              'standNumber', ee.stand_number,
+              'boothArea', ee.booth_area,
+              'supervisorUserId', ee.supervisor_user_id
             )
+            ORDER BY ex.start_date DESC NULLS LAST, ee.id ASC
           ) FILTER (WHERE ex.id IS NOT NULL), 
           '[]'
         ) as events

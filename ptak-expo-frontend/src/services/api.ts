@@ -49,6 +49,13 @@ export interface ExhibitorEvent {
   end_date: string;
   location?: string;
   status: string;
+  // Jedno konto może mieć kilka stoisk na tym samym wydarzeniu – wtedy to samo
+  // wydarzenie pojawia się kilka razy, rozróżniane po `participationId`.
+  participationId?: number;
+  hallName?: string | null;
+  standNumber?: string | null;
+  boothArea?: string | number | null;
+  supervisorUserId?: number | null;
 }
 
 // Exhibitor Awards
@@ -454,6 +461,7 @@ export const fetchCompanyByNip = async (
 };
 
 export interface UpdateExhibitorPayload {
+  nip?: string;
   companyName?: string;
   address?: string;
   postalCode?: string;
@@ -1309,6 +1317,9 @@ export const assignExhibitorToEvent = async (
   hallName?: string | null,
   standNumber?: string | null,
   boothArea?: number | null,
+  // `participationId` edytuje konkretne stoisko, `additionalStand` dokłada kolejne
+  // do wydarzenia, na którym wystawca już jest.
+  options?: { participationId?: number | null; additionalStand?: boolean },
 ): Promise<{ success: boolean; message: string; assignment: any }> => {
   const response = await apiCall(`${config.API_BASE_URL}/api/v1/exhibitors/${exhibitorId}/assign-event`, {
     method: 'POST',
@@ -1322,6 +1333,8 @@ export const assignExhibitorToEvent = async (
       hallName: hallName ?? null,
       standNumber: standNumber ?? null,
       boothArea: typeof boothArea === 'number' ? boothArea : boothArea ?? null,
+      participationId: options?.participationId ?? null,
+      additionalStand: options?.additionalStand === true,
     }),
   });
 
@@ -1337,9 +1350,11 @@ export const assignExhibitorToEvent = async (
 export const unassignExhibitorFromEvent = async (
   exhibitorId: number,
   exhibitionId: number,
-  token: string
+  token: string,
+  participationId?: number | null
 ): Promise<{ success: boolean; message: string }> => {
-  const response = await apiCall(`${config.API_BASE_URL}/api/v1/exhibitors/${exhibitorId}/assign-event/${exhibitionId}`, {
+  const query = participationId ? `?participationId=${participationId}` : '';
+  const response = await apiCall(`${config.API_BASE_URL}/api/v1/exhibitors/${exhibitorId}/assign-event/${exhibitionId}${query}`, {
     method: 'DELETE',
     headers: {
       'Authorization': `Bearer ${token}`,

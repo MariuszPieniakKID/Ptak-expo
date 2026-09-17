@@ -45,6 +45,7 @@ const EditExhibitorModal: React.FC<EditExhibitorModalProps> = ({
   exhibitor,
 }) => {
   const [formValues, setFormValues] = useState<UpdateExhibitorPayload>({
+    nip: '',
     companyName: '',
     address: '',
     postalCode: '',
@@ -57,6 +58,7 @@ const EditExhibitorModal: React.FC<EditExhibitorModalProps> = ({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [formErrors, setFormErrors] = useState<Record<string, string>>({
+    nip: '',
     companyName: '',
     address: '',
     postalCode: '',
@@ -70,6 +72,7 @@ const EditExhibitorModal: React.FC<EditExhibitorModalProps> = ({
   useEffect(() => {
     if (exhibitor) {
       setFormValues({
+        nip: exhibitor.nip || '',
         companyName: exhibitor.companyName || '',
         address: exhibitor.address || '',
         postalCode: exhibitor.postalCode || '',
@@ -80,6 +83,7 @@ const EditExhibitorModal: React.FC<EditExhibitorModalProps> = ({
         email: exhibitor.email || '',
       });
       setFormErrors({
+        nip: '',
         companyName: '',
         address: '',
         postalCode: '',
@@ -100,6 +104,7 @@ const EditExhibitorModal: React.FC<EditExhibitorModalProps> = ({
 
   const validateForm = useCallback((): boolean => {
     const newErrors: Record<string, string> = { ...formErrors };
+    newErrors.nip = validateNip(String(formValues.nip || '').trim().replace(/^PL/i, '').replace(/[\s-]/g, ''));
     newErrors.companyName = validateCompanyName(formValues.companyName || '');
     newErrors.address = validateAddress(formValues.address || '');
     newErrors.postalCode = validatePostalCode(formValues.postalCode || '');
@@ -130,7 +135,7 @@ const EditExhibitorModal: React.FC<EditExhibitorModalProps> = ({
 
   const handleGusImport = useCallback(async () => {
     try {
-      const nipRaw = exhibitor?.nip || '';
+      const nipRaw = formValues.nip || exhibitor?.nip || '';
       const nipDigits = String(nipRaw).trim().replace(/^PL/i, '').replace(/[\s-]/g, '');
       const nipError = validateNip(nipDigits);
       if (nipError) {
@@ -159,7 +164,7 @@ const EditExhibitorModal: React.FC<EditExhibitorModalProps> = ({
     } finally {
       setLoading(false);
     }
-  }, [exhibitor?.nip, token]);
+  }, [formValues.nip, exhibitor?.nip, token]);
 
   return (
     <Dialog open={isOpen} onClose={onClose} maxWidth="sm" PaperProps={{ className: styles.customDialogPaper }}>
@@ -195,16 +200,15 @@ const EditExhibitorModal: React.FC<EditExhibitorModalProps> = ({
                   <CustomField
                     type="nip"
                     label="NIP/VAT np.: 1060000062 (PL) lub DE123456789 (DE)"
-                    value={exhibitor?.nip || ''}
-                    onChange={() => {}}
-                    error={false}
-                    errorMessage={''}
+                    value={formValues.nip || ''}
+                    onChange={handleChange('nip')}
+                    error={!!formErrors.nip}
+                    errorMessage={formErrors.nip}
                     fullWidth
                     margin="none"
                     placeholder="NIP/VAT np.: 1060000062 lub DE123456789"
                     className={styles.input}
                     errorMessageClassName={styles.inputErrorMessage}
-                    inputProps={{ readOnly: true }}
                   />
                 </Box>
                 <Box className={styles.halfFormRow}>

@@ -49,6 +49,7 @@ import Applause from '../../assets/applause.png';
 import SingleEventCard from '../../components/singleEventCard/SingleEventCard';
 import AddEventToExhibitorModal from '../../components/addEventToExhibitorModal/AddEventToExhibitorModal';
 import { fetchExhibitorAssignment } from '../../services/api';
+import type { ExhibitorEvent } from '../../services/api';
 import ExhibitorWithEvent from '../../components/exhibitorWithEvent/ExhibitorWithEvent';
 import ExhibitorDatabaseDocuments from '../../components/exhibitorDatabaseDocuments/ExhibitorDatabaseDocuments';
 import ExhibitoiIdentifiers from '../../components/exhibitoiIdentifiers/ExhibitoiIdentifiers';
@@ -76,6 +77,7 @@ const ExhibitorCardPage: React.FC = () => {
   const [selectedEvent,setSelectedEvent]=useState<number | null>(null)
   const [hasLogo, setHasLogo] = useState<boolean>(false);
   const [isEventAddToExhibitor, setIsEventAddToExhibitorn] = useState<boolean>(false);
+  const [isAdditionalStandOpen, setIsAdditionalStandOpen] = useState<boolean>(false);
   const [isEditEventOpen, setIsEditEventOpen] = useState<boolean>(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
   
@@ -174,10 +176,12 @@ const ExhibitorCardPage: React.FC = () => {
 
   const handleModalClose = useCallback((): void => {
       setIsEventAddToExhibitorn(false);
+      setIsAdditionalStandOpen(false);
       try { (window as any).__prefillExhibitorAssign = null; } catch {}
   }, []);
   const handleEventToExhibitiorAdd = useCallback((): void => {
       setIsEventAddToExhibitorn(false);
+      setIsAdditionalStandOpen(false);
       // Reload exhibitor to reflect newly assigned event
       loadExhibitor();
   }, [loadExhibitor]);
@@ -190,10 +194,10 @@ const ExhibitorCardPage: React.FC = () => {
   };
   
 
-  const handleDeleteEventFromExhibitor = async (eventId: number, exhibitorId: number) => {
+  const handleDeleteEventFromExhibitor = async (eventId: number, exhibitorId: number, participationId?: number) => {
     if (!token) return;
     try {
-      await unassignExhibitorFromEvent(exhibitorId, eventId, token);
+      await unassignExhibitorFromEvent(exhibitorId, eventId, token, participationId ?? null);
       await loadExhibitor();
     } catch (err: any) {
       setError(err.message || 'Błąd podczas odłączania wydarzenia od wystawcy');
@@ -211,7 +215,10 @@ const ExhibitorCardPage: React.FC = () => {
             if (exhibitor && token) {
               const assign = await fetchExhibitorAssignment(exhibitor.id, d.id, token);
               // Store into a temp global to be read by modal via window (simple bridge without refactor)
-              (window as any).__prefillExhibitorAssign = assign?.data ? { ...assign.data, exhibitionId: d.id } : { exhibitionId: d.id };
+              // `participationId` z kafelka wskazuje, które stoisko edytujemy.
+              (window as any).__prefillExhibitorAssign = assign?.data
+                ? { ...assign.data, exhibitionId: d.id, participationId: d.participationId }
+                : { exhibitionId: d.id, participationId: d.participationId };
             }
           } catch {}
           setIsEditEventOpen(true);
@@ -226,6 +233,16 @@ const ExhibitorCardPage: React.FC = () => {
     const getEventImage = (index: number): number => {
       return index % 2 === 0 ? 1: 2;
     };
+
+  // Kilka stoisk na jednym wydarzeniu trzeba rozróżnić na liście kafelków.
+  const buildStandLabel = (event: ExhibitorEvent): string | undefined => {
+    const sameEvent = (exhibitor?.events || []).filter(e => e.id === event.id);
+    if (sameEvent.length < 2) return undefined;
+    const opis = [event.hallName, event.standNumber].filter(Boolean).join(' / ');
+    if (opis) return `Stoisko: ${opis}`;
+    const kolejnosc = sameEvent.findIndex(e => e.participationId === event.participationId) + 1;
+    return `Stoisko ${kolejnosc} z ${sameEvent.length}`;
+  };
 
   const getEventReadiness = (eventId: number): number => {
     return eventId % 3 === 0 ? 21 : 65;
@@ -451,6 +468,16 @@ const ExhibitorCardPage: React.FC = () => {
                                 <AddIcon className={styles.addIcon} />
                                 <CustomTypography className={styles.wastebasketText}> + dodaj wydarzenie </CustomTypography>
                             </Box>
+                            {exhibitor?.events && exhibitor.events.length > 0 ? (
+                              <Box
+                                className={styles.actionButton}
+                                onClick={() => setIsAdditionalStandOpen(true)}
+                                title="Firma kupiła kolejne stoisko na wydarzeniu, w którym już bierze udział"
+                              >
+                                <AddIcon className={styles.addIcon} />
+                                <CustomTypography className={styles.wastebasketText}> + dodaj kolejne stoisko </CustomTypography>
+                              </Box>
+                            ) : null}
                         </Box>
                     </Box>
                   </Box>
@@ -463,7 +490,9 @@ const ExhibitorCardPage: React.FC = () => {
                             exhibitorId={exhibitor.id}
                             iconId={getEventImage(index)}
                             event_readiness={getEventReadiness(event.id)}
-                            key={event.id} 
+                            key={event.participationId ?? event.id}
+                            participationId={event.participationId}
+                            standLabel={buildStandLabel(event)}
                             title={event.name}
                             start_date={event.start_date}
                             end_date={event.end_date}
@@ -705,6 +734,19 @@ const ExhibitorCardPage: React.FC = () => {
         companyName={exhibitor?.companyName}
         exhibitorEvents={exhibitor.events ?? []}
         />}
+
+      {exhibitor && isAdditionalStandOpen && (
+        <AddEventToExhibitorModal
+          isOpen={isAdditionalStandOpen}
+          onClose={handleModalClose}
+          onEventToExhibitiorAdd={handleEventToExhibitiorAdd}
+          token={token || ''}
+          exhibitorId={exhibitor.id}
+          companyName={exhibitor.companyName}
+          exhibitorEvents={exhibitor.events ?? []}
+          mode="additionalStand"
+        />
+      )}
 
       {exhibitor && isEditEventOpen && (
         <AddEventToExhibitorModal
