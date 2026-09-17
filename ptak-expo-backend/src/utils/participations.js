@@ -201,6 +201,15 @@ const resolveParticipationId = async (
   return res.rows.length > 0 ? res.rows[0].id : null;
 };
 
+// Liczba wszystkich stoisk konta (na wszystkich wydarzeniach).
+const countAllParticipations = async (exhibitorId, client = db) => {
+  const res = await client.query(
+    'SELECT count(*)::int AS ile FROM exhibitor_events WHERE exhibitor_id = $1',
+    [exhibitorId]
+  );
+  return res.rows[0].ile;
+};
+
 const countParticipations = async (exhibitorId, exhibitionId, client = db) => {
   const res = await client.query(
     'SELECT count(*)::int AS ile FROM exhibitor_events WHERE exhibitor_id = $1 AND exhibition_id = $2',
@@ -215,5 +224,6 @@ module.exports = {
   listParticipations,
   resolveParticipationId,
   countParticipations,
+  countAllParticipations,
   seedCatalogEntry,
 };

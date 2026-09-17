@@ -2,6 +2,15 @@ const express = require('express');
 const router = express.Router();
 const db = require('../config/database');
 const { verifyToken, requireAdmin, requireExhibitorOrAdmin } = require('../middleware/auth');
+const { resolveParticipationId, countAllParticipations } = require('../utils/participations');
+
+// Wskazanie wpisu katalogowego stoiska. Wystawca bez przypisanego stoiska (np. po
+// usunięciu wydarzenia) trafia w dotychczasowy wpis pary wystawca+wydarzenie.
+const entryTarget = (participationId, exhibitorId, exhibitionId) => (
+  participationId
+    ? { where: 'participation_id = $1', params: [participationId] }
+    : { where: 'exhibitor_id = $1 AND exhibition_id = $2', params: [exhibitorId, exhibitionId] }
+);
 
 // Resolve exhibitor_id by user email
 const getLinkedExhibitorIdByEmail = async (email) => {
@@ -454,21 +463,40 @@ router.get('/:exhibitionId', verifyToken, requireExhibitorOrAdmin, async (req, r
     }
     // Fetch catalog entry
     // 1) Try event-specific entry
-    let result = await db.query(
-      `SELECT id, exhibitor_id, exhibition_id, name, display_name, logo, description, why_visit, contact_info, website, socials, contact_email, products, catalog_tags, brands, industries,
-              catalog_contact_person, catalog_contact_phone, catalog_contact_email,
-              created_at, updated_at
-       FROM exhibitor_catalog_entries
-       WHERE exhibitor_id = $1 AND exhibition_id = $2`,
-      [exhibitorId, exhibitionId]
-    );
+    // Wystawca może mieć kilka stoisk na tym samym wydarzeniu, więc pytamy o konkretne
+    // uczestnictwo. Bez parametru bierzemy pierwsze stoisko – tak samo jak dotąd.
+    const participationId = await resolveParticipationId({
+      exhibitorId,
+      exhibitionId,
+      participationId: req.query.participationId,
+    });
+
+    const ENTRY_COLUMNS = `id, exhibitor_id, exhibition_id, participation_id, name, display_name, logo,
+              description, why_visit, contact_info, website, socials, contact_email, products,
+              catalog_tags, brands, industries, catalog_contact_person, catalog_contact_phone,
+              catalog_contact_email, created_at, updated_at`;
+
+    let result;
+    if (participationId) {
+      result = await db.query(
+        `SELECT ${ENTRY_COLUMNS} FROM exhibitor_catalog_entries WHERE participation_id = $1`,
+        [participationId]
+      );
+    } else {
+      // Wystawca bez przypisanego stoiska (np. po usunięciu wydarzenia) – zachowujemy
+      // dotychczasowy odczyt po parze wystawca+wydarzenie.
+      result = await db.query(
+        `SELECT ${ENTRY_COLUMNS} FROM exhibitor_catalog_entries
+         WHERE exhibitor_id = $1 AND exhibition_id = $2
+         ORDER BY updated_at DESC NULLS LAST LIMIT 1`,
+        [exhibitorId, exhibitionId]
+      );
+    }
     let data = result.rows[0] || null;
 
     // 2) Read GLOBAL entry (for fallback/merge)
     const globalRes = await db.query(
-    `SELECT id, exhibitor_id, exhibition_id, name, display_name, logo, description, why_visit, contact_info, website, socials, contact_email, products, catalog_tags, brands, industries,
-            catalog_contact_person, catalog_contact_phone, catalog_contact_email,
-            created_at, updated_at
+    `SELECT ${ENTRY_COLUMNS}
        FROM exhibitor_catalog_entries
        WHERE exhibitor_id = $1 AND exhibition_id IS NULL
        ORDER BY updated_at DESC
@@ -599,10 +627,19 @@ router.post('/:exhibitionId', verifyToken, requireExhibitorOrAdmin, async (req, 
     // Convert website to HTTPS
     const websiteHttps = website ? ensureHttps(website) : null;
 
-    // Safe upsert without relying on a specific constraint name
-    const updateRes = await db.query(
-      `UPDATE exhibitor_catalog_entries
-         SET 
+    // Dane firmy zapisujemy przy konkretnym stoisku, a nie globalnie – firma może chcieć
+    // inne logo, opis i produkty na różnych targach, a zmiana przy jednych nie może
+    // przestawiać pozostałych.
+    const participationId = await resolveParticipationId({
+      exhibitorId,
+      exhibitionId: requestedExhibitionId,
+      participationId: req.body.participationId,
+    });
+
+    const RETURNED_COLUMNS = `id, exhibitor_id, exhibition_id, participation_id, name, display_name, logo,
+        description, why_visit, contact_info, website, socials, contact_email, catalog_tags, brands,
+        catalog_contact_person, catalog_contact_phone, catalog_contact_email, created_at, updated_at`;
+    const SET_CLAUSE = `
            name = $2,
            display_name = $3,
            logo = $4,
@@ -617,24 +654,56 @@ router.post('/:exhibitionId', verifyToken, requireExhibitorOrAdmin, async (req, 
            catalog_contact_person = $13,
            catalog_contact_phone = $14,
            catalog_contact_email = $15,
-           updated_at = NOW()
-       WHERE exhibitor_id = $1 AND exhibition_id IS NULL
-       RETURNING id, exhibitor_id, exhibition_id, name, display_name, logo, description, why_visit, contact_info, website, socials, contact_email, catalog_tags, brands, catalog_contact_person, catalog_contact_phone, catalog_contact_email, created_at, updated_at`,
-      [exhibitorId, name, displayName, logo, description, whyVisit, contactInfo, websiteHttps, socials, contactEmail, catalogTags, brands, catalogContactPerson, catalogContactPhone, catalogContactEmail]
-    );
+           updated_at = NOW()`;
+    const entryValues = [name, displayName, logo, description, whyVisit, contactInfo, websiteHttps,
+      socials, contactEmail, catalogTags, brands, catalogContactPerson, catalogContactPhone,
+      catalogContactEmail];
 
     let result;
-    if (updateRes.rows.length > 0) {
-      result = updateRes;
-    } else {
-      const insertRes = await db.query(
-        `INSERT INTO exhibitor_catalog_entries 
-          (exhibitor_id, exhibition_id, name, display_name, logo, description, why_visit, contact_info, website, socials, contact_email, catalog_tags, brands, catalog_contact_person, catalog_contact_phone, catalog_contact_email)
-        VALUES ($1, NULL, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
-        RETURNING id, exhibitor_id, exhibition_id, name, display_name, logo, description, why_visit, contact_info, website, socials, contact_email, catalog_tags, brands, catalog_contact_person, catalog_contact_phone, catalog_contact_email, created_at, updated_at`,
-        [exhibitorId, name, displayName, logo, description, whyVisit, contactInfo, websiteHttps, socials, contactEmail, catalogTags, brands, catalogContactPerson, catalogContactPhone, catalogContactEmail]
+    if (participationId) {
+      const updByParticipation = await db.query(
+        `UPDATE exhibitor_catalog_entries SET ${SET_CLAUSE}
+         WHERE participation_id = $1
+         RETURNING ${RETURNED_COLUMNS}`,
+        [participationId, ...entryValues]
       );
-      result = insertRes;
+      result = updByParticipation.rows.length > 0
+        ? updByParticipation
+        : await db.query(
+            `INSERT INTO exhibitor_catalog_entries
+              (participation_id, exhibitor_id, exhibition_id, name, display_name, logo, description,
+               why_visit, contact_info, website, socials, contact_email, catalog_tags, brands,
+               catalog_contact_person, catalog_contact_phone, catalog_contact_email)
+             VALUES ($1, $16, $17, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
+             RETURNING ${RETURNED_COLUMNS}`,
+            [participationId, ...entryValues, exhibitorId, requestedExhibitionId]
+          );
+    }
+
+    // Wpis globalny to dane domyślne firmy – utrzymujemy go świeżym dopóki wystawca ma
+    // jedno stoisko, żeby starsze widoki czytające tylko globalny nadal pokazywały prawdę.
+    // Przy kilku stoiskach przestajemy go nadpisywać, bo to właśnie powodowało
+    // przenoszenie zmian między targami.
+    const standCount = await countAllParticipations(exhibitorId);
+    if (!participationId || standCount <= 1) {
+      const updGlobal = await db.query(
+        `UPDATE exhibitor_catalog_entries SET ${SET_CLAUSE}
+         WHERE exhibitor_id = $1 AND exhibition_id IS NULL
+         RETURNING ${RETURNED_COLUMNS}`,
+        [exhibitorId, ...entryValues]
+      );
+      const globalResult = updGlobal.rows.length > 0
+        ? updGlobal
+        : await db.query(
+            `INSERT INTO exhibitor_catalog_entries
+              (exhibitor_id, exhibition_id, name, display_name, logo, description, why_visit,
+               contact_info, website, socials, contact_email, catalog_tags, brands,
+               catalog_contact_person, catalog_contact_phone, catalog_contact_email)
+             VALUES ($1, NULL, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
+             RETURNING ${RETURNED_COLUMNS}`,
+            [exhibitorId, ...entryValues]
+          );
+      if (!result) result = globalResult;
     }
 
     // synchronise catalogTags by upserting to catalog_tags dictionary
@@ -683,19 +752,27 @@ router.post('/:exhibitionId', verifyToken, requireExhibitorOrAdmin, async (req, 
       const exhibitionId = parseInt(req.params.exhibitionId, 10);
       if (Number.isInteger(exhibitionId) && (industries !== undefined)) {
         const cleanIndustries = industries === null ? null : String(industries);
-        const upd = await db.query(
-          `UPDATE exhibitor_catalog_entries
-             SET industries = $3,
-                 updated_at = NOW()
-           WHERE exhibitor_id = $1 AND exhibition_id = $2
-           RETURNING id`,
-          [exhibitorId, exhibitionId, cleanIndustries]
-        );
+        // Branże są danymi stoiska – zapis kierujemy w konkretne uczestnictwo.
+        const upd = participationId
+          ? await db.query(
+              `UPDATE exhibitor_catalog_entries
+                 SET industries = $2, updated_at = NOW()
+               WHERE participation_id = $1
+               RETURNING id`,
+              [participationId, cleanIndustries]
+            )
+          : await db.query(
+              `UPDATE exhibitor_catalog_entries
+                 SET industries = $3, updated_at = NOW()
+               WHERE exhibitor_id = $1 AND exhibition_id = $2
+               RETURNING id`,
+              [exhibitorId, exhibitionId, cleanIndustries]
+            );
         if (upd.rows.length === 0) {
           await db.query(
-            `INSERT INTO exhibitor_catalog_entries (exhibitor_id, exhibition_id, industries)
-             VALUES ($1, $2, $3)`,
-            [exhibitorId, exhibitionId, cleanIndustries]
+            `INSERT INTO exhibitor_catalog_entries (exhibitor_id, exhibition_id, participation_id, industries)
+             VALUES ($1, $2, $3, $4)`,
+            [exhibitorId, exhibitionId, participationId || null, cleanIndustries]
           );
         }
         // Upsert industries dictionary as well for suggestions
@@ -758,21 +835,31 @@ router.post('/:exhibitionId/products', verifyToken, requireExhibitorOrAdmin, asy
     const { name, img, description, tabList, tags } = req.body || {};
     if (!name) return res.status(400).json({ success: false, message: 'Missing product name' });
 
+    // Produkty należą do stoiska – firma może wystawiać inny asortyment na różnych targach.
+    const participationId = await resolveParticipationId({
+      exhibitorId, exhibitionId, participationId: req.body.participationId,
+    });
+    const target = entryTarget(participationId, exhibitorId, exhibitionId);
+    const productParams = [name, img || null, description || '',
+      Array.isArray(tabList) ? JSON.stringify(tabList) : null,
+      Array.isArray(tags) ? JSON.stringify(tags) : JSON.stringify([])];
+    const offset = target.params.length;
+
     const upd = await db.query(
       `UPDATE exhibitor_catalog_entries
          SET products = COALESCE(products, '[]'::jsonb) || jsonb_build_array(
            jsonb_build_object(
-             'name', $2::text,
-             'img', $3::text,
-             'description', $4::text,
-             'tabList', COALESCE($5::jsonb, 'null'::jsonb),
-             'tags', COALESCE($6::jsonb, '[]'::jsonb)
+             'name', $${offset + 1}::text,
+             'img', $${offset + 2}::text,
+             'description', $${offset + 3}::text,
+             'tabList', COALESCE($${offset + 4}::jsonb, 'null'::jsonb),
+             'tags', COALESCE($${offset + 5}::jsonb, '[]'::jsonb)
            )
          ),
              updated_at = NOW()
-       WHERE exhibitor_id = $1 AND exhibition_id = $7
+       WHERE ${target.where}
        RETURNING products`,
-      [exhibitorId, name, img || null, description || '', Array.isArray(tabList) ? JSON.stringify(tabList) : null, Array.isArray(tags) ? JSON.stringify(tags) : JSON.stringify([]), exhibitionId]
+      [...target.params, ...productParams]
     );
 
     if (upd.rows.length > 0) {
@@ -789,8 +876,8 @@ router.post('/:exhibitionId/products', verifyToken, requireExhibitorOrAdmin, asy
     }
 
     const ins = await db.query(
-      `INSERT INTO exhibitor_catalog_entries (exhibitor_id, exhibition_id, products)
-       VALUES ($1, $7, jsonb_build_array(
+      `INSERT INTO exhibitor_catalog_entries (exhibitor_id, exhibition_id, participation_id, products)
+       VALUES ($1, $7, $8, jsonb_build_array(
          jsonb_build_object(
            'name', $2::text,
            'img', $3::text,
@@ -800,7 +887,7 @@ router.post('/:exhibitionId/products', verifyToken, requireExhibitorOrAdmin, asy
          )
        ))
        RETURNING products`,
-      [exhibitorId, name, img || null, description || '', Array.isArray(tabList) ? JSON.stringify(tabList) : null, Array.isArray(tags) ? JSON.stringify(tags) : JSON.stringify([]), exhibitionId]
+      [exhibitorId, name, img || null, description || '', Array.isArray(tabList) ? JSON.stringify(tabList) : null, Array.isArray(tags) ? JSON.stringify(tags) : JSON.stringify([]), exhibitionId, participationId || null]
     );
     if (Array.isArray(tags)) {
       for (const tag of Array.from(new Set(tags.map(t => String(t || '').trim()).filter(Boolean)))) {
@@ -835,9 +922,15 @@ router.put('/:exhibitionId/products/:index', verifyToken, requireExhibitorOrAdmi
     const { name, img, description, tabList, tags } = req.body || {};
     if (!name) return res.status(400).json({ success: false, message: 'Missing product name' });
 
+    const participationId = await resolveParticipationId({
+      exhibitorId, exhibitionId, participationId: req.body.participationId,
+    });
+    const target = entryTarget(participationId, exhibitorId, exhibitionId);
+
     const cur = await db.query(
-      `SELECT products FROM exhibitor_catalog_entries WHERE exhibitor_id = $1 AND exhibition_id = $2 ORDER BY updated_at DESC LIMIT 1`,
-      [exhibitorId, exhibitionId]
+      `SELECT products FROM exhibitor_catalog_entries WHERE ${target.where}
+       ORDER BY updated_at DESC LIMIT 1`,
+      target.params
     );
     const list = Array.isArray(cur.rows?.[0]?.products) ? cur.rows[0].products : [];
     if (idx >= list.length) return res.status(404).json({ success: false, message: 'Product index out of range' });
@@ -853,11 +946,11 @@ router.put('/:exhibitionId/products/:index', verifyToken, requireExhibitorOrAdmi
 
     const upd = await db.query(
       `UPDATE exhibitor_catalog_entries
-         SET products = $2::jsonb,
+         SET products = $${target.params.length + 1}::jsonb,
              updated_at = NOW()
-       WHERE exhibitor_id = $1 AND exhibition_id = $3
+       WHERE ${target.where}
        RETURNING products`,
-      [exhibitorId, JSON.stringify(next), exhibitionId]
+      [...target.params, JSON.stringify(next)]
     );
 
     if (Array.isArray(tags)) {
@@ -891,9 +984,15 @@ router.delete('/:exhibitionId/products/:index', verifyToken, requireExhibitorOrA
     const idx = parseInt(req.params.index, 10);
     if (!Number.isInteger(idx) || idx < 0) return res.status(400).json({ success: false, message: 'Invalid product index' });
 
+    const participationId = await resolveParticipationId({
+      exhibitorId, exhibitionId, participationId: req.query.participationId,
+    });
+    const target = entryTarget(participationId, exhibitorId, exhibitionId);
+
     const cur = await db.query(
-      `SELECT products FROM exhibitor_catalog_entries WHERE exhibitor_id = $1 AND exhibition_id = $2 ORDER BY updated_at DESC LIMIT 1`,
-      [exhibitorId, exhibitionId]
+      `SELECT products FROM exhibitor_catalog_entries WHERE ${target.where}
+       ORDER BY updated_at DESC LIMIT 1`,
+      target.params
     );
     const list = Array.isArray(cur.rows?.[0]?.products) ? cur.rows[0].products : [];
     if (idx >= list.length) return res.status(404).json({ success: false, message: 'Product index out of range' });
@@ -902,11 +1001,11 @@ router.delete('/:exhibitionId/products/:index', verifyToken, requireExhibitorOrA
 
     const upd = await db.query(
       `UPDATE exhibitor_catalog_entries
-         SET products = $2::jsonb,
+         SET products = $${target.params.length + 1}::jsonb,
              updated_at = NOW()
-       WHERE exhibitor_id = $1 AND exhibition_id = $3
+       WHERE ${target.where}
        RETURNING products`,
-      [exhibitorId, JSON.stringify(next), exhibitionId]
+      [...target.params, JSON.stringify(next)]
     );
 
     return res.json({ success: true, message: 'Product deleted', data: upd.rows[0].products });
