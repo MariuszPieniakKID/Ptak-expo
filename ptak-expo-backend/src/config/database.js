@@ -977,7 +977,7 @@ const initializeDatabase = async () => {
         ('5555666777', 'Green Energy Systems', 'ul. Zielona 22', '50-001', 'Wrocław', 'Piotr Wiśniewski', 'Specjalista ds. Sprzedaży', '+48 71 555 66 77', 'p.wisniewski@green-energy.pl', '$2a$10$NLrhOzCPxUW1Xw/ylXHfwew4XJO90LnkqS.5VuI/kEy7jEU2CLT5G'),
         ('1111222333', 'Digital Marketing Pro', 'ul. Cyfrowa 5', '80-001', 'Gdańsk', 'Maria Kowalczyk', 'Account Manager', '+48 58 111 22 33', 'm.kowalczyk@digitalmarketing.pl', '$2a$10$NLrhOzCPxUW1Xw/ylXHfwew4XJO90LnkqS.5VuI/kEy7jEU2CLT5G'),
         ('4444555666', 'Industrial Automation Ltd', 'ul. Przemysłowa 44', '40-001', 'Katowice', 'Tomasz Zieliński', 'Inżynier Sprzedaży', '+48 32 444 55 66', 't.zielinski@automation.pl', '$2a$10$NLrhOzCPxUW1Xw/ylXHfwew4XJO90LnkqS.5VuI/kEy7jEU2CLT5G')
-      ON CONFLICT (nip) DO NOTHING
+      ON CONFLICT (email) DO NOTHING
     `);
 
     // Skip inserting test exhibitions to prevent auto-creation
@@ -1102,6 +1102,17 @@ const initializeDatabase = async () => {
       `);
     } catch (e) {
       console.error('❌ Error ensuring exhibitor_catalog_entries/products:', e);
+    }
+
+    // Wielostoiskowość: wiele uczestnictw na koncie (także w tym samym wydarzeniu)
+    // oraz dane katalogowe per stoisko. Błąd migracji nie może zablokować startu serwera.
+    try {
+      console.log('🔍 Migracja wielostoiskowości...');
+      const { applyMultiStandMigration } = require('./migrations/multiStandMigration');
+      await applyMultiStandMigration(pool);
+      console.log('✅ Migracja wielostoiskowości zakończona');
+    } catch (e) {
+      console.error('❌ Błąd migracji wielostoiskowości:', e.message);
     }
 
     // Activity logs table for tracking user actions

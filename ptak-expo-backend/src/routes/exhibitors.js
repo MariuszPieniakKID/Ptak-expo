@@ -9,6 +9,12 @@ const { sendPasswordResetEmail } = require('../utils/emailService');
 const { getNearestExhibitionForExhibitor, getDefaultExhibitionName } = require('../utils/exhibitorHelpers');
 const { buildIdentifierPdf } = require('../utils/identifierPdf');
 const { logActivity } = require('../utils/activityLogger');
+const {
+  createParticipation,
+  updateParticipation,
+  listParticipations,
+  countParticipations,
+} = require('../utils/participations');
 
 // Helper: resolve uploads base similar to branding controller
 const getUploadsBaseForRead = () => {
@@ -325,16 +331,25 @@ router.post('/', verifyToken, requireAdmin, async (req, res) => {
       });
     }
 
-    // Check if exhibitor with this NIP already exists
+    // NIP nie jest już identyfikatorem konta – firma może mieć kilka kont, a przede wszystkim
+    // kilka stoisk na jednym koncie. Powtórzony NIP jest więc dozwolony, ale wymaga świadomej
+    // decyzji administratora: bez `allowDuplicateNip` zwracamy listę istniejących kont.
     const existingExhibitor = await db.query(
-      'SELECT id FROM exhibitors WHERE nip = $1', 
+      'SELECT id, company_name, email FROM exhibitors WHERE nip = $1',
       [nip]
     );
 
-    if (existingExhibitor.rows.length > 0) {
-      return res.status(409).json({ 
-        error: 'Exhibitor already exists', 
-        message: 'Wystawca z tym numerem NIP już istnieje' 
+    if (existingExhibitor.rows.length > 0 && req.body.allowDuplicateNip !== true) {
+      return res.status(409).json({
+        error: 'Exhibitor already exists',
+        code: 'DUPLICATE_NIP',
+        message: 'Konto z tym numerem NIP już istnieje. Jeżeli firma bierze kolejne stoisko, '
+          + 'dodaj wydarzenie do istniejącego konta zamiast zakładać nowe.',
+        existingExhibitors: existingExhibitor.rows.map((row) => ({
+          id: row.id,
+          companyName: row.company_name,
+          email: row.email,
+        })),
       });
     }
 
@@ -407,17 +422,16 @@ router.post('/', verifyToken, requireAdmin, async (req, res) => {
     if (exhibitionId) {
       try {
         console.log('Attempting to assign exhibitor', newExhibitor.id, 'to exhibition', exhibitionId);
-        const assignResult = await db.query(
-          `INSERT INTO exhibitor_events (exhibitor_id, exhibition_id, supervisor_user_id, hall_name, stand_number, booth_area)
-           VALUES ($1, $2, $3, $4, $5, $6)
-           ON CONFLICT (exhibitor_id, exhibition_id)
-           DO UPDATE SET supervisor_user_id = EXCLUDED.supervisor_user_id,
-                         hall_name = EXCLUDED.hall_name,
-                         stand_number = EXCLUDED.stand_number,
-                         booth_area = EXCLUDED.booth_area`,
-          [newExhibitor.id, exhibitionId, exhibitionSupervisor || null, hallName || null, standNumber || null, boothArea ? Number(boothArea) : null]
-        );
-        console.log('Assignment result:', assignResult.rowCount, 'rows affected');
+        // Nowe konto nie ma jeszcze żadnego stoiska, więc zawsze zakładamy pierwsze.
+        const participation = await createParticipation({
+          exhibitorId: newExhibitor.id,
+          exhibitionId,
+          supervisorUserId: exhibitionSupervisor,
+          hallName,
+          standNumber,
+          boothArea,
+        });
+        console.log('Assignment result: participation', participation.id);
         console.log('Exhibitor assigned to exhibition:', exhibitionId);
         
         // Logowanie przypisania wystawcy do wydarzenia
@@ -655,6 +669,7 @@ router.put('/:id', verifyToken, requireAdmin, async (req, res) => {
   try {
     const { id } = req.params;
     const {
+      nip: newNip,
       companyName,
       address,
       postalCode,
@@ -666,9 +681,34 @@ router.put('/:id', verifyToken, requireAdmin, async (req, res) => {
     } = req.body || {};
 
     // Check exhibitor existence
-    const exists = await db.query('SELECT id FROM exhibitors WHERE id = $1 LIMIT 1', [id]);
+    const exists = await db.query('SELECT id, nip FROM exhibitors WHERE id = $1 LIMIT 1', [id]);
     if (exists.rows.length === 0) {
       return res.status(404).json({ error: 'Exhibitor not found', message: 'Exhibitor does not exist' });
+    }
+
+    // Poprawianie NIP-u na istniejącym koncie – dotąd trzeba było zakładać konto od nowa.
+    // Duplikat jest dozwolony, ale tylko przy świadomej zgodzie administratora.
+    const normalizedNip = newNip === undefined ? undefined : String(newNip).trim();
+    if (normalizedNip !== undefined && normalizedNip !== exists.rows[0].nip) {
+      if (!normalizedNip) {
+        return res.status(400).json({ error: 'Invalid NIP', message: 'NIP nie może być pusty' });
+      }
+      const nipOwners = await db.query(
+        'SELECT id, company_name, email FROM exhibitors WHERE nip = $1 AND id <> $2',
+        [normalizedNip, id]
+      );
+      if (nipOwners.rows.length > 0 && req.body.allowDuplicateNip !== true) {
+        return res.status(409).json({
+          error: 'Exhibitor already exists',
+          code: 'DUPLICATE_NIP',
+          message: 'Ten NIP jest już przypisany do innego konta.',
+          existingExhibitors: nipOwners.rows.map((row) => ({
+            id: row.id,
+            companyName: row.company_name,
+            email: row.email,
+          })),
+        });
+      }
     }
 
     // Build dynamic update
@@ -684,6 +724,7 @@ router.put('/:id', verifyToken, requireAdmin, async (req, res) => {
     if (contactRole !== undefined) pushField('contact_role', contactRole);
     if (phone !== undefined) pushField('phone', phone);
     if (newEmail !== undefined) pushField('email', newEmail);
+    if (normalizedNip !== undefined) pushField('nip', normalizedNip);
     pushField('updated_at', new Date());
 
     if (fields.length === 1) { // only updated_at
@@ -843,58 +884,77 @@ router.post('/:id/assign-event', verifyToken, requireAdmin, async (req, res) => 
       supervisorRecord = supCheck.rows[0];
     }
 
-    // Przypisz wystawcę do wydarzenia i zapisz opiekuna (ON CONFLICT aktualizuje opiekuna)
-    const assignResult = await db.query(
-      `INSERT INTO exhibitor_events (exhibitor_id, exhibition_id, supervisor_user_id, hall_name, stand_number, booth_area)
-       VALUES ($1, $2, $3, $4, $5, $6)
-       ON CONFLICT (exhibitor_id, exhibition_id)
-       DO UPDATE SET supervisor_user_id = EXCLUDED.supervisor_user_id,
-                     hall_name = EXCLUDED.hall_name,
-                     stand_number = EXCLUDED.stand_number,
-                     booth_area = EXCLUDED.booth_area
-       RETURNING *`,
-      [id, exhibitionId, supervisorUserId || null, hallName || null, standNumber || null, boothArea ? Number(boothArea) : null]
-    );
-    
+    // Wystawca może mieć kilka stoisk na tym samym wydarzeniu, więc rozróżniamy trzy sytuacje:
+    // edycję konkretnego stoiska (participationId), świadome dodanie kolejnego
+    // (additionalStand) oraz zachowanie dotychczasowe – aktualizację istniejącego wpisu.
+    const requestedParticipationId = parseInt(req.body.participationId, 10);
+    const wantsAdditionalStand = req.body.additionalStand === true;
+
+    let participation = null;
+    let created = false;
+
+    if (Number.isInteger(requestedParticipationId)) {
+      participation = await updateParticipation(requestedParticipationId, {
+        supervisorUserId, hallName, standNumber, boothArea
+      });
+      if (!participation) {
+        return res.status(404).json({
+          success: false,
+          error: 'Nie znaleziono wskazanego stoiska'
+        });
+      }
+    } else if (wantsAdditionalStand) {
+      participation = await createParticipation({
+        exhibitorId: id, exhibitionId, supervisorUserId, hallName, standNumber, boothArea
+      });
+      created = true;
+    } else {
+      const existing = await listParticipations(id, exhibitionId);
+      if (existing.length > 0) {
+        participation = await updateParticipation(existing[0].id, {
+          supervisorUserId, hallName, standNumber, boothArea
+        });
+      } else {
+        participation = await createParticipation({
+          exhibitorId: id, exhibitionId, supervisorUserId, hallName, standNumber, boothArea
+        });
+        created = true;
+      }
+    }
+
     const exhibitor = exhibitorCheck.rows[0];
     const exhibition = exhibitionCheck.rows[0];
-    
-    if (assignResult.rows.length > 0) {
-      console.log(`✅ Exhibitor ${exhibitor.company_name} assigned to exhibition ${exhibition.name}`);
-      res.json({
-        success: true,
-        message: `Wystawca "${exhibitor.company_name}" został przypisany do wydarzenia "${exhibition.name}"`,
-        assignment: {
-          exhibitorId: parseInt(id),
-          exhibitorName: exhibitor.company_name,
-          exhibitionId: parseInt(exhibitionId),
-          exhibitionName: exhibition.name,
-          supervisorUserId: assignResult.rows[0].supervisor_user_id || null,
-          hallName: assignResult.rows[0].hall_name || null,
-          standNumber: assignResult.rows[0].stand_number || null,
-          boothArea: assignResult.rows[0].booth_area || null,
-          supervisor: supervisorRecord ? {
-            id: supervisorRecord.id,
-            firstName: supervisorRecord.first_name,
-            lastName: supervisorRecord.last_name,
-            email: supervisorRecord.email
-          } : null
-        }
-      });
-    } else {
-      console.log(`⚠️ Exhibitor ${exhibitor.company_name} already assigned to exhibition ${exhibition.name}`);
-      res.json({
-        success: true,
-        message: `Wystawca "${exhibitor.company_name}" jest już przypisany do wydarzenia "${exhibition.name}"`,
-        assignment: {
-          exhibitorId: parseInt(id),
-          exhibitorName: exhibitor.company_name,
-          exhibitionId: parseInt(exhibitionId),
-          exhibitionName: exhibition.name,
-          supervisorUserId: assignResult.rows[0]?.supervisor_user_id || null
-        }
-      });
-    }
+    const standCount = await countParticipations(id, exhibitionId);
+
+    console.log(
+      `✅ ${created ? 'Utworzono' : 'Zaktualizowano'} stoisko ${participation.id}: ` +
+      `${exhibitor.company_name} @ ${exhibition.name} (stoisk łącznie: ${standCount})`
+    );
+
+    res.json({
+      success: true,
+      message: created && standCount > 1
+        ? `Dodano kolejne stoisko wystawcy "${exhibitor.company_name}" na wydarzeniu "${exhibition.name}"`
+        : `Wystawca "${exhibitor.company_name}" został przypisany do wydarzenia "${exhibition.name}"`,
+      assignment: {
+        participationId: participation.id,
+        exhibitorId: parseInt(id),
+        exhibitorName: exhibitor.company_name,
+        exhibitionId: parseInt(exhibitionId),
+        exhibitionName: exhibition.name,
+        supervisorUserId: participation.supervisor_user_id || null,
+        hallName: participation.hall_name || null,
+        standNumber: participation.stand_number || null,
+        boothArea: participation.booth_area || null,
+        standCount,
+        supervisor: supervisorRecord ? {
+          id: supervisorRecord.id,
+          firstName: supervisorRecord.first_name,
+          lastName: supervisorRecord.last_name,
+          email: supervisorRecord.email
+        } : null
+      }
+    });
     
   } catch (error) {
     console.error('Error assigning exhibitor to event:', error);
