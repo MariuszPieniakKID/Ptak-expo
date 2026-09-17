@@ -75,6 +75,7 @@ const ExhibitorCardPage: React.FC = () => {
   }, [token]);
   const [value, setValue] = React.useState(0);
   const [selectedEvent,setSelectedEvent]=useState<number | null>(null)
+  const [selectedParticipation,setSelectedParticipation]=useState<number | null>(null)
   const [hasLogo, setHasLogo] = useState<boolean>(false);
   const [isEventAddToExhibitor, setIsEventAddToExhibitorn] = useState<boolean>(false);
   const [isAdditionalStandOpen, setIsAdditionalStandOpen] = useState<boolean>(false);
@@ -188,9 +189,12 @@ const ExhibitorCardPage: React.FC = () => {
 
 
   //
-  const handleSelectEvent = (eventId: number) => {
+  // Wybór dotyczy konkretnego stoiska – przy dwóch stoiskach na tym samym wydarzeniu
+  // bez tego zakładki poniżej pokazywałyby zawsze dane pierwszego z nich.
+  const handleSelectEvent = (eventId: number, participationId?: number) => {
     if (!exhibitor) return;
     setSelectedEvent(eventId);
+    setSelectedParticipation(participationId ?? null);
   };
   
 
@@ -213,7 +217,7 @@ const ExhibitorCardPage: React.FC = () => {
         (async () => {
           try {
             if (exhibitor && token) {
-              const assign = await fetchExhibitorAssignment(exhibitor.id, d.id, token);
+              const assign = await fetchExhibitorAssignment(exhibitor.id, d.id, token, d.participationId ?? null);
               // Store into a temp global to be read by modal via window (simple bridge without refactor)
               // `participationId` z kafelka wskazuje, które stoisko edytujemy.
               (window as any).__prefillExhibitorAssign = assign?.data
@@ -285,8 +289,9 @@ const ExhibitorCardPage: React.FC = () => {
     if (selectedEvent !== null && exhibitor?.events) {
       return exhibitor.events
         .filter(event => event.id === selectedEvent)
+        .filter(event => selectedParticipation === null || event.participationId === selectedParticipation)
         .map((event, index) => (
-          <Box key={event.id} className={styles.eventBusinessCard}>
+          <Box key={event.participationId ?? event.id} className={styles.eventBusinessCard}>
             <CustomTypography className={styles.selestedTitleWrapper}>Wydarzenie:</CustomTypography>
             <SingleEventCard 
               id={event.id}
@@ -296,6 +301,8 @@ const ExhibitorCardPage: React.FC = () => {
               title={event.name}
               start_date={event.start_date}
               end_date={event.end_date}
+              participationId={event.participationId}
+              standLabel={buildStandLabel(event)}
               showEdit
               preferTileLogo={false}
               handleSelectEvent={handleSelectEvent}
@@ -673,7 +680,7 @@ const ExhibitorCardPage: React.FC = () => {
                 <CustomTabPanel value={value} index={0}>
                   <Box className={styles.tabPaperContainer}>
                     <Box className={styles.leftContainer}>{renderSelectedEvent()}</Box>
-                    <Box className={styles.rightContainer}>{exhibitor ? <ExhibitorWithEvent exhibitorId={exhibitor.id} exhibitor={exhibitor} hasLogo={hasLogo} exhibitionId={selectedEvent ?? undefined} /> : null}</Box>
+                    <Box className={styles.rightContainer}>{exhibitor ? <ExhibitorWithEvent exhibitorId={exhibitor.id} exhibitor={exhibitor} hasLogo={hasLogo} exhibitionId={selectedEvent ?? undefined} participationId={selectedParticipation ?? undefined} /> : null}</Box>
                   </Box>
                 </CustomTabPanel>
                 <CustomTabPanel value={value} index={1}>

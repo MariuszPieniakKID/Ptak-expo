@@ -202,7 +202,11 @@ const AddEventToExhibitorModal: React.FC<AddEventToExhibitorModalProps> = ({
       loadExhibitionSupervisors();
       try {
         const prefill = (window as any).__prefillExhibitorAssign;
-        if (prefill) {
+        // Dane edytowanego kafelka zużywamy raz. Zostawione na później wchodziły do
+        // kolejnego otwarcia okna: „dodaj kolejne stoisko" trafiało wtedy w tryb edycji
+        // i zamiast nowego stoiska nadpisywało istniejące.
+        delete (window as any).__prefillExhibitorAssign;
+        if (prefill && !isAdditionalStandMode) {
           setFormEventValues((prev) => ({
             ...prev,
             hallName: prefill.hallName ?? '',
@@ -222,10 +226,16 @@ const AddEventToExhibitorModal: React.FC<AddEventToExhibitorModalProps> = ({
             setIsEditMode(false);
             setPrefillExhibitionId(null);
           }
+        } else {
+          // Otwarcie bez danych kafelka to zawsze dodawanie – po zamknięciu edycji
+          // nie może zostać włączony tryb edycji z poprzedniego razu.
+          setIsEditMode(false);
+          setPrefillExhibitionId(null);
+          setPrefillParticipationId(null);
         }
       } catch {}
     }
-  }, [isOpen, resetForm, loadExhibitions,loadExhibitionSupervisors]);
+  }, [isOpen, resetForm, loadExhibitions, loadExhibitionSupervisors, isAdditionalStandMode]);
 
   type FormEventValuesKeys = keyof EventProps;
   type FormAddExhibitorModalFields = FormEventValuesKeys;

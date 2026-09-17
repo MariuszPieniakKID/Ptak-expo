@@ -16,6 +16,9 @@ const {
   countParticipations,
 } = require('../utils/participations');
 
+// Do porównywania NIP-ów: w bazie bywają ze spacjami, myślnikami i prefiksem PL.
+const tylkoCyfry = (v) => String(v || '').replace(/\D/g, '');
+
 // Helper: resolve uploads base similar to branding controller
 const getUploadsBaseForRead = () => {
   const preferred = process.env.UPLOADS_DIR && process.env.UPLOADS_DIR.trim().length > 0
@@ -334,9 +337,12 @@ router.post('/', verifyToken, requireAdmin, async (req, res) => {
     // NIP nie jest już identyfikatorem konta – firma może mieć kilka kont, a przede wszystkim
     // kilka stoisk na jednym koncie. Powtórzony NIP jest więc dozwolony, ale wymaga świadomej
     // decyzji administratora: bez `allowDuplicateNip` zwracamy listę istniejących kont.
+    // NIP-y w bazie bywają zapisane różnie (spacje, myślniki, prefiks PL), dlatego
+    // porównujemy same cyfry – inaczej „PL 511-026-40-85" ominęłoby kontrolę duplikatu.
     const existingExhibitor = await db.query(
-      'SELECT id, company_name, email FROM exhibitors WHERE nip = $1',
-      [nip]
+      `SELECT id, company_name, email FROM exhibitors
+       WHERE regexp_replace(COALESCE(nip, ''), '[^0-9]', '', 'g') = $1`,
+      [tylkoCyfry(nip)]
     );
 
     if (existingExhibitor.rows.length > 0 && req.body.allowDuplicateNip !== true) {
@@ -694,8 +700,9 @@ router.put('/:id', verifyToken, requireAdmin, async (req, res) => {
         return res.status(400).json({ error: 'Invalid NIP', message: 'NIP nie może być pusty' });
       }
       const nipOwners = await db.query(
-        'SELECT id, company_name, email FROM exhibitors WHERE nip = $1 AND id <> $2',
-        [normalizedNip, id]
+        `SELECT id, company_name, email FROM exhibitors
+         WHERE regexp_replace(COALESCE(nip, ''), '[^0-9]', '', 'g') = $1 AND id <> $2`,
+        [tylkoCyfry(normalizedNip), id]
       );
       if (nipOwners.rows.length > 0 && req.body.allowDuplicateNip !== true) {
         return res.status(409).json({
@@ -894,15 +901,21 @@ router.post('/:id/assign-event', verifyToken, requireAdmin, async (req, res) => 
     let created = false;
 
     if (Number.isInteger(requestedParticipationId)) {
-      participation = await updateParticipation(requestedParticipationId, {
-        supervisorUserId, hallName, standNumber, boothArea
-      });
-      if (!participation) {
+      // Stoisko musi należeć do tego wystawcy i tego wydarzenia – inaczej nieaktualny
+      // identyfikator z panelu przestawiłby halę i numer w zupełnie innym wpisie.
+      const nalezy = await db.query(
+        'SELECT id FROM exhibitor_events WHERE id = $1 AND exhibitor_id = $2 AND exhibition_id = $3',
+        [requestedParticipationId, id, exhibitionId]
+      );
+      if (nalezy.rows.length === 0) {
         return res.status(404).json({
           success: false,
           error: 'Nie znaleziono wskazanego stoiska'
         });
       }
+      participation = await updateParticipation(requestedParticipationId, {
+        supervisorUserId, hallName, standNumber, boothArea
+      });
     } else if (wantsAdditionalStand) {
       participation = await createParticipation({
         exhibitorId: id, exhibitionId, supervisorUserId, hallName, standNumber, boothArea
@@ -977,12 +990,23 @@ router.get('/:id/assign-event/:exhibitionId', verifyToken, requireAdmin, async (
       return res.status(404).json({ success: false, message: 'Wystawca nie został znaleziony' });
     }
 
-    const asg = await db.query(
-      `SELECT supervisor_user_id, hall_name, stand_number, booth_area
-       FROM exhibitor_events
-       WHERE exhibitor_id = $1 AND exhibition_id = $2 LIMIT 1`,
-      [id, exhibitionId]
-    );
+    // Przy kilku stoiskach na jednym wydarzeniu modal edycji musi dostać dane tego
+    // stoiska, które admin kliknął, a nie pierwszego z listy.
+    const wskazaneStoisko = parseInt(req.query.participationId, 10);
+    const asg = Number.isInteger(wskazaneStoisko)
+      ? await db.query(
+          `SELECT id, supervisor_user_id, hall_name, stand_number, booth_area
+           FROM exhibitor_events
+           WHERE id = $1 AND exhibitor_id = $2 AND exhibition_id = $3`,
+          [wskazaneStoisko, id, exhibitionId]
+        )
+      : await db.query(
+          `SELECT id, supervisor_user_id, hall_name, stand_number, booth_area
+           FROM exhibitor_events
+           WHERE exhibitor_id = $1 AND exhibition_id = $2
+           ORDER BY id ASC LIMIT 1`,
+          [id, exhibitionId]
+        );
 
     if (asg.rows.length === 0) {
       return res.json({ success: true, data: null });
@@ -991,6 +1015,7 @@ router.get('/:id/assign-event/:exhibitionId', verifyToken, requireAdmin, async (
     return res.json({
       success: true,
       data: {
+        participationId: row.id,
         supervisorUserId: row.supervisor_user_id ?? null,
         hallName: row.hall_name ?? '',
         standNumber: row.stand_number ?? '',
@@ -1325,9 +1350,13 @@ router.get('/:exhibitorId/:exhibitionId/invitation-limit', verifyToken, requireE
       return res.status(400).json({ success: false, message: 'Invalid parameters' });
     }
     
+    // Limit i blokada zaproszeń dotyczą firmy na danym wydarzeniu, nie pojedynczego
+    // stoiska. Przy kilku stoiskach czytamy pierwsze, żeby wynik nie zależał od kolejności
+    // wierszy w bazie.
     const result = await db.query(
       `SELECT invitation_limit, invitations_enabled FROM exhibitor_events 
-       WHERE exhibitor_id = $1 AND exhibition_id = $2`,
+       WHERE exhibitor_id = $1 AND exhibition_id = $2
+       ORDER BY id ASC LIMIT 1`,
       [exhibitorId, exhibitionId]
     );
     

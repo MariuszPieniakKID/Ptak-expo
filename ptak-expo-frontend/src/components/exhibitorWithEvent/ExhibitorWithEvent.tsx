@@ -109,13 +109,15 @@ type ExhibitorWithEventProps = {
   exhibitor?: Exhibitor;
   hasLogo?: boolean;
   exhibitionId?: number; // preferowany wybrany event
+  participationId?: number | undefined; // wybrane stoisko, gdy firma ma ich kilka na tym wydarzeniu
 };
 
 function ExhibitorWithEvent({ 
   allowMultiple = true,
   exhibitorId,
   exhibitor,
-  exhibitionId: preferredExhibitionId
+  exhibitionId: preferredExhibitionId,
+  participationId: preferredParticipationId
 }: ExhibitorWithEventProps) {
   const { token } = useAuth();
   const [catalogDescription, setCatalogDescription] = useState<string>('');
@@ -137,6 +139,8 @@ function ExhibitorWithEvent({
         let fallbackCatalogLogoDataUrl: string | null = null;
         let nextLogoFileName: string | null = null;
         let nextLogoUrl: string | null = null;
+        // Produkty wybranego stoiska; wpis globalny bierzemy tylko gdy stoisko ich nie ma.
+        let standProducts: any[] | null = null;
 
         // Determine effective exhibitionId for requests
         const effectiveExId = preferredExhibitionId ?? (Array.isArray(exhibitor.events) && exhibitor.events.length > 0
@@ -147,7 +151,10 @@ function ExhibitorWithEvent({
         // 1) Fetch catalog entry (exhibitor view)
         try {
           if (effectiveExId) {
-            const res = await fetch(`${config.API_BASE_URL}/api/v1/catalog/${effectiveExId}?exhibitorId=${encodeURIComponent(String(exhibitor.id))}`, {
+            // Przy kilku stoiskach na tym samym wydarzeniu bez wskazania stoiska backend
+            // zwróciłby dane pierwszego z nich.
+            const standQuery = preferredParticipationId ? `&participationId=${preferredParticipationId}` : '';
+            const res = await fetch(`${config.API_BASE_URL}/api/v1/catalog/${effectiveExId}?exhibitorId=${encodeURIComponent(String(exhibitor.id))}${standQuery}`, {
               headers: { 'Authorization': `Bearer ${token}` },
               credentials: 'include'
             });
@@ -158,6 +165,7 @@ function ExhibitorWithEvent({
                 setCatalogDescription(data.description || '');
                 setCatalogWebsite(data.website || '');
                 fallbackCatalogLogoDataUrl = data.logo || null;
+                standProducts = Array.isArray(data.products) && data.products.length > 0 ? data.products : null;
                 // Socials mapping (JSON string in data.socials)
                 try {
                   const s = JSON.parse(data.socials || '{}') || {};
@@ -231,32 +239,34 @@ function ExhibitorWithEvent({
         setLogoFileName(nextLogoFileName);
         setLogoUrl(nextLogoUrl);
 
-        // 4) Fetch presented products from catalog (admin endpoint)
-        try {
-          const prodRes = await fetch(`${config.API_BASE_URL}/api/v1/catalog/admin/${exhibitor.id}/products`, {
-            headers: { 'Authorization': `Bearer ${token}` },
-            credentials: 'include'
-          });
-          if (prodRes.ok) {
-            const res = prodRes; // alias to avoid stale references
-            const prodJson = await res.json();
-            const raw = Array.isArray(prodJson?.data) ? prodJson.data : [];
-            const mapped: PresentedProductItem[] = raw.map((p: any) => {
-              // Use tags field first (from checklist), fallback to tabList
-              const tagsArray = Array.isArray(p.tags) ? p.tags : (Array.isArray(p.tabList) ? p.tabList : null);
-              return {
-                imageSrc: p.img || productImg,
-                title: p.name || '',
-                description: p.description || '',
-                tabList: tagsArray
-              };
+        // 4) Produkty: najpierw wybrane stoisko, a dopiero potem wpis globalny wystawcy
+        // (globalny nie jest już nadpisywany, gdy firma ma więcej niż jedno stoisko).
+        const mapProducts = (raw: any[]): PresentedProductItem[] => raw.map((p: any) => {
+          const tagsArray = Array.isArray(p.tags) ? p.tags : (Array.isArray(p.tabList) ? p.tabList : null);
+          return {
+            imageSrc: p.img || productImg,
+            title: p.name || '',
+            description: p.description || '',
+            tabList: tagsArray
+          };
+        });
+        if (standProducts) {
+          setProducts(mapProducts(standProducts));
+        } else {
+          try {
+            const prodRes = await fetch(`${config.API_BASE_URL}/api/v1/catalog/admin/${exhibitor.id}/products`, {
+              headers: { 'Authorization': `Bearer ${token}` },
+              credentials: 'include'
             });
-            setProducts(mapped);
-          } else {
+            if (prodRes.ok) {
+              const prodJson = await prodRes.json();
+              setProducts(mapProducts(Array.isArray(prodJson?.data) ? prodJson.data : []));
+            } else {
+              setProducts([]);
+            }
+          } catch {
             setProducts([]);
           }
-        } catch {
-          setProducts([]);
         }
 
         // 5) Fetch exhibitor documents (materials) for this exhibition
@@ -278,7 +288,7 @@ function ExhibitorWithEvent({
       } catch {}
     };
     loadData();
-  }, [exhibitor?.id, exhibitor?.events, preferredExhibitionId]);
+  }, [exhibitor?.id, exhibitor?.events, preferredExhibitionId, preferredParticipationId]);
 
   const handleDownloadMaterial = async (documentId: number) => {
     try {

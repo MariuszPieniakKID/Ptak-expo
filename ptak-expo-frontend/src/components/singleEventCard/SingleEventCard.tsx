@@ -268,7 +268,7 @@ const SingleEventCard: React.FC<SingleEventCardProps> = ({
             {showSelect && handleSelectEvent ? (
               <Box
                 className={styles.actionButton}
-                onClick={() => handleSelectEvent(id)}
+                onClick={() => handleSelectEvent(id, participationId)}
               >
                 <CustomTypography className={styles.chooseText}>wybierz</CustomTypography>
               </Box>

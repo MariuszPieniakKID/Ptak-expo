@@ -3,7 +3,8 @@
 # a wpis globalny (czytany przez starsze widoki) ma pozostać aktualny.
 set -u
 API=http://localhost:3011/api/v1
-PSQL="psql -h localhost -p 5432 -d ptak_multistand -tAq"
+BAZA="${BAZA:-ptak_czysta}"
+PSQL="psql -h localhost -p 5432 -d $BAZA -tAq"
 
 EMAIL="test.jedno.stoisko@example.com"
 HASH=$(node -e "console.log(require('bcryptjs').hashSync('Test12345!',10))")

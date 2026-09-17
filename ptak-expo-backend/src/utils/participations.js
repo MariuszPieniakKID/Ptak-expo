@@ -54,7 +54,7 @@ const findCatalogSource = async (client, exhibitorId, exhibitionId) => {
      )
      SELECT ${merged},
        CASE
-         WHEN jsonb_array_length(COALESCE(ev.products, '[]'::jsonb)) > 0 THEN ev.products
+         WHEN jsonb_typeof(ev.products) = 'array' AND jsonb_array_length(ev.products) > 0 THEN ev.products
          ELSE gl.products
        END AS products,
        (ev.id IS NOT NULL OR gl.id IS NOT NULL) AS ma_zrodlo
@@ -105,10 +105,22 @@ const createParticipation = async (
   { exhibitorId, exhibitionId, supervisorUserId, hallName, standNumber, boothArea },
   client = db
 ) => {
+  // Limit i blokada zaproszeń są ustawieniem firmy na wydarzeniu, więc kolejne stoisko
+  // przejmuje je z pierwszego. Inaczej nowe stoisko z domyślnymi wartościami zdjęłoby
+  // administratorowi blokadę wysyłki zaproszeń.
+  const zaproszenia = await client.query(
+    `SELECT invitation_limit, invitations_enabled FROM exhibitor_events
+     WHERE exhibitor_id = $1 AND exhibition_id = $2
+     ORDER BY id ASC LIMIT 1`,
+    [exhibitorId, exhibitionId]
+  );
+  const ustawienia = zaproszenia.rows[0] || null;
+
   const res = await client.query(
     `INSERT INTO exhibitor_events
-       (exhibitor_id, exhibition_id, supervisor_user_id, hall_name, stand_number, booth_area)
-     VALUES ($1, $2, $3, $4, $5, $6)
+       (exhibitor_id, exhibition_id, supervisor_user_id, hall_name, stand_number, booth_area,
+        invitation_limit, invitations_enabled)
+     VALUES ($1, $2, $3, $4, $5, $6, COALESCE($7, 50), COALESCE($8, true))
      RETURNING *`,
     [
       exhibitorId,
@@ -117,6 +129,8 @@ const createParticipation = async (
       hallName || null,
       standNumber || null,
       boothArea === undefined || boothArea === null || boothArea === '' ? null : Number(boothArea),
+      ustawienia ? ustawienia.invitation_limit : null,
+      ustawienia ? ustawienia.invitations_enabled : null,
     ]
   );
   const participation = res.rows[0];
@@ -184,19 +198,33 @@ const resolveParticipationId = async (
   client = db
 ) => {
   const explicit = parseInt(participationId, 10);
+  const exhibition = parseInt(exhibitionId, 10);
+
   if (Number.isInteger(explicit)) {
+    // Stoisko musi należeć do tego konta i do tego wydarzenia. Panel pamięta wybór
+    // stoiska między podstronami, więc bez sprawdzenia wydarzenia zapamiętane stoisko
+    // z innych targów podmieniałoby dane pod niewłaściwym wydarzeniem.
+    const params = [explicit, exhibitorId];
+    let filtrWydarzenia = '';
+    if (Number.isInteger(exhibition)) {
+      params.push(exhibition);
+      filtrWydarzenia = 'AND exhibition_id = $3';
+    }
     const res = await client.query(
-      'SELECT id FROM exhibitor_events WHERE id = $1 AND exhibitor_id = $2',
-      [explicit, exhibitorId]
+      `SELECT id FROM exhibitor_events WHERE id = $1 AND exhibitor_id = $2 ${filtrWydarzenia}`,
+      params
     );
-    return res.rows.length > 0 ? res.rows[0].id : null;
+    if (res.rows.length > 0) return res.rows[0].id;
+    // Stoisko nie pasuje do wydarzenia – pracujemy na pierwszym stoisku tego wydarzenia.
   }
+
+  if (!Number.isInteger(exhibition)) return null;
 
   const res = await client.query(
     `SELECT id FROM exhibitor_events
      WHERE exhibitor_id = $1 AND exhibition_id = $2
      ORDER BY id ASC LIMIT 1`,
-    [exhibitorId, exhibitionId]
+    [exhibitorId, exhibition]
   );
   return res.rows.length > 0 ? res.rows[0].id : null;
 };

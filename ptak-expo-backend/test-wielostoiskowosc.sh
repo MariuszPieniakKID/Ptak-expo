@@ -2,7 +2,8 @@
 # Test lokalny wielostoiskowości (uruchamiany na kopii bazy produkcyjnej).
 set -u
 API=http://localhost:3011/api/v1
-PSQL="psql -h localhost -p 5432 -d ptak_multistand -tAq"
+BAZA="${BAZA:-ptak_czysta}"
+PSQL="psql -h localhost -p 5432 -d $BAZA -tAq"
 
 say() { echo; echo "===== $1 ====="; }
 

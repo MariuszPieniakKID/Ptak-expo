@@ -110,7 +110,13 @@ router.get('/user-events', verifyToken, requireExhibitorOrAdmin, async (req, res
       exhibitor_invitations_enabled: event.exhibitor_invitations_enabled !== false,
       createdAt: event.created_at,
       updatedAt: event.updated_at,
-      event_logo_file_name: event.event_logo_file_name || null
+      event_logo_file_name: event.event_logo_file_name || null,
+      // Stoisko: przy kilku stoiskach firmy to samo wydarzenie występuje kilka razy
+      // i panel musi je rozróżnić (brak tych pól w odpowiedzi dawał zduplikowane kafelki).
+      participation_id: event.participation_id ?? null,
+      hall_name: event.hall_name ?? null,
+      stand_number: event.stand_number ?? null,
+      booth_area: event.booth_area ?? null
     }));
     
     res.json({

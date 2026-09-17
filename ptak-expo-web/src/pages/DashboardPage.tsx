@@ -95,6 +95,9 @@ const DashboardPage: React.FC = () => {
   useEffect(() => {
     const loadReadiness = async () => {
       if (!events || events.length === 0) return;
+      // Postęp liczymy dla wydarzenia, nie dla pojedynczego stoiska. Bez zdjęcia wyboru
+      // stoiska z poprzedniej wizyty wynik zależałby od tego, gdzie wystawca był ostatnio.
+      (window as any).currentSelectedParticipationId = 0;
       try {
         const entries = await Promise.all(
           events.map(async (ev) => {

@@ -929,6 +929,25 @@ router.get('/exhibitions/:exhibitionId/exhibitors/:exhibitorId.json', async (req
       return res.status(404).json({ success: false, message: 'Exhibitor not found' });
     }
 
+    // Stoisko: lista wystawców zwraca po jednym wpisie na stoisko (`standId`), więc strona
+    // szczegółów musi umieć pokazać wskazane stoisko. Bez parametru – pierwsze stoisko.
+    const zadaneStoisko = parseInt(req.query.standId, 10);
+    const assignRes = await db.query(
+      Number.isInteger(zadaneStoisko)
+        ? `SELECT id AS participation_id, hall_name, stand_number, booth_area FROM exhibitor_events
+           WHERE exhibition_id = $1 AND exhibitor_id = $2 AND id = $3`
+        : `SELECT id AS participation_id, hall_name, stand_number, booth_area FROM exhibitor_events
+           WHERE exhibition_id = $1 AND exhibitor_id = $2 ORDER BY id ASC LIMIT 1`,
+      Number.isInteger(zadaneStoisko)
+        ? [exhibitionId, exhibitorId, zadaneStoisko]
+        : [exhibitionId, exhibitorId]
+    );
+    if (Number.isInteger(zadaneStoisko) && assignRes.rows.length === 0) {
+      return res.status(404).json({ success: false, message: 'Stand not found' });
+    }
+    const assign = assignRes.rows[0] || {};
+    const stoisko = assign.participation_id || null;
+
     // Company/catalog entry – prefer specific (per exhibition), fallback to global, fallback to base exhibitor
     const companyRows = await db.query(`
       WITH specific AS (
@@ -937,6 +956,7 @@ router.get('/exhibitions/:exhibitionId/exhibitors/:exhibitorId.json', async (req
                c.catalog_contact_person, c.catalog_contact_phone, c.catalog_contact_email
         FROM exhibitor_catalog_entries c
         WHERE c.exhibition_id = $1 AND c.exhibitor_id = $2
+          AND ($3::int IS NULL OR c.participation_id = $3::int)
         ORDER BY c.participation_id ASC NULLS LAST
         LIMIT 1
       ),
@@ -982,22 +1002,16 @@ router.get('/exhibitions/:exhibitionId/exhibitors/:exhibitorId.json', async (req
       LEFT JOIN global g ON g.exhibitor_id = b.exhibitor_id
       LEFT JOIN specific s ON s.exhibitor_id = b.exhibitor_id
       LIMIT 1
-    `, [exhibitionId, exhibitorId]);
+    `, [exhibitionId, exhibitorId, stoisko]);
 
     const company = companyRows.rows[0] || {};
 
-    // Exhibitor core details (nip + address) and stand assignment (hall/stand/area)
+    // Exhibitor core details (nip + address)
     const exhibitorCoreRes = await db.query(
       `SELECT nip, company_name, address, postal_code, city FROM exhibitors WHERE id = $1 LIMIT 1`,
       [exhibitorId]
     );
     const exhibitorCore = exhibitorCoreRes.rows[0] || {};
-    const assignRes = await db.query(
-      `SELECT id AS participation_id, hall_name, stand_number, booth_area FROM exhibitor_events
-       WHERE exhibition_id = $1 AND exhibitor_id = $2 ORDER BY id ASC LIMIT 1`,
-      [exhibitionId, exhibitorId]
-    );
-    const assign = assignRes.rows[0] || {};
 
     // Events for exhibitor at exhibition (include all fields)
     const eventsRes = await db.query(`
@@ -1117,6 +1131,7 @@ router.get('/exhibitions/:exhibitionId/exhibitors/:exhibitorId.json', async (req
         city: exhibitorCore.city || '',
       },
       stand: {
+        standId: String(assign.participation_id || ''),
         hallName: assign.hall_name || '',
         standNumber: assign.stand_number || '',
         boothArea: assign.booth_area === null ? '' : String(assign.booth_area),

@@ -1370,9 +1370,12 @@ export const unassignExhibitorFromEvent = async (
 export const fetchExhibitorAssignment = async (
   exhibitorId: number,
   exhibitionId: number,
-  token: string
-): Promise<{ success: boolean; data: { supervisorUserId: number | null; hallName: string; standNumber: string; boothArea: string } | null }> => {
-  const response = await apiCall(`${config.API_BASE_URL}/api/v1/exhibitors/${exhibitorId}/assign-event/${exhibitionId}`, {
+  token: string,
+  participationId?: number | null
+): Promise<{ success: boolean; data: { participationId?: number; supervisorUserId: number | null; hallName: string; standNumber: string; boothArea: string } | null }> => {
+  // Wskazanie stoiska jest istotne, gdy firma ma ich kilka na tym samym wydarzeniu.
+  const stoisko = participationId ? `?participationId=${participationId}` : '';
+  const response = await apiCall(`${config.API_BASE_URL}/api/v1/exhibitors/${exhibitorId}/assign-event/${exhibitionId}${stoisko}`, {
     method: 'GET',
     headers: { 'Authorization': `Bearer ${token}` },
   });

@@ -123,7 +123,9 @@ const EditExhibitorModal: React.FC<EditExhibitorModalProps> = ({
     try {
       setLoading(true);
       setError('');
-      await updateExhibitor(exhibitor.id, formValues, token);
+      // NIP zapisujemy jako same cyfry – tak samo, jak jest sprawdzany.
+      const doZapisu = { ...formValues, nip: String(formValues.nip || '').trim().replace(/^PL/i, '').replace(/[\s-]/g, '') };
+      await updateExhibitor(exhibitor.id, doZapisu, token);
       onExhibitorUpdated();
       onClose();
     } catch (err: any) {
