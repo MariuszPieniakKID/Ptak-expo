@@ -186,6 +186,7 @@ router.get('/exhibitions/:exhibitionId/feed.json', async (req, res) => {
                 e.address,
                 e.postal_code,
                 e.city,
+                ee.id AS participation_id,
                 ee.hall_name,
                 ee.stand_number,
                 ee.booth_area
@@ -196,7 +197,7 @@ router.get('/exhibitions/:exhibitionId/feed.json', async (req, res) => {
            AND e.company_name NOT LIKE '%Mariusz Pieniak%'
        ),
        specific AS (
-         SELECT c.exhibitor_id, c.name, c.logo, c.description, c.contact_info, c.website, c.socials, c.contact_email,
+         SELECT c.exhibitor_id, c.participation_id, c.name, c.logo, c.description, c.contact_info, c.website, c.socials, c.contact_email,
                 c.catalog_tags, c.products, c.brands, c.industries, c.display_name, c.why_visit,
                 c.catalog_contact_person, c.catalog_contact_phone, c.catalog_contact_email
          FROM exhibitor_catalog_entries c
@@ -220,6 +221,7 @@ router.get('/exhibitions/:exhibitionId/feed.json', async (req, res) => {
          FROM exhibitors
        )
       SELECT a.exhibitor_id,
+             a.participation_id,
              a.nip,
              a.address,
              a.postal_code,
@@ -250,7 +252,7 @@ router.get('/exhibitions/:exhibitionId/feed.json', async (req, res) => {
       FROM assigned a
       LEFT JOIN base b ON b.exhibitor_id = a.exhibitor_id
       LEFT JOIN global g ON g.exhibitor_id = a.exhibitor_id
-      LEFT JOIN specific s ON s.exhibitor_id = a.exhibitor_id
+      LEFT JOIN specific s ON s.participation_id = a.participation_id
       ORDER BY COALESCE(s.name, g.name, b.name) ASC`,
       [exhibitionId]
     );
@@ -275,6 +277,7 @@ router.get('/exhibitions/:exhibitionId/feed.json', async (req, res) => {
       
       return {
         exhibitorId: String(r.exhibitor_id || ''),
+        standId: String(r.participation_id || ''),
         name: r.name || '',
         displayName: r.display_name || '',
         description: r.description || '',
@@ -325,6 +328,7 @@ router.get('/exhibitions/:exhibitionId/exhibitors', async (req, res) => {
                 e.address,
                 e.postal_code,
                 e.city,
+                ee.id AS participation_id,
                 ee.hall_name,
                 ee.stand_number,
                 ee.booth_area
@@ -335,7 +339,7 @@ router.get('/exhibitions/:exhibitionId/exhibitors', async (req, res) => {
            AND e.company_name NOT LIKE '%Mariusz Pieniak%'
        ),
        specific AS (
-         SELECT c.exhibitor_id, c.name, c.logo, c.description, c.contact_info, c.website, c.socials, c.contact_email, c.catalog_tags, c.products,
+         SELECT c.exhibitor_id, c.participation_id, c.name, c.logo, c.description, c.contact_info, c.website, c.socials, c.contact_email, c.catalog_tags, c.products,
                 c.catalog_contact_person, c.catalog_contact_phone, c.catalog_contact_email
          FROM exhibitor_catalog_entries c
          WHERE c.exhibition_id = $1
@@ -356,6 +360,7 @@ router.get('/exhibitions/:exhibitionId/exhibitors', async (req, res) => {
          FROM exhibitors
        )
        SELECT a.exhibitor_id,
+              a.participation_id,
               a.nip,
               a.address,
               a.postal_code,
@@ -382,7 +387,7 @@ router.get('/exhibitions/:exhibitionId/exhibitors', async (req, res) => {
               COALESCE(s.catalog_contact_phone, g.catalog_contact_phone) AS catalog_contact_phone,
               COALESCE(s.catalog_contact_email, g.catalog_contact_email) AS catalog_contact_email
        FROM assigned a
-       LEFT JOIN specific s ON s.exhibitor_id = a.exhibitor_id
+       LEFT JOIN specific s ON s.participation_id = a.participation_id
        LEFT JOIN global g ON g.exhibitor_id = a.exhibitor_id
        LEFT JOIN base b ON b.exhibitor_id = a.exhibitor_id
        ORDER BY COALESCE(s.name, g.name, b.name) ASC`,
@@ -491,6 +496,7 @@ router.get('/exhibitions/:exhibitionId/exhibitors.json', async (req, res) => {
                 e.address,
                 e.postal_code,
                 e.city,
+                ee.id AS participation_id,
                 ee.hall_name,
                 ee.stand_number,
                 ee.booth_area
@@ -501,7 +507,7 @@ router.get('/exhibitions/:exhibitionId/exhibitors.json', async (req, res) => {
            AND e.company_name NOT LIKE '%Mariusz Pieniak%'
        ),
        specific AS (
-         SELECT c.exhibitor_id, c.name, c.logo, c.description, c.contact_info, c.website, c.socials, c.contact_email,
+         SELECT c.exhibitor_id, c.participation_id, c.name, c.logo, c.description, c.contact_info, c.website, c.socials, c.contact_email,
                 c.catalog_tags, c.products, c.brands, c.industries, c.display_name, c.why_visit,
                 c.catalog_contact_person, c.catalog_contact_phone, c.catalog_contact_email
          FROM exhibitor_catalog_entries c
@@ -525,6 +531,7 @@ router.get('/exhibitions/:exhibitionId/exhibitors.json', async (req, res) => {
          FROM exhibitors
        )
        SELECT a.exhibitor_id,
+              a.participation_id,
               a.nip,
               a.address,
               a.postal_code,
@@ -555,7 +562,7 @@ router.get('/exhibitions/:exhibitionId/exhibitors.json', async (req, res) => {
        FROM assigned a
        LEFT JOIN base b ON b.exhibitor_id = a.exhibitor_id
        LEFT JOIN global g ON g.exhibitor_id = a.exhibitor_id
-       LEFT JOIN specific s ON s.exhibitor_id = a.exhibitor_id
+       LEFT JOIN specific s ON s.participation_id = a.participation_id
        ORDER BY COALESCE(s.name, g.name, b.name) ASC`,
       [exhibitionId]
     );
@@ -648,6 +655,7 @@ router.get('/exhibitions/:exhibitionId/exhibitors.json', async (req, res) => {
       
       return {
         exhibitorId: String(r.exhibitor_id || ''),
+        standId: String(r.participation_id || ''),
         companyInfo: {
           name: r.name || '',
           displayName: r.display_name || '',
@@ -806,7 +814,7 @@ router.get('/', async (req, res) => {
     for (const ev of exhibitionsRes.rows) {
       const exhibitorsRes = await db.query(`
         WITH assigned AS (
-          SELECT e.id AS exhibitor_id
+          SELECT e.id AS exhibitor_id, ee.id AS participation_id
           FROM exhibitor_events ee
           JOIN exhibitors e ON e.id = ee.exhibitor_id
           WHERE ee.exhibition_id = $1
@@ -814,7 +822,7 @@ router.get('/', async (req, res) => {
             AND e.company_name NOT LIKE '%Mariusz Pieniak%'
         ),
         specific AS (
-          SELECT c.exhibitor_id, c.name, c.display_name, c.updated_at
+          SELECT c.exhibitor_id, c.participation_id, c.name, c.display_name, c.updated_at
           FROM exhibitor_catalog_entries c
           WHERE c.exhibition_id = $1
         ),
@@ -826,9 +834,10 @@ router.get('/', async (req, res) => {
           ORDER BY c.exhibitor_id, c.updated_at DESC
         )
         SELECT a.exhibitor_id,
+               a.participation_id,
                COALESCE(s.display_name, s.name, g.display_name, g.name, ex.company_name) AS display_name
         FROM assigned a
-        LEFT JOIN specific s ON s.exhibitor_id = a.exhibitor_id
+        LEFT JOIN specific s ON s.participation_id = a.participation_id
         LEFT JOIN global g ON g.exhibitor_id = a.exhibitor_id
         LEFT JOIN exhibitors ex ON ex.id = a.exhibitor_id
         ORDER BY COALESCE(s.display_name, s.name, g.display_name, g.name, ex.company_name) ASC
@@ -923,11 +932,13 @@ router.get('/exhibitions/:exhibitionId/exhibitors/:exhibitorId.json', async (req
     // Company/catalog entry – prefer specific (per exhibition), fallback to global, fallback to base exhibitor
     const companyRows = await db.query(`
       WITH specific AS (
-        SELECT c.exhibitor_id, c.name, c.logo, c.description, c.contact_info, c.website, c.socials, c.contact_email,
+        SELECT c.exhibitor_id, c.participation_id, c.name, c.logo, c.description, c.contact_info, c.website, c.socials, c.contact_email,
                c.catalog_tags, c.products, c.brands, c.industries, c.display_name, c.why_visit,
                c.catalog_contact_person, c.catalog_contact_phone, c.catalog_contact_email
         FROM exhibitor_catalog_entries c
         WHERE c.exhibition_id = $1 AND c.exhibitor_id = $2
+        ORDER BY c.participation_id ASC NULLS LAST
+        LIMIT 1
       ),
       global AS (
         SELECT DISTINCT ON (c.exhibitor_id)
@@ -982,7 +993,8 @@ router.get('/exhibitions/:exhibitionId/exhibitors/:exhibitorId.json', async (req
     );
     const exhibitorCore = exhibitorCoreRes.rows[0] || {};
     const assignRes = await db.query(
-      `SELECT hall_name, stand_number, booth_area FROM exhibitor_events WHERE exhibition_id = $1 AND exhibitor_id = $2 LIMIT 1`,
+      `SELECT id AS participation_id, hall_name, stand_number, booth_area FROM exhibitor_events
+       WHERE exhibition_id = $1 AND exhibitor_id = $2 ORDER BY id ASC LIMIT 1`,
       [exhibitionId, exhibitorId]
     );
     const assign = assignRes.rows[0] || {};
@@ -1150,11 +1162,13 @@ router.get('/exhibitions/:exhibitionId/exhibitors/:exhibitorId.rss', async (req,
     // We replicate minimal queries here to avoid an extra HTTP call
     const companyRows = await db.query(`
       WITH specific AS (
-        SELECT c.exhibitor_id, c.name, c.logo, c.description, c.contact_info, c.website, c.socials, c.contact_email,
+        SELECT c.exhibitor_id, c.participation_id, c.name, c.logo, c.description, c.contact_info, c.website, c.socials, c.contact_email,
                c.catalog_tags, c.products, c.brands, c.industries, c.display_name, c.why_visit,
                c.catalog_contact_person, c.catalog_contact_phone, c.catalog_contact_email
         FROM exhibitor_catalog_entries c
         WHERE c.exhibition_id = $1 AND c.exhibitor_id = $2
+        ORDER BY c.participation_id ASC NULLS LAST
+        LIMIT 1
       ),
       global AS (
         SELECT DISTINCT ON (c.exhibitor_id)
