@@ -6,6 +6,24 @@ const { sendEmail } = require('../utils/emailService');
 const path = require('path');
 const fs = require('fs').promises;
 
+// Publiczne feedy dociągają dane osobno dla każdego wystawcy. Przy dużym wydarzeniu
+// (ponad 500 firm) uruchomienie wszystkich zapytań naraz wyczerpywało pulę połączeń do bazy
+// i cała aplikacja przestawała odpowiadać – łącznie z logowaniem. Dlatego pracujemy paczkami.
+const LIMIT_ROWNOLEGLYCH_ZAPYTAN = 5;
+
+const mapujZOgraniczeniem = async (elementy, funkcja, limit = LIMIT_ROWNOLEGLYCH_ZAPYTAN) => {
+  const wyniki = new Array(elementy.length);
+  let nastepny = 0;
+  const pracownik = async () => {
+    while (nastepny < elementy.length) {
+      const i = nastepny++;
+      wyniki[i] = await funkcja(elementy[i], i);
+    }
+  };
+  await Promise.all(Array.from({ length: Math.min(limit, elementy.length) }, pracownik));
+  return wyniki;
+};
+
 // Middleware to allow iframe embedding for document view endpoints
 router.use('/exhibitions/:exhibitionId/exhibitors/:exhibitorId/documents/:documentId/view', (req, res, next) => {
   // Remove X-Frame-Options header set by helmet to allow iframe embedding
@@ -414,7 +432,7 @@ router.get('/exhibitions/:exhibitionId/exhibitors', async (req, res) => {
     };
 
     // Build exhibitors array - need to fetch phone data for each
-    const exhibitorsWithContacts = await Promise.all(rows.rows.map(async (r) => {
+    const exhibitorsWithContacts = await mapujZOgraniczeniem(rows.rows, (async (r) => {
       // Convert product images to URLs
       const products = Array.isArray(r.products) 
         ? r.products.map(p => ({
@@ -584,7 +602,7 @@ router.get('/exhibitions/:exhibitionId/exhibitors.json', async (req, res) => {
     };
 
     // Build exhibitors array with full data
-    const exhibitors = await Promise.all(rows.rows.map(async (r) => {
+    const exhibitors = await mapujZOgraniczeniem(rows.rows, (async (r) => {
       // Get events for this exhibitor
       const eventsRes = await db.query(`
         SELECT id, exhibition_id, exhibitor_id, name, event_date, start_time, end_time, hall, organizer, description, type, link, created_at, updated_at

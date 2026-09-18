@@ -296,6 +296,20 @@ app.use((error, req, res, next) => {
   });
 });
 
+// Awaria pojedynczego żądania nie może kładć całego serwera.
+//
+// Express nie przechwytuje odrzuconych obietnic z funkcji async, więc np. przeciążona pula
+// połączeń do bazy potrafiła wywalić proces (i po wyczerpaniu prób restartu zostawić
+// aplikację martwą). Logujemy głośno i pracujemy dalej – pojedyncze żądanie się nie uda,
+// ale logowanie i reszta systemu zostają dostępne.
+process.on('unhandledRejection', (powod) => {
+  console.error('❌ Nieobsłużone odrzucenie obietnicy (serwer pracuje dalej):', powod && powod.stack ? powod.stack : powod);
+});
+
+process.on('uncaughtException', (blad) => {
+  console.error('❌ Nieprzechwycony wyjątek (serwer pracuje dalej):', blad && blad.stack ? blad.stack : blad);
+});
+
 // Start server
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 PTAK EXPO Backend API running on port ${PORT}`);
