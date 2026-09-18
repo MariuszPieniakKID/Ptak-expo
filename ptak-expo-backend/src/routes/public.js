@@ -6,24 +6,6 @@ const { sendEmail } = require('../utils/emailService');
 const path = require('path');
 const fs = require('fs').promises;
 
-// Publiczne feedy dociągają dane osobno dla każdego wystawcy. Przy dużym wydarzeniu
-// (ponad 500 firm) uruchomienie wszystkich zapytań naraz wyczerpywało pulę połączeń do bazy
-// i cała aplikacja przestawała odpowiadać – łącznie z logowaniem. Dlatego pracujemy paczkami.
-const LIMIT_ROWNOLEGLYCH_ZAPYTAN = 5;
-
-const mapujZOgraniczeniem = async (elementy, funkcja, limit = LIMIT_ROWNOLEGLYCH_ZAPYTAN) => {
-  const wyniki = new Array(elementy.length);
-  let nastepny = 0;
-  const pracownik = async () => {
-    while (nastepny < elementy.length) {
-      const i = nastepny++;
-      wyniki[i] = await funkcja(elementy[i], i);
-    }
-  };
-  await Promise.all(Array.from({ length: Math.min(limit, elementy.length) }, pracownik));
-  return wyniki;
-};
-
 // Middleware to allow iframe embedding for document view endpoints
 router.use('/exhibitions/:exhibitionId/exhibitors/:exhibitorId/documents/:documentId/view', (req, res, next) => {
   // Remove X-Frame-Options header set by helmet to allow iframe embedding
@@ -432,7 +414,7 @@ router.get('/exhibitions/:exhibitionId/exhibitors', async (req, res) => {
     };
 
     // Build exhibitors array - need to fetch phone data for each
-    const exhibitorsWithContacts = await mapujZOgraniczeniem(rows.rows, (async (r) => {
+    const exhibitorsWithContacts = rows.rows.map(((r) => {
       // Convert product images to URLs
       const products = Array.isArray(r.products) 
         ? r.products.map(p => ({
@@ -601,32 +583,49 @@ router.get('/exhibitions/:exhibitionId/exhibitors.json', async (req, res) => {
       return `${siteLink}/api/v1/exhibitor-branding/serve/global/${encodeURIComponent(s)}`;
     };
 
-    // Build exhibitors array with full data
-    const exhibitors = await mapujZOgraniczeniem(rows.rows, (async (r) => {
-      // Get events for this exhibitor
-      const eventsRes = await db.query(`
+    // Wydarzenia, dokumenty i osoby pobieramy trzema zapytaniami dla wszystkich firm naraz.
+    // Wcześniej każdy wystawca miał własne trzy zapytania (przy 527 firmach ponad 1500),
+    // co zajmowało całą pulę połączeń i zatrzymywało aplikację.
+    const idWystawcow = rows.rows.map((r) => r.exhibitor_id);
+    const [wszystkieWydarzenia, wszystkieDokumenty, wszystkieOsoby] = await Promise.all([
+      db.query(`
         SELECT id, exhibition_id, exhibitor_id, name, event_date, start_time, end_time, hall, organizer, description, type, link, created_at, updated_at
         FROM trade_events
-        WHERE exhibition_id = $1 AND exhibitor_id = $2
-        ORDER BY event_date ASC, start_time ASC
-      `, [exhibitionId, r.exhibitor_id]);
-
-      // Get documents for this exhibitor (exclude catalog_images like logos)
-      const docsRes = await db.query(`
-        SELECT id, title, description, file_name, original_name, file_size, mime_type, category, created_at
+        WHERE exhibition_id = $1 AND exhibitor_id = ANY($2::int[])
+        ORDER BY event_date ASC, start_time ASC, id ASC
+      `, [exhibitionId, idWystawcow]),
+      db.query(`
+        SELECT id, title, description, file_name, original_name, file_size, mime_type, category, created_at, exhibitor_id
         FROM exhibitor_documents
-        WHERE exhibitor_id = $1 AND exhibition_id = $2
+        WHERE exhibition_id = $1 AND exhibitor_id = ANY($2::int[])
           AND (document_source IS NULL OR document_source != 'catalog_images')
-        ORDER BY category, created_at DESC
-      `, [r.exhibitor_id, exhibitionId]);
-
-      // Get people for this exhibitor
-      const peopleRes = await db.query(`
-        SELECT id, full_name, position, email, created_at
+        ORDER BY category, created_at DESC, id ASC
+      `, [exhibitionId, idWystawcow]),
+      db.query(`
+        SELECT id, full_name, position, email, created_at, exhibitor_id
         FROM exhibitor_people
-        WHERE exhibitor_id = $1 AND exhibition_id = $2
-        ORDER BY created_at DESC
-      `, [r.exhibitor_id, exhibitionId]);
+        WHERE exhibition_id = $1 AND exhibitor_id = ANY($2::int[])
+        ORDER BY created_at DESC, id ASC
+      `, [exhibitionId, idWystawcow]),
+    ]);
+
+    const pogrupuj = (wiersze) => {
+      const mapa = new Map();
+      for (const w of wiersze) {
+        const lista = mapa.get(w.exhibitor_id);
+        if (lista) lista.push(w); else mapa.set(w.exhibitor_id, [w]);
+      }
+      return mapa;
+    };
+    const wydarzeniaWystawcy = pogrupuj(wszystkieWydarzenia.rows);
+    const dokumentyWystawcy = pogrupuj(wszystkieDokumenty.rows);
+    const osobyWystawcy = pogrupuj(wszystkieOsoby.rows);
+
+    // Build exhibitors array with full data
+    const exhibitors = rows.rows.map(((r) => {
+      const eventsRes = { rows: wydarzeniaWystawcy.get(r.exhibitor_id) || [] };
+      const docsRes = { rows: dokumentyWystawcy.get(r.exhibitor_id) || [] };
+      const peopleRes = { rows: osobyWystawcy.get(r.exhibitor_id) || [] };
 
       const documents = docsRes.rows.map((d) => {
       const downloadUrl = `${siteLink}/public/exhibitions/${encodeURIComponent(String(exhibitionId))}/exhibitors/${encodeURIComponent(String(r.exhibitor_id))}/documents/${encodeURIComponent(String(d.id))}/download`;
@@ -701,7 +700,9 @@ router.get('/exhibitions/:exhibitionId/exhibitors.json', async (req, res) => {
         products: products,
         events: eventsRes.rows.map(e => sanitizeResponse(e)),
         documents,
-        people: peopleRes.rows.map(p => sanitizeResponse(p))
+        // `exhibitor_id` służy tylko do pogrupowania wyników zapytania zbiorczego –
+        // w odpowiedzi go nie pokazujemy, żeby format feedu został bez zmian.
+        people: peopleRes.rows.map(({ exhibitor_id, ...p }) => sanitizeResponse(p))
       };
     }));
 
