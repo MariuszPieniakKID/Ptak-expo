@@ -311,7 +311,7 @@ process.on('uncaughtException', (blad) => {
 });
 
 // Start server
-app.listen(PORT, '0.0.0.0', () => {
+const server = app.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 PTAK EXPO Backend API running on port ${PORT}`);
   console.log(`📊 Environment: ${process.env.NODE_ENV}`);
   console.log(`🔗 Health check: whepohttp://localhost:${PORT}/`);
@@ -355,6 +355,13 @@ app.listen(PORT, '0.0.0.0', () => {
   } else {
     console.log('🛑 Skipping database initialization to avoid touching remote DB in development');
   }
+});
+
+// Gdy nie udaje się zająć portu, proces nie ma po co żyć – inaczej udawałby sprawną
+// usługę, która nie obsługuje żadnego żądania. Kończymy, żeby platforma wstała od nowa.
+server.on('error', (blad) => {
+  console.error('❌ Nie udało się uruchomić serwera:', blad && blad.message ? blad.message : blad);
+  process.exit(1);
 });
 
 module.exports = app; 

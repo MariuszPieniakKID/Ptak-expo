@@ -6,6 +6,42 @@ const { sendEmail } = require('../utils/emailService');
 const path = require('path');
 const fs = require('fs').promises;
 
+// Krótkotrwały cache publicznych feedów.
+//
+// Feedy czyta strona targowa, często kilka razy pod rząd dla tego samego wydarzenia.
+// Dane zmieniają się rzadko, więc przez minutę oddajemy gotową odpowiedź z pamięci –
+// baza nie dostaje wtedy powtarzanego ruchu, a wystawcy widzą zmiany najdalej po minucie.
+const CZAS_ZYCIA_CACHE_MS = 60 * 1000;
+const MAKS_WPISOW_CACHE = 50;
+const cacheFeedow = new Map();
+
+const cachujFeed = (req, res, next) => {
+  const klucz = req.originalUrl;
+  const wpis = cacheFeedow.get(klucz);
+
+  if (wpis && Date.now() - wpis.czas < CZAS_ZYCIA_CACHE_MS) {
+    res.set('Content-Type', 'application/json; charset=utf-8');
+    res.set('X-Cache', 'HIT');
+    return res.send(wpis.tresc);
+  }
+
+  const wyslijJson = res.json.bind(res);
+  res.json = (dane) => {
+    if (res.statusCode === 200) {
+      cacheFeedow.delete(klucz);
+      cacheFeedow.set(klucz, { czas: Date.now(), tresc: JSON.stringify(dane) });
+      // Map zachowuje kolejność dodawania, więc usuwamy najstarszy wpis.
+      while (cacheFeedow.size > MAKS_WPISOW_CACHE) {
+        cacheFeedow.delete(cacheFeedow.keys().next().value);
+      }
+    }
+    res.set('X-Cache', 'MISS');
+    return wyslijJson(dane);
+  };
+
+  next();
+};
+
 // Middleware to allow iframe embedding for document view endpoints
 router.use('/exhibitions/:exhibitionId/exhibitors/:exhibitorId/documents/:documentId/view', (req, res, next) => {
   // Remove X-Frame-Options header set by helmet to allow iframe embedding
@@ -155,7 +191,7 @@ router.get('/exhibitions', async (req, res) => {
 });
 
 // Public: Generate and save JSON file for exhibition
-router.get('/exhibitions/:exhibitionId/feed.json', async (req, res) => {
+router.get('/exhibitions/:exhibitionId/feed.json', cachujFeed, async (req, res) => {
   try {
     const exhibitionId = parseInt(req.params.exhibitionId, 10);
     if (!Number.isInteger(exhibitionId)) {
@@ -309,7 +345,7 @@ router.get('/exhibitions/:exhibitionId/feed.json', async (req, res) => {
 });
 
 // Public: list exhibitors for a given exhibition with catalog details and products
-router.get('/exhibitions/:exhibitionId/exhibitors', async (req, res) => {
+router.get('/exhibitions/:exhibitionId/exhibitors', cachujFeed, async (req, res) => {
   try {
     const exhibitionId = parseInt(req.params.exhibitionId, 10);
     if (!Number.isInteger(exhibitionId)) {
@@ -474,7 +510,7 @@ router.get('/exhibitions/:exhibitionId/exhibitors', async (req, res) => {
 
 // Public: JSON feed with ALL exhibitors for a given exhibition (extended data)
 // GET /public/exhibitions/:exhibitionId/exhibitors.json
-router.get('/exhibitions/:exhibitionId/exhibitors.json', async (req, res) => {
+router.get('/exhibitions/:exhibitionId/exhibitors.json', cachujFeed, async (req, res) => {
   try {
     // Force HTTPS for all public URLs (even if request came via HTTP proxy)
     const siteLink = 'https://' + req.get('host');
@@ -920,7 +956,7 @@ router.get('/', async (req, res) => {
 
 // Public: JSON feed with FULL exhibitor checklist data for a given exhibition and exhibitor
 // GET /public/exhibitions/:exhibitionId/exhibitors/:exhibitorId.json
-router.get('/exhibitions/:exhibitionId/exhibitors/:exhibitorId.json', async (req, res) => {
+router.get('/exhibitions/:exhibitionId/exhibitors/:exhibitorId.json', cachujFeed, async (req, res) => {
   try {
     // Force HTTPS for all public URLs (even if request came via HTTP proxy)
     const siteLink = 'https://' + req.get('host');
