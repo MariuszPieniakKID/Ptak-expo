@@ -24,11 +24,17 @@ exports.listByExhibition = async (req, res) => {
       const me = await db.query('SELECT id FROM exhibitors WHERE email = $1 LIMIT 1', [req.user.email]);
       effectiveExhibitorId = me.rows?.[0]?.id || null;
       // Exhibitor should see official events (exhibitor_id IS NULL) and their own
+      // Numer stoiska bierzemy z jednego wpisu: przy kilku stoiskach firmy na tych targach
+      // zwykłe złączenie powielałoby każde wydarzenie tyle razy, ile firma ma stoisk.
       result = await db.query(
         `SELECT t.id, t.exhibition_id, t.exhibitor_id, t.name, t.event_date, t.start_time, t.end_time, t.hall, t.organizer, t.description, t.type, t.link, t.event_source, t.is_in_agenda,
                 ee.stand_number as booth_number
          FROM trade_events t
-         LEFT JOIN exhibitor_events ee ON t.exhibitor_id = ee.exhibitor_id AND t.exhibition_id = ee.exhibition_id
+         LEFT JOIN LATERAL (
+           SELECT stand_number FROM exhibitor_events
+           WHERE exhibitor_id = t.exhibitor_id AND exhibition_id = t.exhibition_id
+           ORDER BY id ASC LIMIT 1
+         ) ee ON true
          WHERE t.exhibition_id = $1 
            AND (t.exhibitor_id IS NULL OR t.exhibitor_id = $2)
          ORDER BY t.event_date ASC, t.start_time ASC`,
@@ -40,7 +46,11 @@ exports.listByExhibition = async (req, res) => {
         `SELECT t.id, t.exhibition_id, t.exhibitor_id, t.name, t.event_date, t.start_time, t.end_time, t.hall, t.organizer, t.description, t.type, t.link, t.event_source, t.is_in_agenda,
                 ee.stand_number as booth_number
          FROM trade_events t
-         LEFT JOIN exhibitor_events ee ON t.exhibitor_id = ee.exhibitor_id AND t.exhibition_id = ee.exhibition_id
+         LEFT JOIN LATERAL (
+           SELECT stand_number FROM exhibitor_events
+           WHERE exhibitor_id = t.exhibitor_id AND exhibition_id = t.exhibition_id
+           ORDER BY id ASC LIMIT 1
+         ) ee ON true
          WHERE t.exhibition_id = $1 
            AND ($2::int IS NULL OR t.exhibitor_id = $2)
          ORDER BY t.event_date ASC, t.start_time ASC`,

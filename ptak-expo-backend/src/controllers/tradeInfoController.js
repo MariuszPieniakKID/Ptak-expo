@@ -199,6 +199,7 @@ const getTradeInfo = async (req, res) => {
              FROM exhibitor_events ee
              LEFT JOIN users u ON u.id = ee.supervisor_user_id
              WHERE ee.exhibitor_id = $1 AND ee.exhibition_id = $2
+             ORDER BY ee.id ASC
              LIMIT 1`,
             [exhibitorId, exhibitionId]
           );
@@ -471,7 +472,7 @@ const broadcastTradeMessage = async (req, res) => {
     try {
       // Collect all exhibitors assigned to this exhibition with an email
       const q = await client.query(
-        `SELECT e.id AS exhibitor_id, e.email, e.company_name
+        `SELECT DISTINCT e.id AS exhibitor_id, e.email, e.company_name
          FROM exhibitor_events ee
          JOIN exhibitors e ON e.id = ee.exhibitor_id
          WHERE ee.exhibition_id = $1 AND e.email IS NOT NULL AND LENGTH(TRIM(e.email)) > 0`,
