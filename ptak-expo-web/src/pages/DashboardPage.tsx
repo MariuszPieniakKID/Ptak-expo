@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { exhibitionsAPI, brandingAPI } from "../services/api";
 import { getChecklist } from "../services/checkListApi";
+import { zapamietajWybraneStoisko } from "../contexts/ChecklistContext";
 import styles from "./DashboardPage.module.css";
 // import groupLogo from "../assets/group-257@3x.png";
 import Menu from "../components/Menu";
@@ -159,6 +160,7 @@ const DashboardPage: React.FC = () => {
   const handleEventSelect = (eventId: number, participationId?: number) => {
     // Navigate to the event home view for this event
     // Firma z kilkoma stoiskami na tym samym wydarzeniu wchodzi w konkretne stoisko.
+    zapamietajWybraneStoisko(eventId, participationId);
     const stoisko = participationId ? `?stoisko=${participationId}` : '';
     navigate(`/event/${eventId}/home${stoisko}`);
   };

@@ -39,13 +39,24 @@ const emptyChecklist: Checklist = {
 	products: []
 }
 
+const kluczWybranegoStoiska = (eventId: number) => `wybraneStoisko:${eventId}`;
+
+// Wywoływane przy wyborze kafelka: między dashboardem a checklistą jest strona
+// wydarzenia, z której przyciski nie przenoszą ?stoisko= w adresie.
+export const zapamietajWybraneStoisko = (eventId: number, participationId?: number) => {
+	try {
+		if (participationId) sessionStorage.setItem(kluczWybranegoStoiska(eventId), String(participationId));
+		else sessionStorage.removeItem(kluczWybranegoStoiska(eventId));
+	} catch {}
+};
+
 export const ChecklistProvider = ({ children, eventId }: {children: ReactNode, eventId: number}) => {
 	const [checklist, setChecklist] = useState<Checklist>(emptyChecklist);
 	// Wybrane stoisko: firma z dwoma stoiskami na tym samym wydarzeniu wchodzi w konkretne
 	// z adresu (?stoisko=), a checklista zapisuje dane tylko tego stoiska.
 	// Wybór pamiętamy per wydarzenie, bo linki w menu nie przenoszą parametru z adresu.
 	const participationId = (() => {
-		const pamiec = `wybraneStoisko:${eventId}`;
+		const pamiec = kluczWybranegoStoiska(eventId);
 		try {
 			const zAdresu = new URLSearchParams(window.location.search).get('stoisko');
 			if (zAdresu) {

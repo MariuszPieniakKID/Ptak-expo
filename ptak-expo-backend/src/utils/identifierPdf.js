@@ -175,7 +175,7 @@ async function buildIdentifierPdf(client, exhibitionId, payload, exhibitorId) {
           const res1 = await client.query(
             `SELECT logo FROM exhibitor_catalog_entries 
              WHERE exhibitor_id = $1 AND exhibition_id = $2 AND logo IS NOT NULL
-             ORDER BY updated_at DESC NULLS LAST, created_at DESC NULLS LAST
+             ORDER BY (participation_id IS NULL), updated_at DESC NULLS LAST, created_at DESC NULLS LAST
              LIMIT 1`,
             [exhibitorId, exhibitionId]
           );

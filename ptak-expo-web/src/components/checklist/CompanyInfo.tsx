@@ -727,6 +727,10 @@ export default function CompanyInfo() {
                 const token = localStorage.getItem("authToken") || "";
                 const exhibitionId =
                   Number((window as any).currentSelectedExhibitionId) || 0;
+                // Bez numeru stoiska backend zapisuje do pierwszego stoiska na targach,
+                // a ten zapis zeruje pozostałe pola firmy w trafionym wpisie.
+                const participationId =
+                  Number((window as any).currentSelectedParticipationId) || 0;
                 await fetch(
                   `${config.API_BASE_URL}/api/v1/catalog/${exhibitionId}`,
                   {
@@ -735,7 +739,10 @@ export default function CompanyInfo() {
                       "Content-Type": "application/json",
                       Authorization: `Bearer ${token}`,
                     },
-                    body: JSON.stringify({ industries: final.join(",") }),
+                    body: JSON.stringify({
+                      industries: final.join(","),
+                      ...(participationId > 0 ? { participationId } : {}),
+                    }),
                   }
                 );
               } catch {}
