@@ -177,9 +177,12 @@ const ensureUploadDir = async (exhibitorId, exhibitionId) => {
 
 // Upload branding file
 const uploadBrandingFile = async (req, res) => {
-  const client = await pool.connect();
-  
+  // Połączenie bierzemy wewnątrz `try`. Gdy pula jest zajęta, `pool.connect()` odrzuca
+  // obietnicę – poza blokiem obsługi błędów kończyło się to ubiciem całego procesu.
+  let client;
+
   try {
+    client = await pool.connect();
     const { exhibitorId, exhibitionId, fileType } = req.body;
     const uploadedFile = req.file;
 
@@ -394,16 +397,18 @@ const uploadBrandingFile = async (req, res) => {
       message: error.message
     });
   } finally {
-    client.release();
+    if (client) client.release();
   }
 };
 
 // Get branding files for exhibitor and exhibition
 const getBrandingFiles = async (req, res) => {
   // Get branding files
-  const client = await pool.connect();
-  
+  // Jak wyżej: przy wyczerpanej puli połączeń to właśnie tu wywracał się cały serwer.
+  let client;
+
   try {
+    client = await pool.connect();
     const { exhibitorId, exhibitionId } = req.params;
 
     if (!exhibitorId || !exhibitionId) {
@@ -478,15 +483,16 @@ const getBrandingFiles = async (req, res) => {
       message: error.message
     });
   } finally {
-    client.release();
+    if (client) client.release();
   }
 };
 
 // Delete branding file
 const deleteBrandingFile = async (req, res) => {
-  const client = await pool.connect();
-  
+  let client;
+
   try {
+    client = await pool.connect();
     const { fileId } = req.params;
     const { exhibitorId } = req.body;
 
@@ -536,7 +542,7 @@ const deleteBrandingFile = async (req, res) => {
       message: error.message
     });
   } finally {
-    client.release();
+    if (client) client.release();
   }
 };
 
