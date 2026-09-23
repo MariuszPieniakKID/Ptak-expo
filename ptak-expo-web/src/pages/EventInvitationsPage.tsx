@@ -53,8 +53,12 @@ const EventInvitationsPage = () => {
   const [showPreview, setShowPreview] = useState<boolean>(false);
   const editorRef = useRef<HTMLDivElement | null>(null);
   const [editorHtml, setEditorHtml] = useState<string>("");
+  const [sendError, setSendError] = useState<string>("");
+  const isValidEmail =
+    guestEmail.trim() === "" ||
+    /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(guestEmail.trim());
   const isFormValid = Boolean(
-    guestName.trim() && guestEmail.trim() && selectedTemplateId
+    guestName.trim() && guestEmail.trim() && isValidEmail && selectedTemplateId
   );
 
   useEffect(() => {
@@ -181,6 +185,7 @@ const EventInvitationsPage = () => {
       return;
     }
     setIsSending(true);
+    setSendError("");
     try {
       const idNum = Number(eventId);
       const res = await invitationsAPI.send(
@@ -205,8 +210,12 @@ const EventInvitationsPage = () => {
         setInvitationsBlocked(true);
         setBlockMessage(msg);
         alert(msg);
+      } else {
+        setSendError(
+          e?.response?.data?.message ||
+            "Nie udało się wysłać zaproszenia. Spróbuj ponownie."
+        );
       }
-      // other errors shown in console by axios interceptor if needed
     } finally {
       setIsSending(false);
     }
@@ -494,8 +503,15 @@ const EventInvitationsPage = () => {
                         className={styles.eventInvitationInput}
                         fullWidth
                         value={guestEmail}
-                        onChange={(e) => setGuestEmail(e.target.value)}
+                        onChange={(e) => {
+                          setGuestEmail(e.target.value);
+                          setSendError("");
+                        }}
                         type="email"
+                        error={!isValidEmail}
+                        helperText={
+                          !isValidEmail && "To nie jest poprawny adres e-mail"
+                        }
                       />
                       {/* Invitation type selector */}
                       <TextField
@@ -640,15 +656,19 @@ const EventInvitationsPage = () => {
                         sx={{ mt: 1 }}
                         onClick={handleSend}
                         disabled={
-                          invitationsBlocked ||
-                          isSending ||
-                          !guestName.trim() ||
-                          !guestEmail.trim() ||
-                          !selectedTemplateId
+                          invitationsBlocked || isSending || !isFormValid
                         }
                       >
                         {isSending ? "Wysyłanie…" : "Wyślij zaproszenie"}
                       </Button>
+                      {sendError && (
+                        <Typography
+                          role="alert"
+                          sx={{ mt: 1, color: "#d32f2f", fontSize: "13px" }}
+                        >
+                          {sendError}
+                        </Typography>
+                      )}
 
                       <Button
                         variant="contained"

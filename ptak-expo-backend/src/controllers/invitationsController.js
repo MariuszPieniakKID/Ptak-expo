@@ -364,6 +364,10 @@ const sendInvitation = async (req, res) => {
     if (!exhibitionId || !templateId || !recipientEmail) {
       return res.status(400).json({ success: false, message: 'Wymagane: exhibitionId, templateId, recipientEmail' });
     }
+    // Sprawdzamy przed jakimkolwiek zapisem: dalej powstaje wpis odbiorcy i e-identyfikator gościa.
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(String(recipientEmail).trim())) {
+      return res.status(400).json({ success: false, code: 'INVALID_EMAIL', message: 'To nie jest poprawny adres e-mail' });
+    }
 
     const client = await pool.connect();
     try {
