@@ -180,6 +180,12 @@ const ExhibitorCardPage: React.FC = () => {
       setIsAdditionalStandOpen(false);
       try { (window as any).__prefillExhibitorAssign = null; } catch {}
   }, []);
+  // Dane edytowanego stoiska nie mogą przetrwać zamknięcia okna edycji – inaczej
+  // „dodaj wydarzenie" otworzyłoby się w trybie edycji i nadpisało to stoisko.
+  const handleEditEventClose = useCallback((): void => {
+      setIsEditEventOpen(false);
+      try { (window as any).__prefillExhibitorAssign = null; } catch {}
+  }, []);
   const handleEventToExhibitiorAdd = useCallback((): void => {
       setIsEventAddToExhibitorn(false);
       setIsAdditionalStandOpen(false);
@@ -758,8 +764,8 @@ const ExhibitorCardPage: React.FC = () => {
       {exhibitor && isEditEventOpen && (
         <AddEventToExhibitorModal
           isOpen={isEditEventOpen}
-          onClose={() => setIsEditEventOpen(false)}
-          onEventToExhibitiorAdd={() => { setIsEditEventOpen(false); loadExhibitor(); }}
+          onClose={handleEditEventClose}
+          onEventToExhibitiorAdd={() => { handleEditEventClose(); loadExhibitor(); }}
           token={token || ''}
           exhibitorId={exhibitor.id}
           companyName={exhibitor.companyName}

@@ -195,17 +195,22 @@ const AddEventToExhibitorModal: React.FC<AddEventToExhibitorModalProps> = ({
 
 
 
+  // Listy ładujemy osobno od odczytu danych kafelka: `loadExhibitions` zmienia się po
+  // wejściu w tryb edycji, a wspólny efekt czyścił wtedy formularz i gubił dane stoiska.
+  useEffect(() => {
+    if (isOpen) {
+      loadExhibitions();
+      loadExhibitionSupervisors();
+    }
+  }, [isOpen, loadExhibitions, loadExhibitionSupervisors]);
+
   useEffect(() => {
     if (isOpen) {
       resetForm();
-      loadExhibitions();
-      loadExhibitionSupervisors();
       try {
+        // Dane edytowanego kafelka czyści karta wystawcy przy zamknięciu okna edycji.
+        // Kasowane tutaj ginęły, bo efekt potrafi wykonać się kilka razy na jedno otwarcie.
         const prefill = (window as any).__prefillExhibitorAssign;
-        // Dane edytowanego kafelka zużywamy raz. Zostawione na później wchodziły do
-        // kolejnego otwarcia okna: „dodaj kolejne stoisko" trafiało wtedy w tryb edycji
-        // i zamiast nowego stoiska nadpisywało istniejące.
-        delete (window as any).__prefillExhibitorAssign;
         if (prefill && !isAdditionalStandMode) {
           setFormEventValues((prev) => ({
             ...prev,
@@ -235,7 +240,7 @@ const AddEventToExhibitorModal: React.FC<AddEventToExhibitorModalProps> = ({
         }
       } catch {}
     }
-  }, [isOpen, resetForm, loadExhibitions, loadExhibitionSupervisors, isAdditionalStandMode]);
+  }, [isOpen, resetForm, isAdditionalStandMode]);
 
   type FormEventValuesKeys = keyof EventProps;
   type FormAddExhibitorModalFields = FormEventValuesKeys;
