@@ -83,6 +83,8 @@ const AddEventToExhibitorModal: React.FC<AddEventToExhibitorModalProps> = ({
   const [prefillExhibitionId, setPrefillExhibitionId] = useState<number | null>(null);
   const [prefillParticipationId, setPrefillParticipationId] = useState<number | null>(null);
   const isAdditionalStandMode = mode === 'additionalStand';
+  // '' = automatycznie (najświeższe dane firmy), inaczej participationId stoiska-wzoru.
+  const [copyFromParticipationId, setCopyFromParticipationId] = useState<string>('');
   const [formErrors, setFormErrors] = useState<Record<string, string>>({
     selectedExhibitionId: '',
     standNumber: '',
@@ -107,6 +109,20 @@ const AddEventToExhibitorModal: React.FC<AddEventToExhibitorModalProps> = ({
         exh.end_date
       ).toLocaleDateString('pl-PL')}`,
     })),
+  ];
+  const copySourceOptions: OptionType[] = [
+    { value: '', label: 'Najnowsze dane firmy (automatycznie)' },
+    ...(exhibitorEvents ?? [])
+      .filter(ev => ev.participationId)
+      .map(ev => {
+        const stoisko = [ev.hallName, ev.standNumber].filter(Boolean).join(' / ');
+        const daty = `${new Date(ev.start_date).toLocaleDateString('pl-PL')} - ${new Date(ev.end_date).toLocaleDateString('pl-PL')}`;
+        return {
+          value: String(ev.participationId),
+          label: ev.name,
+          description: stoisko ? `${daty}, stoisko: ${stoisko}` : daty,
+        };
+      }),
   ];
   const exhibitionSupervisorOptions: OptionType[] = [
      { value: '', label: '' },
@@ -133,6 +149,7 @@ const AddEventToExhibitorModal: React.FC<AddEventToExhibitorModalProps> = ({
       exhibitionSupervisor: '',
       boothArea: '',
     });
+    setCopyFromParticipationId('');
     setError('');
   }, []);
 
@@ -301,6 +318,7 @@ const AddEventToExhibitorModal: React.FC<AddEventToExhibitorModalProps> = ({
           {
             participationId: isEditMode ? prefillParticipationId : null,
             additionalStand: isAdditionalStandMode,
+            copyFromParticipationId: !isEditMode && copyFromParticipationId ? Number(copyFromParticipationId) : null,
           },
         );
 
@@ -326,7 +344,8 @@ const AddEventToExhibitorModal: React.FC<AddEventToExhibitorModalProps> = ({
         token,
         isEditMode,
         prefillParticipationId,
-        isAdditionalStandMode
+        isAdditionalStandMode,
+        copyFromParticipationId
     ]
   );
 
@@ -471,6 +490,28 @@ const AddEventToExhibitorModal: React.FC<AddEventToExhibitorModalProps> = ({
                   errorMessage={formErrors.exhibitionSupervisor}
                 />
               </Box>
+
+              {!isEditMode && copySourceOptions.length > 1 && (
+                <Box className={styles.singleFormRow}>
+                  <CustomTypography className={styles.textInModal}>
+                    Dane katalogu (logo, opis, produkty) skopiuj z
+                  </CustomTypography>
+                </Box>
+              )}
+              {!isEditMode && copySourceOptions.length > 1 && (
+                <Box className={styles.singleFormRow}>
+                  <CustomField
+                    type="copyFromParticipationId"
+                    label="Skopiuj dane katalogu (logo, opis, produkty) z wydarzenia"
+                    value={copyFromParticipationId}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) => setCopyFromParticipationId(e.target.value)}
+                    options={copySourceOptions}
+                    forceSelectionFromOptions={true}
+                    placeholder="Najnowsze dane firmy (automatycznie)"
+                    fullWidth
+                  />
+                </Box>
+              )}
 
               <Box className={styles.formRowFooterWithAction}>
                 

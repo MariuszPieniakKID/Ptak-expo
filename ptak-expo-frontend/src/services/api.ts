@@ -1319,7 +1319,8 @@ export const assignExhibitorToEvent = async (
   boothArea?: number | null,
   // `participationId` edytuje konkretne stoisko, `additionalStand` dokłada kolejne
   // do wydarzenia, na którym wystawca już jest.
-  options?: { participationId?: number | null; additionalStand?: boolean },
+  // `copyFromParticipationId` – stoisko, z którego nowy udział kopiuje dane katalogu.
+  options?: { participationId?: number | null; additionalStand?: boolean; copyFromParticipationId?: number | null },
 ): Promise<{ success: boolean; message: string; assignment: any }> => {
   const response = await apiCall(`${config.API_BASE_URL}/api/v1/exhibitors/${exhibitorId}/assign-event`, {
     method: 'POST',
@@ -1335,6 +1336,7 @@ export const assignExhibitorToEvent = async (
       boothArea: typeof boothArea === 'number' ? boothArea : boothArea ?? null,
       participationId: options?.participationId ?? null,
       additionalStand: options?.additionalStand === true,
+      copyFromParticipationId: options?.copyFromParticipationId ?? null,
     }),
   });
 

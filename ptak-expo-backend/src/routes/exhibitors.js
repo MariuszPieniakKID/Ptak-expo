@@ -902,6 +902,23 @@ router.post('/:id/assign-event', verifyToken, requireAdmin, async (req, res) => 
     const requestedParticipationId = parseInt(req.body.participationId, 10);
     const wantsAdditionalStand = req.body.additionalStand === true;
 
+    // Stoisko-wzór dla danych katalogu nowego udziału. Musi należeć do tego samego konta,
+    // inaczej dało się skopiować cudze logo i opis.
+    const copyFromParticipationId = parseInt(req.body.copyFromParticipationId, 10);
+    if (Number.isInteger(copyFromParticipationId)) {
+      const wzor = await db.query(
+        'SELECT id FROM exhibitor_events WHERE id = $1 AND exhibitor_id = $2',
+        [copyFromParticipationId, id]
+      );
+      if (wzor.rows.length === 0) {
+        return res.status(400).json({
+          success: false,
+          error: 'Wskazane wydarzenie-wzór nie należy do tego wystawcy'
+        });
+      }
+    }
+    const zrodloDanych = Number.isInteger(copyFromParticipationId) ? copyFromParticipationId : null;
+
     let participation = null;
     let created = false;
 
@@ -923,7 +940,8 @@ router.post('/:id/assign-event', verifyToken, requireAdmin, async (req, res) => 
       });
     } else if (wantsAdditionalStand) {
       participation = await createParticipation({
-        exhibitorId: id, exhibitionId, supervisorUserId, hallName, standNumber, boothArea
+        exhibitorId: id, exhibitionId, supervisorUserId, hallName, standNumber, boothArea,
+        copyFromParticipationId: zrodloDanych
       });
       created = true;
     } else {
@@ -934,7 +952,8 @@ router.post('/:id/assign-event', verifyToken, requireAdmin, async (req, res) => 
         });
       } else {
         participation = await createParticipation({
-          exhibitorId: id, exhibitionId, supervisorUserId, hallName, standNumber, boothArea
+          exhibitorId: id, exhibitionId, supervisorUserId, hallName, standNumber, boothArea,
+          copyFromParticipationId: zrodloDanych
         });
         created = true;
       }

@@ -33,9 +33,9 @@ const COPIED_CATALOG_COLUMNS = [
 // inaczej nowy kafelek byłby bez logo albo bez produktów.
 const TEXT_COLUMNS = COPIED_CATALOG_COLUMNS.filter((c) => c !== 'products');
 
-const findCatalogSource = async (client, exhibitorId, exhibitionId) => {
-  // Źródłem jest najświeższe uczestnictwo – najpierw inne stoisko na tym samym
-  // wydarzeniu, potem poprzednie targi.
+const findCatalogSource = async (client, exhibitorId, exhibitionId, sourceParticipationId = null) => {
+  // Źródłem jest stoisko wskazane przez administratora, a bez wskazania najświeższe
+  // uczestnictwo – najpierw inne stoisko na tym samym wydarzeniu, potem poprzednie targi.
   const merged = TEXT_COLUMNS
     .map((col) => `COALESCE(NULLIF(ev.${col}, ''), gl.${col}) AS ${col}`)
     .join(',\n       ');
@@ -44,6 +44,7 @@ const findCatalogSource = async (client, exhibitorId, exhibitionId) => {
     `WITH ev AS (
        SELECT * FROM exhibitor_catalog_entries
        WHERE exhibitor_id = $1 AND exhibition_id IS NOT NULL
+         AND ($3::int IS NULL OR participation_id = $3::int)
        ORDER BY (exhibition_id = $2) DESC, updated_at DESC NULLS LAST
        LIMIT 1
      ), gl AS (
@@ -61,7 +62,7 @@ const findCatalogSource = async (client, exhibitorId, exhibitionId) => {
      FROM (SELECT 1) x
      LEFT JOIN ev ON true
      LEFT JOIN gl ON true`,
-    [exhibitorId, exhibitionId]
+    [exhibitorId, exhibitionId, sourceParticipationId || null]
   );
 
   const row = res.rows[0];
@@ -69,14 +70,14 @@ const findCatalogSource = async (client, exhibitorId, exhibitionId) => {
 };
 
 // Zakłada wpis katalogowy nowego stoiska jako kopię dotychczasowych danych firmy.
-const seedCatalogEntry = async (client, { exhibitorId, exhibitionId, participationId }) => {
+const seedCatalogEntry = async (client, { exhibitorId, exhibitionId, participationId, sourceParticipationId = null }) => {
   const existing = await client.query(
     'SELECT id FROM exhibitor_catalog_entries WHERE participation_id = $1 LIMIT 1',
     [participationId]
   );
   if (existing.rows.length > 0) return existing.rows[0].id;
 
-  const source = await findCatalogSource(client, exhibitorId, exhibitionId);
+  const source = await findCatalogSource(client, exhibitorId, exhibitionId, sourceParticipationId);
   if (!source) return null;
 
   // `products` to jsonb – bez jawnego JSON.stringify sterownik zamieniłby tablicę JS
@@ -100,9 +101,10 @@ const seedCatalogEntry = async (client, { exhibitorId, exhibitionId, participati
   return res.rows[0].id;
 };
 
-// Tworzy nowe stoisko wraz z kopią danych katalogowych.
+// Tworzy nowe stoisko wraz z kopią danych katalogowych. `copyFromParticipationId`
+// wskazuje stoisko, którego dane mają być wzorem (firma może mieć inny opis na każdych targach).
 const createParticipation = async (
-  { exhibitorId, exhibitionId, supervisorUserId, hallName, standNumber, boothArea },
+  { exhibitorId, exhibitionId, supervisorUserId, hallName, standNumber, boothArea, copyFromParticipationId = null },
   client = db
 ) => {
   // Limit i blokada zaproszeń są ustawieniem firmy na wydarzeniu, więc kolejne stoisko
@@ -140,6 +142,7 @@ const createParticipation = async (
       exhibitorId,
       exhibitionId,
       participationId: participation.id,
+      sourceParticipationId: copyFromParticipationId,
     });
   } catch (e) {
     // Brak kopii danych nie może blokować przypisania do wydarzenia.
