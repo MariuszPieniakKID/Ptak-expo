@@ -346,6 +346,7 @@ const server = app.listen(PORT, '0.0.0.0', () => {
     db.initializeDatabase()
       .then(() => {
         console.log('✅ Database initialization completed');
+        require('./services/hubspotStandSync').startScheduler();
       })
       .catch((error) => {
         console.error('❌ Database initialization failed:', error.message);

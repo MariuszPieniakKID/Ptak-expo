@@ -19,6 +19,7 @@ import InvitationsTab from './InvitationsTab';
 import DictionariesTab from './DictionariesTab';
 import LogsTab from './LogsTab';
 import MailingTab from './MailingTab';
+import HubspotSyncTab from './HubspotSyncTab';
 
 import styles from '../usersPage/UsersPage.module.scss';
 import { ExhibitorPerson, fetchExhibitorPeople, fetchExhibitors, Exhibitor, fetchExhibitions, Exhibition } from '../../services/api';
@@ -237,6 +238,7 @@ const DatabasePage: React.FC = () => {
                 <Tab label="Zaproszenia" />
                 <Tab label="Logi" />
                 <Tab label="Mailing" />
+                <Tab label="HubSpot" />
               </Tabs>
             </Box>
 
@@ -432,6 +434,13 @@ const DatabasePage: React.FC = () => {
               {currentTab === 4 && token && (
                 <Box>
                   <MailingTab token={token} />
+                </Box>
+              )}
+
+              {/* Tab: HubSpot */}
+              {currentTab === 5 && token && (
+                <Box>
+                  <HubspotSyncTab token={token} />
                 </Box>
               )}
             </Box>

@@ -1115,6 +1115,36 @@ const initializeDatabase = async () => {
       console.error('❌ Błąd migracji wielostoiskowości:', e.message);
     }
 
+    // Synchronizacja hal i numerów stoisk z HubSpot
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS hubspot_sync_runs (
+        id SERIAL PRIMARY KEY,
+        mode VARCHAR(20) NOT NULL,
+        started_at TIMESTAMPTZ DEFAULT NOW(),
+        finished_at TIMESTAMPTZ,
+        stats JSONB,
+        problems JSONB,
+        changes JSONB,
+        error TEXT
+      )
+    `);
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_hubspot_sync_runs_started ON hubspot_sync_runs(started_at DESC)`);
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS hubspot_stand_changes (
+        id SERIAL PRIMARY KEY,
+        exhibitor_event_id INTEGER,
+        exhibitor_id INTEGER,
+        exhibition_id INTEGER,
+        hubspot_deal_id VARCHAR(50),
+        old_hall VARCHAR(100),
+        new_hall VARCHAR(100),
+        old_stand VARCHAR(100),
+        new_stand VARCHAR(100),
+        created_at TIMESTAMPTZ DEFAULT NOW()
+      )
+    `);
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_hubspot_stand_changes_created ON hubspot_stand_changes(created_at DESC)`);
+
     // Activity logs table for tracking user actions
     console.log('🔍 Creating activity_logs table...');
     await pool.query(`
