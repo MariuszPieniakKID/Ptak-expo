@@ -174,6 +174,46 @@ const ensureHttps = (url) => {
   return trimmedUrl;
 };
 
+// Publiczny identyfikator karty wystawcy w feedach.
+//
+// Strona targowa rozróżnia karty po `exhibitorId`. Firma z kilkoma stoiskami na jednych targach
+// ma jedno konto, więc bez tego wszystkie jej stoiska miałyby ten sam identyfikator – strona
+// powielała wtedy firmę i na karcie każdego stoiska pokazywała dane pierwszego. Pierwsze stoisko
+// zachowuje id konta (dotychczasowe linki działają bez zmian), każde kolejne dostaje
+// PRZESUNIECIE_ID_STOISKA + id stoiska. Przesunięcie jest dużo większe niż liczba kont.
+const PRZESUNIECIE_ID_STOISKA = 1000000;
+
+const publiczneIdKarty = (exhibitorId, participationId, pierwszeStoiskoId) =>
+  !participationId || Number(participationId) === Number(pierwszeStoiskoId)
+    ? String(exhibitorId)
+    : String(PRZESUNIECIE_ID_STOISKA + Number(participationId));
+
+// Zamienia identyfikator z adresu na konto i stoisko. Zwraca null, gdy stoisko nie należy do targów.
+const rozpoznajKarte = async (exhibitionId, idZAdresu, standIdZZapytania) => {
+  const id = parseInt(idZAdresu, 10);
+  if (!Number.isInteger(id)) return null;
+  const pierwsze = async (exhibitorId) => {
+    const r = await db.query(
+      'SELECT MIN(id) AS id FROM exhibitor_events WHERE exhibition_id = $1 AND exhibitor_id = $2',
+      [exhibitionId, exhibitorId]
+    );
+    return r.rows[0] && r.rows[0].id ? Number(r.rows[0].id) : null;
+  };
+  if (id >= PRZESUNIECIE_ID_STOISKA) {
+    const r = await db.query(
+      'SELECT exhibitor_id FROM exhibitor_events WHERE id = $1 AND exhibition_id = $2',
+      [id - PRZESUNIECIE_ID_STOISKA, exhibitionId]
+    );
+    if (!r.rows.length) return null;
+    const exhibitorId = Number(r.rows[0].exhibitor_id);
+    return { exhibitorId, standId: id - PRZESUNIECIE_ID_STOISKA, pierwszeStoiskoId: await pierwsze(exhibitorId), publiczneId: String(id) };
+  }
+  const pierwszeStoiskoId = await pierwsze(id);
+  const zadane = parseInt(standIdZZapytania, 10);
+  const standId = Number.isInteger(zadane) ? zadane : pierwszeStoiskoId;
+  return { exhibitorId: id, standId, pierwszeStoiskoId, publiczneId: publiczneIdKarty(id, standId, pierwszeStoiskoId) };
+};
+
 // Public: list all exhibitions ordered by start_date (JSON)
 router.get('/exhibitions', async (req, res) => {
   try {
@@ -225,7 +265,8 @@ router.get('/exhibitions/:exhibitionId/feed.json', cachujFeed, async (req, res) 
                 ee.id AS participation_id,
                 ee.hall_name,
                 ee.stand_number,
-                ee.booth_area
+                ee.booth_area,
+                MIN(ee.id) OVER (PARTITION BY ee.exhibitor_id) AS first_participation_id
          FROM exhibitor_events ee
          JOIN exhibitors e ON e.id = ee.exhibitor_id
          WHERE ee.exhibition_id = $1
@@ -258,6 +299,7 @@ router.get('/exhibitions/:exhibitionId/feed.json', cachujFeed, async (req, res) 
        )
       SELECT a.exhibitor_id,
              a.participation_id,
+             a.first_participation_id,
              a.nip,
              a.address,
              a.postal_code,
@@ -289,7 +331,7 @@ router.get('/exhibitions/:exhibitionId/feed.json', cachujFeed, async (req, res) 
       LEFT JOIN base b ON b.exhibitor_id = a.exhibitor_id
       LEFT JOIN global g ON g.exhibitor_id = a.exhibitor_id
       LEFT JOIN specific s ON s.participation_id = a.participation_id
-      ORDER BY COALESCE(s.name, g.name, b.name) ASC`,
+      ORDER BY COALESCE(s.name, g.name, b.name) ASC, a.participation_id ASC`,
       [exhibitionId]
     );
 
@@ -312,7 +354,8 @@ router.get('/exhibitions/:exhibitionId/feed.json', cachujFeed, async (req, res) 
       }));
       
       return {
-        exhibitorId: String(r.exhibitor_id || ''),
+        exhibitorId: publiczneIdKarty(r.exhibitor_id, r.participation_id, r.first_participation_id),
+        accountId: String(r.exhibitor_id || ''),
         standId: String(r.participation_id || ''),
         name: r.name || '',
         displayName: r.display_name || '',
@@ -367,7 +410,8 @@ router.get('/exhibitions/:exhibitionId/exhibitors', cachujFeed, async (req, res)
                 ee.id AS participation_id,
                 ee.hall_name,
                 ee.stand_number,
-                ee.booth_area
+                ee.booth_area,
+                MIN(ee.id) OVER (PARTITION BY ee.exhibitor_id) AS first_participation_id
          FROM exhibitor_events ee
          JOIN exhibitors e ON e.id = ee.exhibitor_id
          WHERE ee.exhibition_id = $1
@@ -397,6 +441,7 @@ router.get('/exhibitions/:exhibitionId/exhibitors', cachujFeed, async (req, res)
        )
        SELECT a.exhibitor_id,
               a.participation_id,
+              a.first_participation_id,
               a.nip,
               a.address,
               a.postal_code,
@@ -426,7 +471,7 @@ router.get('/exhibitions/:exhibitionId/exhibitors', cachujFeed, async (req, res)
        LEFT JOIN specific s ON s.participation_id = a.participation_id
        LEFT JOIN global g ON g.exhibitor_id = a.exhibitor_id
        LEFT JOIN base b ON b.exhibitor_id = a.exhibitor_id
-       ORDER BY COALESCE(s.name, g.name, b.name) ASC`,
+       ORDER BY COALESCE(s.name, g.name, b.name) ASC, a.participation_id ASC`,
       [exhibitionId]
     );
 
@@ -472,7 +517,9 @@ router.get('/exhibitions/:exhibitionId/exhibitors', cachujFeed, async (req, res)
       const contactEmail = r.catalog_contact_email || '';
       
       return {
-        exhibitor_id: String(r.exhibitor_id || ''),
+        exhibitor_id: publiczneIdKarty(r.exhibitor_id, r.participation_id, r.first_participation_id),
+        account_id: String(r.exhibitor_id || ''),
+        stand_id: String(r.participation_id || ''),
         name: r.name || '',
         description: r.description || '',
         contactPerson: contactPerson,
@@ -535,7 +582,8 @@ router.get('/exhibitions/:exhibitionId/exhibitors.json', cachujFeed, async (req,
                 ee.id AS participation_id,
                 ee.hall_name,
                 ee.stand_number,
-                ee.booth_area
+                ee.booth_area,
+                MIN(ee.id) OVER (PARTITION BY ee.exhibitor_id) AS first_participation_id
          FROM exhibitor_events ee
          JOIN exhibitors e ON e.id = ee.exhibitor_id
          WHERE ee.exhibition_id = $1
@@ -568,6 +616,7 @@ router.get('/exhibitions/:exhibitionId/exhibitors.json', cachujFeed, async (req,
        )
        SELECT a.exhibitor_id,
               a.participation_id,
+              a.first_participation_id,
               a.nip,
               a.address,
               a.postal_code,
@@ -599,7 +648,7 @@ router.get('/exhibitions/:exhibitionId/exhibitors.json', cachujFeed, async (req,
        LEFT JOIN base b ON b.exhibitor_id = a.exhibitor_id
        LEFT JOIN global g ON g.exhibitor_id = a.exhibitor_id
        LEFT JOIN specific s ON s.participation_id = a.participation_id
-       ORDER BY COALESCE(s.name, g.name, b.name) ASC`,
+       ORDER BY COALESCE(s.name, g.name, b.name) ASC, a.participation_id ASC`,
       [exhibitionId]
     );
 
@@ -632,43 +681,49 @@ router.get('/exhibitions/:exhibitionId/exhibitors.json', cachujFeed, async (req,
     const idWystawcow = rows.rows.map((r) => r.exhibitor_id);
     const [wszystkieWydarzenia, wszystkieDokumenty, wszystkieOsoby] = await Promise.all([
       db.query(`
-        SELECT id, exhibition_id, exhibitor_id, name, event_date, start_time, end_time, hall, organizer, description, type, link, created_at, updated_at
+        SELECT id, exhibition_id, exhibitor_id, participation_id, name, event_date, start_time, end_time, hall, organizer, description, type, link, created_at, updated_at
         FROM trade_events
         WHERE exhibition_id = $1 AND exhibitor_id = ANY($2::int[])
         ORDER BY event_date ASC, start_time ASC, id ASC
       `, [exhibitionId, idWystawcow]),
       db.query(`
-        SELECT id, title, description, file_name, original_name, file_size, mime_type, category, created_at, exhibitor_id
+        SELECT id, title, description, file_name, original_name, file_size, mime_type, category, created_at, exhibitor_id, participation_id
         FROM exhibitor_documents
         WHERE exhibition_id = $1 AND exhibitor_id = ANY($2::int[])
           AND (document_source IS NULL OR document_source != 'catalog_images')
         ORDER BY category, created_at DESC, id ASC
       `, [exhibitionId, idWystawcow]),
       db.query(`
-        SELECT id, full_name, position, email, created_at, exhibitor_id
+        SELECT id, full_name, position, email, created_at, exhibitor_id, participation_id
         FROM exhibitor_people
         WHERE exhibition_id = $1 AND exhibitor_id = ANY($2::int[])
         ORDER BY created_at DESC, id ASC
       `, [exhibitionId, idWystawcow]),
     ]);
 
+    // Wiersze przypisane do stoiska idą na jego kartę; nieprzypisane – na kartę pierwszego stoiska firmy.
     const pogrupuj = (wiersze) => {
       const mapa = new Map();
       for (const w of wiersze) {
-        const lista = mapa.get(w.exhibitor_id);
-        if (lista) lista.push(w); else mapa.set(w.exhibitor_id, [w]);
+        const klucz = w.participation_id ? `s${w.participation_id}` : `w${w.exhibitor_id}`;
+        const lista = mapa.get(klucz);
+        if (lista) lista.push(w); else mapa.set(klucz, [w]);
       }
       return mapa;
     };
+    const dlaStoiska = (mapa, r) => [
+      ...(mapa.get(`s${r.participation_id}`) || []),
+      ...(Number(r.participation_id) === Number(r.first_participation_id) ? (mapa.get(`w${r.exhibitor_id}`) || []) : []),
+    ];
     const wydarzeniaWystawcy = pogrupuj(wszystkieWydarzenia.rows);
     const dokumentyWystawcy = pogrupuj(wszystkieDokumenty.rows);
     const osobyWystawcy = pogrupuj(wszystkieOsoby.rows);
 
     // Build exhibitors array with full data
     const exhibitors = rows.rows.map(((r) => {
-      const eventsRes = { rows: wydarzeniaWystawcy.get(r.exhibitor_id) || [] };
-      const docsRes = { rows: dokumentyWystawcy.get(r.exhibitor_id) || [] };
-      const peopleRes = { rows: osobyWystawcy.get(r.exhibitor_id) || [] };
+      const eventsRes = { rows: dlaStoiska(wydarzeniaWystawcy, r).map(({ participation_id, ...e }) => e) };
+      const docsRes = { rows: dlaStoiska(dokumentyWystawcy, r) };
+      const peopleRes = { rows: dlaStoiska(osobyWystawcy, r) };
 
       const documents = docsRes.rows.map((d) => {
       const downloadUrl = `${siteLink}/public/exhibitions/${encodeURIComponent(String(exhibitionId))}/exhibitors/${encodeURIComponent(String(r.exhibitor_id))}/documents/${encodeURIComponent(String(d.id))}/download`;
@@ -707,7 +762,8 @@ router.get('/exhibitions/:exhibitionId/exhibitors.json', cachujFeed, async (req,
       const contactEmail = r.catalog_contact_email || '';
       
       return {
-        exhibitorId: String(r.exhibitor_id || ''),
+        exhibitorId: publiczneIdKarty(r.exhibitor_id, r.participation_id, r.first_participation_id),
+        accountId: String(r.exhibitor_id || ''),
         standId: String(r.participation_id || ''),
         companyInfo: {
           name: r.name || '',
@@ -746,7 +802,7 @@ router.get('/exhibitions/:exhibitionId/exhibitors.json', cachujFeed, async (req,
         documents,
         // `exhibitor_id` służy tylko do pogrupowania wyników zapytania zbiorczego –
         // w odpowiedzi go nie pokazujemy, żeby format feedu został bez zmian.
-        people: peopleRes.rows.map(({ exhibitor_id, ...p }) => sanitizeResponse(p))
+        people: peopleRes.rows.map(({ exhibitor_id, participation_id, ...p }) => sanitizeResponse(p))
       };
     }));
 
@@ -869,7 +925,8 @@ router.get('/', async (req, res) => {
     for (const ev of exhibitionsRes.rows) {
       const exhibitorsRes = await db.query(`
         WITH assigned AS (
-          SELECT e.id AS exhibitor_id, ee.id AS participation_id
+          SELECT e.id AS exhibitor_id, ee.id AS participation_id,
+                 MIN(ee.id) OVER (PARTITION BY ee.exhibitor_id) AS first_participation_id
           FROM exhibitor_events ee
           JOIN exhibitors e ON e.id = ee.exhibitor_id
           WHERE ee.exhibition_id = $1
@@ -890,6 +947,7 @@ router.get('/', async (req, res) => {
         )
         SELECT a.exhibitor_id,
                a.participation_id,
+               a.first_participation_id,
                COALESCE(s.display_name, s.name, g.display_name, g.name, ex.company_name) AS display_name
         FROM assigned a
         LEFT JOIN specific s ON s.participation_id = a.participation_id
@@ -939,8 +997,9 @@ router.get('/', async (req, res) => {
         ${exhibitors.length === 0 ? '<div class="empty">Brak przypisanych wystawców</div>' : ''}
         <ul>
           ${exhibitors.map((x) => {
-            const json = `${siteLink}/public/exhibitions/${encodeURIComponent(String(ev.id))}/exhibitors/${encodeURIComponent(String(x.exhibitor_id))}.json`;
-            const rss = `${siteLink}/public/exhibitions/${encodeURIComponent(String(ev.id))}/exhibitors/${encodeURIComponent(String(x.exhibitor_id))}.rss`;
+            const idKarty = publiczneIdKarty(x.exhibitor_id, x.participation_id, x.first_participation_id);
+            const json = `${siteLink}/public/exhibitions/${encodeURIComponent(String(ev.id))}/exhibitors/${encodeURIComponent(idKarty)}.json`;
+            const rss = `${siteLink}/public/exhibitions/${encodeURIComponent(String(ev.id))}/exhibitors/${encodeURIComponent(idKarty)}.rss`;
             return `<li>${escapeHtml(x.display_name || ('Wystawca #' + x.exhibitor_id))}
               <span class="links">[
                 <a href="${json}">JSON</a> ·
@@ -970,10 +1029,14 @@ router.get('/exhibitions/:exhibitionId/exhibitors/:exhibitorId.json', cachujFeed
     // Force HTTPS for all public URLs (even if request came via HTTP proxy)
     const siteLink = 'https://' + req.get('host');
     const exhibitionId = parseInt(req.params.exhibitionId, 10);
-    const exhibitorId = parseInt(req.params.exhibitorId, 10);
-    if (!Number.isInteger(exhibitionId) || !Number.isInteger(exhibitorId)) {
+    if (!Number.isInteger(exhibitionId) || !Number.isInteger(parseInt(req.params.exhibitorId, 10))) {
       return res.status(400).json({ success: false, message: 'Invalid exhibitionId or exhibitorId' });
     }
+    const karta = await rozpoznajKarte(exhibitionId, req.params.exhibitorId, req.query.standId);
+    if (!karta) {
+      return res.status(404).json({ success: false, message: 'Stand not found' });
+    }
+    const exhibitorId = karta.exhibitorId;
 
     // Check if this is a test exhibitor (should be excluded from public feeds)
     const testCheck = await db.query(
@@ -984,24 +1047,17 @@ router.get('/exhibitions/:exhibitionId/exhibitors/:exhibitorId.json', cachujFeed
       return res.status(404).json({ success: false, message: 'Exhibitor not found' });
     }
 
-    // Stoisko: lista wystawców zwraca po jednym wpisie na stoisko (`standId`), więc strona
-    // szczegółów musi umieć pokazać wskazane stoisko. Bez parametru – pierwsze stoisko.
-    const zadaneStoisko = parseInt(req.query.standId, 10);
     const assignRes = await db.query(
-      Number.isInteger(zadaneStoisko)
-        ? `SELECT id AS participation_id, hall_name, stand_number, booth_area FROM exhibitor_events
-           WHERE exhibition_id = $1 AND exhibitor_id = $2 AND id = $3`
-        : `SELECT id AS participation_id, hall_name, stand_number, booth_area FROM exhibitor_events
-           WHERE exhibition_id = $1 AND exhibitor_id = $2 ORDER BY id ASC LIMIT 1`,
-      Number.isInteger(zadaneStoisko)
-        ? [exhibitionId, exhibitorId, zadaneStoisko]
-        : [exhibitionId, exhibitorId]
+      `SELECT id AS participation_id, hall_name, stand_number, booth_area FROM exhibitor_events
+       WHERE exhibition_id = $1 AND exhibitor_id = $2 AND id = $3`,
+      [exhibitionId, exhibitorId, karta.standId]
     );
-    if (Number.isInteger(zadaneStoisko) && assignRes.rows.length === 0) {
+    if (karta.standId && assignRes.rows.length === 0) {
       return res.status(404).json({ success: false, message: 'Stand not found' });
     }
     const assign = assignRes.rows[0] || {};
     const stoisko = assign.participation_id || null;
+    const czyPierwszeStoisko = !stoisko || Number(stoisko) === Number(karta.pierwszeStoiskoId);
 
     // Company/catalog entry – prefer specific (per exhibition), fallback to global, fallback to base exhibitor
     const companyRows = await db.query(`
@@ -1068,30 +1124,31 @@ router.get('/exhibitions/:exhibitionId/exhibitors/:exhibitorId.json', cachujFeed
     );
     const exhibitorCore = exhibitorCoreRes.rows[0] || {};
 
-    // Events for exhibitor at exhibition (include all fields)
+    // Wydarzenia, dokumenty i osoby tego stoiska; nieprzypisane do stoiska – tylko na karcie pierwszego.
+    const tegoStoiska = `($3::int IS NULL OR participation_id = $3::int OR (participation_id IS NULL AND $4::boolean))`;
     const eventsRes = await db.query(`
       SELECT id, exhibition_id, exhibitor_id, name, event_date, start_time, end_time, hall, organizer, description, type, link, created_at, updated_at
       FROM trade_events
-      WHERE exhibition_id = $1 AND exhibitor_id = $2
+      WHERE exhibition_id = $1 AND exhibitor_id = $2 AND ${tegoStoiska}
       ORDER BY event_date ASC, start_time ASC
-    `, [exhibitionId, exhibitorId]);
+    `, [exhibitionId, exhibitorId, stoisko, czyPierwszeStoisko]);
 
     // Documents for exhibitor at exhibition with download URLs (exclude catalog_images like logos)
     const docsRes = await db.query(`
       SELECT id, title, description, file_name, original_name, file_size, mime_type, category, created_at
       FROM exhibitor_documents
-      WHERE exhibitor_id = $1 AND exhibition_id = $2
+      WHERE exhibitor_id = $2 AND exhibition_id = $1 AND ${tegoStoiska}
         AND (document_source IS NULL OR document_source != 'catalog_images')
       ORDER BY category, created_at DESC
-    `, [exhibitorId, exhibitionId]);
+    `, [exhibitionId, exhibitorId, stoisko, czyPierwszeStoisko]);
 
     // Electronic IDs (people) for exhibitor
     const peopleRes = await db.query(`
       SELECT id, full_name, position, email, created_at
       FROM exhibitor_people
-      WHERE exhibitor_id = $1 AND exhibition_id = $2
+      WHERE exhibitor_id = $2 AND exhibition_id = $1 AND ${tegoStoiska}
       ORDER BY created_at DESC
-    `, [exhibitorId, exhibitionId]);
+    `, [exhibitionId, exhibitorId, stoisko, czyPierwszeStoisko]);
 
     const documents = docsRes.rows.map((d) => {
       const downloadUrl = `${siteLink}/public/exhibitions/${encodeURIComponent(String(exhibitionId))}/exhibitors/${encodeURIComponent(String(exhibitorId))}/documents/${encodeURIComponent(String(d.id))}/download`;
@@ -1156,7 +1213,8 @@ router.get('/exhibitions/:exhibitionId/exhibitors/:exhibitorId.json', cachujFeed
     const payload = {
       success: true,
       exhibitionId: String(exhibitionId),
-      exhibitorId: String(exhibitorId),
+      exhibitorId: karta.publiczneId,
+      accountId: String(exhibitorId),
       companyInfo: {
         name: company.name || '',
         displayName: company.display_name || '',
@@ -1214,10 +1272,17 @@ router.get('/exhibitions/:exhibitionId/exhibitors/:exhibitorId.rss', async (req,
     // Force HTTPS for all public URLs (even if request came via HTTP proxy)
     const siteLink = 'https://' + req.get('host');
     const exhibitionId = parseInt(req.params.exhibitionId, 10);
-    const exhibitorId = parseInt(req.params.exhibitorId, 10);
-    if (!Number.isInteger(exhibitionId) || !Number.isInteger(exhibitorId)) {
+    if (!Number.isInteger(exhibitionId) || !Number.isInteger(parseInt(req.params.exhibitorId, 10))) {
       return res.status(400).send('Invalid exhibitionId or exhibitorId');
     }
+    const karta = await rozpoznajKarte(exhibitionId, req.params.exhibitorId, req.query.standId);
+    if (!karta) {
+      return res.status(404).send('Stand not found');
+    }
+    const exhibitorId = karta.exhibitorId;
+    const stoisko = karta.standId || null;
+    const czyPierwszeStoisko = !stoisko || Number(stoisko) === Number(karta.pierwszeStoiskoId);
+    const tegoStoiska = `($3::int IS NULL OR participation_id = $3::int OR (participation_id IS NULL AND $4::boolean))`;
 
     // Check if this is a test exhibitor (should be excluded from public feeds)
     const testCheck = await db.query(
@@ -1237,6 +1302,7 @@ router.get('/exhibitions/:exhibitionId/exhibitors/:exhibitorId.rss', async (req,
                c.catalog_contact_person, c.catalog_contact_phone, c.catalog_contact_email
         FROM exhibitor_catalog_entries c
         WHERE c.exhibition_id = $1 AND c.exhibitor_id = $2
+          AND ($3::int IS NULL OR c.participation_id = $3::int)
         ORDER BY c.participation_id ASC NULLS LAST
         LIMIT 1
       ),
@@ -1282,24 +1348,24 @@ router.get('/exhibitions/:exhibitionId/exhibitors/:exhibitorId.rss', async (req,
       LEFT JOIN global g ON g.exhibitor_id = b.exhibitor_id
       LEFT JOIN specific s ON s.exhibitor_id = b.exhibitor_id
       LIMIT 1
-    `, [exhibitionId, exhibitorId]);
+    `, [exhibitionId, exhibitorId, stoisko]);
 
     const company = companyRows.rows[0] || {};
 
     const eventsRes = await db.query(`
       SELECT id, name, event_date, start_time, end_time, hall, organizer, description, type, link, created_at
       FROM trade_events
-      WHERE exhibition_id = $1 AND exhibitor_id = $2
+      WHERE exhibition_id = $1 AND exhibitor_id = $2 AND ${tegoStoiska}
       ORDER BY event_date ASC, start_time ASC
-    `, [exhibitionId, exhibitorId]);
+    `, [exhibitionId, exhibitorId, stoisko, czyPierwszeStoisko]);
 
     const docsRes = await db.query(`
       SELECT id, title, description, file_name, original_name, file_size, mime_type, category, created_at
       FROM exhibitor_documents
-      WHERE exhibitor_id = $1 AND exhibition_id = $2
+      WHERE exhibitor_id = $2 AND exhibition_id = $1 AND ${tegoStoiska}
         AND (document_source IS NULL OR document_source != 'catalog_images')
       ORDER BY category, created_at DESC
-    `, [exhibitorId, exhibitionId]);
+    `, [exhibitionId, exhibitorId, stoisko, czyPierwszeStoisko]);
 
 
     const escapeXml = (s) => String(s || '')
@@ -1359,8 +1425,8 @@ router.get('/exhibitions/:exhibitionId/exhibitors/:exhibitorId.rss', async (req,
     items.push(
       `      <item>
         <title>${escapeXml(company.display_name || company.name || 'Firma')}</title>
-        <link>${siteLink}/public/exhibitions/${exhibitionId}/exhibitors/${exhibitorId}.json</link>
-        <guid isPermaLink="false">company-${exhibitorId}-${exhibitionId}</guid>
+        <link>${siteLink}/public/exhibitions/${exhibitionId}/exhibitors/${karta.publiczneId}.json</link>
+        <guid isPermaLink="false">company-${karta.publiczneId}-${exhibitionId}</guid>
         <description>${companyDesc}</description>
         <category>company</category>
         <pubDate>${new Date().toUTCString()}</pubDate>
@@ -1375,7 +1441,7 @@ router.get('/exhibitions/:exhibitionId/exhibitors/:exhibitorId.rss', async (req,
         `      <item>
         <title>${escapeXml(p.name || 'Produkt')}</title>
         <link>${escapeXml(p.img || (siteLink + '/public'))}</link>
-        <guid isPermaLink="false">product-${exhibitorId}-${exhibitionId}-${idx}</guid>
+        <guid isPermaLink="false">product-${karta.publiczneId}-${exhibitionId}-${idx}</guid>
         <description>${pDesc}</description>
         <category>product</category>
         <pubDate>${new Date().toUTCString()}</pubDate>
@@ -1427,15 +1493,15 @@ router.get('/exhibitions/:exhibitionId/exhibitors/:exhibitorId.rss', async (req,
     const peopleRes = await db.query(`
       SELECT id, full_name, position, email, created_at
       FROM exhibitor_people
-      WHERE exhibitor_id = $1 AND exhibition_id = $2
+      WHERE exhibitor_id = $2 AND exhibition_id = $1 AND ${tegoStoiska}
       ORDER BY created_at DESC
-    `, [exhibitorId, exhibitionId]);
+    `, [exhibitionId, exhibitorId, stoisko, czyPierwszeStoisko]);
     peopleRes.rows.forEach((p) => {
       const pDesc = [p.position ? `Rola: ${escapeXml(p.position)}` : '', p.email ? `Email: ${escapeXml(p.email)}` : ''].filter(Boolean).join(' | ');
       items.push(
         `      <item>
         <title>${escapeXml(p.full_name || 'Osoba')}</title>
-        <link>${siteLink}/public/exhibitions/${exhibitionId}/exhibitors/${exhibitorId}.json</link>
+        <link>${siteLink}/public/exhibitions/${exhibitionId}/exhibitors/${karta.publiczneId}.json</link>
         <guid isPermaLink="false">person-${p.id}</guid>
         <description>${pDesc}</description>
         <category>electronic_id</category>
@@ -1467,7 +1533,9 @@ ${items.join('\n')}
 // Public view/preview for exhibition documents (no auth required, displays inline)
 router.get('/exhibitions/:exhibitionId/exhibitors/:exhibitorId/documents/:documentId/view', async (req, res) => {
   try {
-    const { exhibitorId, exhibitionId, documentId } = req.params;
+    const { exhibitionId, documentId } = req.params;
+    const karta = await rozpoznajKarte(parseInt(exhibitionId, 10), req.params.exhibitorId);
+    const exhibitorId = karta ? karta.exhibitorId : null;
     
     const result = await db.query(`
       SELECT file_path, original_name, mime_type 
@@ -1526,7 +1594,9 @@ router.get('/exhibitions/:exhibitionId/exhibitors/:exhibitorId/documents/:docume
 // Public download for exhibition documents (no auth required)
 router.get('/exhibitions/:exhibitionId/exhibitors/:exhibitorId/documents/:documentId/download', async (req, res) => {
   try {
-    const { exhibitorId, exhibitionId, documentId } = req.params;
+    const { exhibitionId, documentId } = req.params;
+    const karta = await rozpoznajKarte(parseInt(exhibitionId, 10), req.params.exhibitorId);
+    const exhibitorId = karta ? karta.exhibitorId : null;
     
     const result = await db.query(`
       SELECT file_path, original_name, mime_type 
