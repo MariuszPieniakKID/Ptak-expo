@@ -5,6 +5,7 @@ import CustomButton from '../../components/customButton/CustomButton';
 import CustomField from '../../components/customField/CustomField';
 import config from '../../config/config';
 import styles from '../usersPage/UsersPage.module.scss';
+import HubspotEventDictionary from './HubspotEventDictionary';
 
 const HUBSPOT_DEAL_URL = 'https://app-eu1.hubspot.com/contacts/139679331/record/0-3/';
 
@@ -54,7 +55,7 @@ const PROBLEM_LABELS: Record<string, string> = {
   kilka_deali: 'Kilka deali z różnymi stoiskami',
   kilka_stoisk: 'Kilka stoisk w aplikacji',
   nip_hubspot: 'Brak polskiego NIP w HubSpot',
-  nazwa_targow: 'Nazwa targów niezgodna z HubSpot',
+  nazwa_targow: 'Targi bez przypisania w słowniku',
 };
 
 const formatDate = (s?: string | null) => (s ? new Date(s).toLocaleString('pl-PL') : '-');
@@ -138,7 +139,7 @@ const HubspotSyncTab: React.FC<{ token: string }> = ({ token }) => {
         <CustomTypography fontSize="1em" fontWeight={500}>Synchronizacja hal i numerów stoisk z HubSpot</CustomTypography>
         <CustomTypography fontSize="0.8em" fontWeight={300} color="#7F8D8E">
           Dane z lejka „Dział obsługi technicznej” trafiają automatycznie do przypisań wystawców co kilka minut.
-          Przenoszone są tylko wpisy jednoznaczne – pozostałe widać poniżej i trzeba je poprawić w HubSpot.
+          Synchronizowane są targi przypisane w słowniku poniżej. Przenoszone są tylko wpisy jednoznaczne – pozostałe widać na liście do poprawienia.
         </CustomTypography>
         <Box sx={{ display: 'flex', gap: 3, flexWrap: 'wrap', mt: 2, alignItems: 'center' }}>
           <CustomTypography fontSize="0.875em">
@@ -159,6 +160,8 @@ const HubspotSyncTab: React.FC<{ token: string }> = ({ token }) => {
         </Box>
         {last?.error && <Alert severity="warning" sx={{ mt: 2 }}>Ostatnia synchronizacja zakończyła się błędem: {last.error}</Alert>}
       </Paper>
+
+      <HubspotEventDictionary token={token} onChanged={() => setTimeout(load, 1000)} />
 
       <CustomTypography fontSize="1em" fontWeight={500}>Do poprawienia w HubSpot ({problems.length})</CustomTypography>
       <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', my: 2, alignItems: 'center' }}>

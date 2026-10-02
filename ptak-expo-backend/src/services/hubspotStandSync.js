@@ -1,8 +1,8 @@
 // Synchronizacja hal i numerów stoisk z HubSpota (lejek „Dział obsługi technicznej”)
 // do przypisań wystawców (exhibitor_events). Kierunek wyłącznie HubSpot -> aplikacja.
 //
-// Przenosimy tylko dane jednoznaczne: nazwa targów w polu „Udział targów” równa nazwie
-// wydarzenia (bez rozróżniania wielkości liter i odstępów), NIP firmy zgodny z NIP-em
+// Przenosimy tylko dane jednoznaczne: wartość pola „Udział targów” przypisana do wydarzenia
+// w słowniku targów (hubspot_event_dictionary), NIP firmy zgodny z NIP-em
 // wystawcy, jedno stoisko po obu stronach i poprawny format hali oraz numeru stoiska.
 // Wszystko inne trafia do listy problemów do poprawienia w HubSpocie.
 
@@ -17,6 +17,7 @@ const HALLS = ['A', 'B', 'C', 'D', 'E', 'F'];
 const STAND_RE = /^([A-Z]\d+(\.\d+)?[A-Z]{0,2}|[A-Z]-?TZ-?\d+)$/i;
 
 let running = false;
+let fullRequested = false;
 let lastSuccessAt = null;
 let lastFullAt = null;
 
@@ -77,24 +78,74 @@ async function nipsForDeals(dealIds) {
   return result;
 }
 
-async function loadEventMapping() {
+// Pobiera opcje pola „Udział targów” do słownika: nowe dopisuje, znikające oznacza,
+// a nieprzypisane (poza celowo wyczyszczonymi przez admina) przypisuje po identycznej nazwie.
+async function refreshDictionary() {
   const prop = await hs('/crm/v3/properties/deals/udzial_targow');
-  const byName = new Map();
-  for (const o of prop.options || []) {
-    byName.set(normName(o.value), o.value);
-    byName.set(normName(o.label), o.value);
+  const options = (prop.options || []).filter((o) => String(o.value || '').trim());
+  const client = await db.pool.connect();
+  try {
+    await client.query('BEGIN');
+    const { rows: before } = await client.query('SELECT hs_value FROM hubspot_event_dictionary');
+    const known = new Set(before.map((r) => r.hs_value));
+    for (const o of options) {
+      await client.query(
+        `INSERT INTO hubspot_event_dictionary (hs_value, hs_label, hs_hidden, removed_in_hs)
+         VALUES ($1, $2, $3, FALSE)
+         ON CONFLICT (hs_value) DO UPDATE SET hs_label = EXCLUDED.hs_label, hs_hidden = EXCLUDED.hs_hidden, removed_in_hs = FALSE`,
+        [o.value, o.label || o.value, Boolean(o.hidden)]
+      );
+    }
+    await client.query(
+      'UPDATE hubspot_event_dictionary SET removed_in_hs = TRUE WHERE NOT (hs_value = ANY($1::text[]))',
+      [options.map((o) => o.value)]
+    );
+
+    const { rows: exhibitions } = await client.query('SELECT id, name FROM exhibitions');
+    const byName = new Map();
+    for (const e of exhibitions) {
+      const k = normName(e.name);
+      byName.set(k, byName.has(k) ? null : e.id);
+    }
+    const { rows: open } = await client.query(
+      `SELECT id, hs_value, hs_label FROM hubspot_event_dictionary
+       WHERE exhibition_id IS NULL AND source IS DISTINCT FROM 'manual'`
+    );
+    let autoAssigned = 0;
+    for (const r of open) {
+      const id = byName.get(normName(r.hs_label)) || byName.get(normName(r.hs_value));
+      if (!id) continue;
+      await client.query(
+        `UPDATE hubspot_event_dictionary SET exhibition_id = $2, source = 'auto', updated_by = NULL, updated_at = NOW() WHERE id = $1`,
+        [r.id, id]
+      );
+      autoAssigned++;
+    }
+    await client.query('COMMIT');
+    return { options: options.length, added: options.filter((o) => !known.has(o.value)).length, autoAssigned };
+  } catch (e) {
+    await client.query('ROLLBACK').catch(() => {});
+    throw e;
+  } finally {
+    client.release();
   }
+}
+
+async function loadEventMapping() {
+  await refreshDictionary();
   const { rows } = await db.query(
-    `SELECT e.id, e.name FROM exhibitions e
+    `SELECT e.id, e.name, array_remove(array_agg(d.hs_value ORDER BY d.hs_value), NULL) AS hs_values
+     FROM exhibitions e
+     LEFT JOIN hubspot_event_dictionary d ON d.exhibition_id = e.id
      WHERE COALESCE(e.end_date, e.start_date) >= CURRENT_DATE
        AND EXISTS (SELECT 1 FROM exhibitor_events ee WHERE ee.exhibition_id = e.id)
+     GROUP BY e.id, e.name, e.start_date
      ORDER BY e.start_date`
   );
   const matched = [];
   const unmatched = [];
   for (const e of rows) {
-    const value = byName.get(normName(e.name));
-    if (value) matched.push({ id: e.id, name: e.name.trim(), hsValue: value });
+    if (e.hs_values.length) matched.push({ id: e.id, name: e.name.trim(), hsValues: e.hs_values });
     else unmatched.push({ id: e.id, name: e.name.trim() });
   }
   return { matched, unmatched };
@@ -109,7 +160,7 @@ function parseHall(raw) {
 async function syncEvent(ev, problems, changes, stats) {
   const deals = (await searchDeals([
     { propertyName: 'pipeline', operator: 'EQ', value: DOT_PIPELINE },
-    { propertyName: 'udzial_targow', operator: 'EQ', value: ev.hsValue },
+    { propertyName: 'udzial_targow', operator: 'IN', values: ev.hsValues },
   ])).filter((d) => String(d.properties.numer_stoiska || '').trim());
   if (!deals.length) return;
   const dealNips = await nipsForDeals(deals.map((d) => d.id));
@@ -188,13 +239,13 @@ async function runSync({ mode = 'auto' } = {}) {
         { propertyName: 'hs_lastmodifieddate', operator: 'GTE', value: String(since.getTime()) },
       ]);
       const values = new Set(changed.map((d) => d.properties.udzial_targow).filter(Boolean));
-      toSync = matched.filter((e) => values.has(e.hsValue));
+      toSync = matched.filter((e) => e.hsValues.some((v) => values.has(v)));
     }
     for (const ev of toSync) {
       await syncEvent(ev, problems, changes, stats);
       stats.events++;
     }
-    if (full) for (const u of unmatched) problems.push({ eventId: u.id, event: u.name, type: 'nazwa_targow', info: 'Brak targów o tej nazwie w polu „Udział targów” w HubSpot' });
+    if (full) for (const u of unmatched) problems.push({ eventId: u.id, event: u.name, type: 'nazwa_targow', info: 'Targi nie mają odpowiednika w słowniku targów HubSpot – przypisz je w słowniku' });
     await db.query(
       `UPDATE hubspot_sync_runs SET finished_at = NOW(), stats = $2, problems = $3, changes = $4 WHERE id = $1`,
       [run.id, JSON.stringify(stats), full ? JSON.stringify(problems) : null, JSON.stringify(changes)]
@@ -209,7 +260,19 @@ async function runSync({ mode = 'auto' } = {}) {
     return { runId: run.id, error: e.message };
   } finally {
     running = false;
+    if (fullRequested) {
+      fullRequested = false;
+      setTimeout(() => runSync({ mode: 'full' }).catch(() => {}), 1000);
+    }
   }
+}
+
+// Po zmianie słownika potrzebna jest pełna synchronizacja; jeśli jakaś trwa, ruszy zaraz po niej.
+function requestFullSync() {
+  if (!isEnabled()) return false;
+  if (running) fullRequested = true;
+  else runSync({ mode: 'full' }).catch(() => {});
+  return true;
 }
 
 function startScheduler() {
@@ -222,4 +285,4 @@ function startScheduler() {
   setInterval(() => runSync().catch(() => {}), INTERVAL_MIN * 60 * 1000);
 }
 
-module.exports = { runSync, startScheduler, isEnabled, isRunning: () => running };
+module.exports = { runSync, startScheduler, isEnabled, isRunning: () => running, refreshDictionary, requestFullSync };

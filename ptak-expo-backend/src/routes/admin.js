@@ -62,6 +62,69 @@ router.post('/hubspot-sync/run', verifyToken, requireAdmin, async (req, res) => 
   return res.status(202).json({ success: true, message: 'Uruchomiono pełną synchronizację' });
 });
 
+// GET /api/v1/admin/hubspot-sync/dictionary - słownik targów HubSpot -> wydarzenia (admin only)
+router.get('/hubspot-sync/dictionary', verifyToken, requireAdmin, async (req, res) => {
+  try {
+    const db = require('../config/database');
+    const { rows: entries } = await db.query(
+      `SELECT d.id, d.hs_value, d.hs_label, d.hs_hidden, d.removed_in_hs, d.exhibition_id, d.source,
+              d.updated_by, d.updated_at, d.first_seen_at, e.name AS exhibition_name, e.start_date AS exhibition_start_date
+       FROM hubspot_event_dictionary d
+       LEFT JOIN exhibitions e ON e.id = d.exhibition_id
+       ORDER BY d.first_seen_at DESC, d.hs_label`
+    );
+    const { rows: exhibitions } = await db.query(
+      `SELECT e.id, e.name, e.start_date, e.end_date,
+              EXISTS (SELECT 1 FROM exhibitor_events ee WHERE ee.exhibition_id = e.id) AS has_exhibitors
+       FROM exhibitions e ORDER BY e.start_date DESC NULLS LAST, e.name`
+    );
+    return res.json({ success: true, entries, exhibitions });
+  } catch (error) {
+    return res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// POST /api/v1/admin/hubspot-sync/dictionary/refresh - pobranie nowych targów z HubSpot (admin only)
+router.post('/hubspot-sync/dictionary/refresh', verifyToken, requireAdmin, async (req, res) => {
+  const sync = require('../services/hubspotStandSync');
+  if (!sync.isEnabled()) return res.status(400).json({ success: false, error: 'Synchronizacja z HubSpot jest wyłączona' });
+  try {
+    const result = await sync.refreshDictionary();
+    if (result.autoAssigned) sync.requestFullSync();
+    return res.json({ success: true, ...result });
+  } catch (error) {
+    return res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// PUT /api/v1/admin/hubspot-sync/dictionary/:id - przypisanie targów HubSpot do wydarzenia (admin only)
+router.put('/hubspot-sync/dictionary/:id', verifyToken, requireAdmin, async (req, res) => {
+  try {
+    const db = require('../config/database');
+    const sync = require('../services/hubspotStandSync');
+    const raw = req.body ? req.body.exhibitionId : undefined;
+    const exhibitionId = raw === null || raw === '' || raw === undefined ? null : parseInt(raw, 10);
+    if (exhibitionId !== null && !Number.isInteger(exhibitionId)) {
+      return res.status(400).json({ success: false, error: 'Nieprawidłowe wydarzenie' });
+    }
+    if (exhibitionId !== null) {
+      const { rows } = await db.query('SELECT 1 FROM exhibitions WHERE id = $1', [exhibitionId]);
+      if (!rows.length) return res.status(404).json({ success: false, error: 'Wydarzenie nie istnieje' });
+    }
+    const { rows: [entry] } = await db.query(
+      `UPDATE hubspot_event_dictionary
+       SET exhibition_id = $2, source = 'manual', updated_by = $3, updated_at = NOW()
+       WHERE id = $1 RETURNING id, exhibition_id`,
+      [parseInt(req.params.id, 10), exhibitionId, req.user && req.user.email ? req.user.email : null]
+    );
+    if (!entry) return res.status(404).json({ success: false, error: 'Nie znaleziono pozycji słownika' });
+    const syncStarted = sync.requestFullSync();
+    return res.json({ success: true, entry, syncStarted });
+  } catch (error) {
+    return res.status(500).json({ success: false, error: error.message });
+  }
+});
+
 module.exports = router;
 
 

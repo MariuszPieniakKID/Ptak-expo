@@ -1144,6 +1144,23 @@ const initializeDatabase = async () => {
       )
     `);
     await pool.query(`CREATE INDEX IF NOT EXISTS idx_hubspot_stand_changes_created ON hubspot_stand_changes(created_at DESC)`);
+    // Słownik: wartość pola „Udział targów” w HubSpot -> wydarzenie w aplikacji.
+    // source = 'auto' (identyczna nazwa) albo 'manual' (ustawione przez admina, także celowo puste).
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS hubspot_event_dictionary (
+        id SERIAL PRIMARY KEY,
+        hs_value VARCHAR(255) NOT NULL UNIQUE,
+        hs_label VARCHAR(255),
+        hs_hidden BOOLEAN NOT NULL DEFAULT FALSE,
+        removed_in_hs BOOLEAN NOT NULL DEFAULT FALSE,
+        exhibition_id INTEGER REFERENCES exhibitions(id) ON DELETE SET NULL,
+        source VARCHAR(10),
+        updated_by VARCHAR(255),
+        first_seen_at TIMESTAMPTZ DEFAULT NOW(),
+        updated_at TIMESTAMPTZ DEFAULT NOW()
+      )
+    `);
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_hubspot_event_dictionary_exhibition ON hubspot_event_dictionary(exhibition_id)`);
 
     // Activity logs table for tracking user actions
     console.log('🔍 Creating activity_logs table...');
