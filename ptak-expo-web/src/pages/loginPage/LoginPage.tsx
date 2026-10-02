@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, memo } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 import ForgotPasswordModal from "../../components/forgotPasswordModal/ForgotPasswordModal";
 import styles from "./LoginPage.module.css";
@@ -12,8 +12,10 @@ const LoginPage: React.FC = () => {
   const [error, setError] = useState("");
   const [emailError, setEmailError] = useState("");
   const [passwordError, setPasswordError] = useState("");
+  const [searchParams] = useSearchParams();
+  const resetEmail = searchParams.get("email") || "";
   const [isForgotPasswordModalOpen, setIsForgotPasswordModalOpen] =
-    useState(false);
+    useState(searchParams.get("przypomnij-haslo") === "1");
   const navigate = useNavigate();
   const { login, isAuthenticated } = useAuth();
 
@@ -163,6 +165,7 @@ const LoginPage: React.FC = () => {
       <ForgotPasswordModal
         isOpen={isForgotPasswordModalOpen}
         onClose={() => setIsForgotPasswordModalOpen(false)}
+        initialEmail={resetEmail}
       />
     </div>
   );

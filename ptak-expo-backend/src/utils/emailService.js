@@ -377,9 +377,33 @@ Jeśli nie żądali Państwo resetu hasła, prosimy o natychmiastowy kontakt z a
   }
 };
 
+// Mail powitalny wystawcy bez hasła (PL/EN), wspólny dla zakładania konta i wysyłki zbiorczej.
+const sendExhibitorWelcomeEmail = async (userEmail, exhibitionName = null) => {
+  const { buildExhibitorWelcomeEmail } = require('./welcomeEmailTemplate');
+  const { subject, html, text } = buildExhibitorWelcomeEmail({ email: userEmail, exhibitionName });
+  try {
+    if (canUseGraph()) {
+      await sendViaGraph({ to: userEmail, subject, text, html, from: process.env.FROM_EMAIL });
+      return { success: true, method: 'Graph API' };
+    }
+    const info = await createTransporter().sendMail({
+      from: process.env.FROM_EMAIL || process.env.SMTP_USER || 'noreply@ptak-expo.com',
+      to: userEmail,
+      subject,
+      html,
+      text,
+    });
+    return { success: true, messageId: info.messageId, method: 'SMTP' };
+  } catch (error) {
+    console.error(`❌ Błąd wysyłania maila powitalnego do ${userEmail}:`, error.message);
+    return { success: false, error: error.message };
+  }
+};
+
 module.exports = {
   sendWelcomeEmail,
-  sendPasswordResetEmail
+  sendPasswordResetEmail,
+  sendExhibitorWelcomeEmail
 }; 
 
 // Generic email sender for custom messages

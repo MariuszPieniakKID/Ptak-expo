@@ -741,13 +741,13 @@ const AddExhibitorModal: React.FC<AddExhibitorModalProps> = ({
                       color="primary"
                     />
                   }
-                  label="Wyślij email z danymi logowania do wystawcy"
+                  label="Wyślij wystawcy mail powitalny"
                 />
               </Box>
 
               <Box className={styles.formRowFooterWithAction}>
                 <CustomTypography className={styles.additionalInfo}>
-                  * Jeśli zaznaczysz powyższą opcję, na podany e-mail użytkownik otrzyma hasło i dane dostępowe do aplikacji
+                  * Jeśli zaznaczysz powyższą opcję, wystawca dostanie mail PL/EN z informacją o dodaniu wydarzenia, linkiem do aplikacji i przyciskiem do wygenerowania hasła (hasło nie jest wysyłane)
                 </CustomTypography>
                 <Box 
                   className={styles.boxToKlik}

@@ -61,7 +61,6 @@ interface SendResult {
     successfulEmails: Array<{
       email: string;
       company: string;
-      password: string;
     }>;
   };
 }
@@ -167,7 +166,7 @@ const MailingTab: React.FC<MailingTabProps> = ({ token }) => {
     }
 
     const confirmed = window.confirm(
-      `Czy na pewno chcesz wysłać emaile powitalne z nowymi hasłami do ${exhibitors.length} wystawców? Ta operacja wygeneruje nowe hasła dla wszystkich wystawców przypisanych do wybranej wystawy.`
+      `Czy na pewno chcesz wysłać emaile powitalne do ${exhibitors.length} wystawców? Hasła wystawców nie zostaną zmienione.`
     );
 
     if (!confirmed) {
@@ -259,8 +258,8 @@ const MailingTab: React.FC<MailingTabProps> = ({ token }) => {
 
       <Box sx={{ mb: 3 }}>
         <Alert severity="info" sx={{ mb: 2 }}>
-          Ta funkcja wysyła emaile powitalne z <strong>nowymi hasłami</strong> i instrukcją obsługi do wystawców przypisanych do wybranej wystawy.
-          Każdy wystawca otrzyma unikalny link do portalu wraz z danymi logowania.
+          Ta funkcja wysyła mail powitalny PL/EN do wystawców przypisanych do wybranej wystawy: informację o dodaniu wydarzenia do konta,
+          przycisk do aplikacji i przycisk „Wygeneruj hasło”. <strong>Hasła nie są wysyłane ani zmieniane</strong> – wystawca loguje się swoim hasłem albo generuje nowe.
         </Alert>
 
         {error && (
@@ -415,9 +414,6 @@ const MailingTab: React.FC<MailingTabProps> = ({ token }) => {
                     <Box key={index} sx={{ mb: 1, p: 1, bgcolor: '#e8f5e9', borderRadius: 1 }}>
                       <Typography variant="body2">
                         <strong>{item.company}</strong> ({item.email})
-                      </Typography>
-                      <Typography variant="caption" sx={{ fontFamily: 'monospace' }}>
-                        Hasło: {item.password}
                       </Typography>
                     </Box>
                   ))}

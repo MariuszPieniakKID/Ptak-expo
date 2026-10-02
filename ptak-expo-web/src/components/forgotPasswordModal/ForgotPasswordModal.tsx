@@ -18,11 +18,13 @@ import styles from './ForgotPasswordModal.module.scss';
 interface ForgotPasswordModalProps {
   isOpen: boolean;
   onClose: () => void;
+  initialEmail?: string;
 }
 
 const ForgotPasswordModal: React.FC<ForgotPasswordModalProps> = ({ 
   isOpen, 
-  onClose
+  onClose,
+  initialEmail = ''
 }) => {
   const [email, setEmail] = useState('');
   const [emailError, setEmailError] = useState('');
@@ -33,12 +35,12 @@ const ForgotPasswordModal: React.FC<ForgotPasswordModalProps> = ({
   // Reset form when modal opens/closes
   useEffect(() => {
     if (isOpen) {
-      setEmail('');
+      setEmail(initialEmail);
       setEmailError('');
       setSuccessMessage('');
       setErrorMessage('');
     }
-  }, [isOpen]);
+  }, [isOpen, initialEmail]);
 
   const validateEmail = (email: string): boolean => {
     if (!email) {

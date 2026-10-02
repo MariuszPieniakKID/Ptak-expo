@@ -468,8 +468,7 @@ router.post('/', verifyToken, requireAdmin, async (req, res) => {
     const sendEmail = req.body.sendEmail === true;
     if (sendEmail) {
       try {
-        const { sendWelcomeEmail } = require('../utils/emailService');
-        const exhibitorPanelBase = process.env.EXHIBITOR_PANEL_URL || 'https://wystawca.exhibitorlist.warsawexpo.eu';
+        const { sendExhibitorWelcomeEmail } = require('../utils/emailService');
         
         // Pobierz nazwę wystawy jeśli przypisano do wystawy
         let exhibitionName = null;
@@ -483,16 +482,7 @@ router.post('/', verifyToken, requireAdmin, async (req, res) => {
           exhibitionName = exhibition ? exhibition.name : getDefaultExhibitionName();
         }
         
-        // For exhibitor we always treat password as provided (not tymczasowe)
-        sendWelcomeEmail(
-          normalizedEmail,
-          contactPerson.split(' ')[0] || contactPerson,
-          contactPerson.split(' ').slice(1).join(' ') || '',
-          password,
-          false,
-          exhibitorPanelBase,
-          exhibitionName
-        )
+        sendExhibitorWelcomeEmail(normalizedEmail, exhibitionName)
           .then((r) => console.log('✅ Exhibitor welcome email queued/sent:', email, r?.success))
           .catch((e) => console.warn('⚠️ Exhibitor welcome email error:', e?.message || e));
         console.log('ℹ️  Welcome email SCHEDULED for:', normalizedEmail);
