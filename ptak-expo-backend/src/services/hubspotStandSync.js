@@ -282,6 +282,7 @@ function startScheduler() {
     return;
   }
   console.log(`🔄 Synchronizacja stoisk z HubSpot co ${INTERVAL_MIN} min`);
+  db.query(`UPDATE hubspot_sync_runs SET finished_at = NOW(), error = 'Przerwana przez restart serwera' WHERE finished_at IS NULL`).catch(() => {});
   setTimeout(() => runSync().catch(() => {}), 60 * 1000);
   setInterval(() => runSync().catch(() => {}), INTERVAL_MIN * 60 * 1000);
 }
