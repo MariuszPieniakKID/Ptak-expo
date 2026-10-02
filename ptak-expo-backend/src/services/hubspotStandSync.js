@@ -23,7 +23,7 @@ let lastFullAt = null;
 
 const token = () => (process.env.HUBSPOT_TOKEN || '').trim();
 const isEnabled = () => Boolean(token()) && process.env.HUBSPOT_SYNC_ENABLED !== 'false';
-const normName = (s) => String(s || '').toLowerCase().replace(/\s+/g, ' ').trim();
+const normName = (s) => String(s || '').toLowerCase().replace(/[^\p{L}\p{N}]/gu, '');
 const nipDigits = (s) => String(s || '').replace(/\D/g, '');
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
@@ -79,7 +79,8 @@ async function nipsForDeals(dealIds) {
 }
 
 // Pobiera opcje pola „Udział targów” do słownika: nowe dopisuje, znikające oznacza,
-// a nieprzypisane (poza celowo wyczyszczonymi przez admina) przypisuje po identycznej nazwie.
+// a nieprzypisane (poza celowo wyczyszczonymi przez admina) przypisuje po identycznej nazwie
+// (bez wielkości liter, spacji i znaków typu „-”, „&”).
 async function refreshDictionary() {
   const prop = await hs('/crm/v3/properties/deals/udzial_targow');
   const options = (prop.options || []).filter((o) => String(o.value || '').trim());
