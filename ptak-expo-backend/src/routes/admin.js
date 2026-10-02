@@ -75,6 +75,7 @@ router.get('/hubspot-sync/dictionary', verifyToken, requireAdmin, async (req, re
     );
     const { rows: exhibitions } = await db.query(
       `SELECT e.id, e.name, e.start_date, e.end_date,
+              (SELECT COUNT(*)::int FROM exhibitor_events ee WHERE ee.exhibition_id = e.id) AS exhibitors_count,
               EXISTS (SELECT 1 FROM exhibitor_events ee WHERE ee.exhibition_id = e.id) AS has_exhibitors
        FROM exhibitions e ORDER BY e.start_date DESC NULLS LAST, e.name`
     );
@@ -94,6 +95,43 @@ router.post('/hubspot-sync/dictionary/refresh', verifyToken, requireAdmin, async
     return res.json({ success: true, ...result });
   } catch (error) {
     return res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// PUT /api/v1/admin/hubspot-sync/dictionary/exhibition/:exhibitionId - pełna lista nazw targów HubSpot
+// przypisanych do wydarzenia (admin only). Nazwy spoza listy tracą przypisanie, wybrane przechodzą z innych wydarzeń.
+router.put('/hubspot-sync/dictionary/exhibition/:exhibitionId', verifyToken, requireAdmin, async (req, res) => {
+  const db = require('../config/database');
+  const sync = require('../services/hubspotStandSync');
+  const exhibitionId = parseInt(req.params.exhibitionId, 10);
+  const entryIds = Array.isArray(req.body && req.body.entryIds) ? req.body.entryIds.map((x) => parseInt(x, 10)) : null;
+  if (!Number.isInteger(exhibitionId) || !entryIds || entryIds.some((x) => !Number.isInteger(x))) {
+    return res.status(400).json({ success: false, error: 'Nieprawidłowe dane' });
+  }
+  const client = await db.pool.connect();
+  try {
+    const { rows } = await client.query('SELECT 1 FROM exhibitions WHERE id = $1', [exhibitionId]);
+    if (!rows.length) return res.status(404).json({ success: false, error: 'Wydarzenie nie istnieje' });
+    const by = req.user && req.user.email ? req.user.email : null;
+    await client.query('BEGIN');
+    const removed = await client.query(
+      `UPDATE hubspot_event_dictionary SET exhibition_id = NULL, source = 'manual', updated_by = $3, updated_at = NOW()
+       WHERE exhibition_id = $1 AND NOT (id = ANY($2::int[]))`,
+      [exhibitionId, entryIds, by]
+    );
+    const added = await client.query(
+      `UPDATE hubspot_event_dictionary SET exhibition_id = $1, source = 'manual', updated_by = $3, updated_at = NOW()
+       WHERE id = ANY($2::int[]) AND exhibition_id IS DISTINCT FROM $1`,
+      [exhibitionId, entryIds, by]
+    );
+    await client.query('COMMIT');
+    const syncStarted = removed.rowCount || added.rowCount ? sync.requestFullSync() : false;
+    return res.json({ success: true, added: added.rowCount, removed: removed.rowCount, syncStarted });
+  } catch (error) {
+    await client.query('ROLLBACK').catch(() => {});
+    return res.status(500).json({ success: false, error: error.message });
+  } finally {
+    client.release();
   }
 });
 
