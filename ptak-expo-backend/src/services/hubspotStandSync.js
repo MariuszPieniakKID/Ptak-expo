@@ -158,6 +158,28 @@ function parseHall(raw) {
   return HALLS.includes(v) ? { ok: true, hall: `Hala ${v}` } : { ok: false };
 }
 
+// Separatory historii zmian stoiska w HubSpot: „->”, „-->”, „=>”, „>”, przecinek, średnik, „/”,
+// „ - ” ze spacjami oraz „-” między dwoma numerami (np. D1.01-D2.01). „=” i „+” nie są separatorami.
+const STAND_SEPARATORS = /\s*(?:-+>|=+>|>|,|;|\/)\s*|\s+-\s+|(?<=\d[a-z]?)-(?=[a-z]\d)/i;
+const tidyStand = (s) => s.charAt(0).toUpperCase() + s.slice(1);
+
+// Numer stoiska z HubSpot: pojedynczy 1:1, przy historii zmian (np. „D48-> E53 -> D66”) ostatni.
+function parseStand(raw) {
+  const v = String(raw || '').trim();
+  if (STAND_RE.test(v)) return tidyStand(v);
+  const parts = v.split(STAND_SEPARATORS)
+    .map((p) => (p || '').replace(/\s+/g, '').replace(/^[=-]+|[=-]+$/g, ''))
+    .filter(Boolean);
+  const last = parts[parts.length - 1] || '';
+  return STAND_RE.test(last) ? tidyStand(last) : null;
+}
+
+// Hala wynika z litery numeru stoiska (D66 -> Hala D); pole „Hala” z HubSpot tylko gdy litera jest spoza A–F.
+function hallForStand(stand, rawHall) {
+  const letter = stand.charAt(0).toUpperCase();
+  return HALLS.includes(letter) ? { ok: true, hall: `Hala ${letter}` } : parseHall(rawHall);
+}
+
 async function syncEvent(ev, problems, changes, stats) {
   const deals = (await searchDeals([
     { propertyName: 'pipeline', operator: 'EQ', value: DOT_PIPELINE },
@@ -190,14 +212,14 @@ async function syncEvent(ev, problems, changes, stats) {
   for (const [nip, hsDeals] of byNip) {
     stats.dealsChecked += hsDeals.length;
     const first = hsDeals[0];
-    const standValues = [...new Set(hsDeals.map((d) => String(d.stoisko).trim().toUpperCase()))];
-    const hallValues = [...new Set(hsDeals.map((d) => String(d.hala).trim().toUpperCase()))];
+    const parsed = hsDeals.map((d) => parseStand(d.stoisko));
+    const standValues = [...new Set(hsDeals.map((d, i) => (parsed[i] || String(d.stoisko).trim()).toUpperCase()))];
     const targets = oursByNip.get(nip) || [];
     if (!targets.length) { stats.notAssigned++; continue; }
-    if (standValues.length > 1 || hallValues.length > 1) { problems.push({ ...first, type: 'kilka_deali', info: `Kilka deali z różnymi stoiskami: ${hsDeals.map((d) => `${d.hala} / ${d.stoisko}`).join('; ')}` }); continue; }
-    const stand = String(first.stoisko).trim();
-    if (!STAND_RE.test(stand)) { problems.push({ ...first, firma: targets[0].company_name, type: 'format_stoiska', info: 'Numer stoiska w niepoprawnym formacie (np. historia zmian, spacje, litery spoza alfabetu łacińskiego)' }); continue; }
-    const hall = parseHall(first.hala);
+    if (standValues.length > 1) { problems.push({ ...first, type: 'kilka_deali', info: `Kilka deali z różnymi stoiskami: ${hsDeals.map((d) => `${d.hala} / ${d.stoisko}`).join('; ')}` }); continue; }
+    const stand = parsed[0];
+    if (!stand) { problems.push({ ...first, firma: targets[0].company_name, type: 'format_stoiska', info: 'Nie da się odczytać numeru stoiska (np. „=”, „+”, spacje w środku, litery spoza alfabetu łacińskiego)' }); continue; }
+    const hall = hallForStand(stand, first.hala);
     if (!hall.ok) { problems.push({ ...first, firma: targets[0].company_name, type: 'format_hali', info: `Hala spoza listy ${HALLS.join(', ')}` }); continue; }
     if (targets.length > 1) {
       const already = targets.some((t) => String(t.stand_number || '').trim().toUpperCase() === stand.toUpperCase());
