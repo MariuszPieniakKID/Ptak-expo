@@ -228,8 +228,8 @@ export const getChecklist = async (exhibitionId: number) => {
 						...ExampleChecklist,
 						companyInfo: {
 							...ExampleChecklist.companyInfo,
-							name: d.name ?? ExampleChecklist.companyInfo.name,
-							displayName: (d.display_name ?? d.name ?? null) as any,
+							name: exhibitor?.companyName ?? d.name ?? ExampleChecklist.companyInfo.name,
+							displayName: (d.display_name ?? exhibitor?.companyName ?? d.name ?? null) as any,
 							description: d.description ?? null,
 							whyVisit: (d.why_visit ?? null) as any,
 							contactInfo: d.contact_info ?? ExampleChecklist.companyInfo.contactInfo,
@@ -404,7 +404,6 @@ export const updateCompanyInfo = async (companyInfo: CompanyInfo) => {
 	const token = localStorage.getItem('authToken') || '';
 	const exhibitionId = Number((window as any).currentSelectedExhibitionId) || 0;
 	const body: any = {};
-	if (companyInfo.name !== undefined) body.companyName = companyInfo.name;
 	const emailToUpdate = (companyInfo as any).contactEmail;
 	if (emailToUpdate !== undefined) body.email = emailToUpdate;
 	try {

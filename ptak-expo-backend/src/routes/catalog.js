@@ -606,7 +606,7 @@ router.post('/:exhibitionId', verifyToken, requireExhibitorOrAdmin, async (req, 
       }
     }
 
-    const {
+    let {
       name = null,
       displayName = null,
       logo = null,
@@ -623,6 +623,11 @@ router.post('/:exhibitionId', verifyToken, requireExhibitorOrAdmin, async (req, 
       catalogContactPhone = null,
       catalogContactEmail = null
     } = req.body || {};
+
+    // Nazwę firmy poprawia tylko admin na koncie wystawcy. Wpis katalogowy zawsze ją
+    // przejmuje, inaczej zapis z panelu wystawcy przywracał starą nazwę.
+    const accountRes = await db.query('SELECT company_name FROM exhibitors WHERE id = $1', [exhibitorId]);
+    if (accountRes.rows[0]?.company_name) name = accountRes.rows[0].company_name;
 
     // Convert website to HTTPS
     const websiteHttps = website ? ensureHttps(website) : null;
@@ -737,11 +742,10 @@ router.post('/:exhibitionId', verifyToken, requireExhibitorOrAdmin, async (req, 
       await db.query(
         `UPDATE exhibitors
          SET 
-           company_name = COALESCE($1, company_name),
-           email = COALESCE($2, email),
+           email = COALESCE($1, email),
            updated_at = NOW()
-         WHERE id = $3`,
-        [name, contactEmail, exhibitorId]
+         WHERE id = $2`,
+        [contactEmail, exhibitorId]
       );
     } catch (syncErr) {
       console.error('⚠️ Error syncing catalog fields to exhibitors:', syncErr);

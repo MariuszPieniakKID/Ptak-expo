@@ -101,7 +101,7 @@ router.put('/me', verifyToken, requireExhibitorOrAdmin, async (req, res) => {
     const values = [];
     let idx = 1;
     const pushField = (col, val) => { fields.push(`${col} = $${idx++}`); values.push(val); };
-    if (companyName !== undefined) pushField('company_name', companyName);
+    // Nazwy firmy wystawca nie zmienia – robi to admin (np. przy błędnym płatniku).
     if (address !== undefined) pushField('address', address);
     if (postalCode !== undefined) pushField('postal_code', postalCode);
     if (city !== undefined) pushField('city', city);
@@ -763,6 +763,13 @@ router.put('/:id', verifyToken, requireAdmin, async (req, res) => {
 
     const updRes = await db.query(query, values);
     const e = updRes.rows[0];
+    if (companyName !== undefined && e.company_name) {
+      await db.query(
+        `UPDATE exhibitor_catalog_entries SET name = $1, updated_at = NOW()
+         WHERE exhibitor_id = $2 AND COALESCE(name, '') <> '' AND name IS DISTINCT FROM $1`,
+        [e.company_name, id]
+      );
+    }
     return res.json({
       success: true,
       message: 'Dane wystawcy zaktualizowane',
