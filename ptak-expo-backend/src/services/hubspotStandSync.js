@@ -152,8 +152,10 @@ async function loadEventMapping() {
   return { matched, unmatched };
 }
 
+// Hala z pola „Hala” w HubSpot („D”, „Hala D”, przy historii zmian ostatnia wartość).
 function parseHall(raw) {
-  const v = String(raw || '').trim().toUpperCase();
+  const parts = String(raw || '').split(/\s*(?:-+>|=+>|>|,|;|\/)\s*/).map((p) => p.trim()).filter(Boolean);
+  const v = (parts[parts.length - 1] || '').toUpperCase().replace(/^HALA\s*/, '');
   if (!v) return { ok: true, hall: null };
   return HALLS.includes(v) ? { ok: true, hall: `Hala ${v}` } : { ok: false };
 }
@@ -172,12 +174,6 @@ function parseStand(raw) {
     .filter(Boolean);
   const last = parts[parts.length - 1] || '';
   return STAND_RE.test(last) ? tidyStand(last) : null;
-}
-
-// Hala wynika z litery numeru stoiska (D66 -> Hala D); pole „Hala” z HubSpot tylko gdy litera jest spoza A–F.
-function hallForStand(stand, rawHall) {
-  const letter = stand.charAt(0).toUpperCase();
-  return HALLS.includes(letter) ? { ok: true, hall: `Hala ${letter}` } : parseHall(rawHall);
 }
 
 async function syncEvent(ev, problems, changes, stats) {
@@ -219,7 +215,8 @@ async function syncEvent(ev, problems, changes, stats) {
     if (standValues.length > 1) { problems.push({ ...first, type: 'kilka_deali', info: `Kilka deali z różnymi stoiskami: ${hsDeals.map((d) => `${d.hala} / ${d.stoisko}`).join('; ')}` }); continue; }
     const stand = parsed[0];
     if (!stand) { problems.push({ ...first, firma: targets[0].company_name, type: 'format_stoiska', info: 'Nie da się odczytać numeru stoiska (np. „=”, „+”, spacje w środku, litery spoza alfabetu łacińskiego)' }); continue; }
-    const hall = hallForStand(stand, first.hala);
+    // Litera stoiska nie wyznacza hali – po zmianie numeracji np. stoisko B17 stoi w hali D.
+    const hall = parseHall(first.hala);
     if (!hall.ok) { problems.push({ ...first, firma: targets[0].company_name, type: 'format_hali', info: `Hala spoza listy ${HALLS.join(', ')}` }); continue; }
     if (targets.length > 1) {
       const already = targets.some((t) => String(t.stand_number || '').trim().toUpperCase() === stand.toUpperCase());
