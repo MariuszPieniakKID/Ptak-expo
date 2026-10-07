@@ -14,7 +14,7 @@ const INTERVAL_MIN = Math.max(2, parseInt(process.env.HUBSPOT_SYNC_INTERVAL_MIN 
 const FULL_EVERY_HOURS = 24;
 const DEAL_PROPS = ['dealname', 'pipeline', 'udzial_targow', 'hala_', 'numer_stoiska', 'hs_lastmodifieddate'];
 const HALLS = ['A', 'B', 'C', 'D', 'E', 'F'];
-const STAND_RE = /^([A-Z]\d+(\.\d+)?[A-Z]{0,2}|[A-Z]-?TZ-?\d+)$/i;
+const STAND_RE = /^([A-Z]\.?\d+(\.\d+)?[A-Z]{0,2}|[A-Z]-?TZ-?\d+)$/i;
 
 let running = false;
 let fullRequested = false;
