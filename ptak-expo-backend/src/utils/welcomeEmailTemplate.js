@@ -1,11 +1,19 @@
-// Mail powitalny wystawcy (PL/EN w jednej wiadomości). Nie zawiera hasła: wystawca loguje się
-// swoim hasłem, a jeśli go nie zna, generuje nowe przyciskiem prowadzącym do „Przypomnij hasło”.
+// Maile wystawcy (PL/EN w jednej wiadomości) na szablonach od marketingu z src/templates/emails.
+// Mail powitalny nie zawiera hasła: wystawca loguje się swoim hasłem, a jeśli go nie zna,
+// generuje nowe przyciskiem prowadzącym do „Przypomnij hasło”.
 
-const BRAND = '#c7353c';
-const INSTRUCTIONS_URL = 'https://industryweek.pl/wp-content/uploads/2025/10/Instrukcja-do-aplikacji.pdf';
+const fs = require('fs');
+const path = require('path');
+
+const TEMPLATES_DIR = path.join(__dirname, '..', 'templates', 'emails');
+const WELCOME_HTML = fs.readFileSync(path.join(TEMPLATES_DIR, 'exhibitor-welcome.html'), 'utf8');
+const RESET_HTML = fs.readFileSync(path.join(TEMPLATES_DIR, 'exhibitor-password-reset.html'), 'utf8');
 
 const esc = (s) => String(s == null ? '' : s)
   .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
+const fill = (html, values) => Object.entries(values)
+  .reduce((out, [key, value]) => out.split(`[${key}]`).join(value), html);
 
 const panelUrl = () => (process.env.EXHIBITOR_PANEL_URL || 'https://wystawca.exhibitorlist.warsawexpo.eu').replace(/\/$/, '');
 
@@ -17,93 +25,79 @@ const exhibitorWelcomeLinks = (email) => {
   };
 };
 
-const button = (href, label, primary) => `
-  <a href="${href}" target="_blank" style="display:inline-block;padding:13px 26px;margin:6px;border-radius:6px;font-family:Arial,sans-serif;font-size:15px;font-weight:bold;text-decoration:none;${primary ? `background:${BRAND};color:#ffffff;border:2px solid ${BRAND};` : `background:#ffffff;color:${BRAND};border:2px solid ${BRAND};`}">${label}</a>`;
-
-const section = ({ greeting, intro, login, noPassword, appLabel, resetLabel, guide }, ctx) => `
-  <tr><td style="padding:28px 32px 8px 32px;font-family:Arial,sans-serif;font-size:15px;line-height:1.6;color:#2e2e38;">
-    <p style="margin:0 0 14px 0;">${greeting}</p>
-    <p style="margin:0 0 14px 0;">${intro}</p>
-    <p style="margin:0 0 14px 0;">${login}</p>
-    <p style="margin:0 0 6px 0;">${noPassword}</p>
-  </td></tr>
-  <tr><td align="center" style="padding:8px 32px 18px 32px;">
-    ${button(ctx.appUrl, appLabel, true)}${button(ctx.resetUrl, resetLabel, false)}
-  </td></tr>
-  <tr><td style="padding:0 32px 24px 32px;font-family:Arial,sans-serif;font-size:13px;color:#6f6f76;">
-    ${guide} <a href="${INSTRUCTIONS_URL}" style="color:${BRAND};">PDF</a>
-  </td></tr>`;
+const SUPPORT = 'appsupport@warsawexpo.eu';
 
 const buildExhibitorWelcomeEmail = ({ email, exhibitionName }) => {
   const { appUrl, resetUrl } = exhibitorWelcomeLinks(email);
-  const ev = esc(exhibitionName || 'PTAK WARSAW EXPO');
-  const mail = esc(email);
-  const ctx = { appUrl, resetUrl };
+  const eventName = exhibitionName || 'PTAK WARSAW EXPO';
+  const ev = esc(eventName);
 
-  const pl = {
-    greeting: 'Dzień dobry,',
-    intro: `wydarzenie <strong>${ev}</strong> zostało dodane do Państwa konta w Portalu Wystawcy PTAK WARSAW EXPO.`,
-    login: `Logują się Państwo jak dotychczas: adresem e-mail <strong>${mail}</strong> i swoim hasłem.`,
-    noPassword: 'Nie pamiętają Państwo hasła lub go nie znają? Kliknij „Wygeneruj hasło”, a nowe hasło wyślemy na ten adres e-mail.',
-    appLabel: 'Przejdź do aplikacji',
-    resetLabel: 'Wygeneruj hasło',
-    guide: 'Instrukcja korzystania z portalu:',
-  };
-  const en = {
-    greeting: 'Hello,',
-    intro: `the event <strong>${ev}</strong> has been added to your account in the PTAK WARSAW EXPO Exhibitor Portal.`,
-    login: `Log in as usual with your e-mail address <strong>${mail}</strong> and your password.`,
-    noPassword: 'Forgot your password or don’t have one? Click “Generate password” and we will send a new one to this e-mail address.',
-    appLabel: 'Go to the app',
-    resetLabel: 'Generate password',
-    guide: 'Portal user guide:',
-  };
-
-  const subject = `${exhibitionName || 'PTAK WARSAW EXPO'} – wydarzenie dodane do Twojego konta / event added to your account`;
-
-  const html = `<!DOCTYPE html>
-<html lang="pl"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>${esc(subject)}</title></head>
-<body style="margin:0;padding:0;background:#f2f2f4;">
-  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f2f2f4;">
-    <tr><td align="center" style="padding:24px 12px;">
-      <table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="max-width:600px;width:100%;background:#ffffff;border-radius:8px;overflow:hidden;">
-        <tr><td style="background:${BRAND};padding:22px 32px;font-family:Arial,sans-serif;color:#ffffff;">
-          <div style="font-size:20px;font-weight:bold;letter-spacing:1px;">PTAK WARSAW EXPO</div>
-          <div style="font-size:14px;margin-top:4px;">Portal Wystawcy / Exhibitor Portal · ${ev}</div>
-        </td></tr>
-        ${section(pl, ctx)}
-        <tr><td style="padding:0 32px;"><div style="border-top:1px solid #e3e3e6;"></div></td></tr>
-        ${section(en, ctx)}
-        <tr><td style="background:#f7f7f8;padding:18px 32px;font-family:Arial,sans-serif;font-size:12px;line-height:1.5;color:#8a8a90;">
-          Pytania / Questions: <a href="mailto:appSupport@warsawexpo.eu" style="color:${BRAND};">appSupport@warsawexpo.eu</a><br>
-          Wiadomość wygenerowana automatycznie, prosimy na nią nie odpowiadać. / This is an automated message, please do not reply.<br>
-          © ${new Date().getFullYear()} PTAK WARSAW EXPO
-        </td></tr>
-      </table>
-    </td></tr>
-  </table>
-</body></html>`;
+  const subject = `Witamy w gronie wystawców ${eventName} / Welcome to the exhibitors of ${eventName}`;
+  const html = fill(WELCOME_HTML, {
+    'NAZWA TARGÓW': ev,
+    'TRADE FAIR NAME': ev,
+    LOGIN: esc(email),
+    'LINK DO APLIKACJI': esc(appUrl),
+    'LINK DO PRZYPOMNIENIA HASŁA': esc(resetUrl),
+  });
 
   const text = [
-    `PTAK WARSAW EXPO – Portal Wystawcy / Exhibitor Portal`,
+    'PTAK WARSAW EXPO – Katalog Wystawców / Exhibitor Catalogue',
     '',
-    `Dzień dobry,`,
-    `wydarzenie ${exhibitionName || ''} zostało dodane do Państwa konta w Portalu Wystawcy PTAK WARSAW EXPO.`,
-    `Logują się Państwo jak dotychczas: adresem e-mail ${email} i swoim hasłem.`,
-    `Przejdź do aplikacji: ${appUrl}`,
-    `Nie pamiętają Państwo hasła lub go nie znają? Wygeneruj hasło: ${resetUrl}`,
+    'Dzień dobry,',
+    `cieszymy się, że dołączyli Państwo do grona wystawców targów ${eventName}, które odbędą się w Ptak Warsaw Expo.`,
+    'Oddajemy Państwu dostęp do aplikacji Katalog Wystawców. Umożliwia ona stworzenie wizytówki firmy widocznej na stronie targów.',
+    `Login: ${email}`,
+    `Zaloguj się: ${appUrl}`,
+    `Przypomnij hasło: ${resetUrl}`,
     '',
-    `Hello,`,
-    `the event ${exhibitionName || ''} has been added to your account in the PTAK WARSAW EXPO Exhibitor Portal.`,
-    `Log in as usual with your e-mail address ${email} and your password.`,
-    `Go to the app: ${appUrl}`,
-    `Forgot your password or don't have one? Generate password: ${resetUrl}`,
+    'Dear Exhibitor,',
+    `we are pleased that you have joined the exhibitors of ${eventName}, to be held at Ptak Warsaw Expo.`,
+    'We are giving you access to the Exhibitor Catalogue application, which allows you to create a company profile displayed on the trade fair website.',
+    `Login: ${email}`,
+    `Log in: ${appUrl}`,
+    `Reset password: ${resetUrl}`,
     '',
-    `Instrukcja / User guide: ${INSTRUCTIONS_URL}`,
-    `Pytania / Questions: appSupport@warsawexpo.eu`,
+    `W razie problemów z logowaniem / In case of any problems logging in: ${SUPPORT}`,
+    'Zespół Ptak Warsaw Expo / Ptak Warsaw Expo Team',
   ].join('\n');
 
   return { subject, html, text };
 };
 
-module.exports = { buildExhibitorWelcomeEmail, exhibitorWelcomeLinks };
+const buildExhibitorPasswordResetEmail = ({ email, newPassword, loginUrl }) => {
+  const appUrl = loginUrl || exhibitorWelcomeLinks(email).appUrl;
+
+  const subject = 'Reset hasła / Password reset – Katalog Wystawców';
+  const html = fill(RESET_HTML, {
+    LOGIN: esc(email),
+    'NOWE HASŁO': esc(newPassword),
+    'LINK DO APLIKACJI': esc(appUrl),
+  });
+
+  const text = [
+    'PTAK WARSAW EXPO – Katalog Wystawców / Exhibitor Catalogue',
+    '',
+    'Dzień dobry,',
+    'zgodnie z otrzymanym zgłoszeniem zresetowaliśmy hasło do aplikacji Katalog Wystawców.',
+    'Poprzednie hasło jest już nieaktywne. Do kolejnego logowania należy użyć nowych danych podanych poniżej.',
+    '',
+    'Dear Exhibitor,',
+    'in response to your request, we have reset your password for the Exhibitor Catalogue application.',
+    'Your previous password is no longer active. Please use the new login details provided below the next time you log in.',
+    '',
+    `Login: ${email}`,
+    `Nowe hasło / New password: ${newPassword}`,
+    `Zaloguj się / Log in: ${appUrl}`,
+    '',
+    'Dla bezpieczeństwa prosimy nie udostępniać danych logowania osobom nieupoważnionym. Jeżeli nie zgłaszali Państwo prośby o reset hasła, prosimy o kontakt.',
+    'For security reasons, please do not share your login details with unauthorised persons. If you did not request a password reset, please contact us.',
+    '',
+    `W razie problemów z logowaniem / In case of any problems logging in: ${SUPPORT}`,
+    'Zespół Ptak Warsaw Expo / Ptak Warsaw Expo Team',
+  ].join('\n');
+
+  return { subject, html, text };
+};
+
+module.exports = { buildExhibitorWelcomeEmail, buildExhibitorPasswordResetEmail, exhibitorWelcomeLinks };

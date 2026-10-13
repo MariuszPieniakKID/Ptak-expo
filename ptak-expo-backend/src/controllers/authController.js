@@ -457,7 +457,7 @@ const exhibitorForgotPassword = async (req, res) => {
     }
 
     // Send email with new password
-    const { sendPasswordResetEmail } = require('../utils/emailService');
+    const { sendExhibitorPasswordResetEmail } = require('../utils/emailService');
     
     // Parse exhibitor name from contact_person or use company_name
     const contact = String(exhibitor.contact_person || '').trim();
@@ -473,7 +473,7 @@ const exhibitorForgotPassword = async (req, res) => {
     const exhibition = await getNearestExhibitionForExhibitor(exhibitor.id);
     const exhibitionName = exhibition ? exhibition.name : getDefaultExhibitionName();
     
-    const emailResult = await sendPasswordResetEmail(
+    const emailResult = await sendExhibitorPasswordResetEmail(
       exhibitor.email,
       firstName || exhibitor.company_name || 'Wystawca',
       lastName || '',

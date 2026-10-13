@@ -5,7 +5,7 @@ const { verifyToken, requireAdmin } = require('../middleware/auth');
 const { requireExhibitorOrAdmin } = require('../middleware/auth');
 const bcrypt = require('bcryptjs');
 const { sendEmail } = require('../utils/emailService');
-const { sendPasswordResetEmail } = require('../utils/emailService');
+const { sendExhibitorPasswordResetEmail } = require('../utils/emailService');
 const { getNearestExhibitionForExhibitor, getDefaultExhibitionName } = require('../utils/exhibitorHelpers');
 const { buildIdentifierPdf } = require('../utils/identifierPdf');
 const { logActivity } = require('../utils/activityLogger');
@@ -1518,7 +1518,7 @@ router.post('/:id/reset-password', verifyToken, requireAdmin, async (req, res) =
       const exhibition = await getNearestExhibitionForExhibitor(exhibitorId);
       const exhibitionName = exhibition ? exhibition.name : getDefaultExhibitionName();
       
-      const emailResult = await sendPasswordResetEmail(exhibitor.email, first, last, newPassword, exhibitorPanelUrl, exhibitionName);
+      const emailResult = await sendExhibitorPasswordResetEmail(exhibitor.email, first, last, newPassword, exhibitorPanelUrl, exhibitionName);
       if (!emailResult.success) {
         console.warn('[exhibitors.reset-password] email send failed:', emailResult.error);
       }

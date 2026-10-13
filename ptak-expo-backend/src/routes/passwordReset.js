@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
 const db = require('../config/database');
-const { sendPasswordResetEmail } = require('../utils/emailService');
+const { sendExhibitorPasswordResetEmail } = require('../utils/emailService');
 const { verifyToken, requireAdmin } = require('../middleware/auth');
 
 // Helper function to generate and hash password
@@ -156,7 +156,7 @@ router.post('/food-tech/send-test', verifyToken, requireAdmin, async (req, res) 
         || (process.env.FRONTEND_WEB_URL ? `${process.env.FRONTEND_WEB_URL}/login` : null)
         || 'https://wystawca.exhibitorlist.warsawexpo.eu/login';
     
-    const emailResult = await sendPasswordResetEmail(
+    const emailResult = await sendExhibitorPasswordResetEmail(
       exhibitor.email,
       firstName || exhibitor.company_name || 'Wystawca',
       lastName || '',
@@ -266,7 +266,7 @@ router.post('/food-tech/send-all', verifyToken, requireAdmin, async (req, res) =
           || (process.env.FRONTEND_WEB_URL ? `${process.env.FRONTEND_WEB_URL}/login` : null)
           || 'https://wystawca.exhibitorlist.warsawexpo.eu/login';
         
-        const emailResult = await sendPasswordResetEmail(
+        const emailResult = await sendExhibitorPasswordResetEmail(
           exhibitor.email,
           firstName || exhibitor.company_name || 'Wystawca',
           lastName || '',
@@ -475,7 +475,7 @@ router.post('/bioexpo-globalfood/send-test', verifyToken, requireAdmin, async (r
         || (process.env.FRONTEND_WEB_URL ? `${process.env.FRONTEND_WEB_URL}/login` : null)
         || 'https://wystawca.exhibitorlist.warsawexpo.eu/login';
     
-    const emailResult = await sendPasswordResetEmail(
+    const emailResult = await sendExhibitorPasswordResetEmail(
       exhibitor.email,
       firstName || exhibitor.company_name || 'Wystawca',
       lastName || '',
@@ -590,7 +590,7 @@ router.post('/bioexpo-globalfood/send-all', verifyToken, requireAdmin, async (re
             || (process.env.FRONTEND_WEB_URL ? `${process.env.FRONTEND_WEB_URL}/login` : null)
             || 'https://wystawca.exhibitorlist.warsawexpo.eu/login';
         
-        const emailResult = await sendPasswordResetEmail(
+        const emailResult = await sendExhibitorPasswordResetEmail(
           exhibitor.email,
           firstName || exhibitor.company_name || 'Wystawca',
           lastName || '',
@@ -793,7 +793,7 @@ router.post('/bioexpo/send-test', verifyToken, requireAdmin, async (req, res) =>
         || (process.env.FRONTEND_WEB_URL ? `${process.env.FRONTEND_WEB_URL}/login` : null)
         || 'https://wystawca.exhibitorlist.warsawexpo.eu/login';
     
-    const emailResult = await sendPasswordResetEmail(
+    const emailResult = await sendExhibitorPasswordResetEmail(
       exhibitor.email,
       firstName || exhibitor.company_name || 'Wystawca',
       lastName || '',
@@ -905,7 +905,7 @@ router.post('/bioexpo/send-all', verifyToken, requireAdmin, async (req, res) => 
             || (process.env.FRONTEND_WEB_URL ? `${process.env.FRONTEND_WEB_URL}/login` : null)
             || 'https://wystawca.exhibitorlist.warsawexpo.eu/login';
         
-        const emailResult = await sendPasswordResetEmail(
+        const emailResult = await sendExhibitorPasswordResetEmail(
           exhibitor.email,
           firstName || exhibitor.company_name || 'Wystawca',
           lastName || '',

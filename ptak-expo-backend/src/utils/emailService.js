@@ -400,10 +400,35 @@ const sendExhibitorWelcomeEmail = async (userEmail, exhibitionName = null) => {
   }
 };
 
+// Reset hasła wystawcy (PL/EN, szablon Katalogu Wystawców). Sygnatura jak w sendPasswordResetEmail;
+// imię, nazwisko i nazwa targów nie występują w szablonie.
+const sendExhibitorPasswordResetEmail = async (userEmail, _firstName, _lastName, newPassword, loginUrl = null) => {
+  const { buildExhibitorPasswordResetEmail } = require('./welcomeEmailTemplate');
+  const { subject, html, text } = buildExhibitorPasswordResetEmail({ email: userEmail, newPassword, loginUrl });
+  try {
+    if (canUseGraph()) {
+      await sendViaGraph({ to: userEmail, subject, text, html, from: process.env.FROM_EMAIL });
+      return { success: true, method: 'Graph API' };
+    }
+    const info = await createTransporter().sendMail({
+      from: process.env.FROM_EMAIL || process.env.SMTP_USER || 'noreply@ptak-expo.com',
+      to: userEmail,
+      subject,
+      html,
+      text,
+    });
+    return { success: true, messageId: info.messageId, userEmail, method: 'SMTP' };
+  } catch (error) {
+    console.error(`❌ Błąd wysyłania maila z resetem hasła do ${userEmail}:`, error.message);
+    return { success: false, error: error.message };
+  }
+};
+
 module.exports = {
   sendWelcomeEmail,
   sendPasswordResetEmail,
-  sendExhibitorWelcomeEmail
+  sendExhibitorWelcomeEmail,
+  sendExhibitorPasswordResetEmail
 }; 
 
 // Generic email sender for custom messages
