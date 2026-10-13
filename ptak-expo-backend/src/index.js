@@ -155,6 +155,12 @@ app.options('*', cors());
 app.use(express.json({ limit: '8mb' }));
 app.use(express.urlencoded({ extended: true, limit: '8mb' }));
 
+// Logotypy i instrukcja PDF linkowane z maili – muszą być publiczne, bo otwiera je klient poczty.
+app.use('/email-assets', express.static(path.join(__dirname, 'templates/emails/assets'), {
+  maxAge: '7d',
+  setHeaders: (res) => res.set('Cross-Origin-Resource-Policy', 'cross-origin'),
+}));
+
 // Serve uploads directory as static files (with CORS headers for images)
 // This allows direct access to images without authentication
 const fs = require('fs');

@@ -27,6 +27,9 @@ const exhibitorWelcomeLinks = (email) => {
 
 const SUPPORT = 'appsupport@warsawexpo.eu';
 
+const assetsUrl = () => `${(process.env.PUBLIC_BASE_URL || 'https://backend-production-e57c.up.railway.app').trim().replace(/\/$/, '')}/email-assets`;
+const logoUrl = () => `${assetsUrl()}/ptak-logo-white.png`;
+
 const buildExhibitorWelcomeEmail = ({ email, exhibitionName }) => {
   const { appUrl, resetUrl } = exhibitorWelcomeLinks(email);
   const eventName = exhibitionName || 'PTAK WARSAW EXPO';
@@ -34,6 +37,7 @@ const buildExhibitorWelcomeEmail = ({ email, exhibitionName }) => {
 
   const subject = `Witamy w gronie wystawców ${eventName} / Welcome to the exhibitors of ${eventName}`;
   const html = fill(WELCOME_HTML, {
+    LOGO: esc(logoUrl()),
     'NAZWA TARGÓW': ev,
     'TRADE FAIR NAME': ev,
     LOGIN: esc(email),
@@ -70,6 +74,7 @@ const buildExhibitorPasswordResetEmail = ({ email, newPassword, loginUrl }) => {
 
   const subject = 'Reset hasła / Password reset – Katalog Wystawców';
   const html = fill(RESET_HTML, {
+    LOGO: esc(logoUrl()),
     LOGIN: esc(email),
     'NOWE HASŁO': esc(newPassword),
     'LINK DO APLIKACJI': esc(appUrl),
