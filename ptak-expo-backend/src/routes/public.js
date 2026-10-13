@@ -820,6 +820,119 @@ router.get('/exhibitions/:exhibitionId/exhibitors.json', cachujFeed, async (req,
   }
 });
 
+// Wydarzenia, które wystawcy dodali na swoich stoiskach („Plan wydarzeń na stoisku”) – jedna lista
+// dla całych targów, do strony internetowej. Zamknięte (tylko dla firmy i gości) oraz montaż,
+// demontaż i dostawy są wewnętrzne, więc ich nie publikujemy.
+// Parametry: ?date=RRRR-MM-DD (jeden dzień), ?agenda=1 (tylko wybrane przez organizatora do agendy).
+router.get('/exhibitions/:exhibitionId/events.json', cachujFeed, async (req, res) => {
+  try {
+    const siteLink = 'https://' + req.get('host');
+    const exhibitionId = parseInt(req.params.exhibitionId, 10);
+    if (!Number.isInteger(exhibitionId)) {
+      return res.status(400).json({ success: false, message: 'Invalid exhibition id' });
+    }
+    const date = /^\d{4}-\d{2}-\d{2}$/.test(String(req.query.date || '')) ? String(req.query.date) : null;
+    const tylkoAgenda = ['1', 'true', 'tak'].includes(String(req.query.agenda || '').toLowerCase());
+
+    const exhibitionRes = await db.query(
+      `SELECT id, name, to_char(start_date, 'YYYY-MM-DD') AS start_date, to_char(end_date, 'YYYY-MM-DD') AS end_date
+       FROM exhibitions WHERE id = $1`,
+      [exhibitionId]
+    );
+    if (!exhibitionRes.rows.length) {
+      return res.status(404).json({ success: false, message: 'Exhibition not found' });
+    }
+    const exhibition = exhibitionRes.rows[0];
+
+    const rows = await db.query(
+      `WITH stoiska AS (
+         SELECT ee.id, ee.exhibitor_id, ee.hall_name, ee.stand_number,
+                MIN(ee.id) OVER (PARTITION BY ee.exhibitor_id) AS first_participation_id
+         FROM exhibitor_events ee
+         WHERE ee.exhibition_id = $1
+       )
+       SELECT t.id, t.name, to_char(t.event_date, 'YYYY-MM-DD') AS event_date,
+              to_char(t.start_time, 'HH24:MI') AS start_time, to_char(t.end_time, 'HH24:MI') AS end_time,
+              t.type, t.description, t.link, t.organizer, t.hall AS location, COALESCE(t.is_in_agenda, false) AS is_in_agenda,
+              t.exhibitor_id, s.id AS participation_id, s.first_participation_id, s.hall_name, s.stand_number,
+              e.company_name,
+              COALESCE(sc.display_name, gc.display_name, sc.name, gc.name, e.company_name) AS display_name,
+              COALESCE(sc.logo, gc.logo) AS logo
+       FROM trade_events t
+       JOIN exhibitors e ON e.id = t.exhibitor_id
+       LEFT JOIN stoiska sp ON sp.id = t.participation_id AND sp.exhibitor_id = t.exhibitor_id
+       JOIN stoiska s ON s.exhibitor_id = t.exhibitor_id AND s.id = COALESCE(sp.id, s.first_participation_id)
+       LEFT JOIN exhibitor_catalog_entries sc ON sc.participation_id = s.id
+       LEFT JOIN LATERAL (
+         SELECT c.display_name, c.name, c.logo FROM exhibitor_catalog_entries c
+         WHERE c.exhibitor_id = t.exhibitor_id AND c.exhibition_id IS NULL
+         ORDER BY c.updated_at DESC LIMIT 1
+       ) gc ON true
+       WHERE t.exhibition_id = $1
+         AND COALESCE(t.event_source, 'official_events') <> 'construction'
+         AND t.type NOT ILIKE 'Zamknięte%'
+         AND t.type NOT ILIKE '%montaż%'
+         AND t.type NOT ILIKE 'Dostawa%'
+         AND e.nip != '8212421851'
+         AND e.company_name NOT LIKE '%Mariusz Pieniak%'
+         AND ($2::date IS NULL OR t.event_date = $2::date)
+         AND (NOT $3::boolean OR t.is_in_agenda = true)
+       ORDER BY t.event_date ASC, t.start_time ASC, t.end_time ASC, t.id ASC`,
+      [exhibitionId, date, tylkoAgenda]
+    );
+
+    const logoUrl = (value) => {
+      const s = String(value || '').trim();
+      if (!s || s.startsWith('data:')) return '';
+      if (/^https?:\/\//i.test(s)) return s;
+      if (s.startsWith('/uploads/')) return `${siteLink}${s}`;
+      if (s.startsWith('uploads/')) return `${siteLink}/${s}`;
+      return `${siteLink}/api/v1/exhibitor-branding/serve/global/${encodeURIComponent(s)}`;
+    };
+
+    const events = rows.rows.map((r) => {
+      const exhibitorId = publiczneIdKarty(r.exhibitor_id, r.participation_id, r.first_participation_id);
+      return {
+        id: String(r.id),
+        name: r.name || '',
+        date: r.event_date || '',
+        startTime: r.start_time || '',
+        endTime: r.end_time || '',
+        type: r.type || '',
+        description: r.description || '',
+        link: ensureHttps(r.link || ''),
+        organizer: r.organizer || '',
+        location: r.location || '',
+        isInAgenda: r.is_in_agenda ? 'true' : 'false',
+        exhibitor: {
+          exhibitorId,
+          accountId: String(r.exhibitor_id),
+          standId: String(r.participation_id),
+          name: r.company_name || '',
+          displayName: r.display_name || '',
+          hall: r.hall_name || '',
+          standNumber: r.stand_number || '',
+          logoUrl: logoUrl(r.logo),
+          cardJsonUrl: `${siteLink}/public/exhibitions/${exhibitionId}/exhibitors/${exhibitorId}.json`,
+        },
+      };
+    });
+
+    res.json(sanitizeResponse({
+      success: true,
+      exhibitionId: String(exhibitionId),
+      exhibitionName: exhibition.name || '',
+      startDate: exhibition.start_date || '',
+      endDate: exhibition.end_date || '',
+      count: String(events.length),
+      events,
+    }));
+  } catch (error) {
+    console.error('[public] stand events json error', error);
+    res.status(500).json({ success: false, message: 'Failed to fetch events JSON feed' });
+  }
+});
+
 // Public: RSS feed of exhibitions ordered by start_date
 router.get('/rss', async (req, res) => {
   try {
