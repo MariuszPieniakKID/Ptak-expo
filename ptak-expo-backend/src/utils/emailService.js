@@ -80,6 +80,7 @@ const sendViaGraph = async ({ to, subject, text, html, from, attachments }) => {
         contentBytes: Buffer.isBuffer(att.content)
           ? att.content.toString('base64')
           : (typeof att.content === 'string' ? att.content : ''),
+        ...(att.cid ? { isInline: true, contentId: att.cid } : {}),
       }))
     : undefined;
 
@@ -380,10 +381,10 @@ Jeśli nie żądali Państwo resetu hasła, prosimy o natychmiastowy kontakt z a
 // Mail powitalny wystawcy bez hasła (PL/EN), wspólny dla zakładania konta i wysyłki zbiorczej.
 const sendExhibitorWelcomeEmail = async (userEmail, exhibitionName = null) => {
   const { buildExhibitorWelcomeEmail } = require('./welcomeEmailTemplate');
-  const { subject, html, text } = buildExhibitorWelcomeEmail({ email: userEmail, exhibitionName });
+  const { subject, html, text, attachments } = buildExhibitorWelcomeEmail({ email: userEmail, exhibitionName });
   try {
     if (canUseGraph()) {
-      await sendViaGraph({ to: userEmail, subject, text, html, from: process.env.FROM_EMAIL });
+      await sendViaGraph({ to: userEmail, subject, text, html, from: process.env.FROM_EMAIL, attachments });
       return { success: true, method: 'Graph API' };
     }
     const info = await createTransporter().sendMail({
@@ -392,6 +393,7 @@ const sendExhibitorWelcomeEmail = async (userEmail, exhibitionName = null) => {
       subject,
       html,
       text,
+      attachments,
     });
     return { success: true, messageId: info.messageId, method: 'SMTP' };
   } catch (error) {
@@ -404,10 +406,10 @@ const sendExhibitorWelcomeEmail = async (userEmail, exhibitionName = null) => {
 // imię, nazwisko i nazwa targów nie występują w szablonie.
 const sendExhibitorPasswordResetEmail = async (userEmail, _firstName, _lastName, newPassword, loginUrl = null) => {
   const { buildExhibitorPasswordResetEmail } = require('./welcomeEmailTemplate');
-  const { subject, html, text } = buildExhibitorPasswordResetEmail({ email: userEmail, newPassword, loginUrl });
+  const { subject, html, text, attachments } = buildExhibitorPasswordResetEmail({ email: userEmail, newPassword, loginUrl });
   try {
     if (canUseGraph()) {
-      await sendViaGraph({ to: userEmail, subject, text, html, from: process.env.FROM_EMAIL });
+      await sendViaGraph({ to: userEmail, subject, text, html, from: process.env.FROM_EMAIL, attachments });
       return { success: true, method: 'Graph API' };
     }
     const info = await createTransporter().sendMail({
@@ -416,6 +418,7 @@ const sendExhibitorPasswordResetEmail = async (userEmail, _firstName, _lastName,
       subject,
       html,
       text,
+      attachments,
     });
     return { success: true, messageId: info.messageId, userEmail, method: 'SMTP' };
   } catch (error) {
