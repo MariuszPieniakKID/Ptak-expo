@@ -32,8 +32,13 @@ const guideUrl = () => `${assetsUrl()}/Instrukcja-Katalog-Wystawcow.pdf`;
 
 // Logo jest osadzone w wiadomości (CID), więc widać je także przy zablokowanym pobieraniu obrazów.
 const LOGO_CID = 'ptak-logo@warsawexpo.eu';
+const UFI_CID = 'ufi-member@warsawexpo.eu';
 const LOGO_PNG = fs.readFileSync(path.join(TEMPLATES_DIR, 'assets', 'ptak-logo-white.png'));
-const logoAttachment = () => ({ filename: 'ptak-warsaw-expo.png', content: LOGO_PNG, contentType: 'image/png', cid: LOGO_CID });
+const UFI_PNG = fs.readFileSync(path.join(TEMPLATES_DIR, 'assets', 'ufi-member-white.png'));
+const logoAttachments = () => [
+  { filename: 'ptak-warsaw-expo.png', content: LOGO_PNG, contentType: 'image/png', cid: LOGO_CID },
+  { filename: 'ufi-member.png', content: UFI_PNG, contentType: 'image/png', cid: UFI_CID },
+];
 
 const buildExhibitorWelcomeEmail = ({ email, exhibitionName }) => {
   const { appUrl, resetUrl } = exhibitorWelcomeLinks(email);
@@ -43,6 +48,7 @@ const buildExhibitorWelcomeEmail = ({ email, exhibitionName }) => {
   const subject = `Witamy w gronie wystawców ${eventName} / Welcome to the exhibitors of ${eventName}`;
   const html = fill(WELCOME_HTML, {
     LOGO: `cid:${LOGO_CID}`,
+    'LOGO UFI': `cid:${UFI_CID}`,
     'LINK DO INSTRUKCJI': esc(guideUrl()),
     'NAZWA TARGÓW': ev,
     'TRADE FAIR NAME': ev,
@@ -73,7 +79,7 @@ const buildExhibitorWelcomeEmail = ({ email, exhibitionName }) => {
     'Zespół Ptak Warsaw Expo / Ptak Warsaw Expo Team',
   ].join('\n');
 
-  return { subject, html, text, attachments: [logoAttachment()] };
+  return { subject, html, text, attachments: logoAttachments() };
 };
 
 const buildExhibitorPasswordResetEmail = ({ email, newPassword, loginUrl }) => {
@@ -82,6 +88,7 @@ const buildExhibitorPasswordResetEmail = ({ email, newPassword, loginUrl }) => {
   const subject = 'Reset hasła / Password reset – Katalog Wystawców';
   const html = fill(RESET_HTML, {
     LOGO: `cid:${LOGO_CID}`,
+    'LOGO UFI': `cid:${UFI_CID}`,
     LOGIN: esc(email),
     'NOWE HASŁO': esc(newPassword),
     'LINK DO APLIKACJI': esc(appUrl),
@@ -109,7 +116,7 @@ const buildExhibitorPasswordResetEmail = ({ email, newPassword, loginUrl }) => {
     'Zespół Ptak Warsaw Expo / Ptak Warsaw Expo Team',
   ].join('\n');
 
-  return { subject, html, text, attachments: [logoAttachment()] };
+  return { subject, html, text, attachments: logoAttachments() };
 };
 
 module.exports = { buildExhibitorWelcomeEmail, buildExhibitorPasswordResetEmail, exhibitorWelcomeLinks };
