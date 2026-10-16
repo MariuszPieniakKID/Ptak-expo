@@ -403,7 +403,7 @@ const exhibitorForgotPassword = async (req, res) => {
     let result;
     try {
       result = await db.query(
-        'SELECT id, email, contact_person, company_name, status FROM exhibitors WHERE LOWER(email) = $1',
+        'SELECT id, email, contact_person, company_name, status, password_hash FROM exhibitors WHERE LOWER(email) = $1',
         [normalizedEmail]
       );
     } catch (dbError) {
@@ -484,10 +484,12 @@ const exhibitorForgotPassword = async (req, res) => {
 
     if (!emailResult.success) {
       console.error('Failed to send exhibitor password reset email:', emailResult.error);
-      // Password was already changed in DB, so we inform user
-      return res.json({
-        success: true,
-        message: 'Hasło zostało zresetowane, ale wystąpił problem z wysłaniem emaila. Skontaktuj się z administratorem.'
+      // Bez maila wystawca nie zna nowego hasła – zostawiamy dotychczasowe, żeby nie odciąć mu dostępu
+      await db.query('UPDATE exhibitors SET password_hash = $1 WHERE id = $2', [exhibitor.password_hash, exhibitor.id])
+        .catch((e) => console.error('Nie udało się przywrócić hasła wystawcy', exhibitor.id, e.message));
+      return res.status(503).json({
+        success: false,
+        message: 'Nie udało się wysłać wiadomości z nowym hasłem. Dotychczasowe hasło nadal działa – spróbuj ponownie za kilka minut.'
       });
     }
 

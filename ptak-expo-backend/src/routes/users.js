@@ -3,7 +3,7 @@ const router = express.Router();
 const db = require('../config/database');
 const bcrypt = require('bcryptjs');
 const { verifyToken, requireAdmin } = require('../middleware/auth');
-const { sendWelcomeEmail, sendPasswordResetEmail } = require('../utils/emailService');
+const { sendWelcomeEmail, sendPasswordResetEmail, sendExhibitorPasswordResetEmail } = require('../utils/emailService');
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
@@ -48,6 +48,16 @@ const avatarUpload = multer({
     return cb(new Error('Only PNG, JPEG, WEBP are allowed'));
   }
 });
+
+// Panel wystawcy loguje po exhibitors.password_hash, więc hasło ustawione wystawcy w „Użytkownikach”
+// musi trafić też tam – inaczej działa tylko w tabeli users i nie da się nim zalogować.
+const ustawHasloWystawcy = async (email, passwordHash) => {
+  const r = await db.query(
+    'UPDATE exhibitors SET password_hash = $1, updated_at = NOW() WHERE LOWER(email) = LOWER($2) RETURNING id',
+    [passwordHash, email]
+  );
+  return r.rowCount;
+};
 
 // Upload user avatar
 router.post('/:id/avatar', verifyToken, requireAdmin, avatarUpload.single('avatar'), async (req, res) => {
@@ -292,7 +302,7 @@ router.post('/:id/reset-password', verifyToken, requireAdmin, async (req, res) =
     
     // Check if user exists
     const userQuery = await db.query(
-      'SELECT email, first_name, last_name FROM users WHERE id = $1',
+      'SELECT email, first_name, last_name, role FROM users WHERE id = $1',
       [id]
     );
     
@@ -317,17 +327,26 @@ router.post('/:id/reset-password', verifyToken, requireAdmin, async (req, res) =
       'UPDATE users SET password_hash = $1, updated_at = NOW() WHERE id = $2',
       [password_hash, id]
     );
+    const isExhibitor = user.role === 'exhibitor' && (await ustawHasloWystawcy(user.email, password_hash)) > 0;
     
     console.log(`Password reset for user: ${user.first_name} ${user.last_name} (${user.email})`);
     
     // Wyślij email z nowym hasłem
     try {
-      const emailResult = await sendPasswordResetEmail(
-        user.email,
-        user.first_name,
-        user.last_name,
-        newPassword
-      );
+      const emailResult = isExhibitor
+        ? await sendExhibitorPasswordResetEmail(
+          user.email,
+          user.first_name,
+          user.last_name,
+          newPassword,
+          `${process.env.EXHIBITOR_PANEL_URL || 'https://wystawca.exhibitorlist.warsawexpo.eu'}/login`
+        )
+        : await sendPasswordResetEmail(
+          user.email,
+          user.first_name,
+          user.last_name,
+          newPassword
+        );
       
       if (emailResult.success) {
         console.log('✅ Password reset email sent successfully to:', user.email);
@@ -442,13 +461,15 @@ router.put('/:id', verifyToken, requireAdmin, async (req, res) => {
     } = req.body || {};
 
     // Check if user exists
-    const existsQuery = await db.query('SELECT id FROM users WHERE id = $1', [id]);
+    const existsQuery = await db.query('SELECT id, email, role FROM users WHERE id = $1', [id]);
     if (existsQuery.rows.length === 0) {
       return res.status(404).json({
         success: false,
         error: 'Użytkownik nie został znaleziony'
       });
     }
+    const existing = existsQuery.rows[0];
+    let newPasswordHash = null;
 
     // Build dynamic update
     const fields = [];
@@ -467,8 +488,8 @@ router.put('/:id', verifyToken, requireAdmin, async (req, res) => {
     // Hash password if provided
     if (password !== undefined && password.trim() !== '') {
       const saltRounds = 10;
-      const password_hash = await bcrypt.hash(password, saltRounds);
-      pushField('password_hash', password_hash);
+      newPasswordHash = await bcrypt.hash(password, saltRounds);
+      pushField('password_hash', newPasswordHash);
     }
 
     pushField('updated_at', new Date());
@@ -484,6 +505,10 @@ router.put('/:id', verifyToken, requireAdmin, async (req, res) => {
 
     const result = await db.query(query, values);
     const user = result.rows[0];
+
+    if (newPasswordHash && existing.role === 'exhibitor') {
+      await ustawHasloWystawcy(existing.email, newPasswordHash);
+    }
 
     res.json({
       success: true,

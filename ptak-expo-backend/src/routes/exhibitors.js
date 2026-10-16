@@ -1475,7 +1475,7 @@ router.post('/:id/reset-password', verifyToken, requireAdmin, async (req, res) =
 
     // Fetch exhibitor
     const exRes = await db.query(
-      'SELECT id, email, contact_person, company_name FROM exhibitors WHERE id = $1',
+      'SELECT id, email, contact_person, company_name, password_hash FROM exhibitors WHERE id = $1',
       [exhibitorId]
     );
     if (exRes.rows.length === 0) {
@@ -1507,6 +1507,7 @@ router.post('/:id/reset-password', verifyToken, requireAdmin, async (req, res) =
     }
 
     // Send password reset email with exhibitor panel URL
+    let mailError = null;
     try {
       const fullName = exhibitor.contact_person || '';
       const first = fullName.split(' ')[0] || '';
@@ -1519,12 +1520,17 @@ router.post('/:id/reset-password', verifyToken, requireAdmin, async (req, res) =
       const exhibitionName = exhibition ? exhibition.name : getDefaultExhibitionName();
       
       const emailResult = await sendExhibitorPasswordResetEmail(exhibitor.email, first, last, newPassword, exhibitorPanelUrl, exhibitionName);
-      if (!emailResult.success) {
-        console.warn('[exhibitors.reset-password] email send failed:', emailResult.error);
-      }
+      if (!emailResult.success) mailError = emailResult.error;
     } catch (mailErr) {
-      console.warn('[exhibitors.reset-password] email error:', mailErr?.message || mailErr);
+      mailError = mailErr?.message || mailErr;
     }
+    if (mailError) {
+      console.warn('[exhibitors.reset-password] email send failed:', mailError);
+      // Wystawca nie dostał nowego hasła – zostawiamy dotychczasowe
+      await db.query('UPDATE exhibitors SET password_hash = $1 WHERE id = $2', [exhibitor.password_hash, exhibitorId]);
+      return res.status(503).json({ success: false, message: 'Nie udało się wysłać maila z nowym hasłem – hasło wystawcy nie zostało zmienione. Spróbuj ponownie za kilka minut.' });
+    }
+    console.log(`✅ Admin zresetował hasło wystawcy ${exhibitor.email} (id: ${exhibitorId})`);
 
     return res.json({ success: true, message: `Nowe hasło zostało wygenerowane i wysłane na adres ${exhibitor.email}` });
   } catch (e) {
