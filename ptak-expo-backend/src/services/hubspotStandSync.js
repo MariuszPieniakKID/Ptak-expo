@@ -83,19 +83,20 @@ async function companiesForDeals(dealIds) {
   return result;
 }
 
-async function nipsForDeals(dealIds) {
-  const byDeal = await companiesForDeals(dealIds);
-  const result = {};
-  for (const [dealId, cos] of Object.entries(byDeal)) result[dealId] = [...new Set(cos.map((c) => c.nip).filter(Boolean))];
-  return result;
-}
-
+// Transakcje po numerach. Po scaleniu w HubSpot stary numer prowadzi do transakcji docelowej
+// (z innym id) – zwracamy ją pod starym numerem, a id docelowe jest w deal.id.
 async function fetchDealsById(ids) {
   const out = {};
   const unique = [...new Set(ids.map(String))];
   for (let i = 0; i < unique.length; i += 100) {
-    const j = await hs('/crm/v3/objects/deals/batch/read', { properties: DEAL_PROPS, inputs: unique.slice(i, i + 100).map((id) => ({ id })) });
-    for (const d of j.results || []) out[d.id] = d;
+    const chunk = unique.slice(i, i + 100);
+    const j = await hs('/crm/v3/objects/deals/batch/read', { properties: [...DEAL_PROPS, 'hs_merged_object_ids'], inputs: chunk.map((id) => ({ id })) });
+    for (const d of j.results || []) {
+      out[d.id] = d;
+      for (const old of String(d.properties.hs_merged_object_ids || '').split(';').filter(Boolean)) {
+        if (chunk.includes(old)) out[old] = d;
+      }
+    }
   }
   return out;
 }
@@ -266,7 +267,11 @@ async function syncEvent(ev, problems, changes, stats) {
     const deal = linkedDeals[t.hubspot_deal_id];
     const base = { eventId: ev.id, event: ev.name, dealId: t.hubspot_deal_id, firma: t.company_name, participationId: t.id };
     stats.dealsChecked++;
-    if (!deal) { problems.push({ ...base, type: 'transakcja_brak', info: 'Podpiętej transakcji nie ma w HubSpot (usunięta lub scalona) – podepnij inną' }); continue; }
+    if (!deal) { problems.push({ ...base, type: 'transakcja_brak', info: 'Podpiętej transakcji nie ma w HubSpot (usunięta) – podepnij inną' }); continue; }
+    if (String(deal.id) !== String(t.hubspot_deal_id)) {
+      await db.query('UPDATE exhibitor_events SET hubspot_deal_id = $2 WHERE id = $1', [t.id, String(deal.id)]);
+      t.hubspot_deal_id = String(deal.id);
+    }
     Object.assign(base, { deal: deal.properties.dealname, hala: deal.properties.hala_ || '', stoisko: deal.properties.numer_stoiska || '' });
     if (ev.hsValues.length && deal.properties.udzial_targow && !ev.hsValues.some((v) => sameText(v, deal.properties.udzial_targow))) {
       problems.push({ ...base, type: 'transakcja_inne_targi', info: `Transakcja dotyczy targów „${deal.properties.udzial_targow}”, które w słowniku nie są przypisane do tego wydarzenia` });
@@ -289,16 +294,27 @@ async function syncEvent(ev, problems, changes, stats) {
     }
   };
   const linkedIds = new Set(linked.map((r) => String(r.hubspot_deal_id)));
-  const deals = (await searchDeals([
+  const allDeals = (await searchDeals([
     { propertyName: 'pipeline', operator: 'EQ', value: DOT_PIPELINE },
     { propertyName: 'udzial_targow', operator: 'IN', values: ev.hsValues },
-  ])).filter((d) => String(d.properties.numer_stoiska || '').trim() && !linkedIds.has(String(d.id)));
+  ])).filter((d) => String(d.properties.numer_stoiska || '').trim());
+  const deals = allDeals.filter((d) => !linkedIds.has(String(d.id)));
   if (!deals.length) { reportUntouched(); return; }
-  const dealNips = await nipsForDeals(deals.map((d) => d.id));
+  const dealCompanies = await companiesForDeals(deals.map((d) => d.id));
+  const dealById = new Map(deals.map((d) => [d.id, d]));
+  const reads = new Map(deals.map((d) => [d.id, readDeal(d)]));
+  const consumed = new Set();
+  const autoLink = async (t, deal) => {
+    await linkStand(t.id, deal.id, 'auto', null);
+    stats.autoLinked++;
+    touched.add(t.id);
+    consumed.add(deal.id);
+    await applyDealToStand(t, deal, reads.get(deal.id), ev.name, changes, stats);
+  };
 
   const byNip = new Map();
   for (const d of deals) {
-    const nips = dealNips[d.id] || [];
+    const nips = [...new Set((dealCompanies[d.id] || []).map((c) => c.nip).filter(Boolean))];
     const base = { eventId: ev.id, event: ev.name, dealId: d.id, deal: d.properties.dealname, hala: d.properties.hala_ || '', stoisko: d.properties.numer_stoiska };
     if (nips.length !== 1 || nips[0].length !== 10) { problems.push({ ...base, type: 'nip_hubspot', info: nips.length ? `NIP w HubSpot: ${nips.join(', ')}` : 'Firma w HubSpot bez NIP' }); continue; }
     if (!byNip.has(nips[0])) byNip.set(nips[0], []);
@@ -311,44 +327,94 @@ async function syncEvent(ev, problems, changes, stats) {
     oursByNip.get(r.nip).push(r);
   }
 
-  for (const [nip, hsDeals] of byNip) {
-    stats.dealsChecked += hsDeals.length;
-    const first = hsDeals[0];
-    const parsed = hsDeals.map((d) => parseStand(d.stoisko));
-    const standValues = [...new Set(hsDeals.map((d, i) => (parsed[i] || String(d.stoisko).trim()).toUpperCase()))];
+  for (const [nip, group] of byNip) {
+    stats.dealsChecked += group.length;
     const targets = oursByNip.get(nip) || [];
     if (!targets.length) { stats.notAssigned++; continue; }
-    for (const t of targets) touched.add(t.id);
-    if (standValues.length > 1) { problems.push({ ...first, type: 'kilka_deali', info: `Kilka deali z różnymi stoiskami: ${hsDeals.map((d) => `${d.hala} / ${d.stoisko}`).join('; ')}` }); continue; }
-    // Litera stoiska nie wyznacza hali – po zmianie numeracji np. stoisko B17 stoi w hali D.
-    const deal = deals.find((d) => d.id === first.dealId);
-    const read = readDeal(deal);
-    if (!read.ok) { problems.push({ ...first, firma: targets[0].company_name, type: read.type, info: read.info }); continue; }
-    if (targets.length > 1) {
-      const match = targets.filter((t) => sameText(t.stand_number, read.stand));
-      if (match.length === 1 && hsDeals.length === 1) {
-        await linkStand(match[0].id, deal.id, 'auto', null);
-        stats.autoLinked++;
-        await applyDealToStand(match[0], deal, read, ev.name, changes, stats);
-      } else if (!match.length) {
-        problems.push({ ...first, firma: targets[0].company_name, type: 'kilka_stoisk', info: `Wystawca ma w aplikacji ${targets.length} stoiska na tych targach (${targets.map((t) => t.stand_number).join(', ')}), w HubSpot jedno – podepnij transakcję w Powiązaniach` });
+    const firma = targets[0].company_name;
+
+    // NIP i numer stoiska zgodne = pewne dopasowanie, także gdy firma ma kilka stoisk lub kilka transakcji.
+    let paired = 0;
+    for (const t of targets) {
+      const sameStandDeals = group.filter((g) => reads.get(g.dealId).ok && sameText(reads.get(g.dealId).stand, t.stand_number));
+      const sameStandTargets = targets.filter((o) => sameText(o.stand_number, t.stand_number));
+      if (sameStandDeals.length === 1 && sameStandTargets.length === 1) {
+        await autoLink(t, dealById.get(sameStandDeals[0].dealId));
+        paired++;
       }
+    }
+    const restT = targets.filter((t) => !touched.has(t.id));
+    const restD = group.filter((g) => !consumed.has(g.dealId));
+    if (!restT.length || !restD.length) continue;
+    for (const t of restT) touched.add(t.id);
+
+    const first = restD[0];
+    const standValues = [...new Set(restD.map((g) => (reads.get(g.dealId).stand || String(g.stoisko).trim()).toUpperCase()))];
+    if (standValues.length > 1) { problems.push({ ...first, firma, type: 'kilka_deali', info: `Kilka deali z różnymi stoiskami: ${restD.map((d) => `${d.hala} / ${d.stoisko}`).join('; ')}` }); continue; }
+    // Litera stoiska nie wyznacza hali – po zmianie numeracji np. stoisko B17 stoi w hali D.
+    const read = reads.get(first.dealId);
+    if (!read.ok) { problems.push({ ...first, firma, type: read.type, info: read.info }); continue; }
+    if (restT.length > 1 || paired) {
+      problems.push({ ...first, firma, type: 'kilka_stoisk', info: `Wystawca ma w aplikacji stoiska ${restT.map((t) => t.stand_number || '-').join(', ')} bez pary w HubSpot (transakcja: ${first.stoisko}) – podepnij transakcję w Powiązaniach` });
       continue;
     }
-    const t = targets[0];
-    // NIP i numer stoiska zgodne = pewne dopasowanie, podpinamy na stałe.
-    if (hsDeals.length === 1 && sameText(t.stand_number, read.stand)) {
-      await linkStand(t.id, deal.id, 'auto', null);
-      stats.autoLinked++;
-    }
-    await applyDealToStand(t, deal, read, ev.name, changes, stats);
+    // Jedna transakcja i jedno stoisko z tym NIP-em (stoisko zmienione w HubSpot) – przenosimy dane i podpinamy.
+    if (restD.length === 1) await autoLink(restT[0], dealById.get(first.dealId));
+    else await applyDealToStand(restT[0], dealById.get(first.dealId), read, ev.name, changes, stats);
+  }
+
+  // 3. Bez zgodnego NIP-u: numer stoiska jednoznaczny po obu stronach i podobna nazwa firmy.
+  const appCount = new Map();
+  for (const r of ours) { const k = String(r.stand_number || '').trim().toUpperCase(); if (k) appCount.set(k, (appCount.get(k) || 0) + 1); }
+  const hsByStand = new Map();
+  for (const d of allDeals) {
+    const s = parseStand(d.properties.numer_stoiska);
+    if (s) hsByStand.set(s.toUpperCase(), [...(hsByStand.get(s.toUpperCase()) || []), d]);
+  }
+  for (const t of unlinked) {
+    const k = String(t.stand_number || '').trim().toUpperCase();
+    if (touched.has(t.id) || !k || appCount.get(k) !== 1) continue;
+    const cands = hsByStand.get(k) || [];
+    if (cands.length !== 1) continue;
+    const d = dealById.get(cands[0].id);
+    if (!d || consumed.has(d.id) || !reads.get(d.id).ok) continue;
+    const hsNames = [d.properties.dealname, ...(dealCompanies[d.id] || []).map((c) => c.name)];
+    if (namesSimilar(t.company_name, hsNames, d.properties.udzial_targow)) await autoLink(t, d);
   }
   reportUntouched();
 }
 
+// Słowa, które nie odróżniają firm (formy prawne, ogólniki); nie liczą się przy porównaniu nazw.
+const NAME_STOP_WORDS = new Set([
+  'spolka', 'ograniczona', 'odpowiedzialnoscia', 'akcyjna', 'jawna', 'komandytowa', 'komandytowo', 'cywilna', 'partnerska',
+  'oddzial', 'polsce', 'polska', 'poland', 'polish', 'group', 'grupa', 'ltd', 'limited', 'gmbh', 'inc', 'llc', 'sro', 'spa', 'srl',
+  'company', 'corp', 'corporation', 'international', 'trade', 'trading', 'service', 'services', 'serwis', 'firma', 'przedsiebiorstwo',
+  'produkcyjno', 'produkcyjne', 'handlowe', 'handlowo', 'uslugowe', 'uslugowo', 'technologies', 'technology', 'tech', 'systems',
+  'system', 'solutions', 'expo', 'targi', 'warsaw', 'warszawa', 'the', 'and', 'organizacji', 'holding', 'europe', 'industrial',
+  'industry', 'machinery', 'equipment', 'design', 'studio', 'plus', 'pro', 'center', 'centrum', 'fair', 'show', 'days', 'week',
+  'uab', 'sia', 'jsc', 'ooo', 'kft', 'doo', 'sas', 'sarl', 'bvba', 'oyj', 'aps', 'llp', 'plc', 'pvt', 'private', 'srl', 'gmbh',
+  'industries', 'manufacturing', 'products', 'product', 'partners', 'partner', 'media', 'power', 'auto', 'energy', 'energia',
+  'invest', 'investment', 'investments', 'global', 'world', 'euro', 'eco', 'eko', 'bio', 'agro', 'food', 'home', 'green',
+  'export', 'import', 'consulting', 'marketing', 'barter', 'stoisko', 'stoiskiem',
+]);
+const nameTokens = (s) => String(s || '').toLowerCase().replace(/ł/g, 'l').normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+  .split(/[^a-z0-9]+/).filter((w) => w.length >= 3 && !/^\d+$/.test(w) && !NAME_STOP_WORDS.has(w));
+
+// Nazwa firmy z aplikacji a nazwy z HubSpot (transakcja, firmy): wspólne znaczące słowo
+// albo identyczna nazwa po usunięciu znaków. Słowa z nazwy targów (zawartej w nazwie transakcji) pomijamy.
+function namesSimilar(appName, hsNames, eventName) {
+  const eventWords = new Set(nameTokens(eventName));
+  const ours = new Set(nameTokens(appName).filter((w) => !eventWords.has(w)));
+  const compact = normName(appName);
+  return hsNames.some((n) => {
+    if (compact.length >= 4 && normName(n) === compact) return true;
+    return nameTokens(n).some((w) => !eventWords.has(w) && ours.has(w));
+  });
+}
+
 // Podpina (albo odpina, dealId = null) transakcję do stoiska i od razu przenosi z niej dane.
 // Zwraca { ok, deal, read, changed } albo { ok: false, error }.
-async function setStandDeal(participationId, rawDeal, { source = 'manual', by = null } = {}) {
+async function setStandDeal(participationId, rawDeal, { source = 'manual', by = null, deal: prefetched = null } = {}) {
   const { rows: [t] } = await db.query(
     `SELECT ${STAND_COLUMNS}, e.name AS exhibition_name FROM exhibitor_events ee
      JOIN exhibitors x ON x.id = ee.exhibitor_id JOIN exhibitions e ON e.id = ee.exhibition_id WHERE ee.id = $1`, [participationId]
@@ -364,12 +430,21 @@ async function setStandDeal(participationId, rawDeal, { source = 'manual', by = 
     await linkStand(participationId, dealId, source, by);
     return { ok: true, dealId, offline: true };
   }
-  const deal = (await fetchDealsById([dealId]))[dealId];
+  const deal = prefetched || (await fetchDealsById([dealId]))[dealId];
   if (!deal) return { ok: false, error: `Nie ma w HubSpot transakcji ${dealId}` };
-  await linkStand(participationId, dealId, source, by);
+  await linkStand(participationId, String(deal.id), source, by);
   const read = readDeal(deal);
+  // Tak samo jak synchronizacja: transakcji z targów spoza słownika tego wydarzenia nie przenosimy.
+  const { rows: dict } = await db.query('SELECT hs_value FROM hubspot_event_dictionary WHERE exhibition_id = $1', [t.exhibition_id]);
+  const dealEvent = deal.properties.udzial_targow;
+  if (dict.length && dealEvent && !dict.some((r) => sameText(r.hs_value, dealEvent))) {
+    return {
+      ok: true, dealId: String(deal.id), deal: describeDeal(deal), read, changed: false,
+      warning: `Transakcja dotyczy targów „${String(dealEvent).trim()}”, a nie „${t.exhibition_name}” – dane stoiska nie zostały przeniesione`,
+    };
+  }
   const changed = read.ok ? await applyDealToStand(t, deal, read, t.exhibition_name, null, null) : false;
-  return { ok: true, dealId, deal: describeDeal(deal), read, changed };
+  return { ok: true, dealId: String(deal.id), deal: describeDeal(deal), read, changed, warning: read.ok ? null : `${read.info} – dane stoiska nie zostały przeniesione` };
 }
 
 function describeDeal(deal, companies) {
@@ -470,5 +545,5 @@ function startScheduler() {
 module.exports = {
   runSync, startScheduler, isEnabled, hasToken, isRunning: () => running, refreshDictionary, requestFullSync,
   hs, searchDeals, companiesForDeals, fetchDealsById, dealIdFromInput, describeDeal, setStandDeal, linkStand,
-  parseStand, normName, nipDigits, dealUrl, DOT_PIPELINE, DEAL_PROPS,
+  parseStand, normName, nipDigits, namesSimilar, dealUrl, DOT_PIPELINE, DEAL_PROPS,
 };

@@ -125,11 +125,12 @@ const HubspotLinks: React.FC<{ token: string }> = ({ token }) => {
     setBusy(true);
     setInfo('');
     try {
-      await api(`/stands/${row.participationId}/deal`, {
+      const data = await api(`/stands/${row.participationId}/deal`, {
         method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ deal: dealId }),
       });
       setEditing(null);
       setInfo(dealId ? `Podpięto transakcję do stoiska ${row.stand || ''} – ${row.companyName}` : `Odpięto transakcję od stoiska ${row.stand || ''} – ${row.companyName}`);
+      if (data.warning) setError(data.warning);
       await refreshAll();
     } catch (e: any) {
       setError(e.message);
@@ -146,7 +147,7 @@ const HubspotLinks: React.FC<{ token: string }> = ({ token }) => {
       const data = await api(`/links/${exhibitionId}/approve`, {
         method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ allCertain: true }),
       });
-      setInfo(`Zatwierdzono ${data.linked} powiązań${data.errors.length ? `, błędów: ${data.errors.length}` : ''}.`);
+      setInfo(`Zatwierdzono ${data.linked} powiązań${data.errors.length ? `, błędów: ${data.errors.length}` : ''}${data.warnings?.length ? `, bez przeniesienia danych: ${data.warnings.length}` : ''}.`);
       await refreshAll();
     } catch (e: any) {
       setError(e.message);

@@ -347,7 +347,7 @@ const AddEventToExhibitorModal: React.FC<AddEventToExhibitorModalProps> = ({
           },
         );
 
-        if (wynik.hubspotWarning) window.alert(`Stoisko zapisane, ale transakcji HubSpot nie podpięto: ${wynik.hubspotWarning}`);
+        if (wynik.hubspotWarning) window.alert(`Stoisko zapisane. Transakcja HubSpot: ${wynik.hubspotWarning}`);
         resetForm();
          onEventToExhibitiorAdd();
          onClose();

@@ -64,21 +64,24 @@ async function standsOf(exhibitionId) {
   return rows;
 }
 
-// Podpowiedzi dla stoiska: numer stoiska +3, NIP +2, nazwa firmy +1. Pewne = stoisko i NIP.
-function suggestFor(stand, deals) {
+// Podpowiedzi dla stoiska: numer stoiska +3, NIP +2, nazwa firmy +1. Pewne = numer stoiska
+// jednoznaczny po obu stronach, transakcja jeszcze niepodpięta i do tego zgodny NIP albo nazwa.
+function suggestFor(stand, deals, ctx) {
   const nip = sync.nipDigits(stand.nip);
-  const name = sync.normName(stand.company_name);
+  const key = String(stand.stand_number || '').trim().toUpperCase();
   const out = [];
   for (const d of deals) {
     const reasons = [];
     let score = 0;
-    if (stand.stand_number && d.stand && sameText(d.stand, stand.stand_number)) { score += 3; reasons.push('stoisko'); }
+    const standMatch = key && d.stand && d.stand.toUpperCase() === key;
+    if (standMatch) { score += 3; reasons.push('stoisko'); }
     if (nip && (d.companies || []).some((c) => c.nip === nip)) { score += 2; reasons.push('NIP'); }
-    if (name && (d.companies || []).some((c) => sync.normName(c.name) === name || sync.normName(d.name).includes(name))) { score += 1; reasons.push('nazwa'); }
-    if (score >= 2) out.push({ ...d, score, reasons, certain: reasons.includes('stoisko') && reasons.includes('NIP') });
+    if (sync.namesSimilar(stand.company_name, [d.name, ...(d.companies || []).map((c) => c.name)], d.event)) { score += 1; reasons.push('nazwa'); }
+    if (score < 2) continue;
+    const unique = standMatch && ctx.appCount.get(key) === 1 && ctx.hsCount.get(key) === 1 && !ctx.usedDeals.has(d.dealId);
+    out.push({ ...d, score, reasons, certain: unique && score >= 4 });
   }
   out.sort((a, b) => b.score - a.score);
-  // Pewna tylko wtedy, gdy nie ma drugiej równie dobrej.
   if (out[0] && out[0].certain && out[1] && out[1].score === out[0].score) out[0].certain = false;
   return out.slice(0, 3);
 }
@@ -93,6 +96,16 @@ async function buildLinks(exhibitionId, fresh) {
   }
   const linkedCount = new Map();
   for (const s of stands) if (s.hubspot_deal_id) linkedCount.set(s.hubspot_deal_id, (linkedCount.get(s.hubspot_deal_id) || 0) + 1);
+  const countBy = (items, keyOf) => {
+    const m = new Map();
+    for (const it of items) { const k = keyOf(it); if (k) m.set(k, (m.get(k) || 0) + 1); }
+    return m;
+  };
+  const ctx = {
+    appCount: countBy(stands, (s) => String(s.stand_number || '').trim().toUpperCase()),
+    hsCount: countBy(deals, (d) => (d.stand ? d.stand.toUpperCase() : '')),
+    usedDeals: new Set(linkedCount.keys()),
+  };
   const rows = stands.map((s) => {
     const base = {
       participationId: s.participation_id, exhibitorId: s.exhibitor_id, companyName: s.company_name, nip: s.nip,
@@ -105,7 +118,7 @@ async function buildLinks(exhibitionId, fresh) {
         sharedWith: (linkedCount.get(s.hubspot_deal_id) || 1) - 1,
       };
     }
-    const suggestions = suggestFor(s, deals);
+    const suggestions = suggestFor(s, deals, ctx);
     return { ...base, status: suggestions[0] && suggestions[0].certain ? 'certain' : suggestions.length ? 'suggested' : 'none', suggestions };
   });
   const usedDeals = new Set(stands.map((s) => s.hubspot_deal_id).filter(Boolean));
@@ -202,16 +215,21 @@ router.post('/links/:exhibitionId/approve', async (req, res) => {
     }
     const { rows: own } = await db.query('SELECT id FROM exhibitor_events WHERE exhibition_id = $1', [exhibitionId]);
     const allowed = new Set(own.map((r) => r.id));
+    const ids = items.map((it) => sync.dealIdFromInput(it.dealId)).filter(Boolean);
+    const found = ids.length ? await sync.fetchDealsById(ids) : {};
     let linked = 0;
     const errors = [];
+    const warnings = [];
     for (const it of items) {
       const pid = parseInt(it.participationId, 10);
       if (!allowed.has(pid)) { errors.push({ participationId: pid, error: 'Stoisko z innych targów' }); continue; }
-      const r = await sync.setStandDeal(pid, it.dealId, { source: 'approved', by: by(req) });
+      const deal = found[sync.dealIdFromInput(it.dealId)] || null;
+      const r = await sync.setStandDeal(pid, it.dealId, { source: 'approved', by: by(req), deal });
       if (r.ok) linked++; else errors.push({ participationId: pid, error: r.error });
+      if (r.warning) warnings.push({ participationId: pid, warning: r.warning });
     }
     eventCache.clear();
-    return res.json({ success: true, linked, errors });
+    return res.json({ success: true, linked, errors, warnings });
   } catch (error) {
     return res.status(500).json({ success: false, error: error.message });
   }
@@ -324,8 +342,9 @@ router.post('/links/:exhibitionId/import', upload.single('file'), async (req, re
     if (req.query.apply !== '1') return res.json({ success: true, preview: true, changes: valid, errors });
     let applied = 0;
     for (const c of valid) {
-      const r = await sync.setStandDeal(c.participationId, c.dealId, { source: 'import', by: by(req) });
+      const r = await sync.setStandDeal(c.participationId, c.dealId, { source: 'import', by: by(req), deal: c.dealId ? found[c.dealId] : null });
       if (r.ok) applied++; else errors.push({ row: c.row, companyName: c.companyName, stand: c.stand, error: r.error });
+      if (r.warning) errors.push({ row: c.row, companyName: c.companyName, stand: c.stand, error: r.warning });
     }
     eventCache.clear();
     return res.json({ success: true, applied, errors });

@@ -25,7 +25,7 @@ const podepnijTransakcje = async (participationId, rawDeal, req) => {
   try {
     const { setStandDeal } = require('../services/hubspotStandSync');
     const r = await setStandDeal(participationId, rawDeal, { source: 'manual', by: req.user && req.user.email });
-    return r.ok ? null : r.error;
+    return r.ok ? r.warning || null : r.error;
   } catch (e) {
     console.error('❌ Podpinanie transakcji HubSpot:', e.message);
     return `Nie udało się podpiąć transakcji HubSpot: ${e.message}`;

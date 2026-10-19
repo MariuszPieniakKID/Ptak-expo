@@ -357,7 +357,7 @@ const AddExhibitorModal: React.FC<AddExhibitorModalProps> = ({
         };
 
         const wynik = await addExhibitor({ ...exhibitorData, hubspotDealId: exhibitorData.exhibitionId ? hubspotDealId : null }, token);
-        if (wynik?.hubspotWarning) window.alert(`Wystawca dodany, ale transakcji HubSpot nie podpięto: ${wynik.hubspotWarning}`);
+        if (wynik?.hubspotWarning) window.alert(`Wystawca dodany. Transakcja HubSpot: ${wynik.hubspotWarning}`);
         onExhibitorAdded();
         resetForm();
 
