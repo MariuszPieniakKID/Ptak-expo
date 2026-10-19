@@ -734,22 +734,8 @@ router.post('/:exhibitionId', verifyToken, requireExhibitorOrAdmin, async (req, 
       }
     }
 
-    // Synchronize key fields back to exhibitors table so admin sees the same data
-    // NOTE: contactInfo is NOT synced to contact_person to keep them separate
-    // contactInfo from checklist is stored in catalog_entries as JSON
-    // contact_person in exhibitors table remains the exhibitor's contact person name
-    try {
-      await db.query(
-        `UPDATE exhibitors
-         SET 
-           email = COALESCE($1, email),
-           updated_at = NOW()
-         WHERE id = $2`,
-        [contactEmail, exhibitorId]
-      );
-    } catch (syncErr) {
-      console.error('⚠️ Error syncing catalog fields to exhibitors:', syncErr);
-    }
+    // exhibitors.email to login wystawcy – e-mail kontaktowy z katalogu zostaje tylko we wpisie
+    // katalogowym, inaczej konto mogło dostać cudzy adres jako login.
 
     // Event-specific industries: upsert into exhibitor_catalog_entries for given exhibitionId
     try {

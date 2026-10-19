@@ -85,8 +85,7 @@ router.put('/me', verifyToken, requireExhibitorOrAdmin, async (req, res) => {
       city,
       contactPerson,
       contactRole,
-      phone,
-      email: newEmail
+      phone
     } = req.body || {};
 
     // Find exhibitor id
@@ -101,14 +100,13 @@ router.put('/me', verifyToken, requireExhibitorOrAdmin, async (req, res) => {
     const values = [];
     let idx = 1;
     const pushField = (col, val) => { fields.push(`${col} = $${idx++}`); values.push(val); };
-    // Nazwy firmy wystawca nie zmienia – robi to admin (np. przy błędnym płatniku).
+    // Nazwy firmy ani loginu (email) wystawca nie zmienia – robi to admin (np. przy błędnym płatniku).
     if (address !== undefined) pushField('address', address);
     if (postalCode !== undefined) pushField('postal_code', postalCode);
     if (city !== undefined) pushField('city', city);
     if (contactPerson !== undefined) pushField('contact_person', contactPerson);
     if (contactRole !== undefined) pushField('contact_role', contactRole);
     if (phone !== undefined) pushField('phone', phone);
-    if (newEmail !== undefined) pushField('email', newEmail);
     pushField('updated_at', new Date());
 
     if (fields.length === 1) { // only updated_at

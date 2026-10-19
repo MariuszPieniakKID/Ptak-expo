@@ -403,14 +403,6 @@ export const getChecklist = async (exhibitionId: number) => {
 export const updateCompanyInfo = async (companyInfo: CompanyInfo) => {
 	const token = localStorage.getItem('authToken') || '';
 	const exhibitionId = Number((window as any).currentSelectedExhibitionId) || 0;
-	const body: any = {};
-	const emailToUpdate = (companyInfo as any).contactEmail;
-	if (emailToUpdate !== undefined) body.email = emailToUpdate;
-	try {
-		await fetch(`${config.API_BASE_URL}/api/v1/exhibitors/me`, {
-			method: 'PUT', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify(body)
-		});
-	} catch {}
 	try {
 		await fetch(`${config.API_BASE_URL}/api/v1/catalog/${exhibitionId}`, {
 			method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify({
@@ -423,7 +415,7 @@ export const updateCompanyInfo = async (companyInfo: CompanyInfo) => {
 				contactInfo: companyInfo.contactInfo ?? null,
 				website: companyInfo.website ?? null,
 				socials: companyInfo.socials ?? null,
-				contactEmail: emailToUpdate ?? null,
+				contactEmail: (companyInfo as any).contactEmail ?? null,
 				catalogTags: Array.isArray((companyInfo as any).catalogTags)
 					? ((companyInfo as any).catalogTags as string[]).map(s => String(s).trim()).filter(Boolean).join(',')
 					: (((companyInfo as any).catalogTags ?? null) as any),
