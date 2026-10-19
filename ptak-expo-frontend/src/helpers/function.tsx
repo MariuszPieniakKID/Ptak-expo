@@ -53,6 +53,17 @@ export const getDaysBetweenDates = (startDate: string, endDate: string): string[
   return dates;
 };
 
+const dzienWarszawa = (d: Date): string => d.toLocaleDateString('sv-SE', { timeZone: 'Europe/Warsaw' });
+
+// Targi są otwarte do końca ostatniego dnia. end_date przychodzi jako północ (UTC albo czasu
+// serwera), więc porównujemy same daty w strefie Warszawy, a nie pełne znaczniki czasu.
+export const isEventOpen = (endDate?: string | null): boolean => {
+  if (!endDate) return true;
+  const end = new Date(endDate);
+  if (isNaN(end.getTime())) return true;
+  return dzienWarszawa(end) >= dzienWarszawa(new Date());
+};
+
 export const formatPolishDateShort = (dateStr?: string): string => {
   if (!dateStr) return '';
 

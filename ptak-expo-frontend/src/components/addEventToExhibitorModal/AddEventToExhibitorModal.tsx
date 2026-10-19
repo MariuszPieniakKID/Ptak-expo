@@ -10,6 +10,7 @@ import { ReactComponent as CloseIcon } from '../../assets/closeIcon.svg';
 import ExhibitorsPageIcon from '../../assets/mask-group-6@2x.png';
 
 import styles from './AddEventToExhibitorModal.module.scss';
+import { isEventOpen } from '../../helpers/function';
 
 interface AddEventToExhibitorModalProps {
   isOpen: boolean;
@@ -158,15 +159,12 @@ const AddEventToExhibitorModal: React.FC<AddEventToExhibitorModalProps> = ({
     try {
       const fetchedExhibitions = await fetchExhibitions(token);
       console.log(fetchedExhibitions.map(exh => exh.id));
-      const now = new Date();
-      //const upcomingExhibitions = fetchedExhibitions.filter(exh => new Date(exh.end_date) >= now);
- 
       //Lista Wystaw z wykluczeniem wystaw na które jest już zapisany wystawca oraz posortowane po nazwie
       // Dodając kolejne stoisko wybieramy spośród wydarzeń, na których wystawca już jest.
       // W zwykłym trybie odwrotnie – te wydarzenia są ukryte, żeby nie dublować przypisania.
       let upcomingExhibitions = fetchedExhibitions
       .filter(exh => {
-        const isNotEnded = new Date(exh.end_date) >= now;
+        const isNotEnded = isEventOpen(exh.end_date);
         const isInExhibitorEvents = !!exhibitorEvents?.some(event => event.id === exh.id);
         return isAdditionalStandMode
           ? isInExhibitorEvents

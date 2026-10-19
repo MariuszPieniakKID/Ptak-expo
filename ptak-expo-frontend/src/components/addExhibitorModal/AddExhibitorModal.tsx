@@ -24,6 +24,7 @@ import { ReactComponent as CloseIcon } from '../../assets/closeIcon.svg';
 import ExhibitorsPageIcon from '../../assets/mask-group-6@2x.png';
 
 import styles from './AddExhibitorModal.module.scss';
+import { isEventOpen } from '../../helpers/function';
 
 interface AddExhibitorModalProps {
   isOpen: boolean;
@@ -189,8 +190,7 @@ const AddExhibitorModal: React.FC<AddExhibitorModalProps> = ({
     setLoadingExhibitions(true);
     try {
       const fetchedExhibitions = await fetchExhibitions(token);
-      const now = new Date();
-      const upcomingExhibitions = fetchedExhibitions.filter(exh => new Date(exh.end_date) >= now);
+      const upcomingExhibitions = fetchedExhibitions.filter(exh => isEventOpen(exh.end_date));
       setExhibitions(upcomingExhibitions);
     } catch (err) {
       console.error('Error loading exhibitions:', err);

@@ -29,6 +29,7 @@ import AddEventModal from '../../components/addEventModal/AddEventModal_';
 import { fieldOptions as fallbackFieldOptions } from '../../helpers/mockData';
 import { OptionType } from '../../components/customField/CustomField';
 import EventCardPage from '../eventCardPage/EventCardPage';
+import { isEventOpen } from '../../helpers/function';
 
 
 
@@ -154,9 +155,9 @@ const formatDateRange = useCallback((startDate: string, endDate: string): string
   return `${format(start)} - ${format(end)}`;
 }, []);
 
-//TODO nadchodzące wydarzenia jakie są kryteria jak poniżej to ok:
-  const currentEvents = exhibitions.filter(event => 
-    new Date(event.start_date) >= new Date() || event.status === 'active'
+  // Trwające targi zostają na liście do ostatniego dnia – inaczej w dniu startu znikał dostęp do ich wystawców.
+  const currentEvents = exhibitions.filter(event =>
+    isEventOpen(event.end_date) || event.status === 'active'
   );
 
 //Dane do modalu dodania eventu
