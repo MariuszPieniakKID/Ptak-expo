@@ -19,6 +19,19 @@ const {
 // Do porównywania NIP-ów: w bazie bywają ze spacjami, myślnikami i prefiksem PL.
 const tylkoCyfry = (v) => String(v || '').replace(/\D/g, '');
 
+// Podpina transakcję HubSpot do stoiska i przenosi z niej halę, stoisko i metraż.
+// Błąd HubSpota nie blokuje zapisu wystawcy – wraca jako ostrzeżenie dla administratora.
+const podepnijTransakcje = async (participationId, rawDeal, req) => {
+  try {
+    const { setStandDeal } = require('../services/hubspotStandSync');
+    const r = await setStandDeal(participationId, rawDeal, { source: 'manual', by: req.user && req.user.email });
+    return r.ok ? null : r.error;
+  } catch (e) {
+    console.error('❌ Podpinanie transakcji HubSpot:', e.message);
+    return `Nie udało się podpiąć transakcji HubSpot: ${e.message}`;
+  }
+};
+
 // Helper: resolve uploads base similar to branding controller
 const getUploadsBaseForRead = () => {
   const preferred = process.env.UPLOADS_DIR && process.env.UPLOADS_DIR.trim().length > 0
@@ -423,6 +436,7 @@ router.post('/', verifyToken, requireAdmin, async (req, res) => {
     console.log('New exhibitor created with ID:', newExhibitor.id);
 
     // If exhibitionId is provided, assign exhibitor to exhibition
+    let hubspotWarning = null;
     if (exhibitionId) {
       try {
         console.log('Attempting to assign exhibitor', newExhibitor.id, 'to exhibition', exhibitionId);
@@ -437,6 +451,7 @@ router.post('/', verifyToken, requireAdmin, async (req, res) => {
         });
         console.log('Assignment result: participation', participation.id);
         console.log('Exhibitor assigned to exhibition:', exhibitionId);
+        if (req.body.hubspotDealId) hubspotWarning = await podepnijTransakcje(participation.id, req.body.hubspotDealId, req);
         
         // Logowanie przypisania wystawcy do wydarzenia
         try {
@@ -518,7 +533,7 @@ router.post('/', verifyToken, requireAdmin, async (req, res) => {
       details: `Utworzono wystawcę: ${companyName} (NIP: ${nip})`
     });
 
-    res.status(201).json(exhibitor);
+    res.status(201).json(hubspotWarning ? { ...exhibitor, hubspotWarning } : exhibitor);
   } catch (error) {
     console.error('Error creating exhibitor:', error);
     
@@ -954,6 +969,14 @@ router.post('/:id/assign-event', verifyToken, requireAdmin, async (req, res) => 
       }
     }
 
+    let hubspotWarning = null;
+    const rawDeal = req.body.hubspotDealId;
+    if (rawDeal || (rawDeal === null && Number.isInteger(requestedParticipationId))) {
+      hubspotWarning = await podepnijTransakcje(participation.id, rawDeal, req);
+      const { rows: [odswiezone] } = await db.query('SELECT * FROM exhibitor_events WHERE id = $1', [participation.id]);
+      if (odswiezone) participation = odswiezone;
+    }
+
     const exhibitor = exhibitorCheck.rows[0];
     const exhibition = exhibitionCheck.rows[0];
     const standCount = await countParticipations(id, exhibitionId);
@@ -968,6 +991,7 @@ router.post('/:id/assign-event', verifyToken, requireAdmin, async (req, res) => 
       message: created && standCount > 1
         ? `Dodano kolejne stoisko wystawcy "${exhibitor.company_name}" na wydarzeniu "${exhibition.name}"`
         : `Wystawca "${exhibitor.company_name}" został przypisany do wydarzenia "${exhibition.name}"`,
+      hubspotWarning,
       assignment: {
         participationId: participation.id,
         exhibitorId: parseInt(id),
@@ -978,6 +1002,7 @@ router.post('/:id/assign-event', verifyToken, requireAdmin, async (req, res) => 
         hallName: participation.hall_name || null,
         standNumber: participation.stand_number || null,
         boothArea: participation.booth_area || null,
+        hubspotDealId: participation.hubspot_deal_id || null,
         standCount,
         supervisor: supervisorRecord ? {
           id: supervisorRecord.id,
@@ -1014,13 +1039,13 @@ router.get('/:id/assign-event/:exhibitionId', verifyToken, requireAdmin, async (
     const wskazaneStoisko = parseInt(req.query.participationId, 10);
     const asg = Number.isInteger(wskazaneStoisko)
       ? await db.query(
-          `SELECT id, supervisor_user_id, hall_name, stand_number, booth_area
+          `SELECT id, supervisor_user_id, hall_name, stand_number, booth_area, hubspot_deal_id
            FROM exhibitor_events
            WHERE id = $1 AND exhibitor_id = $2 AND exhibition_id = $3`,
           [wskazaneStoisko, id, exhibitionId]
         )
       : await db.query(
-          `SELECT id, supervisor_user_id, hall_name, stand_number, booth_area
+          `SELECT id, supervisor_user_id, hall_name, stand_number, booth_area, hubspot_deal_id
            FROM exhibitor_events
            WHERE exhibitor_id = $1 AND exhibition_id = $2
            ORDER BY id ASC LIMIT 1`,
@@ -1039,6 +1064,7 @@ router.get('/:id/assign-event/:exhibitionId', verifyToken, requireAdmin, async (
         hallName: row.hall_name ?? '',
         standNumber: row.stand_number ?? '',
         boothArea: row.booth_area !== null && row.booth_area !== undefined ? String(row.booth_area) : '',
+        hubspotDealId: row.hubspot_deal_id || null,
       }
     });
   } catch (e) {
@@ -1268,7 +1294,8 @@ router.get('/:id', verifyToken, requireAdmin, async (req, res) => {
               'hallName', ee.hall_name,
               'standNumber', ee.stand_number,
               'boothArea', ee.booth_area,
-              'supervisorUserId', ee.supervisor_user_id
+              'supervisorUserId', ee.supervisor_user_id,
+              'hubspotDealId', ee.hubspot_deal_id
             )
             ORDER BY ex.start_date DESC NULLS LAST, ee.id ASC
           ) FILTER (WHERE ex.id IS NOT NULL), 

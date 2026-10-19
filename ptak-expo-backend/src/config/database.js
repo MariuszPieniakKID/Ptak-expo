@@ -1144,6 +1144,18 @@ const initializeDatabase = async () => {
       )
     `);
     await pool.query(`CREATE INDEX IF NOT EXISTS idx_hubspot_stand_changes_created ON hubspot_stand_changes(created_at DESC)`);
+    await pool.query(`ALTER TABLE hubspot_stand_changes ADD COLUMN IF NOT EXISTS old_area NUMERIC(10,2), ADD COLUMN IF NOT EXISTS new_area NUMERIC(10,2)`);
+    // Łącznik stoiska z transakcją HubSpot. Synchronizacja z podpiętą transakcją nie patrzy na NIP ani nazwę;
+    // jedna transakcja może być podpięta pod kilka stoisk (kilka marek na stoisku płatnika).
+    // hubspot_link_source: manual (wpisane przy stoisku), approved (zatwierdzona podpowiedź), import (Excel), auto (NIP i stoisko zgodne).
+    await pool.query(`
+      ALTER TABLE exhibitor_events
+        ADD COLUMN IF NOT EXISTS hubspot_deal_id VARCHAR(50),
+        ADD COLUMN IF NOT EXISTS hubspot_link_source VARCHAR(10),
+        ADD COLUMN IF NOT EXISTS hubspot_linked_by VARCHAR(255),
+        ADD COLUMN IF NOT EXISTS hubspot_linked_at TIMESTAMPTZ
+    `);
+    await pool.query(`CREATE INDEX IF NOT EXISTS idx_exhibitor_events_hubspot_deal ON exhibitor_events(hubspot_deal_id)`);
     // Słownik: wartość pola „Udział targów” w HubSpot -> wydarzenie w aplikacji.
     // source = 'auto' (identyczna nazwa) albo 'manual' (ustawione przez admina, także celowo puste).
     await pool.query(`

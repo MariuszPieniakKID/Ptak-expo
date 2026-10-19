@@ -25,6 +25,7 @@ import ExhibitorsPageIcon from '../../assets/mask-group-6@2x.png';
 
 import styles from './AddExhibitorModal.module.scss';
 import { isEventOpen } from '../../helpers/function';
+import HubspotDealPicker, { HubspotDeal } from '../hubspotDealPicker/HubspotDealPicker';
 
 interface AddExhibitorModalProps {
   isOpen: boolean;
@@ -98,6 +99,7 @@ const AddExhibitorModal: React.FC<AddExhibitorModalProps> = ({
   const isNoExhibitionSelected = formEventValues.selectedExhibitionId === '';
   const [loading,setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [hubspotDealId, setHubspotDealId] = useState<string | null>(null);
   const [formErrors, setFormErrors] = useState<Record<string, string>>({
     nip: '',
     companyName: '',
@@ -183,6 +185,7 @@ const AddExhibitorModal: React.FC<AddExhibitorModalProps> = ({
       exhibitionSupervisor: '',
       boothArea: '',
     });
+    setHubspotDealId(null);
     setError('');
   }, []);
 
@@ -225,6 +228,25 @@ const AddExhibitorModal: React.FC<AddExhibitorModalProps> = ({
       loadExhibitionSupervisors();
     }
   }, [isOpen, resetForm, loadExhibitions,loadExhibitionSupervisors]);
+
+  // Dane z transakcji wpisujemy od razu do pól – administrator widzi, co zostanie zapisane.
+  const handleDealChange = (dealId: string | null, deal: HubspotDeal | null) => {
+    setHubspotDealId(dealId);
+    if (!deal || deal.problem) return;
+    const next = {
+      ...formEventValues,
+      ...(deal.hall ? { hallName: deal.hall } : {}),
+      ...(deal.stand ? { standNumber: deal.stand } : {}),
+      ...(deal.area ? { boothArea: String(deal.area).replace('.', ',') } : {}),
+    };
+    setFormEventValues(next);
+    setFormErrors((prev) => ({
+      ...prev,
+      hallName: validateHallName(next.hallName),
+      standNumber: validateStandNumber(next.standNumber),
+      boothArea: validateBoothArea(next.boothArea),
+    }));
+  };
 
   type FormValuesKeys = keyof AddExhibitorPayload;
   type FormEventValuesKeys = keyof EventProps;
@@ -334,7 +356,8 @@ const AddExhibitorModal: React.FC<AddExhibitorModalProps> = ({
         boothArea: formEventValues.selectedExhibitionId===''? null: parseFloat(formEventValues.boothArea.replace(',', '.')),
         };
 
-        await addExhibitor(exhibitorData, token);
+        const wynik = await addExhibitor({ ...exhibitorData, hubspotDealId: exhibitorData.exhibitionId ? hubspotDealId : null }, token);
+        if (wynik?.hubspotWarning) window.alert(`Wystawca dodany, ale transakcji HubSpot nie podpięto: ${wynik.hubspotWarning}`);
         onExhibitorAdded();
         resetForm();
 
@@ -356,6 +379,7 @@ const AddExhibitorModal: React.FC<AddExhibitorModalProps> = ({
       exhibitionSupervisorOptions,
       formErrors,
       validators,
+      hubspotDealId,
     ]
   );
 
@@ -647,6 +671,15 @@ const AddExhibitorModal: React.FC<AddExhibitorModalProps> = ({
                 <Box className={styles.singleFormRow}>
                     <CustomTypography className={styles.textInModal}>Dane Stoiska</CustomTypography>
                 </Box>
+
+              <Box className={styles.singleFormRow} sx={{ display: 'block' }}>
+                <HubspotDealPicker
+                  token={token}
+                  exhibitionId={formEventValues.selectedExhibitionId ? Number(formEventValues.selectedExhibitionId) : null}
+                  value={hubspotDealId}
+                  onChange={handleDealChange}
+                />
+              </Box>
 
               <Box className={styles.formRow}>
                 <Box className={styles.halfFormRow}>

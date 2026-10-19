@@ -6,6 +6,7 @@ import CustomField from '../../components/customField/CustomField';
 import config from '../../config/config';
 import styles from '../usersPage/UsersPage.module.scss';
 import HubspotEventDictionary from './HubspotEventDictionary';
+import HubspotLinks from './HubspotLinks';
 
 const HUBSPOT_DEAL_URL = 'https://app-eu1.hubspot.com/contacts/139679331/record/0-3/';
 
@@ -29,6 +30,8 @@ interface SyncChange {
   new_hall: string | null;
   old_stand: string | null;
   new_stand: string | null;
+  old_area: string | null;
+  new_area: string | null;
   company_name: string | null;
   exhibition_name: string | null;
 }
@@ -39,6 +42,7 @@ interface SyncStats {
   unchanged?: number;
   updated?: number;
   notAssigned?: number;
+  autoLinked?: number;
 }
 
 interface SyncState {
@@ -56,10 +60,15 @@ const PROBLEM_LABELS: Record<string, string> = {
   kilka_stoisk: 'Kilka stoisk w aplikacji',
   nip_hubspot: 'Brak polskiego NIP w HubSpot',
   nazwa_targow: 'Targi bez przypisania w słowniku',
+  stoisko_bez_transakcji: 'Stoisko bez transakcji',
+  transakcja_inne_targi: 'Transakcja z innych targów',
+  transakcja_brak: 'Podpięta transakcja nie istnieje',
+  brak_stoiska: 'Transakcja bez numeru stoiska',
 };
 
 const formatDate = (s?: string | null) => (s ? new Date(s).toLocaleString('pl-PL') : '-');
-const place = (hall?: string | null, stand?: string | null) => [hall, stand].filter(Boolean).join(' / ') || '-';
+const place = (hall?: string | null, stand?: string | null, area?: string | null) =>
+  [hall, stand, area ? `${String(Number(area)).replace('.', ',')} m²` : null].filter(Boolean).join(' / ') || '-';
 
 const HubspotSyncTab: React.FC<{ token: string }> = ({ token }) => {
   const [state, setState] = useState<SyncState | null>(null);
@@ -101,6 +110,20 @@ const HubspotSyncTab: React.FC<{ token: string }> = ({ token }) => {
     }
   }, [token, load]);
 
+  const exportProblems = useCallback(async () => {
+    try {
+      const res = await fetch(`${config.API_BASE_URL}/api/v1/hubspot/problems/export`, { headers: { Authorization: `Bearer ${token}` } });
+      if (!res.ok) throw new Error((await res.json().catch(() => ({}))).error || 'Nie udało się pobrać pliku');
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(await res.blob());
+      a.download = (res.headers.get('Content-Disposition') || '').match(/filename="([^"]+)"/)?.[1] || 'Problemy-HubSpot.xlsx';
+      a.click();
+      URL.revokeObjectURL(a.href);
+    } catch (e: any) {
+      setError(e.message);
+    }
+  }, [token]);
+
   const problems = useMemo(() => state?.lastFull?.problems || [], [state]);
   const counts = useMemo(() => {
     const c: Record<string, number> = {};
@@ -136,10 +159,11 @@ const HubspotSyncTab: React.FC<{ token: string }> = ({ token }) => {
       {info && <Alert severity="info" sx={{ mb: 2 }}>{info}</Alert>}
 
       <Paper className={styles.tableContainer} sx={{ p: 2, mb: 3 }}>
-        <CustomTypography fontSize="1em" fontWeight={500}>Synchronizacja hal i numerów stoisk z HubSpot</CustomTypography>
+        <CustomTypography fontSize="1em" fontWeight={500}>Synchronizacja hal, numerów stoisk i metrażu z HubSpot</CustomTypography>
         <CustomTypography fontSize="0.8em" fontWeight={300} color="#7F8D8E">
-          Dane z lejka „Dział obsługi technicznej” trafiają automatycznie do przypisań wystawców co kilka minut.
-          Synchronizowane są targi przypisane w słowniku poniżej. Przenoszone są tylko wpisy jednoznaczne – pozostałe widać na liście do poprawienia.
+          Hala, numer stoiska i metraż z lejka „Dział obsługi technicznej” trafiają automatycznie do stoisk wystawców co kilka minut.
+          Stoiska z podpiętą transakcją są aktualizowane z tej transakcji, pozostałe po NIP-ie dla targów przypisanych w słowniku poniżej.
+          Przenoszone są tylko wpisy jednoznaczne – pozostałe widać na liście do poprawienia.
         </CustomTypography>
         <Box sx={{ display: 'flex', gap: 3, flexWrap: 'wrap', mt: 2, alignItems: 'center' }}>
           <CustomTypography fontSize="0.875em">
@@ -151,7 +175,7 @@ const HubspotSyncTab: React.FC<{ token: string }> = ({ token }) => {
           </CustomTypography>
           <CustomTypography fontSize="0.875em">
             Ostatnia pełna: {formatDate(state?.lastFull?.started_at)}
-            {state?.lastFull?.stats ? ` – zgodnych: ${state.lastFull.stats.unchanged || 0}, zmienionych: ${state.lastFull.stats.updated || 0}` : ''}
+            {state?.lastFull?.stats ? ` – zgodnych: ${state.lastFull.stats.unchanged || 0}, zmienionych: ${state.lastFull.stats.updated || 0}${state.lastFull.stats.autoLinked ? `, podpiętych automatycznie: ${state.lastFull.stats.autoLinked}` : ''}` : ''}
           </CustomTypography>
           <Box sx={{ ml: 'auto', display: 'flex', gap: 1 }}>
             <CustomButton width="auto" height="36px" onClick={load}>Odśwież</CustomButton>
@@ -163,12 +187,15 @@ const HubspotSyncTab: React.FC<{ token: string }> = ({ token }) => {
 
       <HubspotEventDictionary token={token} onChanged={() => setTimeout(load, 1000)} />
 
+      <HubspotLinks token={token} />
+
       <CustomTypography fontSize="1em" fontWeight={500}>Do poprawienia w HubSpot ({problems.length})</CustomTypography>
       <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', my: 2, alignItems: 'center' }}>
         <Chip label={`Wszystkie (${problems.length})`} color={!typeFilter ? 'primary' : 'default'} onClick={() => { setTypeFilter(''); setPage(0); }} />
         {Object.entries(counts).map(([type, n]) => (
           <Chip key={type} label={`${PROBLEM_LABELS[type] || type} (${n})`} color={typeFilter === type ? 'primary' : 'default'} onClick={() => { setTypeFilter(type); setPage(0); }} />
         ))}
+        <CustomButton width="auto" height="32px" onClick={exportProblems} disabled={!problems.length}>Pobierz Excel</CustomButton>
         <Box sx={{ ml: 'auto', minWidth: 260 }}>
           <CustomField type="text" value={search} onChange={(e: any) => { setSearch(e.target.value); setPage(0); }} placeholder="Szukaj: targi, firma, NIP, stoisko" size="small" className={styles.searchField} />
         </Box>
@@ -226,8 +253,8 @@ const HubspotSyncTab: React.FC<{ token: string }> = ({ token }) => {
                   {cell(c.hubspot_deal_id
                     ? <Link href={`${HUBSPOT_DEAL_URL}${c.hubspot_deal_id}`} target="_blank" rel="noopener noreferrer">{c.company_name || '-'}</Link>
                     : (c.company_name || '-'))}
-                  {cell(place(c.old_hall, c.old_stand))}
-                  {cell(place(c.new_hall, c.new_stand))}
+                  {cell(place(c.old_hall, c.old_stand, c.old_area))}
+                  {cell(place(c.new_hall, c.new_stand, c.new_area))}
                 </TableRow>
               ))}
               {(state?.changes || []).length === 0 && (

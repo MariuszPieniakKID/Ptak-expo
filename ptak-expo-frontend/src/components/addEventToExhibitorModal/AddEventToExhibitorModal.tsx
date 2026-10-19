@@ -11,6 +11,7 @@ import ExhibitorsPageIcon from '../../assets/mask-group-6@2x.png';
 
 import styles from './AddEventToExhibitorModal.module.scss';
 import { isEventOpen } from '../../helpers/function';
+import HubspotDealPicker, { HubspotDeal } from '../hubspotDealPicker/HubspotDealPicker';
 
 interface AddEventToExhibitorModalProps {
   isOpen: boolean;
@@ -86,6 +87,8 @@ const AddEventToExhibitorModal: React.FC<AddEventToExhibitorModalProps> = ({
   const isAdditionalStandMode = mode === 'additionalStand';
   // '' = automatycznie (najświeższe dane firmy), inaczej participationId stoiska-wzoru.
   const [copyFromParticipationId, setCopyFromParticipationId] = useState<string>('');
+  const [hubspotDealId, setHubspotDealId] = useState<string | null>(null);
+  const [initialDealId, setInitialDealId] = useState<string | null>(null);
   const [formErrors, setFormErrors] = useState<Record<string, string>>({
     selectedExhibitionId: '',
     standNumber: '',
@@ -151,6 +154,8 @@ const AddEventToExhibitorModal: React.FC<AddEventToExhibitorModalProps> = ({
       boothArea: '',
     });
     setCopyFromParticipationId('');
+    setHubspotDealId(null);
+    setInitialDealId(null);
     setError('');
   }, []);
 
@@ -235,6 +240,8 @@ const AddEventToExhibitorModal: React.FC<AddEventToExhibitorModalProps> = ({
             exhibitionSupervisor: prefill.supervisorUserId ? String(prefill.supervisorUserId) : '',
           }));
           setPrefillParticipationId(prefill.participationId ? Number(prefill.participationId) : null);
+          setHubspotDealId(prefill.hubspotDealId ?? null);
+          setInitialDealId(prefill.hubspotDealId ?? null);
           if (prefill.exhibitionId) {
             setIsEditMode(true);
             setPrefillExhibitionId(Number(prefill.exhibitionId));
@@ -256,6 +263,25 @@ const AddEventToExhibitorModal: React.FC<AddEventToExhibitorModalProps> = ({
       } catch {}
     }
   }, [isOpen, resetForm, isAdditionalStandMode]);
+
+  // Dane z transakcji wpisujemy od razu do pól – administrator widzi, co zostanie zapisane.
+  const handleDealChange = (dealId: string | null, deal: HubspotDeal | null) => {
+    setHubspotDealId(dealId);
+    if (!deal || deal.problem) return;
+    const next = {
+      ...formEventValues,
+      ...(deal.hall ? { hallName: deal.hall } : {}),
+      ...(deal.stand ? { standNumber: deal.stand } : {}),
+      ...(deal.area ? { boothArea: String(deal.area).replace('.', ',') } : {}),
+    };
+    setFormEventValues(next);
+    setFormErrors((prev) => ({
+      ...prev,
+      hallName: validateHallName(next.hallName),
+      standNumber: validateStandNumber(next.standNumber),
+      boothArea: validateBoothArea(next.boothArea),
+    }));
+  };
 
   type FormEventValuesKeys = keyof EventProps;
   type FormAddExhibitorModalFields = FormEventValuesKeys;
@@ -305,7 +331,7 @@ const AddEventToExhibitorModal: React.FC<AddEventToExhibitorModalProps> = ({
         if (!eventAddedToExhibitor.exhibitionId) {
           throw new Error('Wybierz wydarzenie');
         }
-        await assignExhibitorToEvent(
+        const wynik = await assignExhibitorToEvent(
           exhibitorId,
           eventAddedToExhibitor.exhibitionId,
           token,
@@ -317,9 +343,11 @@ const AddEventToExhibitorModal: React.FC<AddEventToExhibitorModalProps> = ({
             participationId: isEditMode ? prefillParticipationId : null,
             additionalStand: isAdditionalStandMode,
             copyFromParticipationId: !isEditMode && copyFromParticipationId ? Number(copyFromParticipationId) : null,
+            hubspotDealId: hubspotDealId !== initialDealId ? hubspotDealId : undefined,
           },
         );
 
+        if (wynik.hubspotWarning) window.alert(`Stoisko zapisane, ale transakcji HubSpot nie podpięto: ${wynik.hubspotWarning}`);
         resetForm();
          onEventToExhibitiorAdd();
          onClose();
@@ -343,7 +371,9 @@ const AddEventToExhibitorModal: React.FC<AddEventToExhibitorModalProps> = ({
         isEditMode,
         prefillParticipationId,
         isAdditionalStandMode,
-        copyFromParticipationId
+        copyFromParticipationId,
+        hubspotDealId,
+        initialDealId
     ]
   );
 
@@ -412,6 +442,15 @@ const AddEventToExhibitorModal: React.FC<AddEventToExhibitorModalProps> = ({
         
               <Box className={styles.singleFormRow}>
                     <CustomTypography className={styles.textInModal}>Dane Stoiska</CustomTypography>
+              </Box>
+
+              <Box className={styles.singleFormRow} sx={{ display: 'block' }}>
+                <HubspotDealPicker
+                  token={token}
+                  exhibitionId={formEventValues.selectedExhibitionId ? Number(formEventValues.selectedExhibitionId) : null}
+                  value={hubspotDealId}
+                  onChange={handleDealChange}
+                />
               </Box>
 
               <Box className={styles.formRow}>
@@ -519,7 +558,7 @@ const AddEventToExhibitorModal: React.FC<AddEventToExhibitorModalProps> = ({
                     !loadingExhibitions && 
                     !loadingExhibitionSupervisors && 
                     !Object.values(formErrors).some(e => e !== '') &&
-                    !isFormEmpty) 
+                    (!isFormEmpty || hubspotDealId !== initialDealId)) 
                     ? (
                   <Box 
                    className={styles.boxToKlik}  

@@ -40,7 +40,7 @@ router.get('/hubspot-sync', verifyToken, requireAdmin, async (req, res) => {
        WHERE mode = 'full' AND finished_at IS NOT NULL AND error IS NULL ORDER BY started_at DESC LIMIT 1`
     );
     const { rows: changes } = await db.query(
-      `SELECT c.created_at, c.hubspot_deal_id, c.old_hall, c.new_hall, c.old_stand, c.new_stand,
+      `SELECT c.created_at, c.hubspot_deal_id, c.old_hall, c.new_hall, c.old_stand, c.new_stand, c.old_area, c.new_area,
               c.exhibitor_id, x.company_name, e.name AS exhibition_name
        FROM hubspot_stand_changes c
        LEFT JOIN exhibitors x ON x.id = c.exhibitor_id

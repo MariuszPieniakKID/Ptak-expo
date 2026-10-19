@@ -399,7 +399,7 @@ export interface AddExhibitorPayload {
   sendEmail?: boolean;
 }
 
-export const addExhibitor = async (exhibitorData: AddExhibitorPayload, token: string): Promise<any> => {
+export const addExhibitor = async (exhibitorData: AddExhibitorPayload & { hubspotDealId?: string | null }, token: string): Promise<any> => {
     const response = await apiCall(`${config.API_BASE_URL}/api/v1/exhibitors`, {
         method: 'POST',
         headers: {
@@ -1320,8 +1320,9 @@ export const assignExhibitorToEvent = async (
   // `participationId` edytuje konkretne stoisko, `additionalStand` dokłada kolejne
   // do wydarzenia, na którym wystawca już jest.
   // `copyFromParticipationId` – stoisko, z którego nowy udział kopiuje dane katalogu.
-  options?: { participationId?: number | null; additionalStand?: boolean; copyFromParticipationId?: number | null },
-): Promise<{ success: boolean; message: string; assignment: any }> => {
+  // `hubspotDealId` – transakcja HubSpot stoiska (null odpina, undefined nie zmienia).
+  options?: { participationId?: number | null; additionalStand?: boolean; copyFromParticipationId?: number | null; hubspotDealId?: string | null | undefined },
+): Promise<{ success: boolean; message: string; assignment: any; hubspotWarning?: string | null }> => {
   const response = await apiCall(`${config.API_BASE_URL}/api/v1/exhibitors/${exhibitorId}/assign-event`, {
     method: 'POST',
     headers: {
@@ -1337,6 +1338,7 @@ export const assignExhibitorToEvent = async (
       participationId: options?.participationId ?? null,
       additionalStand: options?.additionalStand === true,
       copyFromParticipationId: options?.copyFromParticipationId ?? null,
+      ...(options?.hubspotDealId !== undefined ? { hubspotDealId: options.hubspotDealId } : {}),
     }),
   });
 
