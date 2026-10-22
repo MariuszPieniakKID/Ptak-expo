@@ -115,8 +115,13 @@ const allowedHostnameSuffixes = [
 
 console.log('🔍 CORS allowed origins:', allowedOrigins);
 
+// Publiczne dane tylko do odczytu (feedy, kody QR) pobierają strony targów z własnych domen.
+const PUBLIC_READ_PATHS = ['/public/', '/api/v1/qr-codes/exhibition/', '/api/v1/qr-codes/person/'];
+const isPublicRead = (req) =>
+  (req.method === 'GET' || req.method === 'HEAD') && PUBLIC_READ_PATHS.some((p) => req.path.startsWith(p));
+
 // More flexible CORS configuration
-app.use(cors({
+const corsWithAllowlist = cors({
   origin: (origin, callback) => {
     // Allow requests with no origin (like mobile apps or curl requests)
     if (!origin) return callback(null, true);
@@ -147,7 +152,8 @@ app.use(cors({
     return callback(new Error('Not allowed by CORS'));
   },
   credentials: true
-}));
+});
+app.use((req, res, next) => (isPublicRead(req) ? next() : corsWithAllowlist(req, res, next)));
 
 // Handle all preflight requests
 app.options('*', cors());
