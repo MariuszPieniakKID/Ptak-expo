@@ -2,6 +2,7 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const db = require('../config/database');
+const { isAdminActive } = require('../middleware/auth');
 const { getNearestExhibitionForExhibitor, getDefaultExhibitionName } = require('../utils/exhibitorHelpers');
 
 // Generate JWT token
@@ -244,6 +245,10 @@ const verifyToken = async (req, res) => {
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    if (decoded.role === 'admin' && !(await isAdminActive(decoded.id))) {
+      return res.status(401).json({ success: false, message: 'Konto jest nieaktywne' });
+    }
     
     return res.json({
       success: true,

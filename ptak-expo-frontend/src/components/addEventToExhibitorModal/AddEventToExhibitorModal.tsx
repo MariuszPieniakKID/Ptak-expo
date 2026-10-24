@@ -130,11 +130,13 @@ const AddEventToExhibitorModal: React.FC<AddEventToExhibitorModalProps> = ({
   ];
   const exhibitionSupervisorOptions: OptionType[] = [
      { value: '', label: '' },
-     ...exhibitionSupervisors.map(exh => ({
-       value: exh.id,
-       label: exh.fullName,
-       description: `${exh.phone}`,
-     })),
+     ...exhibitionSupervisors
+       .filter(exh => (exh.status || 'active') === 'active' || String(exh.id) === String(formEventValues.exhibitionSupervisor))
+       .map(exh => ({
+         value: exh.id,
+         label: (exh.status || 'active') === 'active' ? exh.fullName : `${exh.fullName} (nieaktywny)`,
+         description: `${exh.phone}`,
+       })),
   ];
 
   const resetForm = useCallback(() => {

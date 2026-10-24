@@ -6,10 +6,13 @@ import CustomTypography from '../../components/customTypography/CustomTypography
 import CustomButton from '../../components/customButton/CustomButton';
 import AddUserModalShort from '../../components/addUserModal/AddUserModalShort';
 import EditUserModal from '../../components/editUserModal/EditUserModal';
+import UserStatusDialog, { UserStatusDialogMode } from '../../components/userStatusDialog/UserStatusDialog';
 import {
   fetchUsers,
   deleteUser,
   resetUserPassword,
+  fetchUserAssignments,
+  setUserStatus,
   User,
 } from '../../services/api';
 import {
@@ -30,6 +33,8 @@ import {
   Link,
   TextField,
   InputAdornment,
+  MenuItem,
+  Chip,
 } from '@mui/material';
 
 import { useMediaQuery } from '@mui/material';
@@ -62,6 +67,9 @@ const UsersPage: React.FC = () => {
   const navigate = useNavigate();
   const { token, user, logout } = useAuth();
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc' | null>(null);
+  const [statusFilter, setStatusFilter] = useState<'active' | 'inactive' | 'all'>('active');
+  const [statusDialog, setStatusDialog] = useState<{ mode: UserStatusDialogMode; user: User } | null>(null);
+  const [info, setInfo] = useState<string>('');
   const isLargeScreen = useMediaQuery('(min-width:600px)');
 
   const loadUsers = useCallback(async (): Promise<void> => {
@@ -96,16 +104,39 @@ const UsersPage: React.FC = () => {
     navigate('/login');
   };
 
-  const handleDeleteUser = async (userId: number, userName: string) => {
+  const handleDeleteUser = async (target: User) => {
     if (!token) return;
-    if (window.confirm(`Czy na pewno chcesz usunąć użytkownika "${userName}"?`)) {
-      try {
-        await deleteUser(userId, token);
-        setUsers(prevUsers => prevUsers.filter(user => user.id !== userId));
-      } catch (err: any) {
-        setError(err.message || 'Błąd podczas usuwania użytkownika');
+    setInfo('');
+    try {
+      const assignments = await fetchUserAssignments(target.id, token);
+      if (!assignments.canDelete) {
+        setStatusDialog({ mode: 'blockedDelete', user: target });
+        return;
       }
+      if (window.confirm(`Czy na pewno chcesz usunąć użytkownika "${target.fullName}"?`)) {
+        await deleteUser(target.id, token);
+        setUsers(prevUsers => prevUsers.filter(u => u.id !== target.id));
+      }
+    } catch (err: any) {
+      setError(err.message || 'Błąd podczas usuwania użytkownika');
     }
+  };
+
+  const handleActivate = async (target: User) => {
+    if (!token) return;
+    try {
+      const r = await setUserStatus(target.id, 'active', token);
+      setInfo(r.message);
+      loadUsers();
+    } catch (err: any) {
+      setError(err.message || 'Błąd podczas aktywacji konta');
+    }
+  };
+
+  const handleStatusDialogDone = (message: string) => {
+    setStatusDialog(null);
+    setInfo(message);
+    loadUsers();
   };
 
   const handleResetPassword = async (userId: number) => {
@@ -164,17 +195,20 @@ const UsersPage: React.FC = () => {
   };
 
   const filteredUsers = React.useMemo(() => {
-    if (!searchQuery.trim()) return users;
+    const byStatus = statusFilter === 'all'
+      ? users
+      : users.filter(u => ((u.status || 'active') === 'active') === (statusFilter === 'active'));
+    if (!searchQuery.trim()) return byStatus;
     
     const query = searchQuery.toLowerCase().trim();
-    return users.filter(u => {
+    return byStatus.filter(u => {
       const fullName = u.fullName.toLowerCase();
       const email = u.email.toLowerCase();
       const phone = (u.phone || '').toLowerCase();
       // TODO: add search by role
       return fullName.includes(query) || email.includes(query) || phone.includes(query);
     });
-  }, [users, searchQuery]);
+  }, [users, searchQuery, statusFilter]);
 
   const sortedUsers = React.useMemo(() => {
     if (!sortOrder) return filteredUsers;
@@ -289,7 +323,22 @@ const UsersPage: React.FC = () => {
             </Box>
           </Box>
 
-          <Box className={styles.searchContainer}>
+          <Box className={styles.searchContainer} sx={{ display: 'flex', gap: 2 }}>
+            <TextField
+              select
+              size="medium"
+              label="Status konta"
+              value={statusFilter}
+              onChange={(e) => {
+                setStatusFilter(e.target.value as 'active' | 'inactive' | 'all');
+                setPage(0);
+              }}
+              sx={{ minWidth: 190, backgroundColor: '#fff', borderRadius: '8px' }}
+            >
+              <MenuItem value="active">Aktywne</MenuItem>
+              <MenuItem value="inactive">Nieaktywne</MenuItem>
+              <MenuItem value="all">Wszystkie</MenuItem>
+            </TextField>
             <TextField
               fullWidth
               variant="outlined"
@@ -332,7 +381,8 @@ const UsersPage: React.FC = () => {
             />
           </Box>
 
-                {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+                {error && <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError('')}>{error}</Alert>}
+                {info && <Alert severity="success" sx={{ mb: 2 }} onClose={() => setInfo('')}>{info}</Alert>}
 
                 {loading ? (
                   <Box sx={{ display: 'flex', justifyContent: 'center', my: 4 }}>
@@ -419,6 +469,9 @@ const UsersPage: React.FC = () => {
                                   <CustomTypography fontSize="1em" fontWeight={500}>
                                     {u.fullName}
                                   </CustomTypography>
+                                  {(u.status || 'active') !== 'active' && (
+                                    <Chip label="nieaktywne" size="small" sx={{ ml: 1 }} />
+                                  )}
                                 </Box>
                               </TableCell>
                               <TableCell className={styles.tableCell}>
@@ -470,8 +523,37 @@ const UsersPage: React.FC = () => {
                                     </CustomTypography>
                                   </Box>
               
+                                  {u.role === 'admin' && u.id !== user?.id && (
+                                    (u.status || 'active') === 'active' ? (
+                                      <CustomTypography
+                                        onClick={() => setStatusDialog({ mode: 'deactivate', user: u })}
+                                        className={styles.textActionButton}
+                                        sx={{ fontSize: '0.8125em !important', cursor: 'pointer' }}
+                                      >
+                                        Dezaktywuj
+                                      </CustomTypography>
+                                    ) : (
+                                      <>
+                                        <CustomTypography
+                                          onClick={() => handleActivate(u)}
+                                          className={styles.textActionButton}
+                                          sx={{ fontSize: '0.8125em !important', cursor: 'pointer' }}
+                                        >
+                                          Aktywuj
+                                        </CustomTypography>
+                                        <CustomTypography
+                                          onClick={() => setStatusDialog({ mode: 'reassign', user: u })}
+                                          className={styles.textActionButton}
+                                          sx={{ fontSize: '0.8125em !important', cursor: 'pointer' }}
+                                        >
+                                          Przepisz stoiska
+                                        </CustomTypography>
+                                      </>
+                                    )
+                                  )}
+
                                   <WastebasketIcon 
-                                    onClick={() => handleDeleteUser(u.id, u.fullName)} 
+                                    onClick={() => handleDeleteUser(u)} 
                                     className={styles.noEffectsButton}
                                   />
                                 </Box>
@@ -516,6 +598,16 @@ const UsersPage: React.FC = () => {
         onClose={handleModalClose}
         onUserAdded={handleUserAdded}
         token={token || ''}
+      />
+
+      <UserStatusDialog
+        open={!!statusDialog}
+        mode={statusDialog?.mode || 'deactivate'}
+        user={statusDialog?.user || null}
+        staff={users}
+        token={token || ''}
+        onClose={() => setStatusDialog(null)}
+        onDone={handleStatusDialogDone}
       />
 
       <EditUserModal

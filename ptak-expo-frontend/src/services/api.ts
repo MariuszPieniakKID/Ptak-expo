@@ -8,7 +8,15 @@ export interface User {
   email: string;
   phone?: string;
   role?: string;
+  status?: 'active' | 'inactive' | string;
   avatarUrl?: string | null;
+}
+
+export interface UserAssignments {
+  upcomingStands: number;
+  upcomingByExhibition: { exhibitionId: number; exhibitionName: string; startDate: string | null; stands: number }[];
+  references: { label: string; count: number }[];
+  canDelete: boolean;
 }
 
 export interface ExhibitorPerson {
@@ -147,6 +155,46 @@ export const deleteUser = async (userId: number, token: string): Promise<any> =>
     throw new Error(errorData.error || 'Failed to delete user');
   }
   return response.json();
+};
+
+export const fetchUserAssignments = async (userId: number, token: string): Promise<UserAssignments> => {
+  const response = await apiCall(`${config.API_BASE_URL}/api/v1/users/${userId}/assignments`, {
+    headers: { 'Authorization': `Bearer ${token}` },
+  });
+  const data = await response.json();
+  if (!response.ok) throw new Error(data?.error || 'Błąd podczas sprawdzania powiązań użytkownika');
+  return data.data;
+};
+
+export const setUserStatus = async (
+  userId: number,
+  status: 'active' | 'inactive',
+  token: string,
+  reassignTo?: number | null
+): Promise<{ success: boolean; message: string; data: { reassigned: number } }> => {
+  const response = await apiCall(`${config.API_BASE_URL}/api/v1/users/${userId}/status`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+    body: JSON.stringify({ status, reassignTo: reassignTo || null }),
+  });
+  const data = await response.json();
+  if (!response.ok) throw new Error(data?.error || 'Błąd podczas zmiany statusu użytkownika');
+  return data;
+};
+
+export const reassignUserStands = async (
+  userId: number,
+  toUserId: number,
+  token: string
+): Promise<{ success: boolean; message: string; data: { reassigned: number } }> => {
+  const response = await apiCall(`${config.API_BASE_URL}/api/v1/users/${userId}/reassign-stands`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+    body: JSON.stringify({ toUserId }),
+  });
+  const data = await response.json();
+  if (!response.ok) throw new Error(data?.error || 'Błąd podczas przepisywania stoisk');
+  return data;
 };
 
 export const updateUser = async (userId: number, userData: UpdateUserPayload, token: string): Promise<any> => {

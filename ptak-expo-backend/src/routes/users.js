@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const db = require('../config/database');
 const bcrypt = require('bcryptjs');
-const { verifyToken, requireAdmin } = require('../middleware/auth');
+const { verifyToken, requireAdmin, forgetUserStatus } = require('../middleware/auth');
 const { sendWelcomeEmail, sendPasswordResetEmail, sendExhibitorPasswordResetEmail } = require('../utils/emailService');
 const multer = require('multer');
 const path = require('path');
@@ -122,6 +122,7 @@ router.get('/', verifyToken, requireAdmin, async (req, res) => {
         phone,
         role,
         avatar_url,
+        status,
         created_at,
         updated_at
       FROM users 
@@ -142,6 +143,7 @@ router.get('/', verifyToken, requireAdmin, async (req, res) => {
       email: user.email,
       phone: user.phone || 'Brak numeru',
       role: user.role,
+      status: user.status || 'active',
       avatarUrl: user.avatar_url || null,
       createdAt: user.created_at,
       updatedAt: user.updated_at
@@ -535,90 +537,216 @@ router.put('/:id', verifyToken, requireAdmin, async (req, res) => {
   }
 });
 
-// DELETE /api/v1/users/:id - usuń użytkownika (tylko admin)
-router.delete('/:id', verifyToken, requireAdmin, async (req, res) => {
+// Wszystko, co wskazuje na konto pracownika. Twarde usunięcie zerowałoby te powiązania
+// (stoiska traciłyby opiekuna, historia autora), dlatego takie konto można tylko dezaktywować.
+const USER_REFERENCES = [
+  { label: 'stoiska jako opiekun', sql: 'SELECT COUNT(*)::int AS n FROM exhibitor_events WHERE supervisor_user_id = $1' },
+  { label: 'wpisy w historii', sql: 'SELECT COUNT(*)::int AS n FROM activity_logs WHERE user_id = $1' },
+  { label: 'zatwierdzone pliki brandingu', sql: 'SELECT COUNT(*)::int AS n FROM exhibitor_branding_files WHERE approved_by = $1' },
+  { label: 'dodane dokumenty wystawców', sql: 'SELECT COUNT(*)::int AS n FROM exhibitor_documents WHERE uploaded_by = $1' },
+  { label: 'dokumenty', sql: 'SELECT COUNT(*)::int AS n FROM documents WHERE user_id = $1' },
+  { label: 'komunikaty', sql: 'SELECT COUNT(*)::int AS n FROM communications WHERE user_id = $1 OR created_by = $1' },
+  { label: 'szablony zaproszeń', sql: 'SELECT COUNT(*)::int AS n FROM invitation_templates WHERE created_by = $1' },
+  { label: 'zaproszenia', sql: 'SELECT COUNT(*)::int AS n FROM invitations WHERE exhibitor_id = $1' },
+];
+
+const countReferences = async (client, userId) => {
+  const found = [];
+  for (const ref of USER_REFERENCES) {
+    const r = await client.query(ref.sql, [userId]);
+    if (r.rows[0].n > 0) found.push({ label: ref.label, count: r.rows[0].n });
+  }
+  return found;
+};
+
+const UPCOMING_STANDS_SQL = `
+  SELECT e.id AS exhibition_id, e.name AS exhibition_name, e.start_date, COUNT(*)::int AS stands
+  FROM exhibitor_events ee
+  JOIN exhibitions e ON e.id = ee.exhibition_id
+  WHERE ee.supervisor_user_id = $1 AND (e.end_date IS NULL OR e.end_date >= CURRENT_DATE)
+  GROUP BY e.id, e.name, e.start_date
+  ORDER BY e.start_date NULLS LAST, e.name`;
+
+const countActiveAdmins = async (client, exceptId) => {
+  const r = await client.query(
+    `SELECT COUNT(*)::int AS n FROM users WHERE role = 'admin' AND COALESCE(status, 'active') = 'active' AND id <> $1`,
+    [exceptId]
+  );
+  return r.rows[0].n;
+};
+
+// Przepisuje opiekuna stoisk na nadchodzących targach; zakończone targi zostają przy dotychczasowej osobie.
+const reassignUpcomingStands = async (client, fromId, toId) => {
+  const target = await client.query(
+    `SELECT id FROM users WHERE id = $1 AND role = 'admin' AND COALESCE(status, 'active') = 'active'`,
+    [toId]
+  );
+  if (target.rows.length === 0) {
+    const err = new Error('Nowy opiekun musi być aktywnym pracownikiem');
+    err.status = 400;
+    throw err;
+  }
+  const r = await client.query(
+    `UPDATE exhibitor_events ee SET supervisor_user_id = $2
+     FROM exhibitions e
+     WHERE e.id = ee.exhibition_id AND ee.supervisor_user_id = $1
+       AND (e.end_date IS NULL OR e.end_date >= CURRENT_DATE)`,
+    [fromId, toId]
+  );
+  return r.rowCount;
+};
+
+// GET /api/v1/users/:id/assignments - co jest przypisane do konta (przed dezaktywacją / usunięciem)
+router.get('/:id/assignments', verifyToken, requireAdmin, async (req, res) => {
   const client = await db.pool.connect();
   try {
-    const { id } = req.params;
+    const id = parseInt(req.params.id, 10);
+    const u = await client.query('SELECT id FROM users WHERE id = $1', [id]);
+    if (u.rows.length === 0) {
+      return res.status(404).json({ success: false, error: 'Użytkownik nie został znaleziony' });
+    }
+    const upcoming = await client.query(UPCOMING_STANDS_SQL, [id]);
+    const references = await countReferences(client, id);
+    res.json({
+      success: true,
+      data: {
+        upcomingStands: upcoming.rows.reduce((s, r) => s + r.stands, 0),
+        upcomingByExhibition: upcoming.rows.map((r) => ({
+          exhibitionId: r.exhibition_id,
+          exhibitionName: r.exhibition_name,
+          startDate: r.start_date,
+          stands: r.stands,
+        })),
+        references,
+        canDelete: references.length === 0,
+      },
+    });
+  } catch (error) {
+    console.error('Error fetching user assignments:', error);
+    res.status(500).json({ success: false, error: 'Błąd podczas sprawdzania powiązań użytkownika' });
+  } finally {
+    client.release();
+  }
+});
 
-    // Check if user exists
-    const userQuery = await client.query(
-      'SELECT id, first_name, last_name, email, role FROM users WHERE id = $1',
-      [id]
-    );
-
-    if (userQuery.rows.length === 0) {
-      client.release();
-      return res.status(404).json({
-        success: false,
-        error: 'Użytkownik nie został znaleziony'
-      });
+// PATCH /api/v1/users/:id/status - aktywuj / dezaktywuj konto, opcjonalnie przepisując stoiska
+router.patch('/:id/status', verifyToken, requireAdmin, async (req, res) => {
+  const client = await db.pool.connect();
+  try {
+    const id = parseInt(req.params.id, 10);
+    const status = String(req.body?.status || '');
+    const reassignTo = req.body?.reassignTo ? parseInt(req.body.reassignTo, 10) : null;
+    if (!['active', 'inactive'].includes(status)) {
+      return res.status(400).json({ success: false, error: 'Status musi mieć wartość active lub inactive' });
     }
 
-    const user = userQuery.rows[0];
+    const u = await client.query('SELECT id, first_name, last_name, role, status FROM users WHERE id = $1', [id]);
+    if (u.rows.length === 0) {
+      return res.status(404).json({ success: false, error: 'Użytkownik nie został znaleziony' });
+    }
+    const user = u.rows[0];
+    const fullName = `${user.first_name || ''} ${user.last_name || ''}`.trim();
 
-    // Prevent deletion of the last admin user
-    if (user.role === 'admin') {
-      const adminCountQuery = await client.query(
-        'SELECT COUNT(*) as count FROM users WHERE role = $1',
-        ['admin']
-      );
-
-      const adminCount = parseInt(adminCountQuery.rows[0].count);
-
-      if (adminCount <= 1) {
-        client.release();
-        return res.status(400).json({
-          success: false,
-          error: 'Nie można usunąć ostatniego użytkownika admin'
-        });
+    if (status === 'inactive') {
+      if (Number(req.user.id) === id && req.user.role === 'admin') {
+        return res.status(400).json({ success: false, error: 'Nie możesz dezaktywować własnego konta' });
+      }
+      if (user.role === 'admin' && (await countActiveAdmins(client, id)) === 0) {
+        return res.status(400).json({ success: false, error: 'Nie można dezaktywować ostatniego aktywnego pracownika' });
+      }
+      if (reassignTo && reassignTo === id) {
+        return res.status(400).json({ success: false, error: 'Wybierz innego pracownika jako nowego opiekuna' });
       }
     }
 
     await client.query('BEGIN');
-
-    // Nullify/cleanup FK references to this user to avoid FK violations
-    const cleanupStatements = [
-      { sql: 'UPDATE exhibitor_events SET supervisor_user_id = NULL WHERE supervisor_user_id = $1', params: [id] },
-      { sql: 'UPDATE exhibitor_branding_files SET approved_by = NULL WHERE approved_by = $1', params: [id] },
-      { sql: 'UPDATE exhibitor_documents SET uploaded_by = NULL WHERE uploaded_by = $1', params: [id] },
-      { sql: 'UPDATE documents SET user_id = NULL WHERE user_id = $1', params: [id] },
-      { sql: 'UPDATE communications SET user_id = NULL WHERE user_id = $1', params: [id] },
-      { sql: 'UPDATE invitation_templates SET created_by = NULL WHERE created_by = $1', params: [id] },
-      { sql: 'UPDATE invitations SET exhibitor_id = NULL WHERE exhibitor_id = $1', params: [id] }
-    ];
-
-    for (const stmt of cleanupStatements) {
-      try {
-        await client.query(stmt.sql, stmt.params);
-      } catch (e) {
-        console.warn('[users.delete] FK cleanup warning for query:', stmt.sql, e?.message || e);
-      }
+    let reassigned = 0;
+    if (status === 'inactive' && reassignTo) {
+      reassigned = await reassignUpcomingStands(client, id, reassignTo);
     }
-
-    // Delete user
-    await client.query('DELETE FROM users WHERE id = $1', [id]);
-
+    await client.query('UPDATE users SET status = $2, updated_at = NOW() WHERE id = $1', [id, status]);
     await client.query('COMMIT');
+    forgetUserStatus(id);
 
-    console.log(`User deleted: ${user.first_name} ${user.last_name} (${user.email})`);
-
-    client.release();
+    console.log(`[users] ${status === 'inactive' ? 'Dezaktywowano' : 'Aktywowano'} konto ${fullName} (id ${id}) przez ${req.user.email}${reassigned ? `, przepisano ${reassigned} stoisk na id ${reassignTo}` : ''}`);
     res.json({
       success: true,
-      message: `Użytkownik ${user.first_name} ${user.last_name} został usunięty`
+      message: status === 'inactive'
+        ? `Konto ${fullName} zostało dezaktywowane${reassigned ? `, przepisano stoiska: ${reassigned}` : ''}`
+        : `Konto ${fullName} jest znów aktywne`,
+      data: { id, status, reassigned },
     });
-
   } catch (error) {
     try { await client.query('ROLLBACK'); } catch {}
+    console.error('Error changing user status:', error);
+    res.status(error.status || 500).json({ success: false, error: error.status ? error.message : 'Błąd podczas zmiany statusu użytkownika' });
+  } finally {
     client.release();
-    console.error('Error deleting user:', error);
-    res.status(500).json({
-      success: false,
-      error: 'Błąd podczas usuwania użytkownika',
-      message: error.message
-    });
   }
 });
 
-module.exports = router; 
+// POST /api/v1/users/:id/reassign-stands - przepisz stoiska z nadchodzących targów na innego pracownika
+router.post('/:id/reassign-stands', verifyToken, requireAdmin, async (req, res) => {
+  const client = await db.pool.connect();
+  try {
+    const id = parseInt(req.params.id, 10);
+    const toId = parseInt(req.body?.toUserId, 10);
+    if (!toId || toId === id) {
+      return res.status(400).json({ success: false, error: 'Wybierz innego pracownika jako nowego opiekuna' });
+    }
+    await client.query('BEGIN');
+    const reassigned = await reassignUpcomingStands(client, id, toId);
+    await client.query('COMMIT');
+    res.json({ success: true, message: `Przepisano stoiska: ${reassigned}`, data: { reassigned } });
+  } catch (error) {
+    try { await client.query('ROLLBACK'); } catch {}
+    console.error('Error reassigning stands:', error);
+    res.status(error.status || 500).json({ success: false, error: error.status ? error.message : 'Błąd podczas przepisywania stoisk' });
+  } finally {
+    client.release();
+  }
+});
+
+// DELETE /api/v1/users/:id - usuń użytkownika (tylko admin, tylko konto bez powiązań)
+router.delete('/:id', verifyToken, requireAdmin, async (req, res) => {
+  const client = await db.pool.connect();
+  try {
+    const id = parseInt(req.params.id, 10);
+    const userQuery = await client.query(
+      'SELECT id, first_name, last_name, email, role, status FROM users WHERE id = $1',
+      [id]
+    );
+    if (userQuery.rows.length === 0) {
+      return res.status(404).json({ success: false, error: 'Użytkownik nie został znaleziony' });
+    }
+    const user = userQuery.rows[0];
+
+    if (Number(req.user.id) === id && req.user.role === 'admin') {
+      return res.status(400).json({ success: false, error: 'Nie możesz usunąć własnego konta' });
+    }
+    if (user.role === 'admin' && (user.status || 'active') === 'active' && (await countActiveAdmins(client, id)) === 0) {
+      return res.status(400).json({ success: false, error: 'Nie można usunąć ostatniego aktywnego pracownika' });
+    }
+
+    const references = await countReferences(client, id);
+    if (references.length > 0) {
+      return res.status(409).json({
+        success: false,
+        error: `Tego konta nie można usunąć, bo ma powiązania (${references.map((r) => `${r.label}: ${r.count}`).join(', ')}). Dezaktywuj je zamiast usuwać.`,
+        references,
+      });
+    }
+
+    await client.query('DELETE FROM users WHERE id = $1', [id]);
+    forgetUserStatus(id);
+    console.log(`User deleted: ${user.first_name} ${user.last_name} (${user.email}) przez ${req.user.email}`);
+    res.json({ success: true, message: `Użytkownik ${user.first_name} ${user.last_name} został usunięty` });
+  } catch (error) {
+    console.error('Error deleting user:', error);
+    res.status(500).json({ success: false, error: 'Błąd podczas usuwania użytkownika', message: error.message });
+  } finally {
+    client.release();
+  }
+});
+
+module.exports = router;

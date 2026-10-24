@@ -140,7 +140,7 @@ const AddExhibitorModal: React.FC<AddExhibitorModalProps> = ({
   const exhibitionSupervisorOptions: OptionType[] = useMemo(() => (
     [
       { value: '', label: '' },
-      ...exhibitionSupervisors.map(exh => ({
+      ...exhibitionSupervisors.filter(exh => (exh.status || 'active') === 'active').map(exh => ({
         value: exh.id,
         label: exh.fullName,
         description: `${exh.phone}`,

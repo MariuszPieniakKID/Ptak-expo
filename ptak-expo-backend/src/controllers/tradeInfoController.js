@@ -195,9 +195,9 @@ const getTradeInfo = async (req, res) => {
         if (exhibitorId) {
           const assign = await client.query(
             `SELECT ee.hall_name, ee.stand_number, ee.booth_area, ee.supervisor_user_id,
-                    u.first_name, u.last_name, u.email AS supervisor_email, u.phone AS supervisor_phone
+                    u.id AS supervisor_id, u.first_name, u.last_name, u.email AS supervisor_email, u.phone AS supervisor_phone
              FROM exhibitor_events ee
-             LEFT JOIN users u ON u.id = ee.supervisor_user_id
+             LEFT JOIN users u ON u.id = ee.supervisor_user_id AND COALESCE(u.status, 'active') = 'active'
              WHERE ee.exhibitor_id = $1 AND ee.exhibition_id = $2
              ORDER BY ee.id ASC
              LIMIT 1`,
@@ -209,7 +209,7 @@ const getTradeInfo = async (req, res) => {
               hallName: a.hall_name || null,
               standNumber: a.stand_number || null,
               boothArea: a.booth_area || null,
-              supervisor: a.supervisor_user_id ? {
+              supervisor: a.supervisor_id ? {
                 firstName: a.first_name || '',
                 lastName: a.last_name || '',
                 email: a.supervisor_email || '',

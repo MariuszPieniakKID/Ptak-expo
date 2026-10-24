@@ -345,6 +345,16 @@ router.post('/', verifyToken, requireAdmin, async (req, res) => {
       });
     }
 
+    if (exhibitionSupervisor) {
+      const sup = await db.query('SELECT status FROM users WHERE id = $1', [exhibitionSupervisor]);
+      if (sup.rows.length === 0 || (sup.rows[0].status || 'active') !== 'active') {
+        return res.status(400).json({
+          error: 'Inactive supervisor',
+          message: 'Wybrany opiekun ma nieaktywne konto. Wybierz innego pracownika.'
+        });
+      }
+    }
+
     // NIP nie jest już identyfikatorem konta – firma może mieć kilka kont, a przede wszystkim
     // kilka stoisk na jednym koncie. Powtórzony NIP jest więc dozwolony, ale wymaga świadomej
     // decyzji administratora: bez `allowDuplicateNip` zwracamy listę istniejących kont.
@@ -896,7 +906,7 @@ router.post('/:id/assign-event', verifyToken, requireAdmin, async (req, res) => 
     // Opcjonalnie sprawdź czy supervisor istnieje
     let supervisorRecord = null;
     if (supervisorUserId) {
-      const supCheck = await db.query('SELECT id, first_name, last_name, email FROM users WHERE id = $1', [supervisorUserId]);
+      const supCheck = await db.query('SELECT id, first_name, last_name, email, status FROM users WHERE id = $1', [supervisorUserId]);
       if (supCheck.rows.length === 0) {
         return res.status(400).json({
           success: false,
@@ -904,6 +914,19 @@ router.post('/:id/assign-event', verifyToken, requireAdmin, async (req, res) => 
         });
       }
       supervisorRecord = supCheck.rows[0];
+      // Nieaktywnego opiekuna nie można przypisać na nowo, ale stoisko, które już go ma, da się edytować.
+      if ((supervisorRecord.status || 'active') !== 'active') {
+        const keeps = await db.query(
+          'SELECT 1 FROM exhibitor_events WHERE exhibitor_id = $1 AND exhibition_id = $2 AND supervisor_user_id = $3 LIMIT 1',
+          [id, exhibitionId, supervisorUserId]
+        );
+        if (keeps.rows.length === 0) {
+          return res.status(400).json({
+            success: false,
+            error: 'Wybrany opiekun ma nieaktywne konto. Wybierz innego pracownika.'
+          });
+        }
+      }
     }
 
     // Wystawca może mieć kilka stoisk na tym samym wydarzeniu, więc rozróżniamy trzy sytuacje:
