@@ -57,6 +57,7 @@ const UserStatusDialog: React.FC<Props> = ({ open, mode, user, staff, token, onC
     (s) => s.id !== user.id && s.role === 'admin' && (s.status || 'active') === 'active'
   );
   const upcoming = assignments?.upcomingStands || 0;
+  const alreadyInactive = mode === 'blockedDelete' && (user.status || 'active') !== 'active';
 
   const submit = async () => {
     setSaving(true);
@@ -88,10 +89,11 @@ const UserStatusDialog: React.FC<Props> = ({ open, mode, user, staff, token, onC
           <Alert severity="warning" sx={{ mb: 2 }}>
             Tego konta nie można usunąć, bo ma powiązania:{' '}
             {assignments.references.map((r) => `${r.label} (${r.count})`).join(', ')}. Usunięcie odebrałoby
-            wystawcom opiekuna, a historii autora. Zamiast tego dezaktywuj konto.
+            wystawcom opiekuna, a historii autora.{' '}
+            {alreadyInactive ? 'Konto jest już nieaktywne, więc nic więcej nie trzeba robić.' : 'Zamiast tego dezaktywuj konto.'}
           </Alert>
         )}
-        {mode !== 'reassign' && (
+        {mode !== 'reassign' && !alreadyInactive && (
           <Typography variant="body2" sx={{ mb: 2 }}>
             Konto nieaktywne nie zaloguje się do panelu (zalogowana osoba straci dostęp od razu) i nie będzie
             można go wybrać jako opiekuna. Wystawcy, historia i dokumenty zostają bez zmian. Konto można w każdej
@@ -105,7 +107,7 @@ const UserStatusDialog: React.FC<Props> = ({ open, mode, user, staff, token, onC
           </Box>
         )}
 
-        {assignments && (
+        {assignments && !alreadyInactive && (
           <>
             {upcoming > 0 ? (
               <>
@@ -154,16 +156,16 @@ const UserStatusDialog: React.FC<Props> = ({ open, mode, user, staff, token, onC
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose} disabled={saving}>
-          Anuluj
+          {alreadyInactive ? 'Zamknij' : 'Anuluj'}
         </Button>
-        <Button
+        {!alreadyInactive && <Button
           variant="contained"
           color={mode === 'reassign' ? 'primary' : 'warning'}
           onClick={submit}
           disabled={saving || loading || !assignments || (mode === 'reassign' && !reassignTo)}
         >
           {saving ? 'Zapisywanie…' : mode === 'reassign' ? 'Przepisz stoiska' : 'Dezaktywuj konto'}
-        </Button>
+        </Button>}
       </DialogActions>
     </Dialog>
   );

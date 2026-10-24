@@ -916,9 +916,13 @@ router.post('/:id/assign-event', verifyToken, requireAdmin, async (req, res) => 
       supervisorRecord = supCheck.rows[0];
       // Nieaktywnego opiekuna nie można przypisać na nowo, ale stoisko, które już go ma, da się edytować.
       if ((supervisorRecord.status || 'active') !== 'active') {
-        const keeps = await db.query(
-          'SELECT 1 FROM exhibitor_events WHERE exhibitor_id = $1 AND exhibition_id = $2 AND supervisor_user_id = $3 LIMIT 1',
-          [id, exhibitionId, supervisorUserId]
+        const standId = parseInt(req.body.participationId, 10);
+        const keeps = req.body.additionalStand === true ? { rows: [] } : await db.query(
+          `SELECT 1 FROM exhibitor_events
+           WHERE exhibitor_id = $1 AND exhibition_id = $2 AND supervisor_user_id = $3
+             AND ($4::int IS NULL OR id = $4)
+           LIMIT 1`,
+          [id, exhibitionId, supervisorUserId, Number.isInteger(standId) ? standId : null]
         );
         if (keeps.rows.length === 0) {
           return res.status(400).json({

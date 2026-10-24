@@ -601,7 +601,7 @@ router.get('/:id/assignments', verifyToken, requireAdmin, async (req, res) => {
   const client = await db.pool.connect();
   try {
     const id = parseInt(req.params.id, 10);
-    const u = await client.query('SELECT id FROM users WHERE id = $1', [id]);
+    const u = await client.query('SELECT id, role FROM users WHERE id = $1', [id]);
     if (u.rows.length === 0) {
       return res.status(404).json({ success: false, error: 'Użytkownik nie został znaleziony' });
     }
@@ -618,7 +618,7 @@ router.get('/:id/assignments', verifyToken, requireAdmin, async (req, res) => {
           stands: r.stands,
         })),
         references,
-        canDelete: references.length === 0,
+        canDelete: u.rows[0].role !== 'admin' || references.length === 0,
       },
     });
   } catch (error) {
@@ -728,20 +728,39 @@ router.delete('/:id', verifyToken, requireAdmin, async (req, res) => {
       return res.status(400).json({ success: false, error: 'Nie można usunąć ostatniego aktywnego pracownika' });
     }
 
-    const references = await countReferences(client, id);
-    if (references.length > 0) {
-      return res.status(409).json({
-        success: false,
-        error: `Tego konta nie można usunąć, bo ma powiązania (${references.map((r) => `${r.label}: ${r.count}`).join(', ')}). Dezaktywuj je zamiast usuwać.`,
-        references,
-      });
+    // Konta wystawców (rola exhibitor) nie mają dezaktywacji, więc usuwamy je jak dotąd, odpinając powiązania.
+    if (user.role === 'admin') {
+      const references = await countReferences(client, id);
+      if (references.length > 0) {
+        return res.status(409).json({
+          success: false,
+          error: `Tego konta nie można usunąć, bo ma powiązania (${references.map((r) => `${r.label}: ${r.count}`).join(', ')}). Dezaktywuj je zamiast usuwać.`,
+          references,
+        });
+      }
     }
 
+    await client.query('BEGIN');
+    for (const sql of [
+      'UPDATE exhibitor_events SET supervisor_user_id = NULL WHERE supervisor_user_id = $1',
+      'UPDATE activity_logs SET user_id = NULL WHERE user_id = $1',
+      'UPDATE exhibitor_branding_files SET approved_by = NULL WHERE approved_by = $1',
+      'UPDATE exhibitor_documents SET uploaded_by = NULL WHERE uploaded_by = $1',
+      'UPDATE documents SET user_id = NULL WHERE user_id = $1',
+      'UPDATE communications SET user_id = NULL WHERE user_id = $1',
+      'UPDATE communications SET created_by = NULL WHERE created_by = $1',
+      'UPDATE invitation_templates SET created_by = NULL WHERE created_by = $1',
+      'UPDATE invitations SET exhibitor_id = NULL WHERE exhibitor_id = $1',
+    ]) {
+      await client.query(sql, [id]);
+    }
     await client.query('DELETE FROM users WHERE id = $1', [id]);
+    await client.query('COMMIT');
     forgetUserStatus(id);
     console.log(`User deleted: ${user.first_name} ${user.last_name} (${user.email}) przez ${req.user.email}`);
     res.json({ success: true, message: `Użytkownik ${user.first_name} ${user.last_name} został usunięty` });
   } catch (error) {
+    try { await client.query('ROLLBACK'); } catch {}
     console.error('Error deleting user:', error);
     res.status(500).json({ success: false, error: 'Błąd podczas usuwania użytkownika', message: error.message });
   } finally {
